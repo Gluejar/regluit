@@ -241,7 +241,7 @@ If you're an author, publisher, or other rights holder, you can participate more
 	    <li>Use the Claim option on the More... tab of each book's page.</li>
 	    <li>Agree to our <a href="{% url 'terms' %}">Terms</a> on the following page.  This includes agreeing that you are making the claim in good faith and can substantiate that you have legal control over worldwide electronic rights to the work.</li>
 	    <li>If you have any questions or you claim a work by mistake, <a href="mailto:rights@gluejar.com?subject=claiming%20works">email us</a>.</li>
-	    <li>We will review your claim.  We may contact you at {{ request.user.email }} if we have any questions.  If this is the wrong email address, please <a href="{% url 'regluit.frontend.views.edit_user' %}">change the email address</a> for your account.</li>
+	    <li>We will review your claim.  We may contact you at {{ request.user.email }} if we have any questions.  If this is the wrong email address, please <a href="{% url 'edit_user' %}">change the email address</a> for your account.</li>
 	</ul>
 	<p><b>Entering a work</b></p>
 	<p>If your book is not in Google books, you'll need to enter the metadata yourself.</p>

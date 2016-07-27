@@ -4,7 +4,7 @@ from django.core.urlresolvers import reverse
 from django.views.generic.base import TemplateView
 from django.contrib.auth.decorators import login_required
 from . import views, models, forms
-from .views import superlogin, CustomRegistrationView
+from .views import superlogin
 
 # class to reproduce django 1.4 funtionality
 class ExtraContextTemplateView(TemplateView):
@@ -19,8 +19,7 @@ class ExtraContextTemplateView(TemplateView):
                     context[key] = value
         return context
 
-urlpatterns = patterns(
-    "",
+urlpatterns = [
     url(r"^libraryauth/(?P<library_id>\d+)/join/$", views.join_library, name="join_library"),
     url(r"^libraryauth/(?P<library_id>\d+)/deny/$", TemplateView.as_view(template_name='libraryauth/denied.html'),  name="bad_library"),
     url(r"^libraryauth/(?P<library_id>\d+)/users/$", views.library, {'template':'libraryauth/users.html'}, name="library_users"),
@@ -35,23 +34,23 @@ urlpatterns = patterns(
                 template_name='libraryauth/list.html', 
                 extra_context={'libraries_to_show':'new'}
             ), name="new_libraries"),
-    url(r'^accounts/register/$', CustomRegistrationView.as_view(), name='registration_register'),
+    url(r'^accounts/register/$', views.CustomRegistrationView.as_view(), name='registration_register'),
     url(r'^accounts/superlogin/$', views.superlogin, name='superlogin'),
     url(r"^accounts/superlogin/welcome/$", ExtraContextTemplateView.as_view(
             template_name='registration/welcome.html',
             extra_context={'suppress_search_box': True,} 
         ) ), 
-    url(r'^accounts/login/pledge/$',superlogin,
+    url(r'^accounts/login/pledge/$', superlogin,
           {'template_name': 'registration/from_pledge.html'}),
-    url(r'^accounts/login/purchase/$',superlogin,
+    url(r'^accounts/login/purchase/$', superlogin,
           {'template_name': 'registration/from_purchase.html'}),
-    url(r'^accounts/login/add/$',superlogin,
+    url(r'^accounts/login/add/$', superlogin,
           {'template_name': 'registration/from_add.html'}),
-    url(r'^accounts/activate/complete/$',superlogin,
+    url(r'^accounts/activate/complete/$', superlogin,
           {'template_name': 'registration/activation_complete.html'}),
-    url(r'^accounts/login-error/$',superlogin,
+    url(r'^accounts/login-error/$', superlogin,
           {'template_name': 'registration/from_error.html'}),
-    url(r'^accounts/edit/$', 'regluit.frontend.views.edit_user'),
+    url(r'^accounts/edit/$', views.edit_user, name="edit_user"),
     url(r"^accounts/login/welcome/$", ExtraContextTemplateView.as_view(
             template_name='registration/welcome.html',
             extra_context={'suppress_search_box': True,} 
@@ -60,4 +59,4 @@ urlpatterns = patterns(
     url('accounts/', include('email_change.urls')),
     url(r'^accounts/', include('registration.backends.model_activation.urls')),
     url(r'^accounts/', include('django.contrib.auth.urls')),
-)
+]

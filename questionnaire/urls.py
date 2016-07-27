@@ -4,8 +4,7 @@ from django.conf.urls import *
 from .views import *
 from .page.views import page, langpage
 
-urlpatterns = patterns(
-    '',
+urlpatterns = [
     url(r'^$',
         questionnaire, name='questionnaire_noargs'),
     url(r'^csv/(?P<qid>\d+)/$',
@@ -22,23 +21,21 @@ urlpatterns = patterns(
             questionnaire, name='questionset'),
     url(r'^q/manage/csv/(\d+)/',
         export_csv, name="export_csv"),
-)
+]
 
 if not use_session:
-    urlpatterns += patterns(
-        '',
+    urlpatterns += [
         url(r'^(?P<runcode>[^/]+)/$',
             questionnaire, name='questionnaire'),
         url(r'^(?P<runcode>[^/]+)/(?P<qs>[-]{0,1}\d+)/prev/$',
             redirect_to_prev_questionnaire,
             name='redirect_to_prev_questionnaire'),
-    )
+    ]
 else:
-    urlpatterns += patterns(
-        '',
+    urlpatterns += [
         url(r'^$',
             questionnaire, name='questionnaire'),
         url(r'^prev/$',
             redirect_to_prev_questionnaire,
             name='redirect_to_prev_questionnaire')
-    )
+    ]

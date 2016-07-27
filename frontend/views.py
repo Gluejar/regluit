@@ -84,7 +84,6 @@ from regluit.core.parameters import *
 from regluit.core.facets import get_facet_object, get_order_by
 
 from regluit.frontend.forms import (
-    UserData,
     ProfileForm,
     CampaignPledgeForm,
     CampaignPurchaseForm,
@@ -118,7 +117,6 @@ from regluit.frontend.forms import (
     KindleEmailForm,
     LibModeForm,
     DateCalculatorForm,
-    UserNamePass,
     RegiftForm,
     SubjectSelectForm,
     MapSubjectForm,
@@ -146,6 +144,7 @@ from regluit.payment.parameters import (
 
 from regluit.utils.localdatetime import now, date_today
 from regluit.pyepub import InvalidEpub
+from regluit.libraryauth.forms import UserNamePass
 from regluit.libraryauth.views import Authenticator, superlogin, login_user
 from regluit.libraryauth.models import Library
 from regluit.marc.views import qs_marc_records
@@ -2134,24 +2133,6 @@ def library(request,library_name):
     return supporter(request,library_name,template_name='libraryauth/library.html', extra_context=context)
                 
     
-
-def edit_user(request, redirect_to=None):
-    if not request.user.is_authenticated():
-        return HttpResponseRedirect(reverse('superlogin'))    
-    form=UserData()
-    if request.method == 'POST': 
-        if 'change_username' in request.POST.keys():
-            form = UserData(request.POST)
-            form.oldusername = request.user.username
-            if form.is_valid(): # All validation rules pass, go and change the username
-                request.user.username=form.cleaned_data['username']
-                request.user.save()
-                if 'set_password'  in request.POST.keys() and form.cleaned_data.has_key('set_password'):
-                    if not request.user.has_usable_password():
-                        request.user.set_password(form.cleaned_data['set_password'])
-                request.user.save()
-                return HttpResponseRedirect(redirect_to if redirect_to else reverse('home')) # Redirect after POST
-    return render(request,'registration/user_change_form.html', {'form': form})  
 
 class ManageAccount(FormView):
     template_name="manage_account.html"

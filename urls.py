@@ -1,4 +1,5 @@
 from django.conf.urls import patterns, url, include
+from django.contrib.sitemaps.views import index, sitemap
 
 from frontend.views import social_auth_reset_password
 from regluit.admin import site
@@ -9,7 +10,7 @@ sitemaps = {
         'publishers': PublisherSitemap,
     }
 
-urlpatterns = patterns('',
+urlpatterns = [
     url(r'^socialauth/reset_password/$', social_auth_reset_password, name="social_auth_reset_password"),
     url(r'^api/', include('regluit.api.urls')),
     url(r'', include('regluit.frontend.urls')),
@@ -24,10 +25,7 @@ urlpatterns = patterns('',
     url(r'^ckeditor/', include('ckeditor.urls')),
     # questionnaire urls
     url(r'^survey/', include('regluit.questionnaire.urls')),
-
-)
-
-urlpatterns += patterns('django.contrib.sitemaps.views',
-    (r'^sitemap\.xml$', 'index', {'sitemaps': sitemaps}),
-    (r'^sitemap-(?P<section>.+)\.xml$', 'sitemap', {'sitemaps': sitemaps}),
-)
+    # sitemaps
+    url(r'^sitemap\.xml$', index, {'sitemaps': sitemaps}),
+    url(r'^sitemap-(?P<section>.+)\.xml$', sitemap, {'sitemaps': sitemaps}),
+]
