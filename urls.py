@@ -26,6 +26,7 @@ urlpatterns = [
     # questionnaire urls
     url(r'^survey/', include('regluit.questionnaire.urls')),
     # sitemaps
-    url(r'^sitemap\.xml$', index, {'sitemaps': sitemaps}),
+    url(r'^sitemap\.xml$', index, {'sitemaps': sitemaps},
+        name='django.contrib.sitemaps.views.sitemap'),
     url(r'^sitemap-(?P<section>.+)\.xml$', sitemap, {'sitemaps': sitemaps}),
 ]
