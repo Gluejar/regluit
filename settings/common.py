@@ -1,5 +1,6 @@
 import datetime
 import mimetypes
+import sys
 from os.path import dirname, realpath, join
 
 import regluit
@@ -12,6 +13,7 @@ LANGUAGES = (
     ('en', 'English'),
 )
 LOCAL_TEST = False
+TESTING = sys.argv[1:2] == ['test'] # detect if we're running tests (used to turn off a repair migration)
 ALLOWED_HOSTS = ['.unglue.it', '.unglueit.com',]
 
 WISHED_LANGS = ('en','fr','es','de','el','pt','it','ru','cs','ja','zh','nl','ut','ar','la','id','ca','fa','sv','sl','ko','tr')
