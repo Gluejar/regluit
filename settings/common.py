@@ -129,7 +129,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'maintenancemode.middleware.MaintenanceModeMiddleware',
-    'regluit.core.auth.SocialAuthExceptionMiddlewareWithoutMessages',
+    'regluit.libraryauth.auth.SocialAuthExceptionMiddlewareWithoutMessages',
     'django.middleware.locale.LocaleMiddleware',
     'regluit.questionnaire.request_cache.RequestCacheMiddleware',
 )
@@ -269,14 +269,14 @@ SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.social_auth.auth_allowed',
 
     # Checks if the current social-account is already associated in the site.
-    'regluit.core.auth.selective_social_user',
+    'regluit.libraryauth.auth.selective_social_user',
 
     # Make up a username for this person, appends a random string at the end if
     # there's any collision.
     'social.pipeline.user.get_username',
     
     # make username < 222 in length
-    'regluit.core.auth.chop_username',
+    'regluit.libraryauth.auth.chop_username',
     
     # Send a validation email to the user to verify its email address.
     # Disabled by default.
@@ -284,7 +284,7 @@ SOCIAL_AUTH_PIPELINE = (
     
     # Associates the current social details with another user account with
     # a similar email address. don't use twitter or facebook to log in
-    'regluit.core.auth.selectively_associate_by_email',
+    'regluit.libraryauth.auth.selectively_associate_by_email',
 
     # Create a user account if we haven't found one yet.
     'social.pipeline.user.create_user',
@@ -297,7 +297,7 @@ SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.social_auth.load_extra_data',
 
     # add extra data to user profile
-    'regluit.core.auth.deliver_extra_data',
+    'regluit.libraryauth.auth.deliver_extra_data',
 
     # Update the user record with any changed info from the auth service.
     'social.pipeline.user.user_details'

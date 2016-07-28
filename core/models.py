@@ -40,6 +40,7 @@ from django.utils.translation import ugettext_lazy as _
 regluit imports
 '''
 import regluit
+from regluit.libraryauth.auth import AVATARS
 import regluit.core.isbn
 import regluit.core.cc as cc
 from regluit.core.epub import personalize, ungluify, test_epub, ask_epub
@@ -2234,7 +2235,7 @@ def pledger2():
 pledger2.instance=None
 
 ANONYMOUS_AVATAR = '/static/images/header/avatar.png'
-(NO_AVATAR, GRAVATAR, TWITTER, FACEBOOK, UNGLUEITAR) = (0, 1, 2, 3, 4)
+(NO_AVATAR, GRAVATAR, TWITTER, FACEBOOK, UNGLUEITAR) = AVATARS
 
 class Libpref(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='libpref')

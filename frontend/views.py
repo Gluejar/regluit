@@ -323,14 +323,6 @@ def stub(request):
 def acks(request, work):
     return render(request,'front_matter.html', {'campaign': work.last_campaign()})
     
-
-@login_required
-def social_auth_reset_password(request):
-    if not request.user.has_usable_password():
-        request.user.set_password('%010x' % random.randrange(16**10))
-        request.user.save()
-    return password_reset(request)
-    
 def work(request, work_id, action='display'):
     work = safe_get_work(work_id)
     alert=''

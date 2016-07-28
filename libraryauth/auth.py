@@ -10,8 +10,9 @@ from social.apps.django_app.middleware import SocialAuthExceptionMiddleware
 from social.exceptions import (AuthAlreadyAssociated,SocialAuthBaseException)
 from social.utils import social_logger
 
-from regluit.core.models import TWITTER, FACEBOOK, UNGLUEITAR
-
+ANONYMOUS_AVATAR = '/static/images/header/avatar.png'
+(NO_AVATAR, GRAVATAR, TWITTER, FACEBOOK, PRIVATETAR) = (0, 1, 2, 3, 4)
+AVATARS = (NO_AVATAR, GRAVATAR, TWITTER, FACEBOOK, PRIVATETAR)
 logger = logging.getLogger(__name__)
 
 
@@ -33,7 +34,7 @@ def facebook_extra_values( user,  extra_data):
     try:
         facebook_id = extra_data.get('id')
         user.profile.facebook_id = facebook_id
-        if user.profile.avatar_source is None or user.profile.avatar_source is UNGLUEITAR:
+        if user.profile.avatar_source is None or user.profile.avatar_source is PRIVATETAR:
             user.profile.avatar_source = FACEBOOK
         user.profile.save()
         return True
@@ -46,9 +47,9 @@ def twitter_extra_values( user, extra_data):
         twitter_id = extra_data.get('screen_name')
         profile_image_url = extra_data.get('profile_image_url_https')
         user.profile.twitter_id = twitter_id
-        if user.profile.avatar_source is None or user.profile.avatar_source in (TWITTER, UNGLUEITAR):
+        if user.profile.avatar_source is None or user.profile.avatar_source in (TWITTER, PRIVATETAR):
             user.profile.pic_url = profile_image_url
-        if user.profile.avatar_source is None or user.profile.avatar_source is UNGLUEITAR:
+        if user.profile.avatar_source is None or user.profile.avatar_source is PRIVATETAR:
             user.profile.avatar_source = TWITTER
         user.profile.save()
         return True

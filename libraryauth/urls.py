@@ -55,6 +55,7 @@ urlpatterns = [
             template_name='registration/welcome.html',
             extra_context={'suppress_search_box': True,} 
         ) ), 
+    url(r'^socialauth/reset_password/$', views.social_auth_reset_password, name="social_auth_reset_password"),
     url(r'^socialauth/', include('social.apps.django_app.urls', namespace='social')),
     url('accounts/', include('email_change.urls')),
     url(r'^accounts/', include('registration.backends.model_activation.urls')),
