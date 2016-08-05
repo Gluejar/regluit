@@ -28,12 +28,14 @@ from regluit.questionnaire.models import Landing
 import regluit.core.cc as cc
 from regluit.core.epub import test_epub
 from regluit.core.parameters import (
+    AGE_LEVEL_CHOICES,
     BORROWED,
     BUY2UNGLUE,
     INDIVIDUAL,
     LIBRARY,
     OFFER_CHOICES,
     TESTING,
+    TEXT_RELATION_CHOICES,
     THANKED,
     THANKS,
 )
@@ -42,7 +44,7 @@ logger = logging.getLogger(__name__)
 
 
 class Identifier(models.Model):
-    # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib, gute, glue
+    # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib, gute, glue, buy, doi
     type = models.CharField(max_length=4, null=False)
     value = models.CharField(max_length=250, null=False)
     work = models.ForeignKey("Work", related_name="identifiers", null=False)
@@ -94,6 +96,8 @@ class Work(models.Model):
     featured = models.DateTimeField(null=True, blank=True, db_index=True,)
     is_free = models.BooleanField(default=False)
     landings = GenericRelation(Landing)
+    related = models.ManyToManyField('self', symmetrical=False, null=True, through='WorkRelation')
+    age_level = models.CharField(max_length=5, choices=AGE_LEVEL_CHOICES, default='') 
 
     class Meta:
         ordering = ['title']
@@ -674,6 +678,10 @@ class Work(models.Model):
                 break
         return record_list
 
+class WorkRelation(models.Model):
+    to_work = models.ForeignKey('Work', related_name='works_related_to')
+    from_work= models.ForeignKey('Work', related_name='works_related_from')
+    relation = models.CharField(max_length=15, choices=TEXT_RELATION_CHOICES)
 
 
 class Author(models.Model):
@@ -755,6 +763,7 @@ class Edition(models.Model):
     work = models.ForeignKey("Work", related_name="editions", null=True)
     cover_image = models.URLField(null=True, blank=True)
     unglued = models.BooleanField(default=False)
+    note = models.CharField(max_length=64, null=True)
 
     def __unicode__(self):
         if self.isbn_13:
@@ -979,14 +988,12 @@ def safe_get_work(work_id):
         raise Work.DoesNotExist()
     return work
 
-FORMAT_CHOICES = (('pdf', 'PDF'), ('epub', 'EPUB'), ('html', 'HTML'), ('text', 'TEXT'), ('mobi', 'MOBI'))
-
 def path_for_file(instance, filename):
     return "ebf/{}.{}".format(uuid.uuid4().get_hex(), instance.format)
 
 class EbookFile(models.Model):
     file = models.FileField(upload_to=path_for_file)
-    format = models.CharField(max_length=25, choices=FORMAT_CHOICES)
+    format = models.CharField(max_length=25, choices=settings.FORMATS)
     edition = models.ForeignKey('Edition', related_name='ebook_files')
     created = models.DateTimeField(auto_now_add=True)
     asking = models.BooleanField(default=False)
@@ -1006,19 +1013,17 @@ class EbookFile(models.Model):
 send_to_kindle_limit = 7492232
 
 class Ebook(models.Model):
-    FORMAT_CHOICES = settings.FORMATS
-    RIGHTS_CHOICES = cc.CHOICES
     url = models.URLField(max_length=1024) #change to unique?
     created = models.DateTimeField(auto_now_add=True, db_index=True,)
-    format = models.CharField(max_length=25, choices=FORMAT_CHOICES)
+    format = models.CharField(max_length=25, choices=settings.FORMATS)
     provider = models.CharField(max_length=255)
     download_count = models.IntegerField(default=0)
     active = models.BooleanField(default=True)
     filesize = models.PositiveIntegerField(null=True)
-    version = None #placeholder
+    version = models.CharField(max_length=255, null=True)
 
     # use 'PD-US', 'CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA', 'CC0'
-    rights = models.CharField(max_length=255, null=True, choices=RIGHTS_CHOICES, db_index=True)
+    rights = models.CharField(max_length=255, null=True, choices=cc.CHOICES, db_index=True)
     edition = models.ForeignKey('Edition', related_name='ebooks')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
 
