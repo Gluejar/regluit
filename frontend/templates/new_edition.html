@@ -93,7 +93,7 @@ ul.fancytree-container {
     <h2>Create New Edition</h2>
     {% endif %}
 
-<p>Title and ISBN 13 are required; the rest is optional, though a cover image is strongly recommended.</p>
+<p>Title and ISBN 13 (or DOI, OCLCNum or URL) are required; the rest is optional, though a cover image is strongly recommended.</p>
 <form id="editform" enctype="multipart/form-data" method="POST" action="#">
 	{% csrf_token %}
 	{{ form.work }}
@@ -130,9 +130,8 @@ ul.fancytree-container {
 		<p><b>Google Books ID</b>: {{ form.goog.errors }}{{ form.goog }}</p>
 		<p><b>GoodReads ID</b>: {{ form.gdrd.errors }}{{ form.gdrd }}</p>
 		<p><b>LibraryThing ID</b>: {{ form.thng.errors }}{{ form.thng }}</p>
-		{% if request.user.is_staff %}
-		<p><b>HTTP ID</b>: {{ form.http.errors }}{{ form.http }}</p>
-        {% endif %}
+		<p><b>DOI</b>: {{ form.doi.errors }}{{ form.doi }}</p>
+		<p><b>HTTP(S) ID</b>: {{ form.http.errors }}{{ form.http }}</p>
 		<p><b>Description</b>: <br />
 		{{ form.description.errors }}{{ form.description }}<br />
 		(<i>{% if work.last_campaign %}
@@ -175,7 +174,7 @@ ul.fancytree-container {
 		[ no cover specified for this edition ]<br />
 		{% endif %}
 		{{ form.cover_image.errors }}{{ form.cover_image }}{{ form.cover_image.help_text }}
-		(<i>Enter a URL for an image, ideally 120px wide. </i>)<br />
+		(<i>Enter a URL for an image, at least 300 px wide. The image will be scaled to the proportions of a 6x9 cover. </i>)<br />
 		OR...<br />
 		
 		{{ form.coverfile.errors }}{{ form.coverfile }}{{ form.coverfile.help_text }}

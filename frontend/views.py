@@ -549,6 +549,7 @@ def new_edition(request, work_id, edition_id, by=None):
             'gdrd': edition.goodreads_id,
             'thng': edition.librarything_id,
             'http': edition.http_id,
+            'doi': edition.id_for('doi'),
             }
     if request.method == 'POST' :
         form = None
@@ -572,6 +573,7 @@ def new_edition(request, work_id, edition_id, by=None):
         elif not form  and admin:
             form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
             if form.is_valid():
+                print 'form is valid'
                 form.save()
                 if not work:
                     work= models.Work(title=form.cleaned_data['title'],language=form.cleaned_data['language'],description=form.cleaned_data['description'])
@@ -586,7 +588,7 @@ def new_edition(request, work_id, edition_id, by=None):
                     work.save()
                 
                 id_msg=""
-                for id_type in ('isbn', 'oclc', 'goog', 'thng', 'gdrd', 'http'):
+                for id_type in ('isbn', 'oclc', 'goog', 'thng', 'gdrd', 'http', 'doi'):
                     id_val = form.cleaned_data[id_type]
                     if id_val=='delete':
                         edition.identifiers.filter(type=id_type).delete()

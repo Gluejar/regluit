@@ -189,6 +189,15 @@ class EditionForm(forms.ModelForm):
             'invalid': _("This value must be a valid http(s) URL."),
         }
     )
+    doi = forms.RegexField(
+        label=_("DOI"), 
+        regex=r'^(https?://dx\.doi\.org/)?(10.\d\d\d\d/\w+|delete)$',
+        required = False,
+        help_text = _("starts with '10.' or 'http://dx.doi.org'"),
+        error_messages = {
+            'invalid': _("This value must be a valid DOI."),
+        }
+    )
     language = forms.ChoiceField(choices=LANGUAGES)
     description = forms.CharField( required=False, widget=CKEditorWidget())
     coverfile = forms.ImageField(required=False)
@@ -201,13 +210,23 @@ class EditionForm(forms.ModelForm):
                 select = forms.Select(choices=CREATOR_RELATIONS).render('change_relator_%s' % relator.id , relator.relation.code )
                 self.relators.append({'relator':relator,'select':select})
     
+    def clean_doi(self):
+        doi = self.cleaned_data["doi"]
+        if doi:
+            if doi.startswith("https"):
+                return doi[19:]
+            elif doi.startswith("http"):
+                return doi[18:]
+        return doi
+    
     def clean(self):
         has_isbn = self.cleaned_data.get("isbn", False) not in nulls
         has_oclc = self.cleaned_data.get("oclc", False) not in nulls
         has_goog = self.cleaned_data.get("goog", False) not in nulls
         has_http = self.cleaned_data.get("http", False) not in nulls
-        if not has_isbn and not has_oclc  and not has_goog and not has_http:
-            raise forms.ValidationError(_("There must be either an ISBN or an OCLC number."))
+        has_doi = self.cleaned_data.get("doi", False) not in nulls
+        if not has_isbn and not has_oclc  and not has_goog and not has_http and not has_doi:
+            raise forms.ValidationError(_("There must be either an ISBN, a DOI, a URL or an OCLC number."))
         return self.cleaned_data
     
     class Meta:

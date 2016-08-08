@@ -44,7 +44,7 @@ logger = logging.getLogger(__name__)
 
 
 class Identifier(models.Model):
-    # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, olib, gute, glue, buy, doi
+    # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, doab, gute, glue, doi
     type = models.CharField(max_length=4, null=False)
     value = models.CharField(max_length=250, null=False)
     work = models.ForeignKey("Work", related_name="identifiers", null=False)
@@ -763,7 +763,7 @@ class Edition(models.Model):
     work = models.ForeignKey("Work", related_name="editions", null=True)
     cover_image = models.URLField(null=True, blank=True)
     unglued = models.BooleanField(default=False)
-    note = models.CharField(max_length=64, null=True)
+    note = models.CharField(max_length=64, null=True, blank=True)
 
     def __unicode__(self):
         if self.isbn_13:
@@ -857,6 +857,10 @@ class Edition(models.Model):
     @property
     def oclc(self):
         return self.id_for('oclc')
+
+    @property
+    def doi(self):
+        return self.id_for('doi')
 
     @property
     def goodreads_id(self):
