@@ -15,7 +15,12 @@ AGE_LEVEL_CHOICES = (
     ('15-18', 'Teen - Grade 10-12, Age 15-18'),
     ('18-', 'Adult/Advanced Reader')
 )
-TEXT_RELATION_CHOICES = (('translation', ''), ('revision', ''), ('sequel', ''), ('compilation', ''))
+TEXT_RELATION_CHOICES = (
+    ('translation', 'translation'),
+    ('revision', 'revision'),
+    ('sequel', 'sequel'),
+    ('compilation', 'compilation')
+)
 
 
 

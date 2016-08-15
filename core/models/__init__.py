@@ -73,20 +73,21 @@ from regluit.core.signals import (
 watermarker = BooXtream()
 
 from .bibmodels import (
-    Work,
+    Author,
+    Ebook,
+    EbookFile,
     Edition,
     Identifier,
-    Author,
-    Relation,
-    Relator,
-    Subject,
+    path_for_file,
     Publisher,
     PublisherName,
-    WasWork,
-    EbookFile,
-    Ebook,
-    path_for_file,
+    Relation,
+    Relator,
     safe_get_work,
+    Subject,
+    WasWork,
+    Work,
+    WorkRelation,
 )
 
 pm = PostMonkey(settings.MAILCHIMP_API_KEY)

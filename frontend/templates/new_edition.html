@@ -98,6 +98,7 @@ ul.fancytree-container {
 	{% csrf_token %}
 	{{ form.work }}
 	{{ form.non_field_errors }}
+	<!--{{ form.errors }}-->
 	<div> 
 		<p><b>Title</b>: {{ form.title.errors }}{{ form.title }}</p>
 		<p><b>Publisher Name</b> : {{ form.publisher_name.errors }}{{ form.publisher_name }}<br />(If you change this, click another form element before submitting)</p>
@@ -122,6 +123,23 @@ ul.fancytree-container {
 		<input type="submit" name="add_author_submit" value="Add Author" id="submit_author"></p>
 
 		<p><b>Language</b>: {{ form.language.errors }}{{ form.language }}</p>
+		{% if edition.pk %}
+		<p><b>Add a Related Work</b>: {{ form.add_work_relation.errors }}{{ form.add_work_relation }} of {{ form.add_related_work.errors }}{{ form.add_related_work }}</p>
+            <ul>{% for work_rel in edition.work.works_related_to.all %}
+            <li>
+            This work is a {{ work_rel.relation }} of <a href="{% url 'work' work_rel.from_work.id %}">{{ work_rel.from_work }}</a>.
+            <input type="submit" name="delete_work_rel_{{ work_rel.id }}" value="x"  class="deletebutton" title="delete work relation">
+            </li>
+            {% endfor %}
+            {% for work_rel in edition.work.works_related_from.all %}
+            <li>
+            <a href="{% url 'work' work_rel.to_work.id %}">{{ work_rel.to_work }}</a> is a {{ work_rel.relation }} of this work.
+            <input type="submit" name="delete_work_rel_{{ work_rel.id }}" value="x"  class="deletebutton" title="delete work relation">
+            </li>
+            {% endfor %}</ul>
+        
+        
+        {% endif %}
 		<p><b>Age Level</b>: {{ form.age_level.errors }}{{ form.age_level }}</p>
         <h4> Identifiers </h4>
         {% if id_msg %} <span class="errorlist">{{ id_msg }} </span>{% endif %}

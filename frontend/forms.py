@@ -49,7 +49,14 @@ from regluit.core.models import (
     UNGLUEITAR
 )
 from regluit.libraryauth.models import Library
-from regluit.core.parameters import LIBRARY, REWARDS, BUY2UNGLUE, THANKS, AGE_LEVEL_CHOICES
+from regluit.core.parameters import (
+    LIBRARY,
+    REWARDS,
+    BUY2UNGLUE,
+    THANKS,
+    AGE_LEVEL_CHOICES,
+    TEXT_RELATION_CHOICES,
+)
 from regluit.core.lookups import (
     OwnerLookup,
     WorkLookup,
@@ -105,20 +112,32 @@ class EditionForm(forms.ModelForm):
     add_author = forms.CharField(max_length=500, required=False)
     add_author_relation = forms.ChoiceField(choices=CREATOR_RELATIONS, initial=('aut', 'Author'))
     add_subject = AutoCompleteSelectField(
-            SubjectLookup,
-            widget=AutoCompleteSelectWidget(SubjectLookup,allow_new=True),
-            label='Keyword',
-            required =False
+        SubjectLookup,
+        widget=AutoCompleteSelectWidget(SubjectLookup, allow_new=True),
+        label='Keyword',
+        required=False,
         )
+    add_related_work =  AutoCompleteSelectField(
+        WorkLookup,
+        widget=AutoCompleteSelectWidget(WorkLookup, allow_new=False, attrs={'size': 40}),
+        label='Related Work',
+        required=False,
+    )
+    add_work_relation = forms.ChoiceField(
+        choices=TEXT_RELATION_CHOICES,
+        initial=('translation', 'translation'),
+        required=False,
+    )
+
     bisac = forms.ModelChoiceField( bisac_headings, required=False )
 
     publisher_name = AutoCompleteSelectField(
-            PublisherNameLookup,
-            label='Publisher Name',
-            widget=AutoCompleteSelectWidget(PublisherNameLookup,allow_new=True),
-            required=False,
-            allow_new=True,
-        )
+        PublisherNameLookup,
+        label='Publisher Name',
+        widget=AutoCompleteSelectWidget(PublisherNameLookup,allow_new=True),
+        required=False,
+        allow_new=True,
+    )
 
     isbn = ISBNField(
         label=_("ISBN"),
@@ -189,7 +208,7 @@ class EditionForm(forms.ModelForm):
         }
     )
     language = forms.ChoiceField(choices=LANGUAGES)
-    age_level = forms.ChoiceField(choices=AGE_LEVEL_CHOICES)
+    age_level = forms.ChoiceField(choices=AGE_LEVEL_CHOICES, required=False)
     description = forms.CharField( required=False, widget=CKEditorWidget())
     coverfile = forms.ImageField(required=False)
 

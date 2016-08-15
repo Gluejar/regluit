@@ -549,6 +549,13 @@ def new_edition(request, work_id, edition_id, by=None):
                     edition.remove_author(author)
                     form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
                     break
+            work_rels = models.WorkRelation.objects.filter(Q(to_work=work) | Q(from_work=work))
+            for work_rel in work_rels:
+                if request.POST.has_key('delete_work_rel_%s' % work_rel.id):
+                    work_rel.delete()
+                    form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
+                    break
+                
         if request.POST.has_key('add_author_submit') and admin:
             new_author_name = request.POST['add_author'].strip()
             new_author_relation =  request.POST['add_author_relation']
@@ -561,7 +568,6 @@ def new_edition(request, work_id, edition_id, by=None):
         elif not form and admin:
             form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
             if form.is_valid():
-                print 'form is valid'
                 form.save()
                 if not work:
                     work = models.Work(
@@ -599,6 +605,13 @@ def new_edition(request, work_id, edition_id, by=None):
                     if request.POST.has_key('change_relator_%s' % relator.id):
                         new_relation = request.POST['change_relator_%s' % relator.id]
                         relator.set(new_relation)
+                related_work = form.cleaned_data['add_related_work']
+                if related_work:
+                    models.WorkRelation.objects.get_or_create(
+                        to_work=work,
+                        from_work=related_work,
+                        relation=form.cleaned_data['add_work_relation'],
+                    )                    
                 for (author_name, author_relation) in edition.new_authors:
                     edition.add_author(author_name, author_relation)
                 if form.cleaned_data.has_key('bisac'):
