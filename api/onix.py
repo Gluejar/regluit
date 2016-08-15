@@ -1,5 +1,6 @@
 import datetime
 import pytz
+import re
 from lxml import etree
 from regluit.core import models
 from regluit.core.cc import ccinfo
@@ -134,6 +135,19 @@ def product(edition, facet=None):
             subj_node.append(text_node("SubjectSchemeIdentifier", "20"))
             subj_node.append(text_node("SubjectHeadingText", subject.name))                    
 
+    # audience range composite
+    if work.age_level:
+        range_match = re.search(r'(\d?\d?)-(\d?\d?)', work.age_level)
+        if range_match:
+            audience_range_node = etree.SubElement(descriptive_node, "AudienceRange")
+            audience_range_node.append(text_node("AudienceRangeQualifier", "17")) #Interest age, years
+            if range_match.group(1):
+                audience_range_node.append(text_node("AudienceRangePrecision", "03")) #from
+                audience_range_node.append(text_node("AudienceRangeValue", range_match.group(1))) 
+            if range_match.group(2):
+                audience_range_node.append(text_node("AudienceRangePrecision", "04")) #from
+                audience_range_node.append(text_node("AudienceRangeValue", range_match.group(2))) 
+                    
     # Collateral Detail Block
     coll_node =  etree.SubElement(product_node, "CollateralDetail")
     desc_node =  etree.SubElement(coll_node, "TextContent")

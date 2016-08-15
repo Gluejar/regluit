@@ -58,7 +58,7 @@ from regluit.core.models import (
     UNGLUEITAR
 )
 from regluit.libraryauth.models import Library
-from regluit.core.parameters import LIBRARY, REWARDS, BUY2UNGLUE, THANKS
+from regluit.core.parameters import LIBRARY, REWARDS, BUY2UNGLUE, THANKS, AGE_LEVEL_CHOICES
 from regluit.core.lookups import (
     OwnerLookup,
     WorkLookup,
@@ -199,6 +199,7 @@ class EditionForm(forms.ModelForm):
         }
     )
     language = forms.ChoiceField(choices=LANGUAGES)
+    age_level = forms.ChoiceField(choices=AGE_LEVEL_CHOICES)
     description = forms.CharField( required=False, widget=CKEditorWidget())
     coverfile = forms.ImageField(required=False)
     

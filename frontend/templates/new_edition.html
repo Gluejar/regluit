@@ -122,6 +122,7 @@ ul.fancytree-container {
 		<input type="submit" name="add_author_submit" value="Add Author" id="submit_author"></p>
 
 		<p><b>Language</b>: {{ form.language.errors }}{{ form.language }}</p>
+		<p><b>Age Level</b>: {{ form.age_level.errors }}{{ form.age_level }}</p>
         <h4> Identifiers </h4>
         {% if id_msg %} <span class="errorlist">{{ id_msg }} </span>{% endif %}
         <p> Enter 'delete' to remove the identifier. </p>

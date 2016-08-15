@@ -514,11 +514,15 @@ def new_edition(request, work_id, edition_id, by=None):
     language='en'
     description=''
     title=''
+    age_level = ''
+    description = ''
+    title = ''
     if work_id:
         work = safe_get_work(work_id)
         language=work.language
         description=work.description
         title=work.title
+        age_level = work.age_level
     else:
         work=None
     
@@ -533,6 +537,7 @@ def new_edition(request, work_id, edition_id, by=None):
             edition.work = work 
         language=edition.work.language
         description=edition.work.description
+        age_level = edition.work.age_level
     else:
         edition = models.Edition()
         if work:
@@ -552,6 +557,7 @@ def new_edition(request, work_id, edition_id, by=None):
             'doi': edition.id_for('doi'),
             }
     if request.method == 'POST' :
+        'age_level': age_level,
         form = None
         edition.new_authors=zip(request.POST.getlist('new_author'),request.POST.getlist('new_author_relation'))
         edition.new_subjects=request.POST.getlist('new_subject')
@@ -577,6 +583,7 @@ def new_edition(request, work_id, edition_id, by=None):
                 form.save()
                 if not work:
                     work= models.Work(title=form.cleaned_data['title'],language=form.cleaned_data['language'],description=form.cleaned_data['description'])
+                        age_level=form.cleaned_data['age_level'],
                     work.save()
                     edition.work=work
                     edition.save()
@@ -585,6 +592,7 @@ def new_edition(request, work_id, edition_id, by=None):
                     work.title=form.cleaned_data['title']
                     work.publication_range = None  # will reset on next access
                     work.language = form.cleaned_data['language']
+                    work.age_level = form.cleaned_data['age_level']
                     work.save()
                 
                 id_msg=""

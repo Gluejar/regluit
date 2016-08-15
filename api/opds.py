@@ -163,6 +163,16 @@ def work_node(work, facet=None):
                 # caused by control chars in subject.name
                 logger.warning('Deleting subject: %s' % subject.name)
                 subject.delete()
+
+    # age level
+    # <category term="15-18" scheme="http://schema.org/typicalAgeRange" label="Teen - Grade 10-12, Age 15-18"/>
+    if work.age_level:
+        category_node = etree.Element("category")
+        category_node.attrib["scheme"] =  'http://schema.org/typicalAgeRange' 
+        category_node.attrib["term"] =  work.age_level 
+        category_node.attrib["label"] =  work.get_age_level_display()
+        node.append(category_node)
+    
                 
     # rating            
     rating_node = etree.Element("{http://schema.org/}Rating")
