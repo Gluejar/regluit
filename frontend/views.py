@@ -524,6 +524,10 @@ def new_edition(request, work_id, edition_id, by=None):
         edition = models.Edition()
         if work:
             edition.work = work
+            edition.publication_date = work.earliest_publication_date
+            edition.new_authors = []
+            for relator in work.relators():
+                edition.new_authors.append((relator.author.name, relator.relation.code))
 
     initial = {
         'language': language,
