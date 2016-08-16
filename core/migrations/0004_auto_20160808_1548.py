@@ -36,7 +36,7 @@ class Migration(migrations.Migration):
         
         
     dependencies = [
-        ('core', '0003_auto_20160805_1550'),
+        ('core', '0003_auto_20160816_1645'),
     ]
 
     operations = [

@@ -62,6 +62,7 @@ from regluit.core.lookups import (
     WorkLookup,
     PublisherNameLookup,
     SubjectLookup,
+    EditionNoteLookup,
 )
 from regluit.utils.localdatetime import now
 from regluit.utils.fields import ISBNField
@@ -211,7 +212,13 @@ class EditionForm(forms.ModelForm):
     age_level = forms.ChoiceField(choices=AGE_LEVEL_CHOICES, required=False)
     description = forms.CharField( required=False, widget=CKEditorWidget())
     coverfile = forms.ImageField(required=False)
-
+    note = AutoCompleteSelectField(
+        EditionNoteLookup,
+        widget=AutoCompleteSelectWidget(EditionNoteLookup, allow_new=True),
+        label='Edition Note',
+        required=False,
+        allow_new=True,
+        )
     def __init__(self,  *args, **kwargs):
         super(EditionForm, self).__init__(*args, **kwargs)
         self.relators = []
@@ -238,7 +245,6 @@ class EditionForm(forms.ModelForm):
         if not has_isbn and not has_oclc  and not has_goog and not has_http and not has_doi:
             raise forms.ValidationError(_("There must be either an ISBN, a DOI, a URL or an OCLC number."))
         return self.cleaned_data
-
     class Meta:
         model = Edition
         exclude = ('created', 'work')

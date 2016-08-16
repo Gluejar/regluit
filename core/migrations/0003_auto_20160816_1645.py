@@ -12,21 +12,23 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
+            name='EditionNote',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('note', models.CharField(max_length=64, unique=True, null=True, blank=True)),
+            ],
+        ),
+        migrations.CreateModel(
             name='WorkRelation',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('relation', models.CharField(max_length=15, choices=[(b'translation', b''), (b'revision', b''), (b'sequel', b''), (b'compilation', b'')])),
+                ('relation', models.CharField(max_length=15, choices=[(b'translation', b'translation'), (b'revision', b'revision'), (b'sequel', b'sequel'), (b'compilation', b'compilation')])),
             ],
         ),
         migrations.AddField(
             model_name='ebook',
             name='version',
             field=models.CharField(max_length=255, null=True),
-        ),
-        migrations.AddField(
-            model_name='edition',
-            name='note',
-            field=models.CharField(max_length=64, null=True),
         ),
         migrations.AddField(
             model_name='work',
@@ -44,8 +46,13 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(related_name='works_related_to', to='core.Work'),
         ),
         migrations.AddField(
+            model_name='edition',
+            name='note',
+            field=models.ForeignKey(to='core.EditionNote', null=True),
+        ),
+        migrations.AddField(
             model_name='work',
             name='related',
-            field=models.ManyToManyField(to='core.Work', null=True, through='core.WorkRelation'),
+            field=models.ManyToManyField(related_name='reverse_related', null=True, through='core.WorkRelation', to='core.Work'),
         ),
     ]

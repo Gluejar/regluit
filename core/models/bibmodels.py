@@ -763,7 +763,7 @@ class Edition(models.Model):
     work = models.ForeignKey("Work", related_name="editions", null=True)
     cover_image = models.URLField(null=True, blank=True)
     unglued = models.BooleanField(default=False)
-    note = models.CharField(max_length=64, null=True, blank=True)
+    note = models.ForeignKey("EditionNote", null=True)
 
     def __unicode__(self):
         if self.isbn_13:
@@ -942,6 +942,10 @@ class Edition(models.Model):
     def description(self):
         return self.work.description
 
+class EditionNote(models.Model):
+    note = models.CharField(max_length=64, null=True, blank=True, unique=True)
+    def __unicode__(self):
+        return self.note
 
 class Publisher(models.Model):
     created = models.DateTimeField(auto_now_add=True)

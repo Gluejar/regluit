@@ -77,6 +77,7 @@ from .bibmodels import (
     Ebook,
     EbookFile,
     Edition,
+    EditionNote,
     Identifier,
     path_for_file,
     Publisher,

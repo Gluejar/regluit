@@ -16,6 +16,9 @@
                 {% endfor %}
                 <br />
             {% endif %}
+            {% if edition.note %}
+                {{ edition.note }}.<br />
+            {% endif %}
             {% if edition.publisher %}
                 Publisher: <a href="{% url 'bypubname_list' edition.publisher_name.id %}">{{edition.publisher}}</a><br />
             {% endif %}

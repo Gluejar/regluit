@@ -89,6 +89,17 @@ def stub(edition):
     )
     record.add_ordered_field(field245)
     
+    #edition statement
+    if edition.note:
+        field250 = pymarc.Field(
+            tag='250',
+            indicators = [' ', ' '],
+            subfields = [
+                'a', unicode(edition.note),
+            ]
+        )
+        record.add_ordered_field(field250)
+    
     # publisher, date
     if edition.publisher:
         field260 = pymarc.Field(
@@ -101,7 +112,7 @@ def stub(edition):
         if edition.publication_date:
             field260.add_subfield('c', unicode(edition.publication_date))
         record.add_ordered_field(field260)
-        
+    
     if edition.description:
         #add 520 field (description)
         field520 =  pymarc.Field(
