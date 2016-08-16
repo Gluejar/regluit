@@ -96,7 +96,7 @@ class Work(models.Model):
     featured = models.DateTimeField(null=True, blank=True, db_index=True,)
     is_free = models.BooleanField(default=False)
     landings = GenericRelation(Landing)
-    related = models.ManyToManyField('self', symmetrical=False, null=True, through='WorkRelation')
+    related = models.ManyToManyField('self', symmetrical=False, null=True, through='WorkRelation', related_name='reverse_related')
     age_level = models.CharField(max_length=5, choices=AGE_LEVEL_CHOICES, default='') 
 
     class Meta:

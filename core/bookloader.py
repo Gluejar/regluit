@@ -449,6 +449,7 @@ def add_related(isbn):
             for w in works_to_merge:
                 logger.debug("merge_works path 2 %s %s", lang_edition.work.id, w.id )
                 merge_works(lang_edition.work, w)
+            models.WorkRelation.objects.get_or_create(to_work=lang_edition.work, from_work=work, relation='translation')
         
     return new_editions
     
