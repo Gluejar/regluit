@@ -242,7 +242,11 @@ class EditionForm(forms.ModelForm):
         has_goog = self.cleaned_data.get("goog", False) not in nulls
         has_http = self.cleaned_data.get("http", False) not in nulls
         has_doi = self.cleaned_data.get("doi", False) not in nulls
-        if not has_isbn and not has_oclc  and not has_goog and not has_http and not has_doi:
+        try:
+            has_id = self.instance.work.identifiers.all().count() > 0
+        except AttributeError:
+            has_id = False
+        if not has_id and not has_isbn and not has_oclc  and not has_goog and not has_http and not has_doi:
             raise forms.ValidationError(_("There must be either an ISBN, a DOI, a URL or an OCLC number."))
         return self.cleaned_data
     class Meta:
