@@ -428,9 +428,8 @@ def edition_uploads(request, edition_id):
     except models.Edition.DoesNotExist:
         raise Http404
     campaign_type = edition.work.last_campaign().type
-    if not request.user.is_staff :
-        if not request.user in edition.work.last_campaign().managers.all():
-            return render(request, "admins_only.html")
+    if not user_can_edit_work(request.user, edition.work):
+        return render(request, "admins_only.html")
     if request.method == 'POST' :
         form = EbookFileForm(data=request.POST, files=request.FILES, campaign_type=campaign_type)
         if form.is_valid() :
@@ -462,6 +461,19 @@ def edition_uploads(request, edition_id):
                     form.instance.delete()
                 else:
                     tasks.process_ebfs.delay(edition.work.last_campaign())
+                if form.instance.id:
+                    new_ebook = models.Ebook.objects.create(
+                        edition=edition,
+                        format=form.instance.format,
+                        url=form.instance.file.url,
+                        rights=edition.work.last_campaign().license,
+                        version=form.cleaned_data['version'],
+                        active=False,
+                        provider="Unglue.it",
+                    )
+                    form.instance.ebook = new_ebook
+                    form.instance.save()
+
         else:
             context['upload_error'] = form.errors
     form = EbookFileForm(initial={'edition':edition, 'format':'epub'}, campaign_type=campaign_type)
@@ -654,19 +666,10 @@ def manage_ebooks(request, edition_id, by=None):
         work = edition.work
     else:
         raise Http404
-    if not request.user.is_authenticated() :
-        return render(request, "admins_only.html")
     # if the work and edition are set, we save the edition and set the work
 
     alert = ''
-    admin = False
-    if request.user.is_staff :
-        admin = True
-    elif work and work.last_campaign():
-        if request.user in work.last_campaign().managers.all():
-            admin = True
-    elif work == None and request.user.rights_holder.count():
-        admin = True
+    admin = user_can_edit_work(request.user, work)
     if request.method == 'POST' :
         edition.new_authors = zip(request.POST.getlist('new_author'), request.POST.getlist('new_author_relation'))
         edition.new_subjects = request.POST.getlist('new_subject')
@@ -680,6 +683,7 @@ def manage_ebooks(request, edition_id, by=None):
             edition.ebook_form = EbookForm(data = request.POST, prefix = 'ebook_%d'%edition.id)
             if edition.ebook_form.is_valid():
                 edition.ebook_form.save()
+                edition.work.remove_old_ebooks()
                 alert = 'Thanks for adding an ebook to unglue.it!'
             else:
                 alert = 'your submitted ebook had errors'
@@ -700,7 +704,7 @@ def campaign_results(request, campaign):
         })
 
 
-def manage_campaign(request, id, action='manage'):
+def manage_campaign(request, id, ebf=None, action='manage'):
     campaign = get_object_or_404(models.Campaign, id=id)
     campaign.not_manager = False
     campaign.problems = []
@@ -782,7 +786,8 @@ def manage_campaign(request, id, action='manage'):
             activetab = '#2'
     else:
         if action == 'makemobi':
-            tasks.make_mobi.delay(campaign)
+            ebookfile = get_object_or_404(models.EbookFile, id=ebf)
+            tasks.make_mobi.delay(ebookfile)
             return HttpResponseRedirect(reverse('mademobi', args=[campaign.id]))
         elif action == 'mademobi':
             alerts.append('A MOBI file is being generated')

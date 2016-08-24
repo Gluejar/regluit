@@ -1011,6 +1011,11 @@ class EbookFileTests(TestCase):
             dj_file = DjangoFile(temp_file)
             ebf = EbookFile( format='pdf', edition=e, file=dj_file)
             ebf.save()
+            eb = Ebook( format='pdf', edition=e, url=ebf.file.url, provider='Unglue.it')
+            eb.save()
+            ebf.ebook = eb
+            ebf.save()
+            
                 
             temp_file.close()
         finally:
@@ -1018,7 +1023,7 @@ class EbookFileTests(TestCase):
             os.remove(temp.name)
         #test the ask-appender
         c.add_ask_to_ebfs()
-        asking_pdf = c.work.ebookfiles().filter(asking = True)[0].file.url
+        asking_pdf = c.work.ebookfiles().filter(asking=True)[0].file.url
         assert test_pdf(asking_pdf)
         
         #Now do the same with epub
@@ -1034,16 +1039,25 @@ class EbookFileTests(TestCase):
             dj_file = DjangoFile(temp_file)
             ebf = EbookFile( format='epub', edition=e, file=dj_file)
             ebf.save()
-                
+            eb = Ebook( format='epub', edition=e, url=ebf.file.url, provider='Unglue.it')
+            eb.save()
+            ebf.ebook = eb
+            ebf.save()
             temp_file.close()
+            ebf.make_mobi()
         finally:
             # make sure we get rid of temp file
             os.remove(temp.name)
         #test the ask-appender
         c.add_ask_to_ebfs()
-        self.assertTrue( c.work.ebookfiles().filter(asking = True, format='epub').count >0)
-        self.assertTrue( c.work.ebookfiles().filter(asking = True, format='mobi').count >0)
-        
+        self.assertTrue( c.work.ebookfiles().filter(asking = True, format='epub').count() > 0)
+        self.assertTrue( c.work.ebookfiles().filter(asking = True, format='mobi').count() > 0)
+        self.assertTrue( c.work.ebookfiles().filter(asking = True, ebook__active=True).count() > 0)
+        self.assertTrue( c.work.ebookfiles().filter(asking = False, ebook__active=True).count() == 0)
+        #test the unasker
+        c.revert_asks()
+        self.assertTrue( c.work.ebookfiles().filter(asking = True, ebook__active=True).count() == 0)
+        self.assertTrue( c.work.ebookfiles().filter(asking = False, ebook__active=True).count() > 0)
 
 class MobigenTests(TestCase):
     def test_convert_to_mobi(self):

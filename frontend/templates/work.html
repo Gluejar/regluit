@@ -431,7 +431,7 @@
                                                 This work has been downloaded {{ work.download_count }} times via unglue.it ebook links.
                                                 <ol>
                                                 {% for ebook in work.ebooks.all %}
-                                                <li>{{ ebook.download_count }} -  {{ ebook.format }} ({{ ebook.rights }}) at {{ ebook.provider }}</li>
+                                                <li>{{ ebook.download_count }} -  {{ ebook.format }} {% if ebook.version %}  {{ ebook.version }} {% endif %}({{ ebook.rights }}) at {{ ebook.provider }}. </li>
                                                 {% endfor %}
                                                 </ol>
                                             </div>

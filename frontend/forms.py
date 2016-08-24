@@ -261,7 +261,8 @@ class EditionForm(forms.ModelForm):
             }
 
 class EbookFileForm(forms.ModelForm):
-    file = forms.FileField(max_length=16777216)
+    version = forms.CharField(max_length=512, required=False)
+    file = forms.FileField(max_length=16777216)    
 
     def __init__(self, campaign_type=BUY2UNGLUE, *args, **kwargs):
         super(EbookFileForm, self).__init__(*args, **kwargs)
@@ -305,7 +306,7 @@ class EbookFileForm(forms.ModelForm):
     class Meta:
         model = EbookFile
         widgets = { 'edition': forms.HiddenInput}
-        exclude = { 'created', 'asking' }
+        exclude = { 'created', 'asking', 'ebook' }
 
 class EbookForm(forms.ModelForm):
     class Meta:

@@ -25,8 +25,10 @@ from regluit.marc.models import MARCRecord as NewMARC
 from regluit.utils.localdatetime import now
 from regluit.questionnaire.models import Landing
 
+from regluit.core import mobi
 import regluit.core.cc as cc
 from regluit.core.epub import test_epub
+
 from regluit.core.parameters import (
     AGE_LEVEL_CHOICES,
     BORROWED,
@@ -41,6 +43,7 @@ from regluit.core.parameters import (
 )
 
 logger = logging.getLogger(__name__)
+good_providers = ('Internet Archive', 'Unglue.it', 'Github', 'OAPEN Library')
 
 
 class Identifier(models.Model):
@@ -360,7 +363,15 @@ class Work(models.Model):
 
     def pdffiles(self):
         return EbookFile.objects.filter(edition__work=self, format='pdf').exclude(file='').order_by('-created')
-
+    
+    def versions(self):
+        version_labels = ['']
+        for ebook in self.ebooks():
+            if not ebook.version_label in version_labels:
+                version_labels.append(ebook.version_label)
+        version_labels.remove('')
+        return version_labels
+    
     def formats(self):
         fmts = []
         for fmt in ['pdf', 'epub', 'mobi', 'html']:
@@ -369,48 +380,20 @@ class Work(models.Model):
                 break
         return fmts
 
-    def make_ebooks_from_ebfs(self, add_ask=True):
-        # either the ebf has been uploaded or a created (perhaps an ask was added or mobi generated)
-        if self.last_campaign().type != THANKS:  # just to make sure that ebf's can be unglued by mistake
-            return
-        ebfs = EbookFile.objects.filter(edition__work=self).exclude(file='').order_by('-created')
-        done_formats = []
-        for ebf in ebfs:
-            previous_ebooks = Ebook.objects.filter(url=ebf.file.url,)
-            try:
-                previous_ebook = previous_ebooks[0]
-                for eb in previous_ebooks[1:]:  #housekeeping
-                    eb.deactivate()
-            except IndexError:
-                previous_ebook = None
-
-            if ebf.format not in done_formats:
-                if ebf.asking == add_ask or ebf.format == 'mobi':
-                    if previous_ebook:
-                        previous_ebook.activate()
-                    else:
-                        ebook = Ebook.objects.get_or_create(
-                            edition=ebf.edition,
-                            format=ebf.format,
-                            rights=self.last_campaign().license,
-                            provider="Unglue.it",
-                            url=ebf.file.url,
-                        )
-                    done_formats.append(ebf.format)
-                elif previous_ebook:
-                    previous_ebook.deactivate()
-            elif previous_ebook:
-                previous_ebook.deactivate()
-        return
-
     def remove_old_ebooks(self):
+        # this method is triggered after an file upload or new ebook saved
         old = Ebook.objects.filter(edition__work=self, active=True).order_by('-created')
-        done_formats = []
+        
+        # keep most recent ebook for each format and version label
+        done_format_versions = []
         for eb in old:
-            if eb.format in done_formats:
+            format_version = '{}_{}'.format(eb.format, eb.version_label)
+            if format_version in done_format_versions:
                 eb.deactivate()
             else:
-                done_formats.append(eb.format)
+                done_format_versions.append(format_version)
+        
+        # check for failed uploads.
         null_files = EbookFile.objects.filter(edition__work=self, file='')
         for ebf in null_files:
             ebf.file.delete()
@@ -1005,7 +988,8 @@ class EbookFile(models.Model):
     edition = models.ForeignKey('Edition', related_name='ebook_files')
     created = models.DateTimeField(auto_now_add=True)
     asking = models.BooleanField(default=False)
-
+    ebook = models.ForeignKey('Ebook', related_name='ebook_files', null=True)
+    version = None
     def check_file(self):
         if self.format == 'epub':
             return test_epub(self.file)
@@ -1017,6 +1001,24 @@ class EbookFile(models.Model):
             return Ebook.objects.filter(url=self.file.url)[0].active
         except:
             return False
+
+    def make_mobi(self):
+        if not self.format == 'epub':
+            return False
+        new_mobi_ebf = EbookFile.objects.create(edition=self.edition, format='mobi', asking=self.asking)
+        new_mobi_ebf.file.save(path_for_file('ebf', None), ContentFile(mobi.convert_to_mobi(self.file.url)))
+        new_mobi_ebf.save()
+        if self.ebook:
+            new_ebook = Ebook.objects.create(
+                edition=self.edition,
+                format='mobi',
+                url=new_mobi_ebf.file.url,
+                rights=self.ebook.rights,
+                version=self.ebook.version,
+            )
+            new_mobi_ebf.ebook = new_ebook
+        new_mobi_ebf.save()
+        return True
 
 send_to_kindle_limit = 7492232
 
@@ -1041,49 +1043,63 @@ class Ebook(models.Model):
         else:
             return False
 
-    def get_archive(self): # returns an archived file
-        if self.edition.ebook_files.filter(format=self.format).count() == 0:
-            if self.provider is not 'Unglue.it':
-                try:
-                    r = urllib2.urlopen(self.url)
-                    try:
-                        self.filesize = int(r.info().getheaders("Content-Length")[0])
-                        if self.save:
-                            self.filesize = self.filesize if self.filesize < 2147483647 else 2147483647  # largest safe positive integer
-                            self.save()
-                        ebf = EbookFile.objects.create(edition=self.edition, format=self.format)
-                        ebf.file.save(path_for_file(ebf, None), ContentFile(r.read()))
-                        ebf.file.close()
-                        ebf.save()
-                        ebf.file.open()
-                        return ebf.file
-                    except IndexError:
-                        # response has no Content-Length header probably a bad link
-                        logging.error('Bad link error: {}'.format(self.url))
-                except IOError:
-                    logger.error(u'could not open {}'.format(self.url))
-            else:
-                # this shouldn't happen, except in testing perhaps
-                logger.error(u'couldn\'t find ebookfile for {}'.format(self.url))
-                # try the url instead
-                f = urllib.urlopen(self.url)
-                return f
-        else:
-            ebf = self.edition.ebook_files.filter(format=self.format).order_by('-created')[0]
+    def get_archive(self):  # returns an open file
+        ebf = self.get_archive_ebf()
+        if not ebf:
+            return None
+        try:
+            ebf.file.open()
+        except ValueError:
+            logger.error(u'couldn\'t open EbookFile {}'.format(ebf.id))
+            return None
+        except IOError:
+            logger.error(u'EbookFile {} does not exist'.format(ebf.id))
+            return None
+        return ebf.file
+
+    def get_archive_ebf(self): # returns an ebf
+        if not self.ebook_files.filter(asking=False):
+            if not self.provider in good_providers:
+                return None
             try:
-                ebf.file.open()
-            except ValueError:
-                logger.error(u'couldn\'t open EbookFile {}'.format(ebf.id))
-                return None
+                r = urllib2.urlopen(self.url)
+                try:
+                    self.filesize = int(r.info().getheaders("Content-Length")[0])
+                    if self.save:
+                        self.filesize = self.filesize if self.filesize < 2147483647 else 2147483647  # largest safe positive integer
+                        self.save()
+                    ebf = EbookFile.objects.create(edition=self.edition, ebook=self, format=self.format)
+                    ebf.file.save(path_for_file(ebf, None), ContentFile(r.read()))
+                    ebf.file.close()
+                    ebf.save()
+                    return ebf
+                except IndexError:
+                    # response has no Content-Length header probably a bad link
+                    logging.error('Bad link error: {}'.format(self.url))
             except IOError:
-                logger.error(u'EbookFile {} does not exist'.format(ebf.id))
-                return None
-            return ebf.file
+                logger.error(u'could not open {}'.format(self.url))
+        else:
+            ebf = self.ebook_files.filter(asking=False).order_by('-created')[0]
+            return ebf
 
     def set_provider(self):
         self.provider = Ebook.infer_provider(self.url)
         return self.provider
 
+    @property
+    def version_label(self):
+        if self.version is None:
+            return ''
+        version_match = re.search(r'(.*)\.(\d+)$',self.version)
+        return version_match.group(1) if version_match else self.version
+        
+    @property
+    def version_iter(self):
+        if self.version is None:
+            return 0
+        version_match = re.search(r'(.*)\.(\d+)$',self.version)
+        return int(version_match.group(2)) if version_match else 0
+        
     @property
     def rights_badge(self):
         if self.rights is None:

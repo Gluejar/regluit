@@ -78,6 +78,7 @@ from .bibmodels import (
     EbookFile,
     Edition,
     EditionNote,
+    good_providers,
     Identifier,
     path_for_file,
     Publisher,
@@ -675,7 +676,11 @@ class Campaign(models.Model):
         self.activated = datetime.today()
         if self.type == THANKS:
             # make ebooks from ebookfiles
-            self.work.make_ebooks_from_ebfs()
+            if self.use_add_ask:
+                self.add_ask_to_ebfs()
+            else:
+                self.revert_asks()
+            self.work.remove_old_ebooks()
         self.save()
         action = CampaignAction(campaign=self, type='activated', comment=self.get_type_display())
         ungluers = self.work.wished_by()
@@ -934,82 +939,112 @@ class Campaign(models.Model):
     def latest_ending(cls):
         return timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)) + now()
 
-    def make_mobi(self):
-        for ebf in self.work.ebookfiles().filter(format='epub').order_by('-created'):
-            if ebf.active:
-                new_mobi_ebf = EbookFile.objects.create(edition=ebf.edition, format='mobi', asking=ebf.asking)
-                new_mobi_ebf.file.save(path_for_file('ebf', None), ContentFile(mobi.convert_to_mobi(ebf.file.url)))
-                new_mobi_ebf.save()
-                self.work.make_ebooks_from_ebfs()
-                return True
-        return False
+    def make_mobis(self):
+        # make archive files for ebooks, make mobi files for epubs
+        versions = set()
+        for ebook in self.work.ebooks().filter(provider__in=good_providers, format='mobi'):
+            versions.add(ebook.version_label)
+        for ebook in self.work.ebooks_all().exclude(provider='Unglue.it').filter(provider__in=good_providers, format='epub'):
+            if not ebook.version_label in versions:
+                # now make the mobi file
+                ebf = ebook.get_archive_ebf()
+                ebf.make_mobi()
 
     def add_ask_to_ebfs(self, position=0):
         if not self.use_add_ask or self.type != THANKS:
             return
-        pdf_to_do = pdf_edition = None
-        epub_to_do = epub_edition = None
-        new_ebfs = {}
-        for ebf in self.work.ebookfiles().filter(asking=False).order_by('-created'):
-            if ebf.format == 'pdf' and not pdf_to_do:
+        format_versions = []
+        to_dos = []
+        for ebf in self.work.ebookfiles().filter(asking=False, ebook__provider='Unglue.it').order_by('-created'):
+            format_version = '{}_{}'.format(ebf.ebook.format, ebf.ebook.version_label)
+            if ebf.format in ('pdf', 'epub') and not format_version in format_versions:
                 ebf.file.open()
-                pdf_to_do = ebf.file.read()
-                pdf_edition = ebf.edition
-            elif ebf.format == 'epub' and not epub_to_do:
-                ebf.file.open()
-                epub_to_do = ebf.file.read()
-                epub_edition = ebf.edition
-        for ebook in self.work.ebooks_all().exclude(provider='Unglue.it'):
-            if ebook.format == 'pdf' and not pdf_to_do:
-                r = requests.get(ebook.url)
-                pdf_to_do = r.content
-                pdf_edition = ebook.edition
-            elif ebook.format == 'epub' and not epub_to_do:
-                r = requests.get(ebook.url)
-                epub_to_do = r.content
-                epub_edition = ebook.edition
-        if pdf_to_do:
-            try:
-                added = ask_pdf({'campaign':self, 'work':self.work, 'site':Site.objects.get_current()})
-                new_file = SpooledTemporaryFile()
-                old_file = SpooledTemporaryFile()
-                old_file.write(pdf_to_do)
-                if position == 0:
-                    pdf_append(added, old_file, new_file)
-                else:
-                    pdf_append(old_file, added, new_file)
-                new_file.seek(0)
-                new_pdf_ebf = EbookFile.objects.create(edition=pdf_edition, format='pdf', asking=True)
-                new_pdf_ebf.file.save(path_for_file('ebf', None), ContentFile(new_file.read()))
-                new_pdf_ebf.save()
-                new_ebfs['pdf'] = new_pdf_ebf
-            except Exception as e:
-                logger.error("error appending pdf ask  %s" % (e))
-        if epub_to_do:
-            try:
-                old_file = SpooledTemporaryFile()
-                old_file.write(epub_to_do)
-                new_file = ask_epub(old_file, {'campaign':self, 'work':self.work, 'site':Site.objects.get_current()})
-                new_file.seek(0)
-                new_epub_ebf = EbookFile.objects.create(edition=epub_edition, format='epub', asking=True)
-                new_epub_ebf.file.save(path_for_file(new_epub_ebf, None), ContentFile(new_file.read()))
-                new_epub_ebf.save()
-                new_ebfs['epub'] = new_epub_ebf
-                # now make the mobi file
-                new_mobi_ebf = EbookFile.objects.create(edition=epub_edition, format='mobi', asking=True)
-                new_mobi_ebf.file.save(path_for_file('ebf', None), ContentFile(mobi.convert_to_mobi(new_epub_ebf.file.url)))
-                new_mobi_ebf.save()
-                new_ebfs['mobi'] = new_mobi_ebf
-            except Exception as e:
-                logger.error("error making epub ask or mobi  %s" % (e))
-        for key in new_ebfs.keys():
-            for old_ebf in self.work.ebookfiles().filter(asking=True, format=key).exclude(pk=new_ebfs[key].pk):
-                obsolete = Ebook.objects.filter(url=old_ebf.file.url)
-                for eb in obsolete:
-                    eb.deactivate()
-                old_ebf.file.delete()
-                old_ebf.delete()
-        self.work.make_ebooks_from_ebfs(add_ask=True)
+                to_dos.append({'content': ebf.file.read(), 'ebook': ebf.ebook})
+                format_versions.append(format_version)
+        for ebook in self.work.ebooks_all().exclude(provider='Unglue.it').filter(provider__in=good_providers):
+            format_version = '{}_{}'.format(ebook.format, ebook.version_label)
+            if ebook.format in ('pdf', 'epub') and not format_version in format_versions:
+                to_dos.append({'content': ebook.get_archive().read(), 'ebook': ebook})
+                format_versions.append(format_version)
+        new_ebfs = []
+        for to_do in to_dos:
+            edition = to_do['ebook'].edition
+            version = to_do['ebook'].version
+            if to_do['ebook'].format == 'pdf':
+                try:
+                    added = ask_pdf({'campaign':self, 'work':self.work, 'site':Site.objects.get_current()})
+                    new_file = SpooledTemporaryFile()
+                    old_file = SpooledTemporaryFile()
+                    old_file.write(to_do['content'])
+                    if position == 0:
+                        pdf_append(added, old_file, new_file)
+                    else:
+                        pdf_append(old_file, added, new_file)
+                    new_file.seek(0)
+                    new_pdf_ebf = EbookFile.objects.create(edition=edition, format='pdf', asking=True)
+                    new_pdf_ebf.version = version
+                    new_pdf_ebf.file.save(path_for_file('ebf', None), ContentFile(new_file.read()))
+                    new_pdf_ebf.save()
+                    new_ebfs.append(new_pdf_ebf)
+                except Exception as e:
+                    logger.error("error appending pdf ask  %s" % (e))
+            elif to_do['ebook'].format == 'epub':
+                try:
+                    old_file = SpooledTemporaryFile()
+                    old_file.write(to_do['content'])
+                    new_file = ask_epub(old_file, {'campaign':self, 'work':self.work, 'site':Site.objects.get_current()})
+                    new_file.seek(0)
+                    new_epub_ebf = EbookFile.objects.create(edition=edition, format='epub', asking=True)
+                    new_epub_ebf.file.save(path_for_file(new_epub_ebf, None), ContentFile(new_file.read()))
+                    new_epub_ebf.save()
+                    new_epub_ebf.version = version
+                    new_ebfs.append(new_epub_ebf)
+                    
+                    # now make the mobi file
+                    new_mobi_ebf = EbookFile.objects.create(edition=edition, format='mobi', asking=True)
+                    new_mobi_ebf.file.save(path_for_file('ebf', None), ContentFile(mobi.convert_to_mobi(new_epub_ebf.file.url)))
+                    new_mobi_ebf.save()
+                    new_mobi_ebf.version = version
+                    new_ebfs.append(new_mobi_ebf)
+                except Exception as e:
+                    logger.error("error making epub ask or mobi  %s" % (e))
+        for ebf in new_ebfs:
+            ebook = Ebook.objects.create(
+                edition=ebf.edition,
+                format=ebf.format,
+                rights=self.license,
+                provider="Unglue.it",
+                url=ebf.file.url,
+                version=ebf.version
+            )
+            ebf.ebook = ebook
+            ebf.save()
+        new_ebf_pks = [ebf.pk for ebf in new_ebfs]
+
+        for old_ebf in self.work.ebookfiles().filter(asking=True).exclude(pk__in=new_ebf_pks):
+            obsolete = Ebook.objects.filter(url=old_ebf.file.url)
+            old_ebf.ebook.deactivate()
+            old_ebf.file.delete()
+            old_ebf.delete()
+        
+        for non_asking in self.work.ebookfiles().filter(asking=False, ebook__active=True):
+            non_asking.ebook.deactivate()
+
+    def revert_asks(self):
+        # there should be a deactivated non-asking ebook for every asking ebook
+        if self.type != THANKS:  # just to make sure that ebf's can be unglued by mistake
+            return
+        format_versions = []
+        for ebf in EbookFile.objects.filter(edition__work=self.work).exclude(file='').exclude(ebook=None).order_by('-created'):
+            format_version = '{}_{}'.format(ebf.format, ebf.ebook.version_label)
+            if ebf.asking: 
+                ebf.ebook.deactivate()
+            elif format_version in format_versions:
+                # this ebook file has the wrong "asking"
+                ebf.ebook.deactivate()
+            else:
+                ebf.ebook.activate()
+                format_versions.append(format_version)
 
     def make_unglued_ebf(self, format, watermarked):
         r = urllib2.urlopen(watermarked.download_link(format))
@@ -1023,6 +1058,7 @@ class Campaign(models.Model):
             rights=self.license,
             provider="Unglue.it",
             url=settings.BASE_URL_SECURE + reverse('download_campaign', args=[self.work.id, format]),
+            version='unglued',
         )
         old_ebooks = Ebook.objects.exclude(pk=ebook.pk).filter(
             edition=self.work.preferred_edition,

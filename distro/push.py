@@ -4,7 +4,7 @@ from StringIO import StringIO
 
 
 from regluit.core.facets import BaseFacet
-from regluit.core.models import Work
+from regluit.core.models import Work, good_providers
 from regluit.api.onix import onix_feed
 
 from .models import Target
@@ -45,7 +45,7 @@ def get_target_facet(target, start=datetime(1900,1,1), new=False):
                     editions__ebooks__created__gt = start, 
                     identifiers__type="isbn", 
                     editions__ebooks__format__in = formats,
-                    editions__ebooks__provider__in = ('Internet Archive', 'Unglue.it', 'Github', 'OAPEN Library'),
+                    editions__ebooks__provider__in = good_providers,
                     ).distinct().order_by('-featured')
                 
         model_filters = {"Ebook": format_filter, "Edition": edition_format_filter}    
