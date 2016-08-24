@@ -902,7 +902,7 @@ def load_from_yaml(yaml_url, test_mode=False):
                     rights = cc.match_license(metadata.rights),
                     format = ebook_format,
                     edition = edition,
-                    # version = metadata._version
+                    version = metadata._version
                     )
 
     return work.id
