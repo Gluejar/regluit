@@ -74,7 +74,8 @@ class WorkAdmin(ModelAdmin):
     ordering = ('title',)
     list_display = ('title', 'created')
     date_hierarchy = 'created'
-    fields = ('title', 'description', 'language', 'featured')
+    fields = ('title', 'description', 'language', 'featured', 'publication_range',
+        'age_level', 'openlibrary_lookup')
 
 class AuthorAdmin(ModelAdmin):
     search_fields = ('name',)
@@ -105,9 +106,9 @@ class EditionAdminForm(forms.ModelForm):
         )
     publisher_name = AutoCompleteSelectField(
             PublisherNameLookup,
-            label='Name',
+            label='Publisher Name',
             widget=AutoCompleteSelectWidget(PublisherNameLookup),
-            required=True,
+            required=False,
         )
     class Meta(object):
         model = models.Edition
@@ -174,24 +175,76 @@ class CeleryTaskAdmin(ModelAdmin):
 class PressAdmin(ModelAdmin):
     list_display = ('title', 'source', 'date')
     ordering = ('-date',)
+
+class WorkRelationAdminForm(forms.ModelForm):
+    to_work = AutoCompleteSelectField(
+            WorkLookup,
+            label='To Work',
+            widget=AutoCompleteSelectWidget(WorkLookup),
+            required=True,
+        )
+    from_work = AutoCompleteSelectField(
+            WorkLookup,
+            label='From Work',
+            widget=AutoCompleteSelectWidget(WorkLookup),
+            required=True,
+        )
+    class Meta(object):
+        model = models.WorkRelation
+        exclude = ()
+
+class WorkRelationAdmin(ModelAdmin):
+    form = WorkRelationAdminForm
+    list_display = ('to_work', 'relation', 'from_work')
+    
+class IdentifierAdminForm(forms.ModelForm):
+    work = AutoCompleteSelectField(
+            WorkLookup,
+            label='Work',
+            widget=AutoCompleteSelectWidget(WorkLookup, attrs={'size':60}),
+            required=False,
+        )
+    edition = AutoCompleteSelectField(
+            EditionLookup,
+            label='Edition',
+            widget=AutoCompleteSelectWidget(EditionLookup, attrs={'size':60}),
+            required=True,
+        )
+    class Meta(object):
+        model = models.Identifier
+        exclude = ()
+
+class IdentifierAdmin(ModelAdmin):
+    form = IdentifierAdminForm
+    list_display = ('type', 'value')
+    search_fields = ('type', 'value')
+
+class OfferAdmin(ModelAdmin):
+    list_display = ('work', 'license', 'price', 'active')
+    search_fields = ('work__title',)
+    readonly_fields = ('work',)
     
 
 admin_site.register(models.Acq, AcqAdmin)
-admin_site.register(models.Work, WorkAdmin)
-admin_site.register(models.Claim, ClaimAdmin)
-admin_site.register(models.RightsHolder, RightsHolderAdmin)
-admin_site.register(models.Premium, PremiumAdmin)
-admin_site.register(models.Campaign, CampaignAdmin)
 admin_site.register(models.Author, AuthorAdmin)
+admin_site.register(models.Badge, ModelAdmin)
+admin_site.register(models.Campaign, CampaignAdmin)
+admin_site.register(models.CeleryTask, CeleryTaskAdmin)
+admin_site.register(models.Claim, ClaimAdmin)
+admin_site.register(models.Ebook, EbookAdmin)
+admin_site.register(models.Edition, EditionAdmin)
+admin_site.register(models.Gift, GiftAdmin)
+admin_site.register(models.Identifier, IdentifierAdmin)
+admin_site.register(models.Offer, OfferAdmin)
+admin_site.register(models.Premium, PremiumAdmin)
+admin_site.register(models.Press, PressAdmin)
 admin_site.register(models.Publisher, PublisherAdmin)
 admin_site.register(models.PublisherName, PublisherNameAdmin)
-admin_site.register(models.Subject, SubjectAdmin)
-admin_site.register(models.Edition, EditionAdmin)
-admin_site.register(models.Ebook, EbookAdmin)
-admin_site.register(models.Wishlist, WishlistAdmin)
-admin_site.register(models.UserProfile, UserProfileAdmin)
-admin_site.register(models.CeleryTask, CeleryTaskAdmin)
-admin_site.register(models.Press, PressAdmin)
-admin_site.register(models.Gift, GiftAdmin)
 admin_site.register(models.Relation, RelationAdmin)
+admin_site.register(models.RightsHolder, RightsHolderAdmin)
+admin_site.register(models.Subject, SubjectAdmin)
+admin_site.register(models.UserProfile, UserProfileAdmin)
+admin_site.register(models.Wishlist, WishlistAdmin)
+admin_site.register(models.Work, WorkAdmin)
+admin_site.register(models.WorkRelation, WorkRelationAdmin)
 

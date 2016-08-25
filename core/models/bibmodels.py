@@ -95,12 +95,12 @@ class Work(models.Model):
     description = models.TextField(default='', null=True, blank=True)
     selected_edition = models.ForeignKey("Edition", related_name='selected_works', null=True)
     # repurposed earliest_publication to actually be publication range
-    publication_range = models.CharField(max_length=50, null=True)
+    publication_range = models.CharField(max_length=50, null=True, blank=True)
     featured = models.DateTimeField(null=True, blank=True, db_index=True,)
     is_free = models.BooleanField(default=False)
     landings = GenericRelation(Landing)
     related = models.ManyToManyField('self', symmetrical=False, null=True, through='WorkRelation', related_name='reverse_related')
-    age_level = models.CharField(max_length=5, choices=AGE_LEVEL_CHOICES, default='') 
+    age_level = models.CharField(max_length=5, choices=AGE_LEVEL_CHOICES, default='', blank=True) 
 
     class Meta:
         ordering = ['title']
@@ -741,12 +741,12 @@ class Subject(models.Model):
 class Edition(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=1000)
-    publisher_name = models.ForeignKey("PublisherName", related_name="editions", null=True)
-    publication_date = models.CharField(max_length=50, null=True, blank=True, db_index=True,)
+    publisher_name = models.ForeignKey("PublisherName", related_name="editions", null=True, blank=True)
+    publication_date = models.CharField(max_length=50, null=True, blank=True, db_index=True)
     work = models.ForeignKey("Work", related_name="editions", null=True)
     cover_image = models.URLField(null=True, blank=True)
     unglued = models.BooleanField(default=False)
-    note = models.ForeignKey("EditionNote", null=True)
+    note = models.ForeignKey("EditionNote", null=True, blank=True)
 
     def __unicode__(self):
         if self.isbn_13:
@@ -1030,7 +1030,7 @@ class Ebook(models.Model):
     download_count = models.IntegerField(default=0)
     active = models.BooleanField(default=True)
     filesize = models.PositiveIntegerField(null=True)
-    version = models.CharField(max_length=255, null=True)
+    version = models.CharField(max_length=255, null=True, blank=True)
 
     # use 'PD-US', 'CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA', 'CC0'
     rights = models.CharField(max_length=255, null=True, choices=cc.CHOICES, db_index=True)
