@@ -193,7 +193,8 @@ class BookLoaderTests(TestCase):
         self.assertEqual(models.Work.objects.filter(language=lang).count(), 1)
         self.assertTrue(edition.work.editions.count() > 9)
         self.assertTrue(edition.work.reverse_related.count() > 0)
-        self.assertTrue(edition.work.works_related_from.all()[0].to_work.works_related_to.all()[0].id == edition.work.id)
+        back_set = {back.id for back in edition.work.works_related_from.all()[0].to_work.works_related_to.all() } 
+        self.assertTrue(edition.work.id in back_set)
 
 
     def test_populate_edition(self):
