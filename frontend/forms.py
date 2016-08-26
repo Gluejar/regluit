@@ -260,6 +260,25 @@ class EditionForm(forms.ModelForm):
                 'cover_image': forms.TextInput(attrs={'size': 60}),
             }
 
+def test_file(the_file):
+    if the_file and the_file.name:
+        if format == 'epub':
+            try:
+                book = EPUB(the_file.file)
+            except Exception as e:
+                raise forms.ValidationError(_('Are you sure this is an EPUB file?: %s' % e) )
+        elif format == 'mobi':
+            try:
+                book = Mobi(the_file.file)
+                book.parse()
+            except Exception as e:
+                raise forms.ValidationError(_('Are you sure this is a MOBI file?: %s' % e) )
+        elif format == 'pdf':
+            try:
+                doc = PdfFileReader(the_file.file)
+            except Exception, e:
+                raise forms.ValidationError(_('%s is not a valid PDF file' % the_file.name) )
+
 class EbookFileForm(forms.ModelForm):
     version = forms.CharField(max_length=512, required=False)
     file = forms.FileField(max_length=16777216)    
@@ -284,23 +303,7 @@ class EbookFileForm(forms.ModelForm):
     def clean(self):
         format = self.cleaned_data['format']
         the_file = self.cleaned_data.get('file', None)
-        if the_file and the_file.name:
-            if format == 'epub':
-                try:
-                    book = EPUB(the_file.file)
-                except Exception as e:
-                    raise forms.ValidationError(_('Are you sure this is an EPUB file?: %s' % e) )
-            elif format == 'mobi':
-                try:
-                    book = Mobi(the_file.file)
-                    book.parse()
-                except Exception as e:
-                    raise forms.ValidationError(_('Are you sure this is a MOBI file?: %s' % e) )
-            elif format == 'pdf':
-                try:
-                    doc = PdfFileReader(the_file.file)
-                except Exception, e:
-                    raise forms.ValidationError(_('%s is not a valid PDF file' % the_file.name) )
+        test_file(the_file)
         return self.cleaned_data
 
     class Meta:
@@ -309,6 +312,8 @@ class EbookFileForm(forms.ModelForm):
         exclude = { 'created', 'asking', 'ebook' }
 
 class EbookForm(forms.ModelForm):
+    file = forms.FileField(max_length=16777216, required=False)  
+    url = forms.CharField(required=False, widget=forms.TextInput(attrs={'size' : 60},))
     class Meta:
         model = Ebook
         exclude = ('created', 'download_count', 'active', 'filesize')
@@ -316,21 +321,31 @@ class EbookForm(forms.ModelForm):
                 'edition': forms.HiddenInput,
                 'user': forms.HiddenInput,
                 'provider': forms.HiddenInput,
-                'url': forms.TextInput(attrs={'size' : 60}),
             }
     def clean_provider(self):
-        new_provider = Ebook.infer_provider(self.data[self.prefix + '-url'])
+        new_provider = Ebook.infer_provider(self.cleaned_data['url'])
         if not new_provider:
             raise forms.ValidationError(_("At this time, ebook URLs must point at Internet Archive, Wikisources, Wikibooks, Hathitrust, Project Gutenberg, raw files at Github, or Google Books."))
         return new_provider
 
     def clean_url(self):
-        url = self.data[self.prefix + '-url']
+        url = self.cleaned_data['url']
         try:
             Ebook.objects.get(url=url)
         except Ebook.DoesNotExist:
             return url
         raise forms.ValidationError(_("There's already an ebook with that url."))
+
+    def clean(self):
+        format = self.cleaned_data['format']
+        the_file = self.cleaned_data.get('file', None)
+        url = self.cleaned_data.get('url', None)
+        test_file(the_file)
+        if not the_file and not url:
+            raise forms.ValidationError(_("Either a link or a file is required."))
+        if the_file and url:
+            self.cleaned_data['url'] = ''
+        return self.cleaned_data
 
 def UserClaimForm ( user_instance, *args, **kwargs ):
     class ClaimForm(forms.ModelForm):

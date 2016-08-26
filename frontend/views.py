@@ -671,31 +671,36 @@ def manage_ebooks(request, edition_id, by=None):
     alert = ''
     admin = user_can_edit_work(request.user, work)
     if request.method == 'POST' :
-        edition.new_authors = zip(request.POST.getlist('new_author'), request.POST.getlist('new_author_relation'))
-        edition.new_subjects = request.POST.getlist('new_subject')
-        if edition.id and admin:
-            for author in edition.authors.all():
-                if request.POST.has_key('delete_author_%s' % author.id):
-                    edition.remove_author(author)
-                    form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
-                    break
-        if  request.POST.has_key('ebook_%d-edition' % edition.id):
-            edition.ebook_form = EbookForm(data = request.POST, prefix = 'ebook_%d'%edition.id)
-            if edition.ebook_form.is_valid():
-                edition.ebook_form.save()
-                edition.work.remove_old_ebooks()
-                alert = 'Thanks for adding an ebook to unglue.it!'
+        ebook_form = EbookForm(data = request.POST, files=request.FILES,)
+        if ebook_form.is_valid():
+            if ebook_form.cleaned_data.get('file', None):
+                new_ebf = models.EbookFile.objects.create(
+                    file=ebook_form.cleaned_data['file'],
+                    format=ebook_form.cleaned_data['format'],
+                    edition=edition,
+                    active=True,
+                    
+                )
+                ebook_form.instance.url = new_ebf.file.url
+                ebook_form.instance.provider = "Unglue.it"
+                ebook_form.instance.save()
+                new_ebf.ebook = ebook_form.instance
+                new_ebf.save()
             else:
-                alert = 'your submitted ebook had errors'
+                ebook_form.save()
+            edition.work.remove_old_ebooks()
+            alert = 'Thanks for adding an ebook to unglue.it!'
+        else:
+            alert = 'your submitted ebook had errors'
     else:
-        edition.ebook_form = EbookForm(instance= models.Ebook(user = request.user, edition = edition, provider = 'x'), prefix = 'ebook_%d'%edition.id)
+        ebook_form = EbookForm(instance=models.Ebook(user=request.user, edition=edition, provider='x'))
     try:
-        show_ebook_form = edition.work.last_campaign().status not in ['ACTIVE','INITIALIZED']
+        show_ebook_form = admin or edition.work.last_campaign().status not in ['ACTIVE','INITIALIZED']
     except:
         show_ebook_form = True
     return render(request, 'manage_ebooks.html', {
             'edition': edition, 'admin':admin, 'alert':alert,
-                'show_ebook_form':show_ebook_form,
+             'ebook_form': ebook_form, 'show_ebook_form':show_ebook_form,
         })
 
 def campaign_results(request, campaign):
