@@ -60,7 +60,6 @@ oauth2==1.5.211
 oauthlib==1.1.2
 paramiko==1.14.1
 postmonkey==1.0b
-pyasn1==0.1.4
 pycrypto==2.6
 pymarc==3.0.2
 pyparsing==2.0.3
