@@ -2372,7 +2372,7 @@ class UserProfile(models.Model):
         
     def unglueitar(self):
         # construct the url
-        gravatar_url = "https://www.gravatar.com/avatar/" + hashlib.md5(self.user.username + '@unglue.it').hexdigest() + "?"
+        gravatar_url = "https://www.gravatar.com/avatar/" + hashlib.md5(urllib.quote_plus(self.user.username.encode('utf-8')) + '@unglue.it').hexdigest() + "?"
         gravatar_url += urllib.urlencode({'d':'wavatar', 's':'50'})
         return gravatar_url
         
