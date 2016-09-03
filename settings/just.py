@@ -154,7 +154,7 @@ AMAZON_FPS_HOST = "fps.sandbox.amazonaws.com"
 #AMAZON_FPS_HOST = "fps.amazonaws.com"
 
 # local settings for maintenance mode
-MAINTENANCE_MODE = True
+MAINTENANCE_MODE = False
 
 # Amazon keys to permit S3 access
 
