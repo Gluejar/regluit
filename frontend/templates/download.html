@@ -176,7 +176,7 @@ $j(document).ready(function() {
             </div>
         {% endif %}
         {% if acq %}
-            {% ifequal work.last_campaign.type 2 %}
+            {% if work.last_campaign.type == 2 %}
             <h3>Download your ebook{% if acq.lib_acq %}{% if acq.on_reserve %}, on reserve for you at{% else %}, on loan to you at{% endif %} {{ acq.lib_acq.user.library }}{% endif %}</h3>
             <div class="ebook_download">
                     <a href="{{ formats.epub }}"><img src="/static/images/epub32.png" height="32" alt="epub" title="epub" /></a>
@@ -187,7 +187,7 @@ $j(document).ready(function() {
                     <a href="{{ formats.mobi }}">MOBI</a> (for Kindle)
                     <a class="dropbox-saver" href="{{ kindle_url }}" data-filename="unglueit-{{ work.id }}.mobi"></a>
             </div>
-            {% endifequal %}
+            {% endif %}
         {% endif %}
     {% else %}
         <div class="border">
@@ -214,11 +214,11 @@ $j(document).ready(function() {
                 {% endif %}
                 {% if formats.pdf %}
                     You should also be able to use the  <a href="{{ formats.pdf }}">pdf</a> file.
-                {% else %}{% if formats.html %}
+                {% elif formats.html %}
                     You can read the <a href="{{ formats.html }}">HTML version</a> of this book right here in this browser.
-                {% else %}{% if formats.text %}
+                {% elif formats.text %}
                     You can read the <a href="{{ formats.text }}">text version</a> of this book right here in this browser.
-                {% endif %}{% endif %}{% endif %}
+                {% endif %}
             </p>
             <p class="other_instructions_paragraph">
                 Not on iOS?  Try the instructions for <a class="android other_instructions">Android</a>, <a class="desktop other_instructions">desktop computers</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
@@ -250,7 +250,7 @@ $j(document).ready(function() {
                 <li>When the download is complete, tap it in your notifications menu.  It will be added to Aldiko, ready to read next time you open the app.</li>
                 </ul>
                 
-            {% else %}{% if formats.pdf %}
+            {% elif formats.pdf %}
                 <p>
                     You may already have an app which reads ebooks.  Download the <a href="{{ formats.pdf }}">pdf file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
                 </p>
@@ -260,11 +260,11 @@ $j(document).ready(function() {
                 <li>Download the <a href="{{ formats.pdf }}">pdf file</a>.</li>
                 <li>You will be given the option of opening the file in iBooks.</li>
                 </ul>
-            {% else %}{% if formats.html %}
+            {% elif formats.html %}
                 <p>
                     Download the <a href="{{ formats.html }}">HTML version</a>.
                 </p>
-            {% else %}{% if formats.text %}
+            {% elif formats.text %}
                 <p>
                     Download the <a href="{{ formats.text }}">text version</a>.
                 </p>
@@ -272,7 +272,7 @@ $j(document).ready(function() {
                 <p>
                     This ebook is only available in .mobi.  Your best bet is to install the free Amazon Kindle app from the Apple Store and then use the Send-to-Kindle option above.
                 </p>
-            {% endif %}{% endif %}{% endif %}{% endif %}
+            {% endif %}
             <p class="other_instructions_paragraph">
                 Not on iOS?  Try the instructions for <a class="android other_instructions">Android</a>, <a class="desktop other_instructions">desktop computers</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
             </p>
@@ -326,7 +326,7 @@ $j(document).ready(function() {
                 <p>
                     You probably already have an app which reads PDFs.  Download the <a href="{{ formats.pdf }}">pdf file</a> and open it.
                 </p>
-            {% else %}{% if formats.epub %}
+            {% elif formats.epub %}
                 {% if mac_ibooks %}
                     <p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpg" alt="iBooks Logo" />iBooks</p>
                     <ul>
@@ -341,7 +341,7 @@ $j(document).ready(function() {
                 <li>Open the file in Calibre.</li>
                 <li>You can <a href="http://blog.marvinapp.com/post/53438723356">use a Calibre plugin</a> to manage files on reader apps.
                 </ul>
-            {% else %}{% if formats.mobi %}
+            {% elif formats.mobi %}
                 <p class="ebook_download logo"><img src="/static/images/calibre_logo.png" alt="Calibre Logo" />Calibre</p>
                 <ul>
                 <li><a href="http://calibre-ebook.com/download">Download the free Calibre app.</a></li>
@@ -349,7 +349,7 @@ $j(document).ready(function() {
                 <li>Open the file in Calibre.</li>
                 <li>You can <a href="http://blog.marvinapp.com/post/53438723356">use a Calibre plugin</a> to manage files on reader apps.
                 </ul>
-            {% else %}{% if formats.html %}
+            {% elif formats.html %}
                 <p>
                     You can read the <a href="{{ formats.html }}">HTML version</a> right here in your browser.
                 </p>
@@ -357,7 +357,7 @@ $j(document).ready(function() {
                 <p>
                     You can read the <a href="{{ formats.text }}">text version</a> right here in your browser.
                 </p>
-            {% endif %}{% endif %}{% endif %}{% endif %}
+            {% endif %}
             <p class="other_instructions_paragraph">
                 Not on a desktop computer, or want to "side-load" ebooks onto a device or app?  Try the instructions for <a class="ios other_instructions">iPhone/iPad</a>, <a class="android other_instructions">Android</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
             </p>
@@ -371,18 +371,18 @@ $j(document).ready(function() {
                 <li>
                     {% if formats.mobi %}
                         <b>Kindle</b>: download the <a href="{{ formats.mobi }}">mobi file</a> to your computer, or use the <i>Send To Kindle</i> button above.
-                    {% else %}{% if formats.pdf %}
+                    {% elif formats.pdf %}
                         <b>Kindle</b>: download the <a href="{{ formats.pdf }}">pdf file</a> to your computer, or use the <i>Send To Kindle</i> button above.
                     {% else %}
                         <b>Kindle</b>: We're sorry; we don't have a version suitable for Kindle.
-                    {% endif %}{% endif %}
+                    {% endif %}
                     {% if formats.epub %}
                         <b>All other ereaders</b>: download the <a href="{{ formats.epub }}">epub file</a> to your computer.
-                    {% else %}{% if formats.pdf %}
+                    {% elif formats.pdf %}
                         <b>All other ereaders</b>: download the <a href="{{ formats.pdf }}">pdf file</a> to your computer.
                     {% else %}
                         <b>All other ereaders</b>: We're sorry; we don't have a version suitable for your device.
-                    {% endif %}{% endif %}
+                    {% endif %}
                 </li>
                 <li>Plug the ereader into your computer with a USB cable.</li>
                 <li>Using the Finder (Mac) or Windows Explorer (Windows), drag and drop the ebook file into the Documents folder on your device.  (It may also be called My Documents or My Stuff, depending on your ereader.)</li>

@@ -23,13 +23,14 @@ from tastypie.models import ApiKey
 django imports
 '''
 from django import forms
+from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.views import login,password_reset, redirect_to_login
-from django.contrib.comments import Comment
+from django_comments.models import Comment
 from django.contrib.sites.models import Site
 from django.core import signing
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -38,7 +39,7 @@ from django.core.files.temp import NamedTemporaryFile
 from django.core.mail import EmailMessage
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.validators import validate_email
-from django.db.models import Q, Count, Sum, get_model
+from django.db.models import Q, Count, Sum
 from django.forms import Select
 from django.forms.models import modelformset_factory, inlineformset_factory
 from django.http import (
@@ -83,7 +84,6 @@ from regluit.core.parameters import *
 from regluit.core.facets import get_facet_object, get_order_by
 
 from regluit.frontend.forms import (
-    UserData,
     ProfileForm,
     CampaignPledgeForm,
     CampaignPurchaseForm,
@@ -117,7 +117,6 @@ from regluit.frontend.forms import (
     KindleEmailForm,
     LibModeForm,
     DateCalculatorForm,
-    UserNamePass,
     RegiftForm,
     SubjectSelectForm,
     MapSubjectForm,
@@ -145,6 +144,7 @@ from regluit.payment.parameters import (
 
 from regluit.utils.localdatetime import now, date_today
 from regluit.pyepub import InvalidEpub
+from regluit.libraryauth.forms import UserNamePass
 from regluit.libraryauth.views import Authenticator, superlogin, login_user
 from regluit.libraryauth.models import Library
 from regluit.marc.views import qs_marc_records
@@ -322,14 +322,6 @@ def stub(request):
 
 def acks(request, work):
     return render(request,'front_matter.html', {'campaign': work.last_campaign()})
-    
-
-@login_required
-def social_auth_reset_password(request):
-    if not request.user.has_usable_password():
-        request.user.set_password('%010x' % random.randrange(16**10))
-        request.user.save()
-    return password_reset(request)
     
 def work(request, work_id, action='display'):
     work = safe_get_work(work_id)
@@ -713,13 +705,11 @@ def manage_campaign(request, id, action='manage'):
 
     if request.method == 'POST' :
         if request.POST.has_key('add_premium') :
-            postcopy=request.POST.copy()
-            postcopy['type']='CU'
-            new_premium_form = CustomPremiumForm(data=postcopy)
+            new_premium_form = CustomPremiumForm(data=request.POST)
             if new_premium_form.is_valid():
                 new_premium_form.save()
                 alerts.append(_('New premium has been added'))
-                new_premium_form = CustomPremiumForm(data={'campaign': campaign})
+                new_premium_form = CustomPremiumForm(initial={'campaign': campaign})
             else:
                 alerts.append(_('New premium has not been added'))              
             form = getManageCampaignForm(instance=campaign)
@@ -763,7 +753,7 @@ def manage_campaign(request, id, action='manage'):
                         selected_premium.save()
                         alerts.append(_('Premium %s has been inactivated'% premium_to_stop))   
             form = getManageCampaignForm(instance=campaign)
-            new_premium_form = CustomPremiumForm(data={'campaign': campaign})
+            new_premium_form = CustomPremiumForm(initial={'campaign': campaign})
         elif request.POST.has_key('change_offer'):
             for offer in offers :
                 if request.POST.has_key('offer_%d-work' % offer.id) :
@@ -785,7 +775,7 @@ def manage_campaign(request, id, action='manage'):
         elif action =='mademobi':    
             alerts.append('A MOBI file is being generated')
         form = getManageCampaignForm(instance=campaign, initial={'work_description':campaign.work.description})
-        new_premium_form = CustomPremiumForm(data={'campaign': campaign})
+        new_premium_form = CustomPremiumForm(initial={'campaign': campaign})
         
     return render(request, 'manage_campaign.html', {
         'campaign': campaign, 
@@ -1185,10 +1175,10 @@ class PledgeView(FormView):
     data = {}
     
     def get_preapproval_amount(self):
-        preapproval_amount = self.request.REQUEST.get('preapproval_amount', None)
+        preapproval_amount = self.request.GET.get('preapproval_amount', self.request.POST.get('preapproval_amount', None))
         if preapproval_amount:
             return preapproval_amount
-        premium_id = self.request.REQUEST.get('premium_id', None)
+        premium_id = self.request.GET.get('premium_id', self.request.POST.get('premium_id', None))
         if premium_id != None:
             try:
                 preapproval_amount = D(models.Premium.objects.get(id=premium_id).amount)
@@ -1218,7 +1208,7 @@ class PledgeView(FormView):
             return {}
 
         transactions = self.campaign.transactions().filter(user=self.request.user, status=TRANSACTION_STATUS_ACTIVE, type=PAYMENT_TYPE_AUTHORIZATION)
-        premium_id = self.request.REQUEST.get('premium_id', 150)
+        premium_id = self.request.GET.get('premium_id', self.request.POST.get('premium_id', 150))
         if transactions.count() == 0:
             ack_name=self.request.user.profile.ack_name
             ack_dedication=''
@@ -1353,7 +1343,7 @@ class PurchaseView(PledgeView):
             return {'initial':self.data}
 
     def get_preapproval_amount(self):
-        self.offer_id = self.request.REQUEST.get('offer_id', None)
+        self.offer_id = self.request.GET.get('offer_id', self.request.POST.get('offer_id', None))
         self.give = self.offer_id.startswith('give') if self.offer_id else False
         if self.give:
             self.offer_id = self.offer_id[4:]
@@ -1626,7 +1616,7 @@ class FundCompleteView(TemplateView):
         self.transaction = None
         
         # pull out the transaction id and try to get the corresponding Transaction
-        transaction_id = self.request.REQUEST.get("tid")
+        transaction_id = self.request.POST.get("tid",self.request.GET.get("tid", None))
         
         if not transaction_id:
             return context
@@ -1732,7 +1722,7 @@ class PledgeCancelView(FormView):
     
         logger.info("arrived at pledge_cancel form_valid")
         # pull campaign_id from form, not from URI as we do from GET
-        campaign_id = self.request.REQUEST.get('campaign_id')
+        campaign_id = self.request.POST.get('campaign_id',self.request.GET.get('campaign_id'))
         
         # this following logic should be extraneous.
         if self.request.user.is_authenticated():
@@ -2070,11 +2060,7 @@ def supporter(request, supporter_username, template_name, extra_context={}):
     # following block to support profile admin form in supporter page
     if request.user.is_authenticated() and request.user.username == supporter_username:
 
-        try:
-            profile_obj=request.user.get_profile()
-        except ObjectDoesNotExist:
-            profile_obj= models.UserProfile()
-            profile_obj.user=request.user
+        profile_obj=request.user.profile
 
         if  request.method == 'POST': 
             profile_form = ProfileForm(data=request.POST,instance=profile_obj)
@@ -2140,24 +2126,6 @@ def library(request,library_name):
                 
     
 
-def edit_user(request, redirect_to=None):
-    if not request.user.is_authenticated():
-        return HttpResponseRedirect(reverse('superlogin'))    
-    form=UserData()
-    if request.method == 'POST': 
-        if 'change_username' in request.POST.keys():
-            form = UserData(request.POST)
-            form.oldusername = request.user.username
-            if form.is_valid(): # All validation rules pass, go and change the username
-                request.user.username=form.cleaned_data['username']
-                request.user.save()
-                if 'set_password'  in request.POST.keys() and form.cleaned_data.has_key('set_password'):
-                    if not request.user.has_usable_password():
-                        request.user.set_password(form.cleaned_data['set_password'])
-                request.user.save()
-                return HttpResponseRedirect(redirect_to if redirect_to else reverse('home')) # Redirect after POST
-    return render(request,'registration/user_change_form.html', {'form': form})  
-
 class ManageAccount(FormView):
     template_name="manage_account.html"
     form_class = PlainCCForm
@@ -2178,7 +2146,7 @@ class ManageAccount(FormView):
                 p.make_account(user=self.request.user, host=settings.PAYMENT_PROCESSOR, token=stripe_token)
             except baseprocessor.ProcessorError as e:
                 return render(self.request, "pledge_card_error.html", {'exception':e})
-        next = self.request.REQUEST.get('next', None)
+        next = self.request.GET.get('next', self.request.POST.get('next', None))
         if next :
             return HttpResponseRedirect(next)
         else:
@@ -2383,7 +2351,7 @@ class InfoPageView(TemplateView):
         transactions.month.sum = transactions.month.aggregate(Sum('amount'))['amount__sum']
         transactions.yesterday = transactions.filter(date_created__range = (date_today()-timedelta(days=1), date_today()))
         transactions.yesterday.sum = transactions.yesterday.aggregate(Sum('amount'))['amount__sum']
-        marc = get_model('marc','MARCRecord').objects
+        marc = apps.get_model('marc','MARCRecord').objects
         marc.today = marc.filter(created__range = (date_today(), now()))
         marc.days7 = marc.filter(created__range = (date_today()-timedelta(days=7), now()))
         marc.year = marc.filter(created__year = date_today().year)
@@ -2885,11 +2853,11 @@ class DownloadView(PurchaseView):
         if not self.campaign or self.campaign.type != THANKS:
             return  False
         elif self.user_license and self.user_license.thanked:
-            return self.request.REQUEST.has_key('offer_id')
+            return self.request.GET.has_key('offer_id') or self.request.POST.has_key('offer_id')
         elif self.lib_thanked:
             return False
         elif self.campaign.status != 'ACTIVE':
-            return self.request.REQUEST.has_key('testmode')
+            return self.request.GET.has_key('testmode') or self.request.POST.has_key('testmode')
         else: 
             return True
         
@@ -3018,8 +2986,8 @@ class DownloadView(PurchaseView):
             'user_license': self.user_license,
             'lib_thanked': self.lib_thanked,
             'amount': D(self.request.session.pop('amount')/100) if self.request.session.has_key('amount') else None,
-            'testmode': self.request.REQUEST.has_key('testmode'),
-            'source': self.request.REQUEST.get('source', ''),
+            'testmode': self.request.GET.has_key('testmode') or self.request.POST.has_key('testmode'),
+            'source': self.request.GET.get('source', self.request.POST.get('source', '')),
 
         })
         return context

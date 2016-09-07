@@ -6,9 +6,9 @@
                 </div>
             {% endif %}
         <div class="metadata" id="edition_{{edition.id}}">
-            {% ifnotequal edition.title  work.title %}
+            {% if edition.title != work.title %}
                 Title: {{edition.title}}<br />
-            {% endifnotequal %}
+            {% endif %}
             {% if edition.authors.all.0 %}
                 Contributors: 
                 {% for author in edition.authors.all %}
@@ -34,11 +34,11 @@
             {% if not managing %}
                 {% if user.is_staff %}
                     <a href="{% url 'new_edition' work_id edition.id %}">Edit this edition</a><br />
-                {% else %}{% if user in work.last_campaign.managers.all %}
+                {% elif user in work.last_campaign.managers.all %}
                     <a href="{% url 'new_edition' work_id edition.id %}">Edit this edition</a><br />
-                {% else %}{% if user.rights_holder.count and not work.last_campaign %}
+                {% elif user.rights_holder.count and not work.last_campaign %}
                     <a href="{% url 'new_edition' work_id edition.id %}">Edit this edition</a><br />
-                {% endif %}{% endif %}{% endif %}
+                {% endif %}
                 {% if user.is_authenticated %}
                     <a href="{% url 'manage_ebooks' edition.id %}">Add ebook link</a><br />
                 {% endif %}

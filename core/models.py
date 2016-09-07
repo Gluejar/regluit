@@ -25,20 +25,22 @@ from tempfile import SpooledTemporaryFile
 '''
 django imports
 '''
+from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
-from django.contrib.contenttypes.generic import GenericRelation
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.urlresolvers import reverse
 from django.core.files.base import ContentFile
 from django.db import models
-from django.db.models import F, Q, get_model
+from django.db.models import F, Q
 from django.db.models.signals import post_save, pre_delete
 from django.utils.translation import ugettext_lazy as _
 '''
 regluit imports
 '''
 import regluit
+from regluit.libraryauth.auth import AVATARS
 import regluit.core.isbn
 import regluit.core.cc as cc
 from regluit.core.epub import personalize, ungluify, test_epub, ask_epub
@@ -105,9 +107,9 @@ class Key(models.Model):
         return "Key with name {0}".format(self.name)
     
 class CeleryTask(models.Model):
-    created = models.DateTimeField(auto_now_add=True, default=now())
+    created = models.DateTimeField(auto_now_add=True)
     task_id = models.CharField(max_length=255)
-    user =  models.ForeignKey(User, related_name="tasks", null=True) 
+    user =  models.ForeignKey(settings.AUTH_USER_MODEL, related_name="tasks", null=True) 
     description = models.CharField(max_length=2048, null=True)  # a description of what the task is 
     function_name = models.CharField(max_length=1024) # used to reconstitute the AsyncTask with which to get status
     function_args = models.IntegerField(null=True)  # not full generalized here -- takes only a single arg for now.
@@ -142,7 +144,7 @@ class Claim(models.Model):
     created =  models.DateTimeField(auto_now_add=True)  
     rights_holder =  models.ForeignKey("RightsHolder", related_name="claim", null=False )    
     work =  models.ForeignKey("Work", related_name="claim", null=False )    
-    user =  models.ForeignKey(User, related_name="claim", null=False ) 
+    user =  models.ForeignKey(settings.AUTH_USER_MODEL, related_name="claim", null=False ) 
     status = models.CharField(max_length=7, choices=STATUSES, default='active')
     
     @property
@@ -189,7 +191,7 @@ class RightsHolder(models.Model):
     created =  models.DateTimeField(auto_now_add=True)  
     email = models.CharField(max_length=100, blank=True)
     rights_holder_name = models.CharField(max_length=100, blank=False)
-    owner =  models.ForeignKey(User, related_name="rights_holder", null=False )
+    owner =  models.ForeignKey(settings.AUTH_USER_MODEL, related_name="rights_holder", null=False )
     can_sell = models.BooleanField(default=False)
     def __unicode__(self):
         return self.rights_holder_name
@@ -206,11 +208,11 @@ class Premium(models.Model):
 
     @property
     def premium_count(self):
-        t_model=get_model('payment','Transaction')
+        t_model=apps.get_model('payment','Transaction')
         return t_model.objects.filter(premium=self).count()
     @property
     def premium_remaining(self):
-        t_model=get_model('payment','Transaction')
+        t_model=apps.get_model('payment','Transaction')
         return self.limit - t_model.objects.filter(premium=self).count()
     def  __unicode__(self):
         return  (self.campaign.work.title if self.campaign else '')  + ' $' + str(self.amount)
@@ -259,11 +261,10 @@ class Acq(models.Model):
     CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'),(BORROWED,'Borrowed from Library'), (TESTING,'Just for Testing'), (RESERVE,'On Reserve'),(THANKED,'Already Thanked'),)
     created = models.DateTimeField(auto_now_add=True, db_index=True,)
     expires = models.DateTimeField(null=True)
-    refreshes = models.DateTimeField(auto_now_add=True, default=now())
-    refreshes.editable=True
+    refreshes = models.DateTimeField(auto_now_add=True)
     refreshed = models.BooleanField(default=True)
     work = models.ForeignKey("Work", related_name='acqs', null=False)
-    user = models.ForeignKey(User, related_name='acqs')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='acqs')
     license = models.PositiveSmallIntegerField(null = False, default = INDIVIDUAL,
             choices=CHOICES)
     watermarked = models.ForeignKey("booxtream.Boox",  null=True)
@@ -389,7 +390,7 @@ post_save.connect(config_acq,sender=Acq)
 class Hold(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     work = models.ForeignKey("Work", related_name='holds', null=False)
-    user = models.ForeignKey(User, related_name='holds', null=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='holds', null=False)
     library = models.ForeignKey(Library, related_name='holds', null=False)
 
     def __unicode__(self):
@@ -413,7 +414,7 @@ class Campaign(models.Model):
     paypal_receiver = models.CharField(max_length=100, blank=True)
     amazon_receiver = models.CharField(max_length=100, blank=True)
     work = models.ForeignKey("Work", related_name="campaigns", null=False)
-    managers = models.ManyToManyField(User, related_name="campaigns", null=False)
+    managers = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="campaigns", null=False)
     # status: INITIALIZED, ACTIVE, SUSPENDED, WITHDRAWN, SUCCESSFUL, UNSUCCESSFUL
     status = models.CharField(max_length=15, null=True, blank=False, default="INITIALIZED", db_index=True,)
     type = models.PositiveSmallIntegerField(null = False, default = REWARDS,
@@ -1332,7 +1333,11 @@ class Work(models.Model):
             if(campaign.status == 'SUCCESSFUL'):
                 status = 6
             elif(campaign.status == 'ACTIVE'):
-                target = float(campaign.target)
+                if campaign.target is not None:
+                    target = float(campaign.target)
+                else:
+                    #shouldn't happen, but did once because of a failed pdf conversion
+                    return 0
                 if target <= 0:
                     status = 6
                 else:
@@ -1702,7 +1707,7 @@ class Work(models.Model):
 class Author(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=255, unique=True)
-    editions = models.ManyToManyField("Edition", related_name="authors")
+    editions = models.ManyToManyField("Edition", related_name="authors", through="Relator")
 
     def __unicode__(self):
         return self.name
@@ -1984,7 +1989,7 @@ class WasWork(models.Model):
     work = models.ForeignKey('Work')
     was = models.IntegerField(unique = True)
     moved = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
 
 def safe_get_work(work_id):
     """
@@ -2043,7 +2048,7 @@ class Ebook(models.Model):
     # use 'PD-US', 'CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA', 'CC0'
     rights = models.CharField(max_length=255, null=True, choices = RIGHTS_CHOICES, db_index=True)
     edition = models.ForeignKey('Edition', related_name='ebooks')
-    user = models.ForeignKey(User, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
 
     def kindle_sendable(self):
         if not self.filesize or self.filesize < send_to_kindle_limit:
@@ -2169,7 +2174,7 @@ pre_delete.connect(reset_free_flag,sender=Ebook)
 
 class Wishlist(models.Model):
     created = models.DateTimeField(auto_now_add=True)
-    user = models.OneToOneField(User, related_name='wishlist')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='wishlist')
     works = models.ManyToManyField('Work', related_name='wishlists', through='Wishes')
 
     def __unicode__(self):
@@ -2230,10 +2235,10 @@ def pledger2():
 pledger2.instance=None
 
 ANONYMOUS_AVATAR = '/static/images/header/avatar.png'
-(NO_AVATAR, GRAVATAR, TWITTER, FACEBOOK, UNGLUEITAR) = (0, 1, 2, 3, 4)
+(NO_AVATAR, GRAVATAR, TWITTER, FACEBOOK, UNGLUEITAR) = AVATARS
 
 class Libpref(models.Model):
-    user = models.OneToOneField(User, related_name='libpref')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='libpref')
     marc_link_target = models.CharField(
         max_length=6,
         default = 'UNGLUE', 
@@ -2244,7 +2249,7 @@ class Libpref(models.Model):
 
 class UserProfile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
-    user = models.OneToOneField(User, related_name='profile')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='profile')
     tagline = models.CharField(max_length=140, blank=True)
     pic_url = models.URLField(blank=True) 
     home_url = models.URLField(blank=True)
@@ -2367,7 +2372,7 @@ class UserProfile(models.Model):
         
     def unglueitar(self):
         # construct the url
-        gravatar_url = "https://www.gravatar.com/avatar/" + hashlib.md5(self.user.username.encode('utf-8') + '@unglue.it').hexdigest() + "?"
+        gravatar_url = "https://www.gravatar.com/avatar/" + hashlib.md5(urllib.quote_plus(self.user.username.encode('utf-8')) + '@unglue.it').hexdigest() + "?"
         gravatar_url += urllib.urlencode({'d':'wavatar', 's':'50'})
         return gravatar_url
         

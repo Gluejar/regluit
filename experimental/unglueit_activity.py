@@ -1,4 +1,4 @@
-from django.contrib.comments.models import Comment
+from django_comments.models import Comment
 from regluit.experimental.gutenberg import unicode_csv
 import os
 

@@ -265,7 +265,7 @@ def handleIPN(request, module):
 def paymentcomplete(request):
     # pick up all get and post parameters and display
     output = "payment complete"
-    output += request.method + "\n" + str(request.REQUEST.items())
+    output += request.method + "\n" + str(request.GET.items()) + "\n" + str(request.POST.items())
     return HttpResponse(output)
 
 def checkStatus(request):

@@ -323,6 +323,7 @@ class RightsHolderForm(forms.ModelForm):
         )
     class Meta:
         model = RightsHolder
+        exclude = ()
 
     def clean_rights_holder_name(self):
         rights_holder_name = self.data["rights_holder_name"]
@@ -365,44 +366,6 @@ class ProfileForm(forms.ModelForm):
         if self.cleaned_data.get("clear_twitter", False) and self.cleaned_data.get("avatar_source", None)==TWITTER:
             self.cleaned_data["avatar_source"]==UNGLUEITAR
         return self.cleaned_data
- 
-class UserData(forms.Form):
-    username = forms.RegexField(
-        label=_("New Username"), 
-        max_length=30, 
-        regex=r'^[\w.@+-]+$',
-        help_text = _("30 characters or fewer."),
-        error_messages = {
-            'invalid': _("This value may contain only letters, numbers and @/./+/-/_ characters.")
-        }
-    )
-    oldusername = None
-    allow_same = False
-
-
-    def clean_username(self):
-        username = self.data["username"]
-        if username != self.oldusername:
-            users = User.objects.filter(username__iexact=username)
-            for user in users:
-                raise forms.ValidationError(_("Another user with that username already exists."))
-            return username
-        if not self.allow_same:
-            raise forms.ValidationError(_("Your username is already "+username))
-
-class UserNamePass(UserData):
-    password1 = forms.CharField(label=_("Password"),
-        widget=forms.PasswordInput)
-    password2 = forms.CharField(label=_("Password confirmation"),
-        widget=forms.PasswordInput,
-        help_text = _("Enter the same password as above, for verification."))
-    allow_same = True
-    def clean_password2(self):
-        password1 = self.cleaned_data.get("password1", "")
-        password2 = self.cleaned_data["password2"]
-        if password1 != password2:
-            raise forms.ValidationError(_("The two passwords don't match."))
-        return password2
 
 class CloneCampaignForm(forms.Form):
     campaign_id = forms.IntegerField(required = True, widget = forms.HiddenInput)
@@ -494,6 +457,9 @@ class CustomPremiumForm(forms.ModelForm):
                 'type': forms.HiddenInput(attrs={'value':'XX'}),
                 'limit': forms.TextInput(attrs={'value':'0'}),
             }
+    def clean_type(self):
+        return 'CU'
+        
 class OfferForm(forms.ModelForm):
 
     class Meta:
@@ -853,6 +819,7 @@ class MsgForm(forms.Form):
 class PressForm(forms.ModelForm):
     class Meta:
         model = Press
+        exclude = ()
 
         widgets = { 
                 'date': SelectDateWidget(years=range(2010,2025)),

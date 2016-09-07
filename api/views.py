@@ -7,7 +7,7 @@ from django.contrib import auth
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.core.urlresolvers import reverse
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.base import View, TemplateView
@@ -33,9 +33,8 @@ logger = logging.getLogger(__name__)
 
 def editions(request):
     editions = models.Edition.objects.all()
-    return render_to_response('editions.html', 
+    return render(request, 'editions.html', 
         {'editions':editions},
-        context_instance=RequestContext(request)
     )    
 
 def negotiate_content(request,work_id):
@@ -66,20 +65,18 @@ def widget(request, isbn):
                 identifier = models.Identifier.objects.get(type = 'isbn', value = isbn )
                 work = identifier.work
             except models.Identifier.DoesNotExist:
-                return render_to_response('widget.html', 
+                return render(request, 'widget.html', 
                      { 'work':None,}, 
-                     context_instance=RequestContext(request)
                     )
         else:
             work= models.safe_get_work(isbn)
-    return render_to_response('widget.html', 
+    return render(request, 'widget.html', 
          {'work':work, }, 
-         context_instance=RequestContext(request)
      )
 
 def load_yaml(request):
     if request.method == "GET":
-        return render_to_response('load_yaml.html', { }, context_instance=RequestContext(request))
+        return render(request, 'load_yaml.html', { })
     repo_url = request.POST.get('repo_url', None)
     if not repo_url:
         return HttpResponse('needs repo_url')

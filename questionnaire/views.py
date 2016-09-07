@@ -5,7 +5,7 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
 from django.contrib.auth.decorators import permission_required
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, render_to_response, get_object_or_404
 from django.views.generic.base import TemplateView
 from django.db import transaction
 from django.conf import settings
@@ -46,7 +46,7 @@ except AttributeError:
 def r2r(tpl, request, **contextdict):
     "Shortcut to use RequestContext instead of Context in templates"
     contextdict['request'] = request
-    return render_to_response(tpl, contextdict, context_instance=RequestContext(request))
+    return render(request, tpl, contextdict)
 
 
 def get_runinfo(random):
@@ -781,7 +781,7 @@ def set_language(request, runinfo=None, next=None):
     Can also be used by a url handler, w/o runinfo & next.
     """
     if not next:
-        next = request.REQUEST.get('next', None)
+        next = request.GET.get('next', request.POST.get('next', None))
     if not next:
         next = request.META.get('HTTP_REFERER', None)
         if not next:

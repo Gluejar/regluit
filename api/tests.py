@@ -151,6 +151,7 @@ class ApiTests(TestCase):
         self.assertEqual(r.status_code, 200)
 
 class FeedTests(TestCase):
+    fixtures = ['initial_data.json']
     def setUp(self):
         edition = bookloader.add_by_isbn_from_google(isbn='0441007465')
         ebook = models.Ebook.objects.create(edition=edition, url='http://example.org/', format='epub', rights='CC BY')
@@ -197,6 +198,7 @@ class AllowedRepoTests(TestCase):
         self.assertFalse(apimodels.repo_allowed('https://github.com/test/test/raw/master/metadata.json')[0])
 
 class WebHookTests(TestCase):
+    fixtures = ['initial_data.json']
     def test_travisci_webhook(self):
         """
         test of api.views.travisci_webhook

@@ -1,167 +1,135 @@
-# encoding: utf-8
-import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
-class Migration(SchemaMigration):
-
-    def forwards(self, orm):
-        
-        # Adding model 'Transaction'
-        db.create_table('payment_transaction', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('type', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('target', self.gf('django.db.models.fields.IntegerField')(default=0)),
-            ('status', self.gf('django.db.models.fields.CharField')(default='NONE', max_length=32)),
-            ('amount', self.gf('django.db.models.fields.DecimalField')(default='0.00', max_digits=14, decimal_places=2)),
-            ('currency', self.gf('django.db.models.fields.CharField')(default='USD', max_length=10, null=True)),
-            ('secret', self.gf('django.db.models.fields.CharField')(max_length=64, null=True)),
-            ('reference', self.gf('django.db.models.fields.CharField')(max_length=128, null=True)),
-            ('receipt', self.gf('django.db.models.fields.CharField')(max_length=256, null=True)),
-            ('error', self.gf('django.db.models.fields.CharField')(max_length=256, null=True)),
-            ('reason', self.gf('django.db.models.fields.CharField')(max_length=64, null=True)),
-            ('date_created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('date_modified', self.gf('django.db.models.fields.DateTimeField')(auto_now=True, blank=True)),
-            ('date_payment', self.gf('django.db.models.fields.DateTimeField')(null=True)),
-            ('date_authorized', self.gf('django.db.models.fields.DateTimeField')(null=True)),
-            ('date_expired', self.gf('django.db.models.fields.DateTimeField')(null=True)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['auth.User'], null=True)),
-            ('campaign', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['core.Campaign'], null=True)),
-            ('list', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['core.Wishlist'], null=True)),
-            ('anonymous', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal('payment', ['Transaction'])
-
-        # Adding model 'Receiver'
-        db.create_table('payment_receiver', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('email', self.gf('django.db.models.fields.CharField')(max_length=64)),
-            ('amount', self.gf('django.db.models.fields.DecimalField')(default='0.00', max_digits=14, decimal_places=2)),
-            ('currency', self.gf('django.db.models.fields.CharField')(max_length=10)),
-            ('status', self.gf('django.db.models.fields.CharField')(max_length=64)),
-            ('reason', self.gf('django.db.models.fields.CharField')(max_length=64)),
-            ('primary', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('txn_id', self.gf('django.db.models.fields.CharField')(max_length=64)),
-            ('transaction', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['payment.Transaction'])),
-        ))
-        db.send_create_signal('payment', ['Receiver'])
+from django.db import migrations, models
+import jsonfield.fields
+from decimal import Decimal
+from django.conf import settings
 
 
-    def backwards(self, orm):
-        
-        # Deleting model 'Transaction'
-        db.delete_table('payment_transaction')
+class Migration(migrations.Migration):
 
-        # Deleting model 'Receiver'
-        db.delete_table('payment_receiver')
+    dependencies = [
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        ('core', '0001_initial'),
+    ]
 
-
-    models = {
-        'auth.group': {
-            'Meta': {'object_name': 'Group'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
-            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
-        },
-        'auth.permission': {
-            'Meta': {'ordering': "('content_type__app_label', 'content_type__model', 'codename')", 'unique_together': "(('content_type', 'codename'),)", 'object_name': 'Permission'},
-            'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
-        },
-        'auth.user': {
-            'Meta': {'object_name': 'User'},
-            'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
-            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Group']", 'symmetrical': 'False', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
-            'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
-        },
-        'contenttypes.contenttype': {
-            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
-            'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        'core.campaign': {
-            'Meta': {'object_name': 'Campaign'},
-            'activated': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
-            'amazon_receiver': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'deadline': ('django.db.models.fields.DateTimeField', [], {}),
-            'description': ('django.db.models.fields.TextField', [], {'null': 'True'}),
-            'details': ('django.db.models.fields.TextField', [], {'null': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'managers': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'campaigns'", 'symmetrical': 'False', 'to': "orm['auth.User']"}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '500', 'null': 'True'}),
-            'paypal_receiver': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'suspended': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
-            'suspended_reason': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'target': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '14', 'decimal_places': '2'}),
-            'withdrawn': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
-            'withdrawn_reason': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'work': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'campaigns'", 'to': "orm['core.Work']"})
-        },
-        'core.wishlist': {
-            'Meta': {'object_name': 'Wishlist'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'user': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'wishlist'", 'unique': 'True', 'to': "orm['auth.User']"}),
-            'works': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'wishlists'", 'symmetrical': 'False', 'to': "orm['core.Work']"})
-        },
-        'core.work': {
-            'Meta': {'object_name': 'Work'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'openlibrary_id': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True'}),
-            'title': ('django.db.models.fields.CharField', [], {'max_length': '1000'})
-        },
-        'payment.receiver': {
-            'Meta': {'object_name': 'Receiver'},
-            'amount': ('django.db.models.fields.DecimalField', [], {'default': "'0.00'", 'max_digits': '14', 'decimal_places': '2'}),
-            'currency': ('django.db.models.fields.CharField', [], {'max_length': '10'}),
-            'email': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'primary': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'reason': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
-            'status': ('django.db.models.fields.CharField', [], {'max_length': '64'}),
-            'transaction': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['payment.Transaction']"}),
-            'txn_id': ('django.db.models.fields.CharField', [], {'max_length': '64'})
-        },
-        'payment.transaction': {
-            'Meta': {'object_name': 'Transaction'},
-            'amount': ('django.db.models.fields.DecimalField', [], {'default': "'0.00'", 'max_digits': '14', 'decimal_places': '2'}),
-            'anonymous': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'campaign': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['core.Campaign']", 'null': 'True'}),
-            'currency': ('django.db.models.fields.CharField', [], {'default': "'USD'", 'max_length': '10', 'null': 'True'}),
-            'date_authorized': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
-            'date_created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'date_expired': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
-            'date_modified': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'date_payment': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
-            'error': ('django.db.models.fields.CharField', [], {'max_length': '256', 'null': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'list': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['core.Wishlist']", 'null': 'True'}),
-            'reason': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True'}),
-            'receipt': ('django.db.models.fields.CharField', [], {'max_length': '256', 'null': 'True'}),
-            'reference': ('django.db.models.fields.CharField', [], {'max_length': '128', 'null': 'True'}),
-            'secret': ('django.db.models.fields.CharField', [], {'max_length': '64', 'null': 'True'}),
-            'status': ('django.db.models.fields.CharField', [], {'default': "'NONE'", 'max_length': '32'}),
-            'target': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'type': ('django.db.models.fields.IntegerField', [], {'default': '0'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True'})
-        }
-    }
-
-    complete_apps = ['payment']
+    operations = [
+        migrations.CreateModel(
+            name='Account',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('host', models.CharField(default=b'none', max_length=32)),
+                ('account_id', models.CharField(max_length=128, null=True)),
+                ('card_last4', models.CharField(max_length=4, null=True)),
+                ('card_type', models.CharField(max_length=32, null=True)),
+                ('card_exp_month', models.IntegerField(null=True)),
+                ('card_exp_year', models.IntegerField(null=True)),
+                ('card_fingerprint', models.CharField(max_length=32, null=True)),
+                ('card_country', models.CharField(max_length=2, null=True)),
+                ('date_created', models.DateTimeField(auto_now_add=True)),
+                ('date_modified', models.DateTimeField(auto_now=True)),
+                ('date_deactivated', models.DateTimeField(null=True)),
+                ('status', models.CharField(default=b'ACTIVE', max_length=11, choices=[(b'ACTIVE', b'ACTIVE'), (b'DEACTIVATED', b'DEACTIVATED'), (b'EXPIRED', b'EXPIRED'), (b'EXPIRING', b'EXPIRING'), (b'ERROR', b'ERROR')])),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Credit',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('balance', models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2)),
+                ('pledged', models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2)),
+                ('last_activity', models.DateTimeField(auto_now=True)),
+                ('user', models.OneToOneField(related_name='credit', to=settings.AUTH_USER_MODEL)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='CreditLog',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('amount', models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2)),
+                ('timestamp', models.DateTimeField(auto_now=True)),
+                ('action', models.CharField(max_length=16)),
+                ('sent', models.IntegerField(null=True)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='PaymentResponse',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('api', models.CharField(max_length=64)),
+                ('correlation_id', models.CharField(max_length=512, null=True)),
+                ('timestamp', models.CharField(max_length=128, null=True)),
+                ('info', models.CharField(max_length=1024, null=True)),
+                ('status', models.CharField(max_length=32, null=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Receiver',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('email', models.CharField(max_length=64)),
+                ('amount', models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2)),
+                ('currency', models.CharField(max_length=10)),
+                ('status', models.CharField(max_length=64)),
+                ('local_status', models.CharField(max_length=64, null=True)),
+                ('reason', models.CharField(max_length=64)),
+                ('primary', models.BooleanField(default=True)),
+                ('txn_id', models.CharField(max_length=64)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Sent',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('user', models.CharField(max_length=32, null=True)),
+                ('amount', models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2)),
+                ('timestamp', models.DateTimeField(auto_now=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Transaction',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('type', models.IntegerField(default=0)),
+                ('host', models.CharField(default=b'none', max_length=32)),
+                ('execution', models.IntegerField(default=0)),
+                ('status', models.CharField(default=b'None', max_length=32)),
+                ('local_status', models.CharField(default=b'NONE', max_length=32, null=True)),
+                ('amount', models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2)),
+                ('max_amount', models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2)),
+                ('currency', models.CharField(default=b'USD', max_length=10, null=True)),
+                ('secret', models.CharField(max_length=64, null=True)),
+                ('pay_key', models.CharField(max_length=128, null=True)),
+                ('preapproval_key', models.CharField(max_length=128, null=True)),
+                ('receipt', models.CharField(max_length=256, null=True)),
+                ('approved', models.NullBooleanField()),
+                ('error', models.CharField(max_length=256, null=True)),
+                ('reason', models.CharField(max_length=64, null=True)),
+                ('date_created', models.DateTimeField(auto_now_add=True, db_index=True)),
+                ('date_modified', models.DateTimeField(auto_now=True)),
+                ('date_payment', models.DateTimeField(null=True)),
+                ('date_executed', models.DateTimeField(null=True)),
+                ('date_authorized', models.DateTimeField(null=True)),
+                ('date_expired', models.DateTimeField(null=True)),
+                ('extra', jsonfield.fields.JSONField(default={}, null=True)),
+                ('anonymous', models.BooleanField(default=False)),
+                ('campaign', models.ForeignKey(to='core.Campaign', null=True)),
+                ('offer', models.ForeignKey(to='core.Offer', null=True)),
+                ('premium', models.ForeignKey(to='core.Premium', null=True)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True)),
+            ],
+        ),
+        migrations.AddField(
+            model_name='receiver',
+            name='transaction',
+            field=models.ForeignKey(to='payment.Transaction'),
+        ),
+        migrations.AddField(
+            model_name='paymentresponse',
+            name='transaction',
+            field=models.ForeignKey(to='payment.Transaction'),
+        ),
+    ]

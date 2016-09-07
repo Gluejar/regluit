@@ -1,408 +1,379 @@
-# encoding: utf-8
-import datetime
-from south.db import db
-from south.v2 import SchemaMigration
-from django.db import models
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
-class Migration(SchemaMigration):
-
-    def forwards(self, orm):
-        
-        # Adding model 'CeleryTask'
-        db.create_table('core_celerytask', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(default=datetime.datetime(2011, 11, 21, 11, 28, 24, 379193), auto_now_add=True, blank=True)),
-            ('task_id', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='tasks', null=True, to=orm['auth.User'])),
-            ('description', self.gf('django.db.models.fields.CharField')(max_length=2048, null=True)),
-            ('function_name', self.gf('django.db.models.fields.CharField')(max_length=1024)),
-            ('function_args', self.gf('django.db.models.fields.IntegerField')(null=True)),
-            ('active', self.gf('django.db.models.fields.NullBooleanField')(default=True, null=True, blank=True)),
-        ))
-        db.send_create_signal('core', ['CeleryTask'])
-
-        # Adding model 'Claim'
-        db.create_table('core_claim', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('rights_holder', self.gf('django.db.models.fields.related.ForeignKey')(related_name='claim', to=orm['core.RightsHolder'])),
-            ('work', self.gf('django.db.models.fields.related.ForeignKey')(related_name='claim', to=orm['core.Work'])),
-            ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='claim', to=orm['auth.User'])),
-            ('status', self.gf('django.db.models.fields.CharField')(default='pending', max_length=7)),
-        ))
-        db.send_create_signal('core', ['Claim'])
-
-        # Adding model 'RightsHolder'
-        db.create_table('core_rightsholder', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('email', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('rights_holder_name', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('owner', self.gf('django.db.models.fields.related.ForeignKey')(related_name='rights_holder', to=orm['auth.User'])),
-        ))
-        db.send_create_signal('core', ['RightsHolder'])
-
-        # Adding model 'Premium'
-        db.create_table('core_premium', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('type', self.gf('django.db.models.fields.CharField')(max_length=2)),
-            ('campaign', self.gf('django.db.models.fields.related.ForeignKey')(related_name='premiums', null=True, to=orm['core.Campaign'])),
-            ('amount', self.gf('django.db.models.fields.DecimalField')(max_digits=10, decimal_places=0)),
-            ('description', self.gf('django.db.models.fields.TextField')(null=True)),
-        ))
-        db.send_create_signal('core', ['Premium'])
-
-        # Adding model 'Campaign'
-        db.create_table('core_campaign', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=500, null=True)),
-            ('description', self.gf('django.db.models.fields.TextField')(null=True)),
-            ('details', self.gf('django.db.models.fields.TextField')(null=True)),
-            ('target', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=14, decimal_places=2)),
-            ('deadline', self.gf('django.db.models.fields.DateTimeField')()),
-            ('activated', self.gf('django.db.models.fields.DateTimeField')(null=True)),
-            ('suspended', self.gf('django.db.models.fields.DateTimeField')(null=True)),
-            ('withdrawn', self.gf('django.db.models.fields.DateTimeField')(null=True)),
-            ('suspended_reason', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('withdrawn_reason', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('paypal_receiver', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('amazon_receiver', self.gf('django.db.models.fields.CharField')(max_length=100, blank=True)),
-            ('work', self.gf('django.db.models.fields.related.ForeignKey')(related_name='campaigns', to=orm['core.Work'])),
-        ))
-        db.send_create_signal('core', ['Campaign'])
-
-        # Adding M2M table for field managers on 'Campaign'
-        db.create_table('core_campaign_managers', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('campaign', models.ForeignKey(orm['core.campaign'], null=False)),
-            ('user', models.ForeignKey(orm['auth.user'], null=False))
-        ))
-        db.create_unique('core_campaign_managers', ['campaign_id', 'user_id'])
-
-        # Adding model 'Work'
-        db.create_table('core_work', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('title', self.gf('django.db.models.fields.CharField')(max_length=1000)),
-            ('openlibrary_id', self.gf('django.db.models.fields.CharField')(max_length=50, null=True)),
-        ))
-        db.send_create_signal('core', ['Work'])
-
-        # Adding model 'Author'
-        db.create_table('core_author', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=500)),
-        ))
-        db.send_create_signal('core', ['Author'])
-
-        # Adding M2M table for field editions on 'Author'
-        db.create_table('core_author_editions', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('author', models.ForeignKey(orm['core.author'], null=False)),
-            ('edition', models.ForeignKey(orm['core.edition'], null=False))
-        ))
-        db.create_unique('core_author_editions', ['author_id', 'edition_id'])
-
-        # Adding model 'Subject'
-        db.create_table('core_subject', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=500)),
-        ))
-        db.send_create_signal('core', ['Subject'])
-
-        # Adding M2M table for field editions on 'Subject'
-        db.create_table('core_subject_editions', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('subject', models.ForeignKey(orm['core.subject'], null=False)),
-            ('edition', models.ForeignKey(orm['core.edition'], null=False))
-        ))
-        db.create_unique('core_subject_editions', ['subject_id', 'edition_id'])
-
-        # Adding model 'Edition'
-        db.create_table('core_edition', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('googlebooks_id', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('title', self.gf('django.db.models.fields.CharField')(max_length=1000)),
-            ('description', self.gf('django.db.models.fields.TextField')(default='', null=True)),
-            ('publisher', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('publication_date', self.gf('django.db.models.fields.CharField')(max_length=50)),
-            ('public_domain', self.gf('django.db.models.fields.NullBooleanField')(null=True, blank=True)),
-            ('isbn_10', self.gf('django.db.models.fields.CharField')(max_length=10, null=True)),
-            ('isbn_13', self.gf('django.db.models.fields.CharField')(max_length=13, null=True)),
-            ('oclc', self.gf('django.db.models.fields.CharField')(max_length=25, null=True)),
-            ('work', self.gf('django.db.models.fields.related.ForeignKey')(related_name='editions', null=True, to=orm['core.Work'])),
-            ('language', self.gf('django.db.models.fields.CharField')(max_length=2, null=True)),
-        ))
-        db.send_create_signal('core', ['Edition'])
-
-        # Adding model 'Ebook'
-        db.create_table('core_ebook', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('format', self.gf('django.db.models.fields.CharField')(max_length=25)),
-            ('url', self.gf('django.db.models.fields.CharField')(max_length=1024)),
-            ('provider', self.gf('django.db.models.fields.CharField')(max_length=255)),
-            ('rights', self.gf('django.db.models.fields.CharField')(max_length=255, null=True)),
-            ('edition', self.gf('django.db.models.fields.related.ForeignKey')(related_name='ebooks', to=orm['core.Edition'])),
-        ))
-        db.send_create_signal('core', ['Ebook'])
-
-        # Adding model 'Wishlist'
-        db.create_table('core_wishlist', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('user', self.gf('django.db.models.fields.related.OneToOneField')(related_name='wishlist', unique=True, to=orm['auth.User'])),
-        ))
-        db.send_create_signal('core', ['Wishlist'])
-
-        # Adding M2M table for field works on 'Wishlist'
-        db.create_table('core_wishlist_works', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('wishlist', models.ForeignKey(orm['core.wishlist'], null=False)),
-            ('work', models.ForeignKey(orm['core.work'], null=False))
-        ))
-        db.create_unique('core_wishlist_works', ['wishlist_id', 'work_id'])
-
-        # Adding model 'UserProfile'
-        db.create_table('core_userprofile', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('created', self.gf('django.db.models.fields.DateTimeField')(auto_now_add=True, blank=True)),
-            ('user', self.gf('django.db.models.fields.related.OneToOneField')(related_name='profile', unique=True, to=orm['auth.User'])),
-            ('tagline', self.gf('django.db.models.fields.CharField')(max_length=140, blank=True)),
-            ('pic_url', self.gf('django.db.models.fields.URLField')(max_length=200, blank=True)),
-            ('home_url', self.gf('django.db.models.fields.URLField')(max_length=200, blank=True)),
-            ('twitter_id', self.gf('django.db.models.fields.CharField')(max_length=15, blank=True)),
-            ('facebook_id', self.gf('django.db.models.fields.PositiveIntegerField')(null=True)),
-            ('librarything_id', self.gf('django.db.models.fields.CharField')(max_length=31, blank=True)),
-            ('goodreads_user_id', self.gf('django.db.models.fields.CharField')(max_length=32, null=True, blank=True)),
-            ('goodreads_user_name', self.gf('django.db.models.fields.CharField')(max_length=200, null=True, blank=True)),
-            ('goodreads_auth_token', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('goodreads_auth_secret', self.gf('django.db.models.fields.TextField')(null=True, blank=True)),
-            ('goodreads_user_link', self.gf('django.db.models.fields.CharField')(max_length=200, null=True, blank=True)),
-        ))
-        db.send_create_signal('core', ['UserProfile'])
+from django.db import migrations, models
+import ckeditor.fields
+import regluit.core.models
+from django.conf import settings
 
 
-    def backwards(self, orm):
-        
-        # Deleting model 'CeleryTask'
-        db.delete_table('core_celerytask')
+class Migration(migrations.Migration):
 
-        # Deleting model 'Claim'
-        db.delete_table('core_claim')
+    dependencies = [
+        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+    ]
 
-        # Deleting model 'RightsHolder'
-        db.delete_table('core_rightsholder')
-
-        # Deleting model 'Premium'
-        db.delete_table('core_premium')
-
-        # Deleting model 'Campaign'
-        db.delete_table('core_campaign')
-
-        # Removing M2M table for field managers on 'Campaign'
-        db.delete_table('core_campaign_managers')
-
-        # Deleting model 'Work'
-        db.delete_table('core_work')
-
-        # Deleting model 'Author'
-        db.delete_table('core_author')
-
-        # Removing M2M table for field editions on 'Author'
-        db.delete_table('core_author_editions')
-
-        # Deleting model 'Subject'
-        db.delete_table('core_subject')
-
-        # Removing M2M table for field editions on 'Subject'
-        db.delete_table('core_subject_editions')
-
-        # Deleting model 'Edition'
-        db.delete_table('core_edition')
-
-        # Deleting model 'Ebook'
-        db.delete_table('core_ebook')
-
-        # Deleting model 'Wishlist'
-        db.delete_table('core_wishlist')
-
-        # Removing M2M table for field works on 'Wishlist'
-        db.delete_table('core_wishlist_works')
-
-        # Deleting model 'UserProfile'
-        db.delete_table('core_userprofile')
-
-
-    models = {
-        'auth.group': {
-            'Meta': {'object_name': 'Group'},
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '80'}),
-            'permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'})
-        },
-        'auth.permission': {
-            'Meta': {'ordering': "('content_type__app_label', 'content_type__model', 'codename')", 'unique_together': "(('content_type', 'codename'),)", 'object_name': 'Permission'},
-            'codename': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '50'})
-        },
-        'auth.user': {
-            'Meta': {'object_name': 'User'},
-            'date_joined': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'email': ('django.db.models.fields.EmailField', [], {'max_length': '75', 'blank': 'True'}),
-            'first_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'groups': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Group']", 'symmetrical': 'False', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_active': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'is_staff': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'is_superuser': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
-            'last_login': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now'}),
-            'last_name': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'password': ('django.db.models.fields.CharField', [], {'max_length': '128'}),
-            'user_permissions': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['auth.Permission']", 'symmetrical': 'False', 'blank': 'True'}),
-            'username': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'})
-        },
-        'contenttypes.contenttype': {
-            'Meta': {'ordering': "('name',)", 'unique_together': "(('app_label', 'model'),)", 'object_name': 'ContentType', 'db_table': "'django_content_type'"},
-            'app_label': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
-        },
-        'core.author': {
-            'Meta': {'object_name': 'Author'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'editions': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'authors'", 'symmetrical': 'False', 'to': "orm['core.Edition']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '500'})
-        },
-        'core.campaign': {
-            'Meta': {'object_name': 'Campaign'},
-            'activated': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
-            'amazon_receiver': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'deadline': ('django.db.models.fields.DateTimeField', [], {}),
-            'description': ('django.db.models.fields.TextField', [], {'null': 'True'}),
-            'details': ('django.db.models.fields.TextField', [], {'null': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'managers': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'campaigns'", 'symmetrical': 'False', 'to': "orm['auth.User']"}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '500', 'null': 'True'}),
-            'paypal_receiver': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'suspended': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
-            'suspended_reason': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'target': ('django.db.models.fields.DecimalField', [], {'null': 'True', 'max_digits': '14', 'decimal_places': '2'}),
-            'withdrawn': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
-            'withdrawn_reason': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'work': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'campaigns'", 'to': "orm['core.Work']"})
-        },
-        'core.celerytask': {
-            'Meta': {'object_name': 'CeleryTask'},
-            'active': ('django.db.models.fields.NullBooleanField', [], {'default': 'True', 'null': 'True', 'blank': 'True'}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2011, 11, 21, 11, 28, 24, 379193)', 'auto_now_add': 'True', 'blank': 'True'}),
-            'description': ('django.db.models.fields.CharField', [], {'max_length': '2048', 'null': 'True'}),
-            'function_args': ('django.db.models.fields.IntegerField', [], {'null': 'True'}),
-            'function_name': ('django.db.models.fields.CharField', [], {'max_length': '1024'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'task_id': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'tasks'", 'null': 'True', 'to': "orm['auth.User']"})
-        },
-        'core.claim': {
-            'Meta': {'object_name': 'Claim'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'rights_holder': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'claim'", 'to': "orm['core.RightsHolder']"}),
-            'status': ('django.db.models.fields.CharField', [], {'default': "'pending'", 'max_length': '7'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'claim'", 'to': "orm['auth.User']"}),
-            'work': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'claim'", 'to': "orm['core.Work']"})
-        },
-        'core.ebook': {
-            'Meta': {'object_name': 'Ebook'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'edition': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'ebooks'", 'to': "orm['core.Edition']"}),
-            'format': ('django.db.models.fields.CharField', [], {'max_length': '25'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'provider': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'rights': ('django.db.models.fields.CharField', [], {'max_length': '255', 'null': 'True'}),
-            'url': ('django.db.models.fields.CharField', [], {'max_length': '1024'})
-        },
-        'core.edition': {
-            'Meta': {'object_name': 'Edition'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'description': ('django.db.models.fields.TextField', [], {'default': "''", 'null': 'True'}),
-            'googlebooks_id': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'isbn_10': ('django.db.models.fields.CharField', [], {'max_length': '10', 'null': 'True'}),
-            'isbn_13': ('django.db.models.fields.CharField', [], {'max_length': '13', 'null': 'True'}),
-            'language': ('django.db.models.fields.CharField', [], {'max_length': '2', 'null': 'True'}),
-            'oclc': ('django.db.models.fields.CharField', [], {'max_length': '25', 'null': 'True'}),
-            'public_domain': ('django.db.models.fields.NullBooleanField', [], {'null': 'True', 'blank': 'True'}),
-            'publication_date': ('django.db.models.fields.CharField', [], {'max_length': '50'}),
-            'publisher': ('django.db.models.fields.CharField', [], {'max_length': '255'}),
-            'title': ('django.db.models.fields.CharField', [], {'max_length': '1000'}),
-            'work': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'editions'", 'null': 'True', 'to': "orm['core.Work']"})
-        },
-        'core.premium': {
-            'Meta': {'object_name': 'Premium'},
-            'amount': ('django.db.models.fields.DecimalField', [], {'max_digits': '10', 'decimal_places': '0'}),
-            'campaign': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'premiums'", 'null': 'True', 'to': "orm['core.Campaign']"}),
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'description': ('django.db.models.fields.TextField', [], {'null': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'type': ('django.db.models.fields.CharField', [], {'max_length': '2'})
-        },
-        'core.rightsholder': {
-            'Meta': {'object_name': 'RightsHolder'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'email': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'owner': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'rights_holder'", 'to': "orm['auth.User']"}),
-            'rights_holder_name': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'})
-        },
-        'core.subject': {
-            'Meta': {'object_name': 'Subject'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'editions': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'subjects'", 'symmetrical': 'False', 'to': "orm['core.Edition']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '500'})
-        },
-        'core.userprofile': {
-            'Meta': {'object_name': 'UserProfile'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'facebook_id': ('django.db.models.fields.PositiveIntegerField', [], {'null': 'True'}),
-            'goodreads_auth_secret': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'goodreads_auth_token': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'goodreads_user_id': ('django.db.models.fields.CharField', [], {'max_length': '32', 'null': 'True', 'blank': 'True'}),
-            'goodreads_user_link': ('django.db.models.fields.CharField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
-            'goodreads_user_name': ('django.db.models.fields.CharField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'}),
-            'home_url': ('django.db.models.fields.URLField', [], {'max_length': '200', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'librarything_id': ('django.db.models.fields.CharField', [], {'max_length': '31', 'blank': 'True'}),
-            'pic_url': ('django.db.models.fields.URLField', [], {'max_length': '200', 'blank': 'True'}),
-            'tagline': ('django.db.models.fields.CharField', [], {'max_length': '140', 'blank': 'True'}),
-            'twitter_id': ('django.db.models.fields.CharField', [], {'max_length': '15', 'blank': 'True'}),
-            'user': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'profile'", 'unique': 'True', 'to': "orm['auth.User']"})
-        },
-        'core.wishlist': {
-            'Meta': {'object_name': 'Wishlist'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'user': ('django.db.models.fields.related.OneToOneField', [], {'related_name': "'wishlist'", 'unique': 'True', 'to': "orm['auth.User']"}),
-            'works': ('django.db.models.fields.related.ManyToManyField', [], {'related_name': "'wishlists'", 'symmetrical': 'False', 'to': "orm['core.Work']"})
-        },
-        'core.work': {
-            'Meta': {'object_name': 'Work'},
-            'created': ('django.db.models.fields.DateTimeField', [], {'auto_now_add': 'True', 'blank': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'openlibrary_id': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True'}),
-            'title': ('django.db.models.fields.CharField', [], {'max_length': '1000'})
-        }
-    }
-
-    complete_apps = ['core']
+    operations = [
+        migrations.CreateModel(
+            name='Acq',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created', models.DateTimeField(auto_now_add=True, db_index=True)),
+                ('expires', models.DateTimeField(null=True)),
+                ('refreshes', models.DateTimeField(auto_now_add=True)),
+                ('refreshed', models.BooleanField(default=True)),
+                ('license', models.PositiveSmallIntegerField(default=1, choices=[(1, b'Individual license'), (2, b'Library License'), (3, b'Borrowed from Library'), (0, b'Just for Testing'), (4, b'On Reserve'), (5, b'Already Thanked')])),
+                ('nonce', models.CharField(max_length=32, null=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Author',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('name', models.CharField(unique=True, max_length=255)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Badge',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=72, blank=True)),
+                ('description', models.TextField(default=b'', null=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Campaign',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('name', models.CharField(max_length=500, null=True)),
+                ('description', ckeditor.fields.RichTextField(null=True)),
+                ('details', ckeditor.fields.RichTextField(null=True, blank=True)),
+                ('target', models.DecimalField(default=0.0, null=True, max_digits=14, decimal_places=2)),
+                ('license', models.CharField(default=b'CC BY-NC-ND', max_length=255, choices=[(b'CC BY-NC-ND', b'Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported (CC BY-NC-ND 3.0)'), (b'CC BY-NC-SA', b'Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0)'), (b'CC BY-NC', b'Creative Commons Attribution-NonCommercial 3.0 Unported (CC BY-NC 3.0)'), (b'CC BY-ND', b'Creative Commons Attribution-NoDerivs 3.0 Unported (CC BY-ND 3.0)'), (b'CC BY-SA', b'Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)'), (b'CC BY', b'Creative Commons Attribution 3.0 Unported (CC BY 3.0)'), (b'CC0', b'No Rights Reserved (CC0)'), (b'GFDL', b'GNU Free Documentation License'), (b'LAL', b'Licence Art Libre'), (b'OSI', b'OSI Approved License')])),
+                ('left', models.DecimalField(null=True, max_digits=14, decimal_places=2, db_index=True)),
+                ('deadline', models.DateTimeField(null=True, db_index=True)),
+                ('dollar_per_day', models.FloatField(null=True)),
+                ('cc_date_initial', models.DateTimeField(null=True)),
+                ('activated', models.DateTimeField(null=True, db_index=True)),
+                ('paypal_receiver', models.CharField(max_length=100, blank=True)),
+                ('amazon_receiver', models.CharField(max_length=100, blank=True)),
+                ('status', models.CharField(default=b'INITIALIZED', max_length=15, null=True, db_index=True)),
+                ('type', models.PositiveSmallIntegerField(default=1, choices=[(1, b'Pledge-to-unglue campaign'), (2, b'Buy-to-unglue campaign'), (3, b'Thanks-for-ungluing campaign')])),
+                ('email', models.CharField(max_length=100, blank=True)),
+                ('do_watermark', models.BooleanField(default=True)),
+                ('use_add_ask', models.BooleanField(default=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='CampaignAction',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('timestamp', models.DateTimeField(auto_now_add=True)),
+                ('type', models.CharField(max_length=15)),
+                ('comment', models.TextField(null=True, blank=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='CeleryTask',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('task_id', models.CharField(max_length=255)),
+                ('description', models.CharField(max_length=2048, null=True)),
+                ('function_name', models.CharField(max_length=1024)),
+                ('function_args', models.IntegerField(null=True)),
+                ('active', models.NullBooleanField(default=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Claim',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('status', models.CharField(default=b'active', max_length=7, choices=[('active', 'Claim has been accepted.'), ('pending', 'Claim is pending acceptance.'), ('release', 'Claim has not been accepted.')])),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Ebook',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('url', models.URLField(max_length=1024)),
+                ('created', models.DateTimeField(auto_now_add=True, db_index=True)),
+                ('format', models.CharField(max_length=25, choices=[(b'pdf', b'PDF'), (b'epub', b'EPUB'), (b'html', b'HTML'), (b'text', b'TEXT'), (b'mobi', b'MOBI')])),
+                ('provider', models.CharField(max_length=255)),
+                ('download_count', models.IntegerField(default=0)),
+                ('active', models.BooleanField(default=True)),
+                ('filesize', models.PositiveIntegerField(null=True)),
+                ('rights', models.CharField(db_index=True, max_length=255, null=True, choices=[(b'CC BY-NC-ND', b'Creative Commons Attribution-NonCommercial-NoDerivs'), (b'CC BY-NC-SA', b'Creative Commons Attribution-NonCommercial-ShareAlike'), (b'CC BY-NC', b'Creative Commons Attribution-NonCommercial'), (b'CC BY-ND', b'Creative Commons Attribution-NoDerivs'), (b'CC BY-SA', b'Creative Commons Attribution-ShareAlike'), (b'CC BY', b'Creative Commons Attribution'), (b'CC0', b'No Rights Reserved (CC0)'), (b'GFDL', b'GNU Free Documentation License'), (b'LAL', b'Licence Art Libre'), (b'OSI', b'OSI Approved License'), (b'PD-US', b'Public Domain, US')])),
+            ],
+        ),
+        migrations.CreateModel(
+            name='EbookFile',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('file', models.FileField(upload_to=regluit.core.models.path_for_file)),
+                ('format', models.CharField(max_length=25, choices=[(b'pdf', b'PDF'), (b'epub', b'EPUB'), (b'html', b'HTML'), (b'text', b'TEXT'), (b'mobi', b'MOBI')])),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('asking', models.BooleanField(default=False)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Edition',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('title', models.CharField(max_length=1000)),
+                ('publication_date', models.CharField(db_index=True, max_length=50, null=True, blank=True)),
+                ('cover_image', models.URLField(null=True, blank=True)),
+                ('unglued', models.BooleanField(default=False)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Gift',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('to', models.CharField(max_length=75, blank=True)),
+                ('message', models.TextField(default=b'', max_length=512)),
+                ('used', models.DateTimeField(null=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Hold',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created', models.DateTimeField(auto_now_add=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Identifier',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('type', models.CharField(max_length=4)),
+                ('value', models.CharField(max_length=250)),
+                ('edition', models.ForeignKey(related_name='identifiers', to='core.Edition', null=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Key',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(unique=True, max_length=255)),
+                ('encrypted_value', models.TextField(null=True, blank=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Libpref',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('marc_link_target', models.CharField(default=b'UNGLUE', max_length=6, verbose_name=b'MARC record link targets', choices=[(b'DIRECT', b'Raw link'), (b'UNGLUE', b'Unglue.it link')])),
+                ('user', models.OneToOneField(related_name='libpref', to=settings.AUTH_USER_MODEL)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Offer',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('price', models.DecimalField(null=True, max_digits=6, decimal_places=2)),
+                ('license', models.PositiveSmallIntegerField(default=1, choices=[(1, b'Individual license'), (2, b'Library License')])),
+                ('active', models.BooleanField(default=False)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Premium',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('type', models.CharField(max_length=2, choices=[('00', 'Default'), ('CU', 'Custom'), ('XX', 'Inactive')])),
+                ('amount', models.DecimalField(max_digits=10, decimal_places=0)),
+                ('description', models.TextField(null=True)),
+                ('limit', models.IntegerField(default=0)),
+                ('campaign', models.ForeignKey(related_name='premiums', to='core.Campaign', null=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Press',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('url', models.URLField()),
+                ('title', models.CharField(max_length=140)),
+                ('source', models.CharField(max_length=140)),
+                ('date', models.DateField(db_index=True)),
+                ('language', models.CharField(max_length=20, blank=True)),
+                ('highlight', models.BooleanField(default=False)),
+                ('note', models.CharField(max_length=140, blank=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Publisher',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('url', models.URLField(max_length=1024, null=True, blank=True)),
+                ('logo_url', models.URLField(max_length=1024, null=True, blank=True)),
+                ('description', models.TextField(default=b'', null=True, blank=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='PublisherName',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(unique=True, max_length=255)),
+                ('publisher', models.ForeignKey(related_name='alternate_names', to='core.Publisher', null=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Relation',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('code', models.CharField(unique=True, max_length=3, db_index=True)),
+                ('name', models.CharField(max_length=30, blank=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Relator',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('author', models.ForeignKey(to='core.Author')),
+                ('edition', models.ForeignKey(related_name='relators', to='core.Edition')),
+                ('relation', models.ForeignKey(default=1, to='core.Relation')),
+            ],
+            options={
+                'db_table': 'core_author_editions',
+            },
+        ),
+        migrations.CreateModel(
+            name='RightsHolder',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('email', models.CharField(max_length=100, blank=True)),
+                ('rights_holder_name', models.CharField(max_length=100)),
+                ('can_sell', models.BooleanField(default=False)),
+                ('owner', models.ForeignKey(related_name='rights_holder', to=settings.AUTH_USER_MODEL)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Subject',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('name', models.CharField(unique=True, max_length=200)),
+                ('is_visible', models.BooleanField(default=True)),
+                ('authority', models.CharField(default=b'', max_length=10)),
+            ],
+            options={
+                'ordering': ['name'],
+            },
+        ),
+        migrations.CreateModel(
+            name='UserProfile',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('tagline', models.CharField(max_length=140, blank=True)),
+                ('pic_url', models.URLField(blank=True)),
+                ('home_url', models.URLField(blank=True)),
+                ('twitter_id', models.CharField(max_length=15, blank=True)),
+                ('facebook_id', models.BigIntegerField(null=True)),
+                ('librarything_id', models.CharField(max_length=31, blank=True)),
+                ('kindle_email', models.EmailField(max_length=254, blank=True)),
+                ('goodreads_user_id', models.CharField(max_length=32, null=True, blank=True)),
+                ('goodreads_user_name', models.CharField(max_length=200, null=True, blank=True)),
+                ('goodreads_auth_token', models.TextField(null=True, blank=True)),
+                ('goodreads_auth_secret', models.TextField(null=True, blank=True)),
+                ('goodreads_user_link', models.CharField(max_length=200, null=True, blank=True)),
+                ('avatar_source', models.PositiveSmallIntegerField(default=4, null=True, choices=[(0, b'No Avatar, Please'), (1, b'Gravatar'), (2, b'Twitter'), (3, b'Facebook'), (4, b'Unglueitar')])),
+                ('badges', models.ManyToManyField(related_name='holders', to='core.Badge')),
+                ('user', models.OneToOneField(related_name='profile', to=settings.AUTH_USER_MODEL)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='WasWork',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('was', models.IntegerField(unique=True)),
+                ('moved', models.DateTimeField(auto_now_add=True)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Wishes',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created', models.DateTimeField(auto_now_add=True, db_index=True)),
+                ('source', models.CharField(db_index=True, max_length=15, blank=True)),
+            ],
+            options={
+                'db_table': 'core_wishlist_works',
+            },
+        ),
+        migrations.CreateModel(
+            name='Wishlist',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created', models.DateTimeField(auto_now_add=True)),
+                ('user', models.OneToOneField(related_name='wishlist', to=settings.AUTH_USER_MODEL)),
+            ],
+        ),
+        migrations.CreateModel(
+            name='Work',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('created', models.DateTimeField(auto_now_add=True, db_index=True)),
+                ('title', models.CharField(max_length=1000)),
+                ('language', models.CharField(default=b'en', max_length=5, db_index=True)),
+                ('openlibrary_lookup', models.DateTimeField(null=True)),
+                ('num_wishes', models.IntegerField(default=0, db_index=True)),
+                ('description', models.TextField(default=b'', null=True, blank=True)),
+                ('publication_range', models.CharField(max_length=50, null=True)),
+                ('featured', models.DateTimeField(db_index=True, null=True, blank=True)),
+                ('is_free', models.BooleanField(default=False)),
+                ('selected_edition', models.ForeignKey(related_name='selected_works', to='core.Edition', null=True)),
+            ],
+            options={
+                'ordering': ['title'],
+            },
+        ),
+        migrations.AddField(
+            model_name='wishlist',
+            name='works',
+            field=models.ManyToManyField(related_name='wishlists', through='core.Wishes', to='core.Work'),
+        ),
+        migrations.AddField(
+            model_name='wishes',
+            name='wishlist',
+            field=models.ForeignKey(to='core.Wishlist'),
+        ),
+        migrations.AddField(
+            model_name='wishes',
+            name='work',
+            field=models.ForeignKey(related_name='wishes', to='core.Work'),
+        ),
+        migrations.AddField(
+            model_name='waswork',
+            name='work',
+            field=models.ForeignKey(to='core.Work'),
+        ),
+        migrations.AddField(
+            model_name='subject',
+            name='works',
+            field=models.ManyToManyField(related_name='subjects', to='core.Work'),
+        ),
+        migrations.AddField(
+            model_name='publisher',
+            name='name',
+            field=models.ForeignKey(related_name='key_publisher', to='core.PublisherName'),
+        ),
+        migrations.AddField(
+            model_name='offer',
+            name='work',
+            field=models.ForeignKey(related_name='offers', to='core.Work'),
+        ),
+        migrations.AddField(
+            model_name='identifier',
+            name='work',
+            field=models.ForeignKey(related_name='identifiers', to='core.Work'),
+        ),
+    ]

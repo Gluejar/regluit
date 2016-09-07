@@ -1,5 +1,6 @@
 import datetime
 import mimetypes
+import sys
 from os.path import dirname, realpath, join
 
 import regluit
@@ -12,6 +13,7 @@ LANGUAGES = (
     ('en', 'English'),
 )
 LOCAL_TEST = False
+TESTING = sys.argv[1:2] == ['test'] # detect if we're running tests (used to turn off a repair migration)
 ALLOWED_HOSTS = ['.unglue.it', '.unglueit.com',]
 
 WISHED_LANGS = ('en','fr','es','de','el','pt','it','ru','cs','ja','zh','nl','ut','ar','la','id','ca','fa','sv','sl','ko','tr')
@@ -91,24 +93,34 @@ STATICFILES_FINDERS = (
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = u'a+bo0@3$n18e(newe7og6hmq$r#bkib73z(+s*n25%6q3+22jo'
 
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [join(PROJECT_DIR, "frontend", "templates"),
+                 join(PROJECT_DIR, "frontend", "templates", "registration"),
+                 join(PROJECT_DIR, "frontend", "questionnaire"),
+                 ],
+        'OPTIONS':{
+            'context_processors':[
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.request',
+                'regluit.context_processors.is_preview',
+                'regluit.context_processors.count_unseen',
+                ],
+            'loaders':[
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+                ],
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.core.context_processors.debug',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.media',
-    'django.core.context_processors.static',
-    'django.contrib.messages.context_processors.messages',
-    'django.core.context_processors.request',
-    'regluit.context_processors.is_preview',
-    'regluit.context_processors.count_unseen',
-)
+        }
+    },
+]
+
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -117,21 +129,12 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'maintenancemode.middleware.MaintenanceModeMiddleware',
-    'regluit.core.auth.SocialAuthExceptionMiddlewareWithoutMessages',
+    'regluit.libraryauth.auth.SocialAuthExceptionMiddlewareWithoutMessages',
     'django.middleware.locale.LocaleMiddleware',
     'regluit.questionnaire.request_cache.RequestCacheMiddleware',
 )
 
 ROOT_URLCONF = 'regluit.urls'
-
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    join(PROJECT_DIR, "frontend", "templates"),
-    join(PROJECT_DIR, "frontend", "templates", "registration"),
-    join(PROJECT_DIR, "questionnaire", "templates"),
-)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -141,9 +144,8 @@ INSTALLED_APPS = (
     'django.contrib.sitemaps',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.comments',
+    'django_comments',
     'django.contrib.humanize',
-    'south',
     'django_extensions',
     'regluit.frontend',
     'regluit.api',
@@ -159,7 +161,6 @@ INSTALLED_APPS = (
     'endless_pagination',
     'selectable',
     'regluit.frontend.templatetags',
-    'regluit.payment.templatetags',
     'notification',
     'email_change',
     'ckeditor',
@@ -268,14 +269,14 @@ SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.social_auth.auth_allowed',
 
     # Checks if the current social-account is already associated in the site.
-    'regluit.core.auth.selective_social_user',
+    'regluit.libraryauth.auth.selective_social_user',
 
     # Make up a username for this person, appends a random string at the end if
     # there's any collision.
     'social.pipeline.user.get_username',
     
     # make username < 222 in length
-    'regluit.core.auth.chop_username',
+    'regluit.libraryauth.auth.chop_username',
     
     # Send a validation email to the user to verify its email address.
     # Disabled by default.
@@ -283,7 +284,7 @@ SOCIAL_AUTH_PIPELINE = (
     
     # Associates the current social details with another user account with
     # a similar email address. don't use twitter or facebook to log in
-    'regluit.core.auth.selectively_associate_by_email',
+    'regluit.libraryauth.auth.selectively_associate_by_email',
 
     # Create a user account if we haven't found one yet.
     'social.pipeline.user.create_user',
@@ -296,7 +297,7 @@ SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.social_auth.load_extra_data',
 
     # add extra data to user profile
-    'regluit.core.auth.deliver_extra_data',
+    'regluit.libraryauth.auth.deliver_extra_data',
 
     # Update the user record with any changed info from the auth service.
     'social.pipeline.user.user_details'
@@ -310,10 +311,6 @@ LOGOUT_URL = "/accounts/logout/"
 LOGIN_ERROR_URL    = '/accounts/login-error/'
 
 USER_AGENT = "unglue.it.bot v0.0.1 <https://unglue.it>"
-
-SOUTH_TESTS_MIGRATE = True
-
-AUTH_PROFILE_MODULE = "core.UserProfile"
 
 # The amount of the transaction that Gluejar takes 
 GLUEJAR_COMMISSION = 0.06
@@ -468,13 +465,6 @@ DROPBOX_KEY = '4efhwty5aph52bd'   #for unglue.it, just.unglue.it
 # for reading GITenberg releases
 # generated from rdhyee account
 GITHUB_PUBLIC_TOKEN = 'f702409f913d7f9046f93c677710f829e2b599c9'
-
-# https://github.com/celery/django-celery/blob/master/docs/introduction.rst#for-django-17-and-newer
-SOUTH_MIGRATION_MODULES = {
-    'default': 'social.apps.django_app.default.south_migrations',
-    'tastypie': 'tastypie.south_migrations',
-    'djcelery': 'djcelery.south_migrations',
-}
 
 MOBIGEN_URL = "https://docker.gluejar.com:5001/mobigen"
 MOBIGEN_USER_ID = "admin"

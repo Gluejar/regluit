@@ -3,14 +3,15 @@ import logging
 from datetime import datetime
 from StringIO import StringIO
 
+from django.apps import apps
 from django.conf import settings
-from django.contrib.auth.models import User
 from django.db import models
 
 from . import load
 
 # weak coupling
-EDITION_MODEL = "core.Edition"
+EDITION_MODEL = getattr(settings, "EDITION_MODEL", "core.Edition")
+
 logger = logging.getLogger(__name__)
 
 marc_rels = {
@@ -93,7 +94,7 @@ class MARCRecord(models.Model):
     # note capitalization of related_name
     edition = models.ForeignKey(EDITION_MODEL, related_name="MARCRecords", null=True)
     
-    user =  models.ForeignKey(User, related_name="MARCRecords", null=True ) 
+    user =  models.ForeignKey(settings.AUTH_USER_MODEL, related_name="MARCRecords", null=True ) 
     created =  models.DateTimeField(auto_now_add=True)  
 
 
@@ -206,7 +207,7 @@ class MARCRecord(models.Model):
 def import_records(marcfile):
 
     class RecordLoader(pymarc.XmlHandler):
-        Edition = models.get_model(*EDITION_MODEL.split('.'))
+        Edition = apps.get_model(*EDITION_MODEL.split('.'))
         num_loaded=0
         def process_record(self, record):
             try:

@@ -12,11 +12,11 @@
 				<div class="moreinfo create-account">
 				<span title="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">Login to Fave</span>
 				</div>
-			{% else %}{% if request.user.id in supporters %}
+			{% elif request.user.id in supporters %}
 				<div class="moreinfo on-wishlist">
 					<a href="{% url 'work' workid %}">Pledged!</a>
 				</div>
-			{% else %}{% ifequal supporter request.user %}
+			{% elif supporter == request.user %}
 				{% if wishlist %}
                     <div class="moreinfo remove-wishlist">
                         <span id="p{{ workid }}">Un-Fave</span>
@@ -27,7 +27,7 @@
                         <span class="work_id" id="p{{ workid }}">Add&nbsp;to&nbsp;Faves</span>
                     </div>
 				{% endif %}
-			{% else %}{% if work in wishlist %}
+			{% elif work in wishlist %}
 				<div class="moreinfo on-wishlist">
 				 <a href="/#">A Fave!</a>
 				</div>
@@ -39,4 +39,4 @@
 				<span class="work_id" id="p{{ workid }}">Add&nbsp;to&nbsp;Faves</span>
 				{% endif %}
 				</div>
-			{% endif %}{% endifequal %}{% endif %}{% endif %}
+			{% endif %}

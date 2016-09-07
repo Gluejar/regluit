@@ -64,9 +64,9 @@ function put_un_in_cookie2(){
                                 <div>
                                     <div class="pubinfo">
                                         <div class="book-author">
-                                        <span>{{ work.relators.0.name }}</span>{% ifequal work.relators.count 2 %}
+                                        <span>{{ work.relators.0.name }}</span>{% if work.relators.count == 2 %}
                                             and <span>{{ work.relators.1.name }}</span>
-                                        {% endifequal %}{% if work.relators.count > 2 %}{% for author in work.relators %}{% if not forloop.first %}, <span>{{ author.name }}</span>{% endif %}{% endfor %}
+                                        {% endif %}{% if work.relators.count > 2 %}{% for author in work.relators %}{% if not forloop.first %}, <span>{{ author.name }}</span>{% endif %}{% endfor %}
                                         {% endif %}
                                         </div>
                                         <div class="book-year"> 
@@ -209,22 +209,20 @@ function put_un_in_cookie2(){
                             {% endcomment %}
                             <li>
                                 {% with event.1 as object %}
-                                    {% ifequal event.2 "pledge" %}
+                                    {% if event.2 == "pledge" %}
                                         {% if object.user%}
                                         <span class="user-avatar">
                                             <a href="{% url 'supporter' object.user.username %}"><img src="{{ object.user.profile.avatar_url }}" width="43" height="43" title="{{ object.user.username }}" alt="Avatar for {{ object.user.username }}" /></a>
                                         </span>
                                         <span class="user-book-info">
                                             <a href="{% url 'supporter' object.user.username %}">{{ object.user.username }}</a><br />
-                                            {% ifequal object.campaign.type 1 %}
-                                            pledged to unglue 
-                                            {% endifequal %}
-                                            {% ifequal object.campaign.type 2 %}
-                                            bought a copy of 
-                                            {% endifequal %}
-                                            {% ifequal object.campaign.type 3 %}
-                                            supported 
-                                            {% endifequal %}<br />
+                                            {% if object.campaign.type == 1 %}
+                                                pledged to unglue 
+                                            {% elif object.campaign.type == 2 %}
+                                                bought a copy of 
+                                            {% elif object.campaign.type == 3 %}
+                                                supported 
+                                            {% endif %}<br />
                                             <a class="user-book-name" href="{% url 'work' object.campaign.work.id %}">{{ object.campaign.work.title }}</a>
                                         </span>
                                         {% else %}
@@ -237,7 +235,7 @@ function put_un_in_cookie2(){
                                             <a class="user-book-name" href="{% url 'work' object.campaign.work.id %}">{{ object.campaign.work.title }}</a>
                                         </span>
                                         {% endif %}
-                                    {% else %}{% ifequal event.2 "comment" %}
+                                    {% elif event.2 == "comment" %}
                                         <span class="user-avatar">
                                             <a href="{% url 'supporter' object.user.username %}"><img src="{{ object.user.profile.avatar_url }}" width="43" height="43" title="{{ object.user.username }}" alt="Avatar for {{ object.user.username }}" /></a>
                                         </span>
@@ -246,7 +244,7 @@ function put_un_in_cookie2(){
                                             commented on<br />
                                             <a class="user-book-name" href="{% url 'work' object.content_object.id %}?tab=2">{{ object.content_object.title }}</a>
                                         </span>                                    
-                                    {% else %}{% ifequal event.2 "wish" %}
+                                    {% elif event.2 == "wish" %}
                                         <span class="user-avatar">
                                             <a href="{% url 'supporter' object.wishlist.user.username %}"><img src="{{ object.wishlist.user.profile.avatar_url }}" width="43" height="43" title="{{ object.wishlist.user.username }}" alt="Avatar for {{ object.wishlist.user.username }}" /></a>
                                         </span>
@@ -255,7 +253,7 @@ function put_un_in_cookie2(){
                                             faved<br />
                                             <a class="user-book-name" href="{% url 'work' object.work.id %}">{{ object.work.title }}</a>
                                         </span>                                    
-                                    {% endifequal %}{% endifequal %}{% endifequal %}
+                                    {% endif %}
                                 {% endwith %}
                             </li>
                         {% endfor %}

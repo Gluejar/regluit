@@ -1,9 +1,9 @@
 from datetime import datetime
 from xml.sax import SAXParseException
 
+from django.apps import apps
 from django.contrib import messages
 from django.core.urlresolvers import reverse, reverse_lazy
-from django.db.models import get_model
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
 from django.views.generic.edit import FormView
 
@@ -18,7 +18,7 @@ PREAMBLE = ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
                  'http://www.loc.gov/standards/marcxml/schema/'
                  'MARC21slim.xsd">')
 
-Edition = get_model(*models.EDITION_MODEL.split('.'))
+Edition = apps.get_model(*models.EDITION_MODEL.split('.'))
 
 
 def marc_records(request, selected_records=None):

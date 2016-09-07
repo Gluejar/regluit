@@ -2,7 +2,7 @@ from regluit.settings.common import *
 
 ALLOWED_HOSTS = ['.unglue.it']
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
+TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
 
 # if you're doing development work, you'll want this to be zero
 IS_PREVIEW = False
