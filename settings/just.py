@@ -19,7 +19,7 @@ DATABASES = {
         'NAME': 'unglueit',
         'USER': 'root',
         'PASSWORD': 'forgetn0t',
-        'HOST': 'justdb.cboagmr25pjs.us-east-1.rds.amazonaws.com',
+        'HOST': 'justdb1.cboagmr25pjs.us-east-1.rds.amazonaws.com',
         'PORT': '',
         'TEST_CHARSET': 'utf8'
     }
