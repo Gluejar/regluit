@@ -2,8 +2,8 @@
 
 import os
 
-import django.core.handlers.wsgi
-
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "regluit.settings.prod")
 os.environ['CELERY_LOADER'] = 'django'
-os.environ['DJANGO_SETTINGS_MODULE'] = 'regluit.settings.prod'
-application = django.core.handlers.wsgi.WSGIHandler()
+
+from django.core.wsgi import get_wsgi_application
+application = get_wsgi_application()
