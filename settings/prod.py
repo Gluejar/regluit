@@ -153,7 +153,7 @@ CELERYBEAT_SCHEDULE['refresh_acqs'] = NOTIFY_UNCLAIMED_GIFTS
 AMAZON_FPS_HOST = "fps.amazonaws.com"
 
 # local settings for maintenance mode
-MAINTENANCE_MODE = False
+MAINTENANCE_MODE = True
 
 # Amazon keys to permit S3 access
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
