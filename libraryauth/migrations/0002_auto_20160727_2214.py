@@ -4,9 +4,10 @@ from __future__ import unicode_literals
 from django.conf import settings
 from django.db import migrations, models
 
-import social
+#import social
 
-# this migration repairs the state of our database so that social auth migrations can be applied
+# this migration repaired the state of our database so that social auth migrations can be applied
+# after application, it should never do anything more
 
 class Migration(migrations.Migration):
 
@@ -15,19 +16,19 @@ class Migration(migrations.Migration):
     ]
 
     operations = [] if settings.TESTING else  [
-        migrations.CreateModel(
-            name='Code',
-            fields=[
-                ('id', models.AutoField(
-                    verbose_name='ID', serialize=False, auto_created=True,
-                    primary_key=True)),
-                ('email', models.EmailField(max_length=75)),
-                ('code', models.CharField(max_length=32, db_index=True)),
-                ('verified', models.BooleanField(default=False)),
-            ],
-            options={
-                'db_table': 'social_auth_code',
-            },
-            bases=(models.Model, social.storage.django_orm.DjangoCodeMixin),
-        ),
+#        migrations.CreateModel(
+#            name='Code',
+#            fields=[
+#                ('id', models.AutoField(
+#                    verbose_name='ID', serialize=False, auto_created=True,
+#                    primary_key=True)),
+#                ('email', models.EmailField(max_length=75)),
+#                ('code', models.CharField(max_length=32, db_index=True)),
+#                ('verified', models.BooleanField(default=False)),
+#            ],
+#            options={
+#                'db_table': 'social_auth_code',
+#            },
+#            bases=(models.Model, social.storage.django_orm.DjangoCodeMixin),
+#        ),
     ]
