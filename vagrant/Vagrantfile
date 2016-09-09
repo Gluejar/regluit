@@ -210,9 +210,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "-e class=prod",
           "-e hostname=unglue.it",
           "-e setdns=false",
-          "-e do_migrate=true",
-          "-e branch=production",
-          "-e do_migrate=false"
+          "-e do_migrate=false",
+          "-e branch=production"
       ]
 
     end
@@ -269,9 +268,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "-e class=prod",
           "-e hostname=unglue.it",
           "-e setdns=false",
-          "-e do_migrate=true",
-          "-e branch=production",
-          "-e do_migrate=false"
+          "-e do_migrate=false",
+          "-e branch=production"
       ]
 
     end
