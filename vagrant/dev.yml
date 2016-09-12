@@ -84,6 +84,7 @@
         - python-dev
         - postfix
         - mailutils
+        - libffi-dev
       tags: install
       
     - name: make {{user}} group
@@ -432,7 +433,7 @@
       command: /etc/init.d/celerybeat start
       sudo: no
       
-    # - name: just after attempt to launch celerybeat
+    # - name: just after attempt to launch celerybloeat
     #   pause: prompt='Press return to continue. Press Ctrl+c and then "a" to abort'
 
     # run data loading script

@@ -30,7 +30,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "-e class=please",
           "-e hostname=please.unglue.it",
           "-e setdns=true",
-          "-e branch=master"
+          "-e branch=dj18postdj18"
       ]
     end
 
@@ -94,7 +94,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "-e class=just",
           "-e hostname=just.unglue.it",
           "-e setdns=false",
-          "-e branch=master"
+          "-e branch=master",
+          "-e do_migrate=false"
       ]
 
     end
@@ -151,7 +152,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "-e class=just",
           "-e hostname=just2.unglue.it",
           "-e setdns=false",
-          "-e branch=master"
+          "-e branch=master",
+          "-e do_migrate=false"
       ]
 
     end
@@ -208,7 +210,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "-e class=prod",
           "-e hostname=unglue.it",
           "-e setdns=false",
-          "-e do_migrate=true",
+          "-e do_migrate=false",
           "-e branch=production"
       ]
 
@@ -266,7 +268,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "-e class=prod",
           "-e hostname=unglue.it",
           "-e setdns=false",
-          "-e do_migrate=true",
+          "-e do_migrate=false",
           "-e branch=production"
       ]
 

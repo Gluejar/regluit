@@ -31,7 +31,7 @@ django-endless-pagination==2.0
 django-extensions==1.6.1
 django-jsonfield==1.0.0
 #django-kombu==0.9.4
-django-maintenancemode==0.10
+django-maintenancemode==0.11.2
 django-mptt==0.8.5
 django-nose-selenium==0.7.3
 #django-notification==0.2

@@ -2,7 +2,7 @@ from regluit.settings.common import *
 
 ALLOWED_HOSTS = ['.unglue.it']
 DEBUG = False
-TEMPLATES[0]['OPTIONS']['debug'] = DEBUGG
+TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
 
 SITE_ID = 5
 
@@ -19,7 +19,7 @@ DATABASES = {
         'NAME': 'unglueit',
         'USER': 'root',
         'PASSWORD': 'forgetn0t',
-        'HOST': 'justdb.cboagmr25pjs.us-east-1.rds.amazonaws.com',
+        'HOST': 'justdb1.cboagmr25pjs.us-east-1.rds.amazonaws.com',
         'PORT': '',
         'TEST_CHARSET': 'utf8'
     }
