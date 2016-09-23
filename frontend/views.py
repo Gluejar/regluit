@@ -2826,7 +2826,7 @@ def lockss(request, work_id):
         ebooks = work.ebooks().filter(edition__unglued=True)
     except:
         ebooks = None
-    authors = work.authors.all()
+    authors = work.authors()
     
     return render(request, "lockss.html", {'work':work, 'ebooks':ebooks, 'authors':authors})
     
