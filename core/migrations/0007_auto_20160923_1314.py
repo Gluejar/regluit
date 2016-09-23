@@ -11,10 +11,19 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
+        migrations.RemoveField(
             model_name='ebook',
             name='version',
-            field=models.CharField(max_length=255, null=True, blank=True),
+        ),
+        migrations.AddField(
+            model_name='ebook',
+            name='version_iter',
+            field=models.PositiveIntegerField(default=0),
+        ),
+        migrations.AddField(
+            model_name='ebook',
+            name='version_label',
+            field=models.CharField(default=b'', max_length=255, blank=True),
         ),
         migrations.AlterField(
             model_name='edition',
@@ -40,6 +49,11 @@ class Migration(migrations.Migration):
             model_name='work',
             name='age_level',
             field=models.CharField(default=b'', max_length=5, blank=True, choices=[(b'', b'No Rating'), (b'5-6', b"Children's - Kindergarten, Age 5-6"), (b'6-7', b"Children's - Grade 1-2, Age 6-7"), (b'7-8', b"Children's - Grade 2-3, Age 7-8"), (b'8-9', b"Children's - Grade 3-4, Age 8-9"), (b'9-11', b"Children's - Grade 4-6, Age 9-11"), (b'12-14', b'Teen - Grade 7-9, Age 12-14'), (b'15-18', b'Teen - Grade 10-12, Age 15-18'), (b'18-', b'Adult/Advanced Reader')]),
+        ),
+        migrations.AlterField(
+            model_name='work',
+            name='openlibrary_lookup',
+            field=models.DateTimeField(null=True, blank=True),
         ),
         migrations.AlterField(
             model_name='work',

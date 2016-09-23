@@ -8,7 +8,7 @@
                 {% for ebook in edition.ebooks.all %}
                     {% if ebook.active %}
                         <a href="{% url 'download_ebook' ebook.id %}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}. 
-                        {% if ebook.version %}  {{ ebook.version }}. {% endif %}
+                        {% if ebook.version_label %}  {{ ebook.version_label }} (v{{ ebook.version_iter }}). {% endif %}
                         Downloaded {{ ebook.download_count }} times since {{ ebook.created }}<br />
                     {% endif %}
                 {% endfor %}
@@ -27,30 +27,20 @@
                 or...<br />
                 {{ ebook_form.file.errors }}<span>Upload an ebook file: {{ ebook_form.file }}</span><br /><br />
                 {{ ebook_form.format.errors }}<span>File Format: {{ ebook_form.format }}</span>&nbsp;&nbsp;&nbsp;
-                {{ ebook_form.rights.errors }}<span>License: {{ ebook_form.rights }}</span><br />
-                {% if admin %}
-                {{ ebook_form.version.errors }}<span>Version: {{ ebook_form.version }} </span><br />
-                {% else %}
-                <input type="hidden" value="" name="version" />
+                {{ ebook_form.rights.errors }}<span>License: {{ ebook_form.rights }}</span><br /><br />
+                <span>Version Label (optional): {% if edition.work.versions %}
+                    <select id='version_label'>
+                     <option value=""> (no label) </option>
+                    {% for vers in edition.work.versions %}<option value="{{ vers }}" >{{ vers }}</option>{% endfor %}
+                    </select> or add a new version label:
                 {% endif %}
+                {{ ebook_form.new_version_label.errors }} {{ ebook_form.new_version_label }} </span> <br />
                 <br /><input type="submit" name="add_ebook" value="add link/upload ebook" />
             </form>
-            {% if admin %}
             <h3>Note on versions</h4>
             <p>
-            Unglue.it's version strings have two components, a label and a iteration. 
-            The iteration is denoted by a dot and a number at the end of version string, and is assumed to be 0 if not given explicitly.
-            Unglue.it will show the user just the label and will suppress display of all but the highest iteration for a given label.
-            so if the ebooks have versions "", ".1", "1.0.0", "1.0.2", "Open Access" and "Open Access.1", Unglue.it will display 3 ebooks labelled "", "1.0" and "Open Access". 
-            If you want ebooks from two editions with the same format to display, give them different version labels.
+            If you want ebooks from two editions with the same format and provider to display, give them different version labels.
             </p>
-            <p> The existing version labels for this work are:
-                <ul>
-                {% for vers in edition.work.versions %}
-                <li>{% if vers %}"{{ vers }}"{% else %}"" [no version specified]{% endif %}</li>
-                <ul>
-                {% endfor %}
-            {% endif %}
         </div>
     {% else %}
         <div> Adding ebook links is disabled for this work.</div>

@@ -280,8 +280,9 @@ def test_file(the_file):
                 raise forms.ValidationError(_('%s is not a valid PDF file' % the_file.name) )
 
 class EbookFileForm(forms.ModelForm):
-    version = forms.CharField(max_length=512, required=False)
     file = forms.FileField(max_length=16777216)    
+    version_label = forms.CharField(max_length=512, required=False)
+    new_version_label = forms.CharField(required=False)    
 
     def __init__(self, campaign_type=BUY2UNGLUE, *args, **kwargs):
         super(EbookFileForm, self).__init__(*args, **kwargs)
@@ -292,6 +293,10 @@ class EbookFileForm(forms.ModelForm):
             self.fields['format'].widget = forms.Select(
                 choices = (('pdf', 'PDF'), ('epub', 'EPUB'), ('mobi', 'MOBI'))
             )
+
+    def clean_version_label(self):
+        new_label = self.data.get('new_version_label','')
+        return new_label if new_label else self.cleaned_data['version_label']
 
     def clean_format(self):
         if self.campaign_type is BUY2UNGLUE:
@@ -310,18 +315,25 @@ class EbookFileForm(forms.ModelForm):
         model = EbookFile
         widgets = { 'edition': forms.HiddenInput}
         exclude = { 'created', 'asking', 'ebook' }
-
+            
 class EbookForm(forms.ModelForm):
     file = forms.FileField(max_length=16777216, required=False)  
     url = forms.CharField(required=False, widget=forms.TextInput(attrs={'size' : 60},))
+    version_label = forms.CharField(required=False)    
+    new_version_label = forms.CharField(required=False)    
+            
     class Meta:
         model = Ebook
-        exclude = ('created', 'download_count', 'active', 'filesize')
+        exclude = ('created', 'download_count', 'active', 'filesize', 'version_iter')
         widgets = {
                 'edition': forms.HiddenInput,
                 'user': forms.HiddenInput,
                 'provider': forms.HiddenInput,
             }
+    def clean_version_label(self):
+        new_label = self.data.get('new_version_label','')
+        return new_label if new_label else self.cleaned_data['version_label']
+    
     def clean_provider(self):
         new_provider = Ebook.infer_provider(self.cleaned_data['url'])
         if not new_provider:

@@ -467,12 +467,12 @@ def edition_uploads(request, edition_id):
                         format=form.instance.format,
                         url=form.instance.file.url,
                         rights=edition.work.last_campaign().license,
-                        version=form.cleaned_data['version'],
+                        version_label=form.cleaned_data.get('version_label', ''),
                         active=False,
                         provider="Unglue.it",
                     )
                     form.instance.ebook = new_ebook
-                    form.instance.save()
+                    form.instance.ebook.set_next_iter()
 
         else:
             context['upload_error'] = form.errors
@@ -688,6 +688,7 @@ def manage_ebooks(request, edition_id, by=None):
                 new_ebf.save()
             else:
                 ebook_form.save()
+                ebook_form.instance.set_next_iter()
             edition.work.remove_old_ebooks()
             alert = 'Thanks for adding an ebook to unglue.it!'
         else:

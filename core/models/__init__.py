@@ -969,7 +969,7 @@ class Campaign(models.Model):
         new_ebfs = []
         for to_do in to_dos:
             edition = to_do['ebook'].edition
-            version = to_do['ebook'].version
+            version = {'label':to_do['ebook'].version_label, 'iter':to_do['ebook'].version_iter}
             if to_do['ebook'].format == 'pdf':
                 try:
                     added = ask_pdf({'campaign':self, 'work':self.work, 'site':Site.objects.get_current()})
@@ -1015,7 +1015,8 @@ class Campaign(models.Model):
                 rights=self.license,
                 provider="Unglue.it",
                 url=ebf.file.url,
-                version=ebf.version
+                version_label=ebf.version['label'],
+                version_iter=ebf.version['iter'],
             )
             ebf.ebook = ebook
             ebf.save()

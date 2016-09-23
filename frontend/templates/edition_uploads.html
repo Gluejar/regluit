@@ -24,7 +24,7 @@
     <h2>Active eBooks for this Work</h2>
     {% for ebook in edition.work.ebooks %}
         <a href="{% url 'download_ebook' ebook.id %}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}. 
-        {% if ebook.version %}  {{ ebook.version }}. {% endif %}
+        {% if ebook.version_label %}  {{ ebook.version_label }}. {% endif %} v{{ ebook.version_iter }}
         Downloaded {{ ebook.download_count }} times since {{ ebook.created }}<br />
     {% endfor %}
 {% endif %}
@@ -76,16 +76,17 @@ For ePUB files, use the <a href=https://code.google.com/p/epubcheck/">epubcheck<
 {% csrf_token %}
 {{form.edition.errors}}{{form.edition}}
 <p>{{form.format.errors}}Format: {{form.format}}</p>
-{% if edition.work.versions %}
-<p>There are named versions for this ebook. Specify the version you want to replace.<br /> {{form.version.errors}}Version: <select id="version">
-<option value="{{ version }}" >---</option>
-{% for version in edition.work.versions %}
-<option value="{{ version }}" >{{ version }}</option>
-{% endfor %}
-</select></p>
-{% else %}
-<input type="hidden" value="" id="version" name="version"/>
-{% endif %}
+            <h3>Note on versions</h4>
+            <p>
+            If you want ebooks from two editions with the same format and provider to display, give them different version labels.
+            </p>
+                <span>Version Label (optional): {% if edition.work.versions %}
+                    <select id='version_label'>
+                     <option value=""> (no label) </option>
+                    {% for vers in edition.work.versions %}<option value="{{ vers }}" >{{ vers }}</option>{% endfor %}
+                    </select> or add a new version label:
+                {% endif %}
+                {{ form.new_version_label.errors }} {{ form.new_version_label }} </span> <br />
 <p>{{form.file.errors}}Upload File: {{form.file}}</p>
 <input type="submit" id="submit_file" value="submit ebook file">
 </form>

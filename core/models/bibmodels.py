@@ -90,7 +90,7 @@ class Work(models.Model):
     created = models.DateTimeField(auto_now_add=True, db_index=True,)
     title = models.CharField(max_length=1000)
     language = models.CharField(max_length=5, default="en", null=False, db_index=True,)
-    openlibrary_lookup = models.DateTimeField(null=True)
+    openlibrary_lookup = models.DateTimeField(null=True, blank=True)
     num_wishes = models.IntegerField(default=0, db_index=True)
     description = models.TextField(default='', null=True, blank=True)
     selected_edition = models.ForeignKey("Edition", related_name='selected_works', null=True)
@@ -365,11 +365,10 @@ class Work(models.Model):
         return EbookFile.objects.filter(edition__work=self, format='pdf').exclude(file='').order_by('-created')
     
     def versions(self):
-        version_labels = ['']
-        for ebook in self.ebooks():
-            if not ebook.version_label in version_labels:
+        version_labels = []
+        for ebook in self.ebooks_all():
+            if ebook.version_label and not ebook.version_label in version_labels:
                 version_labels.append(ebook.version_label)
-        version_labels.remove('')
         return version_labels
     
     def formats(self):
@@ -382,9 +381,9 @@ class Work(models.Model):
 
     def remove_old_ebooks(self):
         # this method is triggered after an file upload or new ebook saved
-        old = Ebook.objects.filter(edition__work=self, active=True).order_by('-created')
+        old = Ebook.objects.filter(edition__work=self, active=True).order_by('-version_iter', '-created')
         
-        # keep most recent ebook for each format and version label
+        # keep highest version ebook for each format and version label
         done_format_versions = []
         for eb in old:
             format_version = '{}_{}'.format(eb.format, eb.version_label)
@@ -1014,7 +1013,8 @@ class EbookFile(models.Model):
                 format='mobi',
                 url=new_mobi_ebf.file.url,
                 rights=self.ebook.rights,
-                version=self.ebook.version,
+                version_label=self.ebook.version_label,
+                version_iter=self.ebook.version_iter,
             )
             new_mobi_ebf.ebook = new_ebook
         new_mobi_ebf.save()
@@ -1030,7 +1030,8 @@ class Ebook(models.Model):
     download_count = models.IntegerField(default=0)
     active = models.BooleanField(default=True)
     filesize = models.PositiveIntegerField(null=True)
-    version = models.CharField(max_length=255, null=True, blank=True)
+    version_label = models.CharField(max_length=255, default="", blank=True)
+    version_iter = models.PositiveIntegerField(default=0)
 
     # use 'PD-US', 'CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA', 'CC0'
     rights = models.CharField(max_length=255, null=True, choices=cc.CHOICES, db_index=True)
@@ -1087,19 +1088,35 @@ class Ebook(models.Model):
         return self.provider
 
     @property
-    def version_label(self):
-        if self.version is None:
-            return ''
-        version_match = re.search(r'(.*)\.(\d+)$',self.version)
-        return version_match.group(1) if version_match else self.version
+    def version(self):
+        if self.version_label is None:
+            return '.{}'.format(self.version_iter)
+        else:
+            return '().{}'.format(self.version_label, self.version_iter)
+    
+    def set_version(self, version):
+        #set both version_label and version_iter with one string with format "version.iter"
+        version_pattern = r'(.*)\.(\d+)$'
+        match = re.match(version_pattern,version)
+        if match:
+            (self.version_label, self.version_iter) = (match.group(1), match.group(2))
+        else:
+            self.version_label = version
+        self.save()
         
-    @property
-    def version_iter(self):
-        if self.version is None:
-            return 0
-        version_match = re.search(r'(.*)\.(\d+)$',self.version)
-        return int(version_match.group(2)) if version_match else 0
-        
+    def set_next_iter(self):
+        # set the version iter to the next unused iter for that version
+        for ebook in Ebook.objects.filter(
+                    edition=self.edition, 
+                    version_label=self.version_label,
+                    format=self.format,
+                    provider=self.provider
+                ).order_by('-version_iter'):
+             iter = ebook.version_iter
+             break
+        self.version_iter = iter + 1
+        self.save()
+          
     @property
     def rights_badge(self):
         if self.rights is None:
