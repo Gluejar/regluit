@@ -834,7 +834,6 @@ def export_csv(request, qid):  # questionnaire_id
     answers for all subjects.
     """
     import tempfile, csv, cStringIO, codecs
-    from django.core.servers.basehttp import FileWrapper
 
     class UnicodeWriter:
         """
@@ -878,11 +877,11 @@ def export_csv(request, qid):  # questionnaire_id
         row = ["%s/%s" % (subject.id, subject.state), runid] + [
             a if a else '--' for a in answer_row]
         writer.writerow(row)
+    fd.seek(0)
 
-    response = HttpResponse(FileWrapper(fd), content_type="text/csv")
+    response = HttpResponse(fd, content_type="text/csv")
     response['Content-Length'] = fd.tell()
     response['Content-Disposition'] = 'attachment; filename="export-%s.csv"' % qid
-    fd.seek(0)
     return response
 
 
