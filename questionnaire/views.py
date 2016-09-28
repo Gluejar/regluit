@@ -1,5 +1,14 @@
 #!/usr/bin/python
 # vim: set fileencoding=utf-8
+import logging
+import random
+import re
+import tempfile
+
+from compat import commit_on_success, commit, rollback
+from hashlib import md5
+from uuid import uuid4
+
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
@@ -12,6 +21,7 @@ from django.conf import settings
 from datetime import datetime
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
+
 from . import QuestionProcessors
 from . import questionnaire_start, questionset_start, questionset_done, questionnaire_done
 from . import AnswerException
@@ -21,15 +31,9 @@ from .models import *
 from .parsers import *
 from .parsers import BoolNot, BoolAnd, BoolOr, Checker
 from .emails import _send_email, send_emails
-from .utils import numal_sort, split_numal
+from .utils import numal_sort, split_numal, UnicodeWriter
 from .request_cache import request_cache
 from .dependency_checker import dep_check
-from compat import commit_on_success, commit, rollback
-import logging
-import random
-from hashlib import md5
-import re
-from uuid import uuid4
 
 
 try:
@@ -833,39 +837,6 @@ def export_csv(request, qid):  # questionnaire_id
     For a given questionnaire id, generaete a CSV containing all the
     answers for all subjects.
     """
-    import tempfile, csv, cStringIO, codecs
-
-    class UnicodeWriter:
-        """
-        COPIED from http://docs.python.org/library/csv.html example:
-
-        A CSV writer which will write rows to CSV file "f",
-        which is encoded in the given encoding.
-        """
-
-        def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
-            # Redirect output to a queue
-            self.queue = cStringIO.StringIO()
-            self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
-            self.stream = f
-            self.encoder = codecs.getincrementalencoder(encoding)()
-
-        def writerow(self, row):
-            self.writer.writerow([unicode(s).encode("utf-8") for s in row])
-            # Fetch UTF-8 output from the queue ...
-            data = self.queue.getvalue()
-            data = data.decode("utf-8")
-            # ... and reencode it into the target encoding
-            data = self.encoder.encode(data)
-            # write to the target stream
-            self.stream.write(data)
-            # empty queue
-            self.queue.truncate(0)
-
-        def writerows(self, rows):
-            for row in rows:
-                self.writerow(row)
-
     fd = tempfile.TemporaryFile()
 
     questionnaire = get_object_or_404(Questionnaire, pk=int(qid))
