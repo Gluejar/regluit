@@ -481,7 +481,7 @@ class Choice(models.Model):
 class Answer(models.Model):
     subject = models.ForeignKey(Subject, help_text = u'The user who supplied this answer')
     question = models.ForeignKey(Question, help_text = u"The question that this is an answer to")
-    runid = models.CharField(u'RunID', help_text = u"The RunID (ie. year)", max_length=32)
+    runid = models.CharField(u'RunID', help_text = u"The RunID ", max_length=32)
     answer = models.TextField()
 
     def __unicode__(self):

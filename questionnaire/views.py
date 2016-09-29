@@ -834,7 +834,7 @@ def _table_headers(questions):
 @permission_required("questionnaire.export")
 def export_csv(request, qid):  # questionnaire_id
     """
-    For a given questionnaire id, generaete a CSV containing all the
+    For a given questionnaire id, generate a CSV containing all the
     answers for all subjects.
     """
     fd = tempfile.TemporaryFile()
