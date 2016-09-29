@@ -194,13 +194,14 @@ class BookLoaderTests(TestCase):
         self.assertTrue(edition.work.editions.count() > 9)
         self.assertTrue(edition.work.reverse_related.count() > 0)
 
-        # is edition.work found in the from_work of the to_work of edition.work?
-        back_set = set()
-        to_works = [wr.to_work for  wr in edition.work.works_related_from.all()]
+        # is edition.work found among the from_work of all the to_work of edition.work?
+        back_point = True
+        to_works = [wr.to_work for wr in edition.work.works_related_from.all()]
         for to_work in to_works:
-            back_set.update([wr1.from_work.id for wr1 in to_work.works_related_to.all()])
-
-        self.assertTrue(edition.work.id in back_set)
+            if edition.work.id not in [wr1.from_work.id for wr1 in to_work.works_related_to.all()]:
+                back_point = False
+                break
+        self.assertTrue(back_point)
 
 
     def test_populate_edition(self):
