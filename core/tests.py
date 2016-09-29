@@ -193,7 +193,13 @@ class BookLoaderTests(TestCase):
         self.assertEqual(models.Work.objects.filter(language=lang).count(), 1)
         self.assertTrue(edition.work.editions.count() > 9)
         self.assertTrue(edition.work.reverse_related.count() > 0)
-        back_set = {back.id for back in edition.work.works_related_from.all()[0].to_work.works_related_to.all() } 
+
+        # is edition.work found in the from_work of the to_work of edition.work?
+        back_set = set()
+        to_works = [wr.to_work for  wr in edition.work.works_related_from.all()]
+        for to_work in to_works:
+            back_set.update([wr1.from_work.id for wr1 in to_work.works_related_to.all()])
+
         self.assertTrue(edition.work.id in back_set)
 
 
