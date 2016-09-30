@@ -149,7 +149,7 @@ $j(document).ready(function() {
                     <a href="{% url 'download_ebook' ebook.id %}">
                     <img src="{{ ebook.rights_badge }}" alt="{{ ebook.rights}}" title="{{ ebook.rights}}" /></a>
                     <a href="{% url 'download_ebook' ebook.id %}"><img src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }}" title="{{ ebook.format }}" /></a>
-                    <a href="{% url 'download_ebook' ebook.id %}">{{ ebook.format }}</a> 
+                    <a href="{% url 'download_ebook' ebook.id %}">{{ ebook.format }}</a> {% if ebook.version_label %}  ({{ ebook.version_label }}) {% endif %}
                     {% if ebook.is_direct %}<a class="dropbox-saver" href="{{ ebook.download_url }}" data-filename="unglueit-{{ work.id }}.{{ ebook.format }}"></a>{% endif %}
                 
 
@@ -168,7 +168,7 @@ $j(document).ready(function() {
                     <a href="{% url 'download_ebook' ebook.id %}">
                     <img src="{{ ebook.rights_badge }}" alt="{{ ebook.rights}}" title="{{ ebook.rights}}" /></a>
                     <a href="{% url 'download_ebook' ebook.id %}"><img src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }} at {{ebook.provider}}" title="{{ ebook.format }} at {{ebook.provider}}" /></a>
-                    <a href="{% url 'download_ebook' ebook.id %}">{{ ebook.format }} at {{ ebook.provider }}</a>
+                    <a href="{% url 'download_ebook' ebook.id %}">{{ ebook.format }} {% if ebook.version_label %}  ({{ ebook.version_label }}) {% endif %} at {{ ebook.provider }}</a>
                     {% if ebook.is_direct %}<a class="dropbox-saver" href="{{ ebook.download_url }}" data-filename="unglueit-{{ work.id }}.{{ ebook.format }}"></a>{% endif %}
                 
                     {% if not forloop.last %}<br /><br />{% endif %}

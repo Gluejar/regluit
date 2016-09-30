@@ -102,6 +102,8 @@
                                                 <span itemprop="publisher"><a href="{% url 'bypubname_list' work.last_campaign.publisher.name.id %}">{{ work.last_campaign.publisher }}</a></span>
                                                 {% endif %}
                                                 <span itemprop="datePublished">{{ work.publication_date }}</span>
+                                                <meta itemprop="inLanguage" content="work.language" />
+                                                <meta itemprop="typicalAgeRange" content="work.age_range" />
                                             </h3>
                                         </div>
                                     </div>
@@ -276,6 +278,18 @@
                                         {{ work.last_campaign.description|safe }}
                                     {% endif %}
                                     </div>
+                                    <div>
+                                    {% for work_rel in work.works_related_to.all %}
+                                    <p>
+                                    This work is a {{ work_rel.relation }} of <a href="{% url 'work' work_rel.from_work.id %}">{{ work_rel.from_work }}</a>.
+                                    </p>
+                                    {% endfor %}
+                                    {% for work_rel in work.works_related_from.all %}
+                                    <p>
+                                    <a href="{% url 'work' work_rel.to_work.id %}">{{ work_rel.to_work }}</a> is a {{ work_rel.relation }} of this work.
+                                    </p>
+                                    {% endfor %}
+                                    </div>
                                 </div>
                             </div>
                             <div id="tabs-2" class="tabs {% if activetab == '2' %}active{% endif %}">
@@ -417,7 +431,7 @@
                                                 This work has been downloaded {{ work.download_count }} times via unglue.it ebook links.
                                                 <ol>
                                                 {% for ebook in work.ebooks.all %}
-                                                <li>{{ ebook.download_count }} -  {{ ebook.format }} ({{ ebook.rights }}) at {{ ebook.provider }}</li>
+                                                <li>{{ ebook.download_count }} -  {{ ebook.format }} {% if ebook.version_label %}  ({{ ebook.version_label }}) {% endif %}({{ ebook.rights }}) at {{ ebook.provider }}. </li>
                                                 {% endfor %}
                                                 </ol>
                                             </div>

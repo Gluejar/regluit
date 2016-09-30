@@ -106,7 +106,7 @@ def description(license):
         else:
             return ''
 
-class ccinfo():
+class ccinfo(object):
     def __init__(self, license):
         value=license_value(license)
         self.license=value if value else license

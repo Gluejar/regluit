@@ -20,12 +20,20 @@
     <b>LibraryThing ID</b>: {{ edition.librarything_id }}<br />
 
 </div>
+{% if edition.ebooks.all.0 %}
+    <h2>Active eBooks for this Work</h2>
+    {% for ebook in edition.work.ebooks %}
+        <a href="{% url 'download_ebook' ebook.id %}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}. 
+        {% if ebook.version_label %}  {{ ebook.version_label }}. {% endif %} v{{ ebook.version_iter }}
+        Downloaded {{ ebook.download_count }} times since {{ ebook.created }}<br />
+    {% endfor %}
+{% endif %}
 {% if edition.ebook_files.all %}
     <h2> Ebook Files for this Edition</h2>
     <ul>
     {% for ebook_file in edition.ebook_files.all %}
         {% if ebook_file.file %}
-        <li>{% if ebook_file.active %}<span class="yikes">ACTIVE</span> {% endif %}<a href="{{ebook_file.file.url}}">{{ebook_file.file}}</a> created {{ebook_file.created}} {% if ebook_file.asking %}(This file has had the campaign 'ask' added.){% endif %}</li>
+        <li>{% if ebook_file.active %}<span class="yikes">ACTIVE</span> {% elif ebook_file.ebook.active %} MIRROR {% endif  %}<a href="{{ebook_file.file.url}}">{{ebook_file.file}}</a> created {{ebook_file.created}} {% if ebook_file.asking %}(This file has had the campaign 'ask' added.){% endif %}</li>
         {% endif %}
     {% endfor %}
     </ul>
@@ -66,15 +74,28 @@
 For ePUB files, use the <a href=https://code.google.com/p/epubcheck/">epubcheck</a> tool to make sure everything will work properly.</p>
 <form method="POST" action="#" enctype="multipart/form-data">
 {% csrf_token %}
-{{form.as_p}}
+{{form.edition.errors}}{{form.edition}}
+<p>{{form.format.errors}}Format: {{form.format}}</p>
+            <h3>Note on versions</h4>
+            <p>
+            If you want ebooks from two editions with the same format and provider to display, give them different version labels.
+            </p>
+                <span>Version Label (optional): {% if edition.work.versions %}
+                    <select id='version_label'>
+                     <option value=""> (no label) </option>
+                    {% for vers in edition.work.versions %}<option value="{{ vers }}" >{{ vers }}</option>{% endfor %}
+                    </select> or add a new version label:
+                {% endif %}
+                {{ form.new_version_label.errors }} {{ form.new_version_label }} </span> <br />
+<p>{{form.file.errors}}Upload File: {{form.file}}</p>
 <input type="submit" id="submit_file" value="submit ebook file">
 </form>
-{% if edition.work %}
+
 <h2>More Edition Management</h2>
 
 <div><a href="{% url 'new_edition' edition.work.id edition.id %}">Edit this edition</a></div>
 {% if edition.work.last_campaign %}
 <div><a href="{% url 'manage_campaign' edition.work.last_campaign.id %}">Manage this campaign</a></div>
-{% endif %}
+
 {% endif %}
 {% endblock %}

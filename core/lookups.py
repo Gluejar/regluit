@@ -3,7 +3,7 @@ from selectable.registry import registry
 
 from django.contrib.auth.models import User
 from django.db.models import Count
-from regluit.core.models import Work, PublisherName, Edition, Subject
+from regluit.core.models import Work, PublisherName, Edition, Subject, EditionNote
 
 class OwnerLookup(ModelLookup):
     model = User
@@ -54,8 +54,17 @@ class SubjectLookup(ModelLookup):
     def get_query(self, request, term):
         return super(SubjectLookup, self).get_query( request, term).annotate(Count('works')).order_by('-works__count')
 
+class EditionNoteLookup(ModelLookup):
+    model = EditionNote
+    search_fields = ('note__icontains',)
+    def create_item(self, value):
+        new_note, created = EditionNote.objects.get_or_create(note=value)
+        new_note.save()
+        return new_note
+
 registry.register(OwnerLookup)
 registry.register(WorkLookup)
 registry.register(PublisherNameLookup)
 registry.register(EditionLookup)
 registry.register(SubjectLookup)
+registry.register(EditionNoteLookup)

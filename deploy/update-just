@@ -7,6 +7,9 @@
 # ssh ubuntu@please.unglueit.com "/opt/regluit/deploy/update-regluit"
 
 cd /opt/regluit
+find . -name "*.pyc" -delete
+find . -type d -empty -delete
+
 sudo -u ubuntu /usr/bin/git pull
 source ENV/bin/activate
 pip install --upgrade -r requirements_versioned.pip

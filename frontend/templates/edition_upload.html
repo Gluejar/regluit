@@ -1,31 +1,48 @@
 <div class="clearfix">
-    {% if edition.ebook_form %}
-        {% if show_ebook_form %}
-            <div id="add_ebook">
+    {% if ebook_form and show_ebook_form %}
+        <div id="add_ebook">
 {% if alert %}<div class="yikes">{{alert}}</div>{% endif %}
-                {% if edition.ebooks.all.0 %}
-                    <h2>eBooks for this Edition</h2>
-            
-                    {% for ebook in edition.ebooks.all %}
-                        <a href="{% url 'download_ebook' ebook.id %}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}. Downloaded {{ ebook.download_count }} times.<br />
-                    {% endfor %}
-                {% endif %}
-
-                <h2>Add an eBook for this Edition:</h2>
-            
-                <span>If you know that this edition is available as a public domain or Creative Commons ebook, you can enter the link here and "unglue" it. Right now, we're only accepting URLs that point to Internet Archive, Wikisources, Wikibooks, Hathitrust, Project Gutenberg, raw files at Github, or Google Books.</span>
-            
-                <form method="POST" action="#add_ebook">
-                    {% csrf_token %}{{ edition.ebook_form.edition.errors }}{{ edition.ebook_form.edition }}{{ edition.ebook_form.user.errors }}{{ edition.ebook_form.user }}{{ edition.ebook_form.provider.errors }}{{ edition.ebook_form.provider }}
-                    {{ edition.ebook_form.url.errors }}<span>URL: {{ edition.ebook_form.url }}</span><br />
-                    {{ edition.ebook_form.format.errors }}<span>File Format: {{ edition.ebook_form.format }}</span>&nbsp;&nbsp;&nbsp;
-                    {{ edition.ebook_form.rights.errors }}<span>License: {{ edition.ebook_form.rights }}</span><br />
-                    <input type="submit" name="add_ebook" value="add ebook" />
-                </form>
-            </div>
-        {% else %}
-            <div> Adding ebook links is disabled for this work.</div>
-        {% endif %}
+            {% if edition.ebooks.all.0 %}
+                <h2>eBooks for this Edition</h2>
         
+                {% for ebook in edition.ebooks.all %}
+                    {% if ebook.active %}
+                        <a href="{% url 'download_ebook' ebook.id %}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}. 
+                        {% if ebook.version_label %}  {{ ebook.version_label }} (v{{ ebook.version_iter }}). {% endif %}
+                        Downloaded {{ ebook.download_count }} times since {{ ebook.created }}<br />
+                    {% endif %}
+                {% endfor %}
+
+            {% endif %}
+
+            <h2>Add an eBook for this Edition:</h2>
+        
+            <span>If you know that this edition is available as a public domain or Creative Commons ebook, you can enter the link here and "unglue" it. Right now, we're only accepting URLs that point to Internet Archive, Wikisources, Wikibooks, Hathitrust, Project Gutenberg, OApen, raw files at Github, or Google Books.</span>
+        
+            <form method="POST" action="#add_ebook" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ ebook_form.edition.errors }}{{ ebook_form.edition }}{{ ebook_form.user.errors }}{{ ebook_form.user }}{{ ebook_form.provider.errors }}{{ ebook_form.provider }}
+                <br />
+                {{ ebook_form.url.errors }}<span>Add a Link URL: {{ ebook_form.url }}</span><br />
+                or...<br />
+                {{ ebook_form.file.errors }}<span>Upload an ebook file: {{ ebook_form.file }}</span><br /><br />
+                {{ ebook_form.format.errors }}<span>File Format: {{ ebook_form.format }}</span>&nbsp;&nbsp;&nbsp;
+                {{ ebook_form.rights.errors }}<span>License: {{ ebook_form.rights }}</span><br /><br />
+                <span>Version Label (optional): {% if edition.work.versions %}
+                    <select id='version_label'>
+                     <option value=""> (no label) </option>
+                    {% for vers in edition.work.versions %}<option value="{{ vers }}" >{{ vers }}</option>{% endfor %}
+                    </select> or add a new version label:
+                {% endif %}
+                {{ ebook_form.new_version_label.errors }} {{ ebook_form.new_version_label }} </span> <br />
+                <br /><input type="submit" name="add_ebook" value="add link/upload ebook" />
+            </form>
+            <h3>Note on versions</h4>
+            <p>
+            If you want ebooks from two editions with the same format and provider to display, give them different version labels.
+            </p>
+        </div>
+    {% else %}
+        <div> Adding ebook links is disabled for this work.</div>
     {% endif %}
 </div>

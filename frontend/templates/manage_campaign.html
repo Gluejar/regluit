@@ -136,14 +136,13 @@ Please fix the following before launching your campaign:
         <div class="edition_form" id="edition_{{edition.id}}">
         <p> Edition {{ edition.id }}:  <input type="radio" {% ifequal edition.id form.edition.value %}checked="checked" {% endifequal %}id="id_edition_{{forloop.counter}}" value="{{edition.id}}" name="edition" /><label for="id_edition_{{forloop.counter}}"> Prefer this edition </label>
         <ul style="text-indent:1em">
-        <li style="text-indent:2.5em">There are {{ edition.downloads.all.count }} downloadable ebook for this edition</li>
         <li style="text-indent:2.5em"><a href="{% url 'new_edition' edition.work.id edition.id %}"> Edit </a> this edition</li>
         {% ifnotequal campaign.type 1 %}
         {% if campaign.rh.can_sell %}
             {% if edition.ebook_files.all.0 %}
-                <li style="text-indent:2.5em">You have uploaded ebook files for this edition. <a href="{% url 'edition_uploads' edition.id %}"> Upload another</a></li>
+                <li style="text-indent:2.5em">You have uploaded ebook files for this edition. You can <a href="{% url 'edition_uploads' edition.id %}"> manage its ebooks or upload another</a></li>
             {% else %}
-                <li style="text-indent:2.5em">You can <a href="{% url 'edition_uploads' edition.id %}"> Load a file</a> for this edition.</li>
+                <li style="text-indent:2.5em">You can <a href="{% url 'edition_uploads' edition.id %}"> Manage ebooks</a> for this edition.</li>
             {% endif %}
         {% endif %}
         {% endifnotequal %}
@@ -156,11 +155,11 @@ Please fix the following before launching your campaign:
 		
 	<p>If you don't see an edition that matches what you want to release, you can <a href="{% url 'rh_edition' work.id '' %}">create a new edition</a>.</p>
     {% if campaign.work.ebookfiles.0 %}
-        <h3>Uploaded Files</h3>
+        <h3>All ebook files for this book</h3>
     {% endif %}
     {% if campaign.work.epubfiles.0 %}
         {% for ebf in campaign.work.epubfiles %}
-        <p>{% if ebf.active %}<span class="yikes">ACTIVE</span> {% endif %}EPUB file: <a href="{{ebf.file.url}}">{{ebf.file}}</a> <br />created {{ebf.created}}  for edition <a href="#edition_{{ebf.edition.id}}">{{ebf.edition.id}}</a> {% if ebf.asking %}(This file has had the campaign 'ask' added.){% endif %}<br />{% if ebf.active %}{% ifequal action 'mademobi' %}<span class="yikes">A MOBI file is being generated. </span> (Takes a minute or two.) {% else %}You can <a href="{% url 'makemobi' campaign.id %}">generate a MOBI file.</a> {% endifequal %}{% endif %}</p>
+        <p>{% if ebf.active %}<span class="yikes">ACTIVE</span> {% elif ebf.ebook.active %} MIRROR {% endif %}EPUB file: <a href="{{ebf.file.url}}">{{ebf.file}}</a> <br />created {{ebf.created}}  for edition <a href="#edition_{{ebf.edition.id}}">{{ebf.edition.id}}</a> {% if ebf.asking %}(This file has had the campaign 'ask' added.){% endif %}<br />{% if ebf.active %}{% ifequal action 'mademobi' %}<span class="yikes">A MOBI file is being generated. </span> (Takes a minute or two.) {% else %}You can <a href="{% url 'makemobi' campaign.id ebf.id %}">generate a MOBI file.</a> {% endifequal %}{% endif %}</p>
         {% endfor %}
         {% if campaign.work.test_acqs.0 %}
             <ul> 

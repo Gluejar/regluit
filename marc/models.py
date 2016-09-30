@@ -56,6 +56,7 @@ class AbstractEdition:
     publisher = ''
     title = ''
     publication_date = ''
+    note = ''
     
     # the edition should be able to report ebook downloads, with should have format and url attributes
     def downloads(self):
