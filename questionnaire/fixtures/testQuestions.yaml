@@ -60,6 +60,21 @@
     text_de: shown with testtag,
     text_en: shown with testtag,
   }
+  model: questionnaire.run
+  pk: 1
+- fields: {
+    runid: 'test:test',
+  }
+  model: questionnaire.run
+  pk: 2
+- fields: {
+    runid: 'test:withtags',
+  }
+  model: questionnaire.run
+  pk: 3
+- fields: {
+    runid: 'test:withouttags',
+  }
   model: questionnaire.questionset
   pk: 4
 - fields: {
@@ -70,7 +85,7 @@
     lastemailerror: null,
     questionset: 1,
     random: 'test:test',
-    runid: 'test:test',
+    run: 1,
     state: '',
     subject: 1
   }
@@ -84,7 +99,7 @@
     lastemailerror: null,
     questionset: 3,
     random: 'test:withtags',
-    runid: 'test:withtags',
+    run: 2,
     state: '',
     tags: 'testtag',
     subject: 1
@@ -99,7 +114,7 @@
     lastemailerror: null,
     questionset: 3,
     random: 'test:withouttags',
-    runid: 'test:withouttags',
+    run: 3,
     state: '',
     tags: '',
     subject: 1
@@ -108,7 +123,7 @@
   pk: 3
 - fields: {
     completed: 2009-05-16,
-    runid: 'test:test',
+    run: 1,
     subject: 1,
     questionnaire: 1,
   }

@@ -65,9 +65,9 @@ def get_question(number, questionset):
     return res and res[0] or None
 
 
-def delete_answer(question, subject, runid):
-    "Delete the specified question/subject/runid combination from the Answer table"
-    Answer.objects.filter(subject=subject, runid=runid, question=question).delete()
+def delete_answer(question, subject, run):
+    "Delete the specified question/subject/run combination from the Answer table"
+    Answer.objects.filter(subject=subject, run=run, question=question).delete()
 
 
 def add_answer(runinfo, question, answer_dict):
@@ -81,7 +81,7 @@ def add_answer(runinfo, question, answer_dict):
     answer = Answer()
     answer.question = question
     answer.subject = runinfo.subject
-    answer.runid = runinfo.runid
+    answer.run = runinfo.run
 
     type = question.get_type()
 
@@ -94,7 +94,7 @@ def add_answer(runinfo, question, answer_dict):
         raise AnswerException("No Processor defined for question type %s" % type)
 
     # first, delete all existing answers to this question for this particular user+run
-    delete_answer(question, runinfo.subject, runinfo.runid)
+    delete_answer(question, runinfo.subject, runinfo.run)
 
     # then save the new answer to the database
     answer.save(runinfo)
@@ -483,7 +483,7 @@ def questionnaire(request, runcode=None, qs=None):
                 if not depparser.parse(depon):
                     # if check is not the same as answer, then we don't care
                     # about this question plus we should delete it from the DB
-                    delete_answer(question, runinfo.subject, runinfo.runid)
+                    delete_answer(question, runinfo.subject, runinfo.run)
                     if cd.get('store', False):
                         runinfo.set_cookie(question.number, None)
                     continue
@@ -522,7 +522,7 @@ def questionnaire(request, runcode=None, qs=None):
 def finish_questionnaire(request, runinfo, questionnaire):
     hist = RunInfoHistory()
     hist.subject = runinfo.subject
-    hist.runid = runinfo.runid
+    hist.run = runinfo.run
     hist.completed = datetime.now()
     hist.questionnaire = questionnaire
     hist.tags = runinfo.tags
@@ -536,11 +536,11 @@ def finish_questionnaire(request, runinfo, questionnaire):
     redirect_url = questionnaire.redirect_url
     for x, y in (('$LANG', lang),
                  ('$SUBJECTID', runinfo.subject.id),
-                 ('$RUNID', runinfo.runid),):
+                 ('$RUNID', runinfo.run.runid),):
         redirect_url = redirect_url.replace(x, str(y))
 
-    if runinfo.runid in ('12345', '54321') \
-            or runinfo.runid.startswith('test:'):
+    if runinfo.run.runid in ('12345', '54321') \
+            or runinfo.run.runid.startswith('test:'):
         runinfo.questionset = QuestionSet.objects.filter(questionnaire=questionnaire).order_by('sortid')[0]
         runinfo.save()
     else:
@@ -724,7 +724,7 @@ def show_questionnaire(request, runinfo, errors={}):
         
     current_answers = []
     if debug_questionnaire:
-        current_answers = Answer.objects.filter(subject=runinfo.subject, runid=runinfo.runid).order_by('id')
+        current_answers = Answer.objects.filter(subject=runinfo.subject, run=runinfo.run).order_by('id')
 
 
     r = r2r("questionnaire/questionset.html", request,
@@ -883,7 +883,7 @@ def answer_export(questionnaire, answers=None):
         answers = Answer.objects.all()
     answers = answers.filter(
         question__questionset__questionnaire=questionnaire).order_by(
-        'subject', 'runid', 'question__questionset__sortid', 'question__number')
+        'subject', 'run__runid', 'question__questionset__sortid', 'question__number')
     answers = answers.select_related()
     questions = Question.objects.filter(
         questionset__questionnaire=questionnaire)
@@ -901,10 +901,10 @@ def answer_export(questionnaire, answers=None):
     out = []
     row = []
     for answer in answers:
-        if answer.runid != runid or answer.subject != subject:
+        if answer.run.runid != runid or answer.subject != subject:
             if row:
                 out.append((subject, runid, row))
-            runid = answer.runid
+            runid = answer.run.runid
             subject = answer.subject
             row = [""] * len(headings)
         ans = answer.split_answer()
@@ -1023,9 +1023,8 @@ def generate_run(request, questionnaire_id, subject_id=None, context={}):
     str_to_hash += settings.SECRET_KEY
     key = md5(str_to_hash).hexdigest()
     landing = context.get('landing', None)
-
-    run = RunInfo(subject=su, random=key, runid=key, questionset=qs, landing=landing)
-    run.save()
+    r = Run.objects.create(runid=key)
+    run = RunInfo.objects.create(subject=su, random=key, run=r, questionset=qs, landing=landing)
     if not use_session:
         kwargs = {'runcode': key}
     else:

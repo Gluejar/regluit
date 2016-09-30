@@ -54,7 +54,7 @@ def get_runid_from_request(request):
     if use_session:
         return request.session.get('runcode', None)
     else:
-        return request.runinfo.runid
+        return request.runinfo.run.runid
 
 if __name__ == "__main__":
     import doctest

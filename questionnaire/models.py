@@ -70,10 +70,10 @@ class Subject(models.Model):
             return None
 
     def history(self):
-        return RunInfoHistory.objects.filter(subject=self).order_by('runid')
+        return RunInfoHistory.objects.filter(subject=self).order_by('run__runid')
 
     def pending(self):
-        return RunInfo.objects.filter(subject=self).order_by('runid')
+        return RunInfo.objects.filter(subject=self).order_by('run__runid')
 
     class Meta:
         index_together = [
@@ -216,12 +216,14 @@ class QuestionSet(models.Model):
             ["questionnaire", "sortid"],
             ["sortid",]
             ]
+class Run(models.Model):
+    runid = models.CharField(max_length=32, null=True)
 
 class RunInfo(models.Model):
     "Store the active/waiting questionnaire runs here"
     subject = models.ForeignKey(Subject)
     random = models.CharField(max_length=32) # probably a randomized md5sum
-    runid = models.CharField(max_length=32)
+    run = models.ForeignKey(Run, related_name='run_infos')
     landing = models.ForeignKey(Landing, null=True, blank=True)
     # questionset should be set to the first QuestionSet initially, and to null on completion
     # ... although the RunInfo entry should be deleted then anyway.
@@ -301,7 +303,7 @@ class RunInfo(models.Model):
         return self.__cookiecache
 
     def __unicode__(self):
-        return "%s: %s, %s" % (self.runid, self.subject.surname, self.subject.givenname)
+        return "%s: %s, %s" % (self.run.runid, self.subject.surname, self.subject.givenname)
 
     class Meta:
         verbose_name_plural = 'Run Info'
@@ -311,7 +313,7 @@ class RunInfo(models.Model):
 
 class RunInfoHistory(models.Model):
     subject = models.ForeignKey(Subject)
-    runid = models.CharField(max_length=32)
+    run = models.ForeignKey(Run, related_name='run_info_histories')
     completed = models.DateTimeField()
     landing = models.ForeignKey(Landing, null=True, blank=True)
     tags = models.TextField(
@@ -325,11 +327,11 @@ class RunInfoHistory(models.Model):
     questionnaire = models.ForeignKey(Questionnaire)
 
     def __unicode__(self):
-        return "%s: %s on %s" % (self.runid, self.subject, self.completed)
+        return "%s: %s on %s" % (self.run.runid, self.subject, self.completed)
 
     def answers(self):
         "Returns the query for the answers."
-        return Answer.objects.filter(subject=self.subject, runid=self.runid)
+        return Answer.objects.filter(subject=self.subject, run=self.run)
 
     class Meta:
         verbose_name_plural = 'Run Info History'
@@ -448,7 +450,7 @@ class Question(models.Model):
         return self.type == 'comment'
 
     def get_value_for_run_question(self, runid):
-        runanswer = Answer.objects.filter(runid=runid,question=self)
+        runanswer = Answer.objects.filter(run__runid=runid, question=self)
         if len(runanswer) > 0:
             return runanswer[0].answer
         else:
@@ -481,7 +483,7 @@ class Choice(models.Model):
 class Answer(models.Model):
     subject = models.ForeignKey(Subject, help_text = u'The user who supplied this answer')
     question = models.ForeignKey(Question, help_text = u"The question that this is an answer to")
-    runid = models.CharField(u'RunID', help_text = u"The RunID ", max_length=32)
+    run = models.ForeignKey(Run, related_name='answers')
     answer = models.TextField()
 
     def __unicode__(self):
@@ -535,6 +537,6 @@ class Answer(models.Model):
 
     class Meta:
         index_together = [
-            ['subject', 'runid'],
-            ['subject', 'runid', 'id'],
+            ['subject', 'run'],
+            ['subject', 'run', 'id'],
             ]

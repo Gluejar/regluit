@@ -61,7 +61,7 @@ class QuestionnaireAdmin(admin.ModelAdmin):
 
 
 class RunInfoAdmin(admin.ModelAdmin):
-    list_display = ['random', 'runid', 'subject', 'created', 'emailsent', 'lastemailerror']
+    list_display = ['random', 'run', 'subject', 'created', 'emailsent', 'lastemailerror']
     pass
 
 
@@ -70,10 +70,10 @@ class RunInfoHistoryAdmin(admin.ModelAdmin):
 
 
 class AnswerAdmin(admin.ModelAdmin):
-    search_fields = ['subject__email', 'runid', 'question__number', 'answer']
-    list_display = ['id', 'runid', 'subject', 'question']
-    list_filter = ['subject', 'runid']
-    ordering = [ 'id', 'subject', 'runid', 'question', ]
+    search_fields = ['subject__email', 'run__id', 'question__number', 'answer']
+    list_display = ['id', 'run', 'subject', 'question']
+    list_filter = ['subject', 'run__id']
+    ordering = [ 'id', 'subject', 'run__id', 'question', ]
     
 from django.contrib import admin
 
