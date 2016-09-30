@@ -86,6 +86,7 @@ from .bibmodels import (
     Relation,
     Relator,
     safe_get_work,
+    send_to_kindle_limit,
     Subject,
     WasWork,
     Work,
