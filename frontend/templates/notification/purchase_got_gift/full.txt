@@ -1,0 +1,6 @@
+The gift you sent to {{ gift.to }} has been redeemed.
+
+Thank you for supporting Unglue.it and for helping to spread "{{ gift.acq.work.title }}".
+
+the Unglue.it team
+

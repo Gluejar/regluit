@@ -14,21 +14,65 @@ GLUEJAR_ACCOUNT_ID = 439256357102
 ec2 = boto.connect_ec2()
 cw = boto.connect_cloudwatch()
 rds = boto.connect_rds()
+route53 = boto.connect_route53()
+iam = boto.connect_iam()
 
 def all_instances():
+    # "A reservation corresponds to a command to start instances"
+    # http://boto.readthedocs.org/en/latest/ec2_tut.html?highlight=reservation
+    
     reservations = ec2.get_all_instances()
     instances = [i for r in reservations for i in r.instances]
     return instances
 
 def all_zones():
-    print ec2.get_all_zones()
+    return ec2.get_all_zones()
     
 def all_rds():
     return rds.get_all_dbinstances()
     
 def all_rds_parameter_groups():
     return rds.get_all_dbparameter_groups()
+
+def all_hosted_zones():
     
+    hzones = route53.get_all_hosted_zones() 
+    return hzones['ListHostedZonesResponse']['HostedZones']
+
+def rrsets_for_domain(domain_name):
+    """
+    all rrsets for domain_name
+    """
+    
+    zone = route53.get_hosted_zone_by_name(domain_name)
+    
+    if zone is not None:
+    
+        zone_id = zone.GetHostedZoneResponse.Id.replace('/hostedzone/', '')
+        rrsets = route53.get_all_rrsets(zone_id)
+    
+        for rrset in rrsets:
+            yield rrset
+
+def route53_records(domain_name, name, record_type):
+    """
+    return route53 record for given domain name, host name, type
+    """
+    
+    zone = route53.get_hosted_zone_by_name(domain_name)
+    
+    if zone is None:
+        return ([], None)
+    
+    zone_id = zone.GetHostedZoneResponse.Id.replace('/hostedzone/', '')
+    rrsets = route53.get_all_rrsets(zone_id)
+    
+    full_name = "{0}.{1}.".format(name, domain_name)
+    
+    return ([rset for rset in route53.get_all_rrsets(zone_id) if rset.name == full_name and rset.type == record_type ],
+            rrsets)
+    
+
 def modify_rds_parameter(group_name, parameter, value, apply_immediate=False):
     """change parameter in RDS parameter group_name to value
     http://stackoverflow.com/a/9085381/7782
@@ -76,7 +120,7 @@ def stop_instances(instances):
 
 
 def console_output(instance):
-    """returnn console output of instance"""
+    """return console output of instance"""
     try:
         return instance.get_console_output().output
     except Exception, e:
@@ -119,7 +163,8 @@ def stats_for_instances(instances=None):
     stats = []
     for instance in instances:
         instance.update()  # to get latest update
-        stats.append((instance.id, instance.key_name, instance.state, instance.ip_address, instance.dns_name))
+        stats.append((instance.id, instance.tags.get('Name'), instance.key_name, instance.state,
+                      instance.ip_address, instance.dns_name))
     
     return stats  
  

@@ -10,5 +10,4 @@ build
 deploy/last-update
 logs/*
 celerybeat.pid
-marc/*
 .gitignore~

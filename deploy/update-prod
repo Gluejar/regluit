@@ -1,14 +1,19 @@
 #!/bin/bash
 
 cd /opt/regluit
+find . -name "*.pyc" -delete
+find . -type d -empty -delete
+
 sudo -u ubuntu /usr/bin/git pull origin production
 source ENV/bin/activate
-pip install -r requirements_versioned.pip
-django-admin.py syncdb --migrate --settings regluit.settings.prod
+pip install --upgrade -r requirements_versioned.pip
+#django-admin.py syncdb --migrate --settings regluit.settings.prod
+django-admin.py migrate --fake-initial --noinput --settings regluit.settings.prod
 django-admin.py collectstatic --noinput --settings regluit.settings.prod
+
 sudo /etc/init.d/apache2 restart
-sudo /etc/init.d/celeryd restart
-sudo /etc/init.d/celerybeat restart
+django-admin.py celeryd_multi restart w1 --settings=regluit.settings.prod;
+/etc/init.d/celerybeat restart
 chmod +x deploy/emit_notices.sh
 crontab deploy/crontab_prod.txt
 touch /opt/regluit/deploy/last-update

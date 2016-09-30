@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load landings %}
+{% block title %}{{ block.super }}Questionnaire{% endblock title %}
+{% block search_box %}
+{% render_with_landing '' %}
+<a href="{{landing_object.publishers.0.url}}"><img style="float:left;margin:10px" src="{{landing_object.publishers.0.logo_url}}" alt="{{landing_object.publishers.0.name}}" /></a>
+{% endblock %}
+{% block signin %}
+{% endblock %}
+{% block extra_css %}
+    <link rel="stylesheet" href="/static/bootstrap/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="/static/questionnaire.css" />
+    <style type="text/css">
+    {% block styleextra %}
+    {% endblock %}
+    </style>
+{% endblock %}    
+{% block extra_head %}
+    {% block headextra %}
+    {% endblock %}
+{% endblock %}
+
+{% block language %}
+    {% for lang in LANGUAGES %}
+        {% if not forloop.first %} | {% endif %}
+        <a href="/setlang/?lang={{ lang.0 }}&next={{ request.path }}">{{ lang.1 }}</a>
+    {% endfor %}
+{% endblock language %}
+
+{% block content %}
+<div id="main-container">
+	<div class="js-main">
+
+                        {% block questionnaire %}{% endblock questionnaire %}
+	</div>
+</div>    
+
+{% endblock %}

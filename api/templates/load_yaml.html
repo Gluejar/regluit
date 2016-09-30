@@ -1,0 +1,18 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>load_yaml</title>
+</head>
+
+<body>
+
+<form method="POST" action={% url 'load_yaml' %}>
+{% csrf_token %}
+url: <input type="text" name="repo_url" length="30">
+<input type="submit" name="submit" value="load YAML metadata">
+</form>
+</body>
+</html>
+
+

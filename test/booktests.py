@@ -15,7 +15,7 @@ django imports
 """
 import django
 
-from django.contrib.comments.models import Comment
+from django_comments.models import Comment
 from django.db.models import Q, F
 
 """

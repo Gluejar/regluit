@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+
 {% load truncatechars %}
 {% block title %}&#151; Support Free eBooks{% endblock %}
 
@@ -6,7 +7,6 @@
 <link type="text/css" rel="stylesheet" href="/static/css/landingpage4.css"  />
 <link type="text/css" rel="stylesheet" href="/static/css/searchandbrowse2.css"  />
 <link type="text/css" rel="stylesheet" href="/static/css/book_panel2.css"  />
-<link type="text/css" rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
 {% endblock %}
 {% block extra_js %}
 
@@ -45,35 +45,35 @@ function put_un_in_cookie2(){
                     {% with featured as work %}
                         <div class="book-detail">
                             <div id="book-detail-img" style="float:left;padding-right:10px">
-                            <a href="{% url work featured.id %}">
+                            <a href="{% url 'work' featured.id %}">
                                 {% if work.googlebooks_id %}
                                     <img src="{{ work.cover_image_thumbnail }}" alt="Find {{ work.title }} at Google Books" title="Find {{ work.title }} at Google Books" width="131" height="192" />
                                 {% else %}
-                                    <img src="{% if work.cover_image_thumbnail %}{{ work.cover_image_thumbnail }}{% else %}/static/images/generic_cover_larger.png{% endif %}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" />
+                                    <img src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" />
                                 {% endif %}
                             </a>
                             <div class="quicktour" style=" padding-top: 10px;padding-left: 5px;">
                             <div class="panelview panelfront side1">
-                                <a href="{% url download work.id %}"  title="Download featured ebook" class="qtbutton qtreadittext hijax"><div class="read_itbutton qtreadit"><span>Read it Now</span></div></a>
+                                <a href="{% url 'download' work.id %}"  title="Download featured ebook" class="qtbutton qtreadittext hijax"><div class="read_itbutton qtreadit"><span>Read it Now</span></div></a>
                             </div>
                             </div>
                             </div>
                             <div class="book-detail-info" style="float:left;">
                                 <div  style="width: 520px;float: left;">
-                                <div  class="book-name" style="font-size:larger; margin-bottom:10px"><a href="{% url work featured.id %}">{{ work.title }}</a></div>
+                                <div  class="book-name" style="font-size:larger; margin-bottom:10px"><a href="{% url 'work' featured.id %}">{{ work.title }}</a></div>
                                 <div>
                                     <div class="pubinfo">
                                         <div class="book-author">
-                                        <span>{{ work.authors.0.name }}</span>{% ifequal work.authors.count 2 %}
-                                            and <span>{{ work.authors.1.name }}</span>
-                                        {% endifequal %}{% if work.authors.count > 2 %}{% for author in work.authors %}{% if not forloop.first %}, <span>{{ author.name }}</span>{% endif %}{% endfor %}
+                                        <span>{{ work.relators.0.name }}</span>{% if work.relators.count == 2 %}
+                                            and <span>{{ work.relators.1.name }}</span>
+                                        {% endif %}{% if work.relators.count > 2 %}{% for author in work.relators %}{% if not forloop.first %}, <span>{{ author.name }}</span>{% endif %}{% endfor %}
                                         {% endif %}
                                         </div>
                                         <div class="book-year"> 
                                             {% if work.last_campaign.publisher %}
-                                            <span><a href="{% url bypubname_list work.last_campaign.publisher.name.id %}">{{ work.last_campaign.publisher }}</a></span>
+                                            <span><a href="{% url 'bypubname_list' work.last_campaign.publisher.name.id %}">{{ work.last_campaign.publisher }}</a></span>
                                             {% endif %}
-                                            <span>{{ work.publication_date_year }}</span>
+                                            <span>{{ work.publication_date }}</span>
                                         </div>
                                         <div class="book-description" style="max-height:200px;overflow:scroll"> {{ work.description|safe }}</div>
                                     </div>
@@ -82,7 +82,21 @@ function put_un_in_cookie2(){
                         </div>
                     {% endwith %}
                 </div>
+                {% if faves %}
+                    <div class="spacer"></div>
+                    <h3 class="featured_books">Your Recent Faves</h3>
+                    <div>
+                        {% for work in faves %}
+                            {% with work.googlebooks_id as googlebooks_id %}
+                                {% include "book_panel.html" %}
+                            {% endwith %}
+                        {% endfor %}
+                        <a class="more_featured_books" href="{% url 'supporter' request.user %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
+                    </div>
+                    
+        	    {% endif %}
         	    {% if top_pledge %}
+                    <div class="spacer"></div>
                     <h3 class="featured_books">Pledge to Make These eBooks Free</h3>
                     <div>
                         {% for campaign in top_pledge %}
@@ -91,9 +105,19 @@ function put_un_in_cookie2(){
                                 {% include "book_panel.html" %}
                             {% endwith %}{% endwith %}
                         {% endfor %}
-                        <a class="more_featured_books" href="{% url campaign_list 'pledge' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
+                        <a class="more_featured_books" href="{% url 'campaign_list' 'pledge' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
                     </div>
                 {% endif %}
+                <div class="spacer"></div>
+        	    <h3 class="featured_books">Read These Free Licensed eBooks</h3>
+        	    <div>
+                    {% for work in cc_books %}
+                        {% with work.googlebooks_id as googlebooks_id %}
+                            {% include "book_panel.html" %}
+                        {% endwith %}
+                    {% endfor %}
+                    <a class="more_featured_books" href="{% url 'cc_list' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
+                </div>
                 <div class="spacer"></div>
         	    {% if top_b2u %}
                     <h3 class="featured_books">Buy and Read These eBooks to Make Them Free</h3>
@@ -104,7 +128,7 @@ function put_un_in_cookie2(){
                                 {% include "book_panel.html" %}
                             {% endwith %}{% endwith %}
                         {% endfor %}
-                        <a class="more_featured_books" href="{% url campaign_list 'b2u' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
+                        <a class="more_featured_books" href="{% url 'campaign_list' 'b2u' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
                     </div>
                 {% endif %}
                 <div class="spacer"></div>
@@ -117,7 +141,7 @@ function put_un_in_cookie2(){
                                 {% include "book_panel.html" %}
                             {% endwith %}{% endwith %}
                         {% endfor %}
-                        <a class="more_featured_books" href="{% url campaign_list 't4u' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
+                        <a class="more_featured_books" href="{% url 'campaign_list' 't4u' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
                     </div>
                 {% endif %}
                 <div class="spacer"></div>
@@ -128,17 +152,7 @@ function put_un_in_cookie2(){
                             {% include "book_panel.html" %}
                         {% endwith %}
                     {% endfor %}
-                    <a class="more_featured_books" href="{% url campaign_list 'unglued' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
-                </div>
-                <div class="spacer"></div>
-        	    <h3 class="featured_books">Read These Free Creative Commons eBooks</h3>
-        	    <div>
-                    {% for work in cc_books %}
-                        {% with work.googlebooks_id as googlebooks_id %}
-                            {% include "book_panel.html" %}
-                        {% endwith %}
-                    {% endfor %}
-                    <a class="more_featured_books" href="{% url cc_list %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
+                    <a class="more_featured_books" href="{% url 'campaign_list' 'unglued' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
                 </div>
                 <div class="spacer"></div>
         	        	
@@ -149,7 +163,7 @@ function put_un_in_cookie2(){
                     <div class="jsmodule" id="mainlogin">
                         <h3 class="module-title">Start Ungluing Now!</h3>
                         <div class="jsmod-content">
-                          <form action='{% url registration_register %}' method='post' onsubmit="return put_un_in_cookie2();">{% csrf_token %}
+                          <form action='{% url 'registration_register' %}' method='post' onsubmit="return put_un_in_cookie2();">{% csrf_token %}
                             <div class="user-name">
                             <label>Username</label>
                             <input id="id_username_main" type="text" class="required" name="username" maxlength="30" size="30" />
@@ -167,10 +181,13 @@ function put_un_in_cookie2(){
                             <input id="id_password2_main" type="password" class="required" name="password2" size="30" />
                             </div>
                             <div class="button">
-                                <input type="submit" class="signup" value="sign up"  onclick="this.disabled=true,this.form.submit();" />
+                                <input type="submit" class="signup" value="Sign Up Now"  onclick="this.disabled=true,this.form.submit();" />
+                            </div>
+                            <div class="google_signup" style="padding-bottom: 10px;">
+                               <a  class="btn btn-social btn-google-plus" href="{% url 'social:begin' "google-oauth2" %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}/next/{% endif %}" ><i class="fa fa-google"></i>Sign Up with Google</a>
                             </div>
                             <div class="google_signup">
-                                <a href="/socialauth/login/google?next=/next/"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png" alt="google" /></a><div><a href="/socialauth/login/google?next=/next/">Sign Up With Google</a></div>
+                               <a  class="btn btn-social btn-yahoo" href="{% url 'social:begin' "yahoo" %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}/next/{% endif %}" ><i class="fa fa-yahoo"></i>Sign Up with Yahoo!</a>
                             </div>
                           </form>
                         </div>
@@ -179,9 +196,7 @@ function put_un_in_cookie2(){
                 <div class="jsmodule">
                 	<h3 class="module-title">News</h3>
                     <div class="jsmod-content">
-                     Blog: <a href="http://blog.unglue.it/2014/08/29/zero-sum-game-is-an-exponential-transformation/">SL Huang's <i>Zero Sum Game</a> on Unglue.it!</a>
-                    <br /><br />
-                     Blog: <a href="http://blog.unglue.it/2014/08/21/non-profit-champion-of-openness-adds-its-first-2-cc-books-to-unglue-it/">METRO NY Library Council Champions Openness</a>
+                     Unglue.it is now a program of <a href="http://ebookfoundation.org/"> the Free Ebook Foundation</a>
                     </div>
                 </div>
                 <div class="jsmodule">
@@ -194,23 +209,21 @@ function put_un_in_cookie2(){
                             {% endcomment %}
                             <li>
                                 {% with event.1 as object %}
-                                    {% ifequal event.2 "pledge" %}
+                                    {% if event.2 == "pledge" %}
                                         {% if object.user%}
                                         <span class="user-avatar">
-                                            <a href="{% url supporter object.user.username %}"><img src="{{ object.user.profile.avatar_url }}" width="43" height="43" title="{{ object.user.username }}" alt="Avatar for {{ object.user.username }}" /></a>
+                                            <a href="{% url 'supporter' object.user.username %}"><img src="{{ object.user.profile.avatar_url }}" width="43" height="43" title="{{ object.user.username }}" alt="Avatar for {{ object.user.username }}" /></a>
                                         </span>
                                         <span class="user-book-info">
-                                            <a href="{% url supporter object.user.username %}">{{ object.user.username }}</a><br />
-                                            {% ifequal object.campaign.type 1 %}
-                                            pledged to unglue 
-                                            {% endifequal %}
-                                            {% ifequal object.campaign.type 2 %}
-                                            bought a copy of 
-                                            {% endifequal %}
-                                            {% ifequal object.campaign.type 3 %}
-                                            supported 
-                                            {% endifequal %}<br />
-                                            <a class="user-book-name" href="{% url work object.campaign.work.id %}">{{ object.campaign.work.title }}</a>
+                                            <a href="{% url 'supporter' object.user.username %}">{{ object.user.username }}</a><br />
+                                            {% if object.campaign.type == 1 %}
+                                                pledged to unglue 
+                                            {% elif object.campaign.type == 2 %}
+                                                bought a copy of 
+                                            {% elif object.campaign.type == 3 %}
+                                                supported 
+                                            {% endif %}<br />
+                                            <a class="user-book-name" href="{% url 'work' object.campaign.work.id %}">{{ object.campaign.work.title }}</a>
                                         </span>
                                         {% else %}
                                         <span class="user-avatar">
@@ -219,28 +232,28 @@ function put_un_in_cookie2(){
                                         <span class="user-book-info">
                                             Anonymous User<br />
                                             supported <br />
-                                            <a class="user-book-name" href="{% url work object.campaign.work.id %}">{{ object.campaign.work.title }}</a>
+                                            <a class="user-book-name" href="{% url 'work' object.campaign.work.id %}">{{ object.campaign.work.title }}</a>
                                         </span>
                                         {% endif %}
-                                    {% else %}{% ifequal event.2 "comment" %}
+                                    {% elif event.2 == "comment" %}
                                         <span class="user-avatar">
-                                            <a href="{% url supporter object.user.username %}"><img src="{{ object.user.profile.avatar_url }}" width="43" height="43" title="{{ object.user.username }}" alt="Avatar for {{ object.user.username }}" /></a>
+                                            <a href="{% url 'supporter' object.user.username %}"><img src="{{ object.user.profile.avatar_url }}" width="43" height="43" title="{{ object.user.username }}" alt="Avatar for {{ object.user.username }}" /></a>
                                         </span>
                                         <span class="user-book-info">
-                                            <a href="{% url supporter object.user.username %}">{{ object.user.username }}</a><br />
+                                            <a href="{% url 'supporter' object.user.username %}">{{ object.user.username }}</a><br />
                                             commented on<br />
-                                            <a class="user-book-name" href="{% url work object.content_object.id %}?tab=2">{{ object.content_object.title }}</a>
+                                            <a class="user-book-name" href="{% url 'work' object.content_object.id %}?tab=2">{{ object.content_object.title }}</a>
                                         </span>                                    
-                                    {% else %}{% ifequal event.2 "wish" %}
+                                    {% elif event.2 == "wish" %}
                                         <span class="user-avatar">
-                                            <a href="{% url supporter object.wishlist.user.username %}"><img src="{{ object.wishlist.user.profile.avatar_url }}" width="43" height="43" title="{{ object.wishlist.user.username }}" alt="Avatar for {{ object.wishlist.user.username }}" /></a>
+                                            <a href="{% url 'supporter' object.wishlist.user.username %}"><img src="{{ object.wishlist.user.profile.avatar_url }}" width="43" height="43" title="{{ object.wishlist.user.username }}" alt="Avatar for {{ object.wishlist.user.username }}" /></a>
                                         </span>
                                         <span class="user-book-info">
-                                            <a href="{% url supporter object.wishlist.user.username %}">{{ object.wishlist.user.username }}</a><br />
+                                            <a href="{% url 'supporter' object.wishlist.user.username %}">{{ object.wishlist.user.username }}</a><br />
                                             faved<br />
-                                            <a class="user-book-name" href="{% url work object.work.id %}">{{ object.work.title }}</a>
+                                            <a class="user-book-name" href="{% url 'work' object.work.id %}">{{ object.work.title }}</a>
                                         </span>                                    
-                                    {% endifequal %}{% endifequal %}{% endifequal %}
+                                    {% endif %}
                                 {% endwith %}
                             </li>
                         {% endfor %}

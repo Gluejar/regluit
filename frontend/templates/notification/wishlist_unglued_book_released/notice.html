@@ -1,22 +1,23 @@
-{% extends "notification/notice_template.html" %}
+{% extends 'notification/notice_template.html' %}
+
 {% load truncatechars %}
 
 {% block comments_book %}
-	<a href="{% url work work.id %}"><img src="{{ work.cover_image_small }}" alt="cover image for {{ work.title }}" /></a>
+	<a href="{% url 'work' work.id %}"><img src="{{ work.cover_image_small }}" alt="cover image for {{ work.title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}
-	<span><a href="{% url work work.id %}">{{ work.title }}</a> is now available for download</span>
+	<span><a href="{% url 'work' work.id %}">{{ work.title }}</a> is now available for download</span>
 {% endblock %}
 
 {% block comments_textual %}
 	{% if work.last_campaign_status == 'SUCCESSFUL' %}
 		<p>
-		Great News!  <a href="{% url work work.id %}">{{ work.title }}</a> which is on your ungluing list is now available for download as an Unglued Ebook.  
+		Great News!  <a href="{% url 'work' work.id %}">{{ work.title }}</a> which is on your ungluing list is now available for download as an Unglued Ebook.  
 		</p>
 	{% else %}
 		<p>
-		Good News!  <a href="{% url work work.id %}">{{ work.title }}</a> which is on your ungluing list is available for download as a {{ work.ebooks.0.get_rights_display }} ebook.  
+		Good News!  <a href="{% url 'work' work.id %}">{{ work.title }}</a> which is on your ungluing list is available for download as a {{ work.ebooks.0.get_rights_display }} ebook.  
 		</p>
 		{% if work.ebooks.0.user %}
 			<p>
@@ -53,9 +54,9 @@
 	</p>
 	<p>
 	{% if work.last_campaign_status == 'SUCCESSFUL' %}
-		If you have any problems with this unglued ebook, please don't hesitate to let us know at <a href="mailto:support@gluejar.com">support@gluejar.com</a>. And if you love being able to give this ebook for free to all of your friends, please consider supporting other ebooks for ungluing.
+		If you have any problems with this unglued ebook, please don't hesitate to <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">contact us</a>. And if you love being able to give this ebook for free to all of your friends, please consider supporting other ebooks for ungluing.
 	{% else %}
-		If you have any problems with these ebook files, please don't hesitate to let us know at <a href="mailto:support@gluejar.com">support@gluejar.com</a>. For example, if the file isn't what it says it is, or if the licensing or copyright status is misrepresented, we want to know as soon as possble.
+		If you have any problems with these ebook files, please don't hesitate to <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">contact us</a>. For example, if the file isn't what it says it is, or if the licensing or copyright status is misrepresented, we want to know as soon as possble.
 	{% endif %}
 	</p>
 	<p>

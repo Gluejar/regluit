@@ -1,0 +1,6 @@
+- name: test
+  hosts: 127.0.0.1
+  sudo: no
+
+  roles:
+    - hello_world

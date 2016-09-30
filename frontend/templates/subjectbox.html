@@ -1,0 +1,7 @@
+<div class="workbox">
+    <a href="{% url 'free' %}kw.{{ subject.name }}/">{{ subject.name }}</a> <br />
+    Works with this keyword: {{ subject.works.all.count }}<br />
+    Free Works with this keyword:     {{ subject.free_works.count }} <br />
+    <a href="{% url 'free' %}?setkw={{ subject.name }}">Set</a> keywords. <br />
+    <a href="{% url 'admin:core_subject_change' subject.id %}">Edit</a> keyword. <br />
+</div>

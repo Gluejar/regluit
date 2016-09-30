@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    
+    <title>{% block title %}Questionnaire{% endblock title %}</title>
+    
+    <link rel="stylesheet" href="/static/bootstrap/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="/static/questionnaire.css" />
+    
+    <style type="text/css">
+    {% block styleextra %}
+        
+    {% endblock %}
+    </style>
+    
+    {% block headextra %}
+    {% endblock %}
+
+    <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+    <div class="container">
+        <div class="content">
+
+            <div id="languages">
+                {% block language %}
+                    {% for lang in LANGUAGES %}
+                        {% if not forloop.first %} | {% endif %}
+                        <a href="/setlang/?lang={{ lang.0 }}&next={{ request.path }}">{{ lang.1 }}</a>
+                    {% endfor %}
+                {% endblock language %}
+            </div>
+
+            <div class="page-header">
+                <h1>Sample Django Questionnaire</h1>
+            </div>
+
+            <div class="row">
+                <div class="span1">&nbsp;</div>
+                <div class="span14">
+                    {% block content %}
+                    {% block questionnaire %}
+                    <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud execitation ullamco laboris nisi ut aliquip ex ea commodo consequat.  Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+                    {% endblock %}
+                    {% endblock %}
+                </div>
+                <div class="span1">&nbsp;</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

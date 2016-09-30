@@ -4,6 +4,7 @@ external library imports
 import json
 import re
 import time
+import mimetypes
 
 from datetime import timedelta
 from decimal import Decimal as D
@@ -12,6 +13,7 @@ from decimal import Decimal as D
 django imports
 """
 from django.conf import settings
+from django.contrib import auth
 from django.contrib.auth.models import User
 from django.core import mail
 from django.core.urlresolvers import reverse
@@ -23,14 +25,14 @@ from notification.models import Notice
 """
 regluit imports
 """
-from regluit.core.models import Work, Campaign, RightsHolder, Claim
+from regluit.core.models import Work, Campaign, RightsHolder, Claim, Subject
 from regluit.payment.models import Transaction
 from regluit.payment.manager import PaymentManager
 from regluit.payment.stripelib import StripeClient, TEST_CARDS, ERROR_TESTING, card
 from regluit.utils.localdatetime import now
 
 class WishlistTests(TestCase):
-
+    fixtures = ['initial_data.json']
     def setUp(self):
         self.user = User.objects.create_user('test', 'test@example.org', 'test')
         self.client = Client()
@@ -55,21 +57,90 @@ class WishlistTests(TestCase):
                 HTTP_X_REQUESTED_WITH="XMLHttpRequest")
         self.assertEqual(self.user.wishlist.works.all().count(), 0)
 
+class RhPageTests(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user('test', 'test@example.org', 'test')
+        self.rh_user =  User.objects.create_user('rh', 'rh@example.org', 'test')
+        self.staff_user =  User.objects.create_superuser('staff', 'staff@example.org', 'test')
+        self.work = Work.objects.create(title="test work",language='en')
+        rh = RightsHolder.objects.create(rights_holder_name='test', owner=self.rh_user)
+        Claim.objects.create(work=self.work, user=self.rh_user, status='active',rights_holder=rh)
+        self.kw = Subject.objects.create(name="Fiction")
+
+    def test_anonymous(self):
+        anon_client = Client()
+        r = anon_client.get("/work/{}/".format(self.work.id))
+        self.assertEqual(r.status_code, 200)
+        csrfmatch =  re.search("name='csrfmiddlewaretoken' value='([^']*)'", r.content)
+        self.assertFalse(csrfmatch)
+        r = anon_client.post("/work/{}/kw/".format(self.work.id))
+        self.assertEqual(r.status_code, 302)
+    
+    def can_edit(self, client, can=True):
+        r = client.get("/work/{}/".format(self.work.id))
+        self.assertEqual(r.status_code, 200)
+        csrfmatch =  re.search("name='csrfmiddlewaretoken' value='([^']*)'", r.content)
+        self.assertTrue(csrfmatch)
+        csrf=csrfmatch.group(1)
+        r = client.post("/work/{}/kw/".format(self.work.id), {
+                u'csrfmiddlewaretoken': csrf, 
+                u'kw_add':u'true',
+                u'add_kw_0':u'Fiction',
+                u'add_kw_1':self.kw.id
+            })
+        if can:
+            self.assertEqual(r.content, u'Fiction')
+        else:
+            self.assertEqual(r.content, u'true')
+        r = client.post("/work/{}/kw/".format(self.work.id), {
+                u'csrfmiddlewaretoken': csrf, 
+                u'remove_kw' : u'Fiction'
+            })
+        if can:
+            self.assertEqual(r.content, u'removed Fiction')
+        else:
+            self.assertEqual(r.content, u'False')
+
+    def test_user(self):
+        # test non-RightsHolder
+        client = Client()
+        client.login(username='test', password='test')
+        self.can_edit(client, can=False)
+
+    def test_rh(self):
+        # test RightsHolder
+        client = Client()
+        client.login(username='rh', password='test')
+        self.can_edit(client)
+
+    def test_staff(self):
+        client = Client()
+        client.login(username='staff', password='test')
+        self.can_edit(client)
+
+
 class PageTests(TestCase):
 
     def setUp(self):
         self.user = User.objects.create_user('test', 'test@example.org', 'test')
-        self.user = User.objects.create_user('test_other', 'test@example.org', 'test_other')
+        User.objects.create_user('test_other', 'test@example.org', 'test_other')
         self.client = Client()
         self.client.login(username='test', password='test')
         w= Work.objects.create(title="test work",language='en')
-        
+
+    def test_setttings(self):
+        self.assertEqual(mimetypes.guess_type('/whatever/my_file.epub')[0], 'application/epub+zip')   
 
     def test_view_by_self(self):
         # logged in
         r = self.client.get("/supporter/test/")
         self.assertEqual(r.status_code, 200)
         r = self.client.get("/search/?q=sverige")
+        self.assertEqual(r.status_code, 200)
+        r = self.client.get("/search/?q=sverige&page=2")
+        self.assertEqual(r.status_code, 200)
+        r = self.client.get("/notification/settings/")
         self.assertEqual(r.status_code, 200)
 
     def test_view_by_other(self):
@@ -86,17 +157,23 @@ class PageTests(TestCase):
         self.assertEqual(r.status_code, 200)
         r = anon_client.get("/search/?q=sverige")
         self.assertEqual(r.status_code, 200)
+        r = anon_client.get("/search/?q=sverige&page=2")
+        self.assertEqual(r.status_code, 200)
         r = anon_client.get("/info/metrics.html")
         self.assertEqual(r.status_code, 200)
         r = anon_client.get("/marc/")
         self.assertEqual(r.status_code, 200)
-        r = anon_client.get("/creativecommons/")
+        r = anon_client.get("/creativecommons/?order_by=popular")
         self.assertEqual(r.status_code, 200)
         r = anon_client.get("/creativecommons/by")
         self.assertEqual(r.status_code, 200)
+        r = anon_client.get("/free/by-nc/?order_by=title")
+        self.assertEqual(r.status_code, 200)
+        r = anon_client.get("/free/epub/gfdl/")
+        self.assertEqual(r.status_code, 200)
 
 class GoogleBooksTest(TestCase):
-
+    fixtures = ['initial_data.json']
     def test_googlebooks_id(self):
         r = self.client.get("/googlebooks/wtPxGztYx-UC/")
         self.assertEqual(r.status_code, 302)
@@ -140,6 +217,7 @@ class CampaignUiTests(TestCase):
         pass
     
 class PledgingUiTests(TestCase):
+    fixtures = ['initial_data.json']
     def setUp(self):
         self.USERNAME = 'testname'
         self.PASSWORD = 'testpw'
@@ -150,7 +228,11 @@ class PledgingUiTests(TestCase):
         # login and heck whether user logged in
         self.assertTrue(self.client.login(username=self.USERNAME, password=self.PASSWORD))
         # http://stackoverflow.com/a/6013115
-        self.assertEqual(self.client.session['_auth_user_id'], self.user.pk)        
+        #self.assertEqual(self.client.session['_auth_user_id'], self.user.pk)  
+        
+        user = auth.get_user(self.client)
+        assert user.is_authenticated()
+      
         
         # load a Work by putting it on the User's wishlist
         r = self.client.post("/wishlist/", {"googlebooks_id": "2NyiPwAACAAJ"}, 
@@ -200,7 +282,8 @@ class PledgingUiTests(TestCase):
         pass
 
 class UnifiedCampaignTests(TestCase):
-    fixtures=['basic_campaign_test.json']
+    fixtures=['initial_data.json','basic_campaign_test.json']
+    
     def test_setup(self):
         # testing basics:  are there 3 users?
 

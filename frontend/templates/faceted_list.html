@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% load endless %}
+{% load lang_utils %}
+
+{% block title %} Browse Free Books {% endblock %}
+{% block extra_css %}
+<link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />
+<link type="text/css" rel="stylesheet" href="/static/css/book_list.css" />
+<link type="text/css" rel="stylesheet" href="/static/css/book_panel2.css" />
+<link type="text/css" rel="stylesheet" href="/static/css/lists.css" />
+{% endblock %}
+{% block extra_head %}
+<script type="text/javascript" src="/static/js/wishlist.js"></script>
+<script type="text/javascript" src="{{ jquery_ui_home }}"></script>
+<script type="text/javascript" src="/static/js/greenpanel.js"></script>
+<script type="text/javascript" src="/static/js/toggle.js"></script>
+<script type="text/javascript" src="/static/js/hijax_unglued.js"></script>
+<script type="text/javascript" src="/static/js/tabs.js"></script>
+<link rel="related"   
+      href="/api/opds/{{ path }}/?order_by={{ order_by }}" 
+      type="application/atom+xml;profile=opds-catalog"  
+      title="OPDS Catalog for Unglue.it Free Books" /> 
+<link rel="related"   
+      href="/api/onix/{{ path }}/?max=100" 
+      type="text/xml"  
+      title="ONIX feed for Unglue.it Free Books" /> 
+{% endblock %}
+{% block topsection %}
+<div id="locationhash">#1</div>
+
+{% endblock %}
+
+{% block content %}
+<div id="main-container">
+    <div class="js-main">
+        <div id="js-leftcol">
+            {% include "refine.html" %}
+            {% include "explore.html" %}
+        </div>
+
+        <div id="js-maincol-fr">
+        <div class="js-maincol-inner">
+            <div id="facet_block">
+                {% for facet in vertex.facets %}
+                    {% include facet.template %}
+                {% endfor %}
+            </div>
+            <div id="content-block">
+                <div class="content-block-heading unglued" id="tabs">
+                    <ul class="book-list-view">
+                        <li>View As:</li>
+                        <li class="view-list">
+                            <a href="#" id="toggle-list" class="chosen" >
+                            <img src="/static/images/booklist/view-list.png" alt="view list" title="view list" height="21" width="24" />
+                            </a>
+                        </li>
+                        <li class="view-list">
+                            <a href="#" id="toggle-panel">
+                            <img src="/static/images/booklist/view-icon.png" alt="view icon" title="view icon" height="22" width="22" />
+                            </a>
+                        </li>
+                    </ul>
+                    <ul class="book-list-view">
+                        <li>Sort by:</li>
+                        <li class="view-list"><a {% if order_by = 'popular' %}class="chosen" {% endif %}href="{% url 'faceted_list' path %}?{% if setkw %}setkw={{setkw}}&amp;{% endif %}order_by=popular">popular</a></li>
+                        <li class="view-list"><a {% if order_by = 'newest' %}class="chosen" {% endif %}href="{% url 'faceted_list' path %}?{% if setkw %}setkw={{setkw}}&amp;{% endif %}order_by=newest">newest</a></li>
+                        <li class="view-list"><a {% if order_by = 'title' %}class="chosen" {% endif %}href="{% url 'faceted_list' path %}?{% if setkw %}setkw={{setkw}}&amp;{% endif %}order_by=title">title</a></li>
+                    </ul>
+                </div>
+                <div id="content-block-content">
+                    <div id="books-go-here">
+                        {% ifequal work_list.count 0 %}
+                        There aren't any {{ pub_lang|ez_lang_name }} {% if cc.is_cc %}Creative Commons{% endif %} {{ license }} works in this list. Why don't you add some? Use the "More" tab on a work, there are links there for adding ebooks.
+                        {% else %}
+                        {% lazy_paginate 20 work_list using "work_list" %}
+                        {% for work in work_list %}
+                        {% if view_as == 'plain' %}
+                            {% include "book_plain.html" %}
+                        {% else %}	
+                        {% with work.googlebooks_id as googlebooks_id %}
+                        <div class="{% cycle 'row1' 'row2' %}">
+                            {% include "book_panel.html" %}
+                        </div>
+                        {% endwith %}
+                        {% endif %}
+                        {% endfor %}
+                        <div class="pagination content-block-heading tabs-{{ activetab }}">
+                            {% get_pages %}
+                            {% for page in pages %}
+                                <a href="{{ page.path }}#1" class="endless_page_link">{{ page.number }}</a>
+                            {% endfor %}
+                        </div>
+                        {% endifequal %}
+                    </div>
+                </div>
+            </div> 
+            {% if request.user.libpref %}
+            <div id="libtools">
+                <p>for libraries...</p>
+                <form method="GET" action="{% url 'faceted_list_marc' path %}">
+                    {% include 'marc_form.html' %}
+                    <input type="submit" name="submit" value="download MARC" id="submit">
+                </form>
+            </div> 
+            {% endif %}  
+        </div>
+        </div>
+    </div>
+    </div>
+{% endblock %}

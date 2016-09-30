@@ -1,4 +1,5 @@
-{% extends "basepledge.html" %}
+{% extends 'basepledge.html' %}
+
 {% load humanize %}
 
 {% block title %}Pledge Cancelled{% endblock %}
@@ -10,7 +11,7 @@
 {% block doccontent %}
 
 {% if transaction %}
-    <div>You were about to pledge ${{ transaction.amount }} to <a href="{% url work work.id %}">{{ work.title }}</a> but hit the cancel link.
+    <div>You were about to pledge ${{ transaction.amount }} to <a href="{% url 'work' work.id %}">{{ work.title }}</a> but hit the cancel link.
     Naturally, we won't be charging you for this campaign without your permission.</div>
     <div>However, the campaign can definitely make use of your pledge.  If you hit cancel by mistake, you can <a href="{{ try_again_url }}">finish the pledge transaction</a>.</div>
 

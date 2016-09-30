@@ -1,0 +1,63 @@
+_repo: Adventures-of-Huckleberry-Finn_76
+_version: 9.1.17
+contributor:
+  illustrator:
+    agent_name: Kemble, E. W. (Edward Windsor)
+    aliases:
+    - Kemble, Edward Windsor
+    - Kemble, E. W. (Edward Winsor)
+    birthdate: 1861
+    deathdate: 1933
+    gutenberg_agent_id: '37155'
+    url: http://www.gutenberg.org/2009/agents/37155
+    wikipedia: http://en.wikipedia.org/wiki/E._W._Kemble
+edition_list:
+    -
+        _edition: rtc_isbn
+        publisher: Recovering the Classics
+        rights: CC BY-NC
+        covers:
+        - attribution: Priscilla Parizeau, 2015
+          cover_type: original
+          image_path: cover.jpg
+          rights: Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)
+          rights_url: https://creativecommons.org/licenses/by-nc/4.0/
+creator:
+  author:
+    agent_name: Twain, Mark
+    aliases:
+    - Twain, Mark (Samuel Clemens)
+    - Clemens, Samuel Langhorne
+    birthdate: 1835
+    deathdate: 1910
+    gutenberg_agent_id: '53'
+    url: http://www.gutenberg.org/2009/agents/53
+    wikipedia: http://en.wikipedia.org/wiki/Mark_Twain
+description: 'Wikipedia: http://en.wikipedia.org/wiki/Adventures_of_Huckleberry_Finn'
+gutenberg_bookshelf:
+- Banned Books from Anne Haight's list
+- Best Books Ever Listings
+gutenberg_issued: '2004-06-29'
+gutenberg_type: Text
+identifiers:
+  gutenberg: '76'
+language: en
+publication_date: 2015-08-01
+publisher: Project Gutenberg
+rights: PD-US
+rights_url: http://creativecommons.org/licenses/by-nc/4.0/
+subjects:
+- !lcsh Male friendship -- Fiction
+- !lcsh Fugitive slaves -- Fiction
+- !lcsh Bildungsromans
+- !lcsh Mississippi River -- Fiction
+- !lcsh Adventure stories
+- !lcsh Missouri -- Fiction
+- !lcsh Runaway children -- Fiction
+- !lcsh Finn, Huckleberry (Fictitious character) -- Fiction
+- !lcc PS
+- !lcsh Humorous stories
+- !lcsh Boys -- Fiction
+- !lcsh Race relations -- Fiction
+title: Adventures of Huckleberry Finn
+url: http://www.gutenberg.org/ebooks/76

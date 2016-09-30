@@ -1,4 +1,5 @@
-{% extends "work_list.html" %}
+{% extends 'work_list.html' %}
+
 {% load endless %}
 {% load lang_utils %}
 
@@ -20,3 +21,10 @@
 {% endblock %}
 
 {% block add_more %}{% endblock %}
+
+{% block marcform %}
+<form method="GET" action="{% url 'bypubname_list_marc' facet pubname.id %}">
+    {% include 'marc_form.html' %}
+    <input type="submit" name="submit" value="download MARC" id="submit">
+</form>
+{% endblock %}

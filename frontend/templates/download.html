@@ -1,4 +1,5 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
 {% load humanize %}
 {% with work.title as title %}
 {% block title %}
@@ -17,6 +18,9 @@ $j(document).ready(function() {
 </script>
 {% endblock %}
 
+{% block avatar %}
+        <img class="user-avatar" src="/static/images/header/avatar.png" height=36 width="36" alt="private" title="private" />
+{% endblock %}
 {% block content %}
 
 <div class="download_container">
@@ -26,8 +30,8 @@ $j(document).ready(function() {
     {% if work.last_campaign.ask_money %}
     <div class="border" style="padding: 10px; min-height: 18em">
         <div id="askblock">
-            <div>Please help us thank the creators for making this book free. The amount is up to you.</div>
-            <form class="askform" method="POST" action="{% url thank work.id %}#">
+            <div>Please help us thank the creators for making <a href="{% url 'work' work.id %}">{{ work.title }}</a> free. The amount is up to you.</div>
+            <form class="askform" method="POST" action="{% url 'thank' work.id %}#">
                 {% csrf_token %}
                 {{ form.non_field_errors }}
                     <div class="contrib_amount">Amount: {{ form.preapproval_amount.errors }}${{ form.preapproval_amount }}</div>
@@ -74,16 +78,19 @@ $j(document).ready(function() {
     </div>
     </div>
 {% endif %}
+{% if source %}
+
+{% else %}
 <div class="border">
-    <h2 style="width:60%">Downloads for <I><a href="{% url work work.id %}">{{ work.title }}</a></i></h2>
+    <h2 style="width:60%">Downloads for <I><a href="{% url 'work' work.id %}">{{ work.title }}</a></i></h2>
     <div class="sharing ebook_download_container">
         <h3 class="jsmod-title"><span>Share</span></h3>
         <ul class="social menu">
             {% with site.domain as domain %}
-            <a href="https://www.facebook.com/sharer.php?u=https://{{ site.domain }}{% url work work.id|urlencode:"" %}"><li class="facebook first"><span>Facebook</span></li></a>
-            <a href="https://twitter.com/intent/tweet?url=https://{{ site.domain }}{% url work work.id|urlencode:"" %}&amp;text=I%27m%20enjoying%20{{ work.title|urlencode }}%2C%20a%20free%2C%20non%2DDRM%20ebook%2E%20You%20can%20too%21"><li class="twitter"><span>Twitter</span></li></a>
+            <a href="https://www.facebook.com/sharer.php?u=https://{{ site.domain }}{% url 'work' work.id|urlencode:"" %}"><li class="facebook first"><span>Facebook</span></li></a>
+            <a href="https://twitter.com/intent/tweet?url=https://{{ site.domain }}{% url 'work' work.id|urlencode:"" %}&amp;text=I%27m%20enjoying%20{{ work.title|urlencode }}%2C%20a%20free%2C%20non%2DDRM%20ebook%2E%20You%20can%20too%21"><li class="twitter"><span>Twitter</span></li></a>
             {% endwith %}
-            {% if request.user.is_authenticated %}<a href="{% url emailshare 'downloaded' %}?next={% url work work.id %}"><li class="email"><span>Email</span></li></a>{% endif %}
+            {% if request.user.is_authenticated %}<a href="{% url 'emailshare' 'downloaded' %}?next={% url 'work' work.id %}"><li class="email"><span>Email</span></li></a>{% endif %}
             <a id="embed2"><li class="embed"><span>Embed</span></li></a>
             <div id="widgetcode2">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="https://{{ request.META.HTTP_HOST }}/api/widget/{{ work.first_isbn_13 }}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
         </ul>
@@ -105,13 +112,13 @@ $j(document).ready(function() {
                             </div>
                         </div>
                         <div class="no_js">
-                            <form method="POST" class="btn_support" action="{% url send_to_kindle work.id 0 %}">
+                            <form method="POST" class="btn_support" action="{% url 'send_to_kindle' work.id 0 %}">
                                 <input type="submit" value="Send to Kindle">
                             </form>
                         </div>
                     {% else %}
                         <div class="btn_support kindle {% if request.user.is_anonymous %}modify{% endif %}">
-                            <a href="{% url kindle_config_download work.id %}">Set up Kindle </a>
+                            <a href="{% url 'kindle_config_download' work.id %}">Set up Kindle </a>
                         </div>
                     {% endif %}
                 </div>
@@ -139,10 +146,10 @@ $j(document).ready(function() {
             <h3>Download the unglued edition</h3>
             <div class="ebook_download">
                 {% for ebook in unglued_ebooks %}
-                    <a href="{% url download_ebook ebook.id %}">
+                    <a href="{% url 'download_ebook' ebook.id %}">
                     <img src="{{ ebook.rights_badge }}" alt="{{ ebook.rights}}" title="{{ ebook.rights}}" /></a>
-                    <a href="{% url download_ebook ebook.id %}"><img src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }}" title="{{ ebook.format }}" /></a>
-                    <a href="{% url download_ebook ebook.id %}">{{ ebook.format }}</a> 
+                    <a href="{% url 'download_ebook' ebook.id %}"><img src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }}" title="{{ ebook.format }}" /></a>
+                    <a href="{% url 'download_ebook' ebook.id %}">{{ ebook.format }}</a> {% if ebook.version_label %}  ({{ ebook.version_label }}) {% endif %}
                     {% if ebook.is_direct %}<a class="dropbox-saver" href="{{ ebook.download_url }}" data-filename="unglueit-{{ work.id }}.{{ ebook.format }}"></a>{% endif %}
                 
 
@@ -158,10 +165,10 @@ $j(document).ready(function() {
             {% endif %}
             <div class="ebook_download">
                 {% for ebook in other_ebooks %}
-                    <a href="{% url download_ebook ebook.id %}">
+                    <a href="{% url 'download_ebook' ebook.id %}">
                     <img src="{{ ebook.rights_badge }}" alt="{{ ebook.rights}}" title="{{ ebook.rights}}" /></a>
-                    <a href="{% url download_ebook ebook.id %}"><img src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }} at {{ebook.provider}}" title="{{ ebook.format }} at {{ebook.provider}}" /></a>
-                    <a href="{% url download_ebook ebook.id %}">{{ ebook.format }} at {{ ebook.provider }}</a>
+                    <a href="{% url 'download_ebook' ebook.id %}"><img src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }} at {{ebook.provider}}" title="{{ ebook.format }} at {{ebook.provider}}" /></a>
+                    <a href="{% url 'download_ebook' ebook.id %}">{{ ebook.format }} {% if ebook.version_label %}  ({{ ebook.version_label }}) {% endif %} at {{ ebook.provider }}</a>
                     {% if ebook.is_direct %}<a class="dropbox-saver" href="{{ ebook.download_url }}" data-filename="unglueit-{{ work.id }}.{{ ebook.format }}"></a>{% endif %}
                 
                     {% if not forloop.last %}<br /><br />{% endif %}
@@ -169,7 +176,7 @@ $j(document).ready(function() {
             </div>
         {% endif %}
         {% if acq %}
-            {% ifequal work.last_campaign.type 2 %}
+            {% if work.last_campaign.type == 2 %}
             <h3>Download your ebook{% if acq.lib_acq %}{% if acq.on_reserve %}, on reserve for you at{% else %}, on loan to you at{% endif %} {{ acq.lib_acq.user.library }}{% endif %}</h3>
             <div class="ebook_download">
                     <a href="{{ formats.epub }}"><img src="/static/images/epub32.png" height="32" alt="epub" title="epub" /></a>
@@ -180,13 +187,13 @@ $j(document).ready(function() {
                     <a href="{{ formats.mobi }}">MOBI</a> (for Kindle)
                     <a class="dropbox-saver" href="{{ kindle_url }}" data-filename="unglueit-{{ work.id }}.mobi"></a>
             </div>
-            {% endifequal %}
+            {% endif %}
         {% endif %}
     {% else %}
         <div class="border">
             <p id="content-block">There are no freely available downloads of <I>{{ work.title }}</I> right now.  {% if not work in request.user.wishlist.works.all %}Would you like there to be? <a class="add-wishlist"><span class="work_id" id="w{{ work.id }}">Add this book to your wishlist.</span></a>{% else %}Ask your friends to add it to their favorites!{% endif %}</p>
         
-            <p>If you know of a Creative-Commons-licensed or US public domain edition of this book, you can add it through the <a href="{% url work work.id %}?tab=4">More... tab of the book page</a>.</p>
+            <p>If you know of a Creative-Commons-licensed or US public domain edition of this book, you can add it through the <a href="{% url 'work' work.id %}?tab=4">More... tab of the book page</a>.</p>
         </div>
     </div>
     {% endif %}
@@ -207,11 +214,11 @@ $j(document).ready(function() {
                 {% endif %}
                 {% if formats.pdf %}
                     You should also be able to use the  <a href="{{ formats.pdf }}">pdf</a> file.
-                {% else %}{% if formats.html %}
+                {% elif formats.html %}
                     You can read the <a href="{{ formats.html }}">HTML version</a> of this book right here in this browser.
-                {% else %}{% if formats.text %}
+                {% elif formats.text %}
                     You can read the <a href="{{ formats.text }}">text version</a> of this book right here in this browser.
-                {% endif %}{% endif %}{% endif %}
+                {% endif %}
             </p>
             <p class="other_instructions_paragraph">
                 Not on iOS?  Try the instructions for <a class="android other_instructions">Android</a>, <a class="desktop other_instructions">desktop computers</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
@@ -230,13 +237,20 @@ $j(document).ready(function() {
                 <li>Download the <a href="{{ formats.epub }}">epub file</a>.</li>
                 <li>You will be given the option of opening the file in iBooks.</li>
                 </ul>
-                <p class="ebook_download logo"><img src="/static/images/marvin_logo.jpg" alt="iBooks Logo" />Marvin is a great way to read ebooks. </p>
+                <p class="ebook_download logo"><img src="/static/images/marvin_logo.jpg" alt="Marvin Logo" />Marvin is a great way to read ebooks. </p>
                 <ul>
                 <li><a href="https://itunes.apple.com/us/app/marvin-ebook-reader-for-epub/id667361209?ls=1&mt=8">Install Marvin</a> from the App Store.</li>
                 <li>Click the "Load to Marvin" button above.</li>
                 </ul>
+                <p class="ebook_download logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />So is Aldiko.</p>
                 
-            {% else %}{% if formats.pdf %}
+                <ul>
+                <li><a href="http://www.aldiko.com/">Download the free Aldiko app.</a></li>
+                <li>Download the <a href="{{ formats.epub }}">epub file</a>.</li>
+                <li>When the download is complete, tap it in your notifications menu.  It will be added to Aldiko, ready to read next time you open the app.</li>
+                </ul>
+                
+            {% elif formats.pdf %}
                 <p>
                     You may already have an app which reads ebooks.  Download the <a href="{{ formats.pdf }}">pdf file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
                 </p>
@@ -246,11 +260,11 @@ $j(document).ready(function() {
                 <li>Download the <a href="{{ formats.pdf }}">pdf file</a>.</li>
                 <li>You will be given the option of opening the file in iBooks.</li>
                 </ul>
-            {% else %}{% if formats.html %}
+            {% elif formats.html %}
                 <p>
                     Download the <a href="{{ formats.html }}">HTML version</a>.
                 </p>
-            {% else %}{% if formats.text %}
+            {% elif formats.text %}
                 <p>
                     Download the <a href="{{ formats.text }}">text version</a>.
                 </p>
@@ -258,7 +272,7 @@ $j(document).ready(function() {
                 <p>
                     This ebook is only available in .mobi.  Your best bet is to install the free Amazon Kindle app from the Apple Store and then use the Send-to-Kindle option above.
                 </p>
-            {% endif %}{% endif %}{% endif %}{% endif %}
+            {% endif %}
             <p class="other_instructions_paragraph">
                 Not on iOS?  Try the instructions for <a class="android other_instructions">Android</a>, <a class="desktop other_instructions">desktop computers</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
             </p>
@@ -273,7 +287,7 @@ $j(document).ready(function() {
                 <p class="ebook_download logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />Aldiko</p>
                 
                 <ul>
-                <li><a href="http://www.aldiko.com/download.html">Download the free Aldiko app.</a></li>
+                <li><a href="http://www.aldiko.com/">Download the free Aldiko app.</a></li>
                 <li>Download the <a href="{{ formats.epub }}">epub file</a>.</li>
                 <li>When the download is complete, tap it in your notifications menu.  It will be added to Aldiko, ready to read next time you open the app.</li>
                 </ul>
@@ -284,7 +298,7 @@ $j(document).ready(function() {
                 <p class="ebook_download logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />Aldiko</p>
                 
                 <ul>
-                <li><a href="http://www.aldiko.com/download.html">Download the free Aldiko app.</a></li>
+                <li><a href="http://www.aldiko.com/">Download the free Aldiko app.</a></li>
                 <li>Download the <a href="{{ formats.pdf }}">pdf file</a>.</li>
                 <li>When the download is complete, tap it in your notifications menu.  It will be added to Aldiko, ready to read next time you open the app.</li>
                 </ul>
@@ -312,7 +326,7 @@ $j(document).ready(function() {
                 <p>
                     You probably already have an app which reads PDFs.  Download the <a href="{{ formats.pdf }}">pdf file</a> and open it.
                 </p>
-            {% else %}{% if formats.epub %}
+            {% elif formats.epub %}
                 {% if mac_ibooks %}
                     <p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpg" alt="iBooks Logo" />iBooks</p>
                     <ul>
@@ -327,7 +341,7 @@ $j(document).ready(function() {
                 <li>Open the file in Calibre.</li>
                 <li>You can <a href="http://blog.marvinapp.com/post/53438723356">use a Calibre plugin</a> to manage files on reader apps.
                 </ul>
-            {% else %}{% if formats.mobi %}
+            {% elif formats.mobi %}
                 <p class="ebook_download logo"><img src="/static/images/calibre_logo.png" alt="Calibre Logo" />Calibre</p>
                 <ul>
                 <li><a href="http://calibre-ebook.com/download">Download the free Calibre app.</a></li>
@@ -335,7 +349,7 @@ $j(document).ready(function() {
                 <li>Open the file in Calibre.</li>
                 <li>You can <a href="http://blog.marvinapp.com/post/53438723356">use a Calibre plugin</a> to manage files on reader apps.
                 </ul>
-            {% else %}{% if formats.html %}
+            {% elif formats.html %}
                 <p>
                     You can read the <a href="{{ formats.html }}">HTML version</a> right here in your browser.
                 </p>
@@ -343,7 +357,7 @@ $j(document).ready(function() {
                 <p>
                     You can read the <a href="{{ formats.text }}">text version</a> right here in your browser.
                 </p>
-            {% endif %}{% endif %}{% endif %}{% endif %}
+            {% endif %}
             <p class="other_instructions_paragraph">
                 Not on a desktop computer, or want to "side-load" ebooks onto a device or app?  Try the instructions for <a class="ios other_instructions">iPhone/iPad</a>, <a class="android other_instructions">Android</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
             </p>
@@ -357,18 +371,18 @@ $j(document).ready(function() {
                 <li>
                     {% if formats.mobi %}
                         <b>Kindle</b>: download the <a href="{{ formats.mobi }}">mobi file</a> to your computer, or use the <i>Send To Kindle</i> button above.
-                    {% else %}{% if formats.pdf %}
+                    {% elif formats.pdf %}
                         <b>Kindle</b>: download the <a href="{{ formats.pdf }}">pdf file</a> to your computer, or use the <i>Send To Kindle</i> button above.
                     {% else %}
                         <b>Kindle</b>: We're sorry; we don't have a version suitable for Kindle.
-                    {% endif %}{% endif %}
+                    {% endif %}
                     {% if formats.epub %}
                         <b>All other ereaders</b>: download the <a href="{{ formats.epub }}">epub file</a> to your computer.
-                    {% else %}{% if formats.pdf %}
+                    {% elif formats.pdf %}
                         <b>All other ereaders</b>: download the <a href="{{ formats.pdf }}">pdf file</a> to your computer.
                     {% else %}
                         <b>All other ereaders</b>: We're sorry; we don't have a version suitable for your device.
-                    {% endif %}{% endif %}
+                    {% endif %}
                 </li>
                 <li>Plug the ereader into your computer with a USB cable.</li>
                 <li>Using the Finder (Mac) or Windows Explorer (Windows), drag and drop the ebook file into the Documents folder on your device.  (It may also be called My Documents or My Stuff, depending on your ereader.)</li>
@@ -394,17 +408,22 @@ $j(document).ready(function() {
         
         <br />
         <h4>Need more help?</h4>
-        <p>Email us at <a href="mailto:support@gluejar.com?Subject=Ebook%20downloading%20help">support@gluejar.com</a>.</p>
+        <p><a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">Ask us a question!</a></p>
         
         <div>
-            <a href="http://www.defectivebydesign.org/drm-free"><img src="https://static.fsf.org/dbd/DRM-free/DRM-free150.png" alt="DefectiveByDesign.org" border="0" align="middle" /></a> All downloads from Unglue.it are DRM free. Hooray!
+            <a href="http://www.defectivebydesign.org/drm-free"><img src="/static/images/DRM-free150.png" alt="DefectiveByDesign.org" border="0" align="middle" /></a> All downloads from Unglue.it are DRM free. Hooray!
         </div>
     </div>
 {% else %}
 {% endif %}
+{% endif %}
 </div>
 </div>
-<script type="text/javascript" src="https://www.dropbox.com/static/api/2/dropins.js" ></script>
+<script type="text/javascript" src="/static/js/dropins.js" ></script>
+{% endblock %}
+
+{% block counter %}
 {% endblock %}
 
 {% endwith %}
+

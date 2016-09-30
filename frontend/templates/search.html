@@ -3,13 +3,98 @@
 <link rel="stylesheet" href="/static/css/book_list.css">
 <link rel="stylesheet" href="/static/css/book_panel2.css">
 <link rel="stylesheet" href="/static/css/search.css">
+<style type="text/css">
+#scrolldown:last-child{ display:block}
+#scrolldown{ display:none}
+</style>
 {% endblock %}
 {% block extra_head %}
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
 <script type="text/javascript" src="/static/js/toggle.js"></script>
-<script type="text/javascript" src="/static/js/jquery.endless-scroll.js"></script>
 <script type="text/javascript">
+(function($){
+
+  $.fn.endlessScroll = function(options) {
+
+    var defaults = {
+      bottomPixels: 50,
+      fireOnce: true,
+      fireDelay: 150,
+      loader: "<br />Loading...<br />",
+      data: "",
+      insertAfter: "div:last",
+      resetCounter: function() { return false; },
+      callback: function() { return true; },
+      ceaseFire: function() { return false; }
+    };
+
+    var options = $.extend({}, defaults, options);
+
+    var firing       = true;
+    var fired        = false;
+    var fireSequence = 0;
+
+    if (options.ceaseFire.apply(this) === true) {
+      firing = false;
+    }
+
+    if (firing === true) {
+      $(this).scroll(function() {
+        if (options.ceaseFire.apply(this) === true) {
+          firing = false;
+          return; // Scroll will still get called, but nothing will happen
+        }
+
+        if (this == document || this == window) {
+          var is_scrollable = $(document).height() - $(window).height() <= $(window).scrollTop() + options.bottomPixels;
+        } else {
+          // calculates the actual height of the scrolling container
+          var inner_wrap = $(".endless_scroll_inner_wrap", this);
+          if (inner_wrap.length == 0) {
+            inner_wrap = $(this).wrapInner("<div class=\"endless_scroll_inner_wrap\" />").find(".endless_scroll_inner_wrap");
+          }
+          var is_scrollable = inner_wrap.length > 0 &&
+            (inner_wrap.height() - $(this).height() <= $(this).scrollTop() + options.bottomPixels);
+        }
+
+        if (is_scrollable && (options.fireOnce == false || (options.fireOnce == true && fired != true))) {
+          if (options.resetCounter.apply(this) === true) fireSequence = 0;
+
+          fired = true;
+          fireSequence++;
+    
+          $(options.insertAfter).after("<div id=\"endless_scroll_loader\">" + options.loader + "</div>");
+
+          data = typeof options.data == 'function' ? options.data.apply(this, [fireSequence]) : options.data;
+
+          if (data !== false) {
+            $(options.insertAfter).after("<div id=\"endless_scroll_data\">" + data + "</div>");
+            $("div#endless_scroll_data").hide().fadeIn();
+            $("div#endless_scroll_data").removeAttr("id");
+
+            options.callback.apply(this, [fireSequence]);
+
+            if (options.fireDelay !== false || options.fireDelay !== 0) {
+              $("body").after("<div id=\"endless_scroll_marker\"></div>");
+              // slight delay for preventing event firing twice
+              $("div#endless_scroll_marker").fadeTo(options.fireDelay, 1, function() {
+                $(this).remove();
+                fired = false;
+              });
+            }
+            else {
+              fired = false;
+            }
+          }
+
+          $("div#endless_scroll_loader").remove();
+        }
+      });
+    }
+  };
+
+})(jQuery);
 var $j = jQuery.noConflict();
 var page = 1;
 $j(document).ready(function() {
@@ -21,14 +106,12 @@ $j(document).ready(function() {
         loader: '<img src="/static/images/loading.gif" alt="loading..." />',
         callback: function(p) {
             page += 1;
-            var url = "?q={{ q }}&page=" + page;
+            var url = "?q={{ q|urlencode }}&gbo={{ gbo }}&ty={{ ty }}&page=" + page;
             $j.get(url, function(html) {
                 var view = $j(".listview").length > 0 ? "list" : "panel";
                 var results = $j(html).find(".book");
                 $j("#results").append(results);
-                if (view === "list") toggleList();
-                else togglePanel();
-                setupWishlistControls();
+                if($j.cookie('view')=='panel') {togglePanel();}
             });
         }
     });
@@ -50,22 +133,22 @@ $j(document).ready(function() {
             <div id="content-block">
               {% if campaign_works %}
                 <div class="content-block-heading">
-                    <h2 class="content-heading">Unglue.it Campaigns</span></h2>
+                    <h2 class="content-heading">These books are Free, or want to be!</h2>
                         <ul class="book-list-view">
                             <li>View As:</li>
                             <li class="view-list">
                                 <a href="#" id="toggle-list">
-                                <img src="/static/images/booklist/view-list.png" align="view list" title="view list" height="21" width="24" alt="use list view" />
+                                <img src="/static/images/booklist/view-list.png" title="view list" height="21" width="24" alt="use list view" />
                                 </a>
                             </li>
                             <li class="view-list">
                                 <a href="#" id="toggle-panel">
-                                <img src="/static/images/booklist/view-icon.png" align="view icon" title="view icon" height="22" width="22" alt="use panel view" />
+                                <img src="/static/images/booklist/view-icon.png" title="view icon" height="22" width="22" alt="use panel view" />
                                 </a>
                             </li>
                         </ul>
                 </div>
-                <div id="content-block-content-1"><div id="unglueit-results">
+                <div id="content-block-content-1"><div id="unglueit-results" style="margin-bottom: 3em;">
                     {% for work in campaign_works %}
                     <div class="{% cycle 'row1' 'row2' %} book">
                     {% with work.googlebooks_id as googlebooks_id %}
@@ -76,9 +159,16 @@ $j(document).ready(function() {
                     </div>
                     {% endfor %}
                 </div></div>
+              {% else %}
+              <div style="margin: 20px; font-size:14px">We couldn't find any matches in the Unglue.it database of free-licensed books.</div>
               {% endif %}
+                {% if not results and not campaign_works %}
+                <div style="margin: 20px; font-size:14px">Google Books couldn't find any matches either.</div>
+                {% else %}
                 <div class="content-block-heading">
-                    <h2 class="content-heading"><a href="https://www.google.com/search?q={{q }}&amp;tbm=bks">Google Books</a> search results</span></h2>
+                    
+                    <h2 class="content-heading"><a href="https://www.google.com/search?q={{q|urlencode }}&amp;tbm=bks">Google Books</a> search results</h2>
+                    
                       {% if not campaign_works %}
                         <ul class="book-list-view">
                             <li>View As:</li>
@@ -96,6 +186,7 @@ $j(document).ready(function() {
                       {% endif %}
                 </div>
                 <div id="content-block-content"><div id="results">
+                <div id="scrolldown" style=" text-indent: 12em; margin-bottom: 1em;">(scroll down or <a href="javascript:$j(document).scroll()">click</a> to see Google Books results)</div>
                     {% for work in results %}
                     {% if not work.last_campaign %}
                     <div class="{% cycle 'row1' 'row2' %} book">
@@ -105,19 +196,10 @@ $j(document).ready(function() {
                     {% endwith %}{% endwith %}
                     </div>
                     {% endif %}
-                    {% empty %}
-                    <h2>Sorry, couldn't find that!</h2>
-                    <div class="js-search">
-                        <div class="js-search-inner">
-                            <form action="{% url search %}" method="get"> 
-			                    <input type="text" id="watermarkempty" size="25" onfocus="imgfocusempty()" onblur="imgblurempty(15)" class="inputbox" name="q" value="{{ q }}">
-                                <input type="button" onclick="this.form.searchword.focus();"  class="button" value="Search">
-                            </form>
-                        </div>
-                    </div>
                     {% endfor %}
                 </div></div>
                 <div id="results-bottom"></div>
+                {% endif %}
             </div>    
         </div>
         </div>

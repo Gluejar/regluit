@@ -1,0 +1,42 @@
+{% extends 'registration/registration_base.html' %}
+
+{% block title %}Duplicate Gift Code{% endblock %}
+{% block doccontent %}
+<div><h2>Re-Gifting</h2>
+    <div>
+
+{% if form %}
+    {% ifequal request.user.id gift.giver.id %}
+        <p> It looks like you're trying to redeem a gift of "<a href="{% url 'work' work.id %}">{{ work.title }}</a>" that you sent to  {{ gift.to }}. You probably clicked the redemption link by mistake. If it's not a mistake, you can redirect the gift by regifting it to someone else.</p>
+    {% else %}
+        <p> <a href="{% url 'supporter' gift.giver %}">{{ gift.giver }}</a> has sent you "<a href="{% url 'work' work.id %}">{{ work.title }}</a>" as a gift, however, it seems that you already own this work at unglue.it.  Not to worry, you can Re-Gift it!</p>
+    {% endifequal %}
+<div>
+<form method="POST" action="#">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" name="regift" value="Re-Gift It" id="submit_regift" />
+</form>
+</div>
+
+{% else %}
+<p>
+An email has been sent to <a href="mailto:{{ gift.acq.user.email }}">{{ gift.acq.user.email }}</a> with this message:</p>
+<p style="margin:2em">
+{{ gift.message|linebreaksbr }}
+</p>
+<p>along with instructions for obtaining the ebook. Here's the URL that the recipient (and ONLY the recipient) should use to collect the book: 
+</p>
+<textarea cols="68">
+https://{{  site.domain  }}{% url 'receive_gift' gift.acq.nonce %}
+</textarea>
+<p>
+You can send the url yourself if there's been any problem with the email.
+</p>
+{% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+

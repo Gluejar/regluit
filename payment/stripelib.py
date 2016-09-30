@@ -905,8 +905,9 @@ class Processor(baseprocessor.Processor):
                         # do we have a flag to indicate production vs non-production? -- or does it matter?
                         # email RY whenever a new Customer created -- we probably want to replace this with some other
                         # more useful long tem action.
-                        send_mail("Stripe Customer (id {0};  description: {1}) created".format(ev_object.get("id"), ev_object.get("description")),
-                                  "Stripe Customer email: {0}".format(ev_object.get("email")),
+                        send_mail(u"Stripe Customer (id {0};  description: {1}) created".format(ev_object.get("id"),
+                                                                        ev_object.get("description")),
+                                  u"Stripe Customer email: {0}".format(ev_object.get("email")),
                                   "notices@gluejar.com",
                                   ["rdhyee@gluejar.com"])
                         logger.info("email sent for customer.created for {0}".format(ev_object.get("id")))

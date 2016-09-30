@@ -1,19 +1,28 @@
 {% load humanize %}{% ifequal transaction.host 'credit' %}Your Unglue.it transaction has completed and ${{transaction.max_amount|default:"0"}} has been deducted from your Unglue.it credit balance. You have ${{transaction.user.credit.available|default:"0"}} of credit left. {% else %}{% if transaction.max_amount > transaction.amount %}Your transaction for ${{transaction.max_amount|default:"0"}} has completed. Your credit card has been charged ${{transaction.amount}} and the rest has been deducted from your unglue.it credit balance. You have ${{transaction.user.credit.available|default:"0"}} of credit left. {% else %}Your Unglue.it credit card transaction has completed and your credit card has been charged ${{ transaction.amount|default:"0" }}. {% endif %}{% endifequal %}
 
-{% ifequal transaction.offer.license 2 %}If you have not already done so, download your ebook at 
-https://{{ current_site.domain }}{% url download transaction.campaign.work.id %}
+{% ifequal transaction.offer.license 1 %}{% if gift %}An email has been sent to {{ gift.acq.user.email }} with this message:
 
-{% endifequal %}{% ifequal transaction.campaign.type 2 %}Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be eventually be released to the world in an unglued ebook edition. Thanks to your purchase, the ungluing date advanced {{ transaction.offer.days_per_copy|floatformat }}{% ifnotequal transaction.extra.copies 1 %} x {{ transaction.extra.copies }}{% endifnotequal %} days to {{ transaction.campaign.cc_date }}.
-{% ifequal transaction.offer.license 1 %}
+{{ gift.message }}
+
+along with instructions for obtaining the ebook. Here's the URL that the recipient (and ONLY the recipient) should use to collect the book: 
+https://{{ current_site.domain }}{% url 'receive_gift' gift.acq.nonce %}
+
+You can send the url yourself if there's been any problem with the email.
+
+{% else %}If you have not already done so, download your ebook at 
+https://{{ current_site.domain }}{% url 'download' transaction.campaign.work.id %}
+
+{% endif %}{% endifequal %}{% ifequal transaction.campaign.type 2 %}Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be eventually be released to the world in an unglued ebook edition. Thanks to your purchase, the ungluing date advanced {{ transaction.offer.days_per_copy|floatformat }}{% ifnotequal transaction.extra.copies 1 %} x {{ transaction.extra.copies }}{% endifnotequal %} days to {{ transaction.campaign.cc_date }}.
+{% ifequal transaction.offer.license 1 %}{% if not gift %}
 This ebook is licensed to you personally, and your personal license has been embedded in the ebook file. You may download as many times as you need to, but you can't make copies for the use of others until the ungluing date. You can make that date come sooner by encouraging your friends to buy a copy.
-{% else %}
+{% endif %}{% else %}
 This ebook {% ifnotequal transaction.extra.copies 1 %}({{ transaction.extra.copies }} copies){% endifnotequal %} is licensed to your library and its license has been embedded in the ebook file. If you'd like to be the first to use it, please get your copy now at
-https://{{ current_site.domain }}{% url borrow transaction.campaign.work.id %}
+https://{{ current_site.domain }}{% url 'borrow' transaction.campaign.work.id %}
 After an hour, the ebook will be available to all of your library's users on a one-user-per two weeks basis until the ungluing date, when it will be free to all. You can make that date come sooner by encouraging your friends to buy a copy.{% endifequal %}{% endifequal %}{% ifequal transaction.campaign.type 3 %}The creators of {{ transaction.campaign.work.title }} would like to thank you for showing your appreciation for making it free.{% endifequal %}
 
 
 For more information about the book, visit the book's unglue.it page at 
-https://{{ current_site.domain }}{% url work transaction.campaign.work.id %}
+https://{{ current_site.domain }}{% url 'work' transaction.campaign.work.id %}
 
 Thank you again for your support.
 

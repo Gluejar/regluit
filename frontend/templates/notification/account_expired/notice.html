@@ -1,4 +1,5 @@
-{% extends "notification/notice_template.html" %}
+{% extends 'notification/notice_template.html' %}
+
 {% load humanize %}
 
 {% block comments_graphical %}
@@ -9,11 +10,10 @@
 <p>We want to let you know that your {{ user.profile.account.card_type }} card ending
 in {{ user.profile.account.card_last4 }} has expired.
 When you receive your new card, simply go to
-<a href="https://{{ site.domain }}{% url manage_account %}">Accounts &amp; Pledges</a>
+<a href="https://{{ site.domain }}{% url 'manage_account' %}">Accounts &amp; Pledges</a>
 to enter your card information. Thank you!</p>
 
-<p>If you have any questions, we are happy to help. Simply email us at
-<a href="mailto:support@gluejar.com">support@gluejar.com</a>.</p>
+<p>If you have any questions, we are happy to help. Simply <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">contact us</a>.</p>
                 
 {% if user.profile.account %}
 <p>The current card we have on file:</p>

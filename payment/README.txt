@@ -8,8 +8,6 @@ Setup instructions for payment module
     PAYPAL_SIGNATURE = Paypal signature from developer.paypal.com
     PAYPAL_APPID = 'APP-80W284485P519543T' (for all sandbox apps), or the real APPID
 
-    BASE_URL = Set this to the server IP address that is accessible via port 80.  
-                Local IP addresses, or non-port 80 addresses will NOT work with paypal IPN.
                 
     COMPLETE_URL = relative local URL for a plege confirmation
     CANCEL_URL = relative local url for a pledge cacellation

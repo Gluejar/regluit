@@ -32,7 +32,6 @@
 
 	h2.book-name {
 		font-size: @font-size-header;
-		text-transform:capitalize;
 		font-weight:bold;
 		color:@text-blue;
 	}
@@ -40,7 +39,13 @@
 	h3.book-author, h3.book-year {
 		font-size: @font-size-default;
 		font-weight:normal;
-		color:@medium-blue;
+		color:@text-blue;
+	}
+
+	h3.book-author span a, h3.book-year span a{
+		font-size: @font-size-default;
+		font-weight:normal;
+		color:@link-color;
 	}
 	
 	> div {

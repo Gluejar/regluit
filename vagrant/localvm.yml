@@ -1,0 +1,280 @@
+- name: localvm setup
+  hosts: localvm
+  vars:
+    user: "{{ ansible_ssh_user }}"
+    config_name: localvm
+  sudo: yes
+
+  pre_tasks:
+    - name: check apt last update
+      stat: path=/var/cache/apt
+      register: apt_cache_stat
+    - name: update apt if needed
+      apt: update_cache=yes
+      when: ansible_date_time.epoch|float - apt_cache_stat.stat.mtime > 60*60*12
+
+  roles:
+        
+    # base setup
+    - role: common
+    - role: mysql
+    
+    # installing mysql
+    # https://github.com/bennojoy/mysql --> probably the right way
+    # how do you make use of other people's playbooks in the right way?
+    # http://stackoverflow.com/a/7740571/7782
+    
+  post_tasks:
+ 
+    # running stuff within a virtualenv
+    # http://stackoverflow.com/a/20572360
+    # http://stackoverflow.com/questions/20575084/best-way-to-always-run-ansible-inside-a-virtualenv-on-remote-machines?rq=1
+
+
+    ## hard coding of {{config_name}}
+    #sudo("ln -s /opt/regluit/deploy/{{config_name}}.conf /etc/apache2/sites-available/{{config_name}}")
+
+    - name: link {{config_name}}.conf into sites-available
+      file: src=/opt/regluit/deploy/{{config_name}}.conf  dest=/etc/apache2/sites-available/{{config_name}} state=link
+
+    - name: link {{config_name}}.conf into sites-available (with .conf)
+      file: src=/opt/regluit/deploy/{{config_name}}.conf  dest=/etc/apache2/sites-available/{{config_name}}.conf state=link      
+      
+
+    #run('pip install -r requirements_versioned.pip')
+
+    - name: pip install requests (to see whether in right place)
+      pip: >
+           executable=/opt/regluit/ENV/bin/pip
+           name={{item}}
+           virtualenv=/opt/regluit/ENV
+           virtualenv_command=virtualenv
+      with_items:
+        - requests
+        - census
+      sudo: no
+           
+    
+    - name: pip requirements
+      pip: >
+           executable=/opt/regluit/ENV/bin/pip 
+           requirements=/opt/regluit/requirements_versioned.pip
+           virtualenv=/opt/regluit/ENV
+           virtualenv_command=virtualenv
+           virtualenv_site_packages=yes
+      sudo: no
+           
+           
+    #run('echo "/opt/regluit/" > ENV/lib/python2.7/site-packages/regluit.pth')
+    #run('echo "/opt/" > ENV/lib/python2.7/site-packages/opt.pth')
+
+    - name: establish regluit.pth
+      lineinfile: create=yes dest=/opt/regluit/ENV/lib/python2.7/site-packages/regluit.pth line="/opt/regluit/"
+      
+    - name: establish opt.pth
+      lineinfile: create=yes dest=/opt/regluit/ENV/lib/python2.7/site-packages/regluit.pth line="/opt/"
+ 
+    #sudo('mkdir /var/www/static')
+    #sudo('chown ubuntu:ubuntu /var/www/static')
+
+    - name: create /var/www/static
+      file: path=/var/www/static state=directory owner={{user}} group={{user}} mode=0755
+      
+    #
+    #run('django-admin.py syncdb --migrate --noinput --settings regluit.settings')
+
+    #Run syncdb on the application
+
+    - name: django_syncdb
+      django_manage: >
+          command=syncdb
+          app_path=/opt/regluit/
+          settings="regluit.settings.{{config_name}}"
+          virtualenv=/opt/regluit/ENV
+      sudo: no
+      notify:
+        - restart apache2
+
+
+    - name: django migrations
+      django_manage: >
+          command=migrate
+          app_path=/opt/regluit/
+          settings="regluit.settings.{{config_name}}"
+          virtualenv=/opt/regluit/ENV
+      sudo: no
+      notify:
+        - restart apache2
+      
+    #run('django-admin.py collectstatic  --noinput --settings regluit.settings.{{config_name}}')
+
+    - name: django collectstatic
+      django_manage: >
+          command=collectstatic
+          app_path=/opt/regluit/
+          settings="regluit.settings.{{config_name}}"
+          virtualenv=/opt/regluit/ENV
+      sudo: no
+      notify:
+        - restart apache2
+        
+    - name: create self-signed SSL cert
+      command: openssl req -new -nodes -x509 -subj "/C=US/ST=NJ/L=Montclair/O=Gluejar Inc./CN=localhost" -days 365 -keyout /etc/ssl/private/server.key -out /etc/ssl/certs/server.crt creates=/etc/ssl/certs/server.crt
+      sudo: yes
+      notify:
+        - restart apache2
+        
+    - name: set mode on /etc/ssl/certs/server.crt 
+      file: path=/etc/ssl/certs/server.crt  mode=0644
+      notify:
+        - restart apache2
+        
+    - name: set mode on /etc/ssl/private/server.key
+      file: path=/etc/ssl/private/server.key mode=0600
+      notify:
+        - restart apache2       
+
+    - name: remove all default enabled sites
+      shell: rm /etc/apache2/sites-enabled/*
+      sudo: yes
+      ignore_errors: yes
+      notify:
+        - restart apache2
+
+    - name: a2ensite {{config_name}}
+      command: a2ensite {{config_name}}
+      notify:
+        - restart apache2
+     
+    - name: a2enmod ssl rewrite  headers
+      command: a2enmod ssl rewrite headers
+      notify:
+        - restart apache2
+
+    #
+    #sudo ("/etc/init.d/apache2 restart")
+    #
+    
+    - name: turn on ports 22, 80, 443
+      ufw: rule=allow port={{ item }} proto=tcp
+      with_items:
+      - 22
+      - 80
+      - 443    
+
+    - name: enable ufw
+      ufw: state=enabled
+      
+    #with cd("/opt/regluit"):
+    #
+    #    sudo ("yes | adduser --no-create-home celery --disabled-password --disabled-login")
+    
+    - name: make celery group
+      group: name=celery
+      
+    - name: create celery user
+      user: >
+         name=celery
+         createhome=no
+         group=celery
+         generate_ssh_key=no
+
+    #    sudo ("cp deploy/celeryd /etc/init.d/celeryd")
+    #    sudo ("chmod 755 /etc/init.d/celeryd")         
+    
+    - name: copy deploy/celeryd
+      command: cp /opt/regluit/deploy/celeryd /etc/init.d/celeryd
+    
+    - name: set mode on /etc/init.d/celeryd
+      file: path=/etc/init.d/celeryd mode=0755
+    
+    #    sudo ("cp deploy/celeryd.conf /etc/default/celeryd")
+    
+    - name: copy deploy/celeryd_{{config_name}}.conf
+      command: cp /opt/regluit/deploy/celeryd_{{config_name}}.conf /etc/default/celeryd
+    
+    - name: set mode on /etc/default/celeryd
+      file: path=/etc/default/celeryd mode=0644    
+    
+    #    sudo ("mkdir /var/log/celery")
+    - name: make /var/log/celery
+      file: path=/var/log/celery state=directory owner=celery group=celery mode=0755
+      
+    #    sudo ("mkdir /var/run/celery")
+    #    sudo ("chown celery:celery /var/log/celery /var/run/celery")
+    
+    - name: make /var/run/celery
+      file: path=/var/run/celery state=directory owner=celery group=celery mode=0755
+    
+    #    sudo ("/etc/init.d/celeryd start")
+    
+    - name: start celeryd
+      command: /etc/init.d/celeryd start
+    
+    #    sudo ("cp deploy/celerybeat /etc/init.d/celerybeat")   
+    #    sudo ("chmod 755 /etc/init.d/celerybeat")
+    # https://stackoverflow.com/questions/24162996/how-to-move-rename-a-file-using-an-ansible-task-on-a-remote-system
+
+    - name: copy deploy/celerybeat
+      command: cp /opt/regluit/deploy/celerybeat /etc/init.d/celerybeat
+    
+    - name: set mode on /etc/init.d/celerybeat
+      file: path=/etc/init.d/celerybeat mode=0755
+    
+    #    sudo ("cp deploy/celerybeat.conf /etc/default/celerybeat")
+    
+    - name: copy deploy/celerybeat_{{config_name}}.conf
+      command: cp /opt/regluit/deploy/celerybeat_{{config_name}}.conf /etc/default/celerybeat
+    
+    - name: set mode on /etc/default/celerybeat
+      file: path=/etc/default/celerybeat mode=0755
+    
+    #    sudo ("mkdir /var/log/celerybeat")
+    #    sudo ("chown celery:celery /var/log/celerybeat")
+
+    - name: make /var/log/celerybeat
+      file: path=/var/log/celerybeat state=directory owner=celery group=celery mode=0755
+    
+    #    sudo ("/etc/init.d/celerybeat start")
+    - name: start celerybeat
+      command: /etc/init.d/celerybeat start
+      
+    # run data loading script 
+    - name: run data loading script
+      script: load_data_{{config_name}}.sh
+      
+    # add setup_django.sh script to root dir
+    
+    - name: add setup_django.sh script to root dir
+      command: cp /opt/regluit/vagrant/setup_django_{{config_name}}.sh  /home/{{user}}/setup_django.sh
+      sudo: no
+        
+    # set up crontab
+    - name: crontab for {{config_name}}
+      command: crontab /opt/regluit/deploy/crontab_{{config_name}}.txt
+      sudo: no
+      
+    # deal with SSH keys
+    
+    #- name: add RY ssh key
+    #  authorized_key: user={{user}} key="{{ lookup('file', '/Users/raymondyee/.ssh/id_rsa.pub') }}" state=present
+      
+    #- name: add ssh keys from public_key directory
+    #  authorized_key: user={{user}} key={{item}} state=present
+    #  with_fileglob:
+    #    - /opt/regluit/deploy/public_keys/*
+    #  sudo: no
+    #  
+    - name: add ssh keys from public_key directory
+      authorized_key: user={{user}} key="{{item}}" state=present
+      with_items:
+        - https://github.com/rdhyee.keys
+        - https://github.com/eshellman.keys
+      sudo: yes      
+
+  handlers:
+    - name: restart apache2
+      service: name=apache2 state=restarted    
+          
+
+       

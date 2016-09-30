@@ -1,7 +1,7 @@
 from regluit.settings.common import *
 
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
+TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
 IS_PREVIEW = False
 
 ADMINS = (
@@ -24,7 +24,7 @@ DATABASES = {
 }
 
 TIME_ZONE = 'America/New_York'
-SECRET_KEY = '_^_off!8zsj4+)%qq623m&$7_m-q$iau5le0w!mw&n5tgt#x=t'
+SECRET_KEY = u'_^_off!8zsj4+)%qq623m&$7_m-q$iau5le0w!mw&n5tgt#x=t'
 
 # settings for outbout email
 # if you have a gmail account you can use your email address and password
@@ -37,45 +37,25 @@ EMAIL_PORT = 587
 DEFAULT_FROM_EMAIL = 'info@gluejar.com'
 
 # twitter auth
-# you'll need to create a new Twitter application to fill in these blanks
-# https://dev.twitter.com/apps/new
-
-TWITTER_CONSUMER_KEY = ''
-TWITTER_CONSUMER_SECRET = ''
+SOCIAL_AUTH_TWITTER_KEY = ''
+SOCIAL_AUTH_TWITTER_SECRET = ''
 
 # facebook auth
-# you'll need to create a new Facebook application to fill in these blanks
-# https://developers.facebook.com/apps/
+SOCIAL_AUTH_FACEBOOK_KEY = ''
+SOCIAL_AUTH_FACEBOOK_SECRET = ''
 
-FACEBOOK_APP_ID = ''
-FACEBOOK_API_SECRET = ''
 
-# google auth
-# you'll need to create a new Google application to fill in these blanks
-# https://code.google.com/apis/console/
-GOOGLE_OAUTH2_CLIENT_ID = ''
-GOOGLE_OAUTH2_CLIENT_SECRET = ''
-GOOGLE_DISPLAY_NAME = 'unglue it!'
+
+# get these (as oauth2 client ID and Secret from 
+# https://console.developers.google.com/project/569579163337/apiui/credential?authuser=1
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '569579163337-rjija9842834nqa1vi639nac17j1n6cl@developer.gserviceaccount.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'RWPnUkNieUToUtBFaXZjibsU'
 
 # you'll need to register a GoogleBooks API key
 # registered to rdhye@gluejar.com on 2013.12.10
 GOOGLE_BOOKS_API_KEY = 'AIzaSyC-nBaK90PIsovMRbswPYEKgA6cJfYSDmY'
 
-PAYPAL_USERNAME = ''
-PAYPAL_PASSWORD =  ''
-PAYPAL_SIGNATURE = ''
-PAYPAL_APPID = ''
-
-PAYPAL_ENDPOINT = 'svcs.sandbox.paypal.com' # sandbox
-PAYPAL_PAYMENT_HOST = 'http://www.sandbox.paypal.com' # sandbox
-
-PAYPAL_SANDBOX_LOGIN = ''
-PAYPAL_SANDBOX_PASSWORD = ''
-
-PAYPAL_BUYER_LOGIN =''
-PAYPAL_BUYER_PASSWORD = ''
-
-BASE_URL = 'http://0.0.0.0/'
+#BASE_URL = 'http://0.0.0.0/'
 BASE_URL_SECURE = 'http://0.0.0.0/'
 IPN_SECURE_URL = False
 

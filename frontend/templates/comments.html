@@ -1,4 +1,5 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
 {% block title %} Comments {% endblock %}
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />
@@ -54,15 +55,15 @@
 						<div class="comments {% cycle 'row1' 'row2' %} {% if comment.content_object.last_campaign and comment.user in comment.content_object.last_campaign.managers.all %}official{% endif %}">
 						  <div class="nonavatar">
    							<div class="image">
-      							<a href="{% url work id %}?tab=2"><img src="{{ comment.content_object.cover_image_thumbnail }}" alt="cover image" /></a>
+      							<a href="{% url 'work' id %}?tab=2"><img src="{{ comment.content_object.cover_image_thumbnail }}" alt="cover image" /></a>
    							</div>
-      						  <span><a href="{% url supporter comment.user %}">{{ comment.user.username }}</a> on <a href="{% url work id %}?tab=2">{{ comment.content_object.title }}</a></span><br />
+      						  <span><a href="{% url 'supporter' comment.user %}">{{ comment.user.username }}</a> on <a href="{% url 'work' id %}?tab=2">{{ comment.content_object.title }}</a></span><br />
   						  	  
 					    	  <span class="text">{{ comment.comment|linebreaksbr }}</span>
    						   </div>
    						   
 						   <div class="avatar">
-						   	  <a href="{% url supporter comment.user %}">
+						   	  <a href="{% url 'supporter' comment.user %}">
             					<img class="user-avatar" src="{{ comment.user.profile.avatar_url }}" height="50" width="50" alt="Avatar for {{ comment.user }}" title="{{ comment.user }}" />
          					  </a>
       					   </div>

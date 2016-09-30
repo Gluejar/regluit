@@ -173,6 +173,41 @@ class EPUB(zipfile.ZipFile):
         self.opf = ET.fromstring(self._init_opf())  # opf property is always a ElementTree
         self.ncx = ET.fromstring(self._init_ncx())  # so is ncx. Consistent with self.(opf|ncx) built by __init_read()
 
+        self.writestr(self.opf_path, ET.tostring(self.opf, encoding="UTF-8"))  # temporary opf & ncx
+        self.writestr(self.ncx_path, ET.tostring(self.ncx, encoding="UTF-8"))  # will be re-init on close()
+
+    @property
+    def author(self):
+        return self.info["metadata"]["creator"]
+
+    @author.setter
+    def author(self, value):
+        tmp = self.opf.find(".//{0}creator".format(NAMESPACE["dc"]))
+        tmp.text = value
+        self.info["metadata"]["creator"] = value
+
+    @property
+    def title(self):
+        return self.info["metadata"]["title"]
+
+    @title.setter
+    def title(self, value):
+        tmp = self.opf.find(".//{0}title".format(NAMESPACE["dc"]))
+        tmp.text = value
+        ncx_title = self.ncx.find("{http://www.daisy.org/z3986/2005/ncx/}docTitle")[0]
+        ncx_title.text = value
+        self.info["metadata"]["title"] = value
+
+    @property
+    def language(self):
+        return self.info["metadata"]["language"]
+
+    @language.setter
+    def language(self, value):
+        tmp = self.opf.find(".//{0}language".format(NAMESPACE["dc"]))
+        tmp.text = value
+        self.info["metadata"]["language"] = value
+
     def close(self):
         if self.fp is None:     # Check file status
             return
@@ -226,8 +261,9 @@ class EPUB(zipfile.ZipFile):
                         <package xmlns="http://www.idpf.org/2007/opf" unique-identifier="BookId" version="2.0">
                         <metadata xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:opf="http://www.idpf.org/2007/opf">
                             <dc:identifier id="BookId" opf:scheme="UUID">{uid}</dc:identifier>
-                            <dc:title>{title}</dc:title>
-                            <dc:language>{lang}</dc:language>
+                            <dc:title></dc:title>
+                            <dc:creator></dc:creator>
+                            <dc:language></dc:language>
                             <dc:date opf:event="modification">{date}</dc:date>
                         </metadata>
                         <manifest>
@@ -239,10 +275,7 @@ class EPUB(zipfile.ZipFile):
                         </guide>
                         </package>"""
 
-        doc = opf_tmpl.format(uid=self.uid,
-                              date=today,
-                              title=self.info["metadata"]["title"],
-                              lang=self.info["metadata"]["language"])
+        doc = opf_tmpl.format(uid=self.uid, date=today)
         return doc
 
     def _init_ncx(self):
@@ -333,7 +366,7 @@ class EPUB(zipfile.ZipFile):
         :param mediatype:
         """
         assert self.epub_mode != "r", "%s is not writable" % self
-        element = ET.Element("item",
+        element = ET.Element(NAMESPACE.get("opf")+"item",
                              attrib={"id": "id_"+str(uuid.uuid4())[:5], "href": href, "media-type": mediatype})
 
         try:
@@ -357,8 +390,8 @@ class EPUB(zipfile.ZipFile):
         """
         assert self.epub_mode != "r", "%s is not writable" % self
         fileid = self.additem(fileObject, href, mediatype)
-        itemref = ET.Element("itemref", attrib={"idref": fileid, "linear": linear})
-        reference = ET.Element("reference", attrib={"title": href, "href": href, "type": reftype})
+        itemref = ET.Element(NAMESPACE.get("opf")+"itemref", attrib={"idref": fileid, "linear": linear})
+        reference = ET.Element(NAMESPACE.get("opf")+"reference", attrib={"title": href, "href": href, "type": reftype})
         if position is None or position>len(self.opf[2]):
             self.opf[2].append(itemref)
             if self.info["guide"]:
@@ -375,8 +408,8 @@ class EPUB(zipfile.ZipFile):
         :type filename: str
         :param filename: name of the file to be writte
         """
+        
         filename.seek(0)
         new_zip = zipfile.ZipFile(filename, 'w')
         self._write_epub_zip(new_zip)
         new_zip.close()
-        return

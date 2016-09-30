@@ -1,4 +1,5 @@
-{% extends "basepledge.html" %}
+{% extends 'basepledge.html' %}
+
 {% load humanize %}
 {% block title %}Pledge Completed{% endblock %}
 
@@ -28,17 +29,29 @@
 
     <h2 class="thank-you">Thank you!</h2>
     {% ifequal campaign.type 1 %}
-	    <p class="pledge_complete">You've just {% if modified %}modified your pledge for{% else %}pledged{% endif %} ${{ transaction.amount|intcomma }} to <I><a href="{% url work work.id %}">{{ work.title }}</a></I>.  If it reaches its goal of ${{ campaign.target|intcomma }} by {{ campaign.deadline|date:"M d Y"}}, it will be unglued for all to enjoy.</p>
+	    <p class="pledge_complete">You've just {% if modified %}modified your pledge for{% else %}pledged{% endif %} ${{ transaction.amount|floatformat:2|intcomma }} to <I><a href="{% url 'work' work.id %}">{{ work.title }}</a></I>.  If it reaches its goal of ${{ campaign.target|intcomma }} by {{ campaign.deadline|date:"M d Y"}}, it will be unglued for all to enjoy.</p>
     {% endifequal %}
     {% ifequal campaign.type 2 %}
-	    <p class="pledge_complete">You've just paid ${{ transaction.amount|intcomma }} for a copy of <I><a href="{% url work work.id %}">{{ work.title }}</a></I>.  Its ungluing date is now <i>{{ campaign.cc_date }}</i>. Thanks for helping to make that day come sooner!</p>
-         <div><a href="{% url download work.id %}" class="fakeinput" style="float:left">Download Now</a> </div>
-         <div style="height:75px;"></div>
+        {% if transaction.extra.give_to %}
+	    <p class="pledge_complete">You've just paid ${{ transaction.amount|floatformat:2|intcomma }} to give a copy of <I><a href="{% url 'work' work.id %}">{{ work.title }}</a></I> to {{ transaction.extra.give_to }}.  Its ungluing date is now <i>{{ campaign.cc_date }}</i>. Thanks for helping to make that day come sooner!</p>
+	    
+	    <p class="pledge_complete">An email has been sent to {{ transaction.extra.give_to }} with this message:</p>
+<p style="margin:2em">
+{{ transaction.extra.give_message }}
+</p>
+<p class="pledge_complete">along with instructions for obtaining the ebook. You'll also be sent a url that the recipient can use to get the ebook, in case the email doesn't get through. </p>
 
+
+         {% else %}
+	    <p class="pledge_complete">You've just paid ${{ transaction.amount|floatformat:2|intcomma }} for a copy of <I><a href="{% url 'work' work.id %}">{{ work.title }}</a></I>.  Its ungluing date is now <i>{{ campaign.cc_date }}</i>. Thanks for helping to make that day come sooner!</p>
+         <div><a href="{% url 'download' work.id %}" class="fakeinput" style="float:left">Download Now</a> </div>
+        {% endif %}
+
+         <div style="height:75px;"></div>
     {% endifequal %}
     {% ifequal campaign.type 3 %}
-	    <p class="pledge_complete">You've just contributed ${{ transaction.amount|intcomma }} to the creators of <I><a href="{% url work work.id %}">{{ work.title }}</a></I> to thank them for making it free to the world.</p>
-         <div><a href="{% url download work.id %}" class="fakeinput" style="float:left">Download Now</a> </div>
+	    <p class="pledge_complete">You've just contributed ${{ transaction.amount|floatformat:2|intcomma }} to the creators of <I><a href="{% url 'work' work.id %}">{{ work.title }}</a></I> to thank them for making it free to the world.</p>
+         <div><a href="{% url 'download' work.id %}" class="fakeinput" style="float:left">Download Now</a> </div>
          <div style="height:75px;"></div>
 
     {% endifequal %}
@@ -50,53 +63,12 @@
 	
 	<div id="widgetcode">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="https://{{request.META.HTTP_HOST}}/api/widget/{{work.first_isbn_13}}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
 	<ul class="social menu pledge">
-		<a href="https://www.facebook.com/sharer.php?u=https://{{ site.domain }}{% url work work.id|urlencode:"" %}"><li class="facebook first"><span>Facebook</span></li></a>
-		<a href="https://twitter.com/intent/tweet?url=https://{{ site.domain }}{% url work work.id|urlencode:"" %}&amp;text=I%20just%20supported%20{{ work.title|urlencode }}%20at%20%40unglueit.%20Will%20you%20join%20me%3F"><li class="twitter"><span>Twitter</span></li></a>
-		{% if request.user.is_authenticated %}<a href="{% url emailshare 'pledged' %}?next={% url work work.id|urlencode:"" %}"><li class="email"><span>Email</span></li></a>{% endif%}
+		<a href="https://www.facebook.com/sharer.php?u=https://{{ site.domain }}{% url 'work' work.id|urlencode:"" %}"><li class="facebook first"><span>Facebook</span></li></a>
+		<a href="https://twitter.com/intent/tweet?url=https://{{ site.domain }}{% url 'work' work.id|urlencode:"" %}&amp;text=I%20just%20supported%20{{ work.title|urlencode }}%20at%20%40unglueit.%20Will%20you%20join%20me%3F"><li class="twitter"><span>Twitter</span></li></a>
+		{% if request.user.is_authenticated %}<a href="{% url 'emailshare' 'pledged' %}?next={% url 'work' work.id|urlencode:"" %}"><li class="email"><span>Email</span></li></a>{% endif%}
 		<a href="#" id="embed"><li class="embed"><span>Embed</span></li></a>
 	</ul>
 </div>
 
-<br />
-<div id="js-slide">
-	<div class="js-main">
-		<div class="jsmodule">
-		{% include "slideshow.html" %}
-		</div>
-	</div>
-</div>
-
-<div id="js-maincontainer-bot-block">
-	<div id="js-search">
-		<label>What book should we give to the world? </label>
-			<form action="{% url search %}" method="get">
-				<input type="text" id="watermarkempty" onfocus="imgfocus()" onblur="imgblur(0)" size="25" class="inputbox" name="q" value="{{ q }}">
-				<input type="submit" class="greenbutton" value="Search">
-			</form>
-	</div>
-</div>
-
-{% ifequal work.id 81834 %}
-<!-- Google Code for Thank you Conversion Page -->
-<script type="text/javascript">
-/* <![CDATA[ */
-var google_conversion_id = 1072527387;
-var google_conversion_language = "en";
-var google_conversion_format = "3";
-var google_conversion_color = "ffffff";
-var google_conversion_label = "hiQVCPC14AIQm_C1_wM";
-if ({{ transaction.amount }})
-var google_conversion_value = {{ transaction.amount }};
-}
-/* ]]> */
-</script>
-<script type="text/javascript" src="https://www.googleadservices.com/pagead/conversion.js">
-</script>
-<noscript>
-<div style="display:inline;">
-<img height="1" width="1" style="border-style:none;" alt="" src="https://www.googleadservices.com/pagead/conversion/1072527387/?value={{ transaction.amount }}&amp;label=hiQVCPC14AIQm_C1_wM&amp;guid=ON&amp;script=0" />
-</div>
-</noscript>
-{% endifequal %}
 
 {% endblock %}

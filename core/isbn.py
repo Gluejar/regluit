@@ -27,11 +27,22 @@ def check_digit_13(isbn):
     if r == 10: return '0'
     else: return str(r)
 
-def convert_10_to_13(isbn):
+def _convert_10_to_13(isbn):
     assert len(isbn) == 10
     prefix = '978' + isbn[:-1]
     check = check_digit_13(prefix)
     return prefix + check
+
+def convert_10_to_13(isbn):
+    try:
+        isbn=ISBN(isbn)
+        isbn.validate()
+        if isbn.valid:
+            return isbn.to_string()
+        else:
+            return None
+    except:
+        return None
 
 def strip(s):
     """Strips away any - or spaces.  If the remaining string is of length 10 or 13 with digits only in anything but the last
@@ -47,11 +58,22 @@ def strip(s):
     else:
         return s
    
-def convert_13_to_10(isbn):
+def _convert_13_to_10(isbn):
     assert len(isbn) == 13
     # only ISBN-13 starting with 978 can have a valid ISBN 10 partner
     assert isbn[0:3] == '978'
     return isbn [3:12] + check_digit_10(isbn[3:12])
+
+def convert_13_to_10(isbn):
+    try:
+        isbn=ISBN(isbn)
+        isbn.validate()
+        if isbn.valid:
+            return isbn.to_string(type='10')
+        else:
+            return None
+    except:
+        return None
     
 class ISBNException(Exception):
     pass
@@ -79,7 +101,7 @@ class ISBN(object):
             self.__valid = (self.__isbn10 == self.__valid_10)
             
             # this is the corresponding ISBN 13 based on the assumption of a valid ISBN 10
-            self.__isbn13 = convert_10_to_13(stripped_isbn)
+            self.__isbn13 = _convert_10_to_13(stripped_isbn)
             self.__valid_13 = self.__isbn13  
 
         elif len(stripped_isbn) == 13:
@@ -98,7 +120,7 @@ class ISBN(object):
             
             # now check to see whether the isbn starts with 978 -- only then convert to ISBN -10
             if self.__isbn13[0:3] == '978':
-                self.__isbn10 = convert_13_to_10(stripped_isbn)
+                self.__isbn10 = _convert_13_to_10(stripped_isbn)
                 self.__valid_10 = self.__isbn10
             else:
                 self.__isbn10 = None

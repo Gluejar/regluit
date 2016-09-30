@@ -1,0 +1,186 @@
+{% extends "base-questionnaire.html" %}
+{% load questionnaire i18n %}
+{% load static %}
+{% load dynamicStyleTags %}
+{% load landings %}
+
+{% block title %}
+        Survey: {{ questionset.heading }}
+{% endblock %}
+
+{% block headextra %}
+    <script type="text/javascript" src="{% static 'jquery-1.7.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'questionset.js' %}"></script>
+     <link rel="stylesheet" href="{% static 'progressbar.css' %}" />
+    {% if questionsetstylesheet|getAssociatedStylesheets  %}
+    <style type="text/css">
+      {{ questionsetstylesheet|getAssociatedStylesheets|safe }}
+    </style>
+    {% endif %}
+    {% if progress %}
+        {% if questionset.questionnaire.name|add:"Progress"|getAssociatedStylesheets  %}
+        <style type="text/css">
+        {{ questionset.questionnaire.name|add:"Progress"|getAssociatedStylesheets|safe }}
+        </style>
+        {% else %}
+        <style type="text/css">
+        {{ "CommonProgressStyles"|getAssociatedStylesheets|safe }}
+        </style>
+        {% endif %}
+    {% endif %}
+    {% for x in jsinclude %}
+        <script type="text/javascript" src="{{ x }}"></script>
+    {% endfor %}
+
+    {% for x in cssinclude %}
+        <link rel="stylesheet" href="{{ x }}" type="text/css" />
+    {% endfor %}
+
+    {% if async_progress %}
+        <script type="text/javascript">
+            var progress_url = "{{ async_url }}";
+        </script>
+        <script type="text/javascript" src="{% static 'progress.js' %}"></script>
+    {% endif %}
+{% endblock %}
+
+{% block language %}
+    {% for lang in LANGUAGES %}{% if not forloop.first %} |{% endif %}
+        <a href="{{request.path}}?lang={{ lang.0 }}">{{ lang.1 }}</a>
+    {% endfor %}
+{% endblock %}
+
+{% block questionnaire %}
+
+    {% if progress %}
+    <div id="progress_bar" class="ui-progress-bar ui-container">
+      <div class="ui-progress" style="width: {{progress}}%;">
+        <span class="ui-label"><b class="value">{{progress}}%</b></span>
+      </div>
+    </div>
+    {% endif %}
+
+
+    <h2 class="questionset-title">
+    {% if questionset.heading %}
+        {% if questionset.parse_html %}
+        {% render_with_landing questionset.heading|safe %}
+        {% else %}
+        {{ questionset.heading }}
+        {% endif %}
+    {% endif %}
+    </h2>
+
+    <div class="questionset-text">
+    {% if questionset.text %}
+        {% if questionset.parse_html %}
+        {% render_with_landing questionset.text|safe %}
+        {% else %}
+        {{ questionset.text }}
+        {% endif %}
+    {% endif %}    
+    </div>
+
+    <form name="qform" id="qform" action="{{ request.path }}" method="POST">
+
+        {% csrf_token %}
+
+        <input type="hidden" name="questionset_id" value="{{ questionset.id }}">
+
+        {% for question, qdict in qlist %}
+        {% if question.id|getAssociatedStylesheets %}
+        <style type="text/css">
+        {{question.id|getAssociatedStylesheets|safe}}
+        </style>
+        {% endif %}
+        {% with errors|dictget:question.number as error %}
+
+            <div class="question type_{{ qdict.qtype }} {% if error %} error prepend-top{% endif %}{{ qdict.qnum_class }}{{ qdict.qalpha_class }}" id="qc_{{ question.number }}" {{qdict.checkstring|safe}} style="{{qdict.css_style}}"> 
+
+                {% if request.user.is_staff %}
+                    <span class="pull-right">
+                        <a href="/admin/questionnaire/question/{{ question.id }}/">
+                            ({% trans "edit" %} {{ question.number }})
+                        </a>
+                    </span>
+                {% endif %}
+
+                {% if qdict.custom %}
+                    {% if error %}
+                        <div class="error">
+                            {{ error }}
+                        </div>
+                    {% endif %}
+                    {% include qdict.template %}
+                {% else %}
+                    <div class="question-text {% if qdict.required %}required{% endif %}">
+                    <label for="{{ question.number }}">
+                        <span class="qnumber">{{ question.display_number|safe }}.</span>
+                        {% if question.parse_html %}
+                        {{ question.text|safe }}
+                        {% else %}
+                        {{ question.text }}
+                        {% endif %}
+                    </label>
+                    </div>
+                    <div class="answer">
+                        {% if error %}
+                            <div class="alert-message block-message error input"><strong>{{ error }}</strong></div>
+                        {% endif %}
+                        {% include qdict.template %}
+                    </div>
+                {% endif %}
+            </div> <!-- /question container -->
+                {% if question.footer %}
+                <div class="question-footer" id="qc_{{ question.number }}_footer" {{qdict.footerchecks|safe}}>
+                    {% if question.parse_html %}
+                        {{ question.footer|safe }}
+                    {% else %}
+                        {{ question.footer }}
+                    {% endif %}
+                    <div class="clearfix"></div>
+                </div>
+                {% endif %}
+        {% endwith %}
+        {% endfor %}
+
+
+
+            <div style="text-align: center;" class="well questionset-submit">
+                <input class="btn large primary" name="submit" type="submit" value="{% if questionset.next %}{% trans 'Continue' %}{% else %}{% trans 'Finish' %}{% endif %}" />
+
+            </div>
+
+            {% if questionset.prev %}
+                <a class="back-link pull-left" href="{{ prev_url }}">{% trans "return to previous page" %}</a>
+            {% endif %}
+    </form>
+
+    {% if debug_questionnaire %}
+        Previous Answers:
+        {% for answer in current_answers %}
+            {% if forloop.first %}
+            <ul>
+            {% endif %}
+
+            <li>{{ answer.question }}: {{ answer.answer }}</li>
+
+            {% if forloop.last %}
+            </ul>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    <script type="text/javascript">
+        {% for trigger in triggers %}
+            addtrigger("{{trigger}}");
+        {% endfor %}
+
+        {% for k,v in qvalues.items %}
+            qvalues['{{ k|escapejs }}'] = '{{ v|escapejs }}';
+        {% endfor %}
+
+        for(key in qvalues) {
+            valchanged(key, qvalues[key]);
+        }
+    </script>
+{% endblock %}

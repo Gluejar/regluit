@@ -1,11 +1,11 @@
 <!-- login_form.html -->
-<form method="post" action="{% url superlogin %}" class="login">{% csrf_token %}
+<form method="post" action="{% url 'superlogin' %}" class="login">{% csrf_token %}
     {{ form.username.label_tag }}    
     {{ form.username }}
     {{ form.password.label_tag }}
     {{ form.password }}
     <br />
-    <input type="submit" value="Sign In" />
+    <input type="submit" name="submit" value="Sign in with Password" />
 
 <input type="hidden" name="next" value="{% if next %}{{ next }}{% else %}/{% endif %}" />
 </form>

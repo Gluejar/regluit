@@ -1,0 +1,146 @@
+/* question numbers are  bold */
+.qnumber {
+    font-weight: bold;
+}
+
+.required::after {
+    content: " * ";
+    color: red;
+}
+.required:hover::after {
+    content: " * required";
+    color: red;
+}
+
+.questionset-title {
+    /* margin right is there to make space for the progressbar */
+    margin: 0 220px 25px 0;    
+}
+
+.questionset-text {
+    margin-bottom: 25px;
+}
+
+.questionset-text p{
+    font-size: 1.2em;
+    line-height: 1.2em;
+}
+
+
+.question-text {
+    font-size: 1.2em;
+    line-height: 1.2em;
+}
+
+div.input {
+    margin-left: 35px;
+}
+
+.answer {
+    margin: 5px 0 25px 0;
+    padding: 0;
+    border-top: 1px solid #dadada;
+}
+
+.answer label {
+    font-size: 14px;
+}
+
+/* ensure that all inputs have the same distance to the question */
+div.input input[type="text"], div.input textarea, div.input select {
+    margin: 10px 0 0 0;        
+}
+
+div.input span.add-on {
+    margin: 8px 0 0 0;
+    border-right: none;
+}
+
+ul.inputs-list input[type="text"] {
+    margin: 5px 0;
+}
+
+div.error {
+    margin: 10px 0;
+}
+
+/* move the back link left of the submit button */
+.back-link {
+    margin-top: -66px;
+    margin-left: 25px;
+    position: absolute;
+}
+
+.questionset-submit {
+    margin-top: 60px;
+}
+
+#languages {
+    float: right;
+    margin: 15px 0px 0px 0px;
+}
+
+
+.content {
+    background-color: #fff;
+    padding: 20px;
+    margin: 0px -20px; /* negative indent the amount of the padding to maintain the grid system */
+    -webkit-border-radius: 0 0 6px 6px;
+       -moz-border-radius: 0 0 6px 6px;
+            border-radius: 0 0 6px 6px;
+    -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+       -moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+            box-shadow: 0 1px 2px rgba(0,0,0,.15);
+}
+
+.page-header {
+    background-color: #f5f5f5;
+    padding: 20px 20px 10px;
+    margin: -20px -20px 20px;
+}
+
+.rangeinput div.input {
+    display: inline;
+    float: left;
+}
+
+.rangeinput label {
+    text-align: left; 
+    max-width: 40px;
+    margin-left: 10px;
+    padding-top: 4px;
+}
+
+.rangeinput {
+    margin-top: 5px;
+}
+
+.rangeinput span.help-block {
+    clear: left; 
+    margin-left: 35px;
+}
+
+span.choice-multiple-values-text {
+    display: inline-block;
+    max-width: 40%;
+}
+
+input.sending {
+    text-shadow: 0px 0px 5px white !important;
+    -webkit-transition: 0.3s linear all !important;  
+       -moz-transition: 0.3s linear all !important;
+         -o-transition: 0.3s linear all !important;
+            transition: 0.3s linear all !important;   
+
+}
+
+.questionset-submit input:disabled {
+    -webkit-transition: 0.3s linear all !important;  
+       -moz-transition: 0.3s linear all !important;
+         -o-transition: 0.3s linear all !important;
+            transition: 0.3s linear all !important;   
+}
+
+.hoverable {
+    color: #79E2E8;
+}

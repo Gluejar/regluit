@@ -1,4 +1,5 @@
-{% extends "notification/base.html" %}
+{% extends 'notification/base.html' %}
+
 
 {% load i18n %}
 {% load truncatechars %}
@@ -23,7 +24,7 @@ $j(document).ready(function() {
 {% block doccontent %}
     <h2>{% trans "Notification Settings" %}</h2>
         
-    <a href="{% url notification_notices %}">
+    <a href="{% url 'notification_notices' %}">
 		<div class="notices_menu">
     		{% trans "See Your Notifications" %}
 		</div>
@@ -199,14 +200,12 @@ $j(document).ready(function() {
             	{{ user.email }}<br />
             </p>
             <p>
-                ({% blocktrans %}You can change this under <a href="{{ editurl }}">Account</a>.{% endblocktrans %})
+                (You can change this under <a href="{% url 'manage_account' %}">Account</a>.)
             </p>
         {% else %}
             <div class="errorlist">
-                {% blocktrans %}
                 You do not have a verified email address to which notices can be sent.
-                You can add one by going to <a href="{{ editurl }}">Account</a>.
-                {% endblocktrans %}
+                You can add one by going to <a href="{% url 'manage_account' %}">Account</a>.
             </div>
         {% endif %}
 

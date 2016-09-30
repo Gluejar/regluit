@@ -1,7 +1,11 @@
 /* For sitewide elements of unglue.it. */
 
 @import "variables.less";
+@import "mixins.less";
 @import "download.less";
+@import "buttons.less";
+@import "bootstrap-social.less";
+@import "font-awesome.min.css";
 
 /* remove before beta */
 .preview {
@@ -92,10 +96,10 @@ body{
 				color: @text-blue;
 			}
 		}
-		writing-mode:tb-rl;
 		-webkit-transform:rotate(90deg);
 		-moz-transform:rotate(90deg);
 		-o-transform: rotate(90deg);
+		transform: rotate(90deg);
 		filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
 		white-space:nowrap;
 		display:block;
@@ -187,16 +191,16 @@ h2 {
 h3 {
     &.jsmod-title {
     	.border-radius(8px, 8px, 0, 0);
-    	background: @medium-blue-grey;
+    	background: @pale-blue;
         padding:0;
         margin:0;
-        height:73px;
+        height:2.3em;
         
         span {
             font-size: @font-size-header;
             font-style: italic;
             color:@text-blue;
-            padding:26px 40px 27px 20px;
+            padding:0.7em 2em 0.5em 2em;
             display:block;
         }
     }
@@ -314,10 +318,6 @@ ul.menu{
         position: relative;
     }
     
-    &#authenticated.highlight span#welcome {
-        background-image: url("/static/images/menu_bar_up_arrow_textblue.png");
-    }
-    
     ul {
         &#user_menu {
             white-space:nowrap;
@@ -366,24 +366,18 @@ ul.menu{
             position: relative;
             z-index: 50;
             
-            a {
+            .notbutton{
                 color:@text-blue; 
+                line-height: 36px;
+            }
+                
+            a {
                 .header-text;
             }
             
             span#welcome {
                 .header-text;
                 padding: 0 10px;
-                margin-right: 5px;
-                padding-right: 22px;
-                
-                img {
-                    vertical-align: middle;
-                }
-                
-                background-image: url("/static/images/menu_bar_down_arrow_textblue.png");
-                background-repeat: no-repeat;
-                background-position: right;
             }
             
             img {
@@ -395,7 +389,6 @@ ul.menu{
                 padding-left: 20px;
                 
                 a {
-                    background: url(@background-header) right top no-repeat;
                     
                     span {
                         .border-radius(32px, 0, 0, 32px);
@@ -431,6 +424,12 @@ ul.menu{
             }
         }
     }
+}
+.btn-signup {
+  .button-variant(#fff; @call-to-action;  @btn-default-border);
+}
+.btn-readon {
+  .button-variant(#fff; @bright-blue; @btn-default-border);
 }
 
 #i_haz_notifications_badge {
@@ -489,8 +488,8 @@ form.login, #login form {
     }
 }
 
-#lightbox_content .google_signup {
-    .google_signup_div(36px);
+#lightbox_content a.btn {
+    color: #FFF;
 }
 
 .js-search {
@@ -551,7 +550,6 @@ form.login, #login form {
 }
 
 a#readon {
-    background:url("@{image-base}learnmore-downarrow.png") right center no-repeat;
     color:#fff;
     text-transform:capitalize;
     display:block;
@@ -560,18 +558,6 @@ a#readon {
 
     font-weight:bold;
     
-    &.down {
-	    background:url("@{image-base}learnmore-uparrow.png") right center no-repeat;
-    }
-
-    span {
-        .border-radius(32px, 0, 0, 32px);
-        background-color: @bright-blue;
-        margin-right:34px;
-        padding:0 5px 0 20px;
-        .height(36px);
-        display:block;        
-    }
 }
 
 .spread_the_word {
@@ -606,11 +592,10 @@ a#readon {
             border-top:1px solid @pale-blue; 
             .utilityheaders;
             padding:10px;
-            
         }
 
         &.level2 li {
-            .utilitylinks(5px, 10px);
+            .utilitylinks(5px, 20px);
             
             img {
             	vertical-align: middle;
@@ -620,6 +605,11 @@ a#readon {
             .ungluer-name {
 				.height(30px);
 			}
+            &.first {
+                font-size: @font-size-larger;
+                color:@text-blue;
+                padding-left:10px;
+            }
         }
         &.level3 li {
             .utilitylinks(0px, 20px);
@@ -843,7 +833,6 @@ a.nounderline {
 
 .signuptoday {
     a {
-        background: url("/static/images/icons/pledgearrow-hover.png") right center no-repeat;
         padding-right: 17px;
     	color: white;
         
@@ -852,8 +841,6 @@ a.nounderline {
         }
     }
                     
-	.one-border-radius(32px);
-    background-color: @call-to-action;
     padding:0 15px;
     .height(36px);
     float: left;
@@ -1027,4 +1014,14 @@ li.checked {
     line-height: @font-size-header * 1.3;
     color: @medium-blue;
     margin-left: 2em;
+}
+
+.deletebutton, input[type='submit'].deletebutton {
+    height: 20px;
+    padding: .2em .6em;
+    background-color: lightgray;
+    margin-left: 1em;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
 }

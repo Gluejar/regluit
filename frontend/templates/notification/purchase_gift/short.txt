@@ -1,0 +1,1 @@
+{{ gift.giver.username }} is giving you an ebook, "{{ gift.acq.work.title }}"

@@ -75,6 +75,8 @@ $j(document).ready(function() {
     $j('#authenticated').click(function(){
         $j('#user_menu').toggle();
         $j(this).toggleClass('highlight');
+        $j('#welcome i').toggleClass('fa-chevron-down');
+        $j('#welcome i').toggleClass('fa-chevron-up');
     });
     // but suppress it if they're clicking on the badge link to the notifications page
     $j('#i_haz_notifications_badge').click(function() {

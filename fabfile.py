@@ -37,7 +37,7 @@ def get_dump():
     """Dump the current db on remote server and scp it over to local machine.
     Note:  web1 has been hardcoded here to represent the name of the unglue.it server
     """
-    run("./dump.sh > unglue.it.sql ")
+    run("./dump.sh")
     run("gzip -f unglue.it.sql")
     local("scp web1:/home/ubuntu/unglue.it.sql.gz .")
     local("gunzip -f unglue.it.sql.gz")
@@ -95,7 +95,7 @@ def email_addresses():
 def selenium():
     """setting up selenium to run in the background on RY's laptop"""
     with cd('/Users/raymondyee/D/Document/Gluejar/Gluejar.github/regluit'):
-        local("java -jar test/selenium-server-standalone-2.40.0.jar > selenium-rc.log 2>&1 &")
+        local("java -jar test/selenium-server-standalone-2.53.0.jar > selenium-rc.log 2>&1 &")
         
 def test():
     """run regluit tests locally"""

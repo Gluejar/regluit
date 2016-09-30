@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="/static/css/ui-lightness/jquery-ui-1.8.16.custom.css" type="text/css" media="screen">
+    {{ form.media.css }}
+    <style type="text/css">
+    div.half {
+        width: 45%;
+        margin-left: 5%;
+        margin-bottom: 1em;
+        float: left;
+    }
+    </style>
+{% endblock %}
+
+{% block extra_js %}
+    <script type="text/javascript" src="{{ jquery_ui_home }}"></script>
+    {{ form.media.js }}
+{% endblock %}
+
+{% block content %}
+<div id="js-topsection">
+    <div class="js-main">
+        {% if map_complete %}
+            <h1>Mapping successful</h1>
+            <p> {{ added }} works, {{ added_free }} of them free, added to <b>{{ onto_subject.name }}</b></p>
+            <div class="half">
+            <h3>Added this keyword...</h3>
+            {% with onto_subject as subject%}
+                {% include 'subjectbox.html' %}
+            {% endwith %}  
+            </div> 
+            <div class="half">
+            <h3>... to works with this keyword.</h3>
+            {% include 'subjectbox.html' %}
+            </div>
+            <h1>Map more keywords</h1>
+            <form class="p_form"  action="#" method="POST">
+            {% csrf_token %}
+            <div class="half">
+            <h3>Add this keyword...</h3>
+            {{ form.onto_subject }}
+            </div>
+            <div class="half">
+            <h3>... to works with this keyword.</h3>
+            {{ form.subject }}
+            </div>
+            <input type="submit" name="merge_works" value="Preview Keyword Mapping" id="submit" />
+            </form>
+        {% else %}
+            <h1>Keyword mapping</h1>
+            <form class="p_form" action="#" method="POST">
+            {% csrf_token %}
+            <div class="half">
+            <h3>Add this keyword...</h3>
+            {% if onto_subject %}
+                <div style="display:none">{{ form.onto_subject }}</div>
+                {% with onto_subject as subject%}
+                    {% include 'subjectbox.html' %}
+                {% endwith %} 
+            {% else %}  
+                {{ form.onto_subject.errors }}{{ form.onto_subject }}
+            {% endif %}
+            </div>
+            <div class="half">
+            <h3>... to works with this keyword.</h3>
+            {% if subject %}
+                <div style="display:none">{{ form.subject }}</div>
+                {% include 'subjectbox.html' %}
+            {% else %}
+                {{ form.subject.errors }}{{ form.subject }}
+            {% endif %}
+            </div>
+            <br clear="left" />
+            {% if subject and onto_subject %}
+                <p>This can't be undone, so be sure you want to do this!</p>
+                {% if subject.works.all.count > onto_subject.works.all.count %}
+                <p class="errorlist">Do you really want all of {{subject.name}} to also have {{onto_subject.name}}???</p>
+                <br clear="left" />
+                <a class="actionbuttons" href="{% url 'map_subject' %}">Not Really</a>
+                {% endif %}
+                <input type="submit" name="confirm_map_subject" value="Confirm Keyword Mapping" id="submit" />
+            {% else %}
+                <input type="submit" name="merge_works" value="Preview Keyword Mapping" id="submit" />
+            {% endif %}
+            </form>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+

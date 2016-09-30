@@ -2,6 +2,7 @@
 
 import re
 from django.contrib.auth.models import User, Group
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core import validators
 from django.db import models
@@ -15,7 +16,7 @@ class Library(models.Model):
     '''
     name and other things derive from the User
     '''
-    user = models.OneToOneField(User, related_name='library')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='library')
     group = models.OneToOneField(Group, related_name='library', null = True)
     backend =  models.CharField(max_length=10, choices=(
             ('ip','IP authentication'),
@@ -24,7 +25,7 @@ class Library(models.Model):
         ),default='ip')
     name = models.CharField(max_length=80, default='') 
     approved = models.BooleanField(default=False)
-    owner = models.ForeignKey(User, related_name="libraries")
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="libraries")
     credential = None
     
     def __unicode__(self):
@@ -205,6 +206,10 @@ class IPAddressModelField(models.IPAddressField):
         defaults = {'form_class': IPAddressFormField}
         defaults.update(kwargs)
         return super(models.IPAddressField, self).formfield(**defaults)
+        
+    def deconstruct(self):
+        name, path, args, kwargs = super(models.IPAddressField, self).deconstruct()
+        return name, path, args, kwargs
 
 class Block(models.Model):
     library = models.ForeignKey(Library, related_name='ip_auths')
@@ -229,10 +234,6 @@ class Block(models.Model):
     class Meta:
         ordering = ['lower',]
 
-
-from south.modelsinspector import add_introspection_rules
-escaped_package= __name__.replace('.', '\.')
-add_introspection_rules([], ['^' + escaped_package + '\.IPAddressModelField'])
 
 # from http://en.wikipedia.org/wiki/Luhn_algorithm#Implementation_of_standard_Mod_10
 def luhn_checksum(card_number):
@@ -264,7 +265,7 @@ class CardPattern(models.Model):
 
 class LibraryUser(models.Model):
     library = models.ForeignKey(Library, related_name='library_users')
-    user = models.ForeignKey(User, related_name='user_libraries')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='user_libraries')
     credential = models.CharField(max_length=30, null=True)
     date_modified = models.DateTimeField(auto_now=True)
 

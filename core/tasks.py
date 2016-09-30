@@ -24,11 +24,12 @@ from regluit.core import (
     models,
     goodreads, 
     librarything,
-    doab
+    doab,
+    mobigen
 )
-from regluit.core.models import Campaign, Acq
+from regluit.core.models import Campaign, Acq, Gift
 from regluit.core.signals import deadline_impending
-from regluit.core.parameters import RESERVE, REWARDS
+from regluit.core.parameters import RESERVE, REWARDS, THANKS
 
 from regluit.utils.localdatetime import now, date_today
 
@@ -128,6 +129,20 @@ def watermark_acq(acq):
     acq.get_watermarked()
     
 @task
+def process_ebfs(campaign):
+    if campaign.type == THANKS:
+        if campaign.use_add_ask:
+            campaign.add_ask_to_ebfs()
+        else:
+            campaign.revert_asks()
+        campaign.make_mobis()
+        
+
+@task
+def make_mobi(ebookfile):
+    return ebookfile.make_mobi()
+    
+@task
 def refresh_acqs():
     in_10_min = now() + timedelta(minutes=10)
     acqs = Acq.objects.filter(refreshed=False, refreshes__lt=in_10_min)
@@ -157,7 +172,15 @@ def load_doab_edition(title, doab_id, seed_isbn, url, format, rights, language, 
                       provider='Directory of Open Access Books', **kwargs):
     
     return doab.load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
-                      language, isbns, provider, **kwargs)    
+                      language, isbns, provider, **kwargs)
+
+@task
+def convert_to_mobi(input_url, input_format="application/epub+zip"):
+    return mobigen.convert_to_mobi(input_url, input_format)
+
+@task
+def generate_mobi_ebook_for_edition(edition):
+    return mobigen.generate_mobi_ebook_for_edition(edition)
 
 from postmonkey import PostMonkey, MailChimpException
 pm = PostMonkey(settings.MAILCHIMP_API_KEY)
@@ -170,3 +193,15 @@ def ml_subscribe_task(profile, **kwargs):
     except Exception, e:
         logger.error("error subscribing to mailchimp list %s" % (e))
         return False
+
+@task
+def notify_unclaimed_gifts():
+    unclaimed = Gift.objects.filter(used=None)
+    for gift in unclaimed:
+        """
+        send notice every 7 days
+        """
+        unclaimed_duration = (now() - gift.acq.created ).days
+        if unclaimed_duration > 0 and unclaimed_duration % 7 == 0 : # first notice in 7 days
+            notification.send_now([gift.acq.user], "purchase_gift_waiting", {'gift':gift}, True)
+            notification.send_now([gift.giver], "purchase_notgot_gift", {'gift':gift}, True)

@@ -1,4 +1,5 @@
-{% extends "basedocumentation.html" %}
+{% extends 'basedocumentation.html' %}
+
 {% block title %} Press Information{% endblock %}
 {% block doccontent %}
 <h1>Press</h1>
@@ -25,7 +26,7 @@
 	<div class="spacer"></div>
 	{% if request.user.is_staff %}
 	    <div class="pressemail">
-	        Hi, {{ request.user.username }}.  Since you're a staff member, you can <a href="{% url press_submitterator %}">add new press items</a>.
+	        Hi, {{ request.user.username }}.  Since you're a staff member, you can <a href="{% url 'press_submitterator' %}">add new press items</a>.
 	    </div>
     	<div class="spacer"></div>
     {% endif %}
@@ -41,29 +42,29 @@
 <a id="overview"></a><h2>Overview</h2>
 <dl>
 <dt>What?</dt>
-<dd>Unglue.it offers a win-win solution to readers, who want to read and share their favorite books conveniently, and rights holders (authors, publishers, etc.), who want to be rewarded for their work.<br /><br />
-We run <a href="http://en.wikipedia.org/wiki/Crowdfunding">crowdfunding</a> campaigns to raise money for specific, already-published books.  When we reach goals set by the rights holders, we'll pay them to unglue their work.  They'll issue an electronic edition with a <a href="http://creativecommons.org">Creative Commons</a> license as specified during the campaign.  These licenses will make the edition free and legal for everyone to read, copy, and share, worldwide.<br /><br />
-
-At Unglue.it, book lovers can pledge money to support these campaigns; add books to their wishlist to tell the world about their favorites; discuss their favorite books; share their Unglue.it pages via social media; and find direct links to public domain and unglued ebooks that they can read right away.
+<dd>Unglue.it works to make free ebooks sustainable.
+<br /><br />
+We provide distribution infrastructure for free ebooks - we're a bookstore for books that want to be free. We're building a database of free-licensed ebooks.
+<br /><br />
+We help archive books that are already free, and we help readers find and download them. We help creators ask those readers for support.
+<br /><br />
+We run crowdfunding campaigns to raise money to make ebooks free.  In Buy-to-Unglue campaigns, the creators set a revenue target that triggers the free release of the rbook. In Pledge-to-Unglue campaigns, rights holders set the amount needed for ungluing, and if enough reders pledge there support, the book becomes free. 
+</dd>
 <dt>Why?</dt>
-<dd>As ereaders proliferate, more and more people are enjoying the ereading experience.  However, their favorite books may not be available as ebooks.  Their ebooks may come with DRM which makes them unreadable on certain devices, and difficult or impossible to lend to friends.  Or they may not be able to tell if they have the legal right to use the book as they'd like.  The situation is even more challenging for libraries, which cannot acquire some ebooks at all, and can only acquire them under legal terms and DRM restrictions which run counter to library lending.<br /><br />
-When books have a clear, established legal license which promotes use, they can be read more widely, leading to enjoyment, scholarship, and innovation.  By raising money to compensate authors and publishers up front, Unglue.it encourages the benefits of openness while ensuring sustainability for creators.<br /><br />
-For more background, read our president Eric Hellman's thoughts on <a href="http://go-to-hellman.blogspot.com/2011/04/public-broadcasting-model-for-ebooks.html">a public broadcasting model for ebooks</a> (on why the numbers work) and <a href="http://go-to-hellman.blogspot.com/search/label/Unglue.it">the development of Unglue.it</a>.</dd>
+<dd>Most books have a greater purpose than just making money for the creators. In many cases, that purpose is best served by making the book free to read. And it's that greater purpose that drives us.<br /><br />
+When books have a clear, established legal license which promotes use, they can be read more widely, leading to enjoyment, scholarship, and innovation.  By raising money to support authors and publishers, Unglue.it encourages the benefits of openness while ensuring sustainability for creators. </dd>
 <dt>Who?</dt>
-<dd>Unglue.it is a service of Gluejar, Inc.  We come from the worlds of entrepreneurship, linked data, physics, publishing, education, and library science, to name a few.  You can learn more about us at our <a href="/about/">about page</a>.</dd>
+<dd>Unglue.it is a service of The Free Ebook Foundation.  We come from the worlds of entrepreneurship, linked data, physics, publishing, education, and library science, to name a few.  You can learn more about us at our <a href="/about/">about page</a>.</dd>
 <dt>When?</dt>
-<dd>Unglue.it launched May 17, 2012.</dd>
+<dd>Unglue.it launched its first crowdfunding campaign on May 17, 2012. Buy-to-Unglue launched in January of 2014, and Thanks-for-Ungluing launched in April of 2014.</dd>
 <dt>Where?</dt>
-<dd>Gluejar is a New Jersey corporation, but its employees and contractors live and work across North America.  The best way to contact us is by email, <a href="mailto:press@gluejar.com">press@gluejar.com</a>.</dd>
-<dt>What does it cost?</dt>
-<dd>Unglue.it is free to join and explore.  Supporters pledge money only if they choose to support campaigns, and the amount is up to them.  They are charged only if the campaigns reach their goal price.  Unglue.it takes a small percentage from successful campaigns, with the remainder going to the author, publisher, or other rights holder.</dd>
+<dd>The Free Ebook Foundation is a New Jersey non-for-profit corporation, but its employees and contractors live and work across North America.  The best way to contact us is by email, <a href="mailto:press@gluejar.com">freeebookfoundation@gmail.com</a>.</dd>
 <dt>What's your technology?</dt>
-<dd>Unglue.it is built using <a href="http://python.org/">Python</a> and the <a href="https://www.djangoproject.com/">Django framework</a>.  We use data from the <a href="http://code.google.com/apis/books/docs/v1/getting_started.html">Google Books</a>, <a href="http://openlibrary.org/developers/api">Open Library</a>, <a href="http://www.librarything.com/api">LibraryThing</a>, and <a href="http://www.goodreads.com/api">GoodReads</a> APIs; we appreciate that they've made these APIs available, and we're returning the favor with <a href="/api/help">our own API</a>.  You're welcome to use it.  We use <a href="http://lesscss.org/">Less</a> to organize our CSS.  We process pledges with <a href="https://payments.amazon.com/">Amazon Payments</a>.  We collaborate on our code at <a href="https://github.com/">GitHub</a> and deploy to the cloud with <a href="http://aws.amazon.com/ec2/">Amazon EC2</a>.</dd>
-<dt>How does the license work?  Why did you choose this license?</dt>
+<dd>Unglue.it is built using <a href="http://python.org/">Python</a> and the <a href="https://www.djangoproject.com/">Django framework</a>.  We use data from the <a href="http://code.google.com/apis/books/docs/v1/getting_started.html">Google Books</a>, <a href="http://openlibrary.org/developers/api">Open Library</a>, <a href="http://www.librarything.com/api">LibraryThing</a>, and <a href="http://www.goodreads.com/api">GoodReads</a> APIs; we appreciate that they've made these APIs available, and we're returning the favor with <a href="/api/help">our own API</a>.  You're welcome to use it.  We use <a href="http://lesscss.org/">Less</a> to organize our CSS.  We process pledges with <a href="https://stripe.com/">Stripe</a>.  We collaborate on our code at <a href="https://github.com/">GitHub</a> and deploy to the cloud with <a href="http://aws.amazon.com/ec2/">Amazon EC2</a>.</dd>
+<dt>What licenses are supported?  </dt>
 <dd>
-The default Unglue.it license is a <a href="http://creativecommons.org/licenses/by-nc-nd/3.0/">Creative Commons BY-NC-ND</a> license.  This license makes the edition free and legal for everyone to read, copy, and share worldwide.  It requires that the author be credited and does not allow commercial use or derivative works (such as film adaptations) without additional permission from the rights holder.<br /><br />
-We chose this license because it's a worldwide standard that has been developed by legal experts and tested in court.  It invites readers to enjoy the book while providing clarity about their legal rights.  It strikes a balance between rights holders' interests in promoting their work today and retaining certain potentially valuable rights for the future.<br /><br />
-Creative Commons offers a variety of other licenses, many of them with even less restrictive terms.  Unglue.it is happy to use any of them, if the rights holder prefers.
+We support the  <a href="http://creativecommons.org/licenses/">Creative Commons</a> licenses in all of our programs.  Ebooks with these licenses are free and legal for everyone to read, copy, and share worldwide and requires that the author attribution.<br /><br />
+We support a additional Free Licenses in our Thanks-for-Ungluing program.
 </dd>
 
 <dt>I have more questions...</dt>
@@ -84,6 +85,12 @@ Creative Commons offers a variety of other licenses, many of them with even less
 
 <a id="video"></a><h2>Video</h2>
 <div class="pressvideos">
+
+<div>
+	<iframe src="http://research.microsoft.com/apps/video/ifVideo.aspx?id=232715" style="width:480px; height:270px; overflow:hidden; border:none;" scrolling="no"></iframe><br />
+	<I>Nov 2014</I><br />
+	Eric Hellman at "Shaking It Up".
+</div>
 <div>
 	<iframe width="480" height="270" src="https://www.youtube-nocookie.com/embed/HxjTW4OBouo?rel=0" frameborder="0" allowfullscreen></iframe><br />
 	<I>June 2012</I><br />
@@ -105,11 +112,7 @@ Creative Commons offers a variety of other licenses, many of them with even less
 	<I>November 2011</I><br />
 	Eric Hellman, "The Network is Overrated"; talk at <a href="http://bib.archive.org/">Books in Browsers</a> 2011.
 </div>
-<div>
-	<iframe width="480" height="274" src="//www.youtube-nocookie.com/embed/mhfr-GWlo0M?rel=0" frameborder="0" allowfullscreen></iframe><br />
-	<I>June 2011</I><br />
-	Eric Hellman explains the Gluejar model to David Weinberger at <a href="http://lod-lam.net/summit/">LOD-LAM</a> 2011.
-</div>
+
 </div>
 <div class="press_spacer"></div>
 
@@ -130,51 +133,5 @@ Creative Commons offers a variety of other licenses, many of them with even less
 		<div><a href="/static/images/unglued.png"><img src="/static/images/unglued.png" alt="small Logo" /></a></div>
 		<div class="text"><p>Logo image only, 44px x 30px</p></div>
 	</div>
-	<div class="outer">
-		<div><a href="/static/images/workpage.png"><img src="/static/images/workpage_thumb.png" class="screenshot" alt="screenshot" /></a></div>
-		<div class="text"><p>300 ppi screenshot of a book page on Unglue.it.  Features include links to the book, where available, at Google Books, Open Library, GoodReads, and LibraryThing; social sharing options; tabs with user comments and more information; and an explore bar linking to other books and users.  The user list is dynamically generated, reflecting others interested in the same book.</p></div>
-	</div>
-	<div class="outer">
-		<div><a href="/static/images/supporter_listview.png"><img src="/static/images/supporter_listview_thumb.png" class="screenshot" alt="screenshot" /></a></div>
-		<div class="text"><p>300 ppi screenshot of a supporter page.  Supporters can readily see all the books on their faves list and filter for active or successful campaigns.  Icons show how many other ungluers have faved a book or, for active campaigns, their progress toward completion.  Unglued and public domain books have links to freely available copies.  Supporters can link to their home page and accounts on Facebook, Twitter, GoodReads, and LibraryThing (note icons in upper right), as well as import books from their GoodReads and LibraryThing accounts to their wishlist.</p></div>
-	</div>
-	<div class="outer">
-		<div><a href="/static/images/supporter_panelview.png"><img src="/static/images/supporter_panelview_thumb.png" class="screenshot" alt="screenshot" /></a></div>
-		<div class="text"><p>300 ppi screenshot of a supporter page in panel view.  This displays the same information as the list view, but in a less information-dense, more visually arresting format.  Supporters can toggle between views.</p></div>
-	</div>
-	<div class="outer">
-		<div><a href="/static/images/search_listview.png"><img src="/static/images/search_listview_thumb.png" class="screenshot" alt="screenshot" /></a></div>
-		<div class="text"><p>300 ppi screenshot of a search result page, powered by Google Books.  Users can add books to their wishlist with one click, or click through for more information.  Books with active campaigns display a progress meter.  Where possible, books that are already unglued or in the public domain link to freely available copies.</p></div>
-	</div>
-	<div class="outer">
-		<div><a href="/static/images/search_panelview.png"><img src="/static/images/search_panelview_thumb.png" class="screenshot"  alt="screenshot" /></a></div>
-		<div class="text"><p>300 ppi screenshot of a search result page, in panel view.  As with the supporter page, users can toggle between views.</p></div>
-	</div>
-</div>
-<a id="releases"></a><h2>Press Releases</h2>
-<div class="pressarticles">
-    <div>
-        <a href="/static/pdfs/OLAUngluedEbookRelease.pdf">Oral Literature in Africa unglued ebook released</a><br />September 12, 2012
-    </div>
-    <div>
-        <a href="/static/pdfs/PressReleaselaunchoverall.pdf">Main launch announcement</a><br />May 17, 2012
-    </div>
-    <div>
-        <a href="/static/pdfs/PressReleaseBuddingReader.pdf">Launch announcement: Budding Reader campaign</a><br />May 17, 2012
-    </div>
-    <div>
-        <a href="/static/pdfs/PressReleaseMikeLaser.pdf">Launch announcement: Michael Laser campaign</a><br />May 17, 2012
-    </div>
-    <div>
-        <a href="/static/pdfs/PressReleaseJoeNassise.pdf">Launch announcement: Joseph Nassise campaign</a><br />May 17, 2012
-    </div>
-    <div>
-        <a href="/static/pdfs/PressReleaseOpenBook.pdf">Launch announcement: Open Book Publishers campaign</a><br />May 17, 2012
-    </div>
-    <div>
-        <a href="/static/pdfs/PressReleaseNancyRawles.pdf">Launch announcement: Nancy Rawles campaign</a><br />May 17, 2012
-    </div>
 
-</div>
-<br /><br /><br /><br /><br /><br />
 {% endblock %}

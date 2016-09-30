@@ -3,19 +3,28 @@ external library imports
 """
 import json
 import logging
+import re
 import requests
 
 from datetime import timedelta
-from itertools import izip, islice
+from itertools import (izip, islice)
 from xml.etree import ElementTree
+from urlparse import (urljoin, urlparse)
+
 
 """
 django imports
 """
 from django.conf import settings
-from django.contrib.comments.models import Comment
+from django_comments.models import Comment
 from django.db import IntegrityError
 from django.db.models import Q
+
+from github3 import (login, GitHub)
+from github3.repos.release import Release
+
+from gitenberg.metadata.pandata import Pandata
+from ..marc.models import inverse_marc_rels
 
 """
 regluit imports
@@ -25,6 +34,7 @@ import regluit.core.isbn
 
 from regluit.core import models
 from regluit.utils.localdatetime import now
+import regluit.core.cc as cc
 
 logger = logging.getLogger(__name__)
 request_log = logging.getLogger("requests")
@@ -202,8 +212,7 @@ def update_edition(edition):
     models.Identifier.get_or_add(type='goog',value=googlebooks_id,edition=edition,work=edition.work)
 
     for a in d.get('authors', []):
-        a, created = models.Author.objects.get_or_create(name=a)
-        a.editions.add(edition)
+        edition.add_author(a)
     
     add_ebooks(item, edition)
             
@@ -347,7 +356,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
 
     for a in d.get('authors', []):
         a, created = models.Author.objects.get_or_create(name=a)
-        a.editions.add(e)
+        e.add_author(a)
 
     add_ebooks(item, e)
             
@@ -440,6 +449,7 @@ def add_related(isbn):
             for w in works_to_merge:
                 logger.debug("merge_works path 2 %s %s", lang_edition.work.id, w.id )
                 merge_works(lang_edition.work, w)
+            models.WorkRelation.objects.get_or_create(to_work=lang_edition.work, from_work=work, relation='translation')
         
     return new_editions
     
@@ -475,6 +485,8 @@ def merge_works(w1, w2, user=None):
         w1.description = w2.description
     if w2.featured and not w1.featured:
         w1.featured = w2.featured
+    if w2.is_free and not w1.is_free:
+        w1.is_free = True
     w1.save()
     for wishlist in models.Wishlist.objects.filter(works__in=[w2]):
         w2source = wishlist.work_source(w2)
@@ -604,14 +616,35 @@ def add_openlibrary(work, hard_refresh = False):
 
     # add the subjects to the Work
     for s in subjects:
-        logger.info("adding subject %s to work %s", s, work.id)
-        subject, created = models.Subject.objects.get_or_create(name=s)
-        work.subjects.add(subject)
+        if valid_subject(s):
+            logger.info("adding subject %s to work %s", s, work.id)
+            subject, created = models.Subject.objects.get_or_create(name=s)
+            work.subjects.add(subject)
     
     work.save()
 
-    # TODO: add authors here once they are moved from Edition to Work
+def valid_xml_char_ordinal(c):
+    codepoint = ord(c)
+    # conditions ordered by presumed frequency
+    return (
+        0x20 <= codepoint <= 0xD7FF or
+        codepoint in (0x9, 0xA, 0xD) or
+        0xE000 <= codepoint <= 0xFFFD or
+        0x10000 <= codepoint <= 0x10FFFF
+        )
 
+def valid_subject( subject_name ):
+    num_commas = 0
+    for c in subject_name:
+        if not valid_xml_char_ordinal(c):
+            return False
+        if c == ',':
+            num_commas += 1
+            if num_commas > 2:
+                return False
+    return True
+    
+    
 
 def _get_json(url, params={}, type='gb'):
     # TODO: should X-Forwarded-For change based on the request from client?
@@ -761,3 +794,164 @@ def add_missing_isbn_to_editions(max_num=None, confirm=False):
 class LookupFailure(Exception):
     pass
 
+IDTABLE = [('librarything','ltwk'),('goodreads','gdrd'),('openlibrary','olwk'),('gutenberg','gtbg'),('isbn','isbn'),('oclc','oclc'),('edition_id','edid') ]
+
+def unreverse(name):
+    if not ',' in name:
+        return name
+    (last, rest) = name.split(',', 1)
+    if not ',' in rest:
+        return '%s %s' % (rest.strip(),last.strip())
+    (first, rest) = rest.split(',', 1)
+    return '%s %s, %s' % (first.strip(),last.strip(),rest.strip())
+    
+
+def load_from_yaml(yaml_url, test_mode=False):
+    """
+    if mock_ebook is True, don't construct list of ebooks from a release -- rather use an epub
+    """
+    all_metadata = Pandata(yaml_url)
+    for metadata in all_metadata.get_edition_list():
+        #find an work to associate
+        work = edition = None
+        if metadata.url:
+            new_ids = [('http','http', metadata.url)]
+        else:
+            new_ids = []
+        for (identifier, id_code) in IDTABLE:
+            # note that the work chosen is the last associated
+            value = metadata.edition_identifiers.get(identifier,None)
+            if not value:
+                value = metadata.identifiers.get(identifier,None)
+            if value:
+                value =  value[0] if isinstance(value, list) else value
+                try:
+                    id = models.Identifier.objects.get(type=id_code, value=value)
+                    work = id.work
+                    if id.edition and not edition:
+                        edition = id.edition
+                except models.Identifier.DoesNotExist:
+                    new_ids.append((identifier, id_code, value))
+    
+    
+        if not work:
+            work = models.Work.objects.create(title=metadata.title, language=metadata.language)
+        if not edition:
+            edition =  models.Edition.objects.create(title=metadata.title, work=work)
+        for (identifier, id_code, value) in new_ids:
+            models.Identifier.set(type=id_code, value=value, edition=edition if id_code in ('isbn', 'oclc','edid') else None, work=work)
+        if metadata.publisher: #always believe yaml
+            edition.set_publisher(metadata.publisher)
+        if metadata.publication_date: #always believe yaml
+            edition.publication_date = metadata.publication_date
+        if metadata.description and len(metadata.description)>len(work.description): #be careful about overwriting the work description
+            work.description = metadata.description
+        if metadata.creator: #always believe yaml
+            edition.authors.clear()
+            for key in metadata.creator.keys():
+                creators=metadata.creator[key]
+                rel_code=inverse_marc_rels.get(key,'aut')
+                creators = creators if isinstance(creators,list) else [creators]
+                for creator in creators:
+                    edition.add_author(unreverse(creator.get('agent_name','')),relation=rel_code)
+        for yaml_subject in metadata.subjects: #always add yaml subjects (don't clear)
+            if isinstance(yaml_subject, tuple):
+                (authority, heading)  = yaml_subject
+            elif isinstance(yaml_subject, str):
+                (authority, heading)  = ( '', yaml_subject)
+            else:
+                continue
+            (subject, created) = models.Subject.objects.get_or_create(name=heading)
+            if not subject.authority and authority:
+                subject.authority = authority
+                subject.save()
+            subject.works.add(work)
+        # the default edition uses the first cover in covers.
+        for cover in metadata.covers:
+            if cover.get('image_path', False):
+                edition.cover_image=urljoin(yaml_url,cover['image_path'])
+                break
+        edition.save()
+        # create Ebook for any ebook in the corresponding GitHub release
+        # assuming yaml_url of form (from GitHub, though not necessarily GITenberg)
+        # https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/raw/master/metadata.yaml
+
+        url_path = urlparse(yaml_url).path.split("/")
+        (repo_owner, repo_name) = (url_path[1], url_path[2])
+        repo_tag = metadata._version
+        # allow for there not to be a token in the settings
+        try:
+            token = settings.GITHUB_PUBLIC_TOKEN
+        except:
+            token = None 
+
+        if metadata._version and not metadata._version.startswith('0.0.'):
+            # use GitHub API to compute the ebooks in release until we're in test mode
+            if test_mode:
+                # not using ebook_name in this code
+                ebooks_in_release = [('epub', 'book.epub')]
+            else:
+                ebooks_in_release =  ebooks_in_github_release(repo_owner, repo_name, repo_tag, token=token)
+
+            for (ebook_format, ebook_name) in ebooks_in_release:
+                (book_name_prefix, _ ) =  re.search(r'(.*)\.([^\.]*)$', ebook_name).groups()
+                (ebook, created)= models.Ebook.objects.get_or_create(
+                    url=git_download_from_yaml_url(yaml_url,metadata._version,edition_name=book_name_prefix,
+                                                   format_= ebook_format),
+                    provider='Github',
+                    rights = cc.match_license(metadata.rights),
+                    format = ebook_format,
+                    edition = edition,
+                    )
+                ebook.set_version(metadata._version)
+
+    return work.id
+        
+def git_download_from_yaml_url(yaml_url, version, edition_name='book', format_='epub'):
+    # go from https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/raw/master/metadata.yaml
+    # to https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/releases/download/v0.0.3/Adventures-of-Huckleberry-Finn.epub
+    if yaml_url.endswith('raw/master/metadata.yaml'):
+        repo_url = yaml_url[0:-24]
+        #print (repo_url,version,edition_name)
+        ebook_url = repo_url + 'releases/download/' + version + '/' + edition_name + '.' + format_
+        return ebook_url
+
+
+def release_from_tag(repo, tag_name):
+    """Get a release by tag name.
+    release_from_tag() returns a release with specified tag
+    while release() returns a release with specified release id
+    :param str tag_name: (required) name of tag
+    :returns: :class:`Release <github3.repos.release.Release>`
+    """
+    # release_from_tag adapted from 
+    # https://github.com/sigmavirus24/github3.py/blob/38de787e465bffc63da73d23dc51f50d86dc903d/github3/repos/repo.py#L1781-L1793
+
+    url = repo._build_url('releases', 'tags', tag_name,
+                          base_url=repo._api)
+    json = repo._json(repo._get(url), 200)
+    return Release(json, repo) if json else None
+
+
+def ebooks_in_github_release(repo_owner, repo_name, tag, token=None):
+    """
+    returns a list of (book_type, book_name) for a given GitHub release (specified by
+    owner, name, tag).  token is a GitHub authorization token -- useful for accessing
+    higher rate limit in the GitHub API
+    """
+
+    # map mimetype to file extension
+    EBOOK_FORMATS = dict([(v,k) for (k,v) in settings.CONTENT_TYPES.items()])
+
+    if token is not None:
+        gh = login(token=token)
+    else:
+        # anonymous access
+        gh = GitHub()
+
+    repo = gh.repository(repo_owner, repo_name)
+    release = release_from_tag(repo, tag)
+
+    return [(EBOOK_FORMATS.get(asset.content_type), asset.name)
+            for asset in release.iter_assets()
+            if EBOOK_FORMATS.get(asset.content_type) is not None]

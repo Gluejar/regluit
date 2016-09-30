@@ -1,4 +1,5 @@
-{% extends "basedocumentation.html" %}
+{% extends 'basedocumentation.html' %}
+
 {% block title %} FAQ {% endblock %}
 {% block topsection %}
 {% endblock %}
@@ -11,7 +12,7 @@
 <dl>
 <dt class="background: #8dc63f; color: white; font-weight: bold;">Help! My question isn't covered in the FAQs!</dt>
 
-<dd>Please email us at <a href="mailto:support@gluejar.com">support@gluejar.com</a>.  We want to make sure everything on the site runs as smoothly as possible.  Thanks for helping us do that.</dd>
+<dd><a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">Let us know!</a>.  We want to make sure everything on the site runs as smoothly as possible.  Thanks for helping us do that.</dd>
 </dl>
 {% endif %}
 {% if location == 'basics' or location == 'faq' %}
@@ -21,16 +22,17 @@
 <dl>
 <dt>What is Unglue.it?</dt>
 
-<dd><a href="/">Unglue.it</a> is a a place for individuals and institutions to join together to make  ebooks free to the world.  We work together with authors, publishers, or other rights holders who want their ebooks to be free but also want to be able to earn a living doing so. We use <a href="http://creativecommons.org">Creative Commons</a> licensing as an enabling tool to "unglue" the ebooks. </dd>
+<dd><a href="/">Unglue.it</a> is a place for individuals and institutions to join together to make  ebooks free to the world.  We work together to support authors, publishers, or other rights holders who want their ebooks to be free.  We support <a href="http://creativecommons.org">Creative Commons</a> licensing as an enabling tool to "unglue" the ebooks. </dd>
 
 <dt>What are Ungluing Campaigns?</dt>
 
 <dd>We have three types of Ungluing Campaigns: Pledge Campaigns, Buy-to-Unglue Campaigns and Thanks-for-Ungluing campaigns.
 <ul class="bullets">
-<li> In a <i><a href="{% url faq_sublocation 'campaigns' 'supporting' %}">Pledge Campaign</a></i>, book lovers pledge their support for ungluing a book. If enough support is found to reach the goal (and only then), the supporter's credit cards are charged, and an unglued ebook is released.</li>
-<li> In a <i><a href="{% url faq_sublocation 'campaigns' 'b2u' %}">Buy-to-Unglue Campaign</a></i>, every ebook copy sold moves the book's ungluing date closer to the present. And you can donate ebooks to your local library- that's something you can't do in the Kindle or Apple Stores!</li>
-<li> In a <i><a href="{% url faq_sublocation 'campaigns' 't4u' %}">Thanks-for-Ungluing Campaign</a></i>, the ebook is already released with a Creative Commons license. Supporters can express their thanks by paying what they wish for the license and the ebook.</li>
+<li> In a <i><a href="{% url 'faq_sublocation' 'campaigns' 'supporting' %}">Pledge Campaign</a></i>, book lovers pledge their support for ungluing a book. If enough support is found to reach the goal (and only then), the supporter's credit cards are charged, and an unglued ebook is released.</li>
+<li> In a <i><a href="{% url 'faq_sublocation' 'campaigns' 'b2u' %}">Buy-to-Unglue Campaign</a></i>, every ebook copy sold moves the book's ungluing date closer to the present. And you can donate ebooks to your local library- that's something you can't do in the Kindle or Apple Stores!</li>
+<li> In a <i><a href="{% url 'faq_sublocation' 'campaigns' 't4u' %}">Thanks-for-Ungluing Campaign</a></i>, the ebook is already released with a Creative Commons license. Supporters can express their thanks by paying what they wish for the license and the ebook.</li>
 </ul>
+We also support distribution and preservation of free ebooks through our growing catalog of free-licensed ebooks.
 </dd>
 
 
@@ -43,9 +45,9 @@ In other words, crowdfunding is working together to support something you love. 
 <dt>What does it cost?</dt>
 
 <dd>Unglue.it is free to join.  Many of the things you can do here -- discovering books, adding  them to your ebook list, downloading unglued books, commenting, sharing -- are free too.
-<br /><br />  If you choose to support a Pledge Campaign, you may pledge whatever amount you're comfortable with.  Your credit card will only be charged if the campaign reaches its goal price.<br /><br /> If you choose to buy or download an unglue.it ebook, you can read it anywhere you like - there's no restrictive DRM.
+<br /><br />  If you choose to support a Campaign, please do so!.<br /><br /> If you choose to buy or download an unglue.it ebook, you can read it anywhere you like - there's no restrictive DRM.
 <br /><br />
-If you hold the electronic rights to a book, starting campaigns is free, too.  You only pay Unglue.it a fraction of your revenue.  For the basics on campaigns, see the FAQ on <a href="/faq/campaigns/">Campaigns</a>; for more details, see the <a href="/faq/rightsholders/">FAQ for Rights Holders</a>.</dd>
+If you hold the electronic rights to a book, starting campaigns or listing your ebooks is free, too.  You only pay Unglue.it a fraction of your revenue.  For the basics on campaigns, see the FAQ on <a href="/faq/campaigns/">Campaigns</a>; for more details, see the <a href="/faq/rightsholders/">FAQ for Rights Holders</a>.</dd>
 
 <dt>Who can use Unglue.it?</dt>
 
@@ -57,9 +59,9 @@ To fund a campaign, or buy an ebook, you'll need a valid credit card.  To start 
 
 <dd>When you buy a book, you get a copy for yourself.  When you unglue it, you give a copy to yourself, reward its creators and contribute towards making it free to everyone.</dd>
 
-<dt>What do I get when I unglue a book?</dt>
+<dt>What do I get when I help unglue a book?</dt>
 <dd>You get a better ebook.  Your unglued ebook has no restrictive DRM: you can put it on any device you want, in any format you want.   You can read it on the network or off, with no one tracking your reading.<br /><br />
-You may get premiums as part of a Pledge Campaign, depending on the amount you pledge.  Each Pledge Campaign has its own set.</dd>
+You may get premiums as part of a Pledge Campaign, depending on the amount you pledge.  </dd>
 
 <dt>Does Unglue.it own the copyright of unglued books?</dt>
 
@@ -117,11 +119,11 @@ If you believe you are a rights holder and would like to your works to be unglue
 <dl>
 <dt>I forgot my password. What do I do?</dt> 
 <dd>
-Click on this <a href="{% url django.contrib.auth.views.password_reset %}">forgot your password</a> link (you can also find it at the bottom of the <a href="{% url superlogin %}">sign in page</a>).  Enter the email address you use for your account and we'll send you an email to help you reset your password. 
+Click on this <a href="{% url 'password_reset' %}">forgot your password</a> link (you can also find it at the bottom of the <a href="{% url 'superlogin' %}">sign in page</a>).  Enter the email address you use for your account and we'll send you an email to help you reset your password. 
 </dd>
 <dt>I never received an activation email after I signed up, or my activation email isn't working. What do I do?</dt>
 
-<dd>Check your spam folder for mail from notices@gluejar.com.  If that doesn't work, contact us at <a href="mailto:support@gluejar.com">support@gluejar.com</a>.</dd>
+<dd>Check your spam folder for mail from notices@gluejar.com.  If that doesn't work,  <a href="{% url 'feedback' %}?page=no+activation+email">Let us know!</a></dd>
 
 <dt>How do I connect my Twitter, Facebook, GoodReads, and/or LibraryThing accounts?  How can I link to my personal web site?</dt>
 
@@ -137,7 +139,7 @@ Click on this <a href="{% url django.contrib.auth.views.password_reset %}">forgo
 
 <dt>How can I change my profile name or password, or the email address associated with my account?</dt>
 
-<dd>At the bottom of every page there's a link to an <a href="{% url regluit.frontend.views.edit_user %}">account editing page</a> where you can change your profile name, password, and email.</dd>
+<dd>At the bottom of every page there's a link to an <a href="{% url 'edit_user' %}">account editing page</a> where you can change your profile name, password, and email.</dd>
 
 <dt>How do I subscribe to, or unsubscribe from, emails I receive from Unglue.it?</dt>
 
@@ -156,15 +158,15 @@ If you receive our newsletter, there's a link at the bottom of every message to 
 <dl>
 <dt>How can I contact Unglue.it?</dt>
 
-<dd>For support requests, <a href="mailto:support@gluejar.com">support@gluejar.com</a>.  For general inquiries, use our Ask Questions Frequently account, <a href="mailto:aqf@gluejar.com">aqf@gluejar.com</a>.  For rights inquiries, <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.  Media requests, <a href="mailto:press@gluejar.com">press@gluejar.com</a></dd>
+<dd>For support requests, <a href="{% url 'feedback' %}?page=need+support">use our feedback form</a>.  For general inquiries, use our Ask Questions Frequently account, <a href="mailto:aqf@gluejar.com">aqf@gluejar.com</a>.  For rights inquiries, <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.  Media requests, <a href="mailto:press@gluejar.com">press@gluejar.com</a></dd>
 
 <dt>Who is Unglue.it?</dt>
 
-<dd>We are a small group that believes strongly that ebooks can make the world richer in new and diverse ways, and that we all benefit from the hard work of their creators. We come from the worlds of entrepreneurship, linked data, physics, publishing, education, and library science, to name a few.  You can learn more about us at our <a href="/about">about page</a> or our Unglue.it supporter profiles: <a href="{% url supporter 'eric' %}">Eric Hellman</a>, <a href="{% url supporter 'AmandaM' %}">Amanda Mecke</a> and <a href="{% url supporter 'rdhyee' %}">Raymond Yee</a>. Our alumni include  <a href="{% url supporter 'luclewitanski' %}">Luc Lewitanski</a> and <a href="{% url supporter 'andromeda' %}">Andromeda Yelton</a>.</dd>
+<dd>We are a small group that believes strongly that ebooks can make the world richer in new and diverse ways, and that we all benefit from the hard work of their creators. We come from the worlds of entrepreneurship, linked data, physics, publishing, education, and library science, to name a few.  You can learn more about us at our <a href="/about">about page</a> or our Unglue.it supporter profiles: <a href="{% url 'supporter' 'eric' %}">Eric Hellman</a>, <a href="{% url 'supporter' 'AmandaM' %}">Amanda Mecke</a> and <a href="{% url 'supporter' 'rdhyee' %}">Raymond Yee</a>. Our alumni include  <a href="{% url 'supporter' 'luclewitanski' %}">Luc Lewitanski</a> and <a href="{% url 'supporter' 'andromeda' %}">Andromeda Yelton</a>.</dd>
 
 <dt>Are you a non-profit company?</dt>
 
-<dd>No. Gluejar, the parent company of Unglue.it, is a for-profit company with a public-spirited mission.  We work with both non-profit and commercial partners.</dd>
+<dd>Yes. Unglue.it is a program of the Free Ebook Foundation, which is a not-for-profit corporation.  We work with both non-profit and commercial partners.</dd>
 
 <dt>Why does Unglue.it exist?</dt>
 
@@ -188,7 +190,7 @@ If you receive our newsletter, there's a link at the bottom of every message to 
 {% include 'faq_t4u.html' %}
 {% endif %}
 {% if sublocation == 'supporting' or sublocation == 'all' %}
-<a class="more_featured_books short" href="{% url campaign_list 'pledge' %}" title="Pledge to Unglue list"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
+<a class="more_featured_books short" href="{% url 'campaign_list' 'pledge' %}" title="Pledge to Unglue list"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
 <h4>Pledge Campaigns</h4>
 <div class="faq_tldr">
 Support the books you've loved and make them free to everyone.
@@ -200,7 +202,7 @@ Support the books you've loved and make them free to everyone.
 
 <dt>What the book I love doesn't have a campaign?</dt>
 
-<dd>To show the creators of a book that there are people willing to support it, just "Fave" the book. If enough people show their support in this way, the creators will take notice. They may even offer "<a href="{% url faq_sublocation 'campaigns' 'premiums' %}">premiums</a>" to encourage you to pledge!</dd>
+<dd>To show the creators of a book that there are people willing to support it, just "Fave" the book. If enough people show their support in this way, the creators will take notice. They may even offer "<a href="{% url 'faq_sublocation' 'campaigns' 'premiums' %}">premiums</a>" to encourage you to pledge!</dd>
 
 <dt>How do I pledge?</dt>
 
@@ -389,7 +391,16 @@ Unglue.it signs agreements assuring the copyright status of every work we unglue
 
 <dt>How can I claim a work for which I am the rights holder?</dt>
 
-<dd>On every book page there is a More... tab.  If you have a signed Platform Services Agreement on file, one of the options on the More... tab will be "Claim This Work".  If you represent more than one rights holder, choose the correct one for this work and click "Claim".<br /><br />If you expect to see a "Claim" button and do not, either we do not have a PSA from you yet, or we have not yet verified and filed it.  Please contact us at <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.</dd>
+<dd>On every book page there is a More... tab.  If you have a signed Platform Services Agreement on file, one of the options on the More... tab will be "Claim This Work".  If you represent more than one rights holder, choose the correct one for this work and click "Claim".
+<br /><br />If the book is not already in Unglue.it or in Google Books, you'll need to enter the metatadata for the book by hand or work with us to load the data from a spreadsheet or Onix file.
+
+	<ul class="bullets">
+	    <li>Use <a href="{% url 'new_edition' '' '' %}">this form</a> to enter the metadata.</li>
+	    <li>Your ebooks must have ISBNs or OCLC numbers assigned.</li>
+	    <li>Your metadata should have title, authors, language, description.</li>
+	    <li>If you have a lot of books to enter, <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">contact us</a> to load ONIX or CSV files for you.</li>
+	</ul>
+<br /><br />If you expect to see a "Claim" button and do not, either we do not have a PSA from you yet, or we have not yet verified and filed it.  Please contact us at <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.</dd>
 
 <dt>Why should I claim my works?</dt>
 

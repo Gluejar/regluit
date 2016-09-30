@@ -1,4 +1,5 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
+
 {% load endless %}
 {% load lang_utils %}
 
@@ -58,14 +59,14 @@
                     <ul class="tabs">
                     {% if request.GET.pub_lang %}
                         {% with request.GET.pub_lang as pub_lang %}
-                            <li class="tabs1"><a href="{% url unglued_list '' %}?pub_lang={{ pub_lang }}" class="hijax_unglued">Unglued</a></li>
-                            <li class="tabs2"><a href="{% url unglued_list 'cc' %}?pub_lang={{ pub_lang }}" class="hijax_unglued">Creative<br />Commons</a></li>
-                            <li class="tabs3"><a href="{% url unglued_list 'pd' %}?pub_lang={{ pub_lang }}" class="hijax_unglued">Public<br />Domain</a></li>
+                            <li class="tabs1"><a href="{% url 'unglued_list' '' %}?pub_lang={{ pub_lang }}" class="hijax_unglued">Unglued</a></li>
+                            <li class="tabs2"><a href="{% url 'unglued_list' 'cc' %}?pub_lang={{ pub_lang }}" class="hijax_unglued">Creative<br />Commons</a></li>
+                            <li class="tabs3"><a href="{% url 'unglued_list' 'pd' %}?pub_lang={{ pub_lang }}" class="hijax_unglued">Public<br />Domain</a></li>
                         {% endwith %}
                     {% else %}
-                        <li class="tabs1"><a href="{% url unglued_list '' %}" class="hijax_unglued">Unglued</a></li>
-                        <li class="tabs2"><a href="{% url unglued_list 'cc' %}" class="hijax_unglued">Creative<br />Commons</a></li>
-                        <li class="tabs3"><a href="{% url unglued_list 'pd' %}" class="hijax_unglued">Public<br />Domain</a></li>
+                        <li class="tabs1"><a href="{% url 'unglued_list' '' %}" class="hijax_unglued">Unglued</a></li>
+                        <li class="tabs2"><a href="{% url 'unglued_list' 'cc' %}" class="hijax_unglued">Creative<br />Commons</a></li>
+                        <li class="tabs3"><a href="{% url 'unglued_list' 'pd' %}" class="hijax_unglued">Public<br />Domain</a></li>
                     {% endif %}
                     </ul>
                     <ul class="book-list-view">
@@ -105,6 +106,17 @@
                     </div>
                 </div>
             </div>    
+            {% if request.user.libpref %}
+            <div id="libtools">
+                <p>for libraries...</p>
+                {% block marcform %}
+                <form method="GET" action="{% url 'unglued_list_marc' facet %}">
+                    {% include 'marc_form.html' %}
+                    <input type="submit" name="submit" value="download MARC" id="submit">
+                </form>
+                {% endblock %}
+            </div> 
+            {% endif %}  
         </div>
         </div>
     </div>

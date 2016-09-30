@@ -1,0 +1,18 @@
+{% extends 'registration/registration_base.html' %}
+
+{% block title %}Invalid Gift Code{% endblock %}
+{% block doccontent %}
+<div><h2>Invalid Gift Code</h2>
+    <div>
+    {% if gift %}
+    <p>Sorry, the gift code you tried to use for "<a href="{% url 'work' work.id %}">{{ work.title }}</a>" has already been redeemed. If you think it should still be valid, don't hesitate to <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">contact us</a>.
+    </p>
+    {% else %}
+    <p>Sorry, your gift code is invalid. Perhaps there was a problem cutting and pasting the URL? If you're having trouble, don't hesitate to contact <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">contact us</a>.
+    </p>
+    {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+

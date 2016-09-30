@@ -1,0 +1,512 @@
+[
+  {
+    "fields": {
+      "anonymous": false, 
+      "email": "test@example.com", 
+      "formtype": "email", 
+      "gender": "male", 
+      "givenname": "TestGivenname", 
+      "ip_address": null, 
+      "language": "de", 
+      "nextrun": "2009-05-15", 
+      "state": "active", 
+      "surname": "TestSurname"
+    }, 
+    "model": "questionnaire.subject", 
+    "pk": 1
+  }, 
+  {
+    "fields": {
+      "admin_access_only": false, 
+      "html": "survey html here", 
+      "name": "MappingSurvey", 
+      "parse_html": false, 
+      "redirect_url": ""
+    }, 
+    "model": "questionnaire.questionnaire", 
+    "pk": 3
+  }, 
+  {
+    "fields": {
+      "content_type": 22, 
+      "label": "Open Book Publishers", 
+      "nonce": "xxxxxx", 
+      "object_id": 81834, 
+      "questionnaire": 3
+    }, 
+    "model": "questionnaire.landing", 
+    "pk": 1234
+  }, 
+  {
+    "fields": {
+      "checks": "", 
+      "heading": "Open Access Ebooks (Part 1)", 
+      "parse_html": true, 
+      "questionnaire": 3, 
+      "sortid": 1, 
+      "text_en": " <h1> Introduction </h1> \r\n <p> \r\nWelcome, reader of <i>{{ landing_object.title }}</i>! And thanks for visiting Unglue.it to help us out with this \u2026\r\n </p> \r\n <p> \r\nAs Open Access publishers, {{ landing_object.claim.all.0.rights_holder }} are truly committed to making academic research broadly accessible - so we want to understand how people like you are actually accessing and using our Open Access titles. \r\n </p> \r\n <p> \r\nWe have a bunch of questions for you (well - only 9 actually) about how you found this book and what you\u2019re going to do with it. Please tell us the things you think are interesting or relevant. We really want to know!\r\n </p> \r\n <p> \r\n[Privacy policy: There are no marketing traps, we\u2019re not going to surreptitiously drop cookies on you to carry around for us, or swamp you with emails afterwards, or tell our \u201cfriends\u201d about you - we\u2019re just going to store your answers to create a database of usage examples that can be used to understand what Open Access publishing enables."
+    }, 
+    "model": "questionnaire.questionset", 
+    "pk": 5
+  }, 
+  {
+    "fields": {
+      "checks": "", 
+      "heading": "Now About You...", 
+      "parse_html": true, 
+      "questionnaire": 3, 
+      "sortid": 2, 
+      "text_en": " <p> And now, three questions about you as well ... </p> "
+    }, 
+    "model": "questionnaire.questionset", 
+    "pk": 6
+  }, 
+  {
+    "fields": {
+      "checks": "", 
+      "heading": "Follow-up", 
+      "parse_html": true, 
+      "questionnaire": 3, 
+      "sortid": 3, 
+      "text_en": " <p> We would really like to be able to follow up with some of the respondents to this questionnaire to ask them a few more questions - particularly if you\u2019ve told us something really interesting in a comment (for example). [There will also be a little reward (a free book no less!) for those of you we do contact in this way.] </p> \r\n\r\n <p> Thanks so much for your time and efforts answering these questions for us - we love you for it! </p> \r\n\r\n <p> We hope you enjoy <i>{{ landing_object.title }}</i>. </p> \r\n\r\n <p> {{ landing_object.claim.all.0.rights_holder }} and Unglue.it </p> \r\n"
+    }, 
+    "model": "questionnaire.questionset", 
+    "pk": 7
+  }, 
+  {
+    "fields": {
+      "checks": "", 
+      "extra_en": "", 
+      "footer_en": "", 
+      "number": "1", 
+      "parse_html": true, 
+      "questionset": 5, 
+      "sort_id": 1, 
+      "text_en": "How did you find out about this book in the first place? <br /> <br /> \r\n\r\nFor example: Was it from a Google search? Following a wikipedia link? A tweet? Referenced in another book? A late night session with a friend (we don\u2019t need to know much more about that!)? - or in some other way?\r\n", 
+      "type": "open"
+    }, 
+    "model": "questionnaire.question", 
+    "pk": 16
+  }, 
+  {
+    "fields": {
+      "checks": "", 
+      "extra_en": "", 
+      "footer_en": "", 
+      "number": "2", 
+      "parse_html": false, 
+      "questionset": 5, 
+      "sort_id": 2, 
+      "text_en": "How did you get hold of this particular copy? \r\n\r\nFor example: Did you download it from the publisher's website? Amazon or another retailer? Find it on academia.edu? Or somewhere like aaaaarg? Get it from a friend? ", 
+      "type": "open"
+    }, 
+    "model": "questionnaire.question", 
+    "pk": 17
+  }, 
+  {
+    "fields": {
+      "checks": "", 
+      "extra_en": "", 
+      "footer_en": "", 
+      "number": "3", 
+      "parse_html": true, 
+      "questionset": 5, 
+      "sort_id": 3, 
+      "text_en": "Why are you interested in this book?", 
+      "type": "choice-multiple-freeform"
+    }, 
+    "model": "questionnaire.question", 
+    "pk": 18
+  }, 
+  {
+    "fields": {
+      "checks": "", 
+      "extra_en": "If Yes - why are you using this edition and not one of the other ones?", 
+      "footer_en": "", 
+      "number": "4", 
+      "parse_html": false, 
+      "questionset": 5, 
+      "sort_id": 4, 
+      "text_en": "Are you aware that this title is available in multiple different digital and printed formats?", 
+      "type": "choice-yesnocomment"
+    }, 
+    "model": "questionnaire.question", 
+    "pk": 19
+  }, 
+  {
+    "fields": {
+      "checks": "", 
+      "extra_en": "Please tell us in more detail:", 
+      "footer_en": "\r\n\r\n\r\n\r\n\r\n\r\n\r\n", 
+      "number": "5", 
+      "parse_html": false, 
+      "questionset": 5, 
+      "sort_id": 5, 
+      "text_en": "What are you going to do with it now you have it?", 
+      "type": "choice-multiple-freeform"
+    }, 
+    "model": "questionnaire.question", 
+    "pk": 20
+  }, 
+  {
+    "fields": {
+      "checks": "", 
+      "extra_en": "", 
+      "footer_en": "", 
+      "number": "1", 
+      "parse_html": false, 
+      "questionset": 6, 
+      "sort_id": null, 
+      "text_en": "Where do you live?", 
+      "type": "choice-freeform"
+    }, 
+    "model": "questionnaire.question", 
+    "pk": 21
+  }, 
+  {
+    "fields": {
+      "checks": "", 
+      "extra_en": "", 
+      "footer_en": "", 
+      "number": "2", 
+      "parse_html": false, 
+      "questionset": 6, 
+      "sort_id": null, 
+      "text_en": "What do you do for a living?", 
+      "type": "open"
+    }, 
+    "model": "questionnaire.question", 
+    "pk": 22
+  }, 
+  {
+    "fields": {
+      "checks": "", 
+      "extra_en": "", 
+      "footer_en": "\r\n\r\n \r\n\r\n", 
+      "number": "3", 
+      "parse_html": false, 
+      "questionset": 6, 
+      "sort_id": null, 
+      "text_en": "When did you finish your formal education?", 
+      "type": "choice-freeform"
+    }, 
+    "model": "questionnaire.question", 
+    "pk": 23
+  }, 
+  {
+    "fields": {
+      "checks": "required-no", 
+      "extra_en": "", 
+      "footer_en": "", 
+      "number": "4", 
+      "parse_html": false, 
+      "questionset": 6, 
+      "sort_id": null, 
+      "text_en": "Is there anything else you would like to tell us, or think we should know?", 
+      "type": "open-textfield"
+    }, 
+    "model": "questionnaire.question", 
+    "pk": 24
+  }, 
+  {
+    "fields": {
+      "checks": "", 
+      "extra_en": "", 
+      "footer_en": "", 
+      "number": "1", 
+      "parse_html": false, 
+      "questionset": 7, 
+      "sort_id": null, 
+      "text_en": "If you\u2019re willing, then please leave us an email address where we could make contact with you (information which we won\u2019t share or make public).\r\n", 
+      "type": "open"
+    }, 
+    "model": "questionnaire.question", 
+    "pk": 25
+  }, 
+  {
+    "fields": {
+      "question": 18, 
+      "sortid": 1, 
+      "tags": "", 
+      "text_en": "For personal use - I\u2019m interested in the topic ", 
+      "value": "personal"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 17
+  }, 
+  {
+    "fields": {
+      "question": 18, 
+      "sortid": 2, 
+      "tags": "", 
+      "text_en": "For my job - it relates to what I do ", 
+      "value": "job"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 18
+  }, 
+  {
+    "fields": {
+      "question": 18, 
+      "sortid": 3, 
+      "tags": "", 
+      "text_en": "I need to read it for a course", 
+      "value": "course"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 19
+  }, 
+  {
+    "fields": {
+      "question": 20, 
+      "sortid": 1, 
+      "tags": "", 
+      "text_en": "Save it, in case I need to use it in the future", 
+      "value": "save"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 20
+  }, 
+  {
+    "fields": {
+      "question": 20, 
+      "sortid": 2, 
+      "tags": "", 
+      "text_en": "Skim through it and see if it\u2019s at all interesting", 
+      "value": "skim"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 21
+  }, 
+  {
+    "fields": {
+      "question": 20, 
+      "sortid": 3, 
+      "tags": "", 
+      "text_en": "There\u2019s only really a section/chapter I\u2019m interested in - I\u2019ll probably just read that", 
+      "value": "section"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 22
+  }, 
+  {
+    "fields": {
+      "question": 20, 
+      "sortid": 4, 
+      "tags": "", 
+      "text_en": "The whole book looks fascinating - I\u2019m going to read it all!", 
+      "value": "whole"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 23
+  }, 
+  {
+    "fields": {
+      "question": 20, 
+      "sortid": 5, 
+      "tags": "", 
+      "text_en": "I\u2019m going to adapt it and use it (or, at least, parts of it) for another purpose (eg a student coursepack, lecture/briefing notes \u2026)", 
+      "value": "adapt"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 24
+  }, 
+  {
+    "fields": {
+      "question": 20, 
+      "sortid": 6, 
+      "tags": "", 
+      "text_en": "Share it with my friends ", 
+      "value": "share"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 25
+  }, 
+  {
+    "fields": {
+      "question": 20, 
+      "sortid": 7, 
+      "tags": "", 
+      "text_en": "Print it out and ceremoniously burn it!", 
+      "value": "print"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 26
+  }, 
+  {
+    "fields": {
+      "question": 20, 
+      "sortid": 8, 
+      "tags": "", 
+      "text_en": "I\u2019m creating/collating a (online) library", 
+      "value": "catalog"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 27
+  }, 
+  {
+    "fields": {
+      "question": 20, 
+      "sortid": 9, 
+      "tags": "", 
+      "text_en": "Something else entirely \u2026. ", 
+      "value": "else"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 28
+  }, 
+  {
+    "fields": {
+      "question": 21, 
+      "sortid": 1, 
+      "tags": "", 
+      "text_en": "USA/Canada", 
+      "value": "us"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 29
+  }, 
+  {
+    "fields": {
+      "question": 21, 
+      "sortid": 2, 
+      "tags": "", 
+      "text_en": "Europe", 
+      "value": "eu"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 30
+  }, 
+  {
+    "fields": {
+      "question": 21, 
+      "sortid": 3, 
+      "tags": "", 
+      "text_en": "South America", 
+      "value": "sa"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 31
+  }, 
+  {
+    "fields": {
+      "question": 21, 
+      "sortid": 4, 
+      "tags": "", 
+      "text_en": "Central America/ Caribbean", 
+      "value": "ca"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 32
+  }, 
+  {
+    "fields": {
+      "question": 21, 
+      "sortid": 5, 
+      "tags": "", 
+      "text_en": "Asia", 
+      "value": "as"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 33
+  }, 
+  {
+    "fields": {
+      "question": 21, 
+      "sortid": 6, 
+      "tags": "", 
+      "text_en": "Africa", 
+      "value": "af"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 34
+  }, 
+  {
+    "fields": {
+      "question": 21, 
+      "sortid": 7, 
+      "tags": "", 
+      "text_en": "Middle East", 
+      "value": "me"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 35
+  }, 
+  {
+    "fields": {
+      "question": 21, 
+      "sortid": 8, 
+      "tags": "", 
+      "text_en": "Another Planet", 
+      "value": "ap"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 36
+  }, 
+  {
+    "fields": {
+      "question": 23, 
+      "sortid": 1, 
+      "tags": "", 
+      "text_en": "I haven\u2019t - I\u2019m still a student", 
+      "value": "x"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 37
+  }, 
+  {
+    "fields": {
+      "question": 23, 
+      "sortid": 2, 
+      "tags": "", 
+      "text_en": "At primary school", 
+      "value": "8"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 38
+  }, 
+  {
+    "fields": {
+      "question": 23, 
+      "sortid": 3, 
+      "tags": "", 
+      "text_en": "At high school", 
+      "value": "h"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 39
+  }, 
+  {
+    "fields": {
+      "question": 23, 
+      "sortid": 4, 
+      "tags": "", 
+      "text_en": "After trade qualifications", 
+      "value": "t"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 40
+  }, 
+  {
+    "fields": {
+      "question": 23, 
+      "sortid": 5, 
+      "tags": "", 
+      "text_en": "At College/Undergraduate Degree ", 
+      "value": "c"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 41
+  }, 
+  {
+    "fields": {
+      "question": 23, 
+      "sortid": 6, 
+      "tags": "", 
+      "text_en": "At Grad School/post-graduate university", 
+      "value": "g"
+    }, 
+    "model": "questionnaire.choice", 
+    "pk": 42
+  }
+]

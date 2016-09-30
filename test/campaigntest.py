@@ -6,10 +6,12 @@ import os
 import re
 import time
 import unittest
+from urlparse import (urlparse, urlunparse)
 
 from selenium import selenium, webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 """
 django imports
@@ -41,6 +43,21 @@ def set_test_logging():
     sel.setLevel(logging.INFO)
     
     
+def selenium_driver(browser='firefox'):
+
+    if browser == 'firefox':
+        firefox_capabilities = DesiredCapabilities.FIREFOX
+        firefox_capabilities['marionette'] = True
+        firefox_capabilities['binary'] = settings.FIREFOX_PATH
+        driver = webdriver.Firefox(capabilities=firefox_capabilities)
+    elif browser == 'htmlunit':
+        # HTMLUNIT with JS -- not successful
+        driver = webdriver.Remote("http://localhost:4444/wd/hub", webdriver.DesiredCapabilities.HTMLUNITWITHJS)
+    else:
+        driver = webdriver.Chrome(executable_path=settings.CHROMEDRIVER_PATH)
+
+    return driver
+
 
 class GoogleWebDriverTest(unittest.TestCase):
 
@@ -50,7 +67,7 @@ class GoogleWebDriverTest(unittest.TestCase):
         # This is an empty array where we will store any verification errors
         # we find in our tests
 
-        self.selenium = webdriver.Firefox()
+        self.selenium = selenium_driver(browser='firefox')
         set_test_logging()
         
     def test_google_rc(self):
@@ -171,18 +188,7 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     
     setup_selenium()
     
-    # this assumes that we don't have donation functionality on
-    assert settings.NONPROFIT.is_on == False
-    
-    if browser == 'firefox':
-        sel = webdriver.Firefox()
-    elif browser == 'chrome':
-        sel = webdriver.Chrome(executable_path='/Users/raymondyee/C/src/Gluejar/regluit/test/chromedriver')
-    elif browser == 'htmlunit':
-        # HTMLUNIT with JS -- not successful
-        sel = webdriver.Remote("http://localhost:4444/wd/hub", webdriver.DesiredCapabilities.HTMLUNITWITHJS)
-    else:
-        sel = webdriver.Firefox()
+    sel = selenium_driver(browser=browser)
 
     time.sleep(5)
     
@@ -199,19 +205,27 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     input_username = WebDriverWait(sel,20).until(lambda d : d.find_element_by_css_selector("input#id_username"))
     input_username.send_keys(USER)
     sel.find_element_by_css_selector("input#id_password").send_keys(PASSWORD)
-    sel.find_element_by_css_selector("input[value*='Sign In']").click()    
+    sel.find_element_by_css_selector("input[value*='Sign in with Password']").click()    
     
     # click on biggest campaign list
     # I have no idea why selenium thinks a is not displayed....so that's why I'm going up one element.
     # http://stackoverflow.com/a/6141678/7782
-    biggest_campaign_link = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("li > a[href*='/campaigns/ending']"))
-    biggest_campaign_link.click()
+    #biggest_campaign_link = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("li > a[href*='/campaigns/ending']"))
+    #biggest_campaign_link.click()
+    #time.sleep(1)
+    
+    # jump to /campaigns/ending#2
+    p = list(urlparse(UNGLUE_IT_URL)); p[2] = '/campaigns/ending#2'
+    sel.get(urlunparse(p))
     time.sleep(1)
     
     # pull up one of the campaigns to pledge to
     # for now, take the first book and click on the link to get to the work page
+
     work_links = WebDriverWait(sel,10).until(lambda d: d.find_elements_by_css_selector("div.book-list div.title a"))
+    time.sleep(2)
     work_links[0].click()
+    time.sleep(2)
     
     support_button = WebDriverWait(sel,10).until(lambda d: d.find_element_by_css_selector("input[value*='Pledge']"))
     support_button.click()
@@ -342,14 +356,12 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
 def successful_campaign_signal():
     """fire off a success_campaign signal and send notifications"""
     import regluit
-    from notification.engine import send_all
     c = regluit.core.models.Campaign.objects.get(id=3)
     regluit.core.signals.successful_campaign.send(sender=None, campaign=c)
-    send_all()
     
 
 def berkeley_search():
-    sel = webdriver.Firefox()
+    sel = selenium_driver(browser='firefox')
     sel.get("http://berkeley.edu")
     search = WebDriverWait(sel,5).until(lambda d: d.find_element_by_css_selector('input[id="search_text"]'))
     search.send_keys("quantum computing")

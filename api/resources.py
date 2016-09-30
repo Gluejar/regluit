@@ -5,22 +5,18 @@ from tastypie.constants import ALL, ALL_WITH_RELATIONS
 from tastypie.resources import ModelResource, Resource, Bundle
 from tastypie.utils import trailing_slash
 from tastypie.authentication import ApiKeyAuthentication, Authentication
+from tastypie.exceptions import BadRequest
 
-from django.conf.urls.defaults import url
+from django.conf.urls import url
 from django.contrib import auth
-from django.contrib.auth.models import User, AnonymousUser
-from django.db.models import Q
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 
 from regluit.core import models
+import regluit.core.isbn
 
 logger = logging.getLogger(__name__)
 
-class UserResource(ModelResource):
-    class Meta:
-        authentication = ApiKeyAuthentication()
-        queryset = User.objects.all()
-        resource_name = 'user'
-        fields = ['username', 'first_name', 'last_name']
 
 class EditionResource(ModelResource):
     work = fields.ForeignKey('regluit.api.resources.WorkResource', 'work')
@@ -127,11 +123,38 @@ class SubjectResource(ModelResource):
         queryset = models.Subject.objects.all()
         resource_name = 'subject'
 
-class WishlistResource(ModelResource):
-    user = fields.ToOneField(UserResource, 'user')
-    works = fields.ToManyField(WorkResource, 'works')
+class FreeResource(ModelResource):
+    def alter_list_data_to_serialize(self, request, data):
+        del data["meta"]["limit"]
+        del data["meta"]["offset"]
+        return data
+    
+    def dehydrate(self, bundle):
+        bundle.data["filetype"]=bundle.obj.format
+        bundle.data["rights"]=bundle.obj.rights
+        bundle.data["provider"]=bundle.obj.provider
+        bundle.data["href"]=reverse('download_ebook',kwargs={'ebook_id':bundle.obj.id})
+        return bundle
+        
+    def obj_get_list(self, bundle, **kwargs):
+        request = bundle.request
+        isbn =""
+        if hasattr(request, 'GET'):
+            isbn = request.GET.get("isbn","")
+        isbn = isbn.replace('-','')
+        if len(isbn)==10:
+            isbn=regluit.core.isbn.convert_10_to_13(isbn)
+        try:
+            work=models.Identifier.objects.get(type='isbn',value=isbn,).work
+            base_object_list = models.Ebook.objects.filter(edition__work=work)
+            return base_object_list
+        except ValueError:
+            raise BadRequest("Invalid resource lookup data provided (mismatched type).")
+        except models.Identifier.DoesNotExist:
+            return  models.Ebook.objects.none()
 
     class Meta:
         authentication = ApiKeyAuthentication()
-        queryset = models.Wishlist.objects.all()
-        resource_name = 'wishlist'
+        fields = [ 'provider', 'rights' ]
+        limit = 0
+        include_resource_uri = False

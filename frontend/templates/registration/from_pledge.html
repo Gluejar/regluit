@@ -1,4 +1,5 @@
 {% extends "registration/registration_base.html" %}
+
 {% load humanize %}
 
 {% block title %}Pledge Step 1: Login or Create an Account{% endblock %}
@@ -37,7 +38,7 @@ function put_un_in_cookie(){
         <div class="halfcolumn2 login_box">
             <h3>Get an Unglue.it account:</h3>
             <p class="bigger">... we just have to confirm your email address.</p>
-              <form class="login" action='{% url registration_register %}' method='post' onsubmit="return put_un_in_cookie();">{% csrf_token %}
+              <form class="login" action='{% url 'registration_register' %}' method='post' onsubmit="return put_un_in_cookie();">{% csrf_token %}
                 <div class="user-name">
                 <label>Username</label>
                 <input id="id_username_main" type="text" class="required" name="username" maxlength="30" size="30" />
@@ -61,14 +62,16 @@ function put_un_in_cookie(){
 
         </div>
         <div  class="halfcolumn1 login_box">
-            <h3>Use Google to Sign In:</h3> 
-            <div class="google_signup{% if socials.google %} errorlist{% endif %}">
-                <div><a href="/socialauth/login/google?next={{ next }}"><img src="{{ STATIC_URL }}images/auth/google_32_noborder.png" alt="google" />  Sign In with Google</a></div>
+            <h3>Use Google or Yahoo to Sign In:</h3> 
+            <div class="google_signup{% if socials %} errorlist{% endif %}">
+   <a  class="btn btn-social btn-google-plus" href="{% url 'social:begin' "google-oauth2" %}?next={{ next }}" ><i class="fa fa-google"></i>Sign in with Google</a>
+            
+   <a  class="btn btn-social btn-yahoo" href="{% url 'social:begin' "yahoo" %}?next={{ next }}" ><i class="fa fa-yahoo"></i>Sign in with Yahoo!</a>
             </div>
         </div>
         <div class="halfcolumn1  login_box">
             <h3>Already Have an Unglue.it Account?</h3>
-            <a href="{% url auth_password_reset %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Forgot</a> your password?  </li>
+            <a href="{% url 'auth_password_reset' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Forgot</a> your password?  </li>
             {% include "login_form.html" %}
         </div>
 

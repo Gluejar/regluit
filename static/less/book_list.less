@@ -214,6 +214,21 @@ ul.book-list-view {
         display:block;
         vertical-align:middle;
         line-height:22px;
+        &:hover {
+            color: @medium-blue;
+        }
+        &.view-list a {
+            .opacity(30);
+            &:hover{
+                .opacity(100);
+            }
+        }
+        &.view-list a.chosen{
+            .opacity(100);
+            &:hover{
+                text-decoration: none;
+            }
+        }
     }
 }
 
@@ -309,22 +324,48 @@ ul.navigation li a:hover, ul.navigation li.active a {
 }
 
 div#content-block-content {
-  padding-bottom: 100px;
+  padding-bottom: 10px;
 }
 
 .listview.panelback, .listview.panelback div {
     display: none;
 }
 
-/* Starting state of toggle icons; will be overwritten by js in page */
-#toggle-list {
-    .opacity(100);
-}
-
-#toggle-panel {
-    .opacity(20);
-}
 
 .nobold {
 	font-weight: normal;
+}
+
+div#libtools {    
+    margin-left: 15px;
+    margin-bottom: 1em;
+    border:1px solid @blue-grey;
+    border-radius: 10px;
+    padding: 10px;
+    
+    p {
+        margin-top: 0px;
+    }
+    div {
+        margin-top: 0px;
+        margin-left: 2em ;
+    }
+}
+
+#facet_block div {
+    background:url(@background-header) 100% -223px no-repeat;
+    padding: 7px 7px 15px 7px;
+    p {
+        padding: 0 10px 0 10px;
+        font-size: smaller;
+    }
+    
+    p:first-child {
+        font-size: larger;
+        margin-top: 5px;
+        img {
+            float:left;
+            padding-right:0.5em;
+        }
+    }
 }

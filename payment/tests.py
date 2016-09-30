@@ -157,7 +157,8 @@ def payAmazonSandbox(sel):
         #print "len(payment_confirm)", len(payment_confirm)
         #time.sleep(1)
         #payment_confirm[-1].click()
-        
+
+@unittest.skip("skipping PledgeTest (selenium)")
 class PledgeTest(TestCase):
     
     def setUp(self):
@@ -188,7 +189,8 @@ class PledgeTest(TestCase):
 
     def tearDown(self):
         self.selenium.quit()
-        
+
+@unittest.skip("skipping AuthorizeTest (selenium)")
 class AuthorizeTest(TestCase):
     
     def setUp(self):
@@ -262,6 +264,7 @@ class CreditTest(TestCase):
         self.assertEqual(self.user1.credit.balance, 0)
         self.assertEqual(self.user2.credit.balance, 50)
 
+@unittest.skip("skipping ExtraTest")
 class ExtraTest(TestCase):
     
     def testPledgeExtra(self):
@@ -275,6 +278,7 @@ class ExtraTest(TestCase):
     
        
 class TransactionTest(TestCase):
+    fixtures=['initial_data.json']
     def setUp(self):
         """
         """
@@ -353,31 +357,31 @@ class TransactionTest(TestCase):
         self.assertEqual(t.type, EXECUTE_TYPE_CHAINED_INSTANT)
         self.assertEqual(t.amount, D('12.34'))
 
-class BasicGuiTest(TestCase):
-    def setUp(self):
-        self.verificationErrors = []
-        # This is an empty array where we will store any verification errors
-        # we find in our tests
+# class BasicGuiTest(TestCase):
+#     def setUp(self):
+#         self.verificationErrors = []
+#         # This is an empty array where we will store any verification errors
+#         # we find in our tests
 
-        setup_selenium()
-        self.TEST_SERVER_URL = "http://ry-dev.dyndns.org"
-        self.selenium = webdriver.Firefox()
-        set_test_logging()
-    def testFrontPage(self):
-        sel = self.selenium
-        sel.get(self.TEST_SERVER_URL)
-        # if we click on the learn more, does the panel expand?
-        # click on a id=readon -- or the Learn More span
-        #sel.find_elements_by_css_selector('a#readon')[0].click()
-        #time.sleep(2.0)
-        # the learn more panel should be displayed
-        #self.assertTrue(sel.find_elements_by_css_selector('div#user-block-hide')[0].is_displayed())
-        # click on the panel again -- and panel should not be displayed
-        #sel.find_elements_by_css_selector('a#readon')[0].click()
-        #time.sleep(2.0)
-        #self.assertFalse(sel.find_elements_by_css_selector('div#user-block-hide')[0].is_displayed())
-    def tearDown(self):
-        self.selenium.quit()
+#         setup_selenium()
+#         self.TEST_SERVER_URL = "http://ry-dev.dyndns.org"
+#         self.selenium = webdriver.Firefox()
+#         set_test_logging()
+#     def testFrontPage(self):
+#         sel = self.selenium
+#         sel.get(self.TEST_SERVER_URL)
+#         # if we click on the learn more, does the panel expand?
+#         # click on a id=readon -- or the Learn More span
+#         #sel.find_elements_by_css_selector('a#readon')[0].click()
+#         #time.sleep(2.0)
+#         # the learn more panel should be displayed
+#         #self.assertTrue(sel.find_elements_by_css_selector('div#user-block-hide')[0].is_displayed())
+#         # click on the panel again -- and panel should not be displayed
+#         #sel.find_elements_by_css_selector('a#readon')[0].click()
+#         #time.sleep(2.0)
+#         #self.assertFalse(sel.find_elements_by_css_selector('div#user-block-hide')[0].is_displayed())
+#     def tearDown(self):
+#         self.selenium.quit()
 
 
 class AccountTest(TestCase):

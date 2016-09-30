@@ -1,28 +1,26 @@
 from django.conf import settings
-from django.conf.urls.defaults import *
+from django.conf.urls import patterns, url, include
 
-from regluit.payment.views import StripeView
+from regluit.payment import views
 
-urlpatterns = patterns(
-    "regluit.payment.views",
-    url(r"^handleipn/(?P<module>\w+)$", "handleIPN", name="HandleIPN"),
-)
+urlpatterns = [
+    url(r"^handleipn/(?P<module>\w+)$", views.handleIPN, name="HandleIPN"),
+]
 
 
 # this should be on only if DEBUG is on
 
 if settings.DEBUG:
-    urlpatterns += patterns(
-        "regluit.payment.views",
-        url(r"^testauthorize", "testAuthorize"),
-        url(r"^testexecute", "testExecute"),
-        url(r"^testcancel", "testCancel"),
-        url(r"^querycampaign", "queryCampaign"),
-        url(r"^checkstatus", "checkStatus"),
-        url(r"^testfinish", "testFinish"),
-        url(r"^testrefund", "testRefund"),
-        url(r"^testmodify", "testModify"),
-        url(r"^stripe/test", StripeView.as_view())
-    )
+    urlpatterns += [
+        url(r"^testauthorize", views.testAuthorize),
+        url(r"^testexecute", views.testExecute),
+        url(r"^testcancel", views.testCancel),
+        url(r"^querycampaign", views.queryCampaign),
+        url(r"^checkstatus", views.checkStatus),
+        url(r"^testfinish", views.testFinish),
+        url(r"^testrefund", views.testRefund),
+        url(r"^testmodify", views.testModify),
+        url(r"^stripe/test", views.StripeView.as_view())
+    ]
          
      

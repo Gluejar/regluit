@@ -18,8 +18,10 @@ import regluit.core.isbn
 
 from regluit.core import bookloader, models
 from regluit.utils.localdatetime import now
+from regluit.api import models as apimodels
 
 class ApiTests(TestCase):
+    fixtures = ['initial_data.json']
     work_id=None
     
     def setUp(self):
@@ -34,6 +36,13 @@ class ApiTests(TestCase):
         )
         self.user = User.objects.create_user('test', 'test@example.org', 'testpass')
         self.client = Client()
+        ebook = models.Ebook.objects.create(
+            url="http://example.com/ebook",
+            provider="github", 
+            rights='CC BY',
+            format='epub',
+            edition=edition,
+        )
 
     def test_user(self):
         self.assertEqual(User.objects.all().count(), 1)
@@ -119,7 +128,115 @@ class ApiTests(TestCase):
         self.assertEqual(j['meta']['logged_in_username'], 'test')
         self.assertEqual(j['objects'][0]['in_wishlist'], True)
 
+        r = self.client.get('/api/v1/free/', data={
+            'format': 'json', 
+            'isbn': '0441007465', 
+            'username': self.user.username, 
+            'api_key': self.user.api_key.key
+        })
+        j = json.loads(r.content)
+        self.assertEqual(j['objects'][0]['filetype'], 'epub')
+        r = self.client.get('/api/v1/free/', data={
+            'format': 'xml', 
+            'isbn': '0441007465', 
+            'username': self.user.username, 
+            'api_key': self.user.api_key.key
+        })
+        self.assertTrue(r.content.find('<rights>CC BY</rights>')>0)
+
     def test_widget(self):
         r = self.client.get('/api/widget/0441007465/')
         self.assertEqual(r.status_code, 200)
+        r = self.client.get('/api/widget/%s/'%self.work_id)
+        self.assertEqual(r.status_code, 200)
 
+class FeedTests(TestCase):
+    fixtures = ['initial_data.json']
+    def setUp(self):
+        edition = bookloader.add_by_isbn_from_google(isbn='0441007465')
+        ebook = models.Ebook.objects.create(edition=edition, url='http://example.org/', format='epub', rights='CC BY')
+        self.test_work_id = edition.work.id
+
+    def test_opds(self):
+        r = self.client.get('/api/opds/creative_commons/')
+        self.assertEqual(r.status_code, 200)
+        r = self.client.get('/api/opds/epub/?order_by=featured')
+        self.assertEqual(r.status_code, 200)
+        r = self.client.get('/api/opds/by/pdf/?order_by=popular')
+        self.assertEqual(r.status_code, 200)
+        r = self.client.get('/api/opds/active_campaigns/?order_by=title')
+        self.assertEqual(r.status_code, 200)
+        r = self.client.get('/api/opds/?work=%s' % self.test_work_id)
+        self.assertEqual(r.status_code, 200)
+
+    def test_nix(self):
+        r = self.client.get('/api/onix/by/')
+        self.assertEqual(r.status_code, 200)
+        r = self.client.get('/api/onix/cc0/')
+        self.assertEqual(r.status_code, 200)
+        r = self.client.get('/api/onix/epub/?max=10')
+        self.assertEqual(r.status_code, 200)
+        r = self.client.get('/api/onix/?work=%s' % self.test_work_id)
+        self.assertEqual(r.status_code, 200)
+
+class AllowedRepoTests(TestCase):
+    def setUp(self):
+        apimodels.AllowedRepo.objects.create(org='test',repo_name='test')
+        apimodels.AllowedRepo.objects.create(org='star',repo_name='*')
+
+    def test_urls(self):
+        #good
+        self.assertTrue(apimodels.repo_allowed('https://github.com/test/test/raw/master/metadata.yaml')[0])
+        self.assertTrue(apimodels.repo_allowed('https://github.com/star/test/raw/master/metadata.yaml')[0])
+        # bad urls
+        self.assertFalse(apimodels.repo_allowed('auhf8peargp8ge')[0])
+        self.assertFalse(apimodels.repo_allowed('')[0])
+        self.assertFalse(apimodels.repo_allowed('http://github.com/test/test/raw/master/metadata.yaml')[0])
+        self.assertFalse(apimodels.repo_allowed('https://github.com/test/test/raw/master/samples/metadata.yaml')[0])
+        self.assertFalse(apimodels.repo_allowed('https://github.com/test/test/raw/branch/metadata.yaml')[0])
+        self.assertFalse(apimodels.repo_allowed('https://github.com/test/test/master/metadata.yaml')[0])
+        self.assertFalse(apimodels.repo_allowed('https://github.com/test/test/raw/master/metadata.json')[0])
+
+class WebHookTests(TestCase):
+    fixtures = ['initial_data.json']
+    def test_travisci_webhook(self):
+        """
+        test of api.views.travisci_webhook
+        """
+
+        payload = json.dumps({
+          "repository":{  
+              "id":4651401,
+              "name":"Adventures-of-Huckleberry-Finn_76",
+              "owner_name":"GITenberg",
+              "url":"http://GITenberg.github.com/"
+           },
+          "status_message": "Passed",
+          "type": "push"
+        })
+        
+        invalid_payload = json.dumps({
+          "repository":{  
+              "id":4651401,
+              "name":"",
+              "url":"http://GITenberg.github.com/"
+           },
+          "status_message": "Passed",
+          "type": "push"
+        })
+
+        url = "/api/travisci/webhook"
+
+        # 200 if a simple get
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+        
+        # 200 when we actually load a valid repo (should we use 201?)
+        r = self.client.post(url, data={'payload':payload}, headers={}, allow_redirects=True)
+        self.assertEqual(r.status_code, 200)
+        
+        # 400 error if we get exception when trying to load a book
+        r = self.client.post(url, data={'payload':invalid_payload}, headers={}, allow_redirects=True)
+        self.assertEqual(r.status_code, 400)
+        
+        

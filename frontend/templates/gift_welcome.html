@@ -1,0 +1,36 @@
+{% extends 'registration/registration_base.html' %}
+
+
+{% block title %}Welcome to Unglue.It{% endblock %}
+{% block doccontent %}
+<p> Your new book, "<a href="{% url 'work' work.id %}">{{ work.title }}</a>" from <a href="{% url 'supporter' gift.giver %}">{{ gift.giver.username }}</a>, is waiting for you. <a href="{% url 'download' work.id %}">Download it here</a>.</p>
+
+    <div><p>From {{ gift.giver.username }}:</p>
+    <p style="margin:1em">{{ gift.message|linebreaksbr }}</p>
+    </div>
+{% ifequal message 'newuser' %}
+    {% if passmessage %}
+    <p> Thanks for setting your password and username. Your new book is on your <a href="{% url 'supporter' request.user %}">favorites list</a> for you.</p>
+    {% else %}    
+    <p> If you want download your ebook later, you need to set a password, and you may want to pick your own username. We've put it on your <a href="{% url 'supporter' request.user %}">favorites list</a> for you.</p>
+    {% endif %}
+    {% if form %}
+    <div>
+    <form method="POST" action="#">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" name="change_username" value="Change username/Set password" id="submit_username">
+    </form>
+    </div>
+    {% endif %}
+{% endifequal %}
+{% ifequal message 'existing' %}
+<p> Your new book has been put on your <a href="{% url 'supporter' request.user %}">favorites list</a> for you.</p>
+{% endifequal %}
+<br />
+<div class="welcomealternatives">
+Or you can <a href="{% url 'edit_user' %}">change your username</a> &#151; <a href="{% url 'free' %}">browse free books</a>   &#151; <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">send us feedback</a> &#151; <a href="{% url 'notification_notice_settings' %}">manage your contact preferences</a>
+</div>
+{% endblock %}
+
+

@@ -1,6 +1,6 @@
 {% load humanize %}
 {% if request.user.profile.account %}
-    <div id="authorize" {% if nonprofit.is_on %}class="off clearfix"{% else %}class="clearfix"{% endif %}>
+    <div id="authorize" class="clearfix">
         <h3>{{ action|capfirst  }} by Credit Card</h3>
         <p>Unglue.it has a {{ request.user.profile.account.card_type }} credit card on file for you (we use <a href="https://stripe.com/">Stripe</a> to keep your information secure).
         The last four digits of the card are {{ request.user.profile.account.card_last4 }}. 
@@ -15,10 +15,10 @@
         </form>
     </div>
     <br />
-    <p>Want to use a different card?  You can change your credit card info on your <a href="{% url manage_account %}?next={{ request.get_full_path|urlencode }}#your_payment_info">Account &amp; Pledges page</a>.
+    <p>Want to use a different card?  You can change your credit card info on your <a href="{% url 'manage_account' %}?next={{ request.get_full_path|urlencode }}#your_payment_info">Account &amp; Pledges page</a>.
     </p>
 {% else %}
-    <div id="authorize" {% if nonprofit.is_on %}class="off clearfix"{% else %}class="clearfix"{% endif %}>
+    <div id="authorize" class="clearfix">
         <h3>{{ action|capfirst }} by Credit Card</h3>
         <p>Unglue.it uses <a href="https://stripe.com/">Stripe</a> to securely manage your credit card information.
         </p>

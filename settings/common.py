@@ -1,4 +1,6 @@
 import datetime
+import mimetypes
+import sys
 from os.path import dirname, realpath, join
 
 import regluit
@@ -7,7 +9,12 @@ from regluit.payment.parameters import PAYMENT_HOST_PAYPAL, PAYMENT_HOST_AMAZON
 PROJECT_DIR = dirname(dirname(realpath(__file__)))
 
 LANGUAGE_CODE = 'en-us'
+LANGUAGES = (
+    ('en', 'English'),
+)
 LOCAL_TEST = False
+TESTING = sys.argv[1:2] == ['test'] # detect if we're running tests (used to turn off a repair migration)
+ALLOWED_HOSTS = ['.unglue.it', '.unglueit.com',]
 
 WISHED_LANGS = ('en','fr','es','de','el','pt','it','ru','cs','ja','zh','nl','ut','ar','la','id','ca','fa','sv','sl','ko','tr')
 
@@ -30,6 +37,10 @@ MEDIA_ROOT = ''
 # Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
 MEDIA_URL = '/media/'
 
+# set once instead of in all the templates
+JQUERY_HOME = "/static/js/jquery-1.7.1.min.js"
+JQUERY_UI_HOME = "/static/js/jquery-ui-1.8.16.custom.min.js"
+
 CKEDITOR_UPLOAD_PATH = ''
 CKEDITOR_RESTRICT_BY_USER = True
 CKEDITOR_CONFIGS = {
@@ -37,12 +48,14 @@ CKEDITOR_CONFIGS = {
         'width': 700,
         'toolbar': [
             ['Cut','Copy','Paste', 'PasteFromWord', '-', 'Undo', 'Redo', '-', 'Source'],
-            ['Bold', 'Italic', '-', 'NumberedList','BulletedList', '-','Blockquote'],
+            ['Bold', 'Italic', 'RemoveFormat', '-', 'NumberedList','BulletedList', '-','Blockquote'],
             ['Find','Replace','-', 'Scayt'],
-            ['Link', 'Unlink', '-', 'Image', 'HorizontalRule']
+            ['Link', 'Unlink', '-', 'Image','HorizontalRule']
          ],
+         'disallowedContent': '*[style]{font*} script style *[on*]{*}',
     },
 }
+CKEDITOR_JQUERY_URL=JQUERY_HOME
 
 # Absolute path to the directory static files should be collected to.
 # Don't put anything in this directory yourself; store your static files
@@ -65,6 +78,8 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    join(PROJECT_DIR,'questionnaire/static/'),
+
 )
 
 # List of finder classes that know how to find static files in
@@ -72,30 +87,40 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-#    'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'a+bo0@3$n18e(newe7og6hmq$r#bkib73z(+s*n25%6q3+22jo'
+SECRET_KEY = u'a+bo0@3$n18e(newe7og6hmq$r#bkib73z(+s*n25%6q3+22jo'
 
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-#     'django.template.loaders.eggs.Loader',
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [join(PROJECT_DIR, "frontend", "templates"),
+                 join(PROJECT_DIR, "frontend", "templates", "registration"),
+                 join(PROJECT_DIR, "frontend", "questionnaire"),
+                 ],
+        'OPTIONS':{
+            'context_processors':[
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.request',
+                'regluit.context_processors.is_preview',
+                'regluit.context_processors.count_unseen',
+                ],
+            'loaders':[
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+                ],
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.core.context_processors.debug',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.media',
-    'django.core.context_processors.static',
-    'django.contrib.messages.context_processors.messages',
-    'django.core.context_processors.request',
-    'regluit.context_processors.is_preview',
-    'regluit.context_processors.count_unseen',
-)
+        }
+    },
+]
+
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
@@ -104,18 +129,12 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'maintenancemode.middleware.MaintenanceModeMiddleware',
-    'social_auth.middleware.SocialAuthExceptionMiddleware',
+    'regluit.libraryauth.auth.SocialAuthExceptionMiddlewareWithoutMessages',
+    'django.middleware.locale.LocaleMiddleware',
+    'regluit.questionnaire.request_cache.RequestCacheMiddleware',
 )
 
 ROOT_URLCONF = 'regluit.urls'
-
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    join(PROJECT_DIR, "frontend", "templates"),
-    join(PROJECT_DIR, "frontend", "templates", "registration"),
-)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -125,33 +144,39 @@ INSTALLED_APPS = (
     'django.contrib.sitemaps',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.comments',
+    'django_comments',
     'django.contrib.humanize',
-    'south',
     'django_extensions',
     'regluit.frontend',
     'regluit.api',
+    'regluit.bisac',
     'regluit.core',
+    'regluit.marc',
     'regluit.payment',
     'regluit.utils',
     'registration',
-    'social_auth',
+    'social.apps.django_app.default',
     'tastypie',
     'djcelery',
     'endless_pagination',
     'selectable',
     'regluit.frontend.templatetags',
-    'regluit.payment.templatetags',
     'notification',
     'email_change',
     'ckeditor',
-    'storages',    
+    'storages', 
+    'sorl.thumbnail',
+    'mptt',   
     # this must appear *after* django.frontend or else it overrides the 
     # registration templates in frontend/templates/registration
     'django.contrib.admin',
+    'regluit.distro',               
     'regluit.booxtream',
     'regluit.pyepub',
-    'regluit.libraryauth',                    
+    'regluit.libraryauth', 
+    'transmeta',
+    'regluit.questionnaire',
+    'regluit.questionnaire.page',  
 )
 
 # A sample logging configuration. The only tangible logging
@@ -167,9 +192,15 @@ LOGGING = {
             'format': '%(asctime)s %(levelname)s %(name)s[%(funcName)s]: %(message)s',
         },
     },
+    'filters': {
+         'require_debug_false': {
+             '()': 'django.utils.log.RequireDebugFalse'
+         }
+     },
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
+            'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
         'file': {
@@ -204,14 +235,11 @@ SESSION_COOKIE_AGE = 3628800 # 6 weeks
 
 # django-socialauth
 AUTHENTICATION_BACKENDS = (
-    'social_auth.backends.twitter.TwitterBackend',
-    'social_auth.backends.facebook.FacebookBackend',
-    'social_auth.backends.google.GoogleOAuthBackend',
-    'social_auth.backends.google.GoogleOAuth2Backend',
-    'social_auth.backends.google.GoogleBackend',
-    'social_auth.backends.yahoo.YahooBackend',
-    'social_auth.backends.contrib.linkedin.LinkedinBackend',
-    'social_auth.backends.OpenIDBackend',
+    'social.backends.google.GoogleOAuth2',
+    'social.backends.twitter.TwitterOAuth',
+    'social.backends.yahoo.YahooOpenId',
+    'social.backends.facebook.FacebookOAuth2',
+    'social.backends.open_id.OpenIdAuth',
     'django.contrib.auth.backends.ModelBackend',
 )
 
@@ -220,24 +248,62 @@ SOCIAL_AUTH_ENABLED_BACKENDS = ['google', 'facebook', 'twitter']
 SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/'
 FACEBOOK_SOCIAL_AUTH_BACKEND_ERROR_URL = '/'
 SOCIAL_AUTH_SLUGIFY_USERNAMES = True
-# following is needed because of length limitations in a unique constrain for MySQL
-# see https://github.com/omab/django-social-auth/issues/539
-SOCIAL_AUTH_UID_LENGTH = 222
 SOCIAL_AUTH_NONCE_SERVER_URL_LENGTH = 200
 SOCIAL_AUTH_ASSOCIATION_SERVER_URL_LENGTH = 135
 SOCIAL_AUTH_ASSOCIATION_HANDLE_LENGTH = 125
 
 SOCIAL_AUTH_PIPELINE = (
-    'regluit.core.auth.selectively_associate',
-    'social_auth.backends.pipeline.associate.associate_by_email',
-    'social_auth.backends.pipeline.user.get_username',
-    'social_auth.backends.pipeline.user.create_user',
-    'social_auth.backends.pipeline.social.associate_user',
-    'regluit.core.auth.deliver_extra_data',
-    'social_auth.backends.pipeline.user.update_user_details'
+    # Get the information we can about the user and return it in a simple
+    # format to create the user instance later. On some cases the details are
+    # already part of the auth response from the provider, but sometimes this
+    # could hit a provider API.
+    'social.pipeline.social_auth.social_details',
+
+    # Get the social uid from whichever service we're authing thru. The uid is
+    # the unique identifier of the given user in the provider.
+    'social.pipeline.social_auth.social_uid',
+
+    # Verifies that the current auth process is valid within the current
+    # project, this is were emails and domains whitelists are applied (if
+    # defined).
+    'social.pipeline.social_auth.auth_allowed',
+
+    # Checks if the current social-account is already associated in the site.
+    'regluit.libraryauth.auth.selective_social_user',
+
+    # Make up a username for this person, appends a random string at the end if
+    # there's any collision.
+    'social.pipeline.user.get_username',
+    
+    # make username < 222 in length
+    'regluit.libraryauth.auth.chop_username',
+    
+    # Send a validation email to the user to verify its email address.
+    # Disabled by default.
+    # 'social.pipeline.mail.mail_validation',
+    
+    # Associates the current social details with another user account with
+    # a similar email address. don't use twitter or facebook to log in
+    'regluit.libraryauth.auth.selectively_associate_by_email',
+
+    # Create a user account if we haven't found one yet.
+    'social.pipeline.user.create_user',
+
+    # Create the record that associated the social account with this user.
+    'social.pipeline.social_auth.associate_user',
+    
+    # Populate the extra_data field in the social record with the values
+    # specified by settings (and the default ones like access_token, etc).
+    'social.pipeline.social_auth.load_extra_data',
+
+    # add extra data to user profile
+    'regluit.libraryauth.auth.deliver_extra_data',
+
+    # Update the user record with any changed info from the auth service.
+    'social.pipeline.user.user_details'
 )
 
-TWITTER_EXTRA_DATA = [('profile_image_url_https', 'profile_image_url_https'),('screen_name','screen_name')]
+SOCIAL_AUTH_TWITTER_EXTRA_DATA = [('profile_image_url_https', 'profile_image_url_https'),('screen_name','screen_name')]
 
 LOGIN_URL = "/accounts/superlogin/"
 LOGIN_REDIRECT_URL = "/"
@@ -246,17 +312,13 @@ LOGIN_ERROR_URL    = '/accounts/login-error/'
 
 USER_AGENT = "unglue.it.bot v0.0.1 <https://unglue.it>"
 
-SOUTH_TESTS_MIGRATE = True
-
-AUTH_PROFILE_MODULE = "core.UserProfile"
-
 # The amount of the transaction that Gluejar takes 
 GLUEJAR_COMMISSION = 0.06
 PREAPPROVAL_PERIOD = 365 # days to ask for in a preapproval
 PREAPPROVAL_PERIOD_AFTER_CAMPAIGN = 90 # if we ask for preapproval time after a campaign deadline
 
 # How many days we will try to collect on failed transactions until they are written off
-RECHARGE_WINDOW = 7
+RECHARGE_WINDOW = 14
 
 GOODREADS_API_KEY = ""
 GOODREADS_API_SECRET = ""
@@ -273,12 +335,8 @@ TEST_RUNNER = "djcelery.contrib.test_runner.CeleryTestSuiteRunner"
 import djcelery
 djcelery.setup_loader()
 
-# set once instead of in all the templates
-JQUERY_HOME = "/static/js/jquery-1.7.1.min.js"
-JQUERY_UI_HOME = "/static/js/jquery-ui-1.8.16.custom.min.js"
-
 # Mailchimp archive JavaScript URL
-CAMPAIGN_ARCHIVE_JS = "http://us2.campaign-archive1.com/generate-js/?u=15472878790f9faa11317e085&fid=28161&show=5"
+CAMPAIGN_ARCHIVE_JS = "http://us2.campaign-archive1.com/generate-js/?u=15472878790f9faa11317e085&fid=28161&show=10"
 
 # periodic tasks for celery
 # start out with nothing scheduled
@@ -296,12 +354,6 @@ UPDATE_ACTIVE_CAMPAIGN_STATUSES = {
     "task": "regluit.core.tasks.update_active_campaign_status",
     "schedule": crontab(hour=0, minute=1),
     "args": ()
-}
-
-EMIT_NOTIFICATIONS_JOB = {
-    "task": "regluit.core.tasks.emit_notifications",
-    "schedule": datetime.timedelta(seconds=60),
-    "args": ()    
 }
 
 EBOOK_NOTIFICATIONS_JOB = {
@@ -334,6 +386,12 @@ NOTIFY_EXPIRING_ACCOUNTS = {
     "args": ()    
 }
 
+NOTIFY_UNCLAIMED_GIFTS = {
+    "task": "regluit.core.tasks.notify_unclaimed_gifts",
+    "schedule": crontab( hour=2, minute=15),
+    "args": ()    
+}
+
 # by default, in common, we don't turn any of the celerybeat jobs on -- turn them on in the local settings file
 
 # set notification queueing on
@@ -350,10 +408,6 @@ MAINTENANCE_MODE = False
 # Sequence of URL path regexes to exclude from the maintenance mode.
 MAINTENANCE_IGNORE_URLS = {}
 
-class NONPROFIT:
-    is_on = False
-    name = 'Library Renewal'
-    link = 'http://127.0.0.1:8000/donate_to_campaign/'
     
 # we should suppress Google Analytics outside of production
 SHOW_GOOGLE_ANALYTICS = False
@@ -376,6 +430,8 @@ FORMATS = (
     ('text','TEXT'),
     ('mobi','MOBI'),
 )
+
+# used by MARC. maybe should use python's mimetypes
 CONTENT_TYPES = {
     'pdf': 'application/pdf',
     'epub': 'application/epub+zip',
@@ -384,7 +440,9 @@ CONTENT_TYPES = {
     'mobi': 'application/x-mobipocket-ebook'
 }
 
-# if you add more of these, make sure core/ungluify_record.py can deal
+mimetypes.init(["{}/deploy/mime.types".format(PROJECT_DIR)])
+
+# if you add more of these, make sure core/marc.py can deal
 MARC_CHOICES = (
     ('DIRECT', 'Raw link'),
     ('UNGLUE', 'Unglue.it link'),
@@ -398,7 +456,23 @@ MARC_PREF_OPTIONS =(
 BOOXTREAM_API_KEY = '7ynRCsx4q21zEY67it7yk8u5rc6EXY'
 BOOXTREAM_API_USER = 'ungluetest'
 BOOXTREAM_TEST_EPUB_URL = 'https://github.com/Gluejar/open_access_ebooks_ebook/raw/master/download/open_access_ebooks.epub'
+TEST_PDF_URL = "https://github.com/Gluejar/flatland/raw/master/downloads/Flatland.pdf"
 FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520 #20MB
 
 DROPBOX_KEY = '4efhwty5aph52bd'   #for unglue.it, just.unglue.it
 #DROPBOX_KEY = '6uefhocpvp0s1ep'  #for localhost
+
+# for reading GITenberg releases
+# generated from rdhyee account
+GITHUB_PUBLIC_TOKEN = 'f702409f913d7f9046f93c677710f829e2b599c9'
+
+MOBIGEN_URL = "https://docker.gluejar.com:5001/mobigen"
+MOBIGEN_USER_ID = "admin"
+MOBIGEN_PASSWORD = "CXq5FSEQFgXtP_s"
+
+QUESTIONNAIRE_USE_SESSION = False
+QUESTIONNAIRE_DEBUG = True
+
+# Selenium related -- set if Se tests run
+FIREFOX_PATH = ''
+CHROMEDRIVER_PATH = ''

@@ -1,4 +1,5 @@
 var $j = jQuery.noConflict();
+var csrftoken = $j.cookie('csrftoken');
 
 $j().ready(function() {
 	// only do the lookup once, then cache it
@@ -8,6 +9,7 @@ $j().ready(function() {
         var span = $j(this).find("span");
         var id_val = span.attr('id').substring(1);
         var id_type = span.attr('class');
+        
         if (!id_val) {span.html('<i>an error occurred.</i>'); return;}
 
         // give immediate feedback that action is in progress
@@ -22,13 +24,19 @@ $j().ready(function() {
             jQuery.post('/wishlist/', { 'googlebooks_id': id_val}, function(data) {
         	span.html('Faved!').addClass('on-wishlist');
         });}
+        else if (id_type=='kw_id'){
+            var setkw = span.attr('data-kw');
+            jQuery.post('/wishlist/', {  'add_work_id': id_val, 'setkw' : setkw}, function(data) {
+        	span.html(setkw + ' set!');
+        	span.parent().removeClass("add-wishlist").addClass('remove-wishlist');
+        });}
         else {
             span.html('a type error occurred');
         }
         
         // prevent perversities on download page
-        if ($j(this).is("a")) {
-        	$j(this).removeClass("add-wishlist").addClass("success");
+        if ($j(this).is('a')) {
+        	$j(this).removeClass('add-wishlist').addClass('success');
         }
     });
     
@@ -36,10 +44,20 @@ $j().ready(function() {
         var span = $j(this).find("span");
         var book = $j(this).closest('.thewholebook');
         var work_id = span.attr('id').substring(1)
+        var id_type = span.attr('class');
         span.html('Removing...');
-        jQuery.post('/wishlist/', {'remove_work_id': work_id}, function(data) {
-            book.fadeOut();
-        });
+        if (id_type=='kw_id'){
+            var setkw = span.attr('data-kw');
+            jQuery.post('/wishlist/', {'remove_work_id': work_id, 'setkw' : setkw}, function(data) {
+                span.html(setkw + ' unset');
+                span.parent().addClass('add-wishlist').removeClass('remove-wishlist')
+            })
+        }
+        else {
+            jQuery.post('/wishlist/', {'remove_work_id': work_id}, function(data) {
+                book.fadeOut();
+            });
+        }
     });
 
     contentblock.on("click", "div.create-account", function () {
@@ -64,11 +82,40 @@ $j().ready(function() {
         jQuery.post('/wishlist/', {'remove_work_id': work_id}, function(data) {
         	var parent = span.parent();
             parent.fadeOut();
-            var newDiv = $j('<div class="add-wishlist-workpage"><span class="'+work_id+'">Add to Wishlist</span></div>').hide();
+            var newDiv = $j('<div class="add-wishlist-workpage"><span class="'+work_id+'">Add to Faves</span></div>').hide();
             parent.replaceWith(newDiv);
             newDiv.fadeIn('slow');
         });
     });
+    
+    contentblock.on("click", "span.deletebutton", function () {
+        var kw = $j(this).attr('data');
+        var li = $j(this).parent();
+        // perform action
+        jQuery.post($j(location).attr('pathname') + 'kw/', {'remove_kw': kw, 'csrfmiddlewaretoken': csrftoken}, function(data) {
+        	li.html('kw removed');
+        });
+    });
+// this is the id of the submit button
+
+$j('#kw_add_form_submit').click(function() {
+    var url = 'kw/'; 
+    $j.ajax({
+           type: 'POST',
+           url: url,
+           data: $j('#kw_add_form').serialize(), 
+           success: function(data)
+           {
+               if (data == 'xxbadform'){alert("bad keyword");} else {
+                    $j('#kw_list').append('<li>' + data + '<span class="deletebutton" data="' + data +'">x</span></li>')
+               }; // data will be the added kw.
+           }
+         });
+
+    return false; // avoid to execute the actual submit of the form.
+});
+
+    
 });
 
 var $k = jQuery.noConflict();
@@ -86,3 +133,5 @@ $k(document).on("click", ".add-wishlist-workpage span", function() {
 		newSpan.removeAttr("id");
 	});
 });
+
+//handle kw adding

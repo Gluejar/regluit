@@ -1,0 +1,18 @@
+{% extends "base-questionnaire.html" %}
+{% block questionnaire %}
+
+<h2>
+    Thanks for completing the survey!  
+</h2>
+<div class="question-text">
+{{ landing_object.claim.all.0.rights_holder }}
+
+
+{% if request.COOKIES.next %}
+<p>redirecting in 5 seconds...</p>
+<script type="text/JavaScript">
+setTimeout(function(){location.replace('/next/');}, 5000);
+</script>
+{% endif %}
+</div>
+{% endblock %}

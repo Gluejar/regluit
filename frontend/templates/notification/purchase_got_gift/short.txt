@@ -1,0 +1,1 @@
+The gift you sent to {{ gift.to }} has been redeemed.

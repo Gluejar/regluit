@@ -1,0 +1,20 @@
+{% load i18n %}
+<div class="clearfix">
+    <div class="input">
+        <ul class="inputs-list list-unstyled">
+        {% for sel, choice in qdict.choices %}
+            <li>
+                <label>
+                    <input type="radio" id="{{ question.number }}_{{ forloop.counter }}" name="question_{{ question.number }}" onClick="valchanged('{{ question.number }}', this.value)" value="{{ choice.value }}"{% if sel %} checked {% endif %}>
+                    <span>{{ choice.text }}</span>
+                </label>
+            </li>
+        {% endfor %}
+        {% if question.extra %}
+            <li>
+                <span class="help-block">{{ question.extra }}</span>
+            </li>
+        {% endif %}
+        </ul>
+    </div>
+</div>

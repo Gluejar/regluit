@@ -7,7 +7,7 @@
 	<p>Love something? Hate something? Found something broken or confusing?  Thanks for telling us!</p>
 
 	To: support@gluejar.com<br /><br />
-    <form method="POST" action="/feedback/">
+    <form method="POST" action="{% url 'feedback' %}">
         {% csrf_token %}
 		{{ form.sender.errors }}
 		{{ form.sender.label_tag }}<br />
@@ -28,4 +28,6 @@
 		{{ form.page }}
        <input type="submit" value="Submit" />    
     </form>
+    
+    <p>If for some reason this form doesn't work, you can send email to unglue.it support at <a href="mailto:support@gluejar.com">support@gluejar.com</a>.</p>
 {% endblock %}

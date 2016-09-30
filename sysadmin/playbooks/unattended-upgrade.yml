@@ -1,0 +1,19 @@
+- name: unattended-upgrade
+  # by default, run only just
+  hosts: '{{target | default("just")}}'
+  sudo: yes
+
+  tasks:
+
+    - name: update apt-get
+      apt: update_cache=yes
+      
+    - name: apply upgrade
+      command: sudo unattended-upgrade
+   
+    - name: check whether reboot needed 
+      stat: path=/var/run/reboot-required
+      register: reboot_required 
+
+    - debug: var=reboot_required.stat.exists 
+

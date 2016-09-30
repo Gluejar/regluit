@@ -1,11 +1,12 @@
-{% extends "notification/notice_template.html" %}
+{% extends 'notification/notice_template.html' %}
+
 
 {% block comments_book %}
-	<a href="{% url work campaign.work.id %}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ campaign.work.title }}" /></a>
+	<a href="{% url 'work' campaign.work.id %}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ campaign.work.title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}
-The campaign to unglue <a href="{% url work campaign.work.id %}">{{ campaign.work.title }}</a> has succeeded!
+The campaign to unglue <a href="{% url 'work' campaign.work.id %}">{{ campaign.work.title }}</a> has succeeded!
 {% endblock %}
 
 {% block comments_textual %}

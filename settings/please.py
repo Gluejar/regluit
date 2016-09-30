@@ -1,7 +1,8 @@
 from regluit.settings.common import *
 
+ALLOWED_HOSTS = ['.unglue.it']
 DEBUG = False
-TEMPLATE_DEBUG = DEBUG
+TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
 
 SITE_ID = 2
 
@@ -15,16 +16,18 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'please',
-        'USER': 'root',
-        'PASSWORD': 'forgetn0t',
-        'HOST': 'pleasedb.cboagmr25pjs.us-east-1.rds.amazonaws.com',
+        'NAME': 'regluit',
+        'USER': 'regluit',
+        'PASSWORD': 'regluit',
+        'HOST': '',
         'PORT': '',
+        'TEST_CHARSET': 'utf8',
     }
 }
 
+
 TIME_ZONE = 'America/New_York'
-SECRET_KEY = '_^_off!8zsj4+)%qq623m&$7_m-q$iau5le0w!mw&n5tgt#x=t'
+SECRET_KEY = u'_^_off!8zsj4+)%qq623m&$7_m-q$iau5le0w!mw&n5tgt#x=t'
 
 # settings for outbout email
 # if you have a gmail account you can use your email address and password
@@ -40,39 +43,17 @@ DEFAULT_FROM_EMAIL = 'accounts@gluejar.com'
 GOOGLE_BOOKS_API_KEY = 'AIzaSyBE36z7o6NUafIWcLEB8yk2I47-8_5y1_0'
 
 # twitter auth
-TWITTER_CONSUMER_KEY = 'sd9StEg1N1qB8gGb2GRX4A'
-TWITTER_CONSUMER_SECRET = 'YSKHn8Du6EWqpcWZ6sp5tqDPvcOBXK0WJWVGWyB0'
+SOCIAL_AUTH_TWITTER_KEY = 'sd9StEg1N1qB8gGb2GRX4A'
+SOCIAL_AUTH_TWITTER_SECRET = 'YSKHn8Du6EWqpcWZ6sp5tqDPvcOBXK0WJWVGWyB0'
 
 # facebook auth
-FACEBOOK_APP_ID = '242881179080779'
-FACEBOOK_API_SECRET = '5eae483a0e92113d884c427b578ef23a'
+SOCIAL_AUTH_FACEBOOK_KEY = '242881179080779'
+SOCIAL_AUTH_FACEBOOK_SECRET = '5eae483a0e92113d884c427b578ef23a'
 
-# google auth
-GOOGLE_OAUTH2_CLIENT_ID = '989608723367.apps.googleusercontent.com'
-GOOGLE_OAUTH2_CLIENT_SECRET = '3UqalKyNynnaaarumUIWh8vS'
-GOOGLE_DISPLAY_NAME = 'unglue it!'
-
-# credentials from a sandbox account that Raymond set up.
-PAYPAL_USERNAME = 'glueja_1317336101_biz_api1.gluejar.com'
-PAYPAL_PASSWORD =  '1317336137'
-PAYPAL_SIGNATURE = 'AHVb0D1mzGD6zdX4XtKZbH.Kd6OhALVyiJVbNReOZEfyz79AoEnQJWTR'
-PAYPAL_APPID = 'APP-80W284485P519543T'  # sandbox app id -- will have to replace with production id
-
-PAYPAL_ENDPOINT = 'svcs.sandbox.paypal.com' # sandbox
-PAYPAL_PAYMENT_HOST = 'https://www.sandbox.paypal.com' # sandbox
-
-PAYPAL_SANDBOX_LOGIN = ''
-PAYPAL_SANDBOX_PASSWORD = ''
-
-PAYPAL_BUYER_LOGIN =''
-PAYPAL_BUYER_PASSWORD = ''
-
-# in live system, replace with the real Gluejar paypal email and that for our non-profit partner
-PAYPAL_GLUEJAR_EMAIL = "glueja_1317336101_biz@gluejar.com"
-PAYPAL_NONPROFIT_PARTNER_EMAIL = "nppart_1318957063_per@gluejar.com"
-
-# for test purposes have a single RH paypal email
-PAYPAL_TEST_RH_EMAIL = "rh1_1317336251_biz@gluejar.com"
+# get these (as oauth2 client ID and Secret from 
+# https://console.developers.google.com/project/569579163337/apiui/credential?authuser=1
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '569579163337-8rnhtn7pvbragmcj0l3slsmgfs86t69i.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'zueklvlUNGgkxuAWTl-93q1z'
 
 # Goodreads API
 GOODREADS_API_KEY = "vfqIO6QAhBVvlxt6hAzZJg"
@@ -85,9 +66,8 @@ FREEBASE_PASSWORD = ''
 # send celery log to Python logging
 CELERYD_HIJACK_ROOT_LOGGER = False
 
-# BASE_URL is a hard-coding of the domain name for site and used for PayPal IPN
 # Next step to try https
-BASE_URL = 'http://please.unglueit.com'
+#BASE_URL = 'http://please.unglueit.com'
 BASE_URL_SECURE = 'https://please.unglueit.com'
 IPN_SECURE_URL = False
 
@@ -100,10 +80,27 @@ BROKER_VHOST = "0"
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
+    'formatters': {
+        'brief': {
+            'format': '%(asctime)s %(levelname)s %(name)s[%(funcName)s]: %(message)s',
+        },
+    },
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler'
+        },
+        'null': {
+            'level': 'DEBUG',
+            'class': 'logging.NullHandler',
+        },
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': join('/var/log/regluit', 'unglue.it.log'),
+            'maxBytes': 1024*1024*5, # 5 MB
+            'backupCount': 5,
+            'formatter': 'brief',
         },
     },
     'loggers': {
@@ -111,6 +108,15 @@ LOGGING = {
             'handlers': ['mail_admins'],
             'level': 'ERROR',
             'propagate': True,
+        },
+        'django.security.DisallowedHost': {
+            'handlers': ['null'],
+            'propagate': False,
+        },
+        '': {
+            'handlers': ['file'],
+            'level': 'WARNING',
+            'propagate': False,
         },
     }
 }
@@ -124,18 +130,20 @@ IS_PREVIEW = False
 #CELERYBEAT_SCHEDULE['send_test_email'] = SEND_TEST_EMAIL_JOB
 CELERYBEAT_SCHEDULE['report_new_ebooks'] = EBOOK_NOTIFICATIONS_JOB
 
-CELERYBEAT_SCHEDULE['emit_notifications'] = EMIT_NOTIFICATIONS_JOB
 
 
 # local settings for maintenance mode
 MAINTENANCE_MODE = False
 
-# Amazon credentials (for fps)
-AWS_ACCESS_KEY = ''
-AWS_SECRET_ACCESS_KEY = ''
+# Amazon keys to permit S3 access
+# reusing just cedentials here
 
-# choice of payment processor
-PAYMENT_PROCESSOR = 'paypal'
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+AWS_ACCESS_KEY_ID = 'AKIAIYP6XRVAUWKQFT5Q'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_STORAGE_BUCKET_NAME = 'just-unglueit'
+
+
 
 # if settings/local.py exists, import those settings -- allows for dynamic generation of parameters such as DATABASES
 try:

@@ -6,6 +6,6 @@ Unglue.it staffer {{ comment.user.username }} has made a comment on {{ comment.c
           
 {{ comment.comment }}
 
-You can see all comments on this book at https://{{ domain }}{% url work comment.content_object.id %}?tab=2 .
+You can see all comments on this book at https://{{ domain }}{% url 'work' comment.content_object.id %}?tab=2 .
 
 The Unglue.it team

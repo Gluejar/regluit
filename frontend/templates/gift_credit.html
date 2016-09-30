@@ -1,4 +1,5 @@
-{% extends "basepledge.html" %}
+{% extends 'basepledge.html' %}
+
 {% load humanize %}
 
 {% block title %}You Have Gift Credits{% endblock %}
@@ -12,9 +13,9 @@
 	<div>
 	<h2> Gift Credited </h2>
 	<p>{% if error %}
-	    Your gift credit of ${{ envelope.amount }}.{{ envelope.cents }} has already been registered! {% if work %} If you want to contribute more to <a href="{% url work work.id %}">{{ work.title }}</a>, you can! {% endif %}
+	    Your gift credit of ${{ envelope.amount }}.{{ envelope.cents }} has already been registered! {% if work %} If you want to contribute more to <a href="{% url 'work' work.id %}">{{ work.title }}</a>, you can! {% endif %}
 		{% else %}
-		Congratulations, your gift credit of ${{ envelope.amount }}.{{ envelope.cents }} has been registered! {% if transaction.campaign %} ${{transaction.amount}} of that had been pledged to {{ transaction.campaign.name }}. If you want to contribute more to <a href="{% url work work.id %}">{{ work.title }}</a>, you can! {% endif %}
+		Congratulations, your gift credit of ${{ envelope.amount }}.{{ envelope.cents }} has been registered! {% if transaction.campaign %} ${{transaction.amount}} of that had been pledged to {{ transaction.campaign.name }}. If you want to contribute more to <a href="{% url 'work' work.id %}">{{ work.title }}</a>, you can! {% endif %}
 		{% endif %}
 		</p>
 		<!-- sent log: {{ envelope.sent }} -->
@@ -25,7 +26,7 @@
 <p>
 You have a balance of {{ request.user.credit.balance }} gift credits. <br />
 You have pledged {{ request.user.credit.pledged }} gift credits to ungluing campaigns.<br />
-You have {{ request.user.credit.available }} gift credits available to pledge or <a href="{% url gift %}">transfer</a>.<br />
+You have {{ request.user.credit.available }} gift credits available to pledge or <a href="{% url 'gift' %}">transfer</a>.<br />
 </p>
 
 		
