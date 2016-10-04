@@ -110,9 +110,18 @@ def report_new_ebooks(created=None):   #created= creation date
         period = (created, created+timedelta(days=1))
     else:
         period = (date_today()-timedelta(days=1), date_today())
-    works = models.Work.objects.filter(editions__ebooks__created__range = period).distinct()
+    works = models.Work.objects.filter(editions__ebooks__created__range=period).distinct()
     for work in works:
-        notification.send_now(work.wished_by(), "wishlist_unglued_book_released", {'work':work}, True)
+        # only notify if a new ebooks are active, don't notify person if the book was just wished
+        # ebooks() only returns active ebooks
+        for ebook in work.ebooks().filter(created__range=period):
+            notification.send_now(
+                work.wished_by(excluding=period),
+                "wishlist_unglued_book_released",
+                {'work':work},
+                True
+            )
+            break
         
 @task
 def notify_ending_soon():
