@@ -433,8 +433,11 @@ class Work(models.Model):
             for ebook in self.ebooks():
                 return ebook
 
-    def wished_by(self):
-        return User.objects.filter(wishlist__works__in=[self])
+    def wished_by(self, excluding=None):
+        if excluding:
+            return User.objects.filter(wishlist__wishes__work=self).exclude(wishlist__wishes__created__range=excluding)
+        else:
+            return User.objects.filter(wishlist__wishes__work=self)
 
     def update_num_wishes(self):
         self.num_wishes = self.wishes.count()
