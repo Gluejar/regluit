@@ -1111,7 +1111,7 @@ class Work(models.Model):
     publication_range =  models.CharField(max_length=50, null = True)
     featured = models.DateTimeField(null=True, blank=True, db_index=True,)
     is_free = models.BooleanField(default=False)
-    landings = GenericRelation(Landing)
+    landings = GenericRelation(Landing, related_query_name='works')
 
     class Meta:
         ordering = ['title']
