@@ -84,25 +84,29 @@ def work_node(work, facet=None):
     node.append(text_node('updated', work.first_ebook().created.isoformat()))
     
     # links for all ebooks
-    ebooks=facet.filter_model("Ebook",work.ebooks()) if facet else work.ebooks()
+    ebooks = facet.filter_model("Ebook",work.ebooks()) if facet else work.ebooks()
+    versions = set()
     for ebook in ebooks:
-        link_node = etree.Element("link")
+        if not ebook.version_label in versions:
+            versions.add(ebook.version_label)
+            link_node = etree.Element("link")
         
-        # ebook.download_url is an absolute URL with the protocol, domain, and path baked in
-        link_rel = "http://opds-spec.org/acquisition/open-access" 
-        link_node.attrib.update({"href":add_query_component(ebook.download_url, "feed=opds"),
-                                     "rel":link_rel,
-                                     "{http://purl.org/dc/terms/}rights": str(ebook.rights)})
-        if ebook.is_direct(): 
-            link_node.attrib["type"] = FORMAT_TO_MIMETYPE.get(ebook.format, "")
-        else:
-            """ indirect acquisition, i.e. google books """
-            link_node.attrib["type"] = "text/html"
-            indirect = etree.Element("{http://opds-spec.org/}indirectAcquisition",)
-            indirect.attrib["type"] = FORMAT_TO_MIMETYPE.get(ebook.format, "")
-            link_node.append(indirect)
-            
-        node.append(link_node)
+            # ebook.download_url is an absolute URL with the protocol, domain, and path baked in
+            link_rel = "http://opds-spec.org/acquisition/open-access" 
+            link_node.attrib.update({"href":add_query_component(ebook.download_url, "feed=opds"),
+                                         "rel":link_rel,
+                                         "{http://purl.org/dc/terms/}rights": str(ebook.rights)})
+            if ebook.is_direct(): 
+                link_node.attrib["type"] = FORMAT_TO_MIMETYPE.get(ebook.format, "")
+            else:
+                """ indirect acquisition, i.e. google books """
+                link_node.attrib["type"] = "text/html"
+                indirect = etree.Element("{http://opds-spec.org/}indirectAcquisition",)
+                indirect.attrib["type"] = FORMAT_TO_MIMETYPE.get(ebook.format, "")
+                link_node.append(indirect)
+            if ebook.version_label:
+                link_node.attrib.update({"{http://schema.org/}version": ebook.version_label})
+            node.append(link_node)
         
     # get the cover -- assume jpg?
     
@@ -163,6 +167,16 @@ def work_node(work, facet=None):
                 # caused by control chars in subject.name
                 logger.warning('Deleting subject: %s' % subject.name)
                 subject.delete()
+
+    # age level
+    # <category term="15-18" scheme="http://schema.org/typicalAgeRange" label="Teen - Grade 10-12, Age 15-18"/>
+    if work.age_level:
+        category_node = etree.Element("category")
+        category_node.attrib["scheme"] =  'http://schema.org/typicalAgeRange' 
+        category_node.attrib["term"] =  work.age_level 
+        category_node.attrib["label"] =  work.get_age_level_display()
+        node.append(category_node)
+    
                 
     # rating            
     rating_node = etree.Element("{http://schema.org/}Rating")
@@ -226,6 +240,9 @@ def opds_feed_for_work(work_id):
             try:
                 works=models.Work.objects.filter(id=work_id)
             except models.Work.DoesNotExist:
+                works=models.Work.objects.none()
+            except ValueError:
+                # not a valid work_id
                 works=models.Work.objects.none()
             self.works=works
             self.title='Unglue.it work #%s' % work_id

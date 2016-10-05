@@ -6,7 +6,27 @@
   <link rel="stylesheet" href="/static/css/ui-lightness/jquery-ui-1.8.16.custom.css" type="text/css" media="screen">
 
 <script type="text/javascript" src="{{ jquery_ui_home }}" ></script>
+<script type="text/javascript">
+onload = function(){
+    var urlInput = document.getElementById('id_url');
+    var formatInput = document.getElementById('id_format');
+    urlInput.oninput = function(){
+        if(urlInput.value.endsWith('.pdf')){
+            formatInput.value = 'pdf'
+        }
+        else if(urlInput.value.endsWith('.epub')){
+            formatInput.value = 'epub'
+        }        
+        else if(urlInput.value.endsWith('.mobi')){
+            formatInput.value = 'mobi'
+        }        
+        else if(urlInput.value.endsWith('.html')){
+            formatInput.value = 'html'
+        };
+    };
+};  
 
+</script>
 {% endblock %}
 
 {% block doccontent %}

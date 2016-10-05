@@ -192,6 +192,16 @@ class BookLoaderTests(TestCase):
         self.assertTrue(models.Edition.objects.count() > 15)
         self.assertEqual(models.Work.objects.filter(language=lang).count(), 1)
         self.assertTrue(edition.work.editions.count() > 9)
+        self.assertTrue(edition.work.reverse_related.count() > 0)
+
+        # is edition.work found among the from_work of all the to_work of edition.work?
+        back_point = True
+        to_works = [wr.to_work for wr in edition.work.works_related_from.all()]
+        for to_work in to_works:
+            if edition.work.id not in [wr1.from_work.id for wr1 in to_work.works_related_to.all()]:
+                back_point = False
+                break
+        self.assertTrue(back_point)
 
 
     def test_populate_edition(self):
@@ -1009,6 +1019,11 @@ class EbookFileTests(TestCase):
             dj_file = DjangoFile(temp_file)
             ebf = EbookFile( format='pdf', edition=e, file=dj_file)
             ebf.save()
+            eb = Ebook( format='pdf', edition=e, url=ebf.file.url, provider='Unglue.it')
+            eb.save()
+            ebf.ebook = eb
+            ebf.save()
+            
                 
             temp_file.close()
         finally:
@@ -1016,7 +1031,7 @@ class EbookFileTests(TestCase):
             os.remove(temp.name)
         #test the ask-appender
         c.add_ask_to_ebfs()
-        asking_pdf = c.work.ebookfiles().filter(asking = True)[0].file.url
+        asking_pdf = c.work.ebookfiles().filter(asking=True)[0].file.url
         assert test_pdf(asking_pdf)
         
         #Now do the same with epub
@@ -1032,16 +1047,25 @@ class EbookFileTests(TestCase):
             dj_file = DjangoFile(temp_file)
             ebf = EbookFile( format='epub', edition=e, file=dj_file)
             ebf.save()
-                
+            eb = Ebook( format='epub', edition=e, url=ebf.file.url, provider='Unglue.it')
+            eb.save()
+            ebf.ebook = eb
+            ebf.save()
             temp_file.close()
+            ebf.make_mobi()
         finally:
             # make sure we get rid of temp file
             os.remove(temp.name)
         #test the ask-appender
         c.add_ask_to_ebfs()
-        self.assertTrue( c.work.ebookfiles().filter(asking = True, format='epub').count >0)
-        self.assertTrue( c.work.ebookfiles().filter(asking = True, format='mobi').count >0)
-        
+        self.assertTrue( c.work.ebookfiles().filter(asking = True, format='epub').count() > 0)
+        self.assertTrue( c.work.ebookfiles().filter(asking = True, format='mobi').count() > 0)
+        self.assertTrue( c.work.ebookfiles().filter(asking = True, ebook__active=True).count() > 0)
+        self.assertTrue( c.work.ebookfiles().filter(asking = False, ebook__active=True).count() == 0)
+        #test the unasker
+        c.revert_asks()
+        self.assertTrue( c.work.ebookfiles().filter(asking = True, ebook__active=True).count() == 0)
+        self.assertTrue( c.work.ebookfiles().filter(asking = False, ebook__active=True).count() > 0)
 
 class MobigenTests(TestCase):
     def test_convert_to_mobi(self):

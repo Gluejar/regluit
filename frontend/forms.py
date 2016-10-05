@@ -1,22 +1,17 @@
-"""
-external library imports
-"""
+#external library imports
+
 import logging
 import re
-import zipfile
 
-from datetime import timedelta, datetime, date
+from datetime import timedelta, date
 from decimal import Decimal as D
 
-"""
-django imports
-"""
+#django imports
+
 from django import forms
 from django.conf import settings
 from django.conf.global_settings import LANGUAGES
 from django.contrib.auth.models import User
-from django.core.validators import validate_email
-from django.db import models
 from django.forms.widgets import RadioSelect
 from django.forms.extras.widgets import SelectDateWidget
 from django.utils.translation import ugettext_lazy as _
@@ -32,10 +27,8 @@ from selectable.forms import (
 
 from PyPDF2 import PdfFileReader
 
+#regluit imports
 
-"""
-regluit imports
-"""
 from regluit.core.models import (
     UserProfile,
     RightsHolder,
@@ -51,23 +44,28 @@ from regluit.core.models import (
     Work,
     Press,
     Libpref,
-    Subject,
     TWITTER,
     FACEBOOK,
-    GRAVATAR,
     UNGLUEITAR
 )
 from regluit.libraryauth.models import Library
-from regluit.core.parameters import LIBRARY, REWARDS, BUY2UNGLUE, THANKS
+from regluit.core.parameters import (
+    LIBRARY,
+    REWARDS,
+    BUY2UNGLUE,
+    THANKS,
+    AGE_LEVEL_CHOICES,
+    TEXT_RELATION_CHOICES,
+)
 from regluit.core.lookups import (
     OwnerLookup,
     WorkLookup,
     PublisherNameLookup,
-    EditionLookup,
     SubjectLookup,
+    EditionNoteLookup,
 )
 from regluit.utils.localdatetime import now
-from regluit.utils.fields import EpubFileField, ISBNField
+from regluit.utils.fields import ISBNField
 from regluit.mobi import Mobi
 from regluit.pyepub import EPUB
 from regluit.bisac.models import BisacHeading
@@ -90,15 +88,15 @@ class SurveyForm(forms.Form):
     label = forms.CharField(max_length=64, required=True)
     survey = forms.ModelChoiceField(Questionnaire.objects.all(), widget=RadioSelect(), empty_label=None, required = True,)
     isbn = ISBNField(
-        label=_("ISBN"), 
-        max_length=17, 
+        label=_("ISBN"),
+        max_length=17,
         required = False,
         help_text = _("13 digits, no dash."),
         error_messages = {
             'invalid': _("This must be a valid ISBN-13."),
         }
     )
-    
+
     def clean_isbn(self):
         isbn = self.cleaned_data['isbn']
         if not isbn:
@@ -115,24 +113,36 @@ class EditionForm(forms.ModelForm):
     add_author = forms.CharField(max_length=500, required=False)
     add_author_relation = forms.ChoiceField(choices=CREATOR_RELATIONS, initial=('aut', 'Author'))
     add_subject = AutoCompleteSelectField(
-            SubjectLookup,
-            widget=AutoCompleteSelectWidget(SubjectLookup,allow_new=True),
-            label='Keyword',
-            required =False
+        SubjectLookup,
+        widget=AutoCompleteSelectWidget(SubjectLookup, allow_new=True),
+        label='Keyword',
+        required=False,
         )
+    add_related_work =  AutoCompleteSelectField(
+        WorkLookup,
+        widget=AutoCompleteSelectWidget(WorkLookup, allow_new=False, attrs={'size': 40}),
+        label='Related Work',
+        required=False,
+    )
+    add_work_relation = forms.ChoiceField(
+        choices=TEXT_RELATION_CHOICES,
+        initial=('translation', 'translation'),
+        required=False,
+    )
+
     bisac = forms.ModelChoiceField( bisac_headings, required=False )
-    
+
     publisher_name = AutoCompleteSelectField(
-            PublisherNameLookup,
-            label='Publisher Name',
-            widget=AutoCompleteSelectWidget(PublisherNameLookup,allow_new=True),
-            required=False,
-            allow_new=True,
-        )
+        PublisherNameLookup,
+        label='Publisher Name',
+        widget=AutoCompleteSelectWidget(PublisherNameLookup,allow_new=True),
+        required=False,
+        allow_new=True,
+    )
 
     isbn = ISBNField(
-        label=_("ISBN"), 
-        max_length=17, 
+        label=_("ISBN"),
+        max_length=17,
         required = False,
         help_text = _("13 digits, no dash."),
         error_messages = {
@@ -140,8 +150,8 @@ class EditionForm(forms.ModelForm):
         }
     )
     goog = forms.RegexField(
-        label=_("Google Books ID"), 
-        max_length=12, 
+        label=_("Google Books ID"),
+        max_length=12,
         regex=r'^([a-zA-Z0-9\-_]{12}|delete)$',
         required = False,
         help_text = _("12 alphanumeric characters, dash or underscore, case sensitive."),
@@ -150,8 +160,8 @@ class EditionForm(forms.ModelForm):
         }
     )
     gdrd = forms.RegexField(
-        label=_("GoodReads ID"), 
-        max_length=8, 
+        label=_("GoodReads ID"),
+        max_length=8,
         regex=r'^(\d+|delete)$',
         required = False,
         help_text = _("1-8 digits."),
@@ -160,8 +170,8 @@ class EditionForm(forms.ModelForm):
         }
     )
     thng = forms.RegexField(
-        label=_("LibraryThing ID"), 
-        max_length=8, 
+        label=_("LibraryThing ID"),
+        max_length=8,
         regex=r'(^\d+|delete)$',
         required = False,
         help_text = _("1-8 digits."),
@@ -170,7 +180,7 @@ class EditionForm(forms.ModelForm):
         }
     )
     oclc = forms.RegexField(
-        label=_("OCLCnum"), 
+        label=_("OCLCnum"),
         regex=r'^(\d\d\d\d\d\d\d\d\d*|delete)$',
         required = False,
         help_text = _("8 or more digits."),
@@ -182,132 +192,191 @@ class EditionForm(forms.ModelForm):
         label=_("HTTP URL"),
         # https://mathiasbynens.be/demo/url-regex
         regex=re.compile(r"(https?|ftp)://(-\.)?([^\s/?\.#]+\.?)+(/[^\s]*)?$",
-                         flags=re.IGNORECASE|re.S ), 
+                         flags=re.IGNORECASE|re.S ),
         required = False,
         help_text = _("no spaces of funny stuff."),
         error_messages = {
             'invalid': _("This value must be a valid http(s) URL."),
         }
     )
+    doi = forms.RegexField(
+        label=_("DOI"),
+        regex=r'^(https?://dx\.doi\.org/)?(10.\d\d\d\d/\w+|delete)$',
+        required = False,
+        help_text = _("starts with '10.' or 'http://dx.doi.org'"),
+        error_messages = {
+            'invalid': _("This value must be a valid DOI."),
+        }
+    )
     language = forms.ChoiceField(choices=LANGUAGES)
+    age_level = forms.ChoiceField(choices=AGE_LEVEL_CHOICES, required=False)
     description = forms.CharField( required=False, widget=CKEditorWidget())
     coverfile = forms.ImageField(required=False)
-    
+    note = AutoCompleteSelectField(
+        EditionNoteLookup,
+        widget=AutoCompleteSelectWidget(EditionNoteLookup, allow_new=True),
+        label='Edition Note',
+        required=False,
+        allow_new=True,
+        )
     def __init__(self,  *args, **kwargs):
         super(EditionForm, self).__init__(*args, **kwargs)
         self.relators = []
         if self.instance:
             for relator in self.instance.relators.all():
                 select = forms.Select(choices=CREATOR_RELATIONS).render('change_relator_%s' % relator.id , relator.relation.code )
-                self.relators.append({'relator':relator,'select':select})
-    
+                self.relators.append({'relator':relator, 'select':select})
+
+    def clean_doi(self):
+        doi = self.cleaned_data["doi"]
+        if doi:
+            if doi.startswith("https"):
+                return doi[19:]
+            elif doi.startswith("http"):
+                return doi[18:]
+        return doi
+
     def clean(self):
         has_isbn = self.cleaned_data.get("isbn", False) not in nulls
         has_oclc = self.cleaned_data.get("oclc", False) not in nulls
         has_goog = self.cleaned_data.get("goog", False) not in nulls
         has_http = self.cleaned_data.get("http", False) not in nulls
-        if not has_isbn and not has_oclc  and not has_goog and not has_http:
-            raise forms.ValidationError(_("There must be either an ISBN or an OCLC number."))
+        has_doi = self.cleaned_data.get("doi", False) not in nulls
+        try:
+            has_id = self.instance.work.identifiers.all().count() > 0
+        except AttributeError:
+            has_id = False
+        if not has_id and not has_isbn and not has_oclc  and not has_goog and not has_http and not has_doi:
+            raise forms.ValidationError(_("There must be either an ISBN, a DOI, a URL or an OCLC number."))
         return self.cleaned_data
-    
     class Meta:
         model = Edition
         exclude = ('created', 'work')
-        widgets = { 
+        widgets = {
                 'title': forms.TextInput(attrs={'size': 40}),
                 'add_author': forms.TextInput(attrs={'size': 30}),
                 'add_subject': forms.TextInput(attrs={'size': 30}),
                 'unglued': forms.CheckboxInput(),
                 'cover_image': forms.TextInput(attrs={'size': 60}),
             }
-            
+
+def test_file(the_file):
+    if the_file and the_file.name:
+        if format == 'epub':
+            try:
+                book = EPUB(the_file.file)
+            except Exception as e:
+                raise forms.ValidationError(_('Are you sure this is an EPUB file?: %s' % e) )
+        elif format == 'mobi':
+            try:
+                book = Mobi(the_file.file)
+                book.parse()
+            except Exception as e:
+                raise forms.ValidationError(_('Are you sure this is a MOBI file?: %s' % e) )
+        elif format == 'pdf':
+            try:
+                doc = PdfFileReader(the_file.file)
+            except Exception, e:
+                raise forms.ValidationError(_('%s is not a valid PDF file' % the_file.name) )
+
 class EbookFileForm(forms.ModelForm):
-    file = forms.FileField(max_length=16777216)
-    
+    file = forms.FileField(max_length=16777216)    
+    version_label = forms.CharField(max_length=512, required=False)
+    new_version_label = forms.CharField(required=False)    
+
     def __init__(self, campaign_type=BUY2UNGLUE, *args, **kwargs):
         super(EbookFileForm, self).__init__(*args, **kwargs)
         self.campaign_type = campaign_type
         if campaign_type == BUY2UNGLUE:
-            self.fields['format'].widget=forms.HiddenInput()
+            self.fields['format'].widget = forms.HiddenInput()
         if campaign_type == THANKS:
-            self.fields['format'].widget=forms.Select(choices=(('pdf','PDF'),( 'epub','EPUB'), ('mobi','MOBI')))
-        
+            self.fields['format'].widget = forms.Select(
+                choices = (('pdf', 'PDF'), ('epub', 'EPUB'), ('mobi', 'MOBI'))
+            )
+
+    def clean_version_label(self):
+        new_label = self.data.get('new_version_label','')
+        return new_label if new_label else self.cleaned_data['version_label']
+
     def clean_format(self):
         if self.campaign_type is BUY2UNGLUE:
             return 'epub'
         else:
             logger.info("EbookFileForm "+self.cleaned_data.get('format',''))
             return self.cleaned_data.get('format','')
-            
+
     def clean(self):
         format = self.cleaned_data['format']
-        the_file = self.cleaned_data.get('file',None)
-        if the_file and the_file.name:
-            if format == 'epub':
-                try:
-                    book = EPUB(the_file.file)
-                except Exception as e:
-                    raise forms.ValidationError(_('Are you sure this is an EPUB file?: %s' % e) )
-            elif format == 'mobi':
-                try:
-                    book = Mobi(the_file.file)
-                    book.parse()
-                except Exception as e:
-                    raise forms.ValidationError(_('Are you sure this is a MOBI file?: %s' % e) )
-            elif format == 'pdf':
-                try:
-                    doc = PdfFileReader(the_file.file)
-                except Exception, e:
-                    raise forms.ValidationError(_('%s is not a valid PDF file' % the_file.name) )
+        the_file = self.cleaned_data.get('file', None)
+        test_file(the_file)
         return self.cleaned_data
 
     class Meta:
         model = EbookFile
         widgets = { 'edition': forms.HiddenInput}
-        exclude = { 'created', 'asking' }
-
+        exclude = { 'created', 'asking', 'ebook' }
+            
 class EbookForm(forms.ModelForm):
+    file = forms.FileField(max_length=16777216, required=False)  
+    url = forms.CharField(required=False, widget=forms.TextInput(attrs={'size' : 60},))
+    version_label = forms.CharField(required=False)    
+    new_version_label = forms.CharField(required=False)    
+            
     class Meta:
         model = Ebook
-        exclude =( 'created', 'download_count', 'active', 'filesize')
-        widgets = { 
-                'edition': forms.HiddenInput, 
-                'user': forms.HiddenInput, 
-                'provider': forms.HiddenInput, 
-                'url': forms.TextInput(attrs={'size' : 60}),
+        exclude = ('created', 'download_count', 'active', 'filesize', 'version_iter')
+        widgets = {
+                'edition': forms.HiddenInput,
+                'user': forms.HiddenInput,
+                'provider': forms.HiddenInput,
             }
+    def clean_version_label(self):
+        new_label = self.data.get('new_version_label','')
+        return new_label if new_label else self.cleaned_data['version_label']
+    
     def clean_provider(self):
-        new_provider= Ebook.infer_provider(self.data[self.prefix + '-url'])
+        new_provider = Ebook.infer_provider(self.cleaned_data['url'])
         if not new_provider:
             raise forms.ValidationError(_("At this time, ebook URLs must point at Internet Archive, Wikisources, Wikibooks, Hathitrust, Project Gutenberg, raw files at Github, or Google Books."))
         return new_provider
-        
+
     def clean_url(self):
-        url = self.data[self.prefix + '-url']
+        url = self.cleaned_data['url']
         try:
             Ebook.objects.get(url=url)
         except Ebook.DoesNotExist:
             return url
         raise forms.ValidationError(_("There's already an ebook with that url."))
-        
+
+    def clean(self):
+        format = self.cleaned_data['format']
+        the_file = self.cleaned_data.get('file', None)
+        url = self.cleaned_data.get('url', None)
+        test_file(the_file)
+        if not the_file and not url:
+            raise forms.ValidationError(_("Either a link or a file is required."))
+        if the_file and url:
+            self.cleaned_data['url'] = ''
+        return self.cleaned_data
+
 def UserClaimForm ( user_instance, *args, **kwargs ):
     class ClaimForm(forms.ModelForm):
-        i_agree=forms.BooleanField(error_messages={'required': 'You must agree to the Terms in order to claim a work.'})
-        rights_holder=forms.ModelChoiceField(queryset=user_instance.rights_holder.all(), empty_label=None)
-        
+        i_agree = forms.BooleanField(error_messages={'required': 'You must agree to the Terms in order to claim a work.'})
+        rights_holder = forms.ModelChoiceField(queryset=user_instance.rights_holder.all(), empty_label=None)
+
         class Meta:
             model = Claim
             exclude = ('status',)
-            widgets = { 
-                    'user': forms.HiddenInput, 
-                    'work': forms.HiddenInput, 
+            widgets = {
+                    'user': forms.HiddenInput,
+                    'work': forms.HiddenInput,
                 }
 
         def __init__(self):
             super(ClaimForm, self).__init__(*args, **kwargs)
 
     return ClaimForm()
-            
+
 class RightsHolderForm(forms.ModelForm):
     owner = AutoCompleteSelectField(
             OwnerLookup,
@@ -317,7 +386,7 @@ class RightsHolderForm(forms.ModelForm):
             error_messages={'required': 'Please ensure the owner is a valid Unglue.it account.'},
         )
     email = forms.EmailField(
-        label=_("notification email address for rights holder"), 
+        label=_("notification email address for rights holder"),
         max_length=100,
         error_messages={'required': 'Please enter an email address for the rights holder.'},
         )
@@ -333,12 +402,12 @@ class RightsHolderForm(forms.ModelForm):
             return rights_holder_name
         raise forms.ValidationError(_("Another rights holder with that name already exists."))
 
-    
+
 class ProfileForm(forms.ModelForm):
-    clear_facebook=forms.BooleanField(required=False)
-    clear_twitter=forms.BooleanField(required=False)
-    clear_goodreads=forms.BooleanField(required=False)
-    
+    clear_facebook = forms.BooleanField(required=False)
+    clear_twitter = forms.BooleanField(required=False)
+    clear_goodreads = forms.BooleanField(required=False)
+
     class Meta:
         model = UserProfile
         fields = 'tagline', 'librarything_id', 'home_url', 'clear_facebook', 'clear_twitter', 'clear_goodreads', 'avatar_source'
@@ -361,10 +430,10 @@ class ProfileForm(forms.ModelForm):
 
     def clean(self):
         # check that if a social net is cleared, we're not using it a avatar source
-        if self.cleaned_data.get("clear_facebook", False) and self.cleaned_data.get("avatar_source", None)==FACEBOOK:
-            self.cleaned_data["avatar_source"]==UNGLUEITAR
-        if self.cleaned_data.get("clear_twitter", False) and self.cleaned_data.get("avatar_source", None)==TWITTER:
-            self.cleaned_data["avatar_source"]==UNGLUEITAR
+        if self.cleaned_data.get("clear_facebook", False) and self.cleaned_data.get("avatar_source", None) == FACEBOOK:
+            self.cleaned_data["avatar_source"] == UNGLUEITAR
+        if self.cleaned_data.get("clear_twitter", False) and self.cleaned_data.get("avatar_source", None) == TWITTER:
+            self.cleaned_data["avatar_source"] == UNGLUEITAR
         return self.cleaned_data
 
 class CloneCampaignForm(forms.Form):
@@ -395,30 +464,33 @@ def getTransferCreditForm(maximum, data=None, *args, **kwargs ):
             )
         amount = forms.IntegerField(
                 required=True,
-                min_value=1, 
+                min_value=1,
                 max_value=maximum,
                 label="Transfer Amount",
-                error_messages={'min_value': 'Transfer amount must be positive', 'max_value': 'You only have %(limit_value)s available for transfer'},
+                error_messages={
+                    'min_value': 'Transfer amount must be positive',
+                    'max_value': 'You only have %(limit_value)s available for transfer'
+                },
             )
     return TransferCreditForm( data=data )
 
 
 class WorkForm(forms.Form):
-    other_work = forms.ModelChoiceField(queryset=Work.objects.all(), 
-            widget=forms.HiddenInput(), 
-            required=True, 
+    other_work = forms.ModelChoiceField(queryset=Work.objects.all(),
+            widget=forms.HiddenInput(),
+            required=True,
             error_messages={'required': 'Missing work to merge with.'},
             )
-    work=None
+    work = None
 
     def clean_other_work(self):
-        if self.cleaned_data["other_work"].id== self.work.id:
+        if self.cleaned_data["other_work"].id == self.work.id:
             raise forms.ValidationError(_("You can't merge a work into itself"))
         return self.cleaned_data["other_work"]
 
     def __init__(self, work=None, *args, **kwargs):
         super(WorkForm, self).__init__(*args, **kwargs)
-        self.work=work
+        self.work = work
 
 class OtherWorkForm(WorkForm):
     other_work = AutoCompleteSelectField(
@@ -427,12 +499,12 @@ class OtherWorkForm(WorkForm):
             widget=AutoCompleteSelectWidget(WorkLookup),
             required=True,
             error_messages={'required': 'Missing work to merge with.'},
-        )    
+        )
 
     def __init__(self,  *args, **kwargs):
         super(OtherWorkForm, self).__init__(*args, **kwargs)
         self.fields['other_work'].widget.update_query_parameters({'language':self.work.language})
-    
+
 class EditManagersForm(forms.ModelForm):
     managers = AutoCompleteSelectMultipleField(
             OwnerLookup,
@@ -451,7 +523,7 @@ class CustomPremiumForm(forms.ModelForm):
     class Meta:
         model = Premium
         fields = 'campaign', 'amount', 'description', 'type', 'limit'
-        widgets = { 
+        widgets = {
                 'description': forms.Textarea(attrs={'cols': 80, 'rows': 4}),
                 'campaign': forms.HiddenInput,
                 'type': forms.HiddenInput(attrs={'value':'XX'}),
@@ -459,21 +531,24 @@ class CustomPremiumForm(forms.ModelForm):
             }
     def clean_type(self):
         return 'CU'
-        
+
 class OfferForm(forms.ModelForm):
 
     class Meta:
         model = Offer
         fields = 'work', 'price', 'license'
-        widgets = { 
+        widgets = {
                 'work': forms.HiddenInput,
                 'license': forms.HiddenInput,
             }
-            
-date_selector=range(date.today().year, settings.MAX_CC_DATE.year+1)
+
+date_selector = range(date.today().year, settings.MAX_CC_DATE.year+1)
 
 class CCDateForm(object):
-    target = forms.DecimalField( min_value= D(settings.UNGLUEIT_MINIMUM_TARGET), error_messages={'required': 'Please specify a Revenue Target.'} )
+    target = forms.DecimalField(
+        min_value= D(settings.UNGLUEIT_MINIMUM_TARGET),
+        error_messages={'required': 'Please specify a Revenue Target.'}
+    )
     minimum_target = settings.UNGLUEIT_MINIMUM_TARGET
     maximum_target = settings.UNGLUEIT_MAXIMUM_TARGET
     max_cc_date = settings.MAX_CC_DATE
@@ -490,26 +565,26 @@ class CCDateForm(object):
         new_cc_date_initial = self.cleaned_data['cc_date_initial']
         if new_cc_date_initial.date() > settings.MAX_CC_DATE:
             raise forms.ValidationError('The initial Ungluing Date cannot be after %s'%settings.MAX_CC_DATE)
-        elif new_cc_date_initial - now() < timedelta(days=0):         
+        elif new_cc_date_initial - now() < timedelta(days=0):
             raise forms.ValidationError('The initial Ungluing date must be in the future!')
         return new_cc_date_initial
 
 class DateCalculatorForm(CCDateForm, forms.ModelForm):
     revenue = forms.DecimalField()
     cc_date_initial = forms.DateTimeField(
-            widget = SelectDateWidget(years=date_selector) 
+            widget = SelectDateWidget(years=date_selector)
         )
     class Meta:
         model = Campaign
         fields = 'target',  'cc_date_initial', 'revenue',
 
 def getManageCampaignForm ( instance, data=None, initial=None, *args, **kwargs ):
-    
+
     def get_queryset():
-        work=instance.work
+        work = instance.work
         return Edition.objects.filter(work = work)
-            
-    class ManageCampaignForm(CCDateForm,forms.ModelForm):
+
+    class ManageCampaignForm(CCDateForm, forms.ModelForm):
         target = forms.DecimalField( required= (instance.type in {REWARDS, BUY2UNGLUE}))
         deadline = forms.DateTimeField(
                 required = (instance.type==REWARDS),
@@ -520,91 +595,102 @@ def getManageCampaignForm ( instance, data=None, initial=None, *args, **kwargs )
                 widget = SelectDateWidget(years=date_selector) if instance.status=='INITIALIZED' else forms.HiddenInput
             )
         paypal_receiver = forms.EmailField(
-            label=_("contact email address for this campaign"), 
-            max_length=100, 
+            label=_("contact email address for this campaign"),
+            max_length=100,
             error_messages={'required': 'You must enter the email we should contact you at for this campaign.'},
             )
-        edition =  forms.ModelChoiceField(get_queryset(), widget=RadioSelect(),empty_label='no edition selected',required = False,)
-        publisher = forms.ModelChoiceField(instance.work.publishers(), empty_label='no publisher selected', required = False,)
+        edition = forms.ModelChoiceField(
+            get_queryset(),
+            widget=RadioSelect(),
+            empty_label='no edition selected',
+            required=False,
+        )
+        publisher = forms.ModelChoiceField(
+            instance.work.publishers(),
+            empty_label='no publisher selected',
+            required=False,
+        )
         work_description =  forms.CharField( required=False , widget=CKEditorWidget())
-        
+
         class Meta:
             model = Campaign
-            fields = 'description', 'details', 'license', 'target', 'deadline', 'paypal_receiver', 'edition', 'email', 'publisher',  'cc_date_initial', "do_watermark", "use_add_ask",
+            fields = ('description', 'details', 'license', 'target', 'deadline', 'paypal_receiver',
+                'edition', 'email', 'publisher',  'cc_date_initial', "do_watermark", "use_add_ask",
+            )
             widgets = { 'deadline': SelectDateWidget }
-    
+
         def clean_target(self):
             if self.instance.type == THANKS:
                 return None
-            new_target = super(ManageCampaignForm,self).clean_target()
+            new_target = super(ManageCampaignForm, self).clean_target()
             if self.instance:
                 if self.instance.status == 'ACTIVE' and self.instance.target < new_target:
                     raise forms.ValidationError(_('The fundraising target for an ACTIVE campaign cannot be increased.'))
             return new_target
 
         def clean_cc_date_initial(self):
-            if self.instance.type in {REWARDS,THANKS} :
+            if self.instance.type in {REWARDS, THANKS} :
                 return None
             if self.instance:
                 if self.instance.status != 'INITIALIZED':
                     # can't change this once launched
                     return self.instance.cc_date_initial
-            return super(ManageCampaignForm,self).clean_cc_date_initial()            
-        
+            return super(ManageCampaignForm, self).clean_cc_date_initial()
+
         def clean_deadline(self):
             if self.instance.type in {BUY2UNGLUE, THANKS} :
                 return None
             new_deadline_date = self.cleaned_data['deadline']
-            new_deadline= new_deadline_date + timedelta(hours=23,minutes=59)
+            new_deadline = new_deadline_date + timedelta(hours=23, minutes=59)
             if self.instance:
                 if self.instance.status == 'ACTIVE':
                     return self.instance.deadline
             if new_deadline_date - now() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
                 raise forms.ValidationError(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
-            elif new_deadline - now() < timedelta(days=0):         
+            elif new_deadline - now() < timedelta(days=0):
                 raise forms.ValidationError(_('The chosen closing date is in the past'))
             return new_deadline
-            
+
         def clean_license(self):
             new_license = self.cleaned_data['license']
             if self.instance:
                 if self.instance.status == 'ACTIVE' and self.instance.license != new_license:
                     # should only allow change to a less restrictive license
-                    if self.instance.license == 'CC BY-ND' and new_license in ['CC BY-NC-ND','CC BY-NC-SA','CC BY-NC']:
+                    if self.instance.license == 'CC BY-ND' and new_license in ['CC BY-NC-ND', 'CC BY-NC-SA', 'CC BY-NC']:
                         raise forms.ValidationError(_('The proposed license for an ACTIVE campaign may not add restrictions.'))
                     elif self.instance.license == 'CC BY' and new_license != 'CC0':
                         raise forms.ValidationError(_('The proposed license for an ACTIVE campaign may not add restrictions.'))
-                    elif self.instance.license == 'CC BY-NC' and new_license in ['CC BY-NC-ND','CC BY-NC-SA','CC BY-SA','CC BY-ND']:
+                    elif self.instance.license == 'CC BY-NC' and new_license in ['CC BY-NC-ND', 'CC BY-NC-SA', 'CC BY-SA', 'CC BY-ND']:
                         raise forms.ValidationError(_('The proposed license for an ACTIVE campaign may not add restrictions.'))
-                    elif self.instance.license == 'CC BY-ND' and new_license in ['CC BY-NC-ND','CC BY-NC-SA','CC BY-SA','CC BY-NC']:
+                    elif self.instance.license == 'CC BY-ND' and new_license in ['CC BY-NC-ND', 'CC BY-NC-SA', 'CC BY-SA', 'CC BY-NC']:
                         raise forms.ValidationError(_('The proposed license for an ACTIVE campaign may not add restrictions.'))
-                    elif self.instance.license == 'CC BY-SA' and new_license in ['CC BY-NC-ND','CC BY-NC-SA','CC BY-ND','CC BY-NC']:
+                    elif self.instance.license == 'CC BY-SA' and new_license in ['CC BY-NC-ND', 'CC BY-NC-SA', 'CC BY-ND', 'CC BY-NC']:
                         raise forms.ValidationError(_('The proposed license for an ACTIVE campaign may not add restrictions.'))
-                    elif self.instance.license == 'CC BY-NC-SA' and new_license in ['CC BY-NC-ND','CC BY-ND']:
+                    elif self.instance.license == 'CC BY-NC-SA' and new_license in ['CC BY-NC-ND', 'CC BY-ND']:
                         raise forms.ValidationError(_('The proposed license for an ACTIVE campaign may not add restrictions.'))
                     elif self.instance.license == 'CC0' :
                         raise forms.ValidationError(_('The proposed license for an ACTIVE campaign may not add restrictions.'))
-                    elif self.instance.license in ['GDFL' , 'LAL']:
+                    elif self.instance.license in ['GDFL', 'LAL']:
                         raise forms.ValidationError(_('Once you start a campaign with GDFL or LAL, you can\'t use any other license.'))
             return new_license
     if initial and not initial.get('edition', None) and not instance.edition:
-        initial['edition']= instance.work.editions.all()[0]
-    return ManageCampaignForm(instance = instance, data=data, initial=initial)
+        initial['edition'] = instance.work.editions.all()[0]
+    return ManageCampaignForm(instance=instance, data=data, initial=initial)
 
 class CampaignPurchaseForm(forms.Form):
     anonymous = forms.BooleanField(required=False, label=_("Make this purchase anonymous, please"))
     offer_id = forms.IntegerField(required=False)
-    offer=None
+    offer = None
     library_id = forms.IntegerField(required=False)
     library = None
-    copies = forms.IntegerField(required=False,min_value=1)
+    copies = forms.IntegerField(required=False, min_value=1)
     give_to = forms.EmailField(required = False)
     give_message = forms.CharField(required = False, max_length=512,  )
-    
+
     def clean_offer_id(self):
         offer_id = self.cleaned_data['offer_id']
         try:
-            self.offer= Offer.objects.get(id=offer_id)
+            self.offer = Offer.objects.get(id=offer_id)
         except  Offer.DoesNotExist:
             raise forms.ValidationError(_("Sorry, that offer is not valid."))
 
@@ -615,23 +701,23 @@ class CampaignPurchaseForm(forms.Form):
                 self.library = Library.objects.get(id=library_id)
             except  Library.DoesNotExist:
                 raise forms.ValidationError(_("Sorry, that Library is not valid."))
-    
+
     def clean_copies(self):
-        copies = self.cleaned_data.get('copies',1)
+        copies = self.cleaned_data.get('copies', 1)
         return copies if copies else 1
-    
+
     def clean_anonymous(self):
         if self.data.get('give', False):
             return True
         else:
             return self.cleaned_data['anonymous']
-        
+
     def clean(self):
         if self.offer.license == LIBRARY:
             if not self.library:
                 raise forms.ValidationError(_("No library specified." ))
         if self.data.get('give', False):
-            if not self.cleaned_data.get('give_to',None):
+            if not self.cleaned_data.get('give_to', None):
                 raise forms.ValidationError(_("Gift recipient email is needed." ))
         else:
             if 'give_to' in self._errors:
@@ -639,28 +725,31 @@ class CampaignPurchaseForm(forms.Form):
         return self.cleaned_data
 
     def amount(self):
-        
-        return self.offer.price * self.cleaned_data.get('copies',1) if self.offer else None
-        
+
+        return self.offer.price * self.cleaned_data.get('copies', 1) if self.offer else None
+
     @property
     def trans_extra(self):
         pe = PledgeExtra( anonymous=self.cleaned_data['anonymous'],
                             offer = self.offer )
         if self.library:
-            pe.extra['library_id']=self.library.id
-        pe.extra['copies']=self.cleaned_data.get('copies',1)
+            pe.extra['library_id'] = self.library.id
+        pe.extra['copies'] = self.cleaned_data.get('copies', 1)
         if self.data.get('give', False):
-            pe.extra['give_to']=self.cleaned_data['give_to']
-            pe.extra['give_message']=self.cleaned_data['give_message']
+            pe.extra['give_to'] = self.cleaned_data['give_to']
+            pe.extra['give_message'] = self.cleaned_data['give_message']
         return pe
 
 class CampaignThanksForm(forms.Form):
-    anonymous = forms.BooleanField(required=False, label=_("Make this contribution anonymous, please"))
+    anonymous = forms.BooleanField(
+        required=False,
+        label=_("Make this contribution anonymous, please")
+    )
     preapproval_amount = forms.DecimalField(
         required = True,
         min_value=D('1.00'),
-        max_value=D('2000.00'), 
-        decimal_places=2, 
+        max_value=D('2000.00'),
+        decimal_places=2,
         label="Pledge Amount",
     )
     @property
@@ -672,43 +761,47 @@ class CampaignPledgeForm(forms.Form):
     preapproval_amount = forms.DecimalField(
         required = False,
         min_value=D('1.00'),
-        max_value=D('2000.00'), 
-        decimal_places=2, 
+        max_value=D('2000.00'),
+        decimal_places=2,
         label="Pledge Amount",
     )
     def amount(self):
         return self.cleaned_data["preapproval_amount"] if self.cleaned_data else None
-        
+
     anonymous = forms.BooleanField(required=False, label=_("Make this pledge anonymous, please"))
-    ack_name = forms.CharField(required=False, max_length=64, label=_("What name should we display?"))
+    ack_name = forms.CharField(
+        required=False,
+        max_length=64,
+        label=_("What name should we display?")
+    )
     ack_dedication = forms.CharField(required=False, max_length=140, label=_("Your dedication:"))
 
     premium_id = forms.IntegerField(required=False)
-    premium=None
-    
+    premium = None
+
     @property
     def trans_extra(self):
         return PledgeExtra( anonymous=self.cleaned_data['anonymous'],
                             ack_name=self.cleaned_data['ack_name'],
                             ack_dedication=self.cleaned_data['ack_dedication'],
                             premium=self.premium)
-        
+
     def clean_preapproval_amount(self):
         preapproval_amount = self.cleaned_data['preapproval_amount']
         if preapproval_amount is None:
             raise forms.ValidationError(_("Please enter a pledge amount."))
         return preapproval_amount
-    
+
     def clean_premium_id(self):
         premium_id = self.cleaned_data['premium_id']
         try:
-            self.premium= Premium.objects.get(id=premium_id)
-            if self.premium.limit>0:
-                if self.premium.limit<=self.premium.premium_count:
+            self.premium = Premium.objects.get(id=premium_id)
+            if self.premium.limit > 0:
+                if self.premium.limit <= self.premium.premium_count:
                     raise forms.ValidationError(_("Sorry, that premium is fully subscribed."))
         except  Premium.DoesNotExist:
             raise forms.ValidationError(_("Sorry, that premium is not valid."))
-        
+
     def clean(self):
         # check on whether the preapproval amount is < amount for premium tier. If so, put an error message
         preapproval_amount = self.cleaned_data.get("preapproval_amount")
@@ -716,7 +809,7 @@ class CampaignPledgeForm(forms.Form):
             # preapproval_amount failed validation, that error is the relevant one
             return self.cleaned_data
         elif self.premium is None:
-            raise forms.ValidationError(_("Please select a premium." ))            
+            raise forms.ValidationError(_("Please select a premium." ))
         elif preapproval_amount < self.premium.amount:
             logger.info("raising form validating error")
             raise forms.ValidationError(_("Sorry, you must pledge at least $%s to select that premium." % (self.premium.amount)))
@@ -727,11 +820,11 @@ class TokenCCMixin(forms.Form):
 
 class BaseCCMixin(forms.Form):
     work_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
-    preapproval_amount= forms.DecimalField(
+    preapproval_amount = forms.DecimalField(
         required=False,
-        min_value=D('1.00'), 
-        max_value=D('100000.00'), 
-        decimal_places=2, 
+        min_value=D('1.00'),
+        max_value=D('100000.00'),
+        decimal_places=2,
         label="Amount",
     )
 class UserCCMixin(forms.Form):
@@ -751,7 +844,7 @@ class CCForm(UserCCMixin, BaseCCForm):
 
 class AccountCCForm( BaseCCMixin, UserCCMixin, forms.Form):
     pass
-    
+
 class GoodreadsShelfLoadingForm(forms.Form):
     goodreads_shelf_name_number = forms.CharField(widget=forms.Select(choices=(
                 ('all','all'),
@@ -767,40 +860,60 @@ class PledgeCancelForm(forms.Form):
 
 class CampaignAdminForm(forms.Form):
     campaign_id = forms.IntegerField()
-    
+
 class EmailShareForm(forms.Form):
     recipient = forms.EmailField(error_messages={'required': 'Please specify a recipient.'})
     subject = forms.CharField(max_length=100, error_messages={'required': 'Please specify a subject.'})
-    message = forms.CharField(widget=forms.Textarea(), error_messages={'required': 'Please include a message.'})
+    message = forms.CharField(
+        widget=forms.Textarea(),
+        error_messages={'required': 'Please include a message.'}
+    )
     # allows us to return user to original page by passing it as hidden form input
     # we can't rely on POST or GET since the emailshare view handles both
     # and may iterate several times as it catches user errors, losing URL info
     next = forms.CharField(widget=forms.HiddenInput())
-    
+
 class FeedbackForm(forms.Form):
-    sender = forms.EmailField(widget=forms.TextInput(attrs={'size':50}), label="Your email", error_messages={'required': 'Please specify your email address.'})
-    subject = forms.CharField(max_length=500, widget=forms.TextInput(attrs={'size':50}), error_messages={'required': 'Please specify a subject.'})
-    message = forms.CharField(widget=forms.Textarea(), error_messages={'required': 'Please specify a message.'})
+    sender = forms.EmailField(
+        widget=forms.TextInput(attrs={'size':50}),
+        label="Your email",
+        error_messages={'required': 'Please specify your email address.'}
+    )
+    subject = forms.CharField(
+        max_length=500,
+        widget=forms.TextInput(attrs={'size':50}),
+        error_messages={'required': 'Please specify a subject.'}
+    )
+    message = forms.CharField(
+        widget=forms.Textarea(),
+        error_messages={'required': 'Please specify a message.'}
+    )
     page = forms.CharField(widget=forms.HiddenInput())
-    notarobot = forms.IntegerField(label="Please prove you're not a robot", error_messages={'required': "You must do the sum to prove you're not a robot."})
+    notarobot = forms.IntegerField(
+        label="Please prove you're not a robot",
+        error_messages={'required': "You must do the sum to prove you're not a robot."}
+    )
     answer = forms.IntegerField(widget=forms.HiddenInput())
     num1 = forms.IntegerField(widget=forms.HiddenInput())
     num2 = forms.IntegerField(widget=forms.HiddenInput())
-    
+
     def clean(self):
         cleaned_data = self.cleaned_data
         notarobot = str(cleaned_data.get("notarobot"))
         answer = str(cleaned_data.get("answer"))
         if notarobot != answer:
             raise forms.ValidationError(_("Whoops, try that sum again."))
-            
+
         return cleaned_data
 
 class MsgForm(forms.Form):
-    msg = forms.CharField(widget=forms.Textarea(), error_messages={'required': 'Please specify a message.'})
+    msg = forms.CharField(
+        widget=forms.Textarea(),
+        error_messages={'required': 'Please specify a message.'}
+    )
 
     def full_clean(self):
-        super(MsgForm,self).full_clean()
+        super(MsgForm, self).full_clean()
         if self.data.has_key("supporter"):
             try:
                 self.cleaned_data['supporter'] = User.objects.get(id=self.data["supporter"])
@@ -815,20 +928,20 @@ class MsgForm(forms.Form):
                 raise ValidationError("Work does not exist")
         else:
             raise ValidationError("Work is not specified")
-            
+
 class PressForm(forms.ModelForm):
     class Meta:
         model = Press
         exclude = ()
 
-        widgets = { 
+        widgets = {
                 'date': SelectDateWidget(years=range(2010,2025)),
             }
-            
+
 class KindleEmailForm(forms.Form):
     kindle_email = forms.EmailField()
-    
-        
+
+
 class LibModeForm(forms.ModelForm):
     class Meta:
         model = Libpref
@@ -836,7 +949,11 @@ class LibModeForm(forms.ModelForm):
 
 class RegiftForm(forms.Form):
     give_to = forms.EmailField(label="email address of recipient")
-    give_message = forms.CharField( max_length=512, label="your gift message", initial="Here's an ebook from unglue.it, I hope you like it! - me")
+    give_message = forms.CharField(
+        max_length=512,
+        label="your gift message",
+        initial="Here's an ebook from unglue.it, I hope you like it! - me",
+    )
 
 class SubjectSelectForm(forms.Form):
     add_kw = AutoCompleteSelectField(
@@ -855,4 +972,4 @@ class MapSubjectForm(forms.Form):
             widget=AutoCompleteSelectWidget(SubjectLookup,allow_new=False),
             label='Target Subject',
         )
-    
+

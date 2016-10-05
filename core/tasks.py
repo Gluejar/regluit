@@ -134,12 +134,13 @@ def process_ebfs(campaign):
         if campaign.use_add_ask:
             campaign.add_ask_to_ebfs()
         else:
-            campaign.work.make_ebooks_from_ebfs(add_ask=False)
-        campaign.work.remove_old_ebooks()
+            campaign.revert_asks()
+        campaign.make_mobis()
+        
 
 @task
-def make_mobi(campaign):
-    return campaign.make_mobi()
+def make_mobi(ebookfile):
+    return ebookfile.make_mobi()
     
 @task
 def refresh_acqs():
