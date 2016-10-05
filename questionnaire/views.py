@@ -830,36 +830,51 @@ def _table_headers(questions):
             columns.append(q.number)
     return columns
 
+default_extra_headings = [u'subject', u'run id']
+
+def default_extra_entries(subject, run):
+    return ["%s/%s" % (subject.id, subject.ip_address), run.id]
 
 @permission_required("questionnaire.export")
-def export_csv(request, qid):  # questionnaire_id
+def export_csv(request, qid, 
+        extra_headings=default_extra_headings,
+        extra_entries=default_extra_entries,
+        answer_filter=None,
+        filecode=0,
+    ):  
     """
     For a given questionnaire id, generate a CSV containing all the
     answers for all subjects.
+    qid -- questionnaire_id
+    extra_headings -- customize the headings for extra columns,
+    extra_entries -- function returning a list of extra column entries,
+    answer_filter -- custom filter for the answers
+    filecode -- code for filename
     """
     fd = tempfile.TemporaryFile()
 
     questionnaire = get_object_or_404(Questionnaire, pk=int(qid))
-    headings, answers = answer_export(questionnaire)
+    headings, answers = answer_export(questionnaire, answer_filter=answer_filter)
 
     writer = UnicodeWriter(fd)
-    writer.writerow([u'subject', u'runid'] + headings)
-    for subject, runid, answer_row in answers:
-        row = ["%s/%s" % (subject.id, subject.state), runid] + [
+    writer.writerow(extra_headings + headings)
+    for subject, run, answer_row in answers:
+        row = extra_entries(subject, run) + [
             a if a else '--' for a in answer_row]
         writer.writerow(row)
     fd.seek(0)
 
     response = HttpResponse(fd, content_type="text/csv")
     response['Content-Length'] = fd.tell()
-    response['Content-Disposition'] = 'attachment; filename="export-%s.csv"' % qid
+    response['Content-Disposition'] = 'attachment; filename="answers-%s-%s.csv"' % (qid, filecode)
     return response
 
 
-def answer_export(questionnaire, answers=None):
+def answer_export(questionnaire, answers=None, answer_filter=None):
     """
     questionnaire -- questionnaire model for export
     answers -- query set of answers to include in export, defaults to all
+    answer_filter -- filter for the answers
 
     Return a flat dump of column headings and all the answers for a
     questionnaire (in query set answers) in the form (headings, answers)
@@ -881,6 +896,8 @@ def answer_export(questionnaire, answers=None):
     """
     if answers is None:
         answers = Answer.objects.all()
+    if answer_filter:
+        answers = answer_filter(answers)
     answers = answers.filter(
         question__questionset__questionnaire=questionnaire).order_by(
         'subject', 'run__runid', 'question__questionset__sortid', 'question__number')
@@ -900,11 +917,12 @@ def answer_export(questionnaire, answers=None):
     runid = subject = None
     out = []
     row = []
+    run = None
     for answer in answers:
-        if answer.run.runid != runid or answer.subject != subject:
+        if answer.run != run or answer.subject != subject:
             if row:
-                out.append((subject, runid, row))
-            runid = answer.run.runid
+                out.append((subject, run, row))
+            run = answer.run
             subject = answer.subject
             row = [""] * len(headings)
         ans = answer.split_answer()
@@ -928,7 +946,7 @@ def answer_export(questionnaire, answers=None):
                 row[col] = choice
     # and don't forget about the last one
     if row:
-        out.append((subject, runid, row))
+        out.append((subject, run, row))
     return headings, out
 
 

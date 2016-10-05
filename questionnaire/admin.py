@@ -80,7 +80,8 @@ from django.contrib import admin
 # new in dj1.7
 # @admin.register(Landing)
 class LandingAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('label', 'content_type', 'object_id', )
+    ordering = [ 'object_id', ]
 
 adminsite.register(Questionnaire, QuestionnaireAdmin)
 adminsite.register(Question, QuestionAdmin)
