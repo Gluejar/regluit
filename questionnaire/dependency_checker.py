@@ -121,7 +121,7 @@ def dep_check(expr, runinfo, answerdict):
     else:
         # retrieve from database
         answer_object = Answer.objects.filter(question=check_question,
-                                              runid=runinfo.runid,
+                                              run=runinfo.run,
                                               subject=runinfo.subject)
         if answer_object:
             actual_answer = answer_object[0].split_answer()

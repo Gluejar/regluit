@@ -47,7 +47,7 @@ def process_choice(question, answer):
     opt = answer['ANSWER'] or ''
     if not opt and not question.type.endswith( '-optional'):
         raise AnswerException(_(u'You must select an option'))
-    if opt == '_entry_' and question.type == 'choice-freeform':
+    if opt == '_entry_' and question.type.startswith('choice-freeform'):
         opt = answer.get('comment','')
         if not opt:
             raise AnswerException(_(u'Field cannot be blank'))

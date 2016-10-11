@@ -1,5 +1,14 @@
 #!/usr/bin/python
 # vim: set fileencoding=utf-8
+import logging
+import random
+import re
+import tempfile
+
+from compat import commit_on_success, commit, rollback
+from hashlib import md5
+from uuid import uuid4
+
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
@@ -12,6 +21,7 @@ from django.conf import settings
 from datetime import datetime
 from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
+
 from . import QuestionProcessors
 from . import questionnaire_start, questionset_start, questionset_done, questionnaire_done
 from . import AnswerException
@@ -21,15 +31,9 @@ from .models import *
 from .parsers import *
 from .parsers import BoolNot, BoolAnd, BoolOr, Checker
 from .emails import _send_email, send_emails
-from .utils import numal_sort, split_numal
+from .utils import numal_sort, split_numal, UnicodeWriter
 from .request_cache import request_cache
 from .dependency_checker import dep_check
-from compat import commit_on_success, commit, rollback
-import logging
-import random
-from hashlib import md5
-import re
-from uuid import uuid4
 
 
 try:
@@ -61,9 +65,9 @@ def get_question(number, questionset):
     return res and res[0] or None
 
 
-def delete_answer(question, subject, runid):
-    "Delete the specified question/subject/runid combination from the Answer table"
-    Answer.objects.filter(subject=subject, runid=runid, question=question).delete()
+def delete_answer(question, subject, run):
+    "Delete the specified question/subject/run combination from the Answer table"
+    Answer.objects.filter(subject=subject, run=run, question=question).delete()
 
 
 def add_answer(runinfo, question, answer_dict):
@@ -77,7 +81,7 @@ def add_answer(runinfo, question, answer_dict):
     answer = Answer()
     answer.question = question
     answer.subject = runinfo.subject
-    answer.runid = runinfo.runid
+    answer.run = runinfo.run
 
     type = question.get_type()
 
@@ -90,7 +94,7 @@ def add_answer(runinfo, question, answer_dict):
         raise AnswerException("No Processor defined for question type %s" % type)
 
     # first, delete all existing answers to this question for this particular user+run
-    delete_answer(question, runinfo.subject, runinfo.runid)
+    delete_answer(question, runinfo.subject, runinfo.run)
 
     # then save the new answer to the database
     answer.save(runinfo)
@@ -479,7 +483,7 @@ def questionnaire(request, runcode=None, qs=None):
                 if not depparser.parse(depon):
                     # if check is not the same as answer, then we don't care
                     # about this question plus we should delete it from the DB
-                    delete_answer(question, runinfo.subject, runinfo.runid)
+                    delete_answer(question, runinfo.subject, runinfo.run)
                     if cd.get('store', False):
                         runinfo.set_cookie(question.number, None)
                     continue
@@ -518,7 +522,7 @@ def questionnaire(request, runcode=None, qs=None):
 def finish_questionnaire(request, runinfo, questionnaire):
     hist = RunInfoHistory()
     hist.subject = runinfo.subject
-    hist.runid = runinfo.runid
+    hist.run = runinfo.run
     hist.completed = datetime.now()
     hist.questionnaire = questionnaire
     hist.tags = runinfo.tags
@@ -532,11 +536,11 @@ def finish_questionnaire(request, runinfo, questionnaire):
     redirect_url = questionnaire.redirect_url
     for x, y in (('$LANG', lang),
                  ('$SUBJECTID', runinfo.subject.id),
-                 ('$RUNID', runinfo.runid),):
+                 ('$RUNID', runinfo.run.runid),):
         redirect_url = redirect_url.replace(x, str(y))
 
-    if runinfo.runid in ('12345', '54321') \
-            or runinfo.runid.startswith('test:'):
+    if runinfo.run.runid in ('12345', '54321') \
+            or runinfo.run.runid.startswith('test:'):
         runinfo.questionset = QuestionSet.objects.filter(questionnaire=questionnaire).order_by('sortid')[0]
         runinfo.save()
     else:
@@ -720,7 +724,7 @@ def show_questionnaire(request, runinfo, errors={}):
         
     current_answers = []
     if debug_questionnaire:
-        current_answers = Answer.objects.filter(subject=runinfo.subject, runid=runinfo.runid).order_by('id')
+        current_answers = Answer.objects.filter(subject=runinfo.subject, run=runinfo.run).order_by('id')
 
 
     r = r2r("questionnaire/questionset.html", request,
@@ -826,70 +830,51 @@ def _table_headers(questions):
             columns.append(q.number)
     return columns
 
+default_extra_headings = [u'subject', u'run id']
+
+def default_extra_entries(subject, run):
+    return ["%s/%s" % (subject.id, subject.ip_address), run.id]
 
 @permission_required("questionnaire.export")
-def export_csv(request, qid):  # questionnaire_id
+def export_csv(request, qid, 
+        extra_headings=default_extra_headings,
+        extra_entries=default_extra_entries,
+        answer_filter=None,
+        filecode=0,
+    ):  
     """
-    For a given questionnaire id, generaete a CSV containing all the
+    For a given questionnaire id, generate a CSV containing all the
     answers for all subjects.
+    qid -- questionnaire_id
+    extra_headings -- customize the headings for extra columns,
+    extra_entries -- function returning a list of extra column entries,
+    answer_filter -- custom filter for the answers
+    filecode -- code for filename
     """
-    import tempfile, csv, cStringIO, codecs
-    from django.core.servers.basehttp import FileWrapper
-
-    class UnicodeWriter:
-        """
-        COPIED from http://docs.python.org/library/csv.html example:
-
-        A CSV writer which will write rows to CSV file "f",
-        which is encoded in the given encoding.
-        """
-
-        def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
-            # Redirect output to a queue
-            self.queue = cStringIO.StringIO()
-            self.writer = csv.writer(self.queue, dialect=dialect, **kwds)
-            self.stream = f
-            self.encoder = codecs.getincrementalencoder(encoding)()
-
-        def writerow(self, row):
-            self.writer.writerow([unicode(s).encode("utf-8") for s in row])
-            # Fetch UTF-8 output from the queue ...
-            data = self.queue.getvalue()
-            data = data.decode("utf-8")
-            # ... and reencode it into the target encoding
-            data = self.encoder.encode(data)
-            # write to the target stream
-            self.stream.write(data)
-            # empty queue
-            self.queue.truncate(0)
-
-        def writerows(self, rows):
-            for row in rows:
-                self.writerow(row)
-
     fd = tempfile.TemporaryFile()
 
     questionnaire = get_object_or_404(Questionnaire, pk=int(qid))
-    headings, answers = answer_export(questionnaire)
+    headings, answers = answer_export(questionnaire, answer_filter=answer_filter)
 
     writer = UnicodeWriter(fd)
-    writer.writerow([u'subject', u'runid'] + headings)
-    for subject, runid, answer_row in answers:
-        row = ["%s/%s" % (subject.id, subject.state), runid] + [
+    writer.writerow(extra_headings + headings)
+    for subject, run, answer_row in answers:
+        row = extra_entries(subject, run) + [
             a if a else '--' for a in answer_row]
         writer.writerow(row)
-
-    response = HttpResponse(FileWrapper(fd), content_type="text/csv")
-    response['Content-Length'] = fd.tell()
-    response['Content-Disposition'] = 'attachment; filename="export-%s.csv"' % qid
     fd.seek(0)
+
+    response = HttpResponse(fd, content_type="text/csv")
+    response['Content-Length'] = fd.tell()
+    response['Content-Disposition'] = 'attachment; filename="answers-%s-%s.csv"' % (qid, filecode)
     return response
 
 
-def answer_export(questionnaire, answers=None):
+def answer_export(questionnaire, answers=None, answer_filter=None):
     """
     questionnaire -- questionnaire model for export
     answers -- query set of answers to include in export, defaults to all
+    answer_filter -- filter for the answers
 
     Return a flat dump of column headings and all the answers for a
     questionnaire (in query set answers) in the form (headings, answers)
@@ -911,9 +896,11 @@ def answer_export(questionnaire, answers=None):
     """
     if answers is None:
         answers = Answer.objects.all()
+    if answer_filter:
+        answers = answer_filter(answers)
     answers = answers.filter(
         question__questionset__questionnaire=questionnaire).order_by(
-        'subject', 'runid', 'question__questionset__sortid', 'question__number')
+        'subject', 'run__runid', 'question__questionset__sortid', 'question__number')
     answers = answers.select_related()
     questions = Question.objects.filter(
         questionset__questionnaire=questionnaire)
@@ -930,11 +917,12 @@ def answer_export(questionnaire, answers=None):
     runid = subject = None
     out = []
     row = []
+    run = None
     for answer in answers:
-        if answer.runid != runid or answer.subject != subject:
+        if answer.run != run or answer.subject != subject:
             if row:
-                out.append((subject, runid, row))
-            runid = answer.runid
+                out.append((subject, run, row))
+            run = answer.run
             subject = answer.subject
             row = [""] * len(headings)
         ans = answer.split_answer()
@@ -958,7 +946,7 @@ def answer_export(questionnaire, answers=None):
                 row[col] = choice
     # and don't forget about the last one
     if row:
-        out.append((subject, runid, row))
+        out.append((subject, run, row))
     return headings, out
 
 
@@ -1053,9 +1041,8 @@ def generate_run(request, questionnaire_id, subject_id=None, context={}):
     str_to_hash += settings.SECRET_KEY
     key = md5(str_to_hash).hexdigest()
     landing = context.get('landing', None)
-
-    run = RunInfo(subject=su, random=key, runid=key, questionset=qs, landing=landing)
-    run.save()
+    r = Run.objects.create(runid=key)
+    run = RunInfo.objects.create(subject=su, random=key, run=r, questionset=qs, landing=landing)
     if not use_session:
         kwargs = {'runcode': key}
     else:

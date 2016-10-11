@@ -49,16 +49,11 @@ def _new_runinfo(subject, questionset):
     """
     nextrun = subject.nextrun
     runid = str(nextrun.year)
-    entries = list(RunInfo.objects.filter(runid=runid, subject=subject))
-    if len(entries)>0:
-        r = entries[0]
-    else:
-        r = RunInfo()
+    (run, created) = Run.objects.get_or_create(runid=runid)
+    (r, created) = RunInfo.objects.get_or_create(run=run, subject=subject)
+    if created:
         r.random = _new_random(subject)
-        r.subject = subject
-        r.runid = runid
         r.emailcount = 0
-        r.created = datetime.now()
     r.questionset = questionset
     r.save()
     if nextrun.month == 2 and nextrun.day == 29: # the only exception?
@@ -79,7 +74,7 @@ def _send_email(runinfo):
     c['gender'] = subject.gender
     c['email'] = subject.email
     c['random'] = runinfo.random
-    c['runid'] = runinfo.runid
+    c['runid'] = runinfo.run.runid
     c['created'] = runinfo.created
     c['site'] = getattr(settings, 'QUESTIONNAIRE_URL', '(settings.QUESTIONNAIRE_URL not set)')
     email = tmpl.render(c)
@@ -143,18 +138,18 @@ def send_emails(request=None, qname=None):
     WEEKAGO = time.time() - (60 * 60 * 24 * 7) # one week ago
     outlog = []
     for r in runinfos:
-        if r.runid.startswith('test:'):
+        if r.run.runid.startswith('test:'):
             continue
         if r.emailcount == -1:
             continue
         if r.emailcount == 0 or time.mktime(r.emailsent.timetuple()) < WEEKAGO:
             try:
                 if _send_email(r):
-                    outlog.append(u"[%s] %s, %s: OK" % (r.runid, r.subject.surname, r.subject.givenname))
+                    outlog.append(u"[%s] %s, %s: OK" % (r.run.runid, r.subject.surname, r.subject.givenname))
                 else:
-                    outlog.append(u"[%s] %s, %s: %s" % (r.runid, r.subject.surname, r.subject.givenname, r.lastemailerror))
+                    outlog.append(u"[%s] %s, %s: %s" % (r.run.runid, r.subject.surname, r.subject.givenname, r.lastemailerror))
             except Exception, e:
-                outlog.append("Exception: [%s] %s: %s" % (r.runid, r.subject.surname, str(e)))
+                outlog.append("Exception: [%s] %s: %s" % (r.run.runid, r.subject.surname, str(e)))
     if request:
         return HttpResponse("Sent Questionnaire Emails:\n  "
             +"\n  ".join(outlog), content_type="text/plain")

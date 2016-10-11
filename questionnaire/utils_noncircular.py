@@ -6,7 +6,7 @@ def get_completed_answers_for_questions(questionnaire_id, question_list):
     completed_questionnaire_runs = RunInfoHistory.objects.filter(questionnaire__id=questionnaire_id)
     completed_answers = []
     for run in completed_questionnaire_runs:
-        specific_answers = Answer.objects.filter(runid=run.runid, question_id__in=question_list)
+        specific_answers = Answer.objects.filter(run=run.run, question_id__in=question_list)
         answer_set = []
         for answer in specific_answers:
             if answer.answer != '[]':

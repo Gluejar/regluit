@@ -34,6 +34,7 @@ urlpatterns = [
     url(r"^rightsholders/claim/$", views.claim, name="claim"), 
     url(r"^rightsholders/surveys/$", views.surveys, name="surveys"), 
     url(r"^rightsholders/new_survey/(?P<work_id>\d*)/?$", views.new_survey, name="new_survey"),
+    url(r"^rightsholders/surveys/answers_(?P<qid>\d+)_(?P<work_id>\d*).csv$", views.export_surveys, name="survey_answers"),
     url(r"^rh_admin/$", views.rh_admin, name="rh_admin"),
     url(r"^rh_admin/accepted/$", views.rh_admin, {'facet': 'accepted'}, name="accepted"),
     url(r"^rh_admin/claims/$", views.rh_admin, {'facet': 'claims'}, name="claims"),
