@@ -25,8 +25,11 @@
 Completed {{ landing.runinfohistory_set.all.count }} times</dd>
 {% endfor %}
 </dl>
-<a href="{% url 'new_survey' work.id %}">Set up a new survey</a> for this work.
-
+<a href="{% url 'new_survey' work.id %}">Set up a new survey</a> for this work.<br />
+{% for survey in surveys %}
+    <a href="{% url 'survey_answers' survey.id work.id %}">Export answers to {{ survey }}</a> for this work.<br />
+    
+{% endfor %}
 </dd>
 {% empty %}
 <dt>No works available</dt>
@@ -34,8 +37,15 @@ Completed {{ landing.runinfohistory_set.all.count }} times</dd>
 {% endfor %}
 </dl>
 <p>
-<a href="{% url 'new_survey' '' %}">Set up a survey</a> using isbn.
+<a href="{% url 'new_survey' '' %}">Set up a survey</a> using isbn. <br />
+{% for survey in surveys %}
+    <a href="{% url 'survey_answers' survey.id '' %}">Export all my answers to {{ survey }}</a>.<br />
+    <a href="{% url 'survey_answers' survey.id '0' %}">{% if request.user.is_staff %}Export ALL answers to {{ survey }}</a>.<br />{% endif %}
+    
+{% endfor %}
+
 </p>
+
 <p>
 Add "?next=https://example.com/any_url" to the end of a survey url to add a redirect on completion of the survey.
 </p>

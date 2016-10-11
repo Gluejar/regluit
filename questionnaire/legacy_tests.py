@@ -40,8 +40,8 @@ class TypeTest(TestCase):
             'question_12_multiple_1' : 'q12_choice1',# choice-multiple-freeform
             'question_12_more_1' : 'blah', # choice-multiple-freeform
         }
-        runinfo = self.runinfo = RunInfo.objects.get(runid='test:test')
-        self.runid = runinfo.runid
+        runinfo = self.runinfo = RunInfo.objects.get(run__runid='test:test')
+        self.runid = runinfo.run.runid
         self.subject_id = runinfo.subject_id
 
 
@@ -66,7 +66,7 @@ class TypeTest(TestCase):
         response = self.client.get('/q/test:test/1/')
         assert "Don't Know" in response.content
         self.assertEqual(response.status_code, 200)
-        runinfo = RunInfo.objects.get(runid='test:test')
+        runinfo = RunInfo.objects.get(run__runid='test:test')
         self.assertEqual(runinfo.subject.language, 'en')
         response = self.client.get('/q/test:test/1/', {"lang" : "de"})
         self.assertEqual(response.status_code, 302)
@@ -74,7 +74,7 @@ class TypeTest(TestCase):
         response = self.client.get('/q/test:test/1/')
         assert "Weiss nicht" in response.content
         self.assertEqual(response.status_code, 200)
-        runinfo = RunInfo.objects.get(runid='test:test')
+        runinfo = RunInfo.objects.get(run__runid='test:test')
         self.assertEqual(runinfo.subject.language, 'de')
 
 
@@ -105,9 +105,10 @@ class TypeTest(TestCase):
         "POST complete answers for QuestionSet 1"
         c = self.client
         ansdict1 = self.ansdict1
-        runinfo = RunInfo.objects.get(runid='test:test')
-        runid = runinfo.random = runinfo.runid = '1real'
+        runinfo = RunInfo.objects.get(run__runid='test:test')
+        runid = runinfo.random = runinfo.run.runid = '1real'
         runinfo.save()
+        runinfo.run.save()
 
         response = c.get('/q/1real/1/')
         self.assertEqual(response.status_code, 200)
@@ -126,7 +127,7 @@ class TypeTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response['Location'], 'http://testserver/')
 
-        self.assertEqual(RunInfo.objects.filter(runid='1real').count(), 0)
+        self.assertEqual(RunInfo.objects.filter(run__runid='1real').count(), 0)
 
         # TODO: The format of these answers seems very strange to me. It was 
         # simpler before I changed it to get the test to work. 
@@ -148,7 +149,7 @@ class TypeTest(TestCase):
             '12' : u'["q12_choice1", ["blah"]]',
         }
         for k, v in dbvalues.items():
-            ans = Answer.objects.get(runid=runid, subject__id=self.subject_id,
+            ans = Answer.objects.get(run__runid=runid, subject__id=self.subject_id,
                 question__number=k)
             
             v = v.replace('\r', '\\r').replace('\n', '\\n')
