@@ -201,7 +201,7 @@ class EditionForm(forms.ModelForm):
     )
     doi = forms.RegexField(
         label=_("DOI"),
-        regex=r'^(https?://dx\.doi\.org/)?(10.\d\d\d\d/\w+|delete)$',
+        regex=r'^(https?://dx\.doi\.org/)?(10.\d\d\d\d/\S+|delete)$',
         required = False,
         help_text = _("starts with '10.' or 'http://dx.doi.org'"),
         error_messages = {
@@ -335,10 +335,11 @@ class EbookForm(forms.ModelForm):
         return new_label if new_label else self.cleaned_data['version_label']
     
     def clean_provider(self):
-        new_provider = Ebook.infer_provider(self.cleaned_data['url'])
-        if not new_provider:
+        url = self.cleaned_data['url']
+        new_provider = Ebook.infer_provider(url)
+        if url and not new_provider:
             raise forms.ValidationError(_("At this time, ebook URLs must point at Internet Archive, Wikisources, Wikibooks, Hathitrust, Project Gutenberg, raw files at Github, or Google Books."))
-        return new_provider
+        return new_provider if new_provider else "Unglue.it"
 
     def clean_url(self):
         url = self.cleaned_data['url']
