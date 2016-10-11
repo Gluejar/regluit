@@ -24,9 +24,9 @@ from regluit.core import (
     models,
     goodreads, 
     librarything,
-    doab,
     mobigen
 )
+from regluit.core.loaders import doab
 from regluit.core.models import Campaign, Acq, Gift
 from regluit.core.signals import deadline_impending
 from regluit.core.parameters import RESERVE, REWARDS, THANKS

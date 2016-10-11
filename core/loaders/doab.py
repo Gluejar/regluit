@@ -227,7 +227,7 @@ def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
 
 def load_doab_records(fname, limit=None, async=True):
     
-    from regluit.core import (doab, tasks)
+    from regluit.core import tasks
     success_count = 0
     
     records = json.load(open(fname))
