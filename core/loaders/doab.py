@@ -234,7 +234,7 @@ def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
     return ebook
 
 
-def load_doab_records(fname, limit=None, async=True):
+def load_doab_records(fname, limit=None):
     
     success_count = 0
     ebook_count = 0
