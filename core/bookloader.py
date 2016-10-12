@@ -487,6 +487,8 @@ def merge_works(w1, w2, user=None):
         w1.featured = w2.featured
     if w2.is_free and not w1.is_free:
         w1.is_free = True
+    if w2.age_level and not w1.age_level:
+        w1.age_level = w2.age_level
     w1.save()
     for wishlist in models.Wishlist.objects.filter(works__in=[w2]):
         w2source = wishlist.work_source(w2)
