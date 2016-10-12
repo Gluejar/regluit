@@ -80,13 +80,16 @@ def work_node(work, facet=None):
     # id
     node.append(text_node('id', "{base}{url}".format(base=UNGLUEIT_URL,url=reverse('work_identifier',kwargs={'work_id':work.id}))))
     
-    # updated -- using creation date
-    node.append(text_node('updated', work.first_ebook().created.isoformat()))
+    updated = None
     
     # links for all ebooks
     ebooks = facet.filter_model("Ebook",work.ebooks()) if facet else work.ebooks()
     versions = set()
     for ebook in ebooks:
+        if updated is None:
+            # most recent ebook, first ebook in loop
+            updated = ebook.created.isoformat()
+            node.append(text_node('updated', updated))
         if not ebook.version_label in versions:
             versions.add(ebook.version_label)
             link_node = etree.Element("link")
