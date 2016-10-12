@@ -86,7 +86,7 @@ def work_node(work, facet=None):
     ebooks = facet.filter_model("Ebook",work.ebooks()) if facet else work.ebooks()
     versions = set()
     for ebook in ebooks:
-        if not updated:
+        if updated is None:
             # most recent ebook, first ebook in loop
             updated = ebook.created.isoformat()
             node.append(text_node('updated', updated))
