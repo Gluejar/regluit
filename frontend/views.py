@@ -1887,7 +1887,7 @@ def surveys(request):
         return render(request, "surveys.html")
     works = works_user_can_admin(request.user)
     work_ids = [work.id for work in works]
-    surveys = Questionnaire.objects.filter(landings__object_id__in=work_ids)
+    surveys = Questionnaire.objects.filter(landings__object_id__in=work_ids).distinct()
     return render(request, "surveys.html", {"works":works, "surveys":surveys})
 
 def rh_tools(request):
