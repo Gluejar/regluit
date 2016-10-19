@@ -13,7 +13,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.core.cache import cache
-from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, render_to_response, get_object_or_404
 from django.views.generic.base import TemplateView
 from django.db import transaction
@@ -835,7 +835,8 @@ default_extra_headings = [u'subject', u'run id']
 def default_extra_entries(subject, run):
     return ["%s/%s" % (subject.id, subject.ip_address), run.id]
 
-@permission_required("questionnaire.export")
+
+@login_required
 def export_csv(request, qid, 
         extra_headings=default_extra_headings,
         extra_entries=default_extra_entries,
@@ -848,9 +849,12 @@ def export_csv(request, qid,
     qid -- questionnaire_id
     extra_headings -- customize the headings for extra columns,
     extra_entries -- function returning a list of extra column entries,
-    answer_filter -- custom filter for the answers
+    answer_filter -- custom filter for the answers. If this is present, the filter must manage access.
     filecode -- code for filename
     """
+    if answer_filter is None and not request.user.has_perm("questionnaire.export"):
+        return HttpResponse('Sorry, you do not have export permissions', content_type="text/plain")
+    
     fd = tempfile.TemporaryFile()
 
     questionnaire = get_object_or_404(Questionnaire, pk=int(qid))
