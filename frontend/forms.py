@@ -2,6 +2,7 @@
 
 import logging
 import re
+import unicodedata
 
 from datetime import timedelta, date
 from decimal import Decimal as D
@@ -66,6 +67,7 @@ from regluit.core.lookups import (
 )
 from regluit.utils.localdatetime import now
 from regluit.utils.fields import ISBNField
+from regluit.utils.text import sanitize_line, remove_badxml
 from regluit.mobi import Mobi
 from regluit.pyepub import EPUB
 from regluit.bisac.models import BisacHeading
@@ -235,7 +237,16 @@ class EditionForm(forms.ModelForm):
             elif doi.startswith("http"):
                 return doi[18:]
         return doi
-
+    
+    def clean_title(self):
+        return sanitize_line(self.cleaned_data["title"])
+        
+    def clean_add_author(self):
+        return sanitize_line(self.cleaned_data["add_author"])
+        
+    def clean_description(self):
+        return remove_badxml(self.cleaned_data["description"])
+                
     def clean(self):
         has_isbn = self.cleaned_data.get("isbn", False) not in nulls
         has_oclc = self.cleaned_data.get("oclc", False) not in nulls
@@ -249,6 +260,7 @@ class EditionForm(forms.ModelForm):
         if not has_id and not has_isbn and not has_oclc  and not has_goog and not has_http and not has_doi:
             raise forms.ValidationError(_("There must be either an ISBN, a DOI, a URL or an OCLC number."))
         return self.cleaned_data
+
     class Meta:
         model = Edition
         exclude = ('created', 'work')
