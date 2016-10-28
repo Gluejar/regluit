@@ -4,6 +4,7 @@ from selectable.registry import registry
 from django.contrib.auth.models import User
 from django.db.models import Count
 from regluit.core.models import Work, PublisherName, Edition, Subject, EditionNote
+from regluit.utils.text import sanitize_line
 
 class OwnerLookup(ModelLookup):
     model = User
@@ -26,6 +27,7 @@ class PublisherNameLookup(ModelLookup):
     model = PublisherName
     search_fields = ('name__icontains',)
     def create_item(self, value):
+        value = sanitize_line(value)
         publisher_name, created = PublisherName.objects.get_or_create(name=value)
         publisher_name.save()
         return publisher_name
