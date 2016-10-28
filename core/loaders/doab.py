@@ -12,7 +12,7 @@ from django.core.files.base import ContentFile
 import regluit
 from regluit.core import models, tasks
 from regluit.core import bookloader
-from regluit.core.bookloader import add_by_isbn
+from regluit.core.bookloader import add_by_isbn, merge_works
 
 logger = logging.getLogger(__name__)
 
@@ -99,7 +99,28 @@ def attach_more_doab_metadata(edition, description, subjects,
                
     return edition
 
-def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
+def add_all_isbns(isbns, work, language=None, title=None):
+    for isbn in isbns:
+        first_edition = None
+        edition = bookloader.add_by_isbn(isbn, work, language=language, title=title)
+        if edition:
+            first_edition = first_edition if first_edition else edition 
+            if work and (edition.work.id != work.id): 
+                print "before merge"
+                print work.id
+                print edition.work.id
+                if work.created < edition.work.created:
+                    merge_works(work, edition.work)
+                else:
+                    merge_works(edition.work, work)
+                print "after merge"
+                print work.id
+                print edition.work.id
+            else:
+                work = edition.work
+    return first_edition
+
+def load_doab_edition(title, doab_id, url, format, rights,
                       language, isbns,
                       provider, **kwargs):
     
@@ -142,9 +163,7 @@ def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
                                   publisher_name=kwargs.get('publisher'),
                                   language=language)
         # make sure all isbns are added
-        for isbn in isbns:
-            bookloader.add_by_isbn(isbn, ebook.edition.work, language=language)
-
+        add_all_isbns(isbns, None, language=language, title=title)
         return ebook
     
     # remaining case --> no ebook, load record, create ebook if there is one.
@@ -155,27 +174,23 @@ def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
         
     # look for the Edition with which to associate ebook.
     # loop through the isbns to see whether we get one that is not None
-    edition = None
     work = None
-    isbns.reverse()
-    for isbn in isbns:
-        newedition = bookloader.add_by_isbn(isbn, work, language=language, title=title)
-        if newedition is not None:
-            edition = newedition
-            work = edition.work        
-    
+    edition = add_all_isbns(isbns, None, language=language, title=title)
+    if edition:
+        edition.refresh_from_db()
+        work = edition.work
+
     if doab_id and not work:
         # make sure there's not already a doab_id
         idents = models.Identifier.objects.filter(type='doab', value=doab_id)
         for ident in idents:
-            edition = ident.edition if ident.edition else ident.work.preferred_edition
+            edition = ident.work.preferred_edition
             break
     
     if edition is not None:
         # if this is a new edition, then add related editions asynchronously
         if getattr(edition,'new', False):
             tasks.populate_edition.delay(edition.isbn_13)
-            
         doab_identifer = models.Identifier.get_or_add(type='doab', value=doab_id,
                                 work=edition.work)
 
@@ -193,14 +208,6 @@ def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
             doab_identifer = models.Identifier.get_or_add(type='doab', value=doab_id,
                                                work=work)
             
-        
-        # create Edition(s) for each of the isbn from the input info
-        editions = []
-        for isbn in isbns:
-            edition = add_by_isbn(isbn, work=work, language=language)
-            if edition:
-                editions.append(edition)
-  
         # if work has any ebooks already, attach the ebook to the corresponding edition
         # otherwise pick the first one
         # pick the first edition as the one to tie ebook to 
@@ -208,8 +215,6 @@ def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
                                                       Q(ebooks__isnull=False)).distinct()
         if editions_with_ebooks:
             edition = editions_with_ebooks[0]
-        elif editions:
-            edition = editions[0]
         elif work.editions.all():
             edition = work.editions.all()[0]
         else:
@@ -217,7 +222,6 @@ def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
             edition.save()
         
     # make the edition the selected_edition of the work
-    work = edition.work
     work.selected_edition = edition
     work.save()
     
@@ -252,9 +256,9 @@ def load_doab_records(fname, limit=None):
 
     for (i, book) in enumerate(islice(records,limit)):
         d = dict(book)
+        ebook = load_doab_edition(**dict(book))
+        success_count += 1 
         try:
-            ebook = load_doab_edition(**dict(book))
-            success_count += 1 
             if ebook:
                 ebook_count +=1
         except Exception, e:
