@@ -106,16 +106,10 @@ def add_all_isbns(isbns, work, language=None, title=None):
         if edition:
             first_edition = first_edition if first_edition else edition 
             if work and (edition.work.id != work.id): 
-                print "before merge"
-                print work.id
-                print edition.work.id
                 if work.created < edition.work.created:
                     merge_works(work, edition.work)
                 else:
                     merge_works(edition.work, work)
-                print "after merge"
-                print work.id
-                print edition.work.id
             else:
                 work = edition.work
     return first_edition
