@@ -256,9 +256,9 @@ def load_doab_records(fname, limit=None):
 
     for (i, book) in enumerate(islice(records,limit)):
         d = dict(book)
-        ebook = load_doab_edition(**dict(book))
-        success_count += 1 
         try:
+            ebook = load_doab_edition(**dict(book))
+            success_count += 1 
             if ebook:
                 ebook_count +=1
         except Exception, e:
