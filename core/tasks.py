@@ -24,7 +24,6 @@ from regluit.core import (
     models,
     goodreads, 
     librarything,
-    doab,
     mobigen
 )
 from regluit.core.models import Campaign, Acq, Gift
@@ -175,13 +174,6 @@ def refresh_acqs():
             break
         else:
             acq.refreshed = True
-
-@task
-def load_doab_edition(title, doab_id, seed_isbn, url, format, rights, language, isbns,
-                      provider='Directory of Open Access Books', **kwargs):
-    
-    return doab.load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
-                      language, isbns, provider, **kwargs)
 
 @task
 def convert_to_mobi(input_url, input_format="application/epub+zip"):

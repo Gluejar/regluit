@@ -73,7 +73,7 @@ def add_by_oclc_from_google(oclc):
             logger.exception("google books data for %s didn't fit our db", oclc)
         return None
 
-def add_by_isbn(isbn, work=None):
+def add_by_isbn(isbn, work=None, language='xx', title=''):
     if not isbn:
         return None
     try:
@@ -87,13 +87,17 @@ def add_by_isbn(isbn, work=None):
     
     logger.info("null came back from add_by_isbn_from_google: %s", isbn)
 
-    if not work or not work.title:
-        return None
-
-    # if there's a work with a title, we want to create stub editions and 
+    # if there's a a title, we want to create stub editions and 
     # works, even if google doesn't know about it # but if it's not valid, 
     # forget it!
 
+    if work:
+        title = work.title if work.title else title
+        if not title:
+            return None
+    if not title:
+        return None
+        
     try:
         isbn = regluit.core.isbn.ISBN(isbn)
     except:
@@ -103,13 +107,17 @@ def add_by_isbn(isbn, work=None):
         return None
     isbn = isbn.to_string()
     
-    # we don't know the language  ->'xx'
-    w = models.Work(title=work.title, language='xx')
-    w.save()
-    e = models.Edition(title=work.title,work=w)
+    if not language or language == 'xx': # don't add unknown language 
+        # we don't know the language  ->'xx'
+        work = models.Work(title=title, language='xx')
+        work.save()
+    elif not work:
+        work = models.Work(title=title, language=language)
+        work.save()
+    e = models.Edition(title=title, work=work)
     e.save()
     e.new = True
-    models.Identifier(type='isbn', value=isbn, work=w, edition=e).save()
+    models.Identifier(type='isbn', value=isbn, work=work, edition=e).save()
     return e
 
 def get_google_isbn_results(isbn):
@@ -327,19 +335,17 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
         work.new = True
         work.save()
 
-
     # going off to google can take some time, so we want to make sure this edition has not
     # been created in another thread while we were waiting
     try:
         e = models.Identifier.objects.get(type='goog', value=googlebooks_id).edition
         e.new = False
-        # whoa nellie, somebody else created an edition while we were working.
+        logger.warning( " whoa nellie, somebody else created an edition while we were working.")
         if work.new:
             work.delete()
         return e
     except models.Identifier.DoesNotExist:
         pass
-    
     
     # because this is a new google id, we have to create a new edition
     e = models.Edition(work=work)
@@ -487,6 +493,8 @@ def merge_works(w1, w2, user=None):
         w1.featured = w2.featured
     if w2.is_free and not w1.is_free:
         w1.is_free = True
+    if w2.age_level and not w1.age_level:
+        w1.age_level = w2.age_level
     w1.save()
     for wishlist in models.Wishlist.objects.filter(works__in=[w2]):
         w2source = wishlist.work_source(w2)

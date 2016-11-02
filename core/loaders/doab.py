@@ -10,9 +10,9 @@ from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
 
 import regluit
-from regluit.core import models
+from regluit.core import models, tasks
 from regluit.core import bookloader
-from regluit.core.bookloader import add_by_isbn
+from regluit.core.bookloader import add_by_isbn, merge_works
 
 logger = logging.getLogger(__name__)
 
@@ -62,50 +62,68 @@ def update_cover_doab(doab_id, store_cover=True):
     else:
         return None
     
-def attach_more_doab_metadata(ebook, description, subjects,
-                              publication_date, publisher_name=None):
+def attach_more_doab_metadata(edition, description, subjects,
+                              publication_date, publisher_name=None, language=None):
     
     """
-    for given ebook, attach description, subjects, publication date to
+    for given edition, attach description, subjects, publication date to
     corresponding Edition and Work
     """
-    # if edition doesn't have a publication date, update it
-    edition = ebook.edition
-    edition_to_save = False
-    
+    # if edition doesn't have a publication date, update it    
     if not edition.publication_date:
         edition.publication_date = publication_date
-        edition_to_save = True
     
     # if edition.publisher_name is empty, set it
     if not edition.publisher_name:
         edition.set_publisher(publisher_name)
         
-    if edition_to_save:
-        edition.save()
+    edition.save()
         
     # attach description to work if it's not empty
     work = edition.work
     if not work.description:
         work.description = description
-        work.save()
         
     # update subjects
     for s in subjects:
         if bookloader.valid_subject(s):
             work.subjects.add(models.Subject.objects.get_or_create(name=s)[0])
-            
-    return ebook
+    
+    # set reading level of work if it's empty; doab is for adults.
+    if not work.age_level:
+        work.age_level = '18-'
+        
+    if language:
+        work.language = language
+    work.save()
+               
+    return edition
 
-def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
+def add_all_isbns(isbns, work, language=None, title=None):
+    for isbn in isbns:
+        first_edition = None
+        edition = bookloader.add_by_isbn(isbn, work, language=language, title=title)
+        if edition:
+            first_edition = first_edition if first_edition else edition 
+            if work and (edition.work.id != work.id): 
+                if work.created < edition.work.created:
+                    merge_works(work, edition.work)
+                else:
+                    merge_works(edition.work, work)
+            else:
+                work = edition.work
+    return first_edition
+
+def load_doab_edition(title, doab_id, url, format, rights,
                       language, isbns,
                       provider, **kwargs):
     
     """
     load a record from doabooks.org represented by input parameters and return an ebook
     """
-    from regluit.core import tasks
-
+    if language and isinstance(language, list):
+        language = language[0]
+        
     # check to see whether the Edition hasn't already been loaded first
     # search by url
     ebooks = models.Ebook.objects.filter(url=url)
@@ -121,7 +139,7 @@ def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
     
     # if yes, then return one of the Edition(s) whose work is doab_id
     # if no, then 
-    
+    ebook = None
     if len(ebooks) > 1:
         raise Exception("There is more than one Ebook matching url {0}".format(url))    
     elif len(ebooks) == 1:  
@@ -132,68 +150,58 @@ def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
         cover_url = update_cover_doab(doab_id)
         
         # attach more metadata
-        attach_more_doab_metadata(ebook, 
+        attach_more_doab_metadata(ebook.edition, 
                                   description=kwargs.get('description'),
                                   subjects=kwargs.get('subject'),
                                   publication_date=kwargs.get('date'),
-                                  publisher_name=kwargs.get('publisher'))
-        
+                                  publisher_name=kwargs.get('publisher'),
+                                  language=language)
+        # make sure all isbns are added
+        add_all_isbns(isbns, None, language=language, title=title)
         return ebook
     
-    # remaining case --> need to create a new Ebook 
+    # remaining case --> no ebook, load record, create ebook if there is one.
     assert len(ebooks) == 0
             
-    # make sure we have isbns to work with before creating ebook
-    if len(isbns) == 0:
-        return None
-    
-    ebook = models.Ebook()
-    ebook.format = format
-    ebook.provider = provider
-    ebook.url =  url
-    ebook.rights = rights
 
-    # we still need to find the right Edition/Work to tie Ebook to...
-    
+    # we need to find the right Edition/Work to tie Ebook to...
+        
     # look for the Edition with which to associate ebook.
     # loop through the isbns to see whether we get one that is not None
-        
-    for isbn in isbns:
-        edition = bookloader.add_by_isbn(isbn)
-        if edition is not None: break        
+    work = None
+    edition = add_all_isbns(isbns, None, language=language, title=title)
+    if edition:
+        edition.refresh_from_db()
+        work = edition.work
+
+    if doab_id and not work:
+        # make sure there's not already a doab_id
+        idents = models.Identifier.objects.filter(type='doab', value=doab_id)
+        for ident in idents:
+            edition = ident.work.preferred_edition
+            break
     
     if edition is not None:
         # if this is a new edition, then add related editions asynchronously
         if getattr(edition,'new', False):
             tasks.populate_edition.delay(edition.isbn_13)
-            
-        # QUESTION:  Is this good enough?
-        # what's going to happen to edition.work if there's merging   
-        doab_identifer = models.Identifier.get_or_add(type='doab',value=doab_id, 
+        doab_identifer = models.Identifier.get_or_add(type='doab', value=doab_id,
                                 work=edition.work)
 
     # we need to create Edition(s) de novo    
     else: 
         # if there is a Work with doab_id already, attach any new Edition(s)
         try:
-            work = models.Identifier.objects.get(type='doab',value=doab_id).work
+            work = models.Identifier.objects.get(type='doab', value=doab_id).work
         except models.Identifier.DoesNotExist:
-            work = models.Work(language=language,title=title)
+            if language:
+                work = models.Work(language=language, title=title, age_level='18-')
+            else:
+                work = models.Work(language='xx', title=title, age_level='18-')
             work.save()
-            doab_identifer = models.Identifier.get_or_add(type='doab',value=doab_id, 
+            doab_identifer = models.Identifier.get_or_add(type='doab', value=doab_id,
                                                work=work)
             
-        
-        # create Edition(s) for each of the isbn from the input info
-        editions = []
-        for isbn in isbns:
-            edition = models.Edition(title=title, work=work)
-            edition.save()
-            
-            isbn_id = models.Identifier.get_or_add(type='isbn',value=isbn,work=work)
-            
-            editions.append(edition)
-  
         # if work has any ebooks already, attach the ebook to the corresponding edition
         # otherwise pick the first one
         # pick the first edition as the one to tie ebook to 
@@ -201,23 +209,31 @@ def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
                                                       Q(ebooks__isnull=False)).distinct()
         if editions_with_ebooks:
             edition = editions_with_ebooks[0]
+        elif work.editions.all():
+            edition = work.editions.all()[0]
         else:
-            edition = editions[0]
+            edition = models.Edition(work=work, title=title)
+            edition.save()
         
     # make the edition the selected_edition of the work
-    work = edition.work
     work.selected_edition = edition
     work.save()
     
-    # tie the edition to ebook
-    ebook.edition = edition
-    ebook.save()
+    if format in ('pdf', 'epub', 'mobi'):
+        ebook = models.Ebook()
+        ebook.format = format
+        ebook.provider = provider
+        ebook.url =  url
+        ebook.rights = rights
+        # tie the edition to ebook
+        ebook.edition = edition
+        ebook.save()
     
     # update the cover id (could be done separately)
     cover_url = update_cover_doab(doab_id)
     
     # attach more metadata
-    attach_more_doab_metadata(ebook, 
+    attach_more_doab_metadata(edition, 
                               description=kwargs.get('description'),
                               subjects=kwargs.get('subject'),
                               publication_date=kwargs.get('date'),
@@ -225,32 +241,23 @@ def load_doab_edition(title, doab_id, seed_isbn, url, format, rights,
     return ebook
 
 
-def load_doab_records(fname, limit=None, async=True):
+def load_doab_records(fname, limit=None):
     
-    from regluit.core import (doab, tasks)
     success_count = 0
+    ebook_count = 0
     
     records = json.load(open(fname))
 
     for (i, book) in enumerate(islice(records,limit)):
         d = dict(book)
-        if d['format'] == 'pdf':
-            try:
-                if async:
-                    task_id = tasks.load_doab_edition.delay(**dict(book))
-                    
-                    ct = models.CeleryTask()
-                    ct.task_id = task_id
-                    ct.function_name = "load_doab_edition"
-                    ct.user = None
-                    ct.description = "Loading DOAB %s " % (dict(book)['doab_id'])
-                    ct.save()
-                    
-                else:
-                    edition = load_doab_edition(**dict(book))
-                success_count += 1 
-            except Exception, e:
-                logger.warning(e)
+        try:
+            ebook = load_doab_edition(**dict(book))
+            success_count += 1 
+            if ebook:
+                ebook_count +=1
+        except Exception, e:
+            logger.error(e)
             
-    logger.info("Number of books successfully uploaded: " + str(success_count))
+    logger.info("Number of records processed: " + str(success_count))
+    logger.info("Number of ebooks processed: " + str(ebook_count))
         
