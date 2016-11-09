@@ -140,7 +140,7 @@ class IP(object):
         if not isinstance(other, IP):
             other = IP(other)
 
-        if self.int and other.int:
+        if self.int is not None and other.int is not None:
             return self.int.__cmp__(other.int)
 
         raise ValueError('Invalid arguments')
@@ -177,7 +177,7 @@ class IPAddressFormField(BaseIPAddressField):
             raise ValidationError(self.default_error_messages['invalid'],
                                   code='invalid')
 
-class IPAddressModelField(models.IPAddressField):
+class IPAddressModelField(models.GenericIPAddressField):
     __metaclass__ = models.SubfieldBase
     empty_strings_allowed = False
 
@@ -205,10 +205,10 @@ class IPAddressModelField(models.IPAddressField):
     def formfield(self, **kwargs):
         defaults = {'form_class': IPAddressFormField}
         defaults.update(kwargs)
-        return super(models.IPAddressField, self).formfield(**defaults)
+        return super(models.GenericIPAddressField, self).formfield(**defaults)
         
     def deconstruct(self):
-        name, path, args, kwargs = super(models.IPAddressField, self).deconstruct()
+        name, path, args, kwargs = super(models.GenericIPAddressField, self).deconstruct()
         return name, path, args, kwargs
 
 class Block(models.Model):
