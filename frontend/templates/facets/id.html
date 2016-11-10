@@ -1,0 +1,11 @@
+<div>
+        <p style="">
+        <img src="/static/images/{{ facet.facet_name }}32.png" height="32" alt="{{ facet.facet_name }}" title="{{ facet.facet_name }}" />
+        {% if facet.facet_name == 'gtbg' %}
+            These books are included in <a href="https://www.gutenberg.org">Project Gutenberg</a>. They are archived and can be improved at <a href="https://www.gitenberg.org">GITenberg</a>.
+        {% endif %}
+        {% if facet.facet_name == 'doab' %}
+            These books are included in the <a href="http://doabooks.org/">Directory of Open Access Books</a>. This means that they have been peer-reviewed and are of interest to scholars.
+        {% endif %}
+        </p>
+</div>
