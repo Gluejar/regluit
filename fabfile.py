@@ -38,7 +38,6 @@ def get_dump():
     Note:  web1 has been hardcoded here to represent the name of the unglue.it server
     """
     run("./dump.sh")
-    run("gzip -f unglue.it.sql")
     local("scp web1:/home/ubuntu/unglue.it.sql.gz .")
     local("gunzip -f unglue.it.sql.gz")
     

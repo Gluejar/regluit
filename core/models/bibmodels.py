@@ -45,9 +45,17 @@ from regluit.core.parameters import (
 logger = logging.getLogger(__name__)
 good_providers = ('Internet Archive', 'Unglue.it', 'Github', 'OAPEN Library')
 
+def id_for(obj, type):
+    if not obj.pk:
+        return ''
+    try:
+        return obj.identifiers.filter(type=type)[0].value
+    except IndexError:
+        return ''
+
 
 class Identifier(models.Model):
-    # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, doab, gute, glue, doi
+    # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, doab, gtbg, glue, doi
     type = models.CharField(max_length=4, null=False)
     value = models.CharField(max_length=250, null=False)
     work = models.ForeignKey("Work", related_name="identifiers", null=False)
@@ -99,7 +107,7 @@ class Work(models.Model):
     featured = models.DateTimeField(null=True, blank=True, db_index=True,)
     is_free = models.BooleanField(default=False)
     landings = GenericRelation(Landing, related_query_name='works')
-    related = models.ManyToManyField('self', symmetrical=False, null=True, through='WorkRelation', related_name='reverse_related')
+    related = models.ManyToManyField('self', symmetrical=False, blank=True, through='WorkRelation', related_name='reverse_related')
     age_level = models.CharField(max_length=5, choices=AGE_LEVEL_CHOICES, default='', blank=True) 
 
     class Meta:
@@ -110,6 +118,17 @@ class Work(models.Model):
     def __init__(self, *args, **kwargs):
         self._last_campaign = None
         super(Work, self).__init__(*args, **kwargs)
+    
+    def id_for(self, type):
+        return id_for(self, type)
+
+    @property
+    def gtbg(self):
+        return id_for(self, 'gtbg')
+
+    @property
+    def doab(self):
+        return id_for(self, 'doab')
 
     @property
     def googlebooks_id(self):
@@ -149,10 +168,7 @@ class Work(models.Model):
 
     @property
     def librarything_id(self):
-        try:
-            return self.identifiers.filter(type='ltwk')[0].value
-        except IndexError:
-            return ''
+        return self.id_for('ltwk')
 
     @property
     def librarything_url(self):
@@ -160,10 +176,7 @@ class Work(models.Model):
 
     @property
     def openlibrary_id(self):
-        try:
-            return self.identifiers.filter(type='olwk')[0].value
-        except IndexError:
-            return ''
+        return self.id_for('olwk')
 
     @property
     def openlibrary_url(self):
@@ -820,12 +833,7 @@ class Edition(models.Model):
         return regluit.core.isbn.convert_13_to_10(self.isbn_13)
 
     def id_for(self, type):
-        if not self.pk:
-            return ''
-        try:
-            return self.identifiers.filter(type=type)[0].value
-        except IndexError:
-            return ''
+        return id_for(self, type)
 
     @property
     def isbn_13(self):

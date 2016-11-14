@@ -289,6 +289,16 @@
                                     <a href="{% url 'work' work_rel.to_work.id %}">{{ work_rel.to_work }}</a> is a {{ work_rel.relation }} of this work.
                                     </p>
                                     {% endfor %}
+                                    {% if work.doab %}
+                                    <p>
+                                    This book is included in <a href="{% url 'faceted_list' 'id/doab' %}?order_by=popular">DOAB</a>.
+                                    </p>
+                                    {% endif %}
+                                    {% if work.gtbg %}
+                                    <p>
+                                    This book is included in <a href="{% url 'faceted_list' 'id/gtbg' %}?order_by=popular">Project Gutenberg</a>.
+                                    </p>
+                                    {% endif %}
                                     </div>
                                 </div>
                             </div>

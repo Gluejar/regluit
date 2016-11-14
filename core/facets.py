@@ -86,8 +86,10 @@ class BaseFacet(object):
         
 class FacetGroup(object):
     # a FacetGroup should implement title, facets, has_facet(self, facet_name) and get_facet_class(self, facet_name)
+        
     def has_facet(self, facet_name):
         return facet_name in self.facets
+        
     def get_facets(self):
         for facet_name in self.facets:
             yield self.get_facet_class(facet_name)(None)
@@ -104,7 +106,7 @@ class FormatFacetGroup(FacetGroup):
         super(FacetGroup,self).__init__()
         self.title = 'Format'
         self.facets = ['pdf', 'epub', 'mobi']
-        
+        self.label = '{} is ...'.format(self.title)
     
     def get_facet_class(self, facet_name):
         class FormatFacet(NamedFacet):
@@ -126,6 +128,37 @@ class FormatFacetGroup(FacetGroup):
             def description(self):
                 return  "These eBooks available in %s format." % self.facet_name
         return FormatFacet    
+
+idtitles = {'doab': 'indexed in DOAB', 'gtbg':'available in Project Gutenberg'}
+idlabels = {'doab': 'DOAB', 'gtbg':'Project Gutenberg'}
+class IdFacetGroup(FacetGroup):
+    def __init__(self):
+        super(FacetGroup,self).__init__()
+        self.title = 'Collection'
+        self.facets = idtitles.keys()
+        self.label = 'Included in ...'        
+    
+    def get_facet_class(self, facet_name):
+        class IdFacet(NamedFacet):
+            def set_name(self):
+                self.facet_name=facet_name
+            def id_filter(query_set):
+                return query_set.filter(identifiers__type=facet_name)
+            model_filters = {}
+            def get_query_set(self):
+                return self._get_query_set().filter(identifiers__type=self.facet_name)
+            def template(self):
+                return 'facets/id.html'
+            @property    
+            def label(self):
+                return idlabels[self.facet_name]
+            @property
+            def title(self):
+                return idtitles[self.facet_name]
+            @property
+            def description(self):
+                return  "These eBooks are {}.".format(idtitles[self.facet_name])
+        return IdFacet    
         
         
 class LicenseFacetGroup(FacetGroup):
@@ -134,6 +167,7 @@ class LicenseFacetGroup(FacetGroup):
         self.title = 'License'
         self.licenses = cc.LICENSE_LIST_ALL
         self.facets = cc.FACET_LIST
+        self.label = '{} is ...'.format(self.title)
         
         
     def get_facet_class(self, facet_name):
@@ -175,6 +209,7 @@ class KeywordFacetGroup(FacetGroup):
         self.title = 'Keyword'
         # make facets in TOPKW available for display
         self.facets = [('kw.%s' % kw) for kw in TOPKW]
+        self.label = '{} is ...'.format(self.title)
         
     def has_facet(self, facet_name):
     
@@ -209,7 +244,8 @@ class PublisherFacetGroup(FacetGroup):
         self.title = 'Publisher'
         # don't display facets
         self.facets = []
-        
+        self.label = 'Published by ...'
+
     def has_facet(self, facet_name):
     
         # recognize any facet_name that starts with "pub." as a valid facet name
@@ -249,7 +285,7 @@ class PublisherFacetGroup(FacetGroup):
         return PublisherFacet    
 
 # order of groups in facet_groups determines order of display on /free/    
-facet_groups = [KeywordFacetGroup(), FormatFacetGroup(),  LicenseFacetGroup(), PublisherFacetGroup()]
+facet_groups = [KeywordFacetGroup(), FormatFacetGroup(),  LicenseFacetGroup(), PublisherFacetGroup(), IdFacetGroup()]
 
 def get_facet(facet_name):
     for facet_group in facet_groups:
