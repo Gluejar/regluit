@@ -5,7 +5,7 @@ from selectable.base import ModelLookup
 from selectable.registry import registry
 
 from django import forms
-from django.contrib.admin import ModelAdmin
+from django.contrib.admin import ModelAdmin, site
 from django.contrib.auth.models import User, Group
 
 class UserLookup(ModelLookup):
@@ -47,3 +47,8 @@ class CardPatternAdmin(ModelAdmin):
 class EmailPatternAdmin(ModelAdmin):
     list_display = ('library', 'pattern', )
     search_fields = ('library__name',)
+
+site.register(models.Library, LibraryAdmin)
+site.register(models.Block, BlockAdmin)
+site.register(models.CardPattern, CardPatternAdmin)
+site.register(models.EmailPattern, EmailPatternAdmin)
