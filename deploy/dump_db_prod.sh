@@ -19,3 +19,6 @@ mysqldump --host=${HOST} --user=${USER} --password=${PASSWORD} --single-transact
 
 echo "Dump content"
 mysqldump --host=${HOST} --user=${USER} --password=${PASSWORD}  --no-create-info ${DATABASE} ${IGNORED_TABLES_STRING} >> ${DB_FILE}
+
+echo "gzip the file"
+gzip -f ${DB_FILE}
