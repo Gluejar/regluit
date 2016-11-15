@@ -201,7 +201,6 @@
 
     - name: upgrade pip
       pip: >
-           executable=/opt/regluit/ENV/bin/pip
            name={{item}}
            virtualenv=/opt/regluit/ENV
            virtualenv_command=virtualenv
@@ -212,7 +211,6 @@
     
     - name: pip requirements
       pip: >
-           executable=/opt/regluit/ENV/bin/pip 
            requirements=/opt/regluit/requirements_versioned.pip
            virtualenv=/opt/regluit/ENV
            virtualenv_command=virtualenv
