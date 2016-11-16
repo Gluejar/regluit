@@ -50,7 +50,8 @@ DEFAULT_FROM_EMAIL = 'notices@gluejar.com'
 
 # googlebooks
 # key created by rdhyee@gluejar.com 2013/07/02
-GOOGLE_BOOKS_API_KEY = 'AIzaSyBPZS7D3QvypGN_Tqc3blAXV1iJJJuu4mk'
+# GOOGLE_BOOKS_API_KEY = 'AIzaSyBPZS7D3QvypGN_Tqc3blAXV1iJJJuu4mk'
+GOOGLE_BOOKS_API_KEY = os.environ.get('GOOGLE_BOOKS_API_KEY', '')
 
 # twitter auth
 SOCIAL_AUTH_TWITTER_KEY = 'sd9StEg1N1qB8gGb2GRX4A'
