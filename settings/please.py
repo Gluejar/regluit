@@ -1,4 +1,5 @@
 from regluit.settings.common import *
+import os
 
 ALLOWED_HOSTS = ['.unglue.it']
 DEBUG = False
