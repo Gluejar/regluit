@@ -40,16 +40,14 @@ def store_doab_cover(doab_id, redo=False):
         return (default_storage.url(cover_file_name), True)
     except Exception, e:
         # if there is a problem, return None for cover URL
+        logger.warning('Failed to make cover image for doab_id={}: {}'.format(doab_id, e))
         return (None, False)
 
-def update_cover_doab(doab_id, store_cover=True):
+def update_cover_doab(doab_id, edition, store_cover=True):
     """
     update the cover url for work with doab_id
     if store_cover is True, use the cover from our own storage
     """
-    work = models.Identifier.objects.get(type='doab', value=doab_id).work
-    edition = work.preferred_edition
-    
     if store_cover:
         (cover_url, new_cover) = store_doab_cover(doab_id)
     else:
@@ -147,7 +145,7 @@ def load_doab_edition(title, doab_id, url, format, rights,
         doab_identifer = models.Identifier.get_or_add(type='doab',value=doab_id, 
                                                work=ebook.edition.work)
         # update the cover id 
-        cover_url = update_cover_doab(doab_id)
+        cover_url = update_cover_doab(doab_id, ebook.edition)
         
         # attach more metadata
         attach_more_doab_metadata(ebook.edition, 
@@ -230,7 +228,7 @@ def load_doab_edition(title, doab_id, url, format, rights,
         ebook.save()
     
     # update the cover id (could be done separately)
-    cover_url = update_cover_doab(doab_id)
+    cover_url = update_cover_doab(doab_id, edition)
     
     # attach more metadata
     attach_more_doab_metadata(edition, 
