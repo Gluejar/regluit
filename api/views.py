@@ -46,17 +46,21 @@ def negotiate_content(request,work_id):
     
     return HttpResponseRedirect(reverse('work', kwargs={'work_id': work_id}))
 
+def featured_work():
+    try:
+        work = models.Work.objects.filter(featured__isnull=False).distinct().order_by('-featured')[0]
+    except:
+        #shouldn't occur except in tests
+        work = models.Work.objects.all()[0]
+    return work
+
 def widget(request, isbn):
     """
     supply info for book panel. parameter is named isbn for historical reasons. can be isbn or work_id
     """
    
     if isbn == 'featured':
-        try:
-            work = models.Work.objects.filter(featured__isnull=False).distinct().order_by('-featured')[0]
-        except:
-            #shouldn't occur except in tests
-            work = models.Work.objects.all()[0]
+        work = featured_work()
     else :    
         if len(isbn)==10:
             isbn = regluit.core.isbn.convert_10_to_13(isbn)
@@ -73,6 +77,14 @@ def widget(request, isbn):
     return render(request, 'widget.html', 
          {'work':work, }, 
      )
+
+def featured_cover(request):
+    work = featured_work()
+    return HttpResponseRedirect(work.cover_image_thumbnail())
+
+def featured_url(request):
+    work = featured_work()
+    return HttpResponseRedirect(reverse('work', kwargs={'work_id': work.id}))
 
 def load_yaml(request):
     if request.method == "GET":
