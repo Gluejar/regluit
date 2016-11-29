@@ -5,11 +5,11 @@ import os
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "regluit.settings.just")
 os.environ['CELERY_LOADER'] = 'django'
 
-"""
+
 {% for key in SECRET_KEYS %}
 os.environ['{{key}}'] = '{{SECRET_KEYS[key]}}'
 {% endfor %}
-"""
+
 
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
