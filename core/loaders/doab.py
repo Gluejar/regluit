@@ -1,5 +1,9 @@
+#!/usr/bin/env python
+# encoding: utf-8
 import logging
 import json
+import re
+
 from itertools import islice
 
 import requests
@@ -13,6 +17,7 @@ import regluit
 from regluit.core import models, tasks
 from regluit.core import bookloader
 from regluit.core.bookloader import add_by_isbn, merge_works
+from regluit.core.isbn import ISBN
 
 logger = logging.getLogger(__name__)
 
@@ -258,4 +263,128 @@ def load_doab_records(fname, limit=None):
             
     logger.info("Number of records processed: " + str(success_count))
     logger.info("Number of ebooks processed: " + str(ebook_count))
+
+"""
+#tools to parse the author lists in doab.csv
+from pandas import DataFrame
+url = "http://www.doabooks.org/doab?func=csv"
+df_csv = DataFrame.from_csv(url)
+
+out=[]
+for val in df_csv.values:
+    isbn = split_isbns(val[0])
+    if isbn:
+        auths = []
+        if val[2] == val[2] and val[-2] == val[-2]: # test for NaN auths and licenses
+            auths = creator_list(val[2])
+            out.append(( isbn[0], auths))
+open("/Users/eric/doab_auths.json","w+").write(json.dumps(out,indent=2, separators=(',', ': ')))
+"""
+    
+au = re.compile(r'\(Authors?\)', flags=re.U)
+ed = re.compile(r'\([^\)]*(dir.|[Eeé]ds?.|org.|coord.|Editor|a cura di|archivist)[^\)]*\)', flags=re.U)
+tr = re.compile(r'\([^\)]*([Tt]rans.|tr.|translated by)[^\)]*\)', flags=re.U)
+ai = re.compile(r'\([^\)]*(Introduction|Foreword)[^\)]*\)', flags=re.U)
+ds = re.compile(r'\([^\)]*(designer)[^\)]*\)', flags=re.U)
+cm = re.compile(r'\([^\)]*(comp.)[^\)]*\)', flags=re.U)
+namelist = re.compile(r'([^,]+ [^, ]+)(, | and )([^,]+ [^, ]+)', flags=re.U)
+namesep = re.compile(r', | and ', flags=re.U)
+namesep2 = re.compile(r';|/| and ', flags=re.U)
+isbnsep = re.compile(r'[ ,/;\t]+|Paper: *|Cloth: *|eISBN: *|Hardcover: *', flags=re.U)
+edlist = re.compile(r'([eE]dited by| a cura di|editors)', flags=re.U)
+
+def fnf(auth):
+    if len(auth) > 60:
+        return auth #probably corp name
+    parts = re.sub(r' +', ' ', auth).split(',')
+    if len(parts) == 1:
+        return  parts[0].strip()
+    elif len(parts) == 2:
+        return '{} {}'.format(parts[1].strip(),parts[0].strip())
+    else:
+        if parts[1].strip() in ('der','van', 'von', 'de', 'ter'):
+            return '{} {} {}'.format(parts[2].strip(),parts[1].strip(),parts[0].strip())
+        #print auth
+        #print re.search(namelist,auth).group(0)
+        return '{} {}, {}'.format(parts[2].strip(),parts[0].strip(),parts[1].strip())
+    
+
+def creator(auth, editor=False):
+    auth = auth.strip()
+    if auth in ('','and'):
+        return None
+    if re.search(ed, auth) or editor:
+        return ['edt', fnf(ed.sub('', auth))]
+    if re.search(tr, auth):
+        return ['trl', fnf(tr.sub('', auth))]
+    if re.search(ai, auth):
+        return ['aui', fnf(ai.sub('', auth))]
+    if re.search(ds, auth):
+        return ['dsr', fnf(ds.sub('', auth))]
+    if re.search(cm, auth):
+        return ['com', fnf(cm.sub('', auth))]
+    
+    auth = au.sub('', auth)
+    return ['aut', fnf(auth)]
+
+def split_auths(auths):
+    if ';' in auths or '/' in auths:
+        return namesep2.split(auths)
+    else:
+        nl = namelist.match(auths.strip())
+        if nl:
+            if nl.group(3).endswith(' de') \
+                or ' de ' in nl.group(3) \
+                or nl.group(3).endswith(' da') \
+                or nl.group(1).endswith(' Jr.') \
+                or ' e ' in nl.group(1):
+                return [auths]
+            else:
+                return namesep.split(auths)
+        else :
+            return [auths]
+
+def split_isbns(isbns):
+    result = []
+    for isbn in isbnsep.split(isbns):
+        isbn = ISBN(isbn)
+        if isbn.valid:
+            result.append(isbn.to_string())
+    return result
+
+def creator_list(creators):
+    auths = []
+    if re.search(edlist, creators):
+        for auth in split_auths(edlist.sub('', creators)):
+            if auth:
+                auths.append(creator(auth, editor=True))
+    else:
+        for auth in split_auths(str(creators)):
+            if auth:
+                auths.append(creator(auth))
+    return auths
+
+def load_doab_auths(fname, limit=None):
+    doab_auths = json.load(open(fname))
+    recnum = 0
+    failed = 0
+    for [isbnraw, authlist] in doab_auths:
+        isbn = ISBN(isbnraw).to_string()
+        try:
+            work = models.Identifier.objects.get(type='isbn',value=isbn).work
+        except models.Identifier.DoesNotExist:
+            print 'isbn = {} not found'.format(isbnraw)
+            failed += 1
+        if work.preferred_edition.authors.all().count() < len(authlist):
+            work.preferred_edition.authors.clear()
+            if authlist is None:
+                print "null authlist; isbn={}".format(isbn)
+                continue
+            for [rel,auth] in authlist:
+                work.preferred_edition.add_author(auth, rel)
+        recnum +=1
+        if limit and recnum > limit:
+            break          
+    logger.info("Number of records processed: " + str(recnum))
+    logger.info("Number of missing isbns: " + str(failed))
         
