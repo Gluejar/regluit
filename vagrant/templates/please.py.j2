@@ -46,7 +46,7 @@ DEFAULT_FROM_EMAIL = 'accounts@gluejar.com'
 
 # all the SECRET_KEYS
 {% for key in SECRET_KEYS %}
-{{key}} = '{{SECRET_KEYS[key]}}'
+{{key}} = os.environ.get('{{key}}', '')
 {% endfor %}
 
 # twitter auth
