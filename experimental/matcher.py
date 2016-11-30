@@ -6,6 +6,12 @@ import fileinput
 
 import requests
 
+try:
+    from django.conf import settings
+    GOOGLE_BOOKS_API_KEY = settings.GOOGLE_BOOKS_API_KEY
+except:
+    GOOGLE_BOOKS_API_KEY = os.environ.get('GOOGLE_BOOKS_API_KEY', '')
+
 def match():
     for line in fileinput.input():
         j = json.loads(line)
@@ -18,7 +24,7 @@ def google_search(title, authors, no_matches):
     # the title and author are intentionally not fielded
     params = {
         'q': title,
-        'key': 'AIzaSyBE36z7o6NUafIWcLEB8yk2I47-8_5y1_0'
+        'key': GOOGLE_BOOKS_API_KEY
     }
     for author in authors:
         params['q'] += ' ' + norm_author(author)

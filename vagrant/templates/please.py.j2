@@ -40,22 +40,21 @@ EMAIL_HOST_PASSWORD = '7k3sWyzHpI'
 EMAIL_PORT = 587
 DEFAULT_FROM_EMAIL = 'accounts@gluejar.com'
 
-# googlebooks 
-# GOOGLE_BOOKS_API_KEY = 'AIzaSyBE36z7o6NUafIWcLEB8yk2I47-8_5y1_0'
-# GOOGLE_BOOKS_API_KEY = os.environ.get('GOOGLE_BOOKS_API_KEY', '')
-
 # all the SECRET_KEYS
 {% for key in SECRET_KEYS %}
 {{key}} = os.environ.get('{{key}}', '')
 {% endfor %}
 
 # twitter auth
-SOCIAL_AUTH_TWITTER_KEY = 'sd9StEg1N1qB8gGb2GRX4A'
-SOCIAL_AUTH_TWITTER_SECRET = 'YSKHn8Du6EWqpcWZ6sp5tqDPvcOBXK0WJWVGWyB0'
+# source?
+# SOCIAL_AUTH_TWITTER_KEY = 'sd9StEg1N1qB8gGb2GRX4A'
+# SOCIAL_AUTH_TWITTER_SECRET = 'YSKHn8Du6EWqpcWZ6sp5tqDPvcOBXK0WJWVGWyB0'
 
 # facebook auth
-SOCIAL_AUTH_FACEBOOK_KEY = '242881179080779'
-SOCIAL_AUTH_FACEBOOK_SECRET = '5eae483a0e92113d884c427b578ef23a'
+# source?
+# SOCIAL_AUTH_FACEBOOK_KEY = '242881179080779'
+# SOCIAL_AUTH_FACEBOOK_SECRET = '5eae483a0e92113d884c427b578ef23a'
+
 
 # get these (as oauth2 client ID and Secret from 
 # https://console.developers.google.com/project/569579163337/apiui/credential?authuser=1
@@ -65,10 +64,6 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'zueklvlUNGgkxuAWTl-93q1z'
 # Goodreads API
 GOODREADS_API_KEY = "vfqIO6QAhBVvlxt6hAzZJg"
 GOODREADS_API_SECRET = "57tq4MpyJ15Hgm2ToZQQFWJ7vraZzOAqHLckWRXQ"
-
-# Freebase credentials
-FREEBASE_USERNAME = ''
-FREEBASE_PASSWORD = ''
 
 # send celery log to Python logging
 CELERYD_HIJACK_ROOT_LOGGER = False
