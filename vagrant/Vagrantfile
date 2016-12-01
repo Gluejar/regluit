@@ -30,7 +30,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "-e class=please",
           "-e hostname=please.unglue.it",
           "-e setdns=true",
-          "-e branch=open_source"
+          "-e branch=open_source",
+          "--start-at-task=restart_here"
       ]
     end
 

@@ -42,7 +42,7 @@ DEFAULT_FROM_EMAIL = 'accounts@gluejar.com'
 
 # all the SECRET_KEYS
 {% for key in SECRET_KEYS %}
-{{key}} = os.environ.get('{{key}}', '')
+{{key}} = os.environ.get('{{key}}', '{{SECRET_KEYS[key]}}')
 {% endfor %}
 
 # twitter auth
@@ -58,8 +58,9 @@ DEFAULT_FROM_EMAIL = 'accounts@gluejar.com'
 
 # get these (as oauth2 client ID and Secret from 
 # https://console.developers.google.com/project/569579163337/apiui/credential?authuser=1
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '569579163337-8rnhtn7pvbragmcj0l3slsmgfs86t69i.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'zueklvlUNGgkxuAWTl-93q1z'
+# reset on 2016.12.01
+# SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '569579163337-8rnhtn7pvbragmcj0l3slsmgfs86t69i.apps.googleusercontent.com'
+# SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'zueklvlUNGgkxuAWTl-93q1z'
 
 # Goodreads API
 GOODREADS_API_KEY = "vfqIO6QAhBVvlxt6hAzZJg"

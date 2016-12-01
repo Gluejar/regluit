@@ -248,6 +248,11 @@
       template: src=templates/{{class}}.wsgi.j2 dest=/opt/regluit/deploy/{{class}}.wsgi owner={{user}} group={{user}} mode=0664
       when: class in ['please', 'just']
 
+
+    - name: restart_here
+      debug: msg="provision restart here"
+
+
     # create settings/{{class}}.py
     - name: create settings/{{class}}.py
       template: src=templates/{{class}}.py.j2 dest=/opt/regluit/settings/{{class}}.py owner={{user}} group={{user}} mode=0755
