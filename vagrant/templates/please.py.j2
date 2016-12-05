@@ -63,8 +63,10 @@ DEFAULT_FROM_EMAIL = 'accounts@gluejar.com'
 # SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'zueklvlUNGgkxuAWTl-93q1z'
 
 # Goodreads API
-GOODREADS_API_KEY = "vfqIO6QAhBVvlxt6hAzZJg"
-GOODREADS_API_SECRET = "57tq4MpyJ15Hgm2ToZQQFWJ7vraZzOAqHLckWRXQ"
+# to replace
+# source: edsu
+# GOODREADS_API_KEY = "vfqIO6QAhBVvlxt6hAzZJg"
+# GOODREADS_API_SECRET = "57tq4MpyJ15Hgm2ToZQQFWJ7vraZzOAqHLckWRXQ"
 
 # send celery log to Python logging
 CELERYD_HIJACK_ROOT_LOGGER = False
@@ -141,6 +143,7 @@ MAINTENANCE_MODE = False
 # Amazon keys to permit S3 access
 # reusing just cedentials here
 
+# https://console.aws.amazon.com/iam/home?region=us-east-1#/users/s3_just?section=permissions&policy=direct.s3_just.s3-just-unglueit
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 AWS_ACCESS_KEY_ID = 'AKIAIYP6XRVAUWKQFT5Q'
 AWS_SECRET_ACCESS_KEY = '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'

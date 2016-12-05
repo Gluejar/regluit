@@ -246,7 +246,7 @@
     # create the wsgi script from the appropriate template
     - name: create the wsgi script from the appropriate template
       template: src=templates/{{class}}.wsgi.j2 dest=/opt/regluit/deploy/{{class}}.wsgi owner={{user}} group={{user}} mode=0664
-      when: class in ['please', 'just']
+      when: class in ['please', 'just', 'prod']
 
 
     - name: restart_here
@@ -256,6 +256,7 @@
     # create settings/{{class}}.py
     - name: create settings/{{class}}.py
       template: src=templates/{{class}}.py.j2 dest=/opt/regluit/settings/{{class}}.py owner={{user}} group={{user}} mode=0755
+      when: class in ['please', 'just', 'prod']
   
 
     #Run syncdb on the application
