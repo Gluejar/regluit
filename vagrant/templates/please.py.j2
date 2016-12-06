@@ -136,7 +136,6 @@ IS_PREVIEW = False
 CELERYBEAT_SCHEDULE['report_new_ebooks'] = EBOOK_NOTIFICATIONS_JOB
 
 
-
 # local settings for maintenance mode
 MAINTENANCE_MODE = False
 
@@ -145,9 +144,10 @@ MAINTENANCE_MODE = False
 
 # https://console.aws.amazon.com/iam/home?region=us-east-1#/users/s3_just?section=permissions&policy=direct.s3_just.s3-just-unglueit
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-AWS_ACCESS_KEY_ID = 'AKIAIYP6XRVAUWKQFT5Q'
-AWS_SECRET_ACCESS_KEY = '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'
-AWS_STORAGE_BUCKET_NAME = 'just-unglueit'
+# TO DO: reset
+#AWS_ACCESS_KEY_ID = 'AKIAIYP6XRVAUWKQFT5Q'
+#AWS_SECRET_ACCESS_KEY = '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'
+#AWS_STORAGE_BUCKET_NAME = 'just-unglueit'
 
 
 
