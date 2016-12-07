@@ -7,7 +7,14 @@ from regluit.api import resources
 from regluit.api.views import ApiHelpView
 from regluit.api.views import OPDSNavigationView, OPDSAcquisitionView
 from regluit.api.views import OnixView
-from regluit.api.views import travisci_webhook, load_yaml, negotiate_content, widget
+from regluit.api.views import (
+    travisci_webhook, 
+    load_yaml, 
+    negotiate_content, 
+    widget, 
+    featured_cover,
+    featured_url,
+    )
 
 
 v1_api = Api(api_name='v1')
@@ -21,7 +28,9 @@ v1_api.register(resources.FreeResource())
 
 urlpatterns = [
     url(r'^help$', ApiHelpView.as_view(), name="api_help"),
-    url(r'^widget/(?P<isbn>\w+)/$',widget,name="widget"),
+    url(r'^widget/(?P<isbn>\w+)/$', widget, name="widget"),
+    url(r'^featured_cover$', featured_cover, name="featured_cover"),
+    url(r'^featured_url$', featured_url, name="featured_url"),
     url(r"^opds/$", OPDSNavigationView.as_view(template_name="opds.xml"), name="opds"),
     url(r"^opds/(?P<facet>.*)/$", OPDSAcquisitionView.as_view(), name="opds_acqusition"),
     url(r"^onix/(?P<facet>.*)/$", OnixView.as_view(), name="onix"),

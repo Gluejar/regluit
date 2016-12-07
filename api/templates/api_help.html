@@ -15,7 +15,18 @@
     <h3>Ebook Widgets</h3>
     <p>You don't need an API key to embed Ebook (HTML) widgets. </p>
     <div>Here's a widget that displays Unglue.it's featured ebook - it changes most every day!  <a href="{% url 'widget' 'featured' %}">{{base_url}}{% url 'widget' 'featured' %}</a>. Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="{{base_url}}/api/widget/featured/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea>
-       <iframe src="{{base_url}}{% url 'widget' 'featured' %}" width="152" height="325" frameborder="0"></iframe></div>
+       <iframe src="{{base_url}}{% url 'widget' 'featured' %}" width="152" height="325" frameborder="0"></iframe>
+    </div>
+    <div>If your website doesn't allow javascript (wordpress blogs, for example) you can use the no-script version. Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;div style="font-size:12px; width:120px; line-height:16px; padding:5px; height:220px; background-color:#fff; color:#3d4e53; border:5px solid #edf3f4;"&gt;
+    &lt;a href="{{base_url}}{% url 'featured_url' %}"&gt;
+&lt;img width="120" height="182" src="{{base_url}}{% url 'featured_cover' %}" alt="unglue.it featured book" /&gt;
+&lt;/a&gt;&lt;/div&gt;</textarea>
+<div style="display:inline-block;width: 153px;">
+<div style="font-size:12px; width:120px; line-height:16px; padding:5px; height:220px; background-color:#fff; color:#3d4e53; border:5px solid #edf3f4;"><a href="{% url 'featured_url' %}"><img width="120" height="182" src="{% url 'featured_cover' %}" alt="featured book cover" /></a><br />Today's Free Ebook at Unglue.it
+       </div>
+       </div>
+    </div>
+
     {% if campaign %}
        <div>Here's a sample widget for the book <span style="font-style: italic">{{campaign.name}}</span> with ISBN {{campaign_isbn}}: <a href="{% url 'widget' campaign_isbn %}">{{base_url}}{% url 'widget' campaign_isbn %}</a>. Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="{{base_url}}/api/widget/{{campaign_isbn}}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea>
        <iframe src="{{base_url}}{% url 'widget' campaign_isbn %}" width="152" height="325" frameborder="0"></iframe>
