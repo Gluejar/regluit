@@ -28,17 +28,30 @@ DATABASES = {
 
 
 TIME_ZONE = 'America/New_York'
-SECRET_KEY = u'_^_off!8zsj4+)%qq623m&$7_m-q$iau5le0w!mw&n5tgt#x=t'
+# SECRET_KEY has been replaced
+# SECRET_KEY = u'_^_off!8zsj4+)%qq623m&$7_m-q$iau5le0w!mw&n5tgt#x=t'
 
 # settings for outbout email
 # if you have a gmail account you can use your email address and password
 
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'accounts@gluejar.com'
-EMAIL_HOST_PASSWORD = '7k3sWyzHpI'
-EMAIL_PORT = 587
-DEFAULT_FROM_EMAIL = 'accounts@gluejar.com'
+# TO DO: turn off
+#EMAIL_USE_TLS = True
+#EMAIL_HOST = 'smtp.gmail.com'
+#EMAIL_HOST_USER = 'accounts@gluejar.com'
+#EMAIL_HOST_PASSWORD = '7k3sWyzHpI'
+#EMAIL_PORT = 587
+#DEFAULT_FROM_EMAIL = 'accounts@gluejar.com'
+
+# Amazon SES
+EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend'
+MAIL_USE_TLS = True
+EMAIL_HOST = 'email-smtp.us-east-1.amazonaws.com'
+EMAIL_PORT = 465
+DEFAULT_FROM_EMAIL = 'notices@gluejar.com'
+# in secret
+# EMAIL_HOST_USER
+# EMAIL_HOST_PASSWORD
+
 
 # all the SECRET_KEYS
 {% for key in SECRET_KEYS %}
