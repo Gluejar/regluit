@@ -6,6 +6,11 @@ from os.path import dirname, realpath, join
 import regluit
 from regluit.payment.parameters import PAYMENT_HOST_PAYPAL, PAYMENT_HOST_AMAZON
 
+# all the COMMON_KEYS
+{% for key in COMMON_KEYS %}
+{{key}} = os.environ.get('{{key}}', '{{COMMON_KEYS[key]}}')
+{% endfor %}
+
 PROJECT_DIR = dirname(dirname(realpath(__file__)))
 
 LANGUAGE_CODE = 'en-us'
@@ -420,8 +425,9 @@ AWS_SECRET_ACCESS_KEY = ''
 AWS_STORAGE_BUCKET_NAME = ''
 AWS_QUERYSTRING_AUTH = False
 
-MAILCHIMP_API_KEY = '5f8e846a2bbc847807ed89086de4b4bf-us2'
-MAILCHIMP_NEWS_ID = u'c5cce92fe1'
+# TO DO: invalidate
+# MAILCHIMP_API_KEY = '5f8e846a2bbc847807ed89086de4b4bf-us2'
+# MAILCHIMP_NEWS_ID = u'c5cce92fe1'
 
 FORMATS = (
     ('pdf','PDF'),
@@ -453,8 +459,10 @@ MARC_PREF_OPTIONS =(
     ('UNGLUE', 'Unglue.it link'),
 )
 
-BOOXTREAM_API_KEY = '7ynRCsx4q21zEY67it7yk8u5rc6EXY'
-BOOXTREAM_API_USER = 'ungluetest'
+# TO DO: invalidate
+# BOOXTREAM_API_KEY = '7ynRCsx4q21zEY67it7yk8u5rc6EXY'
+# BOOXTREAM_API_USER = 'ungluetest'
+
 BOOXTREAM_TEST_EPUB_URL = 'https://github.com/Gluejar/open_access_ebooks_ebook/raw/master/download/open_access_ebooks.epub'
 TEST_PDF_URL = "https://github.com/Gluejar/flatland/raw/master/downloads/Flatland.pdf"
 FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520 #20MB

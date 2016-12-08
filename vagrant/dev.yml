@@ -252,6 +252,9 @@
     - name: restart_here
       debug: msg="provision restart here"
 
+    # create settings/common.py
+    - name: create settings/common.py
+      template: src=templates/common.py.j2 dest=/opt/regluit/settings/common.py owner={{user}} group={{user}} mode=0755
 
     # create settings/{{class}}.py
     - name: create settings/{{class}}.py
