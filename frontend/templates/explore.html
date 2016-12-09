@@ -17,13 +17,19 @@
                             {% endif %}
                                 <li><a href="{% url 'free' %}"><span>Free eBooks!</span></a>
                                 {% if work %}
-                                <ul class="menu level3">
-                                    {% for subject in work.subjects.all %}
-                                    {% if subject.is_visible and subject.free_works.1 %}
-                                    <li><a href="{% url 'faceted_list' subject.kw %}"><span>{{ subject }}</span></a></li>
-                                    {% endif %}
-                                    {% endfor %}
-                                </ul>
+                                    <ul class="menu level3">
+                                        {% if work.doab %}
+                                            <li><a href="{% url 'faceted_list' 'id/doab' %}?order_by=popular">Books in DOAB</a></li>
+                                        {% endif %}
+                                        {% if work.gtbg %}
+                                            <li><a href="{% url 'faceted_list' 'id/gtbg' %}?order_by=popular">Books in Project Gutenberg</a></li>
+                                        {% endif %}
+                                        {% for subject in work.subjects.all %}
+                                            {% if subject.is_visible and subject.free_works.1 %}
+                                                <li><a href="{% url 'faceted_list' subject.kw %}"><span>{{ subject }}</span></a></li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </ul>
                                 {% endif %}
                                 </li>
                                 <li><a href="{% url 'campaign_list' 'ending' %}"><span>Active Campaigns</span></a></li>
