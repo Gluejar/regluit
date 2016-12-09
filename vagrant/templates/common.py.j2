@@ -468,16 +468,21 @@ BOOXTREAM_TEST_EPUB_URL = 'https://github.com/Gluejar/open_access_ebooks_ebook/r
 TEST_PDF_URL = "https://github.com/Gluejar/flatland/raw/master/downloads/Flatland.pdf"
 FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520 #20MB
 
-DROPBOX_KEY = '4efhwty5aph52bd'   #for unglue.it, just.unglue.it
-#DROPBOX_KEY = '6uefhocpvp0s1ep'  #for localhost
+# these aren't secrets per se and don't need to be invalidated
+# DROPBOX_KEY = '4efhwty5aph52bd'   #for unglue.it, just.unglue.it
+# DROPBOX_KEY = '6uefhocpvp0s1ep'  #for localhost
 
 # for reading GITenberg releases
 # generated from rdhyee account
-GITHUB_PUBLIC_TOKEN = 'f702409f913d7f9046f93c677710f829e2b599c9'
+# https://github.com/settings/tokens/28930446
+# TO DO: reset
+# GITHUB_PUBLIC_TOKEN = 'f702409f913d7f9046f93c677710f829e2b599c9'
 
-MOBIGEN_URL = "https://docker.gluejar.com:5001/mobigen"
-MOBIGEN_USER_ID = "admin"
-MOBIGEN_PASSWORD = "CXq5FSEQFgXtP_s"
+# will need to sync pw with
+# https://github.com/Gluejar/mobigen/blob/88c8d1caf137e4483a647e390d7823bbb3ed3bfc/flask_app/hello.py#L20
+# MOBIGEN_URL = "https://docker.gluejar.com:5001/mobigen"
+# MOBIGEN_USER_ID = "admin"
+# MOBIGEN_PASSWORD = "CXq5FSEQFgXtP_s"
 
 QUESTIONNAIRE_USE_SESSION = False
 QUESTIONNAIRE_DEBUG = True
