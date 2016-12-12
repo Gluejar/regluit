@@ -30,6 +30,11 @@ DATABASES = {
 TIME_ZONE = 'America/New_York'
 SECRET_KEY = u'_^_off!8zsj4+)%qq623m&$7_m-q$iau5le0w!mw&n5tgt#x=t'
 
+# all the SECRET_KEYS
+{% for key in SECRET_KEYS %}
+{{key}} = os.environ.get('{{key}}', '{{SECRET_KEYS[key]}}')
+{% endfor %}
+
 # settings for outbout email
 # if you have a gmail account you can use your email address and password
 
@@ -55,6 +60,9 @@ DEFAULT_FROM_EMAIL = 'notices@gluejar.com'
 GOOGLE_BOOKS_API_KEY = 'AIzaSyAGUEeGJXXLj9Tau4fpIFUCdOSKfDmJDVw'
 
 # twitter auth
+# TO DO: invalidate
+# owned by edsu
+# https://github.com/Gluejar/regluit/commit/d7f21011660e829de3969e6f391fca4a4a0fbe2d#diff-7d7fdcdd4fcb2e044cf350dd5a448b23R35
 SOCIAL_AUTH_TWITTER_KEY = 'sd9StEg1N1qB8gGb2GRX4A'
 SOCIAL_AUTH_TWITTER_SECRET = 'YSKHn8Du6EWqpcWZ6sp5tqDPvcOBXK0WJWVGWyB0'
 
@@ -165,8 +173,9 @@ AWS_STORAGE_BUCKET_NAME = 'unglueit-files'
 # we should suppress Google Analytics outside of production
 SHOW_GOOGLE_ANALYTICS = True
 
-BOOXTREAM_API_KEY = '987n76Zsc4hj9jUvfctxezZQZ2vnhm'
-BOOXTREAM_API_USER = 'unglueprod'
+# to invalidate
+# BOOXTREAM_API_KEY = '987n76Zsc4hj9jUvfctxezZQZ2vnhm'
+# BOOXTREAM_API_USER = 'unglueprod'
 
 # if settings/local.py exists, import those settings -- allows for dynamic generation of parameters such as DATABASES
 try:
