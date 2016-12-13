@@ -69,22 +69,24 @@ DEFAULT_FROM_EMAIL = 'notices@gluejar.com'
 
 # facebook auth (for just)
 # created by Raymond Yee
+# TO DO: invalidate
 # https://developers.facebook.com/apps/236518556394209/settings/
-SOCIAL_AUTH_FACEBOOK_KEY = '236518556394209'
-SOCIAL_AUTH_FACEBOOK_SECRET = '88fec4d1dfc1ef4438cb87efa171db28'
+# SOCIAL_AUTH_FACEBOOK_KEY = '236518556394209'
+# SOCIAL_AUTH_FACEBOOK_SECRET = '88fec4d1dfc1ef4438cb87efa171db28'
 
 # get these (as oauth2 client ID and Secret from 
-# https://console.developers.google.com/project/569579163337/apiui/credential?authuser=1
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '569579163337-kq3vm5imdap4hapj1r8lvmcg05kfi6ii.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'IYmgelotf77H8OPWX8oXf4Cq'
+# https://console.developers.google.com/apis/credentials/oauthclient/569579163337-kq3vm5imdap4hapj1r8lvmcg05kfi6ii.apps.googleusercontent.com?project=gluejar.com:api-project-569579163337&authuser=0
+# created by Eric but visible to Raymond
+# TO DO: invalidate
+# SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '569579163337-kq3vm5imdap4hapj1r8lvmcg05kfi6ii.apps.googleusercontent.com'
+# SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'IYmgelotf77H8OPWX8oXf4Cq'
 
 # Goodreads API
-GOODREADS_API_KEY = "vfqIO6QAhBVvlxt6hAzZJg"
-GOODREADS_API_SECRET = "57tq4MpyJ15Hgm2ToZQQFWJ7vraZzOAqHLckWRXQ"
+# TO DO: owned by edsu
+# need to invalidate
+# GOODREADS_API_KEY = "vfqIO6QAhBVvlxt6hAzZJg"
+# GOODREADS_API_SECRET = "57tq4MpyJ15Hgm2ToZQQFWJ7vraZzOAqHLckWRXQ"
 
-# Freebase credentials
-FREEBASE_USERNAME = ''
-FREEBASE_PASSWORD = ''
 
 # send celery log to Python logging
 CELERYD_HIJACK_ROOT_LOGGER = False
@@ -170,9 +172,11 @@ MAINTENANCE_MODE = False
 # Amazon keys to permit S3 access
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-AWS_ACCESS_KEY_ID = 'AKIAIYP6XRVAUWKQFT5Q'
-AWS_SECRET_ACCESS_KEY = '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'
-AWS_STORAGE_BUCKET_NAME = 'just-unglueit'
+# https://console.aws.amazon.com/iam/home?region=us-east-1#/users/s3_just
+# TO DO: invalidate
+# AWS_ACCESS_KEY_ID = 'AKIAIYP6XRVAUWKQFT5Q'
+# AWS_SECRET_ACCESS_KEY = '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'
+# AWS_STORAGE_BUCKET_NAME = 'just-unglueit'
 
 # if settings/local.py exists, import those settings -- allows for dynamic generation of parameters such as DATABASES
 try:
