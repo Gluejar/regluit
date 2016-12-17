@@ -28,19 +28,9 @@ DATABASES = {
 
 
 TIME_ZONE = 'America/New_York'
-# SECRET_KEY has been replaced
-# SECRET_KEY = u'_^_off!8zsj4+)%qq623m&$7_m-q$iau5le0w!mw&n5tgt#x=t'
 
 # settings for outbout email
 # if you have a gmail account you can use your email address and password
-
-# TO DO: turn off
-#EMAIL_USE_TLS = True
-#EMAIL_HOST = 'smtp.gmail.com'
-#EMAIL_HOST_USER = 'accounts@gluejar.com'
-#EMAIL_HOST_PASSWORD = '7k3sWyzHpI'
-#EMAIL_PORT = 587
-#DEFAULT_FROM_EMAIL = 'accounts@gluejar.com'
 
 # Amazon SES
 EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend'
@@ -48,38 +38,12 @@ MAIL_USE_TLS = True
 EMAIL_HOST = 'email-smtp.us-east-1.amazonaws.com'
 EMAIL_PORT = 465
 DEFAULT_FROM_EMAIL = 'notices@gluejar.com'
-# in secret
-# EMAIL_HOST_USER
-# EMAIL_HOST_PASSWORD
 
 
 # all the SECRET_KEYS
 {% for key in SECRET_KEYS %}
 {{key}} = os.environ.get('{{key}}', '{{SECRET_KEYS[key]}}')
 {% endfor %}
-
-# twitter auth
-# source?
-# SOCIAL_AUTH_TWITTER_KEY = 'sd9StEg1N1qB8gGb2GRX4A'
-# SOCIAL_AUTH_TWITTER_SECRET = 'YSKHn8Du6EWqpcWZ6sp5tqDPvcOBXK0WJWVGWyB0'
-
-# facebook auth
-# source?
-# SOCIAL_AUTH_FACEBOOK_KEY = '242881179080779'
-# SOCIAL_AUTH_FACEBOOK_SECRET = '5eae483a0e92113d884c427b578ef23a'
-
-
-# get these (as oauth2 client ID and Secret from 
-# https://console.developers.google.com/project/569579163337/apiui/credential?authuser=1
-# reset on 2016.12.01
-# SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '569579163337-8rnhtn7pvbragmcj0l3slsmgfs86t69i.apps.googleusercontent.com'
-# SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'zueklvlUNGgkxuAWTl-93q1z'
-
-# Goodreads API
-# to replace
-# source: edsu
-# GOODREADS_API_KEY = "vfqIO6QAhBVvlxt6hAzZJg"
-# GOODREADS_API_SECRET = "57tq4MpyJ15Hgm2ToZQQFWJ7vraZzOAqHLckWRXQ"
 
 # send celery log to Python logging
 CELERYD_HIJACK_ROOT_LOGGER = False
@@ -151,17 +115,6 @@ CELERYBEAT_SCHEDULE['report_new_ebooks'] = EBOOK_NOTIFICATIONS_JOB
 
 # local settings for maintenance mode
 MAINTENANCE_MODE = False
-
-# Amazon keys to permit S3 access
-# reusing just cedentials here
-
-# https://console.aws.amazon.com/iam/home?region=us-east-1#/users/s3_just?section=permissions&policy=direct.s3_just.s3-just-unglueit
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-# TO DO: reset
-#AWS_ACCESS_KEY_ID = 'AKIAIYP6XRVAUWKQFT5Q'
-#AWS_SECRET_ACCESS_KEY = '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'
-#AWS_STORAGE_BUCKET_NAME = 'just-unglueit'
-
 
 
 # if settings/local.py exists, import those settings -- allows for dynamic generation of parameters such as DATABASES
