@@ -27,24 +27,13 @@ DATABASES = {
 }
 
 TIME_ZONE = 'America/New_York'
-SECRET_KEY = u'_^_off!8zsj4+)%qq623m&$7_m-q$iau5le0w!mw&n5tgt#x=t'
 
 # all the SECRET_KEYS
 {% for key in SECRET_KEYS %}
 {{key}} = os.environ.get('{{key}}', '{{SECRET_KEYS[key]}}')
 {% endfor %}
 
-# settings for outbout email
-# if you have a gmail account you can use your email address and password
-
-#EMAIL_USE_TLS = True
-#EMAIL_HOST = 'smtp.gmail.com'
-#EMAIL_HOST_USER = 'accounts@gluejar.com'
-#EMAIL_HOST_PASSWORD = '7k3sWyzHpI'
-#EMAIL_PORT = 587
-#DEFAULT_FROM_EMAIL = 'accounts@gluejar.com'
-
-# testing out using Amazon SES
+# Amazon SES
 
 EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend'
 MAIL_USE_TLS = True 

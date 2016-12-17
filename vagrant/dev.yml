@@ -353,11 +353,12 @@
      #  - name: show django_secret_key
      #   debug: msg="{{django_secret_key}}"
 
-    - name: insert SECRET_KEY into /opt/regluit/settings/local.py
-      lineinfile: create=yes dest=/opt/regluit/settings/local.py line="SECRET_KEY=u'{{django_secret_key}}'"
-      notify:
-        - restart apache2
-      sudo: no
+    # out-dated: no more injecting secret key into local.py
+    #- name: insert SECRET_KEY into /opt/regluit/settings/local.py
+    #  lineinfile: create=yes dest=/opt/regluit/settings/local.py line="SECRET_KEY=u'{{django_secret_key}}'"
+    #  notify:
+    #    - restart apache2
+    #  sudo: no
 
     #
     #sudo ("/etc/init.d/apache2 restart")
