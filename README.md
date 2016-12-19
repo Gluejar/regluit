@@ -194,3 +194,8 @@ MARC Records
     * use UNGLUE if it links to the unglue.it download page
     * if you have records with both DIRECT and UNGLUE links, you'll need two MARCRecord instances
     * if you have both kinds of link, put them in _separate_ records, as marc_format can only take one value
+
+
+# vagrant / ansible
+
+[How to build machines using Vagrant/ansible](docs/vagrant_ansible.md)

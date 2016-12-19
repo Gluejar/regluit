@@ -155,7 +155,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "-e class=just",
           "-e hostname=just2.unglue.it",
           "-e setdns=false",
-          "-e branch=master",
+          "-e branch=open_source",
           "-e do_migrate=false"
       ]
 
