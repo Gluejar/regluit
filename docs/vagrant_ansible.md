@@ -1,4 +1,4 @@
-## Instructions on how to run open_source branch
+**Instructions on how to run open_source branch**
 
 To use vagrant/ansible to build the `{please|just|}.unglue.it`, you 
 need to have the following installed:
@@ -86,3 +86,13 @@ vagrant up please --provider=aws
 ```
 
 **For the moment, please leave building just and production to me.**
+
+## running regluit on localhost
+
+In the `vagrant` directory, you can run 
+
+```
+ansible-playbook create_commonpy.yml
+```
+
+to generate `settings/common.py`.  You should then be able to proceed as normal.  
