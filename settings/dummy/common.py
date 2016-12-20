@@ -1,0 +1,13 @@
+import os
+
+# all the COMMON_KEYS
+# copy this file to settings/keys/ and replace the dummy values with real ones
+BOOXTREAM_API_KEY = os.environ.get('BOOXTREAM_API_KEY', '012345678901234567890123456789')
+BOOXTREAM_API_USER = os.environ.get('BOOXTREAM_API_USER', 'user')
+DROPBOX_KEY = os.environ.get('DROPBOX_KEY', '012345678901234')
+GITHUB_PUBLIC_TOKEN = os.environ.get('GITHUB_PUBLIC_TOKEN', '0123456789012345678901234567890123456789')
+MAILCHIMP_API_KEY = os.environ.get('MAILCHIMP_API_KEY', '01234567890123456789012345678901-us2')
+MAILCHIMP_NEWS_ID = os.environ.get('MAILCHIMP_NEWS_ID', '0123456789')
+MOBIGEN_PASSWORD = os.environ.get('MOBIGEN_PASSWORD', '012345678901234')
+MOBIGEN_URL = os.environ.get('MOBIGEN_URL', '/mobigen')
+MOBIGEN_USER_ID = os.environ.get('MOBIGEN_USER_ID', 'user')

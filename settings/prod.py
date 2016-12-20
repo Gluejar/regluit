@@ -1,11 +1,12 @@
 from regluit.settings.common import *
-import os
 
 ALLOWED_HOSTS = ['.unglue.it']
 DEBUG = False
 TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
+# we are launched!
+IS_PREVIEW = False
 
-SITE_ID = 2
+SITE_ID = 1
 
 ADMINS = (
     ('Raymond Yee', 'rdhyee+ungluebugs@gluejar.com'),
@@ -17,40 +18,35 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'regluit',
-        'USER': 'regluit',
-        'PASSWORD': 'regluit',
-        'HOST': '',
+        'NAME': 'unglueit',
+        'USER': 'root',
+        'PASSWORD': 'unglue1t',
+        'HOST': 'production.cboagmr25pjs.us-east-1.rds.amazonaws.com',
         'PORT': '',
         'TEST_CHARSET': 'utf8',
     }
 }
-
 
 TIME_ZONE = 'America/New_York'
 
 # settings for outbout email
 # if you have a gmail account you can use your email address and password
 
+
 # Amazon SES
+
 EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend'
-MAIL_USE_TLS = True
+MAIL_USE_TLS = True 
 EMAIL_HOST = 'email-smtp.us-east-1.amazonaws.com'
 EMAIL_PORT = 465
 DEFAULT_FROM_EMAIL = 'notices@gluejar.com'
-
-
-# all the SECRET_KEYS
-{% for key in SECRET_KEYS %}
-{{key}} = os.environ.get('{{key}}', '{{SECRET_KEYS[key]}}')
-{% endfor %}
 
 # send celery log to Python logging
 CELERYD_HIJACK_ROOT_LOGGER = False
 
 # Next step to try https
-#BASE_URL = 'http://please.unglueit.com'
-BASE_URL_SECURE = 'https://please.unglueit.com'
+#BASE_URL = 'http://unglue.it'
+BASE_URL_SECURE = 'https://unglue.it'
 IPN_SECURE_URL = False
 
 # use redis for production queue
@@ -104,21 +100,34 @@ LOGGING = {
 }
 
 STATIC_ROOT = '/var/www/static'
-CKEDITOR_UPLOAD_PATH = '/var/www/static/media/'
-
-IS_PREVIEW = False
+#CKEDITOR_UPLOAD_PATH = '/var/www/static/media/'
+#CKEDITOR_UPLOAD_PREFIX = 'https://unglue.it/static/media/'
 
 # decide which of the period tasks to add to the schedule
-#CELERYBEAT_SCHEDULE['send_test_email'] = SEND_TEST_EMAIL_JOB
+CELERYBEAT_SCHEDULE['send_test_email'] = SEND_TEST_EMAIL_JOB
+# update the statuses of campaigns
+CELERYBEAT_SCHEDULE['update_active_campaign_statuses'] = UPDATE_ACTIVE_CAMPAIGN_STATUSES
 CELERYBEAT_SCHEDULE['report_new_ebooks'] = EBOOK_NOTIFICATIONS_JOB
+CELERYBEAT_SCHEDULE['notify_ending_soon'] = NOTIFY_ENDING_SOON_JOB
+CELERYBEAT_SCHEDULE['update_account_statuses'] = UPDATE_ACCOUNT_STATUSES
+CELERYBEAT_SCHEDULE['notify_expiring_accounts'] = NOTIFY_EXPIRING_ACCOUNTS
+CELERYBEAT_SCHEDULE['refresh_acqs'] = REFRESH_ACQS_JOB
+CELERYBEAT_SCHEDULE['refresh_acqs'] = NOTIFY_UNCLAIMED_GIFTS
 
+# set -- sandbox or production Amazon FPS?
+#AMAZON_FPS_HOST = "fps.sandbox.amazonaws.com"
+AMAZON_FPS_HOST = "fps.amazonaws.com"
 
 # local settings for maintenance mode
 MAINTENANCE_MODE = False
 
+# Amazon keys to permit S3 access
+# https://console.aws.amazon.com/iam/home?region=us-east-1#/users/s3user?section=security_credentials
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 
-# if settings/local.py exists, import those settings -- allows for dynamic generation of parameters such as DATABASES
-try:
-    from regluit.settings.local import *
-except ImportError:
-    pass
+AWS_STORAGE_BUCKET_NAME = 'unglueit-files'
+
+# we should suppress Google Analytics outside of production
+SHOW_GOOGLE_ANALYTICS = True
+
+
