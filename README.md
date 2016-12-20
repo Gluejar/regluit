@@ -24,8 +24,10 @@ to install python-setuptools in step 1:
 1. `pip install -r requirements_versioned.pip`
 1. `add2virtualenv ..`
 1. `cp settings/dev.py settings/me.py`
-1. edit `settings/me.py` and set `EMAIL_HOST_USER` and `EMAIL_HOST_PASSWORD`  to your gmail username and password, if you want to see that registration emails will work properly.
-1. edit `settings/me.py` and look at the facebook, twitter and google auth settings to enable federated logins from those sites
+1. `cp settings/dummy/host.py settings/keys/host.py`
+1. `cp settings/dummy/common.py settings/keys/common.py`
+1. edit `settings/me.py` with path info, etc. to make things work
+1. edit  the files in settings/keys filling in account and key information OR  if you have the ansible vault password, install ansible, then from the vagrant directory run `ansible-playbook create_keys.yml`
 1. `echo 'export DJANGO_SETTINGS_MODULE=regluit.settings.me' >> ~/.virtualenvs/regluit/bin/postactivate`
 1. `deactivate ; workon regluit`
 1. `django-admin.py syncdb --migrate --noinput`
@@ -41,6 +43,7 @@ CSS development
 Production Deployment
 ---------------------
 
+OBSOLETE
 Below are the steps for getting regluit running on EC2 with Apache and mod_wsgi, and talking to an Amazon Relational Data Store instance.
 Instructions for setting please are slightly different.
 
