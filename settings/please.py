@@ -17,9 +17,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'regluit',
-        'USER': 'regluit',
-        'PASSWORD': 'regluit',
-        'HOST': '',
+        'USER': DATABASE_USER,
+        'PASSWORD': DATABASE_PASSWORD,
+        'HOST': DATABASE_HOST,
         'PORT': '',
         'TEST_CHARSET': 'utf8',
     }

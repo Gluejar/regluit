@@ -19,9 +19,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'unglueit',
-        'USER': 'root',
-        'PASSWORD': 'unglue1t',
-        'HOST': 'production.cboagmr25pjs.us-east-1.rds.amazonaws.com',
+        'USER': DATABASE_USER,
+        'PASSWORD': DATABASE_PASSWORD,
+        'HOST': DATABASE_HOST,
         'PORT': '',
         'TEST_CHARSET': 'utf8',
     }

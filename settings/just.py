@@ -1,9 +1,5 @@
 # coding=utf-8
 from .common import *
-try:
-    from .keys.host import *
-except ImportError:
-    from .dummy.host import *
 
 ALLOWED_HOSTS = ['.unglue.it']
 DEBUG = False
@@ -22,9 +18,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'unglueit',
-        'USER': 'root',
-        'PASSWORD': 'forgetn0t',
-        'HOST': 'justdb1.cboagmr25pjs.us-east-1.rds.amazonaws.com',
+        'USER': DATABASE_USER,
+        'PASSWORD': DATABASE_PASSWORD,
+        'HOST': DATABASE_HOST,
         'PORT': '',
         'TEST_CHARSET': 'utf8'
     }

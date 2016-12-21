@@ -467,3 +467,9 @@ QUESTIONNAIRE_DEBUG = True
 # Selenium related -- set if Se tests run
 FIREFOX_PATH = ''
 CHROMEDRIVER_PATH = ''
+
+try:
+    from .keys.host import *
+except ImportError:
+    from .dummy.host import *
+
