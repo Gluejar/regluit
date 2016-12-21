@@ -48,7 +48,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       aws.access_key_id =  ENV['AWS_ACCESS_KEY_ID']
       aws.secret_access_key = ENV['AWS_SECRET_ACCESS_KEY']      
 
-      aws.keypair_name = "ry-laptop"
+      aws.keypair_name = ENV['AWS_KEYPAIR_NAME']
   
       # Ubuntu 12.04 LTS Precise / PV EBS-SSD boot
       # alestic 2015.05.05
@@ -72,7 +72,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
    
       override.vm.box = "dummy"
       override.ssh.username = "ubuntu"
-      override.ssh.private_key_path = "/Users/raymondyee/.ssh/id_rsa"
+      override.ssh.private_key_path = ENV['SSH_PRIVATE_KEY_PATH']  || "~/.ssh/id_rsa"
     end
 
   end
@@ -112,7 +112,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       aws.access_key_id =  ENV['AWS_ACCESS_KEY_ID']
       aws.secret_access_key = ENV['AWS_SECRET_ACCESS_KEY']      
 
-      aws.keypair_name = "ry-laptop"
+      aws.keypair_name = ENV['AWS_KEYPAIR_NAME']
   
       # Ubuntu 12.04 LTS Precise / PV EBS-SSD boot
       # alestic 2015.05.05
@@ -130,7 +130,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
    
       override.vm.box = "dummy"
       override.ssh.username = "ubuntu"
-      override.ssh.private_key_path = "/Users/raymondyee/.ssh/id_rsa"
+      override.ssh.private_key_path = ENV['SSH_PRIVATE_KEY_PATH']  || "~/.ssh/id_rsa"
     end
 
   end
@@ -170,7 +170,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       aws.access_key_id =  ENV['AWS_ACCESS_KEY_ID']
       aws.secret_access_key = ENV['AWS_SECRET_ACCESS_KEY']      
 
-      aws.keypair_name = "ry-laptop"
+      aws.keypair_name = ENV['AWS_KEYPAIR_NAME']
   
       # Ubuntu 12.04 LTS Precise / PV EBS-SSD boot
       # alestic 2015.05.05
@@ -188,7 +188,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
    
       override.vm.box = "dummy"
       override.ssh.username = "ubuntu"
-      override.ssh.private_key_path = "/Users/raymondyee/.ssh/id_rsa"
+      override.ssh.private_key_path = ENV['SSH_PRIVATE_KEY_PATH']  || "~/.ssh/id_rsa"
     end
 
   end
@@ -228,7 +228,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       aws.access_key_id =  ENV['AWS_ACCESS_KEY_ID']
       aws.secret_access_key = ENV['AWS_SECRET_ACCESS_KEY']      
 
-      aws.keypair_name = "ry-laptop"
+      aws.keypair_name = ENV['AWS_KEYPAIR_NAME']
   
       # Ubuntu 12.04 LTS Precise / PV EBS-SSD boot
       # alestic 2015.05.05
@@ -246,7 +246,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
    
       override.vm.box = "dummy"
       override.ssh.username = "ubuntu"
-      override.ssh.private_key_path = "/Users/raymondyee/.ssh/id_rsa"
+      override.ssh.private_key_path = ENV['SSH_PRIVATE_KEY_PATH']  || "~/.ssh/id_rsa"
     end
 
   end
@@ -286,7 +286,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       aws.access_key_id =  ENV['AWS_ACCESS_KEY_ID']
       aws.secret_access_key = ENV['AWS_SECRET_ACCESS_KEY']      
 
-      aws.keypair_name = "ry-laptop"
+      aws.keypair_name = ENV['AWS_KEYPAIR_NAME']
   
       # Ubuntu 12.04 LTS Precise / PV EBS-SSD boot
       # alestic 2015.05.05
@@ -304,7 +304,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
    
       override.vm.box = "dummy"
       override.ssh.username = "ubuntu"
-      override.ssh.private_key_path = "/Users/raymondyee/.ssh/id_rsa"
+      override.ssh.private_key_path = ENV['SSH_PRIVATE_KEY_PATH']  || "~/.ssh/id_rsa"
     end
 
   end
