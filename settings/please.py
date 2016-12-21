@@ -38,12 +38,6 @@ EMAIL_HOST = 'email-smtp.us-east-1.amazonaws.com'
 EMAIL_PORT = 465
 DEFAULT_FROM_EMAIL = 'notices@gluejar.com'
 
-
-# all the SECRET_KEYS
-{% for key in SECRET_KEYS %}
-{{key}} = os.environ.get('{{key}}', '{{SECRET_KEYS[key]}}')
-{% endfor %}
-
 # send celery log to Python logging
 CELERYD_HIJACK_ROOT_LOGGER = False
 

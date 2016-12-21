@@ -248,9 +248,11 @@
       template: src=templates/{{class}}.wsgi.j2 dest=/opt/regluit/deploy/{{class}}.wsgi owner={{user}} group={{user}} mode=0664
       when: class in ['please', 'just', 'prod']
 
-
     - name: restart_here
       debug: msg="provision restart here"
+
+    - name: Create /settings/keys/
+      file: path=/opt/regluit/settings/keys/ state=directory mode=0755
 
     # create settings/keys/common.py
     - name: create settings/keys/common.py
