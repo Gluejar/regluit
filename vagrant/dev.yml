@@ -263,7 +263,15 @@
       template: src=templates/host.py.j2 dest=/opt/regluit/settings/keys/host.py owner={{user}} group={{user}} mode=0755
       when: class in ['please', 'just', 'prod']
   
-
+    - name: create empty settings/keys/__init__.py
+      copy:
+        content: ""
+        dest: /opt/regluit/settings/keys/__init__.py
+        force: no
+        group: {{user}}
+        owner: {{user}}
+        mode: 0755
+    
     #Run syncdb on the application
     # TO DO: syncdb might be deprecated
     # http://stackoverflow.com/a/29683785

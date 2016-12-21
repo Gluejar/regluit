@@ -1,13 +1,14 @@
 regluit
 =======
 
-A 'monolithic' alternative to [unglu](http://github.com/gluejar/unglu) 
-for the unglue.it website. regluit is essentially a Django project that 
-contains three applications: `frontend`, `api` and `core` that can be deployed 
+The first version of the unglue.it codebase was a services-oriented project named "unglu". 
+We decided that "unglu" was too complicated, so we started over and named the new project "regluit".
+regluit is a Django project that 
+contains four main applications: `core`, `frontend`, `api` and `payment` that can be deployed 
 and configured on as many ec2 instances that are needed to support traffic. 
-The key difference with [unglu](http://github.com/gluejar/unglu) is that the 
-`frontend` app is able to access database models from `core` in the same 
-way that the `api` is able to...which hopefully should simplify some things.
+The partitioning between these modules is not as clean as would be ideal. `payment` is particularly messy because we had to retool it twice because we had to switch from Paypal to Amazon Payments to Stripe.
+
+regluit was originally developed on Django 1.3 (python 2.7) and currently runs on Django 1.8.
 
 Develop
 -------
@@ -24,8 +25,8 @@ to install python-setuptools in step 1:
 1. `pip install -r requirements_versioned.pip`
 1. `add2virtualenv ..`
 1. `cp settings/dev.py settings/me.py`
-1. `cp settings/dummy/host.py settings/keys/host.py`
-1. `cp settings/dummy/common.py settings/keys/common.py`
+1. `mkdir settings/keys/`
+1. `cp settings/dummy/* settings/keys/`
 1. edit `settings/me.py` with path info, etc. to make things work
 1. edit  the files in settings/keys filling in account and key information OR  if you have the ansible vault password, install ansible, then from the vagrant directory run `ansible-playbook create_keys.yml`
 1. `echo 'export DJANGO_SETTINGS_MODULE=regluit.settings.me' >> ~/.virtualenvs/regluit/bin/postactivate`
