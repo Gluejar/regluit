@@ -7,10 +7,11 @@ from os.path import dirname, realpath, join
 import regluit
 from regluit.payment.parameters import PAYMENT_HOST_PAYPAL, PAYMENT_HOST_AMAZON
 
-# all the COMMON_KEYS
-{% for key in COMMON_KEYS %}
-{{key}} = os.environ.get('{{key}}', '{{COMMON_KEYS[key]}}')
-{% endfor %}
+try:
+    from .keys.common import *
+except ImportError:
+    print 'no real key file found, using dummy'
+    from .dummy.common import *
 
 PROJECT_DIR = dirname(dirname(realpath(__file__)))
 
@@ -405,8 +406,6 @@ NOTIFICATION_QUEUE_ALL = True
 # amazon or paypal for now.
 PAYMENT_PROCESSOR = 'stripelib'
 
-# a SECRET_KEY to be used for encrypting values in core.models.Key -- you should store in settings/local.py
-SECRET_KEY = ''
 
 # by default, we are not in maintenance mode -- set True in overriding settings files for maintenance mode
 # http://pypi.python.org/pypi/django-maintenancemode/
@@ -461,13 +460,6 @@ MARC_PREF_OPTIONS =(
 BOOXTREAM_TEST_EPUB_URL = 'https://github.com/Gluejar/open_access_ebooks_ebook/raw/master/download/open_access_ebooks.epub'
 TEST_PDF_URL = "https://github.com/Gluejar/flatland/raw/master/downloads/Flatland.pdf"
 FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520 #20MB
-
-
-# will need to sync pw with
-# https://github.com/Gluejar/mobigen/blob/88c8d1caf137e4483a647e390d7823bbb3ed3bfc/flask_app/hello.py#L20
-# MOBIGEN_URL = "https://docker.gluejar.com:5001/mobigen"
-# MOBIGEN_USER_ID = "admin"
-# MOBIGEN_PASSWORD = "CXq5FSEQFgXtP_s"
 
 QUESTIONNAIRE_USE_SESSION = False
 QUESTIONNAIRE_DEBUG = True

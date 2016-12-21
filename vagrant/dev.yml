@@ -252,13 +252,13 @@
     - name: restart_here
       debug: msg="provision restart here"
 
-    # create settings/common.py
-    - name: create settings/common.py
-      template: src=templates/common.py.j2 dest=/opt/regluit/settings/common.py owner={{user}} group={{user}} mode=0755
+    # create settings/keys/common.py
+    - name: create settings/keys/common.py
+      template: src=templates/common.py.j2 dest=/opt/regluit/settings/keys/common.py owner={{user}} group={{user}} mode=0755
 
-    # create settings/{{class}}.py
-    - name: create settings/{{class}}.py
-      template: src=templates/{{class}}.py.j2 dest=/opt/regluit/settings/{{class}}.py owner={{user}} group={{user}} mode=0755
+    # create settings/keys/host.py
+    - name: create settings/keys/host.py
+      template: src=templates/host.py.j2 dest=/opt/regluit/settings/keys/host.py owner={{user}} group={{user}} mode=0755
       when: class in ['please', 'just', 'prod']
   
 

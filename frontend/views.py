@@ -2689,12 +2689,6 @@ class LibraryThingView(FormView):
         else:
             context.update({'books':None})
 
-        # try picking up the LibraryThing api key -- and set to None if not available.  Not being used for
-        # anything crucial at this moment, so a None is ok here
-        try:
-            context.update({'lt_api_key':settings.LIBRARYTHING_API_KEY})
-        except:
-            pass
 
         return context
 

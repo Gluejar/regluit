@@ -1,4 +1,9 @@
-from regluit.settings.common_jenkins import *
+# coding=utf-8
+from .common import *
+try:
+    from .keys.host import *
+except ImportError:
+    from .dummy.host import *
 
 DEBUG = True
 TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
@@ -78,7 +83,6 @@ GOOGLE_BOOKS_API_KEY = 'AIzaSyC-nBaK90PIsovMRbswPYEKgA6cJfYSDmY'
 
 #BASE_URL = 'http://0.0.0.0/'
 BASE_URL_SECURE = 'http://0.0.0.0/'
-IPN_SECURE_URL = False
 
 # Goodreads API
 GOODREADS_API_KEY = 'w8nsFplG3HFOeOLQ7rqfQ'
