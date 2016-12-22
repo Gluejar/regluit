@@ -268,8 +268,8 @@
         content: ""
         dest: /opt/regluit/settings/keys/__init__.py
         force: no
-        group: {{user}}
-        owner: {{user}}
+        group: "{{user}}"
+        owner: "{{user}}"
         mode: 0755
     
     #Run syncdb on the application
