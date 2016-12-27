@@ -85,11 +85,13 @@ GOOGLE_BOOKS_API_KEY = 'AIzaSyC-nBaK90PIsovMRbswPYEKgA6cJfYSDmY'
 BASE_URL_SECURE = 'http://0.0.0.0/'
 
 # Goodreads API
+# owned by rdhyee@gluejar.com
 GOODREADS_API_KEY = 'w8nsFplG3HFOeOLQ7rqfQ'
 GOODREADS_API_SECRET = '8Dfl7nQ28VgzJctlVwf8m7zkPaWns4j79t0G9iFxbk'
 
 # Amazon keys to permit S3 access
 # s3_jenkins
+# https://console.aws.amazon.com/iam/home?region=us-east-1#/users/s3_jenkins
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 AWS_ACCESS_KEY_ID = 'AKIAJQGL74HQPHPFYJ5Q'
 AWS_SECRET_ACCESS_KEY = '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'
