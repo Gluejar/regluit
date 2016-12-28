@@ -31,7 +31,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "-e class=please",
           "-e hostname=please.unglue.it",
           "-e setdns=true",
-          "-e branch=open_source",
+          "-e branch=master",
           # "--start-at-task=restart_here"
       ]
     end
@@ -155,7 +155,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "-e class=just",
           "-e hostname=just2.unglue.it",
           "-e setdns=false",
-          "-e branch=open_source",
+          "-e branch=master",
           "-e do_migrate=false"
       ]
 

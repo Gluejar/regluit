@@ -1,4 +1,4 @@
-from regluit.settings.common import *
+from .common import *
 
 ALLOWED_HOSTS = ['.unglue.it']
 DEBUG = False
@@ -125,9 +125,11 @@ MAINTENANCE_MODE = False
 # https://console.aws.amazon.com/iam/home?region=us-east-1#/users/s3user?section=security_credentials
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 
-AWS_STORAGE_BUCKET_NAME = 'unglueit-files'
-
 # we should suppress Google Analytics outside of production
 SHOW_GOOGLE_ANALYTICS = True
 
-
+# if settings/local.py exists, import those settings -- allows for dynamic generation of parameters such as DATABASES
+try:
+    from regluit.settings.local import *
+except ImportError:
+    pass
