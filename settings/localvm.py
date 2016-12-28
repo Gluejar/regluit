@@ -48,7 +48,8 @@ SOCIAL_AUTH_TWITTER_SECRET = 'YSKHn8Du6EWqpcWZ6sp5tqDPvcOBXK0WJWVGWyB0'
 # facebook auth (for localvm)
 # https://developers.facebook.com/apps/401501793375379/settings/
 SOCIAL_AUTH_FACEBOOK_KEY = '401501793375379'
-SOCIAL_AUTH_FACEBOOK_SECRET = '7b63412aa28f408e6349eb0eceb1fcc3'
+# reset 2016.11.30
+# SOCIAL_AUTH_FACEBOOK_SECRET = '7b63412aa28f408e6349eb0eceb1fcc3'
 
 # get these (as oauth2 client ID and Secret from 
 # https://console.developers.google.com/project/grand-analyzer-95823/apiui/credential?clientType&authuser=0#

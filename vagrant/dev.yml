@@ -201,7 +201,6 @@
 
     - name: upgrade pip
       pip: >
-           executable=/opt/regluit/ENV/bin/pip
            name={{item}}
            virtualenv=/opt/regluit/ENV
            virtualenv_command=virtualenv
@@ -212,7 +211,6 @@
     
     - name: pip requirements
       pip: >
-           executable=/opt/regluit/ENV/bin/pip 
            requirements=/opt/regluit/requirements_versioned.pip
            virtualenv=/opt/regluit/ENV
            virtualenv_command=virtualenv
@@ -244,6 +242,36 @@
     - name: make /var/log/regluit
       file: path=/var/log/regluit state=directory owner={{user}} group=www-data mode=2775
 
+
+    # create the wsgi script from the appropriate template
+    - name: create the wsgi script from the appropriate template
+      template: src=templates/{{class}}.wsgi.j2 dest=/opt/regluit/deploy/{{class}}.wsgi owner={{user}} group={{user}} mode=0664
+      when: class in ['please', 'just', 'prod']
+
+    - name: restart_here
+      debug: msg="provision restart here"
+
+    - name: Create /settings/keys/
+      file: path=/opt/regluit/settings/keys/ state=directory mode=0755
+
+    # create settings/keys/common.py
+    - name: create settings/keys/common.py
+      template: src=templates/common.py.j2 dest=/opt/regluit/settings/keys/common.py owner={{user}} group={{user}} mode=0755
+
+    # create settings/keys/host.py
+    - name: create settings/keys/host.py
+      template: src=templates/host.py.j2 dest=/opt/regluit/settings/keys/host.py owner={{user}} group={{user}} mode=0755
+      when: class in ['please', 'just', 'prod']
+  
+    - name: create empty settings/keys/__init__.py
+      copy:
+        content: ""
+        dest: /opt/regluit/settings/keys/__init__.py
+        force: no
+        group: "{{user}}"
+        owner: "{{user}}"
+        mode: 0755
+    
     #Run syncdb on the application
     # TO DO: syncdb might be deprecated
     # http://stackoverflow.com/a/29683785
@@ -284,30 +312,30 @@
           
     - name: copy STAR_unglue_it.crt 
       copy: > 
-        src=/Volumes/ryvault1/gluejar/other_keys/unglue_it/STAR_unglue_it.crt 
-        dest=/etc/ssl/certs/server.crt 
-        owner={{user}} 
-        group={{user}} 
+        src=files/ssl_cert/STAR_unglue_it.crt
+        dest=/etc/ssl/certs/server.crt
+        owner={{user}}
+        group={{user}}
         mode=0644
       notify:
         - restart apache2
 
     - name: copy server.key
       copy: > 
-        src=/Volumes/ryvault1/gluejar/other_keys/unglue_it/server.key 
+        src=files/ssl_cert/server.key
         dest=/etc/ssl/private/server.key
-        owner={{user}} 
-        group={{user}} 
+        owner={{user}}
+        group={{user}}
         mode=0600
       notify:
         - restart apache2
 
     - name: copy STAR_unglue_it.ca-bundle
       copy: > 
-        src=/Volumes/ryvault1/gluejar/other_keys/unglue_it/STAR_unglue_it.ca-bundle 
+        src=files/ssl_cert/STAR_unglue_it.ca-bundle
         dest=/etc/ssl/certs/STAR_unglue_it.ca-bundle
-        owner={{user}} 
-        group={{user}} 
+        owner={{user}}
+        group={{user}}
         mode=0600
       notify:
         - restart apache2
@@ -335,11 +363,12 @@
      #  - name: show django_secret_key
      #   debug: msg="{{django_secret_key}}"
 
-    - name: insert SECRET_KEY into /opt/regluit/settings/local.py
-      lineinfile: create=yes dest=/opt/regluit/settings/local.py line="SECRET_KEY=u'{{django_secret_key}}'"
-      notify:
-        - restart apache2
-      sudo: no
+    # out-dated: no more injecting secret key into local.py
+    #- name: insert SECRET_KEY into /opt/regluit/settings/local.py
+    #  lineinfile: create=yes dest=/opt/regluit/settings/local.py line="SECRET_KEY=u'{{django_secret_key}}'"
+    #  notify:
+    #    - restart apache2
+    #  sudo: no
 
     #
     #sudo ("/etc/init.d/apache2 restart")
