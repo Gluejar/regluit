@@ -1,0 +1,9 @@
+- name: test
+  hosts: localhost
+  tasks:
+
+    # to run: ansible-playbook create_commonpy.yml
+    # create settings/common.py (locally)
+    - name: create settings/keys/common.py locally
+      template: src=templates/common.py.j2 dest=../settings/keys/common.py
+      delegate_to: localhost

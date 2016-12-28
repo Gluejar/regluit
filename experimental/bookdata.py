@@ -36,7 +36,12 @@ import freebase
 import logging
 logger = logging.getLogger(__name__)
 
-GOOGLE_BOOKS_KEY = "AIzaSyDsrHCUsUFNAf65cFPSF8MZTKj8C9oMuj8"
+try:
+    from django.conf import settings
+    GOOGLE_BOOKS_KEY = settings.GOOGLE_BOOKS_API_KEY
+except:
+    GOOGLE_BOOKS_KEY = os.environ.get('GOOGLE_BOOKS_API_KEY', '')
+
 
 MASHUPBOOK_ISBN_13 = '9781590598580'
 MASHUPBOOK_ISBN_10 = '159059858X'

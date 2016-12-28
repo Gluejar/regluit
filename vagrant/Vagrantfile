@@ -21,6 +21,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   
     node.vm.provision 'ansible' do |ansible|
       ansible.playbook = 'dev.yml'
+
       ansible.verbose = "vv"
       # ansible.inventory_path = '.vagrant/provisioners/ansible/inventory/'
       ansible.raw_arguments  = [
@@ -30,7 +31,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "-e class=please",
           "-e hostname=please.unglue.it",
           "-e setdns=true",
-          "-e branch=dj18postdj18"
+          "-e branch=master",
+          # "--start-at-task=restart_here"
       ]
     end
 
@@ -46,13 +48,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       aws.access_key_id =  ENV['AWS_ACCESS_KEY_ID']
       aws.secret_access_key = ENV['AWS_SECRET_ACCESS_KEY']      
 
-      aws.keypair_name = "ry-laptop"
+      aws.keypair_name = ENV['AWS_KEYPAIR_NAME']
   
       # Ubuntu 12.04 LTS Precise / PV EBS-SSD boot
       # alestic 2015.05.05
       
       #aws.instance_type="t1.micro"
-      aws.instance_type="m3.medium"
+      aws.instance_type="m1.small"
+      # aws.instance_type="m3.medium"
       
       aws.region = "us-east-1"
       aws.availability_zone = "us-east-1c"
@@ -69,7 +72,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
    
       override.vm.box = "dummy"
       override.ssh.username = "ubuntu"
-      override.ssh.private_key_path = "/Users/raymondyee/.ssh/id_rsa"
+      override.ssh.private_key_path = ENV['SSH_PRIVATE_KEY_PATH']  || "~/.ssh/id_rsa"
     end
 
   end
@@ -109,7 +112,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       aws.access_key_id =  ENV['AWS_ACCESS_KEY_ID']
       aws.secret_access_key = ENV['AWS_SECRET_ACCESS_KEY']      
 
-      aws.keypair_name = "ry-laptop"
+      aws.keypair_name = ENV['AWS_KEYPAIR_NAME']
   
       # Ubuntu 12.04 LTS Precise / PV EBS-SSD boot
       # alestic 2015.05.05
@@ -127,7 +130,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
    
       override.vm.box = "dummy"
       override.ssh.username = "ubuntu"
-      override.ssh.private_key_path = "/Users/raymondyee/.ssh/id_rsa"
+      override.ssh.private_key_path = ENV['SSH_PRIVATE_KEY_PATH']  || "~/.ssh/id_rsa"
     end
 
   end
@@ -167,7 +170,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       aws.access_key_id =  ENV['AWS_ACCESS_KEY_ID']
       aws.secret_access_key = ENV['AWS_SECRET_ACCESS_KEY']      
 
-      aws.keypair_name = "ry-laptop"
+      aws.keypair_name = ENV['AWS_KEYPAIR_NAME']
   
       # Ubuntu 12.04 LTS Precise / PV EBS-SSD boot
       # alestic 2015.05.05
@@ -185,7 +188,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
    
       override.vm.box = "dummy"
       override.ssh.username = "ubuntu"
-      override.ssh.private_key_path = "/Users/raymondyee/.ssh/id_rsa"
+      override.ssh.private_key_path = ENV['SSH_PRIVATE_KEY_PATH']  || "~/.ssh/id_rsa"
     end
 
   end
@@ -225,7 +228,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       aws.access_key_id =  ENV['AWS_ACCESS_KEY_ID']
       aws.secret_access_key = ENV['AWS_SECRET_ACCESS_KEY']      
 
-      aws.keypair_name = "ry-laptop"
+      aws.keypair_name = ENV['AWS_KEYPAIR_NAME']
   
       # Ubuntu 12.04 LTS Precise / PV EBS-SSD boot
       # alestic 2015.05.05
@@ -243,7 +246,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
    
       override.vm.box = "dummy"
       override.ssh.username = "ubuntu"
-      override.ssh.private_key_path = "/Users/raymondyee/.ssh/id_rsa"
+      override.ssh.private_key_path = ENV['SSH_PRIVATE_KEY_PATH']  || "~/.ssh/id_rsa"
     end
 
   end
@@ -283,7 +286,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       aws.access_key_id =  ENV['AWS_ACCESS_KEY_ID']
       aws.secret_access_key = ENV['AWS_SECRET_ACCESS_KEY']      
 
-      aws.keypair_name = "ry-laptop"
+      aws.keypair_name = ENV['AWS_KEYPAIR_NAME']
   
       # Ubuntu 12.04 LTS Precise / PV EBS-SSD boot
       # alestic 2015.05.05
@@ -301,7 +304,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
    
       override.vm.box = "dummy"
       override.ssh.username = "ubuntu"
-      override.ssh.private_key_path = "/Users/raymondyee/.ssh/id_rsa"
+      override.ssh.private_key_path = ENV['SSH_PRIVATE_KEY_PATH']  || "~/.ssh/id_rsa"
     end
 
   end

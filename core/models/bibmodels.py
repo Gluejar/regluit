@@ -10,6 +10,7 @@ import unicodedata
 from urlparse import urlparse
 
 from sorl.thumbnail import get_thumbnail
+from PIL import ImageFile
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -41,6 +42,9 @@ from regluit.core.parameters import (
     THANKED,
     THANKS,
 )
+
+# fix truncated file problems per http://stackoverflow.com/questions/12984426/python-pil-ioerror-image-file-truncated-with-big-images
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 logger = logging.getLogger(__name__)
 good_providers = ('Internet Archive', 'Unglue.it', 'Github', 'OAPEN Library')

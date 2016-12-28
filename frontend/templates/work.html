@@ -291,12 +291,12 @@
                                     {% endfor %}
                                     {% if work.doab %}
                                     <p>
-                                    This book is included in <a href="{% url 'faceted_list' 'id/doab' %}?order_by=popular">DOAB</a>.
+                                    This book is included in <a href="http://www.doabooks.org/doab?func=search&query=rid%3A{{ work.doab }}">DOAB</a>.
                                     </p>
                                     {% endif %}
                                     {% if work.gtbg %}
                                     <p>
-                                    This book is included in <a href="{% url 'faceted_list' 'id/gtbg' %}?order_by=popular">Project Gutenberg</a>.
+                                    This book is included in <a href="https://www.gutenberg.org/ebooks/{{ work.gtbg }}">Project Gutenberg</a>.
                                     </p>
                                     {% endif %}
                                     </div>

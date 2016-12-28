@@ -1,4 +1,9 @@
-from regluit.settings.common import *
+# coding=utf-8
+from .common import *
+try:
+    from .keys.host import *
+except ImportError:
+    from .dummy.host import *
 
 DEBUG = True
 TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
@@ -36,6 +41,29 @@ EMAIL_HOST_PASSWORD = 'my-password'
 EMAIL_PORT = 587
 DEFAULT_FROM_EMAIL = 'info@gluejar.com'
 
+
+# formerly of settings/common.py to surface old vars
+# TO DO: invalidate before we open source
+
+MAILCHIMP_API_KEY = '5f8e846a2bbc847807ed89086de4b4bf-us2'
+MAILCHIMP_NEWS_ID = u'c5cce92fe1'
+
+BOOXTREAM_API_KEY = '7ynRCsx4q21zEY67it7yk8u5rc6EXY'
+BOOXTREAM_API_USER = 'ungluetest'
+
+DROPBOX_KEY = '4efhwty5aph52bd'   #for unglue.it, just.unglue.it
+#DROPBOX_KEY = '6uefhocpvp0s1ep'  #for localhost
+
+# for reading GITenberg releases
+# generated from rdhyee account
+GITHUB_PUBLIC_TOKEN = 'f702409f913d7f9046f93c677710f829e2b599c9'
+
+MOBIGEN_URL = "https://docker.gluejar.com:5001/mobigen"
+MOBIGEN_USER_ID = "admin"
+MOBIGEN_PASSWORD = "CXq5FSEQFgXtP_s"
+
+#-------------------------------------
+
 # twitter auth
 SOCIAL_AUTH_TWITTER_KEY = ''
 SOCIAL_AUTH_TWITTER_SECRET = ''
@@ -43,8 +71,6 @@ SOCIAL_AUTH_TWITTER_SECRET = ''
 # facebook auth
 SOCIAL_AUTH_FACEBOOK_KEY = ''
 SOCIAL_AUTH_FACEBOOK_SECRET = ''
-
-
 
 # get these (as oauth2 client ID and Secret from 
 # https://console.developers.google.com/project/569579163337/apiui/credential?authuser=1
@@ -57,14 +83,15 @@ GOOGLE_BOOKS_API_KEY = 'AIzaSyC-nBaK90PIsovMRbswPYEKgA6cJfYSDmY'
 
 #BASE_URL = 'http://0.0.0.0/'
 BASE_URL_SECURE = 'http://0.0.0.0/'
-IPN_SECURE_URL = False
 
 # Goodreads API
+# owned by rdhyee@gluejar.com
 GOODREADS_API_KEY = 'w8nsFplG3HFOeOLQ7rqfQ'
 GOODREADS_API_SECRET = '8Dfl7nQ28VgzJctlVwf8m7zkPaWns4j79t0G9iFxbk'
 
 # Amazon keys to permit S3 access
 # s3_jenkins
+# https://console.aws.amazon.com/iam/home?region=us-east-1#/users/s3_jenkins
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 AWS_ACCESS_KEY_ID = 'AKIAJQGL74HQPHPFYJ5Q'
 AWS_SECRET_ACCESS_KEY = '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'
