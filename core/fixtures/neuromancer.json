@@ -1,0 +1,86 @@
+[
+{
+    "fields": {
+        "edition": 1,
+        "work": 1,
+        "type": "goog",
+        "value": "IDFfMPW32hQC"
+    },
+    "model": "core.identifier",
+    "pk": 1
+},
+{
+    "fields": {
+        "edition": 1,
+        "work": 1,
+        "type": "isbn",
+        "value": "9780441007462"
+    },
+    "model": "core.identifier",
+    "pk": 2
+},
+{
+    "fields": {
+        "description": "",
+        "language": "en",
+        "title": "Neuromancer",
+        "created": "2016-12-29T13:14:30.748",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 1
+},
+{
+    "fields": {
+        "name": "William Gibson",
+        "created": "2016-12-29T13:14:30.757"
+    },
+    "model": "core.author",
+    "pk": 1
+},
+{
+    "fields": {
+        "code": "aut",
+        "name": "Author"
+    },
+    "model": "core.relation",
+    "pk": 1
+},
+{
+    "fields": {
+        "edition": 1,
+        "relation": 1,
+        "author": 1
+    },
+    "model": "core.relator",
+    "pk": 1
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 1,
+        "created": "2016-12-29T13:14:30.753",
+        "note": null,
+        "cover_image": null,
+        "publication_date": "2000",
+        "publisher_name": 1,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 1
+},
+{
+    "fields": {
+        "publisher": null,
+        "name": "Penguin"
+    },
+    "model": "core.publishername",
+    "pk": 1
+}
+]
