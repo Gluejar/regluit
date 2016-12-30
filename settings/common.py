@@ -419,7 +419,7 @@ SHOW_GOOGLE_ANALYTICS = False
 
 # to enable uploading to S3 and integration of django-storages + django-ckeditor
 # some variables to be overriddden in more specific settings files -- e.g., prod.py, 
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+
 AWS_ACCESS_KEY_ID = ''
 AWS_SECRET_ACCESS_KEY = ''
 AWS_STORAGE_BUCKET_NAME = ''
@@ -468,8 +468,16 @@ QUESTIONNAIRE_DEBUG = True
 FIREFOX_PATH = ''
 CHROMEDRIVER_PATH = ''
 
+
 try:
     from .keys.host import *
+    TEST_INTEGRATION = True
 except ImportError:
     from .dummy.host import *
+    TEST_INTEGRATION = False
+
+if AWS_SECRET_ACCESS_KEY:
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+else:
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage' 
 

@@ -122,7 +122,6 @@ MAINTENANCE_MODE = False
 
 # Amazon keys to permit S3 access
 
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 # https://console.aws.amazon.com/iam/home?region=us-east-1#/users/s3_just
 # TO DO: invalidate
 # AWS_ACCESS_KEY_ID = 'AKIAIYP6XRVAUWKQFT5Q'

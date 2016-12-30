@@ -1,0 +1,77 @@
+{
+ "kind": "books#volumes",
+ "totalItems": 1,
+ "items": [
+  {
+   "kind": "books#volume",
+   "id": "Vu-hxQypyjkC",
+   "etag": "Q88ngidKE4o",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/Vu-hxQypyjkC",
+   "volumeInfo": {
+    "title": "A People's History of the United States",
+    "authors": [
+     "Howard Zinn"
+    ],
+    "publisher": "Harper Collins",
+    "publishedDate": "2010-01-26",
+    "description": "“It’s a wonderful, splendid book—a book that should be read by every American, student or otherwise, who wants to understand his country, its true history, and its hope for the future.” —Howard Fast, author of Spartacus and The Immigrants “[It] should be required reading.” —Eric Foner, New York Times Book Review Library Journal calls Howard Zinn’s iconic A People's History of the United States “a brilliant and moving history of the American people from the point of view of those…whose plight has been largely omitted from most histories.” Packed with vivid details and telling quotations, Zinn’s award-winning classic continues to revolutionize the way American history is taught and remembered. Frequent appearances in popular media such as The Sopranos, The Simpsons, Good Will Hunting, and the History Channel documentary The People Speak testify to Zinn’s ability to bridge the generation gap with enduring insights into the birth, development, and destiny of the nation.",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_13",
+      "identifier": "9780061989834"
+     },
+     {
+      "type": "ISBN_10",
+      "identifier": "0061989835"
+     }
+    ],
+    "readingModes": {
+     "text": true,
+     "image": false
+    },
+    "pageCount": 768,
+    "printType": "BOOK",
+    "categories": [
+     "History"
+    ],
+    "averageRating": 4.0,
+    "ratingsCount": 3915,
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "1.1.3.0.preview.2",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=Vu-hxQypyjkC&printsec=frontcover&img=1&zoom=5&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=Vu-hxQypyjkC&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=Vu-hxQypyjkC&dq=isbn:9780061989834&hl=&cd=1&source=gbs_api",
+    "infoLink": "http://books.google.com/books?id=Vu-hxQypyjkC&dq=isbn:9780061989834&hl=&source=gbs_api",
+    "canonicalVolumeLink": "http://books.google.com/books/about/A_People_s_History_of_the_United_States.html?hl=&id=Vu-hxQypyjkC"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "NOT_FOR_SALE",
+    "isEbook": false
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "NO_PAGES",
+    "embeddable": false,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED_FOR_ACCESSIBILITY",
+    "epub": {
+     "isAvailable": true
+    },
+    "pdf": {
+     "isAvailable": false
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=Vu-hxQypyjkC&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "NONE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "This new edition contains two new chapters covering the Clinton presidency, the 2000 Election, and the &quot;war on terrorism,&quot; continuing Zinn&#39;s important contribution to a complete and balanced understanding of American history."
+   }
+  }
+ ]
+}

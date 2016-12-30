@@ -92,7 +92,6 @@ GOODREADS_API_SECRET = '8Dfl7nQ28VgzJctlVwf8m7zkPaWns4j79t0G9iFxbk'
 # Amazon keys to permit S3 access
 # s3_jenkins
 # https://console.aws.amazon.com/iam/home?region=us-east-1#/users/s3_jenkins
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 AWS_ACCESS_KEY_ID = 'AKIAJQGL74HQPHPFYJ5Q'
 AWS_SECRET_ACCESS_KEY = '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'
 AWS_STORAGE_BUCKET_NAME = 'jenkins-unglueit'

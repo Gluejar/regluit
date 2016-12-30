@@ -73,6 +73,7 @@ rdflib-jsonld==0.3
 redis==2.10.3
 reportlab==3.1.8
 requests==2.10.0
+requests-mock==1.2.0
 requests-oauthlib==0.6.2
 selenium==2.53.1
 six==1.9.0

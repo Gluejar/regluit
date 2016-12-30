@@ -10,6 +10,7 @@ from tempfile import NamedTemporaryFile
 from celery.task import chord
 from celery.task.sets import TaskSet
 import requests
+import requests_mock
 import os
 
 """
@@ -71,11 +72,13 @@ from regluit.pyepub import EPUB
 from .epub import test_epub
 from .pdf import ask_pdf, test_pdf
 
-YAML_VERSIONFILE = os.path.join(os.path.dirname(__file__), '../test/versiontest.yaml')
-YAML_HUCKFILE = os.path.join(os.path.dirname(__file__), '../test/raw/master/metadata.yaml')
+TESTDIR = os.path.join(os.path.dirname(__file__), '../test/')
+YAML_VERSIONFILE = os.path.join(TESTDIR, 'versiontest.yaml')
+YAML_HUCKFILE = os.path.join(TESTDIR, 'raw/master/metadata.yaml')
 
 class BookLoaderTests(TestCase):
-    fixtures = ['initial_data.json']
+    fixtures = ['initial_data.json','bookloader.json']
+
     def setUp(self):
         self.user = User.objects.create_user('core_test', 'test@example.org', 'core_test')
         self.client = Client()
@@ -107,8 +110,17 @@ class BookLoaderTests(TestCase):
         self.assertTrue(bookloader.valid_subject('A, valid, suj\xc3t'))
         self.assertFalse(bookloader.valid_subject('A, valid, suj\xc3t, '))
         self.assertFalse(bookloader.valid_subject('A valid suj\xc3t \x01'))
+    
+    def test_add_by_isbn_mock(self):
+        with requests_mock.Mocker(real_http=True) as m:
+            with open(os.path.join(TESTDIR, 'gb_hamilton.json')) as gb:
+                m.get('https://www.googleapis.com/books/v1/volumes', content=gb.read())
+            self.test_add_by_isbn(mocking=True)
+        
 
-    def test_add_by_isbn(self):
+    def test_add_by_isbn(self, mocking=False):
+        if not (mocking or settings.TEST_INTEGRATION):
+            return
         # edition
         edition = bookloader.add_by_isbn('9781594200090')
         self.assertEqual(edition.title, u'Alexander Hamilton')
@@ -143,18 +155,27 @@ class BookLoaderTests(TestCase):
         edition.set_publisher(u'Perseus Books Group')
         self.assertEqual(edition.publisher, u'test publisher name') # Perseus has been aliased
 
-    @unittest.expectedFailure
-    def test_language_locale(self):
-        # shouldn't fail normally, but started with
-        # http://jenkins.unglueit.com/job/regluit/3601/ April 29, 2016
-        # locale in language
-        # Obama Dreams from My Father, Chinese edition
-        # http://www.worldcat.org/title/aobama-hui-yi-lu-wo-fu-qin-de-meng-xiang/oclc/302206587?referer=tag_list_view
-        edition = bookloader.add_by_isbn('9787544706919')
-        self.assertEqual(edition.work.language, 'zh-CN')
+    def test_language_locale_mock(self):
+        with requests_mock.Mocker(real_http=True) as m:
+            with open(os.path.join(TESTDIR, 'zhTW.json')) as gb:
+                m.get('https://www.googleapis.com/books/v1/volumes', content=gb.read())
+            self.test_language_locale(mocking=True)
+        
+    def test_language_locale(self, mocking=False):
+        if not (mocking or settings.TEST_INTEGRATION):
+            return
+        edition = bookloader.add_by_isbn('9789570336467')
+        self.assertEqual(edition.work.language, 'zh-TW')
 
-    @unittest.expectedFailure
-    def test_update_edition(self):  
+    def test_update_edition_mock(self):
+        with requests_mock.Mocker(real_http=True) as m:
+            with open(os.path.join(TESTDIR, 'python4da.json')) as gb:
+                m.get('https://www.googleapis.com/books/v1/volumes', content=gb.read())
+            self.test_update_edition(mocking=True)
+        
+    def test_update_edition(self, mocking=False):  
+        if not (mocking or settings.TEST_INTEGRATION):
+            return
         w = models.Work(title='silly title', language='xx')
         w.save()
         e = models.Edition(title=w.title,work=w)
@@ -165,32 +186,46 @@ class BookLoaderTests(TestCase):
         self.assertEqual(e.title, 'Python for Data Analysis')
 
     def test_double_add(self):
-        bookloader.add_by_isbn('0441007465')
-        bookloader.add_by_isbn('0441007465')
-        self.assertEqual(models.Edition.objects.all().count(), 1)
-        self.assertEqual(models.Author.objects.all().count(), 1)
-        self.assertEqual(models.Work.objects.all().count(), 1)
+        edbefore = models.Edition.objects.all().count()
+        autbefore = models.Author.objects.all().count()
+        before = models.Work.objects.all().count()
+        bookloader.add_by_isbn('0441007465') # in fixture
+        self.assertEqual(models.Edition.objects.all().count(), edbefore)
+        self.assertEqual(models.Author.objects.all().count(), autbefore)
+        self.assertEqual(models.Work.objects.all().count(), before)
        
     def test_missing_isbn(self):
         e = bookloader.add_by_isbn_from_google('0139391401')
         self.assertEqual(e, None)
 
-    def test_thingisbn(self):
-        isbns = bookloader.thingisbn('0441007465')
+    def test_thingisbn_mock(self):
+        with requests_mock.Mocker(real_http=True) as m:
+            with open(os.path.join(TESTDIR, '9780441569595.xml')) as lt:
+                m.get('http://www.librarything.com/api/thingISBN/0441007465', content=lt.read())
+            self.test_thingisbn(mocking=True)
+
+    def test_thingisbn(self, mocking=False):
+        if not (mocking or settings.TEST_INTEGRATION):
+            return
+        isbns = bookloader.thingisbn('0441007465') #Neuromancer
         self.assertTrue(len(isbns) > 20)
         self.assertTrue('0441007465' in isbns)
         self.assertTrue('3453313895' in isbns)
 
     def test_add_related(self):
         # add one edition
-        edition = bookloader.add_by_isbn('0441007465')
-        self.assertEqual(models.Edition.objects.count(), 1)
-        self.assertEqual(models.Work.objects.count(), 1)
+        edition = bookloader.add_by_isbn('0441007465') #Neuromancer; editions in fixture but not joined
+        edbefore = models.Edition.objects.count()
+        before = models.Work.objects.count()
         lang=edition.work.language
+        langbefore = models.Work.objects.filter(language=lang).count()
         # ask for related editions to be added using the work we just created
-        bookloader.add_related('0441007465')
-        self.assertTrue(models.Edition.objects.count() > 15)
-        self.assertEqual(models.Work.objects.filter(language=lang).count(), 1)
+        with requests_mock.Mocker(real_http=True) as m:
+            with open(os.path.join(TESTDIR, '9780441569595.xml')) as lt:
+                m.get('http://www.librarything.com/api/thingISBN/0441007465', content=lt.read())
+            bookloader.add_related('0441007465') # should join the editions
+        self.assertTrue(models.Edition.objects.count() >= edbefore)
+        self.assertTrue(models.Work.objects.filter(language=lang).count() < langbefore)
         self.assertTrue(edition.work.editions.count() > 9)
         self.assertTrue(edition.work.reverse_related.count() > 0)
 
@@ -205,8 +240,11 @@ class BookLoaderTests(TestCase):
 
 
     def test_populate_edition(self):
-        edition = bookloader.add_by_googlebooks_id('c_dBPgAACAAJ')
-        edition = tasks.populate_edition.run(edition.isbn_13)
+        edition = bookloader.add_by_isbn('9780606301121') # A People's History Of The United States
+        with requests_mock.Mocker(real_http=True) as m:
+            with open(os.path.join(TESTDIR, '9780061989834.xml')) as lt:
+                m.get('http://www.librarything.com/api/thingISBN/9780606301121', content=lt.read())
+            edition = tasks.populate_edition.run(edition.isbn_13)
         self.assertTrue(edition.work.editions.all().count() > 10)
         self.assertTrue(edition.work.subjects.all().count() > 8)
         self.assertTrue(edition.work.publication_date)
@@ -218,6 +256,8 @@ class BookLoaderTests(TestCase):
 
     def test_merge_works_mechanics(self):
         """Make sure then merge_works is still okay when we try to merge works with themselves and with deleted works"""
+        before = models.Work.objects.count()
+        wasbefore = models.WasWork.objects.count()
         sub1= Subject(name='test1')
         sub1.save()
         sub2= Subject(name='test2')
@@ -247,7 +287,7 @@ class BookLoaderTests(TestCase):
         self.assertTrue(e2a)
         self.assertTrue(e1.work)
         self.assertTrue(e2.work)
-        self.assertEqual(models.Work.objects.count(), 2)
+        self.assertEqual(models.Work.objects.count(), before + 2)
         
         self.assertTrue(w2.is_free)
         self.assertFalse(w1.is_free)
@@ -257,13 +297,13 @@ class BookLoaderTests(TestCase):
         
         # first try to merge work 1 into itself -- should not do anything
         bookloader.merge_works(w1,w1)
-        self.assertEqual(models.Work.objects.count(), 2)
+        self.assertEqual(models.Work.objects.count(), before + 2)
         
         # merge the second work into the first
         bookloader.merge_works(e1.work, e2.work)
-        self.assertEqual(models.Work.objects.count(),1)
-        self.assertEqual(models.WasWork.objects.count(),1)
-        self.assertEqual(w1.subjects.count(),2)
+        self.assertEqual(models.Work.objects.count(), before + 1)
+        self.assertEqual(models.WasWork.objects.count(), wasbefore + 1)
+        self.assertEqual(w1.subjects.count(), 2)
        
         self.assertTrue(w1.is_free)
 
@@ -289,27 +329,18 @@ class BookLoaderTests(TestCase):
         self.assertTrue(w1.title=='Work 1')
 
     def test_merge_works(self):
+        before = models.Work.objects.count()
         # add two editions and see that there are two stub works
         
-        # for this test, we need two isbns that are considered related in LibraryThing and are both
-        # recognized by Google Books API
-        # see http://nbviewer.ipython.org/70f0b17b9d0c8b9b651b for a way to calculate a match
-        # for a given input ISBN
-        
-        # Crawfish Dreams by Nancy Rawles -- what could work once the LT thingisbn cache clears
-        #isbn1 = '0385722133'
-        #isbn2 = '0307425363'
-        
-        # RY switched to Atwood's Handmaid's Tale for hopefully longer term resilience for this test
-        isbn1 = '9780395404256'
-        isbn2 = '9780547345666'
+        # for this test, use two unjoined Neuromancer works in fixture
+        isbn1 = '9780441569595'
+        isbn2 = '9780441012039'
         e1 = bookloader.add_by_isbn(isbn1)
         e2 = bookloader.add_by_isbn(isbn2)
         self.assertTrue(e1)
         self.assertTrue(e2)
         self.assertTrue(e1.work)
         self.assertTrue(e2.work)
-        self.assertEqual(models.Work.objects.count(), 2)
 
         # add the stub works to a wishlist
         user = User.objects.create_user('test', 'test@example.org', 'testpass')
@@ -385,63 +416,56 @@ class BookLoaderTests(TestCase):
 
     
     def test_ebook(self):
-        edition = bookloader.add_by_oclc('1246014')
-        # we've seen the public domain status of this book fluctuate -- and the OCLC number can disappear. So if the ebook count is 2 then test 
-        if edition is not None and edition.ebooks.count() == 2:
-            #self.assertEqual(edition.ebooks.count(), 2)
-            #ebook_epub = edition.ebooks.all()[0]
-            ebook_epub = edition.ebooks.filter(format='epub')[0]
-            self.assertEqual(ebook_epub.format, 'epub')
-            #self.assertEqual(ebook_epub.url, 'http://books.google.com/books/download/The_Latin_language.epub?id=N1RfAAAAMAAJ&ie=ISO-8859-1&output=epub&source=gbs_api')
-            self.assertEqual(parse_qs(urlparse(ebook_epub.url).query).get("id"), ['N1RfAAAAMAAJ'])
-            self.assertEqual(parse_qs(urlparse(ebook_epub.url).query).get("output"), ['epub'])
-            self.assertEqual(ebook_epub.provider, 'Google Books')
-            self.assertEqual(ebook_epub.set_provider(), 'Google Books')
-            ebook_pdf = edition.ebooks.filter(format='pdf')[0]
-            self.assertEqual(ebook_pdf.format, 'pdf')
-            #self.assertEqual(ebook_pdf.url, 'http://books.google.com/books/download/The_Latin_language.pdf?id=N1RfAAAAMAAJ&ie=ISO-8859-1&output=pdf&sig=ACfU3U2yLt3nmTncB8ozxOWUc4iHKUznCA&source=gbs_api')
-            self.assertEqual(parse_qs(urlparse(ebook_pdf.url).query).get("id"), ['N1RfAAAAMAAJ'])
-            self.assertEqual(parse_qs(urlparse(ebook_pdf.url).query).get("output"), ['pdf'])
-            self.assertEqual(ebook_pdf.provider, 'Google Books')        
+        with requests_mock.Mocker(real_http=True) as m:
+            with open(os.path.join(TESTDIR, 'gb_latinlanguage.json')) as gb:
+                m.get('https://www.googleapis.com/books/v1/volumes', content=gb.read())
+                edition = bookloader.add_by_oclc('1246014')
+            # we've seen the public domain status of this book fluctuate -- and the OCLC number can disappear. So if the ebook count is 2 then test 
+            #if edition is not None and edition.ebooks.count() == 2:
+                self.assertEqual(edition.ebooks.count(), 2)
+                #ebook_epub = edition.ebooks.all()[0]
+                ebook_epub = edition.ebooks.filter(format='epub')[0]
+                self.assertEqual(ebook_epub.format, 'epub')
+                #self.assertEqual(ebook_epub.url, 'http://books.google.com/books/download/The_Latin_language.epub?id=N1RfAAAAMAAJ&ie=ISO-8859-1&output=epub&source=gbs_api')
+                self.assertEqual(parse_qs(urlparse(ebook_epub.url).query).get("id"), ['N1RfAAAAMAAJ'])
+                self.assertEqual(parse_qs(urlparse(ebook_epub.url).query).get("output"), ['epub'])
+                self.assertEqual(ebook_epub.provider, 'Google Books')
+                self.assertEqual(ebook_epub.set_provider(), 'Google Books')
+                ebook_pdf = edition.ebooks.filter(format='pdf')[0]
+                self.assertEqual(ebook_pdf.format, 'pdf')
+                #self.assertEqual(ebook_pdf.url, 'http://books.google.com/books/download/The_Latin_language.pdf?id=N1RfAAAAMAAJ&ie=ISO-8859-1&output=pdf&sig=ACfU3U2yLt3nmTncB8ozxOWUc4iHKUznCA&source=gbs_api')
+                self.assertEqual(parse_qs(urlparse(ebook_pdf.url).query).get("id"), ['N1RfAAAAMAAJ'])
+                self.assertEqual(parse_qs(urlparse(ebook_pdf.url).query).get("output"), ['pdf'])
+                self.assertEqual(ebook_pdf.provider, 'Google Books')        
     
-            w = edition.work
-            self.assertEqual(w.first_epub().url, ebook_epub.url)
-            self.assertEqual(w.first_pdf().url, ebook_pdf.url)
-            self.assertEqual(w.first_epub_url(), ebook_epub.url)
-            self.assertEqual(w.first_pdf_url(), ebook_pdf.url)
+                w = edition.work
+                self.assertEqual(w.first_epub().url, ebook_epub.url)
+                self.assertEqual(w.first_pdf().url, ebook_pdf.url)
+                self.assertEqual(w.first_epub_url(), ebook_epub.url)
+                self.assertEqual(w.first_pdf_url(), ebook_pdf.url)
     
-            ebook_pdf.url='http://en.wikisource.org/wiki/Frankenstein'      
-            self.assertEqual(ebook_pdf.set_provider(), 'Wikisource')
+                ebook_pdf.url='http://en.wikisource.org/wiki/Frankenstein'      
+                self.assertEqual(ebook_pdf.set_provider(), 'Wikisource')
     
-            self.user.wishlist.add_work(w, 'test')        
-            tasks.report_new_ebooks(date_today())
-            r = self.client.get("/notification/" )
-            self.assertEqual(r.status_code, 200)
+                self.user.wishlist.add_work(w, 'test')        
+                tasks.report_new_ebooks(date_today())
+                r = self.client.get("/notification/" )
+                self.assertEqual(r.status_code, 200)
             
-            ebook_pdf.increment()
-            updated_ebook = Ebook.objects.get(pk=ebook_pdf.pk)
-            self.assertEqual(int(updated_ebook.download_count), 1)
-            self.assertEqual(int(edition.work.download_count), 1)
+                ebook_pdf.increment()
+                updated_ebook = Ebook.objects.get(pk=ebook_pdf.pk)
+                self.assertEqual(int(updated_ebook.download_count), 1)
+                self.assertEqual(int(edition.work.download_count), 1)
 
     def test_add_no_ebook(self):
         # this edition lacks an ebook, but we should still be able to load it
         # http://books.google.com/books?id=D-WjL_HRbNQC&printsec=frontcover#v=onepage&q&f=false
         # Social Life of Information
-        e = bookloader.add_by_isbn('1578517087')
-        self.assertTrue(e)
-
-    @unittest.expectedFailure
-    def test_one_language(self):
-        # english edition for cat's cradle should only pull in other 
-        # english editions
-        # expected failure right now because Google seems to have bad data about language of Cat's Cradle
-        # e.g., https://www.googleapis.com/books/v1/volumes?q=isbn:9789513033774
-        # title = "Kissan kehto" -- language according to API = English
-        work = bookloader.add_by_isbn('079530272X').work
-        self.assertEqual(work.language, 'en')
-        bookloader.add_related('079530272X')
-        for edition in work.editions.all():
-            self.assertEqual(edition.title.lower(), "cat's cradle")
+        with requests_mock.Mocker(real_http=True) as m:
+            with open(os.path.join(TESTDIR, 'gb_sociallife.json')) as gb:
+                m.get('https://www.googleapis.com/books/v1/volumes', content=gb.read())
+                e = bookloader.add_by_isbn('1578517087')
+                self.assertTrue(e)
 
     def test_add_openlibrary(self):
         work = bookloader.add_by_isbn('0441007465').work
@@ -455,8 +479,11 @@ class BookLoaderTests(TestCase):
         self.assertTrue('609' in work.identifiers.filter(type='ltwk').values_list('value',flat=True))
 
     def test_unicode_openlibrary(self):
-        work = bookloader.add_by_isbn('9783894808358').work
-        bookloader.add_openlibrary(work)
+        with requests_mock.Mocker(real_http=True) as m:
+            with open(os.path.join(TESTDIR, 'gb_fightclub.json')) as gb:
+                m.get('https://www.googleapis.com/books/v1/volumes', content=gb.read())
+            work = bookloader.add_by_isbn('9783894808358').work #fight club
+            bookloader.add_openlibrary(work)
         self.assertTrue(work.description.startswith('Sie sind jung,'))
         
     def notest_load_gutenberg_edition(self):
@@ -1073,9 +1100,9 @@ class MobigenTests(TestCase):
         check the size of the mobi output of a Moby Dick epub 
         """
         from regluit.core.mobigen import convert_to_mobi
-
-        output = convert_to_mobi("https://github.com/GITenberg/Moby-Dick--Or-The-Whale_2701/releases/download/0.2.0/Moby-Dick-Or-The-Whale.epub")
-        self.assertTrue(len(output)>2207877)
+        if settings.TEST_INTEGRATION:
+            output = convert_to_mobi("https://github.com/GITenberg/Moby-Dick--Or-The-Whale_2701/releases/download/0.2.0/Moby-Dick-Or-The-Whale.epub")
+            self.assertTrue(len(output)>2207877)
 
 from .signals import handle_transaction_charged
 @override_settings(LOCAL_TEST=True)
