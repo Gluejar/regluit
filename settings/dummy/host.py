@@ -12,7 +12,7 @@ GOOGLE_BOOKS_API_KEY = os.environ.get("GOOGLE_BOOKS_API_KEY", "01234567890123456
 
 # 
 GOODREADS_API_KEY = os.environ.get("GOODREADS_API_KEY",  "01234567890123456789")
-GOODREADS_API_SECRET = os.environ.get("GOODREADS_API_SECRET",  "0123456789012345678901234567890123456789012")
+GOODREADS_API_SECRET = os.environ.get("GOODREADS_API_SECRET",  None) #43 chars
 
 # Amazon SES
 # create with https://console.aws.amazon.com/ses/home?region=us-east-1#smtp-settings:
@@ -26,7 +26,7 @@ SOCIAL_AUTH_TWITTER_KEY = os.environ.get("SOCIAL_AUTH_TWITTER_KEY",  '0123456789
 SOCIAL_AUTH_TWITTER_SECRET = os.environ.get("SOCIAL_AUTH_TWITTER_SECRET",  '01234567890123456789012345678901234567890123456789')
 
 # support@icontact.nl
-BOOXTREAM_API_KEY = os.environ.get("BOOXTREAM_API_KEY", '012345678901234567890123456789')
+BOOXTREAM_API_KEY = os.environ.get("BOOXTREAM_API_KEY", None) # 30 chars
 BOOXTREAM_API_USER = os.environ.get("BOOXTREAM_API_USER", 'user')
 
 # you'll need to create a new Facebook application to fill in these blanks

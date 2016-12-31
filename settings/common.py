@@ -475,6 +475,7 @@ try:
 except ImportError:
     from .dummy.host import *
     TEST_INTEGRATION = False
+    LOCAL_TEST = True
 
 if AWS_SECRET_ACCESS_KEY:
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'

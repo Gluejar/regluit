@@ -507,8 +507,17 @@ class BookLoaderTests(TestCase):
             ebf.file.delete()
             
 class SearchTests(TestCase):
+    def test_search_mock(self):
+        with requests_mock.Mocker(real_http=True) as m:
+            with open(os.path.join(TESTDIR, 'gb_melville.json')) as gb,  open(os.path.join(TESTDIR, 'gb_melville2.json')) as gb2:
+                m.get('https://www.googleapis.com/books/v1/volumes', [{'content':gb2.read()}, {'content':gb.read()}])
+            self.test_pagination(mocking=True)
+            self.test_basic_search(mocking=True)
+            self.test_googlebooks_search(mocking=True)
 
-    def test_basic_search(self):
+    def test_basic_search(self, mocking=False):
+        if not (mocking or settings.TEST_INTEGRATION):
+            return
         results = search.gluejar_search('melville')
         self.assertEqual(len(results), 10)
 
@@ -522,14 +531,18 @@ class SearchTests(TestCase):
         self.assertTrue(r.has_key('isbn_13'))
         self.assertTrue(r.has_key('googlebooks_id'))
 
-    def test_pagination(self):
+    def test_pagination(self, mocking=False):
+        if not (mocking or settings.TEST_INTEGRATION):
+            return
         r1 = search.gluejar_search('melville', page=1)
         r2 = search.gluejar_search('melville', page=2)
         isbns1 = set([r['isbn_13'] for r in r1])
         isbns2 = set([r['isbn_13'] for r in r2])
         self.assertTrue(isbns1 != isbns2)
 
-    def test_googlebooks_search(self):
+    def test_googlebooks_search(self, mocking=False):
+        if not (mocking or settings.TEST_INTEGRATION):
+            return
         response = search.googlebooks_search('melville', '69.243.24.29', 1)
         self.assertEqual(len(response['items']), 10)
 
@@ -701,7 +714,7 @@ class CampaignTests(TestCase):
         self.assertEqual(c1.launchable, True)
 
 class WishlistTest(TestCase):
-    fixtures = ['initial_data.json']
+    fixtures = ['initial_data.json', 'neuromancer.json']
     def test_add_remove(self):
         # add a work to a user's wishlist
         user = User.objects.create_user('test', 'test@example.org', 'testpass')
@@ -737,6 +750,8 @@ class GoodreadsTest(TestCase):
 
     @unittest.skip("Goodreads down at the moment")
     def test_goodreads_shelves(self):
+        if not settings.GOODREADS_API_SECRET:
+            return
         # test to see whether the core undeletable shelves are on the list
         gr_uid = "767708"  # for Raymond Yee
         gc = goodreads.GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
@@ -748,6 +763,8 @@ class GoodreadsTest(TestCase):
 
     @unittest.skip("Goodreads down at the moment")
     def test_review_list_unauth(self):
+        if not settings.GOODREADS_API_SECRET:
+            return
         gr_uid = "767708"  # for Raymond Yee
         gc = goodreads.GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
         reviews = gc.review_list_unauth(user_id=gr_uid, shelf='read')
@@ -948,9 +965,10 @@ class MailingListTests(TestCase):
     def test_mailchimp(self):
         from postmonkey import PostMonkey
         pm = PostMonkey(settings.MAILCHIMP_API_KEY)
-        self.assertEqual(pm.ping(),"Everything's Chimpy!" )
-        self.user = User.objects.create_user('chimp_test', 'eric@gluejar.com', 'chimp_test')
-        self.assertTrue(self.user.profile.on_ml)
+        if settings.TEST_INTEGRATION:
+            self.assertEqual(pm.ping(),"Everything's Chimpy!" )
+            self.user = User.objects.create_user('chimp_test', 'eric@gluejar.com', 'chimp_test')
+            self.assertTrue(self.user.profile.on_ml)
 
 @override_settings(LOCAL_TEST=True)
 class EbookFileTests(TestCase):
@@ -1058,8 +1076,10 @@ class EbookFileTests(TestCase):
             os.remove(temp.name)
         #test the ask-appender
         c.add_ask_to_ebfs()
-        asking_pdf = c.work.ebookfiles().filter(asking=True)[0].file.url
-        assert test_pdf(asking_pdf)
+        if settings.AWS_SECRET_ACCESS_KEY:
+            assert test_pdf(c.work.ebookfiles().filter(asking=True)[0].file.url)
+        else:
+            assert test_pdf(c.work.ebookfiles().filter(asking=True)[0].file)
         
         #Now do the same with epub
         temp = NamedTemporaryFile(delete=False)
@@ -1086,7 +1106,8 @@ class EbookFileTests(TestCase):
         #test the ask-appender
         c.add_ask_to_ebfs()
         self.assertTrue( c.work.ebookfiles().filter(asking = True, format='epub').count() > 0)
-        self.assertTrue( c.work.ebookfiles().filter(asking = True, format='mobi').count() > 0)
+        if settings.MOBIGEN_URL:
+            self.assertTrue( c.work.ebookfiles().filter(asking = True, format='mobi').count() > 0)
         self.assertTrue( c.work.ebookfiles().filter(asking = True, ebook__active=True).count() > 0)
         self.assertTrue( c.work.ebookfiles().filter(asking = False, ebook__active=True).count() == 0)
         #test the unasker

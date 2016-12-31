@@ -1017,7 +1017,7 @@ class EbookFile(models.Model):
             return False
 
     def make_mobi(self):
-        if not self.format == 'epub':
+        if not self.format == 'epub' or not settings.MOBIGEN_URL:
             return False
         new_mobi_ebf = EbookFile.objects.create(edition=self.edition, format='mobi', asking=self.asking)
         new_mobi_ebf.file.save(path_for_file('ebf', None), ContentFile(mobi.convert_to_mobi(self.file.url)))

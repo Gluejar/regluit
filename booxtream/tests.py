@@ -3,6 +3,7 @@ import time
 import urllib2 
 from tempfile import NamedTemporaryFile
 from StringIO import StringIO
+from django.conf import settings
 
 class TestBooXtream(unittest.TestCase):
     def setUp(self):
@@ -24,6 +25,8 @@ class TestBooXtream(unittest.TestCase):
     def test_booxtream_errors(self):
         from .exceptions import BooXtreamError
         inst = self._makeOne()
+        if not settings.BOOXTREAM_API_KEY:
+            return
         with self.assertRaises(BooXtreamError) as cm:
             inst.platform()
         self.assertIn( 'expirydays not set',str(cm.exception))
