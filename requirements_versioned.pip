@@ -33,7 +33,7 @@ django-jsonfield==1.0.0
 #django-kombu==0.9.4
 django-maintenancemode==0.11.2
 django-mptt==0.8.5
-django-nose-selenium==0.7.3
+#django-nose-selenium==0.7.3
 #django-notification==0.2
 git+git://github.com/eshellman/django-notification.git@412c7a03a327195a1017c2be92c8e2caabc880b6
 django-registration==2.1.2
