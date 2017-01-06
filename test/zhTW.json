@@ -1,0 +1,69 @@
+{
+ "kind": "books#volumes",
+ "totalItems": 1,
+ "items": [
+  {
+   "kind": "books#volume",
+   "id": "LoUSHMjFmtMC",
+   "etag": "DIlHxPcIxnI",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/LoUSHMjFmtMC",
+   "volumeInfo": {
+    "title": "西洋文學導讀下冊",
+    "subtitle": "",
+    "publisher": "知書房出版集團",
+    "publishedDate": "2000",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_10",
+      "identifier": "9570336463"
+     },
+     {
+      "type": "ISBN_13",
+      "identifier": "9789570336467"
+     }
+    ],
+    "readingModes": {
+     "text": false,
+     "image": true
+    },
+    "pageCount": 668,
+    "printType": "BOOK",
+    "categories": [
+     "English literature"
+    ],
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "0.1.1.0.preview.1",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=LoUSHMjFmtMC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=LoUSHMjFmtMC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "zh-TW",
+    "previewLink": "http://books.google.com/books?id=LoUSHMjFmtMC&printsec=frontcover&dq=isbn:9789570336467&hl=&cd=1&source=gbs_api",
+    "infoLink": "http://books.google.com/books?id=LoUSHMjFmtMC&dq=isbn:9789570336467&hl=&source=gbs_api",
+    "canonicalVolumeLink": "http://books.google.com/books/about/%E8%A5%BF%E6%B4%8B%E6%96%87%E5%AD%B8%E5%B0%8E%E8%AE%80%E4%B8%8B%E5%86%8A.html?hl=&id=LoUSHMjFmtMC"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "NOT_FOR_SALE",
+    "isEbook": false
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "PARTIAL",
+    "embeddable": true,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": false
+    },
+    "pdf": {
+     "isAvailable": false
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=LoUSHMjFmtMC&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "SAMPLE",
+    "quoteSharingAllowed": false
+   }
+  }
+ ]
+}

@@ -1,0 +1,731 @@
+{
+ "kind": "books#volumes",
+ "totalItems": 1750,
+ "items": [
+  {
+   "kind": "books#volume",
+   "id": "UOEIAAAAQAAJ",
+   "etag": "a0OdWQRvdBE",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/UOEIAAAAQAAJ",
+   "volumeInfo": {
+    "title": "Battle-pieces and aspects of the war [poems].",
+    "authors": [
+     "Herman Melville"
+    ],
+    "publishedDate": "1866",
+    "industryIdentifiers": [
+     {
+      "type": "OTHER",
+      "identifier": "OXFORD:590672589"
+     }
+    ],
+    "readingModes": {
+     "text": true,
+     "image": true
+    },
+    "printType": "BOOK",
+    "averageRating": 3.0,
+    "ratingsCount": 2,
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "1.1.4.0.full.3",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=UOEIAAAAQAAJ&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=UOEIAAAAQAAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=UOEIAAAAQAAJ&printsec=frontcover&dq=melville&hl=&cd=11&source=gbs_api",
+    "infoLink": "https://play.google.com/store/books/details?id=UOEIAAAAQAAJ&source=gbs_api",
+    "canonicalVolumeLink": "https://market.android.com/details?id=book-UOEIAAAAQAAJ"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "FREE",
+    "isEbook": true,
+    "buyLink": "https://play.google.com/store/books/details?id=UOEIAAAAQAAJ&rdid=book-UOEIAAAAQAAJ&rdot=1&source=gbs_api"
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "ALL_PAGES",
+    "embeddable": true,
+    "publicDomain": true,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": true,
+     "downloadLink": "http://books.google.com/books/download/Battle_pieces_and_aspects_of_the_war_poe.epub?id=UOEIAAAAQAAJ&hl=&output=epub&source=gbs_api"
+    },
+    "pdf": {
+     "isAvailable": true,
+     "downloadLink": "http://books.google.com/books/download/Battle_pieces_and_aspects_of_the_war_poe.pdf?id=UOEIAAAAQAAJ&hl=&output=pdf&sig=ACfU3U1OGjy_ijVXQ4aPdDOHdzHQgqBnfw&source=gbs_api"
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=UOEIAAAAQAAJ&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "FULL_PUBLIC_DOMAIN",
+    "quoteSharingAllowed": false
+   }
+  },
+  {
+   "kind": "books#volume",
+   "id": "DpxhCgAAQBAJ",
+   "etag": "d0Y320jr5lQ",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/DpxhCgAAQBAJ",
+   "volumeInfo": {
+    "title": "Benito Cereno",
+    "authors": [
+     "Herman Melville"
+    ],
+    "publisher": "Lulu.com",
+    "publishedDate": "2015-03-21",
+    "description": "Herman Melville (August 1, 1819 – September 28, 1891) was an American novelist, writer of short stories, and poet from the American Renaissance period. The bulk of his writings was published between 1846 and 1857. Best known for his whaling novel Moby-Dick (1851), he is also legendary for having been forgotten during the last thirty years of his life. Melville's writing is characteristic for its allusivity. \"In Melville's manipulation of his reading\", scholar Stanley T. Williams wrote, \"was a transforming power comparable to Shakespeare's\". Born in New York City, he was the third child of a merchant in French dry-goods, with Revolutionary War heroes for grandfathers. Not long after the death of his father in 1832, his schooling stopped abruptly. After having been a schoolteacher for a short time, he signed up for a merchant voyage to Liverpool in 1839. A year and a half into his first whaling voyage, in 1842 he jumped ship in the Marquesas Islands, where he lived among the natives for a month. His first book, Typee (1846), became a huge best-seller, which called for a sequel, Omoo (1847). The same year Melville married Elizabeth Knapp Shaw; their four children were all born between 1849 and 1855. In August 1850, having moved to Pittsfield, Massachusetts, he established a profound friendship with Nathaniel Hawthorne, though the relationship lost intensity after the latter moved away. Moby-Dick (1851) did not become a success, and Pierre (1852) put an end to his career as a popular author. From 1853 to 1856 he wrote short fiction for magazines, collected as The Piazza Tales (1856). In 1857, while Melville was on a voyage to England and the Near East, The Confidence-Man appeared, the last prose work published during his lifetime. From then on Melville turned to poetry. Having secured a position of Customs Inspector in New York, his poetic reflection on the Civil War appeared as Battle-Pieces and Aspects of the War (1866). In 1867 his oldest child Malcolm died at home from a self-inflicted gunshot. For the epic Clarel: A Poem and Pilgrimage in the Holy Land (1876) he drew upon his experience in Egypt and Palestine from twenty years earlier. In 1886 he retired as Customs Inspector and privately published some volumes of poetry in small editions. During the last years of his life, interest in him was reviving and he was approached to have his biography written, but his death in 1891 from cardiovascular disease subdued the revival before it could gain momentum. Inspired perhaps by the growing interest in him, in his final years he had been working on a prose story one more time and left the manuscript of Billy Budd, Sailor, which was published in 1924.",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_13",
+      "identifier": "9781329438200"
+     },
+     {
+      "type": "ISBN_10",
+      "identifier": "1329438205"
+     }
+    ],
+    "readingModes": {
+     "text": false,
+     "image": true
+    },
+    "pageCount": 76,
+    "printType": "BOOK",
+    "categories": [
+     "Fiction"
+    ],
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "preview-1.0.0",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=DpxhCgAAQBAJ&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=DpxhCgAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=DpxhCgAAQBAJ&printsec=frontcover&dq=melville&hl=&cd=12&source=gbs_api",
+    "infoLink": "http://books.google.com/books?id=DpxhCgAAQBAJ&dq=melville&hl=&source=gbs_api",
+    "canonicalVolumeLink": "http://books.google.com/books/about/Benito_Cereno.html?hl=&id=DpxhCgAAQBAJ"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "NOT_FOR_SALE",
+    "isEbook": false
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "PARTIAL",
+    "embeddable": true,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": false
+    },
+    "pdf": {
+     "isAvailable": false
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=DpxhCgAAQBAJ&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "SAMPLE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "In 1857, while Melville was on a voyage to England and the Near East, The Confidence-Man appeared, the last prose work published during his lifetime. From then on Melville turned to poetry."
+   }
+  },
+  {
+   "kind": "books#volume",
+   "id": "SoIA3P1zLAEC",
+   "etag": "ULtsHumySwQ",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/SoIA3P1zLAEC",
+   "volumeInfo": {
+    "title": "Bridge Scour",
+    "authors": [
+     "Bruce W. Melville",
+     "Stephen E. Coleman"
+    ],
+    "publisher": "Water Resources Publication",
+    "publishedDate": "2000",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_10",
+      "identifier": "1887201181"
+     },
+     {
+      "type": "ISBN_13",
+      "identifier": "9781887201186"
+     }
+    ],
+    "readingModes": {
+     "text": false,
+     "image": true
+    },
+    "pageCount": 550,
+    "printType": "BOOK",
+    "categories": [
+     "Technology & Engineering"
+    ],
+    "averageRating": 4.0,
+    "ratingsCount": 1,
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "0.1.2.0.preview.1",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=SoIA3P1zLAEC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=SoIA3P1zLAEC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=SoIA3P1zLAEC&printsec=frontcover&dq=melville&hl=&cd=13&source=gbs_api",
+    "infoLink": "http://books.google.com/books?id=SoIA3P1zLAEC&dq=melville&hl=&source=gbs_api",
+    "canonicalVolumeLink": "http://books.google.com/books/about/Bridge_Scour.html?hl=&id=SoIA3P1zLAEC"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "NOT_FOR_SALE",
+    "isEbook": false
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "PARTIAL",
+    "embeddable": true,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": false
+    },
+    "pdf": {
+     "isAvailable": false
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=SoIA3P1zLAEC&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "SAMPLE",
+    "quoteSharingAllowed": false
+   }
+  },
+  {
+   "kind": "books#volume",
+   "id": "JXK7HN62EcQC",
+   "etag": "mhrxydbGIks",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/JXK7HN62EcQC",
+   "volumeInfo": {
+    "title": "Pierre; Or, The Ambiguities",
+    "authors": [
+     "Herman Melville"
+    ],
+    "publishedDate": "1852",
+    "industryIdentifiers": [
+     {
+      "type": "OTHER",
+      "identifier": "HARVARD:32044011420494"
+     }
+    ],
+    "readingModes": {
+     "text": true,
+     "image": true
+    },
+    "pageCount": 495,
+    "printType": "BOOK",
+    "categories": [
+     "Ambiguity"
+    ],
+    "averageRating": 3.5,
+    "ratingsCount": 4,
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "1.0.1.0.full.3",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=JXK7HN62EcQC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=JXK7HN62EcQC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=JXK7HN62EcQC&printsec=frontcover&dq=melville&hl=&cd=14&source=gbs_api",
+    "infoLink": "https://play.google.com/store/books/details?id=JXK7HN62EcQC&source=gbs_api",
+    "canonicalVolumeLink": "https://market.android.com/details?id=book-JXK7HN62EcQC"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "FREE",
+    "isEbook": true,
+    "buyLink": "https://play.google.com/store/books/details?id=JXK7HN62EcQC&rdid=book-JXK7HN62EcQC&rdot=1&source=gbs_api"
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "ALL_PAGES",
+    "embeddable": true,
+    "publicDomain": true,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": true,
+     "downloadLink": "http://books.google.com/books/download/Pierre_Or_The_Ambiguities.epub?id=JXK7HN62EcQC&hl=&output=epub&source=gbs_api"
+    },
+    "pdf": {
+     "isAvailable": true,
+     "downloadLink": "http://books.google.com/books/download/Pierre_Or_The_Ambiguities.pdf?id=JXK7HN62EcQC&hl=&output=pdf&sig=ACfU3U1LUaq1OPIZbc14mCxahPqgmrIjWw&source=gbs_api"
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=JXK7HN62EcQC&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "FULL_PUBLIC_DOMAIN",
+    "quoteSharingAllowed": false
+   }
+  },
+  {
+   "kind": "books#volume",
+   "id": "DZhrCwAAQBAJ",
+   "etag": "Z0vFCBfvDPk",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/DZhrCwAAQBAJ",
+   "volumeInfo": {
+    "title": "Typee",
+    "authors": [
+     "Herman Melville"
+    ],
+    "publisher": "Herman Melville",
+    "publishedDate": "2016-01-20",
+    "description": "Typee: A Peep at Polynesian Life is the first book by American writer Herman Melville, published first in London, then New York, in 1846. Considered a classic in travel and adventure literature, the narrative is based on the author's actual experiences as a captive on the island Nuku Hiva in the South Pacific Marquesas Islands in 1842, and is liberally supplemented with imaginative reconstruction and adaptation of material from other books.",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_13",
+      "identifier": "9788892547506"
+     },
+     {
+      "type": "ISBN_10",
+      "identifier": "889254750X"
+     }
+    ],
+    "readingModes": {
+     "text": true,
+     "image": true
+    },
+    "printType": "BOOK",
+    "categories": [
+     "Fiction"
+    ],
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "1.1.1.0.preview.3",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=DZhrCwAAQBAJ&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=DZhrCwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=DZhrCwAAQBAJ&printsec=frontcover&dq=melville&hl=&cd=15&source=gbs_api",
+    "infoLink": "https://play.google.com/store/books/details?id=DZhrCwAAQBAJ&source=gbs_api",
+    "canonicalVolumeLink": "https://market.android.com/details?id=book-DZhrCwAAQBAJ"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "FOR_SALE",
+    "isEbook": true,
+    "listPrice": {
+     "amount": 10.99,
+     "currencyCode": "USD"
+    },
+    "retailPrice": {
+     "amount": 8.79,
+     "currencyCode": "USD"
+    },
+    "buyLink": "https://play.google.com/store/books/details?id=DZhrCwAAQBAJ&rdid=book-DZhrCwAAQBAJ&rdot=1&source=gbs_api",
+    "offers": [
+     {
+      "finskyOfferType": 1,
+      "listPrice": {
+       "amountInMicros": 1.099E7,
+       "currencyCode": "USD"
+      },
+      "retailPrice": {
+       "amountInMicros": 8790000.0,
+       "currencyCode": "USD"
+      },
+      "giftable": true
+     }
+    ]
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "PARTIAL",
+    "embeddable": true,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": true,
+     "acsTokenLink": "http://books.google.com/books/download/Typee-sample-epub.acsm?id=DZhrCwAAQBAJ&format=epub&output=acs4_fulfillment_token&dl_type=sample&source=gbs_api"
+    },
+    "pdf": {
+     "isAvailable": true,
+     "acsTokenLink": "http://books.google.com/books/download/Typee-sample-pdf.acsm?id=DZhrCwAAQBAJ&format=pdf&output=acs4_fulfillment_token&dl_type=sample&source=gbs_api"
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=DZhrCwAAQBAJ&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "SAMPLE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "Typee: A Peep at Polynesian Life is the first book by American writer Herman Melville, published first in London, then New York, in 1846."
+   }
+  },
+  {
+   "kind": "books#volume",
+   "id": "ZZTH3CegP3sC",
+   "etag": "0GQGugu/QVc",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/ZZTH3CegP3sC",
+   "volumeInfo": {
+    "title": "Melville’s Anatomies",
+    "authors": [
+     "Samuel Otter"
+    ],
+    "publisher": "Univ of California Press",
+    "publishedDate": "1999-03-05",
+    "description": "In fascinating new contextual readings of four of Herman Melville's novels—Typee, White-Jacket, Moby-Dick, and Pierre—Samuel Otter delves into Melville's exorbitant prose to show how he anatomizes ideology, making it palpable and strange. Otter portrays Melville as deeply concerned with issues of race, the body, gender, sentiment, and national identity. He articulates a range of contemporary texts (narratives of travelers, seamen, and slaves; racial and aesthetic treatises; fiction; poetry; and essays) in order to flesh out Melville's discursive world. Otter presents Melville's works as \"inside narratives\" offering material analyses of consciousness. Chapters center on the tattooed faces in Typee, the flogged bodies in White-Jacket, the scrutinized heads in Moby-Dick, and the desiring eyes and eloquent, constricted hearts of Pierre. Otter shows how Melville's books tell of the epic quest to know the secrets of the human body. Rather than dismiss contemporary beliefs about race, self, and nation, Melville inhabits them, acknowledging their appeal and examining their sway. Meticulously researched and brilliantly argued, this groundbreaking study links Melville's words to his world and presses the relations between discourse and ideology. It will deeply influence all future studies of Melville and his work.",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_10",
+      "identifier": "0520918010"
+     },
+     {
+      "type": "ISBN_13",
+      "identifier": "9780520918016"
+     }
+    ],
+    "readingModes": {
+     "text": true,
+     "image": true
+    },
+    "pageCount": 418,
+    "printType": "BOOK",
+    "categories": [
+     "Literary Criticism"
+    ],
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "1.0.1.0.preview.3",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=ZZTH3CegP3sC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=ZZTH3CegP3sC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=ZZTH3CegP3sC&printsec=frontcover&dq=melville&hl=&cd=16&source=gbs_api",
+    "infoLink": "https://play.google.com/store/books/details?id=ZZTH3CegP3sC&source=gbs_api",
+    "canonicalVolumeLink": "https://market.android.com/details?id=book-ZZTH3CegP3sC"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "FOR_SALE",
+    "isEbook": true,
+    "listPrice": {
+     "amount": 36.95,
+     "currencyCode": "USD"
+    },
+    "retailPrice": {
+     "amount": 29.19,
+     "currencyCode": "USD"
+    },
+    "buyLink": "https://play.google.com/store/books/details?id=ZZTH3CegP3sC&rdid=book-ZZTH3CegP3sC&rdot=1&source=gbs_api",
+    "offers": [
+     {
+      "finskyOfferType": 1,
+      "listPrice": {
+       "amountInMicros": 3.695E7,
+       "currencyCode": "USD"
+      },
+      "retailPrice": {
+       "amountInMicros": 2.919E7,
+       "currencyCode": "USD"
+      },
+      "giftable": true
+     }
+    ]
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "PARTIAL",
+    "embeddable": true,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": true,
+     "acsTokenLink": "http://books.google.com/books/download/Melville_s_Anatomies-sample-epub.acsm?id=ZZTH3CegP3sC&format=epub&output=acs4_fulfillment_token&dl_type=sample&source=gbs_api"
+    },
+    "pdf": {
+     "isAvailable": true,
+     "acsTokenLink": "http://books.google.com/books/download/Melville_s_Anatomies-sample-pdf.acsm?id=ZZTH3CegP3sC&format=pdf&output=acs4_fulfillment_token&dl_type=sample&source=gbs_api"
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=ZZTH3CegP3sC&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "SAMPLE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "In fascinating new contextual readings of four of Herman Melville&#39;s novels—Typee, White-Jacket, Moby-Dick, and Pierre—Samuel Otter delves into Melville&#39;s exorbitant prose to show how he anatomizes ideology, making it palpable and ..."
+   }
+  },
+  {
+   "kind": "books#volume",
+   "id": "XV8XAAAAYAAJ",
+   "etag": "aZ1YCp/oXEw",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/XV8XAAAAYAAJ",
+   "volumeInfo": {
+    "title": "Moby Dick",
+    "authors": [
+     "Herman Melville"
+    ],
+    "publishedDate": "1892",
+    "description": "A literary classic that wasn't recognized for its merits until decades after its publication, Herman Melville's Moby-Dick tells the tale of a whaling ship and its crew, who are carried progressively further out to sea by the fiery Captain Ahab. Obsessed with killing the massive whale, which had previously bitten off Ahab's leg, the seasoned seafarer steers his ship to confront the creature, while the rest of the shipmates, including the young narrator, Ishmael, and the harpoon expert, Queequeg, must contend with their increasingly dire journey. The book invariably lands on any short list of the greatest American novels.",
+    "industryIdentifiers": [
+     {
+      "type": "OTHER",
+      "identifier": "HARVARD:HN1E4C"
+     }
+    ],
+    "readingModes": {
+     "text": true,
+     "image": true
+    },
+    "pageCount": 543,
+    "printType": "BOOK",
+    "categories": [
+     "Sea stories"
+    ],
+    "averageRating": 4.0,
+    "ratingsCount": 302,
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "1.1.7.0.full.3",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=XV8XAAAAYAAJ&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=XV8XAAAAYAAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=XV8XAAAAYAAJ&printsec=frontcover&dq=melville&hl=&cd=17&source=gbs_api",
+    "infoLink": "https://play.google.com/store/books/details?id=XV8XAAAAYAAJ&source=gbs_api",
+    "canonicalVolumeLink": "https://market.android.com/details?id=book-XV8XAAAAYAAJ"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "FREE",
+    "isEbook": true,
+    "buyLink": "https://play.google.com/store/books/details?id=XV8XAAAAYAAJ&rdid=book-XV8XAAAAYAAJ&rdot=1&source=gbs_api"
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "ALL_PAGES",
+    "embeddable": true,
+    "publicDomain": true,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": true,
+     "downloadLink": "http://books.google.com/books/download/Moby_Dick.epub?id=XV8XAAAAYAAJ&hl=&output=epub&source=gbs_api"
+    },
+    "pdf": {
+     "isAvailable": true,
+     "downloadLink": "http://books.google.com/books/download/Moby_Dick.pdf?id=XV8XAAAAYAAJ&hl=&output=pdf&sig=ACfU3U2j7tKT8bbSwXHCttT_eX6HUg70aA&source=gbs_api"
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=XV8XAAAAYAAJ&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "FULL_PUBLIC_DOMAIN",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "A literary classic that wasn&#39;t recognized for its merits until decades after its publication, Herman Melville&#39;s Moby-Dick tells the tale of a whaling ship and its crew, who are carried progressively further out to sea by the fiery Captain ..."
+   }
+  },
+  {
+   "kind": "books#volume",
+   "id": "bJQJpsU2a10C",
+   "etag": "wZKXiVqiLp4",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/bJQJpsU2a10C",
+   "volumeInfo": {
+    "title": "Research Methodology",
+    "subtitle": "An Introduction",
+    "authors": [
+     "Wayne Goddard",
+     "Stuart Melville"
+    ],
+    "publisher": "Juta and Company Ltd",
+    "publishedDate": "2004-01-01",
+    "description": "This 2nd Edition covers all facets of the research process, from finding a topic to disseminating the results. The subject is placed in the context of the academic scene and research needs in South Africa, and methodologies discussed include traditional modes of inquiry, research technology such as the Internet, and the role of oral tradition in the social sciences.",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_10",
+      "identifier": "0702156604"
+     },
+     {
+      "type": "ISBN_13",
+      "identifier": "9780702156601"
+     }
+    ],
+    "readingModes": {
+     "text": false,
+     "image": true
+    },
+    "pageCount": 148,
+    "printType": "BOOK",
+    "categories": [
+     "Social Science"
+    ],
+    "averageRating": 4.5,
+    "ratingsCount": 4,
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "1.0.1.0.preview.1",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=bJQJpsU2a10C&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=bJQJpsU2a10C&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=bJQJpsU2a10C&printsec=frontcover&dq=melville&hl=&cd=18&source=gbs_api",
+    "infoLink": "http://books.google.com/books?id=bJQJpsU2a10C&dq=melville&hl=&source=gbs_api",
+    "canonicalVolumeLink": "http://books.google.com/books/about/Research_Methodology.html?hl=&id=bJQJpsU2a10C"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "NOT_FOR_SALE",
+    "isEbook": false
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "PARTIAL",
+    "embeddable": true,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": false
+    },
+    "pdf": {
+     "isAvailable": false
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=bJQJpsU2a10C&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "SAMPLE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "This 2nd Edition covers all facets of the research process, from finding a topic to disseminating the results."
+   }
+  },
+  {
+   "kind": "books#volume",
+   "id": "HhRtiHBdZWUC",
+   "etag": "C+z+tZz3s6o",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/HhRtiHBdZWUC",
+   "volumeInfo": {
+    "title": "Herman Melville and the American Calling",
+    "subtitle": "The Fiction after Moby-Dick, 1851-1857",
+    "authors": [
+     "William V. Spanos"
+    ],
+    "publisher": "SUNY Press",
+    "publishedDate": "2009-07-01",
+    "description": "Argues that Herman Melville’s later work anticipates the resurgence of an American exceptionalist ethos underpinning the U.S.-led global “war on terror.”",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_10",
+      "identifier": "0791475646"
+     },
+     {
+      "type": "ISBN_13",
+      "identifier": "9780791475645"
+     }
+    ],
+    "readingModes": {
+     "text": true,
+     "image": true
+    },
+    "pageCount": 280,
+    "printType": "BOOK",
+    "categories": [
+     "Literary Criticism"
+    ],
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "0.0.1.0.preview.3",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=HhRtiHBdZWUC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=HhRtiHBdZWUC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=HhRtiHBdZWUC&printsec=frontcover&dq=melville&hl=&cd=19&source=gbs_api",
+    "infoLink": "http://books.google.com/books?id=HhRtiHBdZWUC&dq=melville&hl=&source=gbs_api",
+    "canonicalVolumeLink": "http://books.google.com/books/about/Herman_Melville_and_the_American_Calling.html?hl=&id=HhRtiHBdZWUC"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "NOT_FOR_SALE",
+    "isEbook": false
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "PARTIAL",
+    "embeddable": true,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": true,
+     "acsTokenLink": "http://books.google.com/books/download/Herman_Melville_and_the_American_Calling-sample-epub.acsm?id=HhRtiHBdZWUC&format=epub&output=acs4_fulfillment_token&dl_type=sample&source=gbs_api"
+    },
+    "pdf": {
+     "isAvailable": true,
+     "acsTokenLink": "http://books.google.com/books/download/Herman_Melville_and_the_American_Calling-sample-pdf.acsm?id=HhRtiHBdZWUC&format=pdf&output=acs4_fulfillment_token&dl_type=sample&source=gbs_api"
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=HhRtiHBdZWUC&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "SAMPLE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "Argues that Herman Melville’s later work anticipates the resurgence of an American exceptionalist ethos underpinning the U.S.-led global “war on terror.”"
+   }
+  },
+  {
+   "kind": "books#volume",
+   "id": "IAtbAAAAMAAJ",
+   "etag": "x0VqOAyT+oI",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/IAtbAAAAMAAJ",
+   "volumeInfo": {
+    "title": "Melville",
+    "authors": [
+     "Edwin Haviland Miller"
+    ],
+    "publisher": "George Braziller",
+    "publishedDate": "1975",
+    "industryIdentifiers": [
+     {
+      "type": "OTHER",
+      "identifier": "UOM:39015002280827"
+     }
+    ],
+    "readingModes": {
+     "text": false,
+     "image": false
+    },
+    "pageCount": 382,
+    "printType": "BOOK",
+    "categories": [
+     "Biography & Autobiography"
+    ],
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "0.1.1.0.preview.0",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=IAtbAAAAMAAJ&printsec=frontcover&img=1&zoom=5&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=IAtbAAAAMAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=IAtbAAAAMAAJ&q=melville&dq=melville&hl=&cd=20&source=gbs_api",
+    "infoLink": "http://books.google.com/books?id=IAtbAAAAMAAJ&dq=melville&hl=&source=gbs_api",
+    "canonicalVolumeLink": "http://books.google.com/books/about/Melville.html?hl=&id=IAtbAAAAMAAJ"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "NOT_FOR_SALE",
+    "isEbook": false
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "NO_PAGES",
+    "embeddable": false,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": false
+    },
+    "pdf": {
+     "isAvailable": false
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=IAtbAAAAMAAJ&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "NONE",
+    "quoteSharingAllowed": false
+   }
+  }
+ ]
+}

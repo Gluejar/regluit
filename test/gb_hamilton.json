@@ -1,0 +1,77 @@
+{
+ "kind": "books#volumes",
+ "totalItems": 1,
+ "items": [
+  {
+   "kind": "books#volume",
+   "id": "y1_R-rjdcb0C",
+   "etag": "Z9u3yL2Mbk4",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/y1_R-rjdcb0C",
+   "volumeInfo": {
+    "title": "Alexander Hamilton",
+    "authors": [
+     "Ron Chernow"
+    ],
+    "publisher": "Perseus Books Group",
+    "publishedDate": "2004",
+    "description": "The personal life of Alexander Hamilton, an illegitimate, largely self-taught orphan from the Caribbean who rose to become George Washington's aide-de-camp and the first Treasury Secretary of the United States, is captured in a definitive biography by the National Book Award-winning author of The House of Morgan. 400,000 first printing.",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_10",
+      "identifier": "1594200092"
+     },
+     {
+      "type": "ISBN_13",
+      "identifier": "9781594200090"
+     }
+    ],
+    "readingModes": {
+     "text": false,
+     "image": false
+    },
+    "pageCount": 818,
+    "printType": "BOOK",
+    "categories": [
+     "Biography & Autobiography"
+    ],
+    "averageRating": 4.0,
+    "ratingsCount": 32,
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "preview-1.0.0",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=y1_R-rjdcb0C&printsec=frontcover&img=1&zoom=5&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=y1_R-rjdcb0C&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=y1_R-rjdcb0C&dq=isbn:9781594200090&hl=&cd=1&source=gbs_api",
+    "infoLink": "http://books.google.com/books?id=y1_R-rjdcb0C&dq=isbn:9781594200090&hl=&source=gbs_api",
+    "canonicalVolumeLink": "http://books.google.com/books/about/Alexander_Hamilton.html?hl=&id=y1_R-rjdcb0C"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "NOT_FOR_SALE",
+    "isEbook": false
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "NO_PAGES",
+    "embeddable": false,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": false
+    },
+    "pdf": {
+     "isAvailable": false
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=y1_R-rjdcb0C&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "NONE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "The personal life of Alexander Hamilton, an illegitimate, largely self-taught orphan from the Caribbean who rose to become George Washington&#39;s aide-de-camp and the first Treasury Secretary of the United States, is captured in a definitive ..."
+   }
+  }
+ ]
+}

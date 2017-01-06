@@ -1,0 +1,3790 @@
+[
+{
+    "fields": {
+        "edition": 1,
+        "work": 1,
+        "type": "goog",
+        "value": "IDFfMPW32hQC"
+    },
+    "model": "core.identifier",
+    "pk": 1
+},
+{
+    "fields": {
+        "edition": 1,
+        "work": 1,
+        "type": "isbn",
+        "value": "9780441007462"
+    },
+    "model": "core.identifier",
+    "pk": 2
+},
+{
+    "fields": {
+        "edition": 2,
+        "work": 2,
+        "type": "goog",
+        "value": "1_9LQuiVDcgC"
+    },
+    "model": "core.identifier",
+    "pk": 3
+},
+{
+    "fields": {
+        "edition": 2,
+        "work": 2,
+        "type": "isbn",
+        "value": "9780441569595"
+    },
+    "model": "core.identifier",
+    "pk": 4
+},
+{
+    "fields": {
+        "edition": 3,
+        "work": 3,
+        "type": "goog",
+        "value": "2NyiPwAACAAJ"
+    },
+    "model": "core.identifier",
+    "pk": 5
+},
+{
+    "fields": {
+        "edition": 3,
+        "work": 3,
+        "type": "isbn",
+        "value": "9780441012039"
+    },
+    "model": "core.identifier",
+    "pk": 6
+},
+{
+    "fields": {
+        "edition": 4,
+        "work": 4,
+        "type": "goog",
+        "value": "mEvZQAAACAAJ"
+    },
+    "model": "core.identifier",
+    "pk": 7
+},
+{
+    "fields": {
+        "edition": 4,
+        "work": 4,
+        "type": "isbn",
+        "value": "9780002252324"
+    },
+    "model": "core.identifier",
+    "pk": 8
+},
+{
+    "fields": {
+        "edition": 5,
+        "work": 5,
+        "type": "goog",
+        "value": "dx6tSAAACAAJ"
+    },
+    "model": "core.identifier",
+    "pk": 9
+},
+{
+    "fields": {
+        "edition": 5,
+        "work": 5,
+        "type": "isbn",
+        "value": "9783453056657"
+    },
+    "model": "core.identifier",
+    "pk": 10
+},
+{
+    "fields": {
+        "edition": 6,
+        "work": 6,
+        "type": "goog",
+        "value": "YWZXQgAACAAJ"
+    },
+    "model": "core.identifier",
+    "pk": 11
+},
+{
+    "fields": {
+        "edition": 6,
+        "work": 6,
+        "type": "isbn",
+        "value": "9780441569571"
+    },
+    "model": "core.identifier",
+    "pk": 12
+},
+{
+    "fields": {
+        "edition": 7,
+        "work": 7,
+        "type": "goog",
+        "value": "YSCUPwAACAAJ"
+    },
+    "model": "core.identifier",
+    "pk": 13
+},
+{
+    "fields": {
+        "edition": 7,
+        "work": 7,
+        "type": "isbn",
+        "value": "9780441569588"
+    },
+    "model": "core.identifier",
+    "pk": 14
+},
+{
+    "fields": {
+        "edition": 8,
+        "work": 8,
+        "type": "goog",
+        "value": "6YODPwAACAAJ"
+    },
+    "model": "core.identifier",
+    "pk": 15
+},
+{
+    "fields": {
+        "edition": 8,
+        "work": 8,
+        "type": "isbn",
+        "value": "9780575034709"
+    },
+    "model": "core.identifier",
+    "pk": 16
+},
+{
+    "fields": {
+        "edition": 9,
+        "work": 9,
+        "type": "goog",
+        "value": "Rz4AOQAACAAJ"
+    },
+    "model": "core.identifier",
+    "pk": 17
+},
+{
+    "fields": {
+        "edition": 9,
+        "work": 9,
+        "type": "isbn",
+        "value": "9782277223252"
+    },
+    "model": "core.identifier",
+    "pk": 18
+},
+{
+    "fields": {
+        "edition": 10,
+        "work": 10,
+        "type": "goog",
+        "value": "pSztXwAACAAJ"
+    },
+    "model": "core.identifier",
+    "pk": 19
+},
+{
+    "fields": {
+        "edition": 10,
+        "work": 10,
+        "type": "isbn",
+        "value": "9789510193068"
+    },
+    "model": "core.identifier",
+    "pk": 20
+},
+{
+    "fields": {
+        "edition": 11,
+        "work": 11,
+        "type": "goog",
+        "value": "h0oAFNvncUUC"
+    },
+    "model": "core.identifier",
+    "pk": 21
+},
+{
+    "fields": {
+        "edition": 11,
+        "work": 11,
+        "type": "isbn",
+        "value": "9781101146460"
+    },
+    "model": "core.identifier",
+    "pk": 22
+},
+{
+    "fields": {
+        "edition": 12,
+        "work": 12,
+        "type": "goog",
+        "value": "lC0uAAAACAAJ"
+    },
+    "model": "core.identifier",
+    "pk": 23
+},
+{
+    "fields": {
+        "edition": 12,
+        "work": 12,
+        "type": "isbn",
+        "value": "9788842913528"
+    },
+    "model": "core.identifier",
+    "pk": 24
+},
+{
+    "fields": {
+        "edition": 13,
+        "work": 13,
+        "type": "goog",
+        "value": "ruCGPwAACAAJ"
+    },
+    "model": "core.identifier",
+    "pk": 25
+},
+{
+    "fields": {
+        "edition": 13,
+        "work": 13,
+        "type": "isbn",
+        "value": "9789118721823"
+    },
+    "model": "core.identifier",
+    "pk": 26
+},
+{
+    "fields": {
+        "edition": 14,
+        "work": 14,
+        "type": "goog",
+        "value": "aDKGPwAACAAJ"
+    },
+    "model": "core.identifier",
+    "pk": 27
+},
+{
+    "fields": {
+        "edition": 14,
+        "work": 14,
+        "type": "isbn",
+        "value": "9781569564110"
+    },
+    "model": "core.identifier",
+    "pk": 28
+},
+{
+    "fields": {
+        "edition": 15,
+        "work": 15,
+        "type": "goog",
+        "value": "m7U1PwAACAAJ"
+    },
+    "model": "core.identifier",
+    "pk": 29
+},
+{
+    "fields": {
+        "edition": 15,
+        "work": 15,
+        "type": "isbn",
+        "value": "9788445074053"
+    },
+    "model": "core.identifier",
+    "pk": 30
+},
+{
+    "fields": {
+        "edition": 16,
+        "work": 16,
+        "type": "goog",
+        "value": "HW1nQwAACAAJ"
+    },
+    "model": "core.identifier",
+    "pk": 31
+},
+{
+    "fields": {
+        "edition": 16,
+        "work": 16,
+        "type": "isbn",
+        "value": "9788445076620"
+    },
+    "model": "core.identifier",
+    "pk": 32
+},
+{
+    "fields": {
+        "edition": 17,
+        "work": 17,
+        "type": "goog",
+        "value": "tKqLmwEACAAJ"
+    },
+    "model": "core.identifier",
+    "pk": 33
+},
+{
+    "fields": {
+        "edition": 17,
+        "work": 17,
+        "type": "isbn",
+        "value": "9783453074200"
+    },
+    "model": "core.identifier",
+    "pk": 34
+},
+{
+    "fields": {
+        "edition": 18,
+        "work": 18,
+        "type": "goog",
+        "value": "ki0uAAAACAAJ"
+    },
+    "model": "core.identifier",
+    "pk": 35
+},
+{
+    "fields": {
+        "edition": 18,
+        "work": 18,
+        "type": "isbn",
+        "value": "9788842906803"
+    },
+    "model": "core.identifier",
+    "pk": 36
+},
+{
+    "fields": {
+        "edition": 19,
+        "work": 19,
+        "type": "goog",
+        "value": "2NivNwAACAAJ"
+    },
+    "model": "core.identifier",
+    "pk": 37
+},
+{
+    "fields": {
+        "edition": 19,
+        "work": 19,
+        "type": "isbn",
+        "value": "9788203203329"
+    },
+    "model": "core.identifier",
+    "pk": 38
+},
+{
+    "fields": {
+        "edition": 20,
+        "work": 20,
+        "type": "goog",
+        "value": "jmeMsVRO-goC"
+    },
+    "model": "core.identifier",
+    "pk": 39
+},
+{
+    "fields": {
+        "edition": 20,
+        "work": 20,
+        "type": "isbn",
+        "value": "9780007383290"
+    },
+    "model": "core.identifier",
+    "pk": 40
+},
+{
+    "fields": {
+        "edition": 21,
+        "work": 21,
+        "type": "goog",
+        "value": "SV8_ygAACAAJ"
+    },
+    "model": "core.identifier",
+    "pk": 41
+},
+{
+    "fields": {
+        "edition": 21,
+        "work": 21,
+        "type": "isbn",
+        "value": "9788385784012"
+    },
+    "model": "core.identifier",
+    "pk": 42
+},
+{
+    "fields": {
+        "edition": 22,
+        "work": 22,
+        "type": "goog",
+        "value": "gGMoAQAACAAJ"
+    },
+    "model": "core.identifier",
+    "pk": 43
+},
+{
+    "fields": {
+        "edition": 22,
+        "work": 22,
+        "type": "isbn",
+        "value": "9788485752416"
+    },
+    "model": "core.identifier",
+    "pk": 44
+},
+{
+    "fields": {
+        "edition": 23,
+        "work": 23,
+        "type": "isbn",
+        "value": "9780006480419"
+    },
+    "model": "core.identifier",
+    "pk": 45
+},
+{
+    "fields": {
+        "edition": 24,
+        "work": 24,
+        "type": "isbn",
+        "value": "9780586066454"
+    },
+    "model": "core.identifier",
+    "pk": 46
+},
+{
+    "fields": {
+        "edition": 25,
+        "work": 25,
+        "type": "isbn",
+        "value": "9780441000685"
+    },
+    "model": "core.identifier",
+    "pk": 47
+},
+{
+    "fields": {
+        "edition": 26,
+        "work": 26,
+        "type": "isbn",
+        "value": "9788585887902"
+    },
+    "model": "core.identifier",
+    "pk": 48
+},
+{
+    "fields": {
+        "edition": 27,
+        "work": 27,
+        "type": "isbn",
+        "value": "9780441569564"
+    },
+    "model": "core.identifier",
+    "pk": 49
+},
+{
+    "fields": {
+        "edition": 28,
+        "work": 28,
+        "type": "isbn",
+        "value": "9780932096418"
+    },
+    "model": "core.identifier",
+    "pk": 50
+},
+{
+    "fields": {
+        "edition": 29,
+        "work": 29,
+        "type": "isbn",
+        "value": "9782290308202"
+    },
+    "model": "core.identifier",
+    "pk": 51
+},
+{
+    "fields": {
+        "edition": 30,
+        "work": 30,
+        "type": "isbn",
+        "value": "9788445070840"
+    },
+    "model": "core.identifier",
+    "pk": 52
+},
+{
+    "fields": {
+        "edition": 31,
+        "work": 31,
+        "type": "isbn",
+        "value": "9788804516446"
+    },
+    "model": "core.identifier",
+    "pk": 53
+},
+{
+    "fields": {
+        "edition": 32,
+        "work": 32,
+        "type": "isbn",
+        "value": "9783453313897"
+    },
+    "model": "core.identifier",
+    "pk": 54
+},
+{
+    "fields": {
+        "edition": 33,
+        "work": 33,
+        "type": "isbn",
+        "value": "9788445075951"
+    },
+    "model": "core.identifier",
+    "pk": 55
+},
+{
+    "fields": {
+        "edition": 34,
+        "work": 34,
+        "type": "isbn",
+        "value": "9780007119585"
+    },
+    "model": "core.identifier",
+    "pk": 56
+},
+{
+    "fields": {
+        "edition": 35,
+        "work": 35,
+        "type": "isbn",
+        "value": "9789119027818"
+    },
+    "model": "core.identifier",
+    "pk": 57
+},
+{
+    "fields": {
+        "edition": 36,
+        "work": 36,
+        "type": "isbn",
+        "value": "9788842907466"
+    },
+    "model": "core.identifier",
+    "pk": 58
+},
+{
+    "fields": {
+        "edition": 37,
+        "work": 37,
+        "type": "isbn",
+        "value": "9789510172049"
+    },
+    "model": "core.identifier",
+    "pk": 59
+},
+{
+    "fields": {
+        "edition": 38,
+        "work": 38,
+        "type": "isbn",
+        "value": "9781570420597"
+    },
+    "model": "core.identifier",
+    "pk": 60
+},
+{
+    "fields": {
+        "edition": 39,
+        "work": 39,
+        "type": "isbn",
+        "value": "9780007491520"
+    },
+    "model": "core.identifier",
+    "pk": 61
+},
+{
+    "fields": {
+        "edition": 40,
+        "work": 40,
+        "type": "isbn",
+        "value": "9789029042475"
+    },
+    "model": "core.identifier",
+    "pk": 62
+},
+{
+    "fields": {
+        "edition": 41,
+        "work": 41,
+        "type": "isbn",
+        "value": "9780613922517"
+    },
+    "model": "core.identifier",
+    "pk": 63
+},
+{
+    "fields": {
+        "edition": 42,
+        "work": 42,
+        "type": "isbn",
+        "value": "9780143111603"
+    },
+    "model": "core.identifier",
+    "pk": 64
+},
+{
+    "fields": {
+        "edition": 43,
+        "work": 43,
+        "type": "isbn",
+        "value": "9788085601275"
+    },
+    "model": "core.identifier",
+    "pk": 65
+},
+{
+    "fields": {
+        "edition": 44,
+        "work": 44,
+        "type": "isbn",
+        "value": "9782707115621"
+    },
+    "model": "core.identifier",
+    "pk": 66
+},
+{
+    "fields": {
+        "edition": 45,
+        "work": 45,
+        "type": "isbn",
+        "value": "9784150106720"
+    },
+    "model": "core.identifier",
+    "pk": 67
+},
+{
+    "fields": {
+        "edition": 46,
+        "work": 46,
+        "type": "isbn",
+        "value": "9789637632051"
+    },
+    "model": "core.identifier",
+    "pk": 68
+},
+{
+    "fields": {
+        "edition": 47,
+        "work": 47,
+        "type": "isbn",
+        "value": "9780307969941"
+    },
+    "model": "core.identifier",
+    "pk": 69
+},
+{
+    "fields": {
+        "edition": 48,
+        "work": 48,
+        "type": "isbn",
+        "value": "9781570421563"
+    },
+    "model": "core.identifier",
+    "pk": 70
+},
+{
+    "fields": {
+        "edition": 49,
+        "work": 49,
+        "type": "isbn",
+        "value": "9788445072899"
+    },
+    "model": "core.identifier",
+    "pk": 71
+},
+{
+    "fields": {
+        "edition": 50,
+        "work": 50,
+        "type": "isbn",
+        "value": "9782290006191"
+    },
+    "model": "core.identifier",
+    "pk": 72
+},
+{
+    "fields": {
+        "edition": 51,
+        "work": 51,
+        "type": "isbn",
+        "value": "9783898132596"
+    },
+    "model": "core.identifier",
+    "pk": 73
+},
+{
+    "fields": {
+        "edition": 52,
+        "work": 52,
+        "type": "isbn",
+        "value": "9788576570493"
+    },
+    "model": "core.identifier",
+    "pk": 74
+},
+{
+    "fields": {
+        "edition": 53,
+        "work": 53,
+        "type": "isbn",
+        "value": "9788071930488"
+    },
+    "model": "core.identifier",
+    "pk": 75
+},
+{
+    "fields": {
+        "edition": 54,
+        "work": 54,
+        "type": "isbn",
+        "value": "9782744139154"
+    },
+    "model": "core.identifier",
+    "pk": 76
+},
+{
+    "fields": {
+        "edition": 55,
+        "work": 55,
+        "type": "isbn",
+        "value": "9788842910688"
+    },
+    "model": "core.identifier",
+    "pk": 77
+},
+{
+    "fields": {
+        "edition": 56,
+        "work": 56,
+        "type": "isbn",
+        "value": "9783893111381"
+    },
+    "model": "core.identifier",
+    "pk": 78
+},
+{
+    "fields": {
+        "edition": 57,
+        "work": 57,
+        "type": "isbn",
+        "value": "9788071933182"
+    },
+    "model": "core.identifier",
+    "pk": 79
+},
+{
+    "fields": {
+        "edition": 58,
+        "work": 58,
+        "type": "isbn",
+        "value": "9788371500435"
+    },
+    "model": "core.identifier",
+    "pk": 80
+},
+{
+    "fields": {
+        "edition": 59,
+        "work": 59,
+        "type": "isbn",
+        "value": "9788576571919"
+    },
+    "model": "core.identifier",
+    "pk": 81
+},
+{
+    "fields": {
+        "edition": 60,
+        "work": 60,
+        "type": "isbn",
+        "value": "9788789586731"
+    },
+    "model": "core.identifier",
+    "pk": 82
+},
+{
+    "fields": {
+        "edition": 61,
+        "work": 61,
+        "type": "isbn",
+        "value": "9789639238022"
+    },
+    "model": "core.identifier",
+    "pk": 83
+},
+{
+    "fields": {
+        "edition": 62,
+        "work": 62,
+        "type": "isbn",
+        "value": "9789607002501"
+    },
+    "model": "core.identifier",
+    "pk": 84
+},
+{
+    "fields": {
+        "edition": 63,
+        "work": 63,
+        "type": "isbn",
+        "value": "9789605210182"
+    },
+    "model": "core.identifier",
+    "pk": 85
+},
+{
+    "fields": {
+        "edition": 64,
+        "work": 64,
+        "type": "isbn",
+        "value": "9780736638364"
+    },
+    "model": "core.identifier",
+    "pk": 86
+},
+{
+    "fields": {
+        "edition": 65,
+        "work": 65,
+        "type": "isbn",
+        "value": "9788467426373"
+    },
+    "model": "core.identifier",
+    "pk": 87
+},
+{
+    "fields": {
+        "edition": 66,
+        "work": 66,
+        "type": "isbn",
+        "value": "9789752103672"
+    },
+    "model": "core.identifier",
+    "pk": 88
+},
+{
+    "fields": {
+        "edition": 67,
+        "work": 67,
+        "type": "isbn",
+        "value": "9789726620846"
+    },
+    "model": "core.identifier",
+    "pk": 89
+},
+{
+    "fields": {
+        "edition": 68,
+        "work": 68,
+        "type": "isbn",
+        "value": "9788672742268"
+    },
+    "model": "core.identifier",
+    "pk": 90
+},
+{
+    "fields": {
+        "edition": 69,
+        "work": 69,
+        "type": "isbn",
+        "value": "9788324577750"
+    },
+    "model": "core.identifier",
+    "pk": 91
+},
+{
+    "fields": {
+        "edition": 70,
+        "work": 70,
+        "type": "isbn",
+        "value": "9788790136291"
+    },
+    "model": "core.identifier",
+    "pk": 92
+},
+{
+    "fields": {
+        "edition": 71,
+        "work": 71,
+        "type": "isbn",
+        "value": "9780307969958"
+    },
+    "model": "core.identifier",
+    "pk": 93
+},
+{
+    "fields": {
+        "edition": 72,
+        "work": 72,
+        "type": "isbn",
+        "value": "9788778803436"
+    },
+    "model": "core.identifier",
+    "pk": 94
+},
+{
+    "fields": {
+        "edition": 73,
+        "work": 73,
+        "type": "isbn",
+        "value": "9781599956237"
+    },
+    "model": "core.identifier",
+    "pk": 95
+},
+{
+    "fields": {
+        "edition": 74,
+        "work": 74,
+        "type": "isbn",
+        "value": "9781616577841"
+    },
+    "model": "core.identifier",
+    "pk": 96
+},
+{
+    "fields": {
+        "edition": 75,
+        "work": 75,
+        "type": "isbn",
+        "value": "9781486256280"
+    },
+    "model": "core.identifier",
+    "pk": 97
+},
+{
+    "fields": {
+        "edition": 76,
+        "work": 76,
+        "type": "isbn",
+        "value": "9788071931102"
+    },
+    "model": "core.identifier",
+    "pk": 98
+},
+{
+    "fields": {
+        "edition": 77,
+        "work": 77,
+        "type": "isbn",
+        "value": "9789724504490"
+    },
+    "model": "core.identifier",
+    "pk": 99
+},
+{
+    "fields": {
+        "edition": 78,
+        "work": 78,
+        "type": "isbn",
+        "value": "9783453403857"
+    },
+    "model": "core.identifier",
+    "pk": 100
+},
+{
+    "fields": {
+        "edition": 79,
+        "work": 79,
+        "type": "isbn",
+        "value": "9780786540389"
+    },
+    "model": "core.identifier",
+    "pk": 101
+},
+{
+    "fields": {
+        "description": "",
+        "language": "en",
+        "title": "Neuromancer",
+        "created": "2016-12-29T13:14:30.748",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 1
+},
+{
+    "fields": {
+        "description": "",
+        "language": "en",
+        "title": "Neuromancer",
+        "created": "2016-12-30T10:54:05.787",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 2
+},
+{
+    "fields": {
+        "description": "",
+        "language": "en",
+        "title": "Neuromancer",
+        "created": "2016-12-30T10:54:06.043",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 3
+},
+{
+    "fields": {
+        "description": "",
+        "language": "en",
+        "title": "Neuromancer",
+        "created": "2016-12-30T10:54:07.212",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 4
+},
+{
+    "fields": {
+        "description": "",
+        "language": "en",
+        "title": "Neuromancer",
+        "created": "2016-12-30T10:54:07.488",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 5
+},
+{
+    "fields": {
+        "description": "",
+        "language": "en",
+        "title": "Neuromancer",
+        "created": "2016-12-30T10:54:07.949",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 6
+},
+{
+    "fields": {
+        "description": "",
+        "language": "en",
+        "title": "Neuromancer",
+        "created": "2016-12-30T10:54:08.436",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 7
+},
+{
+    "fields": {
+        "description": "",
+        "language": "en",
+        "title": "Neuromancer",
+        "created": "2016-12-30T10:54:08.926",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 8
+},
+{
+    "fields": {
+        "description": "",
+        "language": "fr",
+        "title": "Neuromancien",
+        "created": "2016-12-30T10:54:10.152",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 9
+},
+{
+    "fields": {
+        "description": "",
+        "language": "en",
+        "title": "Neurovelho",
+        "created": "2016-12-30T10:54:10.861",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 10
+},
+{
+    "fields": {
+        "description": "",
+        "language": "en",
+        "title": "Neuromancer",
+        "created": "2016-12-30T10:54:13.225",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 11
+},
+{
+    "fields": {
+        "description": "",
+        "language": "it",
+        "title": "Neuromante",
+        "created": "2016-12-30T10:54:13.603",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 12
+},
+{
+    "fields": {
+        "description": "",
+        "language": "en",
+        "title": "Neuromancer",
+        "created": "2016-12-30T10:54:16.026",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 13
+},
+{
+    "fields": {
+        "description": "",
+        "language": "en",
+        "title": "Neuromancer",
+        "created": "2016-12-30T10:54:16.254",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 14
+},
+{
+    "fields": {
+        "description": "",
+        "language": "en",
+        "title": "Neuromante",
+        "created": "2016-12-30T10:54:16.486",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 15
+},
+{
+    "fields": {
+        "description": "",
+        "language": "es",
+        "title": "Neuromante",
+        "created": "2016-12-30T10:54:19.717",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 16
+},
+{
+    "fields": {
+        "description": "",
+        "language": "en",
+        "title": "Neuromancer",
+        "created": "2016-12-30T10:54:20.403",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 17
+},
+{
+    "fields": {
+        "description": "",
+        "language": "en",
+        "title": "Neuromante",
+        "created": "2016-12-30T10:54:20.855",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 18
+},
+{
+    "fields": {
+        "description": "",
+        "language": "en",
+        "title": "Nevromantiker",
+        "created": "2016-12-30T10:54:21.981",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 19
+},
+{
+    "fields": {
+        "description": "",
+        "language": "en",
+        "title": "Neuromancer",
+        "created": "2016-12-30T10:54:22.204",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 20
+},
+{
+    "fields": {
+        "description": "",
+        "language": "en",
+        "title": "Neuromancer",
+        "created": "2016-12-30T10:54:22.438",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 21
+},
+{
+    "fields": {
+        "description": "",
+        "language": "en",
+        "title": "Neurom\u00e0ntic",
+        "created": "2016-12-30T10:54:24.007",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 22
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:23.778",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 23
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:24.022",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 24
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:24.262",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 25
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:24.509",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 26
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:24.772",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 27
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:25.008",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 28
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:25.519",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 29
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:25.827",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 30
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:26.075",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 31
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:26.340",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 32
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:26.598",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 33
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:26.872",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 34
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:27.112",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 35
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:27.422",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 36
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:27.678",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 37
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:27.948",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 38
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:28.182",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 39
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:28.434",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 40
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:28.659",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 41
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:29.120",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 42
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:29.388",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 43
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:29.615",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 44
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:29.892",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 45
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:30.150",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 46
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:30.388",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 47
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:30.647",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 48
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:30.908",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 49
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:31.564",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 50
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:31.848",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 51
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:32.091",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 52
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:32.323",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 53
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:32.571",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 54
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:32.815",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 55
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:33.199",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 56
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:33.456",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 57
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:34.299",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 58
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:34.547",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 59
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:35.069",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 60
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:35.328",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 61
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:35.620",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 62
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:35.876",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 63
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:36.171",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 64
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:36.402",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 65
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:36.645",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 66
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:36.919",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 67
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:37.218",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 68
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:37.484",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 69
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:37.724",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 70
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:37.948",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 71
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:38.225",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 72
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:38.458",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 73
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:38.694",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 74
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:38.944",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 75
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:39.206",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 76
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:39.454",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 77
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:39.705",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 78
+},
+{
+    "fields": {
+        "description": "",
+        "language": "xx",
+        "title": "Neuromancer",
+        "created": "2016-12-30T14:11:39.971",
+        "openlibrary_lookup": null,
+        "publication_range": null,
+        "is_free": false,
+        "age_level": "",
+        "selected_edition": null,
+        "featured": null,
+        "num_wishes": 0
+    },
+    "model": "core.work",
+    "pk": 79
+},
+{
+    "fields": {
+        "name": "William Gibson",
+        "created": "2016-12-29T13:14:30.757"
+    },
+    "model": "core.author",
+    "pk": 1
+},
+{
+    "fields": {
+        "name": "Arto H\u00e4il\u00e4",
+        "created": "2016-12-30T10:54:10.873"
+    },
+    "model": "core.author",
+    "pk": 2
+},
+{
+    "fields": {
+        "name": "Torgrim Eggen",
+        "created": "2016-12-30T10:54:21.991"
+    },
+    "model": "core.author",
+    "pk": 3
+},
+{
+    "fields": {
+        "name": "Francesc Ruestes",
+        "created": "2016-12-30T10:54:24.022"
+    },
+    "model": "core.author",
+    "pk": 4
+},
+{
+    "fields": {
+        "code": "aut",
+        "name": "Author"
+    },
+    "model": "core.relation",
+    "pk": 1
+},
+{
+    "fields": {
+        "edition": 1,
+        "relation": 1,
+        "author": 1
+    },
+    "model": "core.relator",
+    "pk": 1
+},
+{
+    "fields": {
+        "edition": 2,
+        "relation": 1,
+        "author": 1
+    },
+    "model": "core.relator",
+    "pk": 2
+},
+{
+    "fields": {
+        "edition": 3,
+        "relation": 1,
+        "author": 1
+    },
+    "model": "core.relator",
+    "pk": 3
+},
+{
+    "fields": {
+        "edition": 4,
+        "relation": 1,
+        "author": 1
+    },
+    "model": "core.relator",
+    "pk": 4
+},
+{
+    "fields": {
+        "edition": 5,
+        "relation": 1,
+        "author": 1
+    },
+    "model": "core.relator",
+    "pk": 5
+},
+{
+    "fields": {
+        "edition": 6,
+        "relation": 1,
+        "author": 1
+    },
+    "model": "core.relator",
+    "pk": 6
+},
+{
+    "fields": {
+        "edition": 7,
+        "relation": 1,
+        "author": 1
+    },
+    "model": "core.relator",
+    "pk": 7
+},
+{
+    "fields": {
+        "edition": 8,
+        "relation": 1,
+        "author": 1
+    },
+    "model": "core.relator",
+    "pk": 8
+},
+{
+    "fields": {
+        "edition": 9,
+        "relation": 1,
+        "author": 1
+    },
+    "model": "core.relator",
+    "pk": 9
+},
+{
+    "fields": {
+        "edition": 10,
+        "relation": 1,
+        "author": 1
+    },
+    "model": "core.relator",
+    "pk": 10
+},
+{
+    "fields": {
+        "edition": 10,
+        "relation": 1,
+        "author": 2
+    },
+    "model": "core.relator",
+    "pk": 11
+},
+{
+    "fields": {
+        "edition": 11,
+        "relation": 1,
+        "author": 1
+    },
+    "model": "core.relator",
+    "pk": 12
+},
+{
+    "fields": {
+        "edition": 12,
+        "relation": 1,
+        "author": 1
+    },
+    "model": "core.relator",
+    "pk": 13
+},
+{
+    "fields": {
+        "edition": 13,
+        "relation": 1,
+        "author": 1
+    },
+    "model": "core.relator",
+    "pk": 14
+},
+{
+    "fields": {
+        "edition": 14,
+        "relation": 1,
+        "author": 1
+    },
+    "model": "core.relator",
+    "pk": 15
+},
+{
+    "fields": {
+        "edition": 15,
+        "relation": 1,
+        "author": 1
+    },
+    "model": "core.relator",
+    "pk": 16
+},
+{
+    "fields": {
+        "edition": 16,
+        "relation": 1,
+        "author": 1
+    },
+    "model": "core.relator",
+    "pk": 17
+},
+{
+    "fields": {
+        "edition": 17,
+        "relation": 1,
+        "author": 1
+    },
+    "model": "core.relator",
+    "pk": 18
+},
+{
+    "fields": {
+        "edition": 18,
+        "relation": 1,
+        "author": 1
+    },
+    "model": "core.relator",
+    "pk": 19
+},
+{
+    "fields": {
+        "edition": 19,
+        "relation": 1,
+        "author": 1
+    },
+    "model": "core.relator",
+    "pk": 20
+},
+{
+    "fields": {
+        "edition": 19,
+        "relation": 1,
+        "author": 3
+    },
+    "model": "core.relator",
+    "pk": 21
+},
+{
+    "fields": {
+        "edition": 20,
+        "relation": 1,
+        "author": 1
+    },
+    "model": "core.relator",
+    "pk": 22
+},
+{
+    "fields": {
+        "edition": 21,
+        "relation": 1,
+        "author": 1
+    },
+    "model": "core.relator",
+    "pk": 23
+},
+{
+    "fields": {
+        "edition": 22,
+        "relation": 1,
+        "author": 1
+    },
+    "model": "core.relator",
+    "pk": 24
+},
+{
+    "fields": {
+        "edition": 22,
+        "relation": 1,
+        "author": 4
+    },
+    "model": "core.relator",
+    "pk": 25
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 1,
+        "created": "2016-12-29T13:14:30.753",
+        "note": null,
+        "cover_image": null,
+        "publication_date": "2000",
+        "publisher_name": 1,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 1
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 2,
+        "created": "2016-12-30T10:54:05.791",
+        "note": null,
+        "cover_image": null,
+        "publication_date": "1984",
+        "publisher_name": 1,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 2
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 3,
+        "created": "2016-12-30T10:54:06.051",
+        "note": null,
+        "cover_image": null,
+        "publication_date": "2004",
+        "publisher_name": 2,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 3
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 4,
+        "created": "2016-12-30T10:54:07.215",
+        "note": null,
+        "cover_image": null,
+        "publication_date": "1984",
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 4
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 5,
+        "created": "2016-12-30T10:54:07.491",
+        "note": null,
+        "cover_image": null,
+        "publication_date": "1992",
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 5
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 6,
+        "created": "2016-12-30T10:54:07.954",
+        "note": null,
+        "cover_image": null,
+        "publication_date": "1984",
+        "publisher_name": 3,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 6
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 7,
+        "created": "2016-12-30T10:54:08.440",
+        "note": null,
+        "cover_image": null,
+        "publication_date": "1985-10-15",
+        "publisher_name": 4,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 7
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 8,
+        "created": "2016-12-30T10:54:08.930",
+        "note": null,
+        "cover_image": null,
+        "publication_date": "1984",
+        "publisher_name": 5,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 8
+},
+{
+    "fields": {
+        "title": "Neuromancien",
+        "work": 9,
+        "created": "2016-12-30T10:54:10.157",
+        "note": null,
+        "cover_image": null,
+        "publication_date": "1988-01-01",
+        "publisher_name": 6,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 9
+},
+{
+    "fields": {
+        "title": "Neurovelho",
+        "work": 10,
+        "created": "2016-12-30T10:54:10.864",
+        "note": null,
+        "cover_image": null,
+        "publication_date": "1994",
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 10
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 11,
+        "created": "2016-12-30T10:54:13.229",
+        "note": null,
+        "cover_image": null,
+        "publication_date": "2000-07-01",
+        "publisher_name": 1,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 11
+},
+{
+    "fields": {
+        "title": "Neuromante",
+        "work": 12,
+        "created": "2016-12-30T10:54:13.606",
+        "note": null,
+        "cover_image": null,
+        "publication_date": "2004",
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 12
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 13,
+        "created": "2016-12-30T10:54:16.029",
+        "note": null,
+        "cover_image": null,
+        "publication_date": "1987",
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 13
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 14,
+        "created": "2016-12-30T10:54:16.259",
+        "note": null,
+        "cover_image": null,
+        "publication_date": "1993-06-01",
+        "publisher_name": 7,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 14
+},
+{
+    "fields": {
+        "title": "Neuromante",
+        "work": 15,
+        "created": "2016-12-30T10:54:16.489",
+        "note": null,
+        "cover_image": null,
+        "publication_date": "2004",
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 15
+},
+{
+    "fields": {
+        "title": "Neuromante",
+        "work": 16,
+        "created": "2016-12-30T10:54:19.719",
+        "note": null,
+        "cover_image": null,
+        "publication_date": "2007-09",
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 16
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 17,
+        "created": "2016-12-30T10:54:20.405",
+        "note": null,
+        "cover_image": null,
+        "publication_date": "1994",
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 17
+},
+{
+    "fields": {
+        "title": "Neuromante",
+        "work": 18,
+        "created": "2016-12-30T10:54:20.857",
+        "note": null,
+        "cover_image": null,
+        "publication_date": "1991",
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 18
+},
+{
+    "fields": {
+        "title": "Nevromantiker",
+        "work": 19,
+        "created": "2016-12-30T10:54:21.984",
+        "note": null,
+        "cover_image": null,
+        "publication_date": "1999",
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 19
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 20,
+        "created": "2016-12-30T10:54:22.209",
+        "note": null,
+        "cover_image": null,
+        "publication_date": "2011-04-28",
+        "publisher_name": 8,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 20
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 21,
+        "created": "2016-12-30T10:54:22.441",
+        "note": null,
+        "cover_image": null,
+        "publication_date": "1992",
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 21
+},
+{
+    "fields": {
+        "title": "Neurom\u00e0ntic",
+        "work": 22,
+        "created": "2016-12-30T10:54:24.012",
+        "note": null,
+        "cover_image": null,
+        "publication_date": "1988",
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 22
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 23,
+        "created": "2016-12-30T14:11:23.779",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 23
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 24,
+        "created": "2016-12-30T14:11:24.023",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 24
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 25,
+        "created": "2016-12-30T14:11:24.263",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 25
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 26,
+        "created": "2016-12-30T14:11:24.510",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 26
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 27,
+        "created": "2016-12-30T14:11:24.773",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 27
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 28,
+        "created": "2016-12-30T14:11:25.009",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 28
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 29,
+        "created": "2016-12-30T14:11:25.520",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 29
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 30,
+        "created": "2016-12-30T14:11:25.828",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 30
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 31,
+        "created": "2016-12-30T14:11:26.076",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 31
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 32,
+        "created": "2016-12-30T14:11:26.341",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 32
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 33,
+        "created": "2016-12-30T14:11:26.599",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 33
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 34,
+        "created": "2016-12-30T14:11:26.872",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 34
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 35,
+        "created": "2016-12-30T14:11:27.112",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 35
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 36,
+        "created": "2016-12-30T14:11:27.423",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 36
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 37,
+        "created": "2016-12-30T14:11:27.679",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 37
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 38,
+        "created": "2016-12-30T14:11:27.949",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 38
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 39,
+        "created": "2016-12-30T14:11:28.183",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 39
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 40,
+        "created": "2016-12-30T14:11:28.435",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 40
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 41,
+        "created": "2016-12-30T14:11:28.660",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 41
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 42,
+        "created": "2016-12-30T14:11:29.121",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 42
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 43,
+        "created": "2016-12-30T14:11:29.389",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 43
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 44,
+        "created": "2016-12-30T14:11:29.616",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 44
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 45,
+        "created": "2016-12-30T14:11:29.893",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 45
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 46,
+        "created": "2016-12-30T14:11:30.151",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 46
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 47,
+        "created": "2016-12-30T14:11:30.389",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 47
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 48,
+        "created": "2016-12-30T14:11:30.648",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 48
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 49,
+        "created": "2016-12-30T14:11:30.909",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 49
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 50,
+        "created": "2016-12-30T14:11:31.565",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 50
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 51,
+        "created": "2016-12-30T14:11:31.849",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 51
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 52,
+        "created": "2016-12-30T14:11:32.092",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 52
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 53,
+        "created": "2016-12-30T14:11:32.324",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 53
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 54,
+        "created": "2016-12-30T14:11:32.572",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 54
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 55,
+        "created": "2016-12-30T14:11:32.816",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 55
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 56,
+        "created": "2016-12-30T14:11:33.200",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 56
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 57,
+        "created": "2016-12-30T14:11:33.457",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 57
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 58,
+        "created": "2016-12-30T14:11:34.300",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 58
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 59,
+        "created": "2016-12-30T14:11:34.548",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 59
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 60,
+        "created": "2016-12-30T14:11:35.070",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 60
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 61,
+        "created": "2016-12-30T14:11:35.329",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 61
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 62,
+        "created": "2016-12-30T14:11:35.621",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 62
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 63,
+        "created": "2016-12-30T14:11:35.877",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 63
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 64,
+        "created": "2016-12-30T14:11:36.172",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 64
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 65,
+        "created": "2016-12-30T14:11:36.403",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 65
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 66,
+        "created": "2016-12-30T14:11:36.646",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 66
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 67,
+        "created": "2016-12-30T14:11:36.919",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 67
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 68,
+        "created": "2016-12-30T14:11:37.219",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 68
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 69,
+        "created": "2016-12-30T14:11:37.485",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 69
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 70,
+        "created": "2016-12-30T14:11:37.724",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 70
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 71,
+        "created": "2016-12-30T14:11:37.949",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 71
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 72,
+        "created": "2016-12-30T14:11:38.226",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 72
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 73,
+        "created": "2016-12-30T14:11:38.459",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 73
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 74,
+        "created": "2016-12-30T14:11:38.695",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 74
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 75,
+        "created": "2016-12-30T14:11:38.945",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 75
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 76,
+        "created": "2016-12-30T14:11:39.206",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 76
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 77,
+        "created": "2016-12-30T14:11:39.455",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 77
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 78,
+        "created": "2016-12-30T14:11:39.706",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 78
+},
+{
+    "fields": {
+        "title": "Neuromancer",
+        "work": 79,
+        "created": "2016-12-30T14:11:39.972",
+        "note": null,
+        "cover_image": null,
+        "publication_date": null,
+        "publisher_name": null,
+        "unglued": false
+    },
+    "model": "core.edition",
+    "pk": 79
+},
+{
+    "fields": {
+        "publisher": null,
+        "name": "Penguin"
+    },
+    "model": "core.publishername",
+    "pk": 1
+},
+{
+    "fields": {
+        "publisher": null,
+        "name": "Ace Hardcover"
+    },
+    "model": "core.publishername",
+    "pk": 2
+},
+{
+    "fields": {
+        "publisher": null,
+        "name": "Ace Books"
+    },
+    "model": "core.publishername",
+    "pk": 3
+},
+{
+    "fields": {
+        "publisher": null,
+        "name": "New York : Ace Science Fiction Books"
+    },
+    "model": "core.publishername",
+    "pk": 4
+},
+{
+    "fields": {
+        "publisher": null,
+        "name": "Orion"
+    },
+    "model": "core.publishername",
+    "pk": 5
+},
+{
+    "fields": {
+        "publisher": null,
+        "name": "J'ai Lu"
+    },
+    "model": "core.publishername",
+    "pk": 6
+},
+{
+    "fields": {
+        "publisher": null,
+        "name": "William A. Thomas Braille Bookstore"
+    },
+    "model": "core.publishername",
+    "pk": 7
+},
+{
+    "fields": {
+        "publisher": null,
+        "name": "HarperCollins UK"
+    },
+    "model": "core.publishername",
+    "pk": 8
+}
+]

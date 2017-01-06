@@ -32,7 +32,7 @@ from regluit.payment.stripelib import StripeClient, TEST_CARDS, ERROR_TESTING, c
 from regluit.utils.localdatetime import now
 
 class WishlistTests(TestCase):
-    fixtures = ['initial_data.json']
+    fixtures = ['initial_data.json', 'neuromancer.json']
     def setUp(self):
         self.user = User.objects.create_user('test', 'test@example.org', 'test')
         self.client = Client()
@@ -40,7 +40,7 @@ class WishlistTests(TestCase):
 
     def test_add_remove(self):
         # add a book to the wishlist
-        r = self.client.post("/wishlist/", {"googlebooks_id": "2NyiPwAACAAJ"}, 
+        r = self.client.post("/wishlist/", {"googlebooks_id": "IDFfMPW32hQC"}, 
                 HTTP_X_REQUESTED_WITH="XMLHttpRequest")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(self.user.wishlist.works.all().count(), 1)
@@ -173,16 +173,12 @@ class PageTests(TestCase):
         self.assertEqual(r.status_code, 200)
 
 class GoogleBooksTest(TestCase):
-    fixtures = ['initial_data.json']
+    fixtures = ['initial_data.json', 'neuromancer.json']
     def test_googlebooks_id(self):
-        r = self.client.get("/googlebooks/wtPxGztYx-UC/")
+        r = self.client.get("/googlebooks/IDFfMPW32hQC/")
         self.assertEqual(r.status_code, 302)
         work_url = r['location']
         self.assertTrue(re.match('.*/work/\d+/$', work_url))
-
-        r = self.client.get("/googlebooks/wtPxGztYx-UC/")
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(r['location'], work_url)
 
 class CampaignUiTests(TestCase):
     def setUp(self):
@@ -217,7 +213,7 @@ class CampaignUiTests(TestCase):
         pass
     
 class PledgingUiTests(TestCase):
-    fixtures = ['initial_data.json']
+    fixtures = ['initial_data.json', 'neuromancer.json']
     def setUp(self):
         self.USERNAME = 'testname'
         self.PASSWORD = 'testpw'
@@ -235,7 +231,7 @@ class PledgingUiTests(TestCase):
       
         
         # load a Work by putting it on the User's wishlist
-        r = self.client.post("/wishlist/", {"googlebooks_id": "2NyiPwAACAAJ"}, 
+        r = self.client.post("/wishlist/", {"googlebooks_id": "IDFfMPW32hQC"}, 
                 HTTP_X_REQUESTED_WITH="XMLHttpRequest")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(self.user.wishlist.works.all().count(), 1)
