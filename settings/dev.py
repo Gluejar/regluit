@@ -59,7 +59,7 @@ BASE_URL_SECURE = 'https://0.0.0.0'
 
 # use database as queuing service in development
 BROKER_TRANSPORT = "djkombu.transport.DatabaseTransport"
-INSTALLED_APPS += ("djkombu",)
+#INSTALLED_APPS += ("djkombu",)
 
 # send celery log to Python logging
 CELERYD_HIJACK_ROOT_LOGGER = False
