@@ -177,9 +177,9 @@
       # GRANT ALL PRIVILEGES ON regluit.* TO 'regluit'@'localhost' WITH GRANT OPTION; (covered?)
     - name: Create database user
       mysql_user: >
-          user=regluit
-          password={{mysql_regluit_pw}}
-          host=localhost
+          user={{SECRET_KEYS.DATABASE_USER}}
+          password={{SECRET_KEYS.DATABASE_PASSWORD}}
+          host={{SECRET_KEYS.DATABASE_HOST}}
           priv=*.*:ALL
           state=present
           login_user=root
