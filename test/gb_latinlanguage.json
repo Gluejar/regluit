@@ -1,0 +1,236 @@
+{
+ "kind": "books#volumes",
+ "totalItems": 3,
+ "items": [
+  {
+   "kind": "books#volume",
+   "id": "N1RfAAAAMAAJ",
+   "etag": "xCKhWwG2Ifo",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/N1RfAAAAMAAJ",
+   "volumeInfo": {
+    "title": "The Latin Language",
+    "subtitle": "A Historical Outline of Its Sounds, Inflections, and Syntax",
+    "authors": [
+     "Charles Edwin Bennett"
+    ],
+    "publishedDate": "1907",
+    "industryIdentifiers": [
+     {
+      "type": "OTHER",
+      "identifier": "UOM:39015035339582"
+     }
+    ],
+    "readingModes": {
+     "text": false,
+     "image": true
+    },
+    "pageCount": 258,
+    "printType": "BOOK",
+    "categories": [
+     "Latin language"
+    ],
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "0.1.0.0.full.1",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=N1RfAAAAMAAJ&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=N1RfAAAAMAAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=N1RfAAAAMAAJ&pg=PA150&dq=OCLC1246014&hl=&cd=1&source=gbs_api",
+    "infoLink": "https://play.google.com/store/books/details?id=N1RfAAAAMAAJ&source=gbs_api",
+    "canonicalVolumeLink": "https://market.android.com/details?id=book-N1RfAAAAMAAJ"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "FREE",
+    "isEbook": true,
+    "buyLink": "https://play.google.com/store/books/details?id=N1RfAAAAMAAJ&rdid=book-N1RfAAAAMAAJ&rdot=1&source=gbs_api"
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "ALL_PAGES",
+    "embeddable": true,
+    "publicDomain": true,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": false,
+     "downloadLink": "http://books.google.com/books/download/The_Latin_Language.epub?id=N1RfAAAAMAAJ&hl=&output=epub&source=gbs_api"
+    },
+    "pdf": {
+     "isAvailable": true,
+     "downloadLink": "http://books.google.com/books/download/The_Latin_Language.pdf?id=N1RfAAAAMAAJ&hl=&output=pdf&sig=ACfU3U3aawhsMO1CJlAu58gdK2RY7h-RKA&source=gbs_api"
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=N1RfAAAAMAAJ&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "FULL_PUBLIC_DOMAIN",
+    "quoteSharingAllowed": false
+   }
+  },
+  {
+   "kind": "books#volume",
+   "id": "IHDWrUhKIcoC",
+   "etag": "iKuBkCCq25c",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/IHDWrUhKIcoC",
+   "volumeInfo": {
+    "title": "The Tale of Hill Top Farm",
+    "authors": [
+     "Susan Wittig Albert"
+    ],
+    "publisher": "Penguin",
+    "publishedDate": "2005-10-04",
+    "description": "The author of Peter Rabbit and other tales, Beatrix Potter is still, after a century, beloved by children and adults worldwide. In this first Cottage Tale, Albert introduces Beatrix, an animal lover and Good Samaritan with a knack for solving mysteries. With help from her entourage of talking animal friends, Beatrix sets out to win over the human hearts of Sawrey, where she's just bought an old farm--and plans to stay.",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_13",
+      "identifier": "9781440623370"
+     },
+     {
+      "type": "ISBN_10",
+      "identifier": "1440623376"
+     }
+    ],
+    "readingModes": {
+     "text": true,
+     "image": false
+    },
+    "pageCount": 304,
+    "printType": "BOOK",
+    "categories": [
+     "Fiction"
+    ],
+    "averageRating": 4.0,
+    "ratingsCount": 14,
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": true,
+    "contentVersion": "0.0.2.0.preview.2",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=IHDWrUhKIcoC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=IHDWrUhKIcoC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=IHDWrUhKIcoC&printsec=frontcover&dq=OCLC1246014&hl=&cd=2&source=gbs_api",
+    "infoLink": "https://play.google.com/store/books/details?id=IHDWrUhKIcoC&source=gbs_api",
+    "canonicalVolumeLink": "https://market.android.com/details?id=book-IHDWrUhKIcoC"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "FOR_SALE",
+    "isEbook": true,
+    "listPrice": {
+     "amount": 7.99,
+     "currencyCode": "USD"
+    },
+    "retailPrice": {
+     "amount": 7.99,
+     "currencyCode": "USD"
+    },
+    "buyLink": "https://play.google.com/store/books/details?id=IHDWrUhKIcoC&rdid=book-IHDWrUhKIcoC&rdot=1&source=gbs_api",
+    "offers": [
+     {
+      "finskyOfferType": 1,
+      "listPrice": {
+       "amountInMicros": 7990000.0,
+       "currencyCode": "USD"
+      },
+      "retailPrice": {
+       "amountInMicros": 7990000.0,
+       "currencyCode": "USD"
+      },
+      "giftable": true
+     }
+    ]
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "PARTIAL",
+    "embeddable": true,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED_FOR_ACCESSIBILITY",
+    "epub": {
+     "isAvailable": true,
+     "acsTokenLink": "http://books.google.com/books/download/The_Tale_of_Hill_Top_Farm-sample-epub.acsm?id=IHDWrUhKIcoC&format=epub&output=acs4_fulfillment_token&dl_type=sample&source=gbs_api"
+    },
+    "pdf": {
+     "isAvailable": false
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=IHDWrUhKIcoC&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "SAMPLE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "In this first Cottage Tale, Albert introduces Beatrix, an animal lover and Good Samaritan with a knack for solving mysteries."
+   }
+  },
+  {
+   "kind": "books#volume",
+   "id": "sc3ae07CsrQC",
+   "etag": "6/LBvBW2RLI",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/sc3ae07CsrQC",
+   "volumeInfo": {
+    "title": "The Complete Poems",
+    "authors": [
+     "John Keats"
+    ],
+    "publisher": "Penguin UK",
+    "publishedDate": "1977",
+    "description": "Complete poems of John Keats including a dictionary of classical names and extensive notes",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_13",
+      "identifier": "9780140422108"
+     },
+     {
+      "type": "ISBN_10",
+      "identifier": "0140422102"
+     }
+    ],
+    "readingModes": {
+     "text": true,
+     "image": false
+    },
+    "pageCount": 729,
+    "printType": "BOOK",
+    "categories": [
+     "Literary Criticism"
+    ],
+    "averageRating": 5.0,
+    "ratingsCount": 1,
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "0.3.1.0.preview.2",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=sc3ae07CsrQC&printsec=frontcover&img=1&zoom=5&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=sc3ae07CsrQC&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=sc3ae07CsrQC&dq=OCLC1246014&hl=&cd=3&source=gbs_api",
+    "infoLink": "http://books.google.com/books?id=sc3ae07CsrQC&dq=OCLC1246014&hl=&source=gbs_api",
+    "canonicalVolumeLink": "http://books.google.com/books/about/The_Complete_Poems.html?hl=&id=sc3ae07CsrQC"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "NOT_FOR_SALE",
+    "isEbook": false
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "NO_PAGES",
+    "embeddable": false,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": true
+    },
+    "pdf": {
+     "isAvailable": false
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=sc3ae07CsrQC&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "NONE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "Complete poems of John Keats including a dictionary of classical names and extensive notes"
+   }
+  }
+ ]
+}

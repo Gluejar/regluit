@@ -123,7 +123,6 @@ MAINTENANCE_MODE = False
 # Amazon keys to permit S3 access
 # reusing just cedentials here
 
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 AWS_ACCESS_KEY_ID = 'AKIAIYP6XRVAUWKQFT5Q'
 AWS_SECRET_ACCESS_KEY = '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'
 AWS_STORAGE_BUCKET_NAME = 'just-unglueit'

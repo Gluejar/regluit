@@ -69,5 +69,5 @@ def googlebooks_search(q, user_ip, page):
         
     r = requests.get('https://www.googleapis.com/books/v1/volumes', 
             params=params, headers=headers)
-    # urls like https://www.googleapis.com/books/v1/volumes?q=invisible+engines&startIndex=0&maxResults=10&key=AIzaSyDqJaqdOSXVaNXfzZJyRZIFWtfTMxb29SU
+    # urls like https://www.googleapis.com/books/v1/volumes?q=invisible+engines&startIndex=0&maxResults=10&key=[key]
     return json.loads(r.content)

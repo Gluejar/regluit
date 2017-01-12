@@ -16,16 +16,16 @@ regluit imports
 """
 import regluit.core.isbn
 
-from regluit.core import bookloader, models
+from regluit.core import models
 from regluit.utils.localdatetime import now
 from regluit.api import models as apimodels
 
 class ApiTests(TestCase):
-    fixtures = ['initial_data.json']
+    fixtures = ['initial_data.json', 'neuromancer.json']
     work_id=None
     
     def setUp(self):
-        edition = bookloader.add_by_isbn_from_google(isbn='0441007465')
+        edition = models.Edition.objects.get(pk=1)
         self.work_id=edition.work.id
         campaign = models.Campaign.objects.create(
             name=edition.work.title,
@@ -151,9 +151,9 @@ class ApiTests(TestCase):
         self.assertEqual(r.status_code, 200)
 
 class FeedTests(TestCase):
-    fixtures = ['initial_data.json']
+    fixtures = ['initial_data.json', 'neuromancer.json']
     def setUp(self):
-        edition = bookloader.add_by_isbn_from_google(isbn='0441007465')
+        edition = models.Edition.objects.get(pk=1)
         ebook = models.Ebook.objects.create(edition=edition, url='http://example.org/', format='epub', rights='CC BY')
         self.test_work_id = edition.work.id
 

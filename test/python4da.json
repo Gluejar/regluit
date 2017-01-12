@@ -1,0 +1,75 @@
+{
+ "kind": "books#volumes",
+ "totalItems": 1,
+ "items": [
+  {
+   "kind": "books#volume",
+   "id": "UWlo-c4WEpAC",
+   "etag": "z2gSFYgHq7I",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/UWlo-c4WEpAC",
+   "volumeInfo": {
+    "title": "Python for Data Analysis",
+    "authors": [
+     "Wes McKinney"
+    ],
+    "publisher": "\"O'Reilly Media, Inc.\"",
+    "publishedDate": "2012-10-22",
+    "description": "Presents case studies and instructions on how to solve data analysis problems using Python.",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_13",
+      "identifier": "9781449319793"
+     },
+     {
+      "type": "ISBN_10",
+      "identifier": "1449319793"
+     }
+    ],
+    "readingModes": {
+     "text": false,
+     "image": true
+    },
+    "pageCount": 452,
+    "printType": "BOOK",
+    "categories": [
+     "Computers"
+    ],
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "preview-1.0.0",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=UWlo-c4WEpAC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=UWlo-c4WEpAC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=UWlo-c4WEpAC&printsec=frontcover&dq=isbn:9781449319793&hl=&cd=1&source=gbs_api",
+    "infoLink": "http://books.google.com/books?id=UWlo-c4WEpAC&dq=isbn:9781449319793&hl=&source=gbs_api",
+    "canonicalVolumeLink": "http://books.google.com/books/about/Python_for_Data_Analysis.html?hl=&id=UWlo-c4WEpAC"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "NOT_FOR_SALE",
+    "isEbook": false
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "PARTIAL",
+    "embeddable": true,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": false
+    },
+    "pdf": {
+     "isAvailable": false
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=UWlo-c4WEpAC&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "SAMPLE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "Presents case studies and instructions on how to solve data analysis problems using Python."
+   }
+  }
+ ]
+}

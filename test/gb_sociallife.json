@@ -1,0 +1,78 @@
+{
+ "kind": "books#volumes",
+ "totalItems": 1,
+ "items": [
+  {
+   "kind": "books#volume",
+   "id": "D-WjL_HRbNQC",
+   "etag": "Q1Xb4RLeINc",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/D-WjL_HRbNQC",
+   "volumeInfo": {
+    "title": "The Social Life of Information",
+    "authors": [
+     "John Seely Brown",
+     "Paul Duguid"
+    ],
+    "publisher": "Harvard Business Press",
+    "publishedDate": "2002",
+    "description": "All New Preface by the Authors \"Should be read by anyone interested in understanding the future.\" -The Times Literary Supplement For years pundits have predicted that information technology will obliterate everything-from supermarkets to business organizations to social life itself. But beaten down by info-glut, exasperated by computer crashes, and daunted by the dot com crash, individual users find it hard to get a fix on the true potential of the digital revolution. John Seely Brown and Paul Duguid argue that the gap between digerati hype and end-user gloom is largely due to the \"tunnel vision\" that information-driven technologies breed. We've become so focused on where we think weoughtto be-a place where technology empowers individuals and obliterates social organizations-that we often fail to see where we're really going.The Social Life of Informationshows us how to look beyond our obsession with information and individuals to include the critical social networks of which these are always a part. AUTHORBIO:John Seely Brownis the Chief Innovation Officer of 12 Entrepreneuring and the Chief Scientist of Xerox. He was the director of the Xerox Palo Alto Research Center (PARC) for ten years.Paul Duguidis affiliated with Xerox PARC and the University of California, Berkeley.",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_10",
+      "identifier": "1578517087"
+     },
+     {
+      "type": "ISBN_13",
+      "identifier": "9781578517084"
+     }
+    ],
+    "readingModes": {
+     "text": false,
+     "image": false
+    },
+    "pageCount": 330,
+    "printType": "BOOK",
+    "categories": [
+     "Business & Economics"
+    ],
+    "averageRating": 5.0,
+    "ratingsCount": 5,
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "1.0.0.0.preview.0",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=D-WjL_HRbNQC&printsec=frontcover&img=1&zoom=5&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=D-WjL_HRbNQC&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=D-WjL_HRbNQC&dq=isbn:1578517087&hl=&cd=1&source=gbs_api",
+    "infoLink": "http://books.google.com/books?id=D-WjL_HRbNQC&dq=isbn:1578517087&hl=&source=gbs_api",
+    "canonicalVolumeLink": "http://books.google.com/books/about/The_Social_Life_of_Information.html?hl=&id=D-WjL_HRbNQC"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "NOT_FOR_SALE",
+    "isEbook": false
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "NO_PAGES",
+    "embeddable": false,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": false
+    },
+    "pdf": {
+     "isAvailable": true
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=D-WjL_HRbNQC&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "NONE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "We&#39;ve become so focused on where we think weoughtto be-a place where technology empowers individuals and obliterates social organizations-that we often fail to see where we&#39;re really going.The Social Life of Informationshows us how to look ..."
+   }
+  }
+ ]
+}

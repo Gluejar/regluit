@@ -61,7 +61,7 @@ class BooXtream(object):
         if settings.LOCAL_TEST:
             # fake it, so you can test other functions without hitting booxtream
             boox = Boox.objects.create(
-                    download_link_epub='https://github.com/eshellman/42_ebook/blob/master/download/42.epub?raw=true', 
+                    download_link_epub='https://github.com/eshellman/42_ebook/blob/master/download/42.epub?raw=true&extra=download.booxtream.com/', 
                     download_link_mobi='https://github.com/eshellman/42_ebook/blob/master/download/42.mobi?raw=true', 
                     referenceid= kwargs.get('referenceid'),
                     downloads_remaining= kwargs.get('downloadlimit'),
