@@ -1,0 +1,103 @@
+{
+ "kind": "books#volumes",
+ "totalItems": 1,
+ "items": [
+  {
+   "kind": "books#volume",
+   "id": "7oAMRfGysQIC",
+   "etag": "FsMU24b7JAw",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/7oAMRfGysQIC",
+   "volumeInfo": {
+    "title": "Fight Club",
+    "subtitle": "Roman",
+    "authors": [
+     "Chuck Palahniuk"
+    ],
+    "publisher": "Goldmann Verlag",
+    "publishedDate": "2005-02-21",
+    "description": "Sie sind jung, sie sind stark – und sie sind gelangweilt: Normale, berufstätige Männer und Familienväter auf der Suche nach einem Mittel gegen die Leere in ihrem Leben. Sie treffen sich auf Parkplätzen und in Kellern von Bars, um mit nackten Fäusten gegeneinander zu kämpfen. Der Anführer dieser „Fight Clubs“ ist Tyler Durden, und er ist besessen von dem Plan, furchtbare Rache an einer Welt zu nehmen, in der es keine menschliche Wärme mehr gibt ...",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_13",
+      "identifier": "9783894808358"
+     },
+     {
+      "type": "ISBN_10",
+      "identifier": "3894808357"
+     }
+    ],
+    "readingModes": {
+     "text": true,
+     "image": true
+    },
+    "pageCount": 256,
+    "printType": "BOOK",
+    "categories": [
+     "Fiction"
+    ],
+    "averageRating": 4.5,
+    "ratingsCount": 8,
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": true,
+    "contentVersion": "1.1.1.0.preview.3",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=7oAMRfGysQIC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=7oAMRfGysQIC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "de",
+    "previewLink": "http://books.google.com/books?id=7oAMRfGysQIC&printsec=frontcover&dq=isbn:9783894808358&hl=&cd=1&source=gbs_api",
+    "infoLink": "https://play.google.com/store/books/details?id=7oAMRfGysQIC&source=gbs_api",
+    "canonicalVolumeLink": "https://market.android.com/details?id=book-7oAMRfGysQIC"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "FOR_SALE",
+    "isEbook": true,
+    "listPrice": {
+     "amount": 9.99,
+     "currencyCode": "USD"
+    },
+    "retailPrice": {
+     "amount": 7.99,
+     "currencyCode": "USD"
+    },
+    "buyLink": "https://play.google.com/store/books/details?id=7oAMRfGysQIC&rdid=book-7oAMRfGysQIC&rdot=1&source=gbs_api",
+    "offers": [
+     {
+      "finskyOfferType": 1,
+      "listPrice": {
+       "amountInMicros": 9990000.0,
+       "currencyCode": "USD"
+      },
+      "retailPrice": {
+       "amountInMicros": 7990000.0,
+       "currencyCode": "USD"
+      },
+      "giftable": true
+     }
+    ]
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "PARTIAL",
+    "embeddable": true,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": true,
+     "acsTokenLink": "http://books.google.com/books/download/Fight_Club-sample-epub.acsm?id=7oAMRfGysQIC&format=epub&output=acs4_fulfillment_token&dl_type=sample&source=gbs_api"
+    },
+    "pdf": {
+     "isAvailable": true,
+     "acsTokenLink": "http://books.google.com/books/download/Fight_Club-sample-pdf.acsm?id=7oAMRfGysQIC&format=pdf&output=acs4_fulfillment_token&dl_type=sample&source=gbs_api"
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=7oAMRfGysQIC&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "SAMPLE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "Sie sind jung, sie sind stark – und sie sind gelangweilt: Normale, berufstätige Männer und Familienväter auf der Suche nach einem Mittel gegen die Leere in ihrem Leben."
+   }
+  }
+ ]
+}

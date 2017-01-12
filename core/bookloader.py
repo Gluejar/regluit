@@ -73,6 +73,16 @@ def add_by_oclc_from_google(oclc):
             logger.exception("google books data for %s didn't fit our db", oclc)
         return None
 
+def valid_isbn(isbn):
+    try:
+        isbn = regluit.core.isbn.ISBN(isbn)
+    except:
+        logger.exception("invalid isbn: %s", isbn)
+        return None
+    if not isbn.valid:
+        return None
+    return isbn.to_string()
+
 def add_by_isbn(isbn, work=None, language='xx', title=''):
     if not isbn:
         return None
@@ -98,14 +108,9 @@ def add_by_isbn(isbn, work=None, language='xx', title=''):
     if not title:
         return None
         
-    try:
-        isbn = regluit.core.isbn.ISBN(isbn)
-    except:
-        logger.exception("invalid isbn: %s", isbn)
+    isbn = valid_isbn(isbn)
+    if not isbn:
         return None
-    if not isbn.valid:
-        return None
-    isbn = isbn.to_string()
     
     if not language or language == 'xx': # don't add unknown language 
         # we don't know the language  ->'xx'
@@ -278,10 +283,19 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
     associated with a stub work. isbn can be passed because sometimes passed data won't include it 
     
     """
+    isbn = valid_isbn(isbn)
+        
     # don't ping google again if we already know about the edition
     try:
         edition = models.Identifier.objects.get(type='goog', value=googlebooks_id).edition
         edition.new = False
+        if isbn:
+            # check that the isbn is in db; if not, then there are two isbns for the edition
+            try:
+                isbn_edition = models.Identifier.objects.get(type='isbn', value=isbn).edition
+                # not going to worry about isbn_edition != edition
+            except models.Identifier.DoesNotExist:
+                models.Identifier.objects.create(type='isbn', value=isbn, edition=edition, work=edition.work)
         return edition
     except models.Identifier.DoesNotExist:
         pass

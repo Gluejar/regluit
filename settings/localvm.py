@@ -48,7 +48,8 @@ SOCIAL_AUTH_TWITTER_SECRET = 'YSKHn8Du6EWqpcWZ6sp5tqDPvcOBXK0WJWVGWyB0'
 # facebook auth (for localvm)
 # https://developers.facebook.com/apps/401501793375379/settings/
 SOCIAL_AUTH_FACEBOOK_KEY = '401501793375379'
-SOCIAL_AUTH_FACEBOOK_SECRET = '7b63412aa28f408e6349eb0eceb1fcc3'
+# reset 2016.11.30
+# SOCIAL_AUTH_FACEBOOK_SECRET = '7b63412aa28f408e6349eb0eceb1fcc3'
 
 # get these (as oauth2 client ID and Secret from 
 # https://console.developers.google.com/project/grand-analyzer-95823/apiui/credential?clientType&authuser=0#
@@ -122,7 +123,6 @@ MAINTENANCE_MODE = False
 # Amazon keys to permit S3 access
 # reusing just cedentials here
 
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 AWS_ACCESS_KEY_ID = 'AKIAIYP6XRVAUWKQFT5Q'
 AWS_SECRET_ACCESS_KEY = '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'
 AWS_STORAGE_BUCKET_NAME = 'just-unglueit'

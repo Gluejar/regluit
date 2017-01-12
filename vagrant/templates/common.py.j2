@@ -1,0 +1,6 @@
+import os
+
+# all the COMMON_KEYS
+{% for key in COMMON_KEYS %}
+{{key}} = os.environ.get('{{key}}', '{{COMMON_KEYS[key]}}')
+{% endfor %}

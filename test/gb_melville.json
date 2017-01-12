@@ -1,0 +1,736 @@
+{
+ "kind": "books#volumes",
+ "totalItems": 1921,
+ "items": [
+  {
+   "kind": "books#volume",
+   "id": "MLpSGShP-hcC",
+   "etag": "fMHTb+59dwk",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/MLpSGShP-hcC",
+   "volumeInfo": {
+    "title": "Herman Melville",
+    "subtitle": "The Contemporary Reviews",
+    "authors": [
+     "Brian Higgins",
+     "Hershel Parker"
+    ],
+    "publisher": "Cambridge University Press",
+    "publishedDate": "2009-09-17",
+    "description": "This volume reprints virtually all the known contemporary reviews of Herman Melville's writings from the 1840s until his death in 1891.",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_10",
+      "identifier": "0521121159"
+     },
+     {
+      "type": "ISBN_13",
+      "identifier": "9780521121156"
+     }
+    ],
+    "readingModes": {
+     "text": false,
+     "image": true
+    },
+    "pageCount": 588,
+    "printType": "BOOK",
+    "categories": [
+     "Literary Criticism"
+    ],
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "preview-1.0.0",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=MLpSGShP-hcC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=MLpSGShP-hcC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=MLpSGShP-hcC&printsec=frontcover&dq=melville&hl=&cd=1&source=gbs_api",
+    "infoLink": "http://books.google.com/books?id=MLpSGShP-hcC&dq=melville&hl=&source=gbs_api",
+    "canonicalVolumeLink": "http://books.google.com/books/about/Herman_Melville.html?hl=&id=MLpSGShP-hcC"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "NOT_FOR_SALE",
+    "isEbook": false
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "PARTIAL",
+    "embeddable": true,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": false
+    },
+    "pdf": {
+     "isAvailable": false
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=MLpSGShP-hcC&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "SAMPLE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "This volume reprints virtually all the known contemporary reviews of Herman Melville&#39;s writings from the 1840s until his death in 1891."
+   }
+  },
+  {
+   "kind": "books#volume",
+   "id": "pFB1UOHRlvYC",
+   "etag": "awjrx4F2riE",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/pFB1UOHRlvYC",
+   "volumeInfo": {
+    "title": "Herman Melville",
+    "subtitle": "A Biography",
+    "authors": [
+     "Hershel Parker"
+    ],
+    "publisher": "JHU Press",
+    "publishedDate": "2005-08-15",
+    "description": "The first of a two-volume biography of Melville traces his life from his childhood in New York, through his adventures abroad as a sailor, to his creation of Moby-Dick.",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_10",
+      "identifier": "0801881854"
+     },
+     {
+      "type": "ISBN_13",
+      "identifier": "9780801881855"
+     }
+    ],
+    "readingModes": {
+     "text": false,
+     "image": true
+    },
+    "pageCount": 928,
+    "printType": "BOOK",
+    "categories": [
+     "Biography & Autobiography"
+    ],
+    "averageRating": 2.0,
+    "ratingsCount": 3,
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "0.0.1.0.preview.1",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=pFB1UOHRlvYC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=pFB1UOHRlvYC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=pFB1UOHRlvYC&pg=PA236&dq=melville&hl=&cd=2&source=gbs_api",
+    "infoLink": "http://books.google.com/books?id=pFB1UOHRlvYC&dq=melville&hl=&source=gbs_api",
+    "canonicalVolumeLink": "http://books.google.com/books/about/Herman_Melville.html?hl=&id=pFB1UOHRlvYC"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "NOT_FOR_SALE",
+    "isEbook": false
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "PARTIAL",
+    "embeddable": true,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": false
+    },
+    "pdf": {
+     "isAvailable": false
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=pFB1UOHRlvYC&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "SAMPLE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "\u003cb\u003eMelville\u003c/b\u003e to Hawthorne, early May 1851 Captain Coleman anchored at Lahaina, \u003cbr\u003e\non West Maui, on 27 April 1843. From the harbor the Charles and Henry for \u003cbr\u003e\nseveral days afforded \u003cb\u003eMelville\u003c/b\u003e a splendid view of the cluster of mountain peaks \u003cbr\u003e\nand&nbsp;..."
+   }
+  },
+  {
+   "kind": "books#volume",
+   "id": "bf9_Mw10TPUC",
+   "etag": "pwiJzV/AFqA",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/bf9_Mw10TPUC",
+   "volumeInfo": {
+    "title": "Melville, Shame, and the Evil Eye",
+    "subtitle": "A Psychoanalytic Reading",
+    "authors": [
+     "Joseph Adamson"
+    ],
+    "publisher": "SUNY Press",
+    "publishedDate": "1997",
+    "description": "This study offers a complex analysis of the psychodynamic role of shame in Melville's work, with detailed readings of Moby-Dick, Pierre, and \"Billy Budd\". Its concrete application of the rich analytic framework supplied by work of such theorists as Heinz Kohut, Leon Wurmser, Silvan Tomkins, and Donald Nathanson implicitly challenges the contemporary reliance on an often abstract poststructuralist model of psychoanalysis.",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_10",
+      "identifier": "0791432793"
+     },
+     {
+      "type": "ISBN_13",
+      "identifier": "9780791432792"
+     }
+    ],
+    "readingModes": {
+     "text": true,
+     "image": true
+    },
+    "pageCount": 348,
+    "printType": "BOOK",
+    "categories": [
+     "Literary Criticism"
+    ],
+    "maturityRating": "MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "preview-1.0.0",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=bf9_Mw10TPUC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=bf9_Mw10TPUC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=bf9_Mw10TPUC&printsec=frontcover&dq=melville&hl=&cd=3&source=gbs_api",
+    "infoLink": "http://books.google.com/books?id=bf9_Mw10TPUC&dq=melville&hl=&source=gbs_api",
+    "canonicalVolumeLink": "http://books.google.com/books/about/Melville_Shame_and_the_Evil_Eye.html?hl=&id=bf9_Mw10TPUC"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "NOT_FOR_SALE",
+    "isEbook": false
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "PARTIAL",
+    "embeddable": true,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": true,
+     "acsTokenLink": "http://books.google.com/books/download/Melville_Shame_and_the_Evil_Eye-sample-epub.acsm?id=bf9_Mw10TPUC&format=epub&output=acs4_fulfillment_token&dl_type=sample&source=gbs_api"
+    },
+    "pdf": {
+     "isAvailable": true,
+     "acsTokenLink": "http://books.google.com/books/download/Melville_Shame_and_the_Evil_Eye-sample-pdf.acsm?id=bf9_Mw10TPUC&format=pdf&output=acs4_fulfillment_token&dl_type=sample&source=gbs_api"
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=bf9_Mw10TPUC&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "SAMPLE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "Its concrete application of the rich analytic framework supplied by the work of such theorists as Heinz Kohut, Leon Wurmser, Silvan Tomkins, and Donald Nathanson implicitly challenges the contemporary reliance on an often abstract ..."
+   }
+  },
+  {
+   "kind": "books#volume",
+   "id": "nBeBBc3m4yYC",
+   "etag": "tKgQGwM+6aQ",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/nBeBBc3m4yYC",
+   "volumeInfo": {
+    "title": "Correspondence",
+    "authors": [
+     "Herman Melville",
+     "Lynn Horth"
+    ],
+    "publisher": "Northwestern University Press",
+    "publishedDate": "1993",
+    "description": "Presents a collection of the writings of Herman Melville.",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_10",
+      "identifier": "0810109956"
+     },
+     {
+      "type": "ISBN_13",
+      "identifier": "9780810109957"
+     }
+    ],
+    "readingModes": {
+     "text": false,
+     "image": true
+    },
+    "pageCount": 923,
+    "printType": "BOOK",
+    "categories": [
+     "Literary Collections"
+    ],
+    "averageRating": 4.5,
+    "ratingsCount": 2,
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "1.1.1.0.preview.1",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=nBeBBc3m4yYC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=nBeBBc3m4yYC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=nBeBBc3m4yYC&printsec=frontcover&dq=melville&hl=&cd=4&source=gbs_api",
+    "infoLink": "http://books.google.com/books?id=nBeBBc3m4yYC&dq=melville&hl=&source=gbs_api",
+    "canonicalVolumeLink": "http://books.google.com/books/about/Correspondence.html?hl=&id=nBeBBc3m4yYC"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "NOT_FOR_SALE",
+    "isEbook": false
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "PARTIAL",
+    "embeddable": true,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": false
+    },
+    "pdf": {
+     "isAvailable": false
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=nBeBBc3m4yYC&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "SAMPLE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "Presents a collection of the writings of Herman Melville."
+   }
+  },
+  {
+   "kind": "books#volume",
+   "id": "mX7hMyUpPJYC",
+   "etag": "Rk4JQZmaCSI",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/mX7hMyUpPJYC",
+   "volumeInfo": {
+    "title": "Melville",
+    "subtitle": "The Making of the Poet",
+    "authors": [
+     "Hershel Parker"
+    ],
+    "publisher": "Northwestern University Press",
+    "publishedDate": "2008-01",
+    "description": "Details Melville's reading of poetry and writings about poetry along with criticism of his poetic works.",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_13",
+      "identifier": "9780810124646"
+     },
+     {
+      "type": "ISBN_10",
+      "identifier": "0810124645"
+     }
+    ],
+    "readingModes": {
+     "text": true,
+     "image": true
+    },
+    "pageCount": 238,
+    "printType": "BOOK",
+    "categories": [
+     "Literary Criticism"
+    ],
+    "averageRating": 3.0,
+    "ratingsCount": 1,
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "0.0.2.0.preview.3",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=mX7hMyUpPJYC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=mX7hMyUpPJYC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=mX7hMyUpPJYC&printsec=frontcover&dq=melville&hl=&cd=5&source=gbs_api",
+    "infoLink": "http://books.google.com/books?id=mX7hMyUpPJYC&dq=melville&hl=&source=gbs_api",
+    "canonicalVolumeLink": "http://books.google.com/books/about/Melville.html?hl=&id=mX7hMyUpPJYC"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "NOT_FOR_SALE",
+    "isEbook": false
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "PARTIAL",
+    "embeddable": true,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": true,
+     "acsTokenLink": "http://books.google.com/books/download/Melville-sample-epub.acsm?id=mX7hMyUpPJYC&format=epub&output=acs4_fulfillment_token&dl_type=sample&source=gbs_api"
+    },
+    "pdf": {
+     "isAvailable": false
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=mX7hMyUpPJYC&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "SAMPLE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "Details Melville&#39;s reading of poetry and writings about poetry along with criticism of his poetic works."
+   }
+  },
+  {
+   "kind": "books#volume",
+   "id": "RbYiAQAAQBAJ",
+   "etag": "HwWmwsXUjX4",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/RbYiAQAAQBAJ",
+   "volumeInfo": {
+    "title": "Billy Budd, Sailor",
+    "authors": [
+     "Herman Melville"
+    ],
+    "publisher": "Simon and Schuster",
+    "publishedDate": "2014-06-01",
+    "description": "Enriched Classics offer readers accessible editions of great works of literature enhanced by helpful notes and commentary. Each book includes educational tools alongside the text, enabling students and readers alike to gain a deeper and more developed understanding of the writer and their work. Billy Budd, Sailor has been called the best short novel ever written. In his brilliantly condensed prose, Herman Melville fashions a legal parable in which reason and intellect prove incapable of preserving innocence in the face of evil. For all those who feel themselves threatened by a hostile and inflexible environment, there is special significance in this haunting story of a handsome sailor who becomes a victim of man’s intransigence. Enriched Classics enhance your engagement by introducing and explaining the historical and cultural significance of the work, the author’s personal history, and what impact this book had on subsequent scholarship. Each book includes discussion questions that help clarify and reinforce major themes and reading recommendations for further research. Read with confidence.",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_13",
+      "identifier": "9781416584681"
+     },
+     {
+      "type": "ISBN_10",
+      "identifier": "1416584684"
+     }
+    ],
+    "readingModes": {
+     "text": true,
+     "image": false
+    },
+    "pageCount": 160,
+    "printType": "BOOK",
+    "categories": [
+     "Fiction"
+    ],
+    "averageRating": 5.0,
+    "ratingsCount": 1,
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": true,
+    "contentVersion": "2.4.4.0.preview.2",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=RbYiAQAAQBAJ&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=RbYiAQAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=RbYiAQAAQBAJ&printsec=frontcover&dq=melville&hl=&cd=6&source=gbs_api",
+    "infoLink": "https://play.google.com/store/books/details?id=RbYiAQAAQBAJ&source=gbs_api",
+    "canonicalVolumeLink": "https://market.android.com/details?id=book-RbYiAQAAQBAJ"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "FOR_SALE",
+    "isEbook": true,
+    "listPrice": {
+     "amount": 4.95,
+     "currencyCode": "USD"
+    },
+    "retailPrice": {
+     "amount": 4.95,
+     "currencyCode": "USD"
+    },
+    "buyLink": "https://play.google.com/store/books/details?id=RbYiAQAAQBAJ&rdid=book-RbYiAQAAQBAJ&rdot=1&source=gbs_api",
+    "offers": [
+     {
+      "finskyOfferType": 1,
+      "listPrice": {
+       "amountInMicros": 4950000.0,
+       "currencyCode": "USD"
+      },
+      "retailPrice": {
+       "amountInMicros": 4950000.0,
+       "currencyCode": "USD"
+      },
+      "giftable": true
+     }
+    ]
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "PARTIAL",
+    "embeddable": true,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED_FOR_ACCESSIBILITY",
+    "epub": {
+     "isAvailable": true,
+     "acsTokenLink": "http://books.google.com/books/download/Billy_Budd_Sailor-sample-epub.acsm?id=RbYiAQAAQBAJ&format=epub&output=acs4_fulfillment_token&dl_type=sample&source=gbs_api"
+    },
+    "pdf": {
+     "isAvailable": false
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=RbYiAQAAQBAJ&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "SAMPLE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "Billy Budd, Sailor has been called the best short novel ever written. In his brilliantly condensed prose, Herman Melville fashions a legal parable in which reason and intellect prove incapable of preserving innocence in the face of evil."
+   }
+  },
+  {
+   "kind": "books#volume",
+   "id": "C5ZsI8UIxNMC",
+   "etag": "Fb4yCcLtHZE",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/C5ZsI8UIxNMC",
+   "volumeInfo": {
+    "title": "Journals",
+    "authors": [
+     "Herman Melville",
+     "Howard C. Horsford",
+     "Lynn Horth"
+    ],
+    "publisher": "Northwestern University Press",
+    "publishedDate": "1989-01-01",
+    "description": "This volume presents Melville's three known journals. Unlike his contemporaries Emerson, Thoreau, and Hawthorne, Melville kept no habitual record of his days and thoughts; each of his three journals records his actions and observations on trips far from home. In this edition's Historical Note, Howard C. Horsford places each of the journals in the context of Melville's career, discusses its general character, and points out the later literary uses he made of it, notably in Moby-Dick, Clarel, and his magazine pieces. The editors supply full annotations of Melville's allusions and terse entries and an exhaustive index makes available the range of his acquaintance with people, places, and works of art. Also included are related documents, illustrations, maps, and many pages and passages reproduced from the journals. This scholarly edition aims to present a text as close to the author's intention as his difficult handwriting permits. It is an Approved Text of the Center for Editions of American Authors (Modern Language Association of America).",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_10",
+      "identifier": "0810108232"
+     },
+     {
+      "type": "ISBN_13",
+      "identifier": "9780810108233"
+     }
+    ],
+    "readingModes": {
+     "text": false,
+     "image": true
+    },
+    "pageCount": 683,
+    "printType": "BOOK",
+    "categories": [
+     "Biography & Autobiography"
+    ],
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "0.0.1.0.preview.1",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=C5ZsI8UIxNMC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=C5ZsI8UIxNMC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=C5ZsI8UIxNMC&printsec=frontcover&dq=melville&hl=&cd=7&source=gbs_api",
+    "infoLink": "http://books.google.com/books?id=C5ZsI8UIxNMC&dq=melville&hl=&source=gbs_api",
+    "canonicalVolumeLink": "http://books.google.com/books/about/Journals.html?hl=&id=C5ZsI8UIxNMC"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "NOT_FOR_SALE",
+    "isEbook": false
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "PARTIAL",
+    "embeddable": true,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": false
+    },
+    "pdf": {
+     "isAvailable": false
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=C5ZsI8UIxNMC&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "SAMPLE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "This volume presents Melville&#39;s three known journals."
+   }
+  },
+  {
+   "kind": "books#volume",
+   "id": "57MLC2NIm4AC",
+   "etag": "VEtNXizyatE",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/57MLC2NIm4AC",
+   "volumeInfo": {
+    "title": "Melville",
+    "subtitle": "A Biography",
+    "authors": [
+     "Laurie Robertson-Lorant"
+    ],
+    "publisher": "Univ of Massachusetts Press",
+    "publishedDate": "1998",
+    "description": "Drawing on more than five hundred newly discovered letters, this book immerses the reader in the often turbulent world of Herman Melville, from his childhood to his seafaring days, to his often frustrating career as a writer. With energetic prose and an unerring eye for psychological nuance, Laurie Robertson-Lorant explores the forces that shaped the man: the women and children in his life, his enigmatic relationship with Nathaniel Hawthorne, the psychosexual tensions that informed his art, his struggles against debt, his disappointment about failing to win a popular audience for his more serious work, and the alcoholism and violence that plagued his family. Melville is a brilliant account of one of America's preeminent literary geniuses.",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_10",
+      "identifier": "1558491457"
+     },
+     {
+      "type": "ISBN_13",
+      "identifier": "9781558491458"
+     }
+    ],
+    "readingModes": {
+     "text": false,
+     "image": true
+    },
+    "pageCount": 710,
+    "printType": "BOOK",
+    "categories": [
+     "Biography & Autobiography"
+    ],
+    "averageRating": 5.0,
+    "ratingsCount": 1,
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "0.0.1.0.preview.1",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=57MLC2NIm4AC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=57MLC2NIm4AC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=57MLC2NIm4AC&printsec=frontcover&dq=melville&hl=&cd=8&source=gbs_api",
+    "infoLink": "http://books.google.com/books?id=57MLC2NIm4AC&dq=melville&hl=&source=gbs_api",
+    "canonicalVolumeLink": "http://books.google.com/books/about/Melville.html?hl=&id=57MLC2NIm4AC"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "NOT_FOR_SALE",
+    "isEbook": false
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "PARTIAL",
+    "embeddable": true,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": false
+    },
+    "pdf": {
+     "isAvailable": false
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=57MLC2NIm4AC&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "SAMPLE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "Drawing on more than five hundred newly discovered letters, this book immerses the reader in the often turbulent world of Herman Melville, from his childhood to his seafaring days, to his often frustrating career as a writer."
+   }
+  },
+  {
+   "kind": "books#volume",
+   "id": "hf6vsKOP2UMC",
+   "etag": "JRBGo7B2G+8",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/hf6vsKOP2UMC",
+   "volumeInfo": {
+    "title": "Herman Melville",
+    "authors": [
+     "Harold Bloom"
+    ],
+    "publisher": "Infobase Publishing",
+    "publishedDate": "2009-01-01",
+    "description": "Presents a selection of important older literary criticism of selected works by Herman Melville.",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_13",
+      "identifier": "9781438112664"
+     },
+     {
+      "type": "ISBN_10",
+      "identifier": "1438112661"
+     }
+    ],
+    "readingModes": {
+     "text": true,
+     "image": true
+    },
+    "pageCount": 205,
+    "printType": "BOOK",
+    "categories": [
+     "Literary Criticism"
+    ],
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "0.0.1.0.preview.3",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=hf6vsKOP2UMC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=hf6vsKOP2UMC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=hf6vsKOP2UMC&pg=PA63&dq=melville&hl=&cd=9&source=gbs_api",
+    "infoLink": "http://books.google.com/books?id=hf6vsKOP2UMC&dq=melville&hl=&source=gbs_api",
+    "canonicalVolumeLink": "http://books.google.com/books/about/Herman_Melville.html?hl=&id=hf6vsKOP2UMC"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "NOT_FOR_SALE",
+    "isEbook": false
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "PARTIAL",
+    "embeddable": true,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": true,
+     "acsTokenLink": "http://books.google.com/books/download/Herman_Melville-sample-epub.acsm?id=hf6vsKOP2UMC&format=epub&output=acs4_fulfillment_token&dl_type=sample&source=gbs_api"
+    },
+    "pdf": {
+     "isAvailable": true,
+     "acsTokenLink": "http://books.google.com/books/download/Herman_Melville-sample-pdf.acsm?id=hf6vsKOP2UMC&format=pdf&output=acs4_fulfillment_token&dl_type=sample&source=gbs_api"
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=hf6vsKOP2UMC&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "SAMPLE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "448 MOBY-DICK Herman \u003cb\u003eMelville\u003c/b\u003e (1851) The three letters that \u003cb\u003eMelville\u003c/b\u003e wrote to \u003cbr\u003e\nHawthorne in summer and fall 1851 remain remarkably important documents for \u003cbr\u003e\nboth new and old students of \u003cb\u003eMelville\u003c/b\u003e. In them, “The Whale,” or Moby-Dick,&nbsp;..."
+   }
+  },
+  {
+   "kind": "books#volume",
+   "id": "UOEIAAAAQAAJ",
+   "etag": "au3/Wph3skE",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/UOEIAAAAQAAJ",
+   "volumeInfo": {
+    "title": "Battle-pieces and aspects of the war [poems].",
+    "authors": [
+     "Herman Melville"
+    ],
+    "publishedDate": "1866",
+    "industryIdentifiers": [
+     {
+      "type": "OTHER",
+      "identifier": "OXFORD:590672589"
+     }
+    ],
+    "readingModes": {
+     "text": true,
+     "image": true
+    },
+    "printType": "BOOK",
+    "averageRating": 3.0,
+    "ratingsCount": 2,
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "1.1.4.0.full.3",
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=UOEIAAAAQAAJ&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=UOEIAAAAQAAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=UOEIAAAAQAAJ&printsec=frontcover&dq=melville&hl=&cd=10&source=gbs_api",
+    "infoLink": "https://play.google.com/store/books/details?id=UOEIAAAAQAAJ&source=gbs_api",
+    "canonicalVolumeLink": "https://market.android.com/details?id=book-UOEIAAAAQAAJ"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "FREE",
+    "isEbook": true,
+    "buyLink": "https://play.google.com/store/books/details?id=UOEIAAAAQAAJ&rdid=book-UOEIAAAAQAAJ&rdot=1&source=gbs_api"
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "ALL_PAGES",
+    "embeddable": true,
+    "publicDomain": true,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": true,
+     "downloadLink": "http://books.google.com/books/download/Battle_pieces_and_aspects_of_the_war_poe.epub?id=UOEIAAAAQAAJ&hl=&output=epub&source=gbs_api"
+    },
+    "pdf": {
+     "isAvailable": true,
+     "downloadLink": "http://books.google.com/books/download/Battle_pieces_and_aspects_of_the_war_poe.pdf?id=UOEIAAAAQAAJ&hl=&output=pdf&sig=ACfU3U1OGjy_ijVXQ4aPdDOHdzHQgqBnfw&source=gbs_api"
+    },
+    "webReaderLink": "http://books.google.com/books/reader?id=UOEIAAAAQAAJ&hl=&printsec=frontcover&output=reader&source=gbs_api",
+    "accessViewStatus": "FULL_PUBLIC_DOMAIN",
+    "quoteSharingAllowed": false
+   }
+  }
+ ]
+}

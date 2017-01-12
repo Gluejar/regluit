@@ -1,10 +1,17 @@
 import datetime
 import mimetypes
 import sys
+import os
 from os.path import dirname, realpath, join
 
 import regluit
 from regluit.payment.parameters import PAYMENT_HOST_PAYPAL, PAYMENT_HOST_AMAZON
+
+try:
+    from .keys.common import *
+except ImportError:
+    print 'no real key file found, using dummy'
+    from .dummy.common import *
 
 PROJECT_DIR = dirname(dirname(realpath(__file__)))
 
@@ -399,8 +406,6 @@ NOTIFICATION_QUEUE_ALL = True
 # amazon or paypal for now.
 PAYMENT_PROCESSOR = 'stripelib'
 
-# a SECRET_KEY to be used for encrypting values in core.models.Key -- you should store in settings/local.py
-SECRET_KEY = ''
 
 # by default, we are not in maintenance mode -- set True in overriding settings files for maintenance mode
 # http://pypi.python.org/pypi/django-maintenancemode/
@@ -414,14 +419,12 @@ SHOW_GOOGLE_ANALYTICS = False
 
 # to enable uploading to S3 and integration of django-storages + django-ckeditor
 # some variables to be overriddden in more specific settings files -- e.g., prod.py, 
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+
 AWS_ACCESS_KEY_ID = ''
 AWS_SECRET_ACCESS_KEY = ''
 AWS_STORAGE_BUCKET_NAME = ''
 AWS_QUERYSTRING_AUTH = False
 
-MAILCHIMP_API_KEY = '5f8e846a2bbc847807ed89086de4b4bf-us2'
-MAILCHIMP_NEWS_ID = u'c5cce92fe1'
 
 FORMATS = (
     ('pdf','PDF'),
@@ -453,22 +456,10 @@ MARC_PREF_OPTIONS =(
     ('UNGLUE', 'Unglue.it link'),
 )
 
-BOOXTREAM_API_KEY = '7ynRCsx4q21zEY67it7yk8u5rc6EXY'
-BOOXTREAM_API_USER = 'ungluetest'
+
 BOOXTREAM_TEST_EPUB_URL = 'https://github.com/Gluejar/open_access_ebooks_ebook/raw/master/download/open_access_ebooks.epub'
 TEST_PDF_URL = "https://github.com/Gluejar/flatland/raw/master/downloads/Flatland.pdf"
 FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520 #20MB
-
-DROPBOX_KEY = '4efhwty5aph52bd'   #for unglue.it, just.unglue.it
-#DROPBOX_KEY = '6uefhocpvp0s1ep'  #for localhost
-
-# for reading GITenberg releases
-# generated from rdhyee account
-GITHUB_PUBLIC_TOKEN = 'f702409f913d7f9046f93c677710f829e2b599c9'
-
-MOBIGEN_URL = "https://docker.gluejar.com:5001/mobigen"
-MOBIGEN_USER_ID = "admin"
-MOBIGEN_PASSWORD = "CXq5FSEQFgXtP_s"
 
 QUESTIONNAIRE_USE_SESSION = False
 QUESTIONNAIRE_DEBUG = True
@@ -476,3 +467,18 @@ QUESTIONNAIRE_DEBUG = True
 # Selenium related -- set if Se tests run
 FIREFOX_PATH = ''
 CHROMEDRIVER_PATH = ''
+
+
+try:
+    from .keys.host import *
+    TEST_INTEGRATION = True
+except ImportError:
+    from .dummy.host import *
+    TEST_INTEGRATION = False
+    LOCAL_TEST = True
+
+if AWS_SECRET_ACCESS_KEY:
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+else:
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage' 
+

@@ -1,0 +1,4 @@
+vagrant/host_vars/*/secrets.yml diff=ansible-vault
+vagrant/group_vars/*/secrets.yml diff=ansible-vault
+vagrant/group_vars/*/misc.yml diff=ansible-vault
+vagrant/files/ssl_cert/* diff=ansible-vault
