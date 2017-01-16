@@ -1,5 +1,9 @@
+#!/usr/bin/env python
+# encoding: utf-8
 import logging
 import json
+import re
+
 from itertools import islice
 
 import requests
@@ -13,8 +17,11 @@ import regluit
 from regluit.core import models, tasks
 from regluit.core import bookloader
 from regluit.core.bookloader import add_by_isbn, merge_works
+from regluit.core.isbn import ISBN
 
 logger = logging.getLogger(__name__)
+
+springercover = re.compile(r'ftp.+springer\.de.+(\d{13}\.jpg)$', flags=re.U)
 
 def store_doab_cover(doab_id, redo=False):
     
@@ -32,7 +39,16 @@ def store_doab_cover(doab_id, redo=False):
     # download cover image to cover_file
     url = "http://www.doabooks.org/doab?func=cover&rid={0}".format(doab_id)
     try:
-        r = requests.get(url)
+        r = requests.get(url, allow_redirects=False) # requests doesn't handle ftp redirects.
+        if r.status_code == 302:
+            redirurl = r.headers['Location']
+            if redirurl.startswith(u'ftp'):
+                springerftp = springercover.match(redirurl)
+                if springerftp:
+                    redirurl = u'https://images.springer.com/sgw/books/medium/{}.jpg'.format(springerftp.groups(1))
+                    r = requests.get(redirurl)
+        else:
+            r = requests.get(url)    
         cover_file = ContentFile(r.content)
         cover_file.content_type = r.headers.get('content-type', '')
 
@@ -61,7 +77,7 @@ def update_cover_doab(doab_id, edition, store_cover=True):
         return None
     
 def attach_more_doab_metadata(edition, description, subjects,
-                              publication_date, publisher_name=None, language=None):
+                              publication_date, publisher_name=None, language=None, authors=u''):
     
     """
     for given edition, attach description, subjects, publication date to
@@ -94,10 +110,19 @@ def attach_more_doab_metadata(edition, description, subjects,
     if language:
         work.language = language
     work.save()
+    
+    if authors and authors == authors: # test for authors != NaN
+        authlist = creator_list(authors)
+        if edition.authors.all().count() < len(authlist):
+            edition.authors.clear()
+            if authlist is not None:
+                for [rel,auth] in authlist:
+                    edition.add_author(auth, rel)
                
     return edition
 
 def add_all_isbns(isbns, work, language=None, title=None):
+    first_edition = None
     for isbn in isbns:
         first_edition = None
         edition = bookloader.add_by_isbn(isbn, work, language=language, title=title)
@@ -110,7 +135,7 @@ def add_all_isbns(isbns, work, language=None, title=None):
                     merge_works(edition.work, work)
             else:
                 work = edition.work
-    return first_edition
+    return first_edition 
 
 def load_doab_edition(title, doab_id, url, format, rights,
                       language, isbns,
@@ -153,7 +178,8 @@ def load_doab_edition(title, doab_id, url, format, rights,
                                   subjects=kwargs.get('subject'),
                                   publication_date=kwargs.get('date'),
                                   publisher_name=kwargs.get('publisher'),
-                                  language=language)
+                                  language=language,
+                                  authors=kwargs.get('authors'),)
         # make sure all isbns are added
         add_all_isbns(isbns, None, language=language, title=title)
         return ebook
@@ -177,6 +203,7 @@ def load_doab_edition(title, doab_id, url, format, rights,
         idents = models.Identifier.objects.filter(type='doab', value=doab_id)
         for ident in idents:
             edition = ident.work.preferred_edition
+            work = edition.work
             break
     
     if edition is not None:
@@ -235,7 +262,8 @@ def load_doab_edition(title, doab_id, url, format, rights,
                               description=kwargs.get('description'),
                               subjects=kwargs.get('subject'),
                               publication_date=kwargs.get('date'),
-                              publisher_name=kwargs.get('publisher'))    
+                              publisher_name=kwargs.get('publisher'),
+                              authors=kwargs.get('authors'),)    
     return ebook
 
 
@@ -248,14 +276,140 @@ def load_doab_records(fname, limit=None):
 
     for (i, book) in enumerate(islice(records,limit)):
         d = dict(book)
+        d['isbns'] = split_isbns(d['isbns_raw']) # use stricter isbn string parsing.
         try:
-            ebook = load_doab_edition(**dict(book))
+            ebook = load_doab_edition(**d)
             success_count += 1 
             if ebook:
                 ebook_count +=1
         except Exception, e:
             logger.error(e)
+            logger.error(book)
             
     logger.info("Number of records processed: " + str(success_count))
     logger.info("Number of ebooks processed: " + str(ebook_count))
+
+"""
+#tools to parse the author lists in doab.csv
+from pandas import DataFrame
+url = "http://www.doabooks.org/doab?func=csv"
+df_csv = DataFrame.from_csv(url)
+
+out=[]
+for val in df_csv.values:
+    isbn = split_isbns(val[0])
+    if isbn:
+        auths = []
+        if val[2] == val[2] and val[-2] == val[-2]: # test for NaN auths and licenses
+            auths = creator_list(val[2])
+            out.append(( isbn[0], auths))
+open("/Users/eric/doab_auths.json","w+").write(json.dumps(out,indent=2, separators=(',', ': ')))
+"""
+    
+au = re.compile(r'\(Authors?\)', flags=re.U)
+ed = re.compile(r'\([^\)]*(dir.|[Eeé]ds?.|org.|coord.|Editor|a cura di|archivist)[^\)]*\)', flags=re.U)
+tr = re.compile(r'\([^\)]*([Tt]rans.|tr.|translated by)[^\)]*\)', flags=re.U)
+ai = re.compile(r'\([^\)]*(Introduction|Foreword)[^\)]*\)', flags=re.U)
+ds = re.compile(r'\([^\)]*(designer)[^\)]*\)', flags=re.U)
+cm = re.compile(r'\([^\)]*(comp.)[^\)]*\)', flags=re.U)
+namelist = re.compile(r'([^,]+ [^, ]+)(, | and )([^,]+ [^, ]+)', flags=re.U)
+namesep = re.compile(r', | and ', flags=re.U)
+namesep2 = re.compile(r';|/| and ', flags=re.U)
+isbnsep = re.compile(r'[ ,/;\t\.]+|Paper: *|Cloth: *|eISBN: *|Hardcover: *', flags=re.U)
+edlist = re.compile(r'([eE]dited by| a cura di|editors)', flags=re.U)
+
+def fnf(auth):
+    if len(auth) > 60:
+        return auth #probably corp name
+    parts = re.sub(r' +', u' ', auth).split(u',')
+    if len(parts) == 1:
+        return  parts[0].strip()
+    elif len(parts) == 2:
+        return u'{} {}'.format(parts[1].strip(),parts[0].strip())
+    else:
+        if parts[1].strip() in ('der','van', 'von', 'de', 'ter'):
+            return u'{} {} {}'.format(parts[2].strip(),parts[1].strip(),parts[0].strip())
+        #print auth
+        #print re.search(namelist,auth).group(0)
+        return u'{} {}, {}'.format(parts[2].strip(),parts[0].strip(),parts[1].strip())
+    
+
+def creator(auth, editor=False):
+    auth = auth.strip()
+    if auth in (u'', u'and'):
+        return None
+    if re.search(ed, auth) or editor:
+        return [u'edt', fnf(ed.sub(u'', auth))]
+    if re.search(tr, auth):
+        return [u'trl', fnf(tr.sub(u'', auth))]
+    if re.search(ai, auth):
+        return [u'aui', fnf(ai.sub(u'', auth))]
+    if re.search(ds, auth):
+        return [u'dsr', fnf(ds.sub(u'', auth))]
+    if re.search(cm, auth):
+        return [u'com', fnf(cm.sub(u'', auth))]
+    
+    auth = au.sub('', auth)
+    return ['aut', fnf(auth)]
+
+def split_auths(auths):
+    if ';' in auths or '/' in auths:
+        return namesep2.split(auths)
+    else:
+        nl = namelist.match(auths.strip())
+        if nl:
+            if nl.group(3).endswith(' de') \
+                or ' de ' in nl.group(3) \
+                or nl.group(3).endswith(' da') \
+                or nl.group(1).endswith(' Jr.') \
+                or ' e ' in nl.group(1):
+                return [auths]
+            else:
+                return namesep.split(auths)
+        else :
+            return [auths]
+
+def split_isbns(isbns):
+    result = []
+    for isbn in isbnsep.split(isbns):
+        isbn = ISBN(isbn)
+        if isbn.valid:
+            result.append(isbn.to_string())
+    return result
+
+def creator_list(creators):
+    auths = []
+    if re.search(edlist, creators):
+        for auth in split_auths(edlist.sub(u'', creators)):
+            if auth:
+                auths.append(creator(auth, editor=True))
+    else:
+        for auth in split_auths(unicode(creators)):
+            if auth:
+                auths.append(creator(auth))
+    return auths
+
+def load_doab_auths(fname, limit=None):
+    doab_auths = json.load(open(fname))
+    recnum = 0
+    failed = 0
+    for [isbnraw, authlist] in doab_auths:
+        isbn = ISBN(isbnraw).to_string()
+        try:
+            work = models.Identifier.objects.get(type='isbn',value=isbn).work
+        except models.Identifier.DoesNotExist:
+            print 'isbn = {} not found'.format(isbnraw)
+            failed += 1
+        if work.preferred_edition.authors.all().count() < len(authlist):
+            work.preferred_edition.authors.clear()
+            if authlist is None:
+                print "null authlist; isbn={}".format(isbn)
+                continue
+            for [rel,auth] in authlist:
+                work.preferred_edition.add_author(auth, rel)
+        recnum +=1
+        if limit and recnum > limit:
+            break          
+    logger.info("Number of records processed: " + str(recnum))
+    logger.info("Number of missing isbns: " + str(failed))
         
