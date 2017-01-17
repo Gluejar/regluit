@@ -1,4 +1,5 @@
-**Instructions on how to run open_source branch**
+**Instructions on how to use vagrant/ansible **
+
 
 To use vagrant/ansible to build the `{please|just|}.unglue.it`, you 
 need to have the following installed:
@@ -7,7 +8,6 @@ need to have the following installed:
 * [Installation — Ansible Documentation](http://docs.ansible.com/ansible/intro_installation.html#latest-releases-via-pip) (version 2+) -- use `pip install ansible`
 
 We also need the `vagrant-aws vagrant plugin:
-
 
 ```
 vagrant plugin install vagrant-aws --plugin-version 0.5.0
@@ -28,36 +28,16 @@ Layout of important files:
 
 You also need AWS keys in the environment.  I have my key/secret pair configured with a shell script that I can run -- I've stored this file in `/Volumes/ryvault1/gluejar/other_keys/aws.sh`, stored in an encrypted volume on my laptop.  For convenience I link to the file from `~/bin/gj_aws.sh`:
 
+
 ```
 #!/bin/bash
-export BOTO_CONFIG=/Volumes/ryvault1/gluejar/other_keys/boto.cfg
 
 # rdhyee key: https://console.aws.amazon.com/iam/home?region=us-east-1#/users/rdhyee
 # eric: you can use the credentials from https://console.aws.amazon.com/iam/home?region=us-east-1#/users/eric
-# note:  these credentials are tied to the Gluejar account
 
-export AWS_ACCESS_KEY=[FILL IN]
-export AWS_SECRET_KEY=[FILL IN]
-
-# simple_public_vpc
-export AWS_VPC_ID=vpc-6f7db10b
-
-# EC2 API tools
-export EC2_ACCESS_KEY=$AWS_ACCESS_KEY
-export EC2_SECRET_KEY=$AWS_SECRET_KEY
-
-# s3cmd
-ln -fs /Volumes/ryvault1/gluejar/s3/s3cfg  ~/.s3cfg
-
-export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY
-export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_KEY
-
-# AWS CLI http://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html
-export AWS_DEFAULT_REGION=us-east-1
-export AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY
-export AWS_SECRET_ACCESS_KEY=$AWS_SECRET_KEY
-# http://docs.aws.amazon.com/cli/latest/userguide/controlling-output.html
-export AWS_DEFAULT_OUTPUT="json"
+export AWS_ACCESS_KEY_ID=[FILL IN]
+export AWS_SECRET_ACCESS_KEY=[FILL IN]
+export AWS_KEYPAIR_NAME=[FILL IN]
 
 ```
 
@@ -68,7 +48,7 @@ hyptyposis-2014:vagrant raymondyee$ ls -lt ~/bin/gj_aws.sh
 lrwxr-xr-x  1 raymondyee  501  43 Aug 18  2014 /Users/raymondyee/bin/gj_aws.sh -> /Volumes/ryvault1/gluejar/other_keys/aws.sh
 ```
 
-In the `regluit/vagrant` directory, after I run `~/bin/gj_aws.sh` and  `vagrant status`, I get something like (the actual status of various machines can vary):
+In the `regluit/vagrant` directory, after one instantiates the three environment variables (e.g., by running `~/bin/gj_aws.sh)` and then `vagrant status`, you should see something like (the actual status of various machines can vary):
 
 ```
 please                    not created (virtualbox)
@@ -76,7 +56,6 @@ just                      running (aws)
 just2                     not created (virtualbox)
 prod                      not created (virtualbox)
 prod2                     running (aws)
-localvm                   not created (virtualbox)
 ```
 
 Once you have `vagrant status` works, a good place to start is how to build `please` with
@@ -85,14 +64,20 @@ Once you have `vagrant status` works, a good place to start is how to build `ple
 vagrant up please --provider=aws
 ```
 
-**For the moment, please leave building just and production to me.**
+## secrets and use encrypted key
 
-## running regluit on localhost
-
-In the `vagrant` directory, you can run 
+API keys and passwords used in configuring instances are encrypted using [ansible-vault](http://docs.ansible.com/ansible/playbooks_vault.html). To decrypt or encrypt the file, you need to use the make the password known to `ansible-vault`.  A convenient way is to store the password in a file and set the `ANSIBLE_VAULT_PASSWORD_FILE` environment variable to the path of that file.  e.g., 
 
 ```
-ansible-playbook create_commonpy.yml
+export ANSIBLE_VAULT_PASSWORD_FILE=[path]
 ```
 
-to generate `settings/common.py`.  You should then be able to proceed as normal.  
+To use `git diff` with these encrypted files, see the
+[.gitattributes](https://github.com/Gluejar/regluit/blob/open_source/.gitattributes) has been added to allow for using `git diff` with `ansible-vault` files: [git - How to diff ansible vault changes? - Stack Overflow](http://stackoverflow.com/questions/29937195/how-to-diff-ansible-vault-changes/39511274#39511274).  One highlight from the tips, run:
+
+
+```
+git config --global diff.ansible-vault.textconv "ansible-vault view"
+```
+
+
