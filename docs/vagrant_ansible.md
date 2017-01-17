@@ -1,4 +1,4 @@
-**Instructions on how to use vagrant/ansible **
+**Instructions on how to use vagrant/ansible**
 
 
 To use vagrant/ansible to build the `{please|just|}.unglue.it`, you 
