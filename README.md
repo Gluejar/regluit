@@ -1,5 +1,7 @@
-regluit
+regluit - "The Unglue.it web application and website"
 =======
+
+This repo - https://github.com/EbookFoundation/regluit will be the place for collaborative development for Unglue.it. Add issues and submit pull requests here. As of January 19, 2017, https://github.com/Gluejar/regluit is still being used for production builds.
 
 The first version of the unglue.it codebase was a services-oriented project named "unglu". 
 We decided that "unglu" was too complicated, so we started over and named the new project "regluit".
