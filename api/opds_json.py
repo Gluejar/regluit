@@ -216,7 +216,7 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
     
     # id 
     
-    feed.update(text_node('id', "{url}/api/opds/{feed_path}/?order_by={order_by}".format(url=UNGLUEIT_URL,
+    feed.update(text_node('id', "{url}/api/opdsjson/{feed_path}/?order_by={order_by}".format(url=UNGLUEIT_URL,
                                                                          feed_path=urlquote(feed_path), order_by=order_by)))
     
     # updated
@@ -277,7 +277,7 @@ def append_navlink(feed, rel, path, page, order_by, group=None, active=None , ti
     link_attrib = {}
     link = {"link": link_attrib}
     link_attrib.update({"rel":rel,
-             "href": UNGLUEIT_URL + "/api/opds/" + urlquote(path) + '/?order_by=' + order_by + ('&page=' + unicode(page) ),
+             "href": UNGLUEIT_URL + "/api/opdsjson/" + urlquote(path) + '/?order_by=' + order_by + ('&page=' + unicode(page) ),
              "type": ACQUISITION,
              "title": title,
             })
