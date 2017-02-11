@@ -30,8 +30,8 @@ FORMAT_TO_MIMETYPE = {'pdf':"application/pdf",
                       'text':"text/html"}
 
 UNGLUEIT_URL= 'https://unglue.it'
-ACQUISITION = "application/atom+xml;profile=opds-catalog;kind=acquisition"
-FACET_RELATION = "http://opds-spec.org/facet"
+ACQUISITION = "application/vnd.opds.acquisition+json"
+FACET_RELATION = "opds:facet"
 
 def feeds():
     for facet_path in facets.get_all_facets('Format'):
@@ -65,7 +65,8 @@ def work_node(work, facet=None):
     # links for all ebooks
     ebooks = facet.filter_model("Ebook",work.ebooks()) if facet else work.ebooks()
     versions = set()
-    content['links'] = links = []
+    content['_links'] = links = {}
+
     for ebook in ebooks:
         if updated is None:
             # most recent ebook, first ebook in loop
@@ -74,12 +75,10 @@ def work_node(work, facet=None):
         if not ebook.version_label in versions:
             versions.add(ebook.version_label)
             link_node_attrib = {}
-            link_node = {"link":link_node_attrib}
-        
+            ebookfiles = links.get("opds:acquisition:open-access",[])
+            ebookfiles.append(link_node_attrib)
             # ebook.download_url is an absolute URL with the protocol, domain, and path baked in
-            link_rel = "http://opds-spec.org/acquisition/open-access" 
             link_node_attrib.update({"href":add_query_component(ebook.download_url, "feed=opds"),
-                                         "rel":link_rel,
                                          "rights": str(ebook.rights)})
             if ebook.is_direct(): 
                 link_node_attrib["type"] = FORMAT_TO_MIMETYPE.get(ebook.format, "")
@@ -89,26 +88,26 @@ def work_node(work, facet=None):
                 indirect_attrib = {}
                 indirect = {"indirectAcquisition":indirect_attrib}
                 indirect_attrib["type"] = FORMAT_TO_MIMETYPE.get(ebook.format, "")
-                link_node.update(indirect)
+                link_node_attrib.update(indirect)
             if ebook.version_label:
                 link_node_attrib.update({"version": ebook.version_label})
-            links.append(link_node)
+            links["opds:acquisition:open-access"] = ebookfiles
         
     # get the cover -- assume jpg?
     if work.cover_image_small():
         cover_node_attrib = {}
-        cover_node = {"link": cover_node_attrib}
+        cover_node = {"opds:image:thumbnail": cover_node_attrib}
         cover_node_attrib.update({"href":work.cover_image_small(),
                                   "type":"image/"+work.cover_filetype(),
-                                  "rel":"http://opds-spec.org/image/thumbnail"})
-        links.append(cover_node)
+                                  })
+        links.update(cover_node)
     if work.cover_image_thumbnail():
         cover_node2_attrib = {}
-        cover_node2 = {"link": cover_node2_attrib}
+        cover_node2 = {"opds:image": cover_node2_attrib}
         cover_node2_attrib.update({"href":work.cover_image_thumbnail(),
                                   "type":"image/"+work.cover_filetype(),
-                                  "rel":"http://opds-spec.org/image"})
-        links.append(cover_node2)
+                                  })
+        links.update(cover_node2)
     
     
     # <dcterms:issued>2012</dcterms:issued>
@@ -207,7 +206,7 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
     feed_path = the_facet.feed_path
     title = the_facet.title
      
-    feed = {}
+    feed = {'_type': ACQUISITION}
     
     # add title
     # TO DO: will need to calculate the number items and where in the feed we are
@@ -232,7 +231,7 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
     feed.update(author_node)
     
     # links:  start, self, next/prev (depending what's necessary -- to start with put all CC books)
-    feed['navlinks'] = []
+    feed['_links'] = {}
     # start link
     append_navlink(feed, 'start', feed_path, None , order_by, title="First 10")
     
@@ -274,16 +273,14 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
 def append_navlink(feed, rel, path, page, order_by, group=None, active=None , title=""):
     if page==None:
         return
-    link_attrib = {}
-    link = {"link": link_attrib}
-    link_attrib.update({"rel":rel,
+    link = {
              "href": UNGLUEIT_URL + "/api/opdsjson/" + urlquote(path) + '/?order_by=' + order_by + ('&page=' + unicode(page) ),
              "type": ACQUISITION,
              "title": title,
-            })
+            }
     if rel == FACET_RELATION:
         if group:
-            link_attrib['facetGroup'] = group
+            link['facetGroup'] = group
             if active:
-                link_attrib['activeFacet'] = 'true'
-    feed['navlinks'].append(link)
+                link['activeFacet'] = 'true'
+    feed['_links'][rel] = link

@@ -171,7 +171,7 @@ class OPDSNavigationView(TemplateView):
     
     def render_to_response(self, context, **response_kwargs):
         if json:
-            response_kwargs['content_type'] = "application/json;profile=opds-catalog;kind=navigation"
+            response_kwargs['content_type'] = "application/vnd.opds.navigation+json"
         else:
             response_kwargs['content_type'] = "application/atom+xml;profile=opds-catalog;kind=navigation"
         return super(TemplateView, self).render_to_response(context, **response_kwargs)
@@ -187,11 +187,11 @@ class OPDSNavigationView(TemplateView):
         return context
 
 class OPDSAcquisitionView(View):
-    json=False
+    json = False
     def get(self, request, *args, **kwargs):
         work = request.GET.get('work', None)
         if work:
-            if json:
+            if self.json:
                 return HttpResponse(opds_json.opds_feed_for_work(work),
                         content_type="application/json;profile=opds-catalog;kind=acquisition")
             else:
@@ -204,11 +204,12 @@ class OPDSAcquisitionView(View):
             page = int(page)
         except:
             page = None
-        facet_class = opds_json.get_facet_class(facet)()
-        if json:
+        if self.json:
+            facet_class = opds_json.get_facet_class(facet)()
             return HttpResponse(facet_class.feed(page,order_by),
-                        content_type="application/json;profile=opds-catalog;kind=acquisition")
+                        content_type="application/vnd.opds.acquisition+json")
         else:
+            facet_class = opds.get_facet_class(facet)()
             return HttpResponse(facet_class.feed(page,order_by),
                         content_type="application/atom+xml;profile=opds-catalog;kind=acquisition")
 
