@@ -115,7 +115,7 @@ def work_node(work, facet=None):
     
     # author
     # TO DO: include all authors?
-    content["author"] = {"name": work.author()}
+    content["contributor"] = {"name": work.author()}
     
     # publisher
     #<dcterms:publisher>Open Book Publishers</dcterms:publisher>
@@ -127,7 +127,7 @@ def work_node(work, facet=None):
     content["language"] = work.language
     
     # description
-    content["content"] = work.description
+    content["summary"] = work.description
     
     # identifiers
     if work.identifiers.filter(type='isbn'):
@@ -260,7 +260,7 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
         for facet_object in other_group.get_facets():
             append_navlink(feed, FACET_RELATION, feed_path + '/' + facet_object.facet_name, None, order_by, group=other_group.title, title=facet_object.title)
     
-    works = islice(works,  10 * page, 10 * page + 10)
+    #works = islice(works,  10 * page, 10 * page + 10)
     if page > 0:
         append_navlink(feed, 'previous', feed_path, page-1, order_by, title="Previous 10")
     feedlist = []
