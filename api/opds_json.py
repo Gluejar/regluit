@@ -202,6 +202,7 @@ def opds_feed_for_work(work_id):
     return opds_feed_for_works( single_work_facet(work_id) )
 
 def opds_feed_for_works(the_facet, page=None, order_by='newest'):
+    books_per_page = 50
     works = the_facet.works
     feed_path = the_facet.feed_path
     title = the_facet.title
@@ -233,7 +234,7 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
     # links:  start, self, next/prev (depending what's necessary -- to start with put all CC books)
     feed['_links'] = {}
     # start link
-    append_navlink(feed, 'start', feed_path, None , order_by, title="First 10")
+    append_navlink(feed, 'start', feed_path, None , order_by, title="First {}".format(books_per_page))
     
     # next link
     
@@ -246,8 +247,8 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
             page=0
     
     try:
-        works[10 * page + 10]
-        append_navlink(feed, 'next', feed_path, page+1 , order_by, title="Next 10")
+        works[books_per_page * page + books_per_page]
+        append_navlink(feed, 'next', feed_path, page+1 , order_by, title="Next {}".format(books_per_page))
     except IndexError:
         pass
     
@@ -260,9 +261,9 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
         for facet_object in other_group.get_facets():
             append_navlink(feed, FACET_RELATION, feed_path + '/' + facet_object.facet_name, None, order_by, group=other_group.title, title=facet_object.title)
     
-    #works = islice(works,  10 * page, 10 * page + 10)
+    works = islice(works,  books_per_page * page, books_per_page * page + books_per_page)
     if page > 0:
-        append_navlink(feed, 'previous', feed_path, page-1, order_by, title="Previous 10")
+        append_navlink(feed, 'previous', feed_path, page-1, order_by, title="Previous {}".format(books_per_page))
     feedlist = []
     feed['publications'] = feedlist
     for work in works:
