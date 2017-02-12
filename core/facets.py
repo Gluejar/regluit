@@ -1,6 +1,6 @@
 from django.apps import apps
+from django.db.models import Q
 from regluit.core import cc
-
   
 class BaseFacet(object):
     facet_name = 'all'
@@ -236,7 +236,47 @@ class KeywordFacetGroup(FacetGroup):
             def description(self):
                 return  "%s eBooks" % self.keyword
         return KeywordFacet    
+
+class SearchFacetGroup(FacetGroup):
     
+    def __init__(self):
+        super(FacetGroup,self).__init__()
+        self.title = 'Search Term'
+        # make facets in TOPKW available for display
+        self.facets = []
+        self.label = '{} is ...'.format(self.title)
+        
+    def has_facet(self, facet_name):
+    
+        # recognize any facet_name that starts with "s." as a valid facet name
+        return facet_name.startswith('s.')
+
+    def get_facet_class(self, facet_name):
+        class KeywordFacet(NamedFacet):
+            def set_name(self):
+                self.facet_name=facet_name
+                # facet_names of the form 's.SUBJECT' and SUBJECT is therefore the 3rd character on
+                self.term=self.facet_name[2:]
+            def get_query_set(self):
+                return self._get_query_set().filter(
+                    Q(title__icontains=self.term) | 
+                    Q(editions__authors__name__icontains=self.term) | 
+                    Q(subjects__name__iexact=self.term)
+                    )
+                 
+            def template(self):
+                return 'facets/search.html'
+            @property    
+            def title(self):
+                return self.term
+            @property    
+            def label(self):
+                return self.term
+            @property
+            def description(self):
+                return  "eBooks for {}".format(self.term)
+        return KeywordFacet    
+   
 class PublisherFacetGroup(FacetGroup):
     
     def __init__(self):
@@ -285,7 +325,7 @@ class PublisherFacetGroup(FacetGroup):
         return PublisherFacet    
 
 # order of groups in facet_groups determines order of display on /free/    
-facet_groups = [KeywordFacetGroup(), FormatFacetGroup(),  LicenseFacetGroup(), PublisherFacetGroup(), IdFacetGroup()]
+facet_groups = [KeywordFacetGroup(), FormatFacetGroup(),  LicenseFacetGroup(), PublisherFacetGroup(), IdFacetGroup(), SearchFacetGroup()]
 
 def get_facet(facet_name):
     for facet_group in facet_groups:
