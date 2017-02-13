@@ -769,6 +769,15 @@ class CampaignThanksForm(forms.Form):
     def trans_extra(self):
         pe = PledgeExtra( anonymous=self.cleaned_data['anonymous'] )
 
+class DonationForm(forms.Form):
+    amount = forms.DecimalField(
+        required = True,
+        min_value=D('1.00'),
+        max_value=D('20000.00'),
+        decimal_places=2,
+        label="Donation Amount",
+    )
+
 
 class CampaignPledgeForm(forms.Form):
     preapproval_amount = forms.DecimalField(

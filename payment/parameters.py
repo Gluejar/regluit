@@ -51,3 +51,5 @@ TRANSACTION_STATUS_FAILED = 'Failed'
 
 # Transaction written off -- unable to successfully be charged after campaign succeeded 
 TRANSACTION_STATUS_WRITTEN_OFF = 'Written-Off'
+
+COMPANY_TITLE = 'Free Ebook Foundation'

@@ -97,6 +97,7 @@ def create_notice_types( **kwargs):
     notification.create_notice_type("purchase_got_gift", _("Your gift was received."), _("The ebook you sent as a gift has been redeemed."))
     notification.create_notice_type("purchase_gift_waiting", _("Your gift is waiting."), _("Please claim your ebook."))
     notification.create_notice_type("purchase_notgot_gift", _("Your gift wasn't received."), _("The ebook you sent as a gift has not yet been redeemed."))
+    notification.create_notice_type("donation", _("Your donation was processed."), _("Thank you, your generous donation has been processed."))
     
 signals.post_syncdb.connect(create_notice_types, sender=notification)
 
@@ -161,7 +162,14 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
         return
     transaction._current_total = None
     context = {'transaction':transaction,'current_site':Site.objects.get_current()}
-    if transaction.campaign.type is REWARDS:
+    if not transaction.campaign:
+        if transaction.user:
+            notification.send([transaction.user], "donation", context, True)
+        elif transaction.receipt:
+            from regluit.core.tasks import send_mail_task
+            message = render_to_string("notification/donation/full.txt", context )
+            send_mail_task.delay('unglue.it donation confirmation', message, 'notices@gluejar.com', [transaction.receipt])
+    elif transaction.campaign.type is REWARDS:
         notification.send([transaction.user], "pledge_charged", context, True)
     elif transaction.campaign.type is BUY2UNGLUE:
         # provision the book
@@ -216,7 +224,7 @@ def handle_transaction_failed(sender,transaction=None, **kwargs):
         return
     
     # window for recharging
-    recharge_deadline =  transaction.campaign.deadline_or_now + datetime.timedelta(settings.RECHARGE_WINDOW)
+    recharge_deadline =  transaction.deadline_or_now + datetime.timedelta(settings.RECHARGE_WINDOW)
     
     notification.send([transaction.user], "pledge_failed", {
             'transaction':transaction,
