@@ -717,7 +717,7 @@ def manage_campaign(request, id, ebf=None, action='manage'):
     campaign = get_object_or_404(models.Campaign, id=id)
     campaign.not_manager = False
     campaign.problems = []
-    if (not request.user.is_authenticated) or (not request.user in campaign.managers.all() and not request.user.is_staff):
+    if (not request.user.is_authenticated()) or (not request.user in campaign.managers.all() and not request.user.is_staff):
         campaign.not_manager = True
         return render(request, 'manage_campaign.html', {'campaign': campaign})
     if action == 'results':
@@ -1642,7 +1642,7 @@ class FundCompleteView(TemplateView):
                 return DownloadView.as_view()(request, work=self.transaction.campaign.work)
 
             else:
-                if request.user.is_authenticated:
+                if request.user.is_authenticated():
                     if self.user_is_ok():
                         return self.render_to_response(context)
                     else:
@@ -3136,7 +3136,7 @@ def download_ebook(request, ebook_id):
     return HttpResponseRedirect(ebook.url)
 
 def download_purchased(request, work_id):
-    if request.user.is_anonymous:
+    if request.user.is_anonymous():
         HttpResponseRedirect('/accounts/login/download/')
     return DownloadView.as_view()(request, work_id=work_id)
 
