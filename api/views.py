@@ -80,7 +80,8 @@ def widget(request, isbn):
 
 def featured_cover(request):
     work = featured_work()
-    return HttpResponseRedirect(work.cover_image_thumbnail())
+    tn = work.cover_image_thumbnail()
+    return HttpResponseRedirect(tn if tn else "/static/images/generic_cover_larger.png")
 
 def featured_url(request):
     work = featured_work()
