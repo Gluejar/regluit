@@ -29,7 +29,7 @@ class EditionResource(ModelResource):
             "isbn_13": ALL, "identifiers": ALL_WITH_RELATIONS, 
         }
     
-    def build_filters(self, filters = None):
+    def build_filters(self, filters = None, **kwargs):
         if filters is None:
             filters = {}
         for filter_expr, value in filters.items():
