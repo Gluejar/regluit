@@ -23,7 +23,7 @@ from django.http import (
 
 import regluit.core.isbn
 from regluit.core.bookloader import load_from_yaml
-from regluit.api import opds, onix
+from regluit.api import opds, onix, opds_json
 from regluit.api.models import repo_allowed
 
 from regluit.core import models
@@ -80,7 +80,8 @@ def widget(request, isbn):
 
 def featured_cover(request):
     work = featured_work()
-    return HttpResponseRedirect(work.cover_image_thumbnail())
+    tn = work.cover_image_thumbnail()
+    return HttpResponseRedirect(tn if tn else "/static/images/generic_cover_larger.png")
 
 def featured_url(request):
     work = featured_work()
@@ -166,26 +167,37 @@ class ApiHelpView(TemplateView):
         return context    
 
 class OPDSNavigationView(TemplateView):
-    
+    json=False
     # http://stackoverflow.com/a/6867976: secret to how to change content-type
     
     def render_to_response(self, context, **response_kwargs):
-        response_kwargs['content_type'] = "application/atom+xml;profile=opds-catalog;kind=navigation"
+        if json:
+            response_kwargs['content_type'] = "application/vnd.opds.navigation+json"
+        else:
+            response_kwargs['content_type'] = "application/atom+xml;profile=opds-catalog;kind=navigation"
         return super(TemplateView, self).render_to_response(context, **response_kwargs)
     
     def get_context_data(self, **kwargs):
         context = super(OPDSNavigationView, self).get_context_data(**kwargs)
-        context["feeds"] = opds.feeds()
-        context["feed"] = opds.get_facet_facet('all')
+        if json:
+            context["feeds"] = opds_json.feeds()
+            context["feed"] = opds_json.get_facet_facet('all')
+        else:
+            context["feeds"] = opds.feeds()
+            context["feed"] = opds.get_facet_facet('all')
         return context
 
 class OPDSAcquisitionView(View):
-
+    json = False
     def get(self, request, *args, **kwargs):
         work = request.GET.get('work', None)
         if work:
-            return HttpResponse(opds.opds_feed_for_work(work),
-                            content_type="application/atom+xml;profile=opds-catalog;kind=acquisition")
+            if self.json:
+                return HttpResponse(opds_json.opds_feed_for_work(work),
+                        content_type="application/json;profile=opds-catalog;kind=acquisition")
+            else:
+                return HttpResponse(opds.opds_feed_for_work(work),
+                        content_type="application/atom+xml;profile=opds-catalog;kind=acquisition")
         facet = kwargs.get('facet')
         page = request.GET.get('page', None)
         order_by =  request.GET.get('order_by', 'newest')
@@ -193,9 +205,14 @@ class OPDSAcquisitionView(View):
             page = int(page)
         except:
             page = None
-        facet_class = opds.get_facet_class(facet)()
-        return HttpResponse(facet_class.feed(page,order_by),
-                            content_type="application/atom+xml;profile=opds-catalog;kind=acquisition")
+        if self.json:
+            facet_class = opds_json.get_facet_class(facet)()
+            return HttpResponse(facet_class.feed(page,order_by),
+                        content_type="application/vnd.opds.acquisition+json")
+        else:
+            facet_class = opds.get_facet_class(facet)()
+            return HttpResponse(facet_class.feed(page,order_by),
+                        content_type="application/atom+xml;profile=opds-catalog;kind=acquisition")
 
 
 class OnixView(View):

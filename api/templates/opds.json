@@ -1,0 +1,22 @@
+{
+  "_type": "application/vnd.opds.navigation+json",
+  "title": "Unglue.it Catalog",
+  
+  "_links": {
+    "start": { "href": "https://unglue.it{% url 'opds' %}", "type": "application/vnd.opds.navigation+json" },
+    "opds:featured": {"href": "{{ feed.feed_path }}/?order_by=popular", "type": "application/vnd.opds.acquisition+json" }
+  },
+  
+  "navigation": [{
+    "title": {{ feed.title }} - Popular,
+    "_links": {"opds:featured": { "href": "{{ feed.feed_path }}/?order_by=popular", "profile": "http://opds-spec.org/navigation", "type": "application/vnd.opds.acquisition+json"}}
+  },{
+    "title": "{{ feed.title }} - New",
+    "_links": {"opds:new": { "href": "{{ feed.feed_path }}/?order_by=newest", "profile": "http://opds-spec.org/navigation", "type": "application/vnd.opds.acquisition+json" }}
+  }
+  {% for feed in feeds %},{
+    "title": "{{ feed.title }}",
+    "_links": {"opds:new": { "href": "{{ feed.feed_path }}", "profile": "http://opds-spec.org/navigation", "type": "application/vnd.opds.acquisition+json" }}
+  }
+  {% endfor %}]
+}
