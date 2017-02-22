@@ -203,9 +203,9 @@ class EditionForm(forms.ModelForm):
     )
     doi = forms.RegexField(
         label=_("DOI"),
-        regex=r'^(https?://dx\.doi\.org/)?(10.\d\d\d\d/\S+|delete)$',
+        regex=r'^(https?://dx\.doi\.org/|https?://doi\.org/)?(10\.\d+/\S+|delete)$',
         required = False,
-        help_text = _("starts with '10.' or 'http://dx.doi.org'"),
+        help_text = _("starts with '10.' or 'https://doi.org'"),
         error_messages = {
             'invalid': _("This value must be a valid DOI."),
         }
@@ -231,11 +231,8 @@ class EditionForm(forms.ModelForm):
 
     def clean_doi(self):
         doi = self.cleaned_data["doi"]
-        if doi:
-            if doi.startswith("https"):
-                return doi[19:]
-            elif doi.startswith("http"):
-                return doi[18:]
+        if doi and doi.startswith("http"):                
+            return doi.split('/',3)[3]
         return doi
     
     def clean_title(self):
