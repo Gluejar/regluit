@@ -160,7 +160,7 @@ def get_publisher(book):
         
 def get_url(book):
     url = book.get('URL','')
-    url = url if url else u'https://dx.doi.org/{}/{}'.format( book.get('DOI prefix',''),book.get('DOI suffix',''))
+    url = url if url else u'https://doi.org/{}/{}'.format( book.get('DOI prefix',''),book.get('DOI suffix',''))
     return url
 
 def get_description(book):
