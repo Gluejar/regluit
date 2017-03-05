@@ -122,36 +122,38 @@ function highlightTarget(targetdiv) {
                                 </div>
                             </div>
                             <div class="user-block4">
-                                {% ifequal request.user supporter %}
-                                <div id="edit_profile">
-                                    <img src="/static/images/header/icon-edit.png" alt="Edit Your Profile" title="Edit Your Profile" />
-                                </div>
-                                {% endifequal %}
-                                <div class="social">
-                                {% if supporter.profile.home_url %}
-                                   <a href="{{ supporter.profile.home_url }}" class="nounderline">
-                                       <img src="/static/images/supporter_icons/home_square.png" alt="{{ supporter }}'s homepage" title="{{ supporter }}'s Homepage"  />
-                                   </a>
-                                {% endif %}
-                                {% if supporter.profile.facebook_id %}
-									<a href="https://www.facebook.com/{{supporter.profile.facebook_id}}" class="nounderline">
-										<img src="/static/images/supporter_icons/facebook_square.png" alt="{{ supporter }}'s Facebook" title="{{ supporter }}'s Facebook"  />
-									</a>
-                                {% endif %}
-                                {% if supporter.profile.twitter_id %}
-									<a href="https://twitter.com/#!/{{ supporter.profile.twitter_id }}" class="nounderline">
-										<img src="/static/images/supporter_icons/twitter_square.png" alt="{{ supporter }}'s Twitter" title="{{ supporter }}'s Twitter"  />
-									</a>
-                                {% endif %}
-                                {% if supporter.profile.goodreads_user_link %}
-									<a href="{{supporter.profile.goodreads_user_link}}" class="nounderline">
-										<img src="/static/images/supporter_icons/goodreads_square.png" alt="{{ supporter }}'s profile on GoodReads" title="{{ supporter }}'s page on GoodReads"  />
-									</a>
-                                {% endif %}
-                                {% if supporter.profile.librarything_id %}
-									<a href="http://www.librarything.com/profile/{{ supporter.profile.librarything_id }}" class="nounderline">
-										<img src="/static/images/supporter_icons/librarything_square.png" alt="{{ supporter }}'s profile on LibraryThing" title="{{ supporter }}'s page on LibraryThing"  />
-									</a>
+                                {% if request.user.is_authenticated %}
+                                    {% ifequal request.user supporter %}
+                                    <div id="edit_profile">
+                                        <img src="/static/images/header/icon-edit.png" alt="Edit Your Profile" title="Edit Your Profile" />
+                                    </div>
+                                    {% endifequal %}
+                                    <div class="social">
+                                    {% if supporter.profile.home_url %}
+                                       <a href="{{ supporter.profile.home_url }}" class="nounderline">
+                                           <img src="/static/images/supporter_icons/home_square.png" alt="{{ supporter }}'s homepage" title="{{ supporter }}'s Homepage"  />
+                                       </a>
+                                    {% endif %}
+                                    {% if supporter.profile.facebook_id %}
+                                        <a href="https://www.facebook.com/{{supporter.profile.facebook_id}}" class="nounderline">
+                                            <img src="/static/images/supporter_icons/facebook_square.png" alt="{{ supporter }}'s Facebook" title="{{ supporter }}'s Facebook"  />
+                                        </a>
+                                    {% endif %}
+                                    {% if supporter.profile.twitter_id %}
+                                        <a href="https://twitter.com/#!/{{ supporter.profile.twitter_id }}" class="nounderline">
+                                            <img src="/static/images/supporter_icons/twitter_square.png" alt="{{ supporter }}'s Twitter" title="{{ supporter }}'s Twitter"  />
+                                        </a>
+                                    {% endif %}
+                                    {% if supporter.profile.goodreads_user_link %}
+                                        <a href="{{supporter.profile.goodreads_user_link}}" class="nounderline">
+                                            <img src="/static/images/supporter_icons/goodreads_square.png" alt="{{ supporter }}'s profile on GoodReads" title="{{ supporter }}'s page on GoodReads"  />
+                                        </a>
+                                    {% endif %}
+                                    {% if supporter.profile.librarything_id %}
+                                        <a href="http://www.librarything.com/profile/{{ supporter.profile.librarything_id }}" class="nounderline">
+                                            <img src="/static/images/supporter_icons/librarything_square.png" alt="{{ supporter }}'s profile on LibraryThing" title="{{ supporter }}'s page on LibraryThing"  />
+                                        </a>
+                                     {% endif %}
                                  {% endif %}
                                </div>
                             </div>
