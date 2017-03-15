@@ -478,13 +478,13 @@
       sudo: no
       
     - name: add ssh keys from /opt/regluit/deploy/public_keys/
-      authorized_key: user={{user}} key={{ lookup('file', item) }} state=present
+      authorized_key: user="{{user}}" key={{ lookup('file', item) }} state=present
       with_fileglob:
         - "../deploy/public_keys/*.pub"
       sudo: no
     
     - name: add ssh keys from public_key directory
-      authorized_key: user={{user}} key="{{item}}" state=present
+      authorized_key: user="{{user}}" key="{{item}}" state=present
       with_items:
         - https://github.com/rdhyee.keys
         - https://github.com/eshellman.keys
@@ -502,12 +502,12 @@
       sudo: no
 
     - name: set up script to dump database
-      command: cp "/opt/regluit/deploy/dump_db_{{class}}.sh" /home/{{user}}/dump.sh
+      command: cp "/opt/regluit/deploy/dump_db_{{class}}.sh" "/home/{{user}}/dump.sh"
       when: class in ['prod']
       sudo: no
 
     - name: chmod +x dump.sh
-      file: path=/home/{{user}}/dump.sh state=file owner={{user}} group={{user}} mode=0745
+      file: path="/home/{{user}}/dump.sh" state=file owner="{{user}}" group="{{user}}" mode=0745
       when: class in ['prod']
 
     - name: put an empty file in main dir to help identify this instance
@@ -530,7 +530,7 @@
       when: reboot_required
 
     - name: waiting for server to come back
-      local_action: wait_for host={{ inventory_hostname }} state=started delay=30 timeout=300
+      local_action: wait_for host="{{ inventory_hostname }}" state=started delay=30 timeout=300
       sudo: false
       when: reboot_required
 
