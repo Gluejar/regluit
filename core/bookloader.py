@@ -539,6 +539,9 @@ def merge_works(w1, w2, user=None):
     for hold in w2.holds.all():
         hold.work = w1
         hold.save()
+    for landing in w2.landings.all():
+        landing.object_id = w1.id
+        landing.save()
     for subject in w2.subjects.all():
         if subject not in w1.subjects.all():
             w1.subjects.add(subject)
