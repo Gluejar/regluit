@@ -85,6 +85,8 @@
         - postfix
         - mailutils
         - libffi-dev
+        - build-essential
+        - libssl-dev
       tags: install
       
     - name: make {{user}} group
@@ -195,7 +197,7 @@
     #sudo("ln -s /opt/regluit/deploy/please.conf /etc/apache2/sites-available/please")
 
     - name: link apache conf into sites-available
-      file: src="/opt/regluit/deploy/{{class}}.conf"  dest="/etc/apache2/sites-available/{{class}}" state=link
+      file: src="/opt/regluit/deploy/{{class}}.conf"  dest="/etc/apache2/sites-available/{{class}}.conf" state=link
 
     #run('pip install -r requirements_versioned.pip')
 
@@ -345,8 +347,8 @@
       notify:
         - restart apache2
 
-    - name: a2dissite default
-      command: a2dissite default
+    - name: a2dissite 000-default
+      command: a2dissite 000-default
       notify:
         - restart apache2
 
