@@ -196,8 +196,8 @@
 
     #sudo("ln -s /opt/regluit/deploy/please.conf /etc/apache2/sites-available/please")
 
-    - name: link apache conf into sites-available
-      file: src="/opt/regluit/deploy/{{class}}.conf"  dest="/etc/apache2/sites-available/{{class}}.conf" state=link
+    - name: create apache conf for sites-available from template
+      template: src=templates/apache.conf.j2 dest="/etc/apache2/sites-available/{{class}}.conf" owner={{user}} group={{user}} mode=0664
 
     #run('pip install -r requirements_versioned.pip')
 
