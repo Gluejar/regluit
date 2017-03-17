@@ -194,7 +194,7 @@ class OPDSAcquisitionView(View):
         if work:
             if self.json:
                 return HttpResponse(opds_json.opds_feed_for_work(work),
-                        content_type="application/json;profile=opds-catalog;kind=acquisition")
+                        content_type="application/opds-publication+json")
             else:
                 return HttpResponse(opds.opds_feed_for_work(work),
                         content_type="application/atom+xml;profile=opds-catalog;kind=acquisition")
@@ -208,7 +208,7 @@ class OPDSAcquisitionView(View):
         if self.json:
             facet_class = opds_json.get_facet_class(facet)()
             return HttpResponse(facet_class.feed(page,order_by),
-                        content_type="application/vnd.opds.acquisition+json")
+                        content_type="application/opds+json")
         else:
             facet_class = opds.get_facet_class(facet)()
             return HttpResponse(facet_class.feed(page,order_by),

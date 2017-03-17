@@ -30,8 +30,9 @@ FORMAT_TO_MIMETYPE = {'pdf':"application/pdf",
                       'text':"text/html"}
 
 UNGLUEIT_URL= 'https://unglue.it'
-ACQUISITION = "application/vnd.opds.acquisition+json"
+ACQUISITION = "application/opds+json"
 FACET_RELATION = "opds:facet"
+JSONCONTEXT = "http://opds-spec.org/opds.jsonld"
 
 def feeds():
     for facet_path in facets.get_all_facets('Format'):
@@ -53,92 +54,106 @@ def isbn_node(isbn):
 
 def work_node(work, facet=None):
     
-    content={}
+    metadata = {"@type": "http://schema.org/EBook"}
+    links = []
+    images = []
+    acquires = []
+    content = {
+        "metadata": metadata,
+        "links": links,
+        "images": images,
+        "acquire": acquires
+    }
     # title
-    content["title"] = work.title
+    metadata["title"] = work.title
     
     # id
-    content.update(text_node('id', "{base}{url}".format(base=UNGLUEIT_URL,url=reverse('work_identifier',kwargs={'work_id':work.id}))))
+    links.append({
+        "rel": "self",
+        "href": "{base}{url}?work={id}".format(
+            base=UNGLUEIT_URL,
+            url=reverse('opdsjson_acqusition', args=['all']),
+            id=work.id
+        ),
+        "type": "application/opds-publication+json"
+    })
     
     updated = None
     
     # links for all ebooks
     ebooks = facet.filter_model("Ebook",work.ebooks()) if facet else work.ebooks()
     versions = set()
-    content['_links'] = links = {}
 
     for ebook in ebooks:
         if updated is None:
             # most recent ebook, first ebook in loop
             updated = ebook.created.isoformat()
-            content.update(text_node('updated', updated))
+        metadata['updated'] =  updated
         if not ebook.version_label in versions:
             versions.add(ebook.version_label)
-            link_node_attrib = {}
-            ebookfiles = links.get("opds:acquisition:open-access",[])
-            ebookfiles.append(link_node_attrib)
             # ebook.download_url is an absolute URL with the protocol, domain, and path baked in
-            link_node_attrib.update({"href":add_query_component(ebook.download_url, "feed=opds"),
-                                         "rights": str(ebook.rights)})
+            acquire = {
+                "rel": "opds:acquisition:open-access",
+                "href": add_query_component(ebook.download_url, "feed=opds"),
+                "rights": str(ebook.rights)
+            }
             if ebook.is_direct(): 
-                link_node_attrib["type"] = FORMAT_TO_MIMETYPE.get(ebook.format, "")
+                acquire["type"] = FORMAT_TO_MIMETYPE.get(ebook.format, "")
             else:
                 """ indirect acquisition, i.e. google books """
-                link_node_attrib["type"] = "text/html"
-                indirect_attrib = {}
-                indirect = {"indirectAcquisition":indirect_attrib}
-                indirect_attrib["type"] = FORMAT_TO_MIMETYPE.get(ebook.format, "")
-                link_node_attrib.update(indirect)
+                acquire["type"] = "text/html"
+                acquire["indirectAcquisition"] = {
+                    "type": FORMAT_TO_MIMETYPE.get(ebook.format)
+                }
             if ebook.version_label:
-                link_node_attrib.update({"version": ebook.version_label})
-            links["opds:acquisition:open-access"] = ebookfiles
+                acquire["version"] = ebook.version_label
+            
+            acquires.append(acquire)
         
     # get the cover -- assume jpg?
     if work.cover_image_small():
-        cover_node_attrib = {}
-        cover_node = {"opds:image:thumbnail": cover_node_attrib}
-        cover_node_attrib.update({"href":work.cover_image_small(),
-                                  "type":"image/"+work.cover_filetype(),
-                                  })
-        links.update(cover_node)
+        cover_node = {
+            "href": work.cover_image_small(),
+            "type": "image/"+work.cover_filetype(),
+        }
+        images.append(cover_node)
     if work.cover_image_thumbnail():
-        cover_node2_attrib = {}
-        cover_node2 = {"opds:image": cover_node2_attrib}
-        cover_node2_attrib.update({"href":work.cover_image_thumbnail(),
-                                  "type":"image/"+work.cover_filetype(),
-                                  })
-        links.update(cover_node2)
+        cover_node2 = {
+            "href": work.cover_image_thumbnail(),
+            "type": "image/"+work.cover_filetype(),
+        }
+        images.append(cover_node2)
     
     
     # <dcterms:issued>2012</dcterms:issued>
-    content.update({"issued": work.publication_date})
+    metadata["issued"] = work.publication_date
     
     # author
     # TO DO: include all authors?
-    content["contributor"] = {"name": work.author()}
+    metadata["author"] =  work.author()
     
     # publisher
     #<dcterms:publisher>Open Book Publishers</dcterms:publisher>
     if len(work.publishers()):
-        content["publishers"] = [{"publisher": publisher.name.name} 
+        metadata["publishers"] = [{"publisher": publisher.name.name} 
             for publisher in work.publishers()]
                     
     # language
-    content["language"] = work.language
+    metadata["language"] = work.language
     
     # description
-    content["summary"] = work.description
+    metadata["summary"] = work.description
     
     # identifiers
-    if work.identifiers.filter(type='isbn'):
-        content['identifers'] = [isbn_node(isbn.value) 
+    if work.identifiers.filter(type='identifier'):
+        metadata['other_identifiers'] = [isbn_node(isbn.value) 
             for isbn in work.identifiers.filter(type='isbn')[0:9]]  #10 should be more than enough
 
     
     # subject tags
     subjects = [subject.name for subject in work.subjects.all()] 
     if subjects:
-        content["category"] = subjects
+        metadata["subjects"] = subjects
 
     # age level
     # <category term="15-18" scheme="http://schema.org/typicalAgeRange" label="Teen - Grade 10-12, Age 15-18"/>
@@ -148,11 +163,11 @@ def work_node(work, facet=None):
         age_level_node_attrib["scheme"] =  'http://schema.org/typicalAgeRange' 
         age_level_node_attrib["term"] =  work.age_level 
         age_level_node_attrib["label"] =  work.get_age_level_display()
-        content.update(age_level_node)
+        metadata.update(age_level_node)
     
                 
     # rating            
-    content["Rating"] = {"ratingValue":"{:}".format(work.priority())}
+    metadata["rating"] = {"ratingValue":"{:}".format(work.priority())}
     return content
 
 class Facet:
@@ -188,6 +203,9 @@ def get_facet_facet(facet_path):
 def opds_feed_for_work(work_id):
     class single_work_facet:
         def __init__(self, work_id):
+            class NullFacet(facets.BaseFacet):
+                def get_other_groups(self):
+                    return[]
             try:
                 works=models.Work.objects.filter(id=work_id)
             except models.Work.DoesNotExist:
@@ -198,7 +216,7 @@ def opds_feed_for_work(work_id):
             self.works=works
             self.title='Unglue.it work #%s' % work_id
             self.feed_path=''
-            self.facet_object= facets.BaseFacet(None)
+            self.facet_object= NullFacet(None)
     return opds_feed_for_works( single_work_facet(work_id) )
 
 def opds_feed_for_works(the_facet, page=None, order_by='newest'):
@@ -206,49 +224,34 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
     works = the_facet.works
     feed_path = the_facet.feed_path
     title = the_facet.title
-     
-    feed = {'_type': ACQUISITION}
+    metadata = {"title": title}
+    links = []
+    feedlist = []
+    feed = {"@context": JSONCONTEXT, "metadata": metadata, "links": links, "publications": feedlist}
     
     # add title
     # TO DO: will need to calculate the number items and where in the feed we are
     
-    feed.update(text_node('title', title + ' - sorted by ' + order_by))
-    
-    # id 
-    
-    feed.update(text_node('id', "{url}/api/opdsjson/{feed_path}/?order_by={order_by}".format(url=UNGLUEIT_URL,
-                                                                         feed_path=urlquote(feed_path), order_by=order_by)))
-    
-    # updated
-    # TO DO:  fix time zone?
-    # also use our wrapped datetime code
-    
-    feed.update(text_node('updated',
-                          pytz.utc.localize(datetime.datetime.utcnow()).isoformat()))
-    
-    # author
-    
-    author_node = {"author":{'name': 'unglue.it','uri': UNGLUEIT_URL}}
-    feed.update(author_node)
+    metadata['title'] = title + ' - sorted by ' + order_by
     
     # links:  start, self, next/prev (depending what's necessary -- to start with put all CC books)
-    feed['_links'] = {}
-    # start link
-    append_navlink(feed, 'start', feed_path, None , order_by, title="First {}".format(books_per_page))
-    
-    # next link
     
     if not page:
-        page =0
+        page = 0
     else:
         try:
-            page=int(page)
+            page = int(page)
         except TypeError:
             page=0
+
+    # self link
+    append_navlink(feed, 'self', feed_path, page , order_by, title="First {}".format(books_per_page))
     
+    # next link    
     try:
         works[books_per_page * page + books_per_page]
-        append_navlink(feed, 'next', feed_path, page+1 , order_by, title="Next {}".format(books_per_page))
+        append_navlink(feed, 'next', feed_path, page+1 , order_by, 
+            title="Next {}".format(books_per_page))
     except IndexError:
         pass
     
@@ -264,24 +267,21 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
     works = islice(works,  books_per_page * page, books_per_page * page + books_per_page)
     if page > 0:
         append_navlink(feed, 'previous', feed_path, page-1, order_by, title="Previous {}".format(books_per_page))
-    feedlist = []
-    feed['publications'] = feedlist
     for work in works:
         node = work_node(work, facet=the_facet.facet_object)
         feedlist.append(node)
     return json.dumps(feed,indent=2, separators=(',', ': '), sort_keys=False)
 
 def append_navlink(feed, rel, path, page, order_by, group=None, active=None , title=""):
-    if page==None:
-        return
-    link = {
-             "href": UNGLUEIT_URL + "/api/opdsjson/" + urlquote(path) + '/?order_by=' + order_by + ('&page=' + unicode(page) ),
-             "type": ACQUISITION,
-             "title": title,
-            }
+    link = { 
+        "rel": rel,
+        "href": UNGLUEIT_URL + "/api/opdsjson/" + urlquote(path) + '/?order_by=' + order_by + ('&page=' + unicode(page) ),
+        "type": ACQUISITION,
+        "title": title,
+    }
     if rel == FACET_RELATION:
         if group:
             link['facetGroup'] = group
             if active:
                 link['activeFacet'] = 'true'
-    feed['_links'][rel] = link
+    feed['links'].append(link)
