@@ -6,6 +6,7 @@ WSGISocketPrefix /opt/regluit
 <VirtualHost *:80>
 
 ServerName {% if class == 'prod' %}unglue.it{% else %}{{class}}.unglue.it{% endif %}
+
 ServerAdmin info@gluejar.com
 
 Redirect permanent / {% if class == 'prod' %}https://unglue.it{% else %}https://{{class}}.unglue.it{% endif %}
@@ -16,6 +17,7 @@ Redirect permanent / {% if class == 'prod' %}https://unglue.it{% else %}https://
 <VirtualHost _default_:443>
 
 ServerName {% if class == 'prod' %}unglue.it:443{% else %}{{class}}.unglue.it:443{% endif %}
+
 ServerAdmin info@gluejar.com
 
 SSLEngine on
