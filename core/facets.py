@@ -353,6 +353,7 @@ order_by_keys = {
     'featured':['-featured', '-num_wishes'],
     'popular':['-num_wishes'],
     'title':['title'],
+    'none':[], #no ordering 
 }   
            
 def get_order_by(order_by_key):
