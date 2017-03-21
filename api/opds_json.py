@@ -220,7 +220,10 @@ def opds_feed_for_work(work_id):
     return opds_feed_for_works( single_work_facet(work_id) )
 
 def opds_feed_for_works(the_facet, page=None, order_by='newest'):
-    books_per_page = 50
+    if order_by == 'none':
+        books_per_page = 50000
+    else:
+        books_per_page = 50
     works = the_facet.works
     feed_path = the_facet.feed_path
     title = the_facet.title
@@ -242,7 +245,7 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
         try:
             page = int(page)
         except TypeError:
-            page=0
+            page = 0
 
     # self link
     append_navlink(feed, 'self', feed_path, page , order_by, title="First {}".format(books_per_page))
