@@ -8,7 +8,7 @@ import time
 import unittest
 from urlparse import (urlparse, urlunparse)
 
-from selenium import selenium, webdriver
+from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
@@ -47,7 +47,7 @@ def selenium_driver(browser='firefox'):
 
     if browser == 'firefox':
         firefox_capabilities = DesiredCapabilities.FIREFOX
-        firefox_capabilities['marionette'] = True
+        #firefox_capabilities['marionette'] = True
         firefox_capabilities['binary'] = settings.FIREFOX_PATH
         driver = webdriver.Firefox(capabilities=firefox_capabilities)
     elif browser == 'htmlunit':
@@ -90,7 +90,8 @@ def run_google_rc():
     """
     """
 
-    from selenium import selenium
+    #from selenium import selenium
+    import selenium
     import unittest, time, re
     
     class google_rc(unittest.TestCase):
@@ -180,7 +181,8 @@ def recipient_status(clist):
 # res = [pm.finish_campaign(c) for c in campaigns_incomplete()]
 
 def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, backend='amazon', browser='firefox'):
-    django.db.transaction.enter_transaction_management()
+
+    # django.db.transaction.enter_transaction_management()
 
     UNGLUE_IT_URL = unglue_it_url
     USER = settings.UNGLUEIT_TEST_USER
@@ -214,6 +216,8 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     #biggest_campaign_link.click()
     #time.sleep(1)
     
+    yield sel
+
     # jump to /campaigns/ending#2
     p = list(urlparse(UNGLUE_IT_URL)); p[2] = '/campaigns/ending#2'
     sel.get(urlunparse(p))
