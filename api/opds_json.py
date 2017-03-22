@@ -54,7 +54,14 @@ def isbn_node(isbn):
 
 def work_node(work, facet=None):
     
-    metadata = {"@type": "http://schema.org/EBook"}
+    
+    metadata = {"@type": "http://schema.org/EBook",
+        "id": "{base}{url}".format(
+            base=UNGLUEIT_URL,
+            url=reverse('work_identifier',
+            kwargs={'work_id':work.id})
+        )
+    }
     links = []
     images = []
     acquires = []
@@ -145,8 +152,8 @@ def work_node(work, facet=None):
     metadata["summary"] = work.description
     
     # identifiers
-    if work.identifiers.filter(type='identifier'):
-        metadata['other_identifiers'] = [isbn_node(isbn.value) 
+    if work.identifiers.filter(type='isbn'):
+        metadata['identifiers'] = [isbn_node(isbn.value) 
             for isbn in work.identifiers.filter(type='isbn')[0:9]]  #10 should be more than enough
 
     
