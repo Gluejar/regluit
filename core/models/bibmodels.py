@@ -1096,6 +1096,9 @@ class Ebook(models.Model):
                 logger.error(u'could not open {}'.format(self.url))
         else:
             ebf = self.ebook_files.filter(asking=False).order_by('-created')[0]
+            if not self.filesize:
+                self.filesize = ebf.file.size
+                self.save()
             return ebf
 
     def set_provider(self):
