@@ -23,7 +23,7 @@
 	{% endif %}
 	</ul>
 {% endifequal %}
-{% ifequal transaction.campaign.type 2 %}
+{% if transaction.campaign.type == 2 or not transaction.campaign %}
     {% ifequal transaction.host 'credit' %}
         Amount: ${{transaction.max_amount|floatformat:2|intcomma}}.<br />
         This amount has been deducted from your Unglue.it credit balance.<br />
@@ -38,10 +38,13 @@
             This amount has been charged to your credit card.<br />
         {% endif %}
     {% endifequal %}
+    {% if transaction.campaign %}
     License type: {{ transaction.offer.get_license_display }}<br />
 	{% ifequal transaction.offer.license 2 %}
 	    Receiving library: {{ transaction.extra.library_id|libname }}<br />
 	    Number of copies: {{ transaction.extra.copies }}
 	{% endifequal %}
-{% endifequal %}
+	{% endif %}
+{% endif %}
+
 </div>

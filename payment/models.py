@@ -122,6 +122,13 @@ class Transaction(models.Model):
             return 3
 
     @property
+    def deadline_or_now(self):
+        if self.campaign and self.campaign.deadline:
+            return self.campaign.deadline
+        else:
+            return now()
+            
+    @property
     def needed_amount(self):
         if self.user == None or self.user.is_anonymous():
             return self.max_amount
@@ -487,7 +494,7 @@ class Account(models.Model):
             pm = PaymentManager()
             for transaction in transactions_to_recharge:
                 # check whether we are still within the window to recharge
-                if (now() - transaction.campaign.deadline_or_now) < datetime.timedelta(settings.RECHARGE_WINDOW):
+                if (now() - transaction.deadline_or_now) < datetime.timedelta(settings.RECHARGE_WINDOW):
                     logger.info("Recharging transaction {0} w/ status {1}".format(transaction.id, transaction.status))
                     pm.execute_transaction(transaction, [])
 

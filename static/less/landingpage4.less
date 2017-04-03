@@ -71,18 +71,30 @@
 			width:90%;
 			outline: none;
 			padding-left: 16px;
+			font-size: @font-size-larger;
 		}
 		
 		input.signup { 
 		    border: medium none;
-		    color: #FFF;
+		    
 		    cursor: pointer;
 		    display: inline-block;
-			font-size: @font-size-default;
+			
     		overflow: hidden;
     		padding: 0 31px 0 11px;
     		width: 111px;
     		margin-bottom: 10px;
+		}
+		input.donate { 
+		    cursor: pointer;
+		    display: inline-block;
+    		overflow: hidden;
+    		padding: 0 31px 0 11px;
+            width: 50%;
+            
+		}
+		.donate_amount {
+		    text-align: center;
 		}
 		
 		div {
@@ -94,13 +106,16 @@
 	div.button { 
 		padding-top:10px;	
 		text-align: center;	
+		color: #FFF;
 	}
-	
+	#donatesubmit {
+	    font-size: @font-size-larger;
+	}
 	label { 
 		width:100%;
 		display:block;
 		clear:both;
-		padding:10px 0 5px 16px;
+		padding:10px 0 5px 0;
 	}
 }
 
