@@ -219,8 +219,8 @@ transaction_charged.connect(handle_transaction_charged)
 # dealing with failed transactions
 
 def handle_transaction_failed(sender,transaction=None, **kwargs):
-    if transaction is None or transaction.campaign.type == THANKS:
-        # no need to nag a failed THANKS transaction
+    if transaction is None or transaction.campaign == None or transaction.campaign.type == THANKS:
+        # no need to nag a failed THANKS or DONATION transaction
         return
     
     # window for recharging
