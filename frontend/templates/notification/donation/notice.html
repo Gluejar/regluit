@@ -1,0 +1,33 @@
+{% extends 'notification/notice_template.html' %}
+
+{% load humanize %}
+
+{% block comments_book %}
+			
+{% endblock %}
+
+{% block comments_graphical %}
+{% ifequal transaction.host 'credit' %}
+    Your Unglue.it transaction has completed and ${{transaction.max_amount|floatformat:2|intcomma}} has been deducted from your Unglue.it credit balance.
+    You have ${{transaction.user.credit.available|default:"0"}} of credit left.
+{% else %}
+    {% if transaction.max_amount > transaction.amount %}
+    Your transaction for ${{transaction.max_amount|floatformat:2|intcomma}} has completed.
+        Your credit card has been charged ${{transaction.amount}} and the
+         rest has been deducted from your unglue.it credit balance. 
+        You have ${{transaction.user.credit.available|intcomma}} of credit left.
+    {% else %}
+        Your Unglue.it credit card transaction has completed and your credit card has been charged ${{ transaction.amount|floatformat:2|intcomma }}.
+    {% endif %}
+{% endifequal %}
+{% endblock %}
+
+{% block comments_textual %}
+<p>Your donation of ${{transaction.max_amount|default:"0"}} to the Free Ebook Foundation will help us make free ebooks of all types more accessible for those that need them.  The Free Ebook Foundation is a US 501(c)3 non-profit organization. Our tax ID number is 61-1767266. Your gift is tax deductible to the full extent provided by the law.<p>
+		<p>For more information about the Free Ebook Foundation, visit <a href="http://ebookfoundation.org/ ">our website</a>.
+		</p>
+		<p>Thank you again for your support.
+		</p>
+		<p>Eric Hellman and the Unglue.it team
+		</p>
+{% endblock %}

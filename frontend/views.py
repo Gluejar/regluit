@@ -110,6 +110,7 @@ from regluit.frontend.forms import (
     SubjectSelectForm,
     MapSubjectForm,
     SurveyForm,
+    DonationForm,
 )
 
 from regluit.payment import baseprocessor, stripelib
@@ -124,7 +125,8 @@ from regluit.payment.parameters import (
     TRANSACTION_STATUS_NONE,
     TRANSACTION_STATUS_MODIFIED,
     PAYMENT_TYPE_AUTHORIZATION,
-    PAYMENT_HOST_NONE
+    PAYMENT_HOST_NONE,
+    COMPANY_TITLE
 )
 
 from regluit.utils.localdatetime import now, date_today
@@ -240,7 +242,7 @@ def home(request, landing=False):
             '-submit_date'
         )[:10]
     latest_pledges = Transaction.objects.filter(
-            anonymous=False
+            anonymous=False, campaign__isnull=False
         ).exclude(
             type=0  #incomplete
         ).only(
@@ -715,7 +717,7 @@ def manage_campaign(request, id, ebf=None, action='manage'):
     campaign = get_object_or_404(models.Campaign, id=id)
     campaign.not_manager = False
     campaign.problems = []
-    if (not request.user.is_authenticated) or (not request.user in campaign.managers.all() and not request.user.is_staff):
+    if (not request.user.is_authenticated()) or (not request.user in campaign.managers.all() and not request.user.is_staff):
         campaign.not_manager = True
         return render(request, 'manage_campaign.html', {'campaign': campaign})
     if action == 'results':
@@ -1396,6 +1398,22 @@ class PurchaseView(PledgeView):
             logger.error("Attempt to produce transaction id {0} failed".format(t.id))
             return HttpResponse("Our attempt to enable your transaction failed. We have logged this error.")
 
+class NewDonationView(FormView):
+    template_name = "fund_the_pledge.html"
+    form_class = DonationForm
+    def form_valid(self, form):
+        p = PaymentManager()
+        t, url = p.process_transaction('USD',  form.cleaned_data["amount"],
+                user = self.request.user,
+                paymentReason="Donation to {}".format(COMPANY_TITLE),
+                )
+        if url:
+            return HttpResponseRedirect(url)
+        else:
+            logger.error("Attempt to produce transaction id {0} failed".format(t.id))
+            return HttpResponse("Our attempt to set up your donation failed. We have logged this problem.")
+
+
 class FundView(FormView):
     template_name = "fund_the_pledge.html"
     transaction = None
@@ -1411,30 +1429,32 @@ class FundView(FormView):
 
     def get_form_kwargs(self):
         kwargs = super(FundView, self).get_form_kwargs()
-
-        #assert self.request.user.is_authenticated()
-        if self.transaction is None:
-            self.transaction = get_object_or_404(Transaction, id=self.kwargs["t_id"])
-
-        if self.transaction.campaign.type == REWARDS:
-            self.action = 'pledge'
-        elif self.transaction.campaign.type == THANKS:
-            self.action = 'contribution'
-        else:
-            self.action = 'purchase'
-
         if kwargs.has_key('data'):
             data = kwargs['data'].copy()
             kwargs['data'] = data
         else:
             data = {}
             kwargs['initial'] = data
+        t_id=self.kwargs["t_id"]            
+        
+        if self.transaction is None:
+            self.transaction = get_object_or_404(Transaction, id=t_id)
+
+        if not self.transaction.campaign:
+            self.action = 'donation'
+        elif self.transaction.campaign.type == REWARDS:
+            self.action = 'pledge'
+        elif self.transaction.campaign.type == THANKS:
+            self.action = 'contribution'
+        else:
+            self.action = 'purchase'
+
 
         data.update(
             {'preapproval_amount':self.transaction.needed_amount,
-                'username':self.request.user.username if self.request.user.is_authenticated else None,
-                'work_id':self.transaction.campaign.work.id,
-                'title':self.transaction.campaign.work.title}
+                'username':self.request.user.username if self.request.user.is_authenticated() else None,
+                'work_id':self.transaction.campaign.work.id if self.transaction.campaign else None,
+                'title':self.transaction.campaign.work.title if self.transaction.campaign else COMPANY_TITLE}
             )
         return kwargs
 
@@ -1454,7 +1474,14 @@ class FundView(FormView):
         self.transaction.host = settings.PAYMENT_PROCESSOR
         return_url = "%s?tid=%s" % (reverse('pledge_complete'), self.transaction.id)
 
-        if self.transaction.campaign.type == THANKS and self.transaction.user == None:
+        if not self.transaction.campaign:
+            if self.request.user.is_authenticated():
+                self.transaction.user = self.request.user
+            # if there's an email address, put it in the receipt column, so far unused.
+            self.transaction.receipt = form.cleaned_data.get("email", None)
+            t, url = p.charge(self.transaction, return_url = return_url, token=stripe_token)
+            
+        elif self.transaction.campaign.type == THANKS and self.transaction.user == None:
             #anonymous user, just charge the card!
             if self.request.user.is_authenticated():
                 self.transaction.user = self.request.user
@@ -1609,11 +1636,13 @@ class FundCompleteView(TemplateView):
         context = self.get_context_data(**kwargs)
 
         if self.transaction:
+            if not self.transaction.campaign:
+                 return self.render_to_response(context)
             if self.transaction.campaign.type == THANKS:
                 return DownloadView.as_view()(request, work=self.transaction.campaign.work)
 
             else:
-                if request.user.is_authenticated:
+                if request.user.is_authenticated():
                     if self.user_is_ok():
                         return self.render_to_response(context)
                     else:
@@ -1626,7 +1655,7 @@ class FundCompleteView(TemplateView):
     def user_is_ok(self):
         if not self.transaction:
             return False
-        if self.transaction.campaign.type == THANKS and self.transaction.user == None:
+        if (not self.transaction.campaign or self.transaction.campaign.type == THANKS) and self.transaction.user == None:
             # to handle anonymous donors- leakage not an issue
             return True
         else:
@@ -3107,7 +3136,7 @@ def download_ebook(request, ebook_id):
     return HttpResponseRedirect(ebook.url)
 
 def download_purchased(request, work_id):
-    if request.user.is_anonymous:
+    if request.user.is_anonymous():
         HttpResponseRedirect('/accounts/login/download/')
     return DownloadView.as_view()(request, work_id=work_id)
 

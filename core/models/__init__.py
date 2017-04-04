@@ -932,10 +932,6 @@ class Campaign(models.Model):
 
         return countdown
 
-    @property
-    def deadline_or_now(self):
-        return self.deadline if self.deadline else now()
-
     @classmethod
     def latest_ending(cls):
         return timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)) + now()
