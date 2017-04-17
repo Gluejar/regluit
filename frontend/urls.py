@@ -101,6 +101,7 @@ urlpatterns = [
     url(r"^fund/complete/$", views.FundCompleteView.as_view(), name="pledge_complete"),
     url(r"^pledge/modified/$", login_required(views.PledgeModifiedView.as_view()), name="pledge_modified"),
     url(r"^pledge/modify/(?P<work_id>\d+)$", login_required(views.PledgeView.as_view()), name="pledge_modify"),
+    url(r"^payment/donation/new$", csrf_exempt(views.NewDonationView.as_view()), name="newdonation" ),
     url(r"^payment/fund/(?P<t_id>\d+)$", views.FundView.as_view(), name="fund" ),
     url(r"^pledge/recharge/(?P<work_id>\d+)$", login_required(views.PledgeRechargeView.as_view()), name="pledge_recharge"),
     url(r"^purchase/(?P<work_id>\d+)/$", login_required(views.PurchaseView.as_view(),login_url='/accounts/login/purchase/'), name="purchase"),

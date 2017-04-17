@@ -18,7 +18,7 @@
         type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
   <entry>
     <title>{{ feed.title }} - Popular</title>
-    <id>https://unglue.it{% url 'opds_acqusition' feed.feed_path %}?order_by=popular</id>
+    <id>https://unglue.it{% url 'opds_acqusition' feed.feed_path %}/?order_by=popular</id>
     <updated>{{ feed.updated }}</updated>
     <link href="{{ feed.feed_path }}/?order_by=popular" 
         rel="http://opds-spec.org/sort/popular"
@@ -27,9 +27,9 @@
   </entry>
   <entry>
     <title>{{ feed.title }} - New</title>
-    <id>https://unglue.it{% url 'opds_acqusition' feed.feed_path %}?order_by=newest</id>
+    <id>https://unglue.it{% url 'opds_acqusition' feed.feed_path %}/?order_by=newest</id>
     <updated>{{ feed.updated }}</updated>
-    <link href="{{ feed.feed_path }}/?order_by=popular" 
+    <link href="{{ feed.feed_path }}/?order_by=newest" 
         rel="http://opds-spec.org/sort/new"
         type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
     <content type="text">{{ feed.description }} - ordered by newest</content>

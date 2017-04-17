@@ -1,0 +1,17 @@
+{
+  "@context": "http://opds-spec.org/opds.jsonld",
+  "metadata":{"title": "Unglue.it Catalog"},
+  
+  "links": [
+    {"rel":"self", "href": "https://unglue.it{% url 'opds' %}", "type": "application/opds+json" },
+    {"rel":"opds:featured", "href": "{{ feed.feed_path|urlencode }}/?order_by=popular", "type": "application/opds+json" }
+  ],
+  
+  "navigation": [
+    {"title": "{{ feed.title }} - Popular", "href": "{{ feed.feed_path|urlencode }}/?order_by=popular", "type": "application/opds+json"},
+    {"title": "{{ feed.title }} - New", "href": "{{ feed.feed_path|urlencode }}/?order_by=newest",  "type": "application/opds+json" },
+  {% for feed in feeds %}
+    {"title": "{{ feed.title }}", "href": "{{ feed.feed_path|urlencode }}/", "type": "application/opds+json" },
+  {% endfor %}
+  ]
+}

@@ -740,7 +740,7 @@ class Processor(baseprocessor.Processor):
                                               description=json.dumps({"t.id":transaction.id,
                                                                       "email":transaction.user.email if transaction.user else transaction.receipt,
                                                                       "cus.id":customer_id,
-                                                                      "tc.id": transaction.campaign.id,
+                                                                      "tc.id": transaction.campaign.id if transaction.campaign else '0',
                                                                       "amount": float(transaction.amount)}))
                 except stripe.StripeError as e:
                     # what to record in terms of errors?  (error log?)

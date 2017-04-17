@@ -194,9 +194,24 @@ function put_un_in_cookie2(){
                     </div>
                 {% endif %}
                 <div class="jsmodule">
+                	<h3 class="module-title">Donate!</h3>
+                    <div class="jsmod-content">
+                                 <div>Please help support Unglue.it by making a tax-deductible donation to the Free Ebook Foundation.</div>
+            <form class="askform" method="POST" action="{% url 'newdonation' %}">                
+                    <div class="donate_amount">
+                    <label>Amount ($): </label><input id="amount" max="20000.00" min="1.00" name="amount" step="0.01" type="number" value="10.00" class="donate"></div>
+                    <div class="button">
+                        <input name="pledge" type="submit" value="Donate" id="donatesubmit" class="donate" />
+                    </div>
+                    
+            </form> 
+
+                    </div>
+                </div>
+                <div class="jsmodule">
                 	<h3 class="module-title">News</h3>
                     <div class="jsmod-content">
-                     Unglue.it is now a program of <a href="http://ebookfoundation.org/"> the Free Ebook Foundation</a>
+                     Unglue.it is now <a href="https://blog.unglue.it/2017/01/19/unglue-it-website-is-now-open-source/"> Open Source</a>
                     </div>
                 </div>
                 <div class="jsmodule">
