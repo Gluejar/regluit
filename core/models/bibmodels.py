@@ -1160,6 +1160,8 @@ class Ebook(models.Model):
             provider = 'Wikibooks'
         elif re.match(r'https://github\.com/[^/ ]+/[^/ ]+/raw/[^ ]+', url):
             provider = 'Github'
+        elif re.match(r'https?://www\.oapen\.org/download', url):
+            provider = 'OAPEN Library'
         else:
             provider = None
         return provider
