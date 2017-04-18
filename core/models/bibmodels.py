@@ -1040,7 +1040,7 @@ send_to_kindle_limit = 7492232
 class Ebook(models.Model):
     url = models.URLField(max_length=1024) #change to unique?
     created = models.DateTimeField(auto_now_add=True, db_index=True,)
-    format = models.CharField(max_length=25, choices=settings.FORMATS)
+    format = models.CharField(max_length=25, choices=settings.FORMATS, blank=False)
     provider = models.CharField(max_length=255)
     download_count = models.IntegerField(default=0)
     active = models.BooleanField(default=True)
@@ -1160,6 +1160,8 @@ class Ebook(models.Model):
             provider = 'Wikibooks'
         elif re.match(r'https://github\.com/[^/ ]+/[^/ ]+/raw/[^ ]+', url):
             provider = 'Github'
+        elif re.match(r'https?://www\.oapen\.org/download', url):
+            provider = 'OAPEN Library'
         else:
             provider = None
         return provider
