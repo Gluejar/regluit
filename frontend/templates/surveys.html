@@ -27,7 +27,7 @@ Completed {{ landing.runinfohistory_set.all.count }} times</dd>
 </dl>
 <a href="{% url 'new_survey' work.id %}">Set up a new survey</a> for this work.<br />
 {% for survey in surveys %}
-    <a href="{% url 'survey_answers' survey.id work.id %}">Export answers to {{ survey }}</a> for this work.<br />
+    <a href="{% url 'survey_answers' survey.id work.id %}">Export</a> or  <a href="{% url 'survey_summary' survey.id work.id %}">Summarize</a> answers to {{ survey }} for this work.<br />
     
 {% endfor %}
 </dd>
@@ -40,7 +40,11 @@ Completed {{ landing.runinfohistory_set.all.count }} times</dd>
 <a href="{% url 'new_survey' '' %}">Set up a survey</a> using isbn. <br />
 {% for survey in surveys %}
     <a href="{% url 'survey_answers' survey.id '' %}">Export all my answers to {{ survey }}</a>.<br />
-    <a href="{% url 'survey_answers' survey.id '0' %}">{% if request.user.is_staff %}Export ALL answers to {{ survey }}</a>.<br />{% endif %}
+        <a href="{% url 'survey_summary' survey.id '' %}">Summarize my responses to {{ survey }}</a>.<br />
+
+    {% if request.user.is_staff %}<a href="{% url 'survey_answers' survey.id '0' %}">Export ALL answers to {{ survey }}</a>.<br />
+    <a href="{% url 'survey_summary' survey.id '0' %}">Summarize ALL responses to {{ survey }}</a>.<br />
+    {% endif %}
     
 {% endfor %}
 
