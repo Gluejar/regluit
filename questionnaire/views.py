@@ -953,8 +953,27 @@ def answer_export(questionnaire, answers=None, answer_filter=None):
         out.append((subject, run, row))
     return headings, out
 
+@login_required
+def export_summary(request, qid, 
+        answer_filter=None,
+    ):  
+    """
+    For a given questionnaire id, generate a CSV containing a summary of
+    answers for all subjects.
+    qid -- questionnaire_id
+    answer_filter -- custom filter for the answers. If this is present, the filter must manage access.
+    """
+    if answer_filter is None and not request.user.has_perm("questionnaire.export"):
+        return HttpResponse('Sorry, you do not have export permissions', content_type="text/plain")
+    
 
-def answer_summary(questionnaire, answers=None):
+    questionnaire = get_object_or_404(Questionnaire, pk=int(qid))
+    summaries = answer_summary(questionnaire, answer_filter=answer_filter)
+
+    return render(request, "pages/summaries.html", {'summaries':summaries})
+
+
+def answer_summary(questionnaire, answers=None, answer_filter=None):
     """
     questionnaire -- questionnaire model for summary
     answers -- query set of answers to include in summary, defaults to all
@@ -971,6 +990,8 @@ def answer_summary(questionnaire, answers=None):
 
     if answers is None:
         answers = Answer.objects.all()
+    if answer_filter:
+        answers = answer_filter(answers)
     answers = answers.filter(question__questionset__questionnaire=questionnaire)
     questions = Question.objects.filter(
         questionset__questionnaire=questionnaire).order_by(
