@@ -9,6 +9,8 @@ urlpatterns = [
         questionnaire, name='questionnaire_noargs'),
     url(r'^csv/(?P<qid>\d+)/$',
         export_csv, name='export_csv'),
+    url(r'^summary/(?P<qid>\d+)/$',
+        export_summary, name='export_summary'),
     url(r'^(?P<runcode>[^/]+)/progress/$',
         get_async_progress, name='progress'),
     url(r'^take/(?P<questionnaire_id>[0-9]+)/$', generate_run),
@@ -19,8 +21,6 @@ urlpatterns = [
     url(r'^landing/(?P<nonce>\w+)/$', SurveyView.as_view(), name="landing"),
         url(r'^(?P<runcode>[^/]+)/(?P<qs>[-]{0,1}\d+)/$',
             questionnaire, name='questionset'),
-    url(r'^q/manage/csv/(\d+)/',
-        export_csv, name="export_csv"),
 ]
 
 if not use_session:

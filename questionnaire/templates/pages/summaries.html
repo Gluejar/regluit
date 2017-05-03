@@ -1,0 +1,35 @@
+{% extends "base-questionnaire.html" %}
+{% block questionnaire %}
+<h1>
+    Survey Results Summary
+</h1>
+{% for summary in summaries %}
+
+<h2>Question</h2>
+<p>
+{{summary.1|safe}}
+</p>
+{% if summary.2 %}
+<h3>Choices</h3>
+<ul>
+{% for option in summary.2 %}
+<li>
+{{option.1}}: <b>{{option.2}}</b>
+</li>
+{% endfor %}
+</ul>
+{% endif %}
+<h3>Free Text Answers</h3>
+<ul>
+{% for answer in summary.3 %}
+{% if answer %}
+<li>
+{{answer}}
+</li>
+{% endif %}
+{% endfor %}
+</ul>
+
+{% endfor %}
+
+{% endblock %}

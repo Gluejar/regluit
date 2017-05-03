@@ -53,8 +53,11 @@ class QuestionnaireAdmin(admin.ModelAdmin):
     readonly_fields = ('export',)
 
     def export(self, obj):
-        csv_url= reverse("export_csv", args=[obj.id,])
-        return '<a href="%s">%s</a>' % (csv_url, _("Download data"))
+        csv_url = reverse("export_csv", args=[obj.id,])
+        summary_url = reverse("export_summary", args=[obj.id,])
+        return '<a href="{}">{}</a> <a href="{}">{}</a>'.format(
+            csv_url, _("Download data"), summary_url, _("Show summary")
+        )
 
     export.allow_tags = True
     export.short_description = _('Export to CSV')

@@ -41,7 +41,7 @@ def numal_sort(a, b):
     bnum, bstr = split_numal(b)
     cmpnum = cmp(anum, bnum)
     if(cmpnum == 0):
-        return cmp(astr, bstr)
+        return cmp(astr.lower(), bstr.lower())
     return cmpnum
 
 def numal0_sort(a, b):
