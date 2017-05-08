@@ -287,9 +287,20 @@ class Acq(models.Model):
             self.format = 'mobi'
             self.filesize = 0
         def save(self):
-            # TODO how to handle filesize?
             return True
-
+        def get_archive(self):
+            try:
+                r = urllib2.urlopen(self.url)
+                try:
+                    self.filesize = int(r.info().getheaders("Content-Length")[0])
+                except IndexError:
+                    # response has no Content-Length header probably a bad link
+                    logging.error('Bad link error: {}'.format(self.url))
+                return r
+            except IOError:
+                logger.error(u'could not open {}'.format(self.url))
+        
+        
     def ebook(self):
         return self.mock_ebook(self)
 
