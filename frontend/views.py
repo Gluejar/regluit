@@ -1859,21 +1859,23 @@ def works_user_can_admin_filter(request, work_id):
 
 def export_surveys(request, qid, work_id):
     def extra_entries(subject, run):
-        landing = None
+        landing = completed = None
         try:
             landing = run.run_info_histories.all()[0].landing
+            completed = run.run_info_histories.all()[0].completed
         except IndexError:
             try:
                 landing = run.run_infos.all()[0].landing
+                completed = run.run_infos.all()[0].created
             except IndexError:
                 label = wid = "error"
         if landing:
             label = landing.label
             wid = landing.object_id
-        return [wid, subject.ip_address, run.id, label]
+        return [wid, subject.ip_address, run.id, completed, label]
     if not request.user.is_authenticated() :
         return HttpResponseRedirect(reverse('surveys'))
-    extra_headings = [u'work id', u'subject ip address', u'run id', u'landing label']
+    extra_headings = [u'work id', u'subject ip address', u'run id', u'date completed', u'landing label']
     return export_answers(request, qid,
         answer_filter=works_user_can_admin_filter(request, work_id),
         extra_entries=extra_entries,
