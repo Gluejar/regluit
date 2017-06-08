@@ -812,22 +812,25 @@ def _table_headers(questions):
     This will create separate columns for each multiple-choice possiblity
     and freeform options, to avoid mixing data types and make charting easier.
     """
-    ql = list(questions)
-    ql.sort(lambda x, y: numal_sort(x.number, y.number))
+    ql = list(questions.order_by(
+         'questionset__sortid', 'number')
+        )
+    #ql.sort(lambda x, y: numal_sort(x.number, y.number))
     columns = []
     for q in ql:
+        qnum = '{}.{}'.format(q.questionset.sortid, q.number)
         if q.type.startswith('choice-yesnocomment'):
-            columns.extend([q.number, q.number + "-freeform"])
+            columns.extend([qnum, qnum + "-freeform"])
         elif q.type.startswith('choice-freeform'):
-            columns.extend([q.number, q.number + "-freeform"])
+            columns.extend([qnum, qnum + "-freeform"])
         elif q.type.startswith('choice-multiple'):
             cl = [c.value for c in q.choice_set.all()]
             cl.sort(numal_sort)
-            columns.extend([q.number + '-' + value for value in cl])
+            columns.extend([qnum + '-' + value for value in cl])
             if q.type == 'choice-multiple-freeform':
-                columns.append(q.number + '-freeform')
+                columns.append(qnum + '-freeform')
         else:
-            columns.append(q.number)
+            columns.append(qnum)
     return columns
 
 default_extra_headings = [u'subject', u'run id']
@@ -934,18 +937,19 @@ def answer_export(questionnaire, answers=None, answer_filter=None):
             ans = str(ans)
         for choice in ans:
             col = None
+            qnum = '{}.{}'.format(answer.question.questionset.sortid, answer.question.number)
             if type(choice) == list:
                 # freeform choice
                 choice = choice[0]
-                col = coldict.get(answer.question.number + '-freeform', None)
+                col = coldict.get(qnum + '-freeform', None)
             if col is None:  # look for enumerated choice column (multiple-choice)
-                col = coldict.get(answer.question.number + '-' + unicode(choice), None)
+                col = coldict.get(qnum + '-' + unicode(choice), None)
             if col is None:  # single-choice items
                 if ((not qchoicedict[answer.question.id]) or
                             choice in qchoicedict[answer.question.id]):
-                    col = coldict.get(answer.question.number, None)
+                    col = coldict.get(qnum, None)
             if col is None:  # last ditch, if not found throw it in a freeform column
-                col = coldict.get(answer.question.number + '-freeform', None)
+                col = coldict.get(qnum + '-freeform', None)
             if col is not None:
                 row[col] = choice
     # and don't forget about the last one
@@ -953,8 +957,27 @@ def answer_export(questionnaire, answers=None, answer_filter=None):
         out.append((subject, run, row))
     return headings, out
 
+@login_required
+def export_summary(request, qid, 
+        answer_filter=None,
+    ):  
+    """
+    For a given questionnaire id, generate a CSV containing a summary of
+    answers for all subjects.
+    qid -- questionnaire_id
+    answer_filter -- custom filter for the answers. If this is present, the filter must manage access.
+    """
+    if answer_filter is None and not request.user.has_perm("questionnaire.export"):
+        return HttpResponse('Sorry, you do not have export permissions', content_type="text/plain")
+    
 
-def answer_summary(questionnaire, answers=None):
+    questionnaire = get_object_or_404(Questionnaire, pk=int(qid))
+    summaries = answer_summary(questionnaire, answer_filter=answer_filter)
+
+    return render(request, "pages/summaries.html", {'summaries':summaries})
+
+
+def answer_summary(questionnaire, answers=None, answer_filter=None):
     """
     questionnaire -- questionnaire model for summary
     answers -- query set of answers to include in summary, defaults to all
@@ -971,6 +994,8 @@ def answer_summary(questionnaire, answers=None):
 
     if answers is None:
         answers = Answer.objects.all()
+    if answer_filter:
+        answers = answer_filter(answers)
     answers = answers.filter(question__questionset__questionnaire=questionnaire)
     questions = Question.objects.filter(
         questionset__questionnaire=questionnaire).order_by(

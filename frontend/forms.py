@@ -333,7 +333,8 @@ class EbookForm(forms.ModelForm):
             
     class Meta:
         model = Ebook
-        exclude = ('created', 'download_count', 'active', 'filesize', 'version_iter')
+        #exclude = ('created', 'download_count', 'active', 'filesize', 'version_iter')
+        fields = ('url', 'format', 'provider', 'version_label', 'rights', 'edition', 'user')
         widgets = {
                 'edition': forms.HiddenInput,
                 'user': forms.HiddenInput,
@@ -347,7 +348,7 @@ class EbookForm(forms.ModelForm):
         url = self.cleaned_data['url']
         new_provider = Ebook.infer_provider(url)
         if url and not new_provider:
-            raise forms.ValidationError(_("At this time, ebook URLs must point at Internet Archive, Wikisources, Wikibooks, Hathitrust, Project Gutenberg, raw files at Github, or Google Books."))
+            raise forms.ValidationError(_("At this time, ebook URLs must point at Internet Archive, Wikisources, Wikibooks, Hathitrust, Project Gutenberg, raw files at Github, Google Books, or OApen."))
         return new_provider if new_provider else "Unglue.it"
 
     def clean_url(self):
@@ -359,7 +360,7 @@ class EbookForm(forms.ModelForm):
         raise forms.ValidationError(_("There's already an ebook with that url."))
 
     def clean(self):
-        format = self.cleaned_data['format']
+        format = self.cleaned_data.get('format', '')
         the_file = self.cleaned_data.get('file', None)
         url = self.cleaned_data.get('url', None)
         test_file(the_file)

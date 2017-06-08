@@ -135,7 +135,7 @@ from regluit.libraryauth.views import Authenticator, superlogin, login_user
 from regluit.libraryauth.models import Library
 from regluit.marc.views import qs_marc_records
 from regluit.questionnaire.models import Landing, Questionnaire
-from regluit.questionnaire.views import export_csv as export_answers
+from regluit.questionnaire.views import export_summary as answer_summary, export_csv as export_answers
 
 logger = logging.getLogger(__name__)
 
@@ -1842,7 +1842,7 @@ def works_user_can_admin(user):
         Q(claim__user = user) | Q(claim__rights_holder__owner = user)
         )
 
-def export_surveys(request, qid, work_id):
+def works_user_can_admin_filter(request, work_id):
     def work_survey_filter(answers):
         works = works_user_can_admin(request.user)
         if work_id == '0' and request.user.is_staff:
@@ -1855,29 +1855,41 @@ def export_surveys(request, qid, work_id):
                 return answers.none()
         else:
             return answers.filter(run__run_info_histories__landing__works__in=works)
-            
-            
+    return work_survey_filter
+
+def export_surveys(request, qid, work_id):
     def extra_entries(subject, run):
-        landing = None
+        landing = completed = None
         try:
             landing = run.run_info_histories.all()[0].landing
+            completed = run.run_info_histories.all()[0].completed
         except IndexError:
             try:
                 landing = run.run_infos.all()[0].landing
+                completed = run.run_infos.all()[0].created
             except IndexError:
                 label = wid = "error"
         if landing:
             label = landing.label
             wid = landing.object_id
-        return [wid, subject.ip_address, run.id, label]
+        return [wid, subject.ip_address, run.id, completed, label]
     if not request.user.is_authenticated() :
         return HttpResponseRedirect(reverse('surveys'))
-    extra_headings = [u'work id', u'subject ip address', u'run id', u'landing label']
+    extra_headings = [u'work id', u'subject ip address', u'run id', u'date completed', u'landing label']
     return export_answers(request, qid,
-        answer_filter=work_survey_filter,
+        answer_filter=works_user_can_admin_filter(request, work_id),
         extra_entries=extra_entries,
         extra_headings=extra_headings,
         filecode=work_id)
+
+def surveys_summary(request, qid, work_id):
+    if not request.user.is_authenticated() :
+        return HttpResponseRedirect(reverse('surveys'))
+    return answer_summary(
+        request, 
+        qid,
+        answer_filter=works_user_can_admin_filter(request, work_id),
+    )
               
 def new_survey(request, work_id):
     if not request.user.is_authenticated() :
