@@ -2386,11 +2386,13 @@ def kw_edit(request, work_id):
 
 class InfoPageView(TemplateView):
 
+    template_name = 'metrics.html'
+
     def get_template_names(self, **kwargs):
         if self.kwargs['template_name']:
-            return (self.kwargs['template_name'])
+            return [self.kwargs['template_name'], self.template_name]
         else:
-            return ('metrics.html')
+            return [self.template_name]
 
     def get_context_data(self, **kwargs):
         users = User.objects
@@ -2471,13 +2473,9 @@ class InfoPageView(TemplateView):
             'marc': marc,
         }
 
-class InfoLangView(TemplateView):
+class InfoLangView(InfoPageView):
 
-    def get_template_names(self, **kwargs):
-        if self.kwargs['template_name']:
-            return (self.kwargs['template_name'])
-        else:
-            return ('languages.html')
+    template_name = 'languages.html'
 
     def get_context_data(self, **kwargs):
         languages = models.Work.objects.filter(num_wishes__gte = 1).values('language').annotate(lang_count=Count('language')).order_by('-lang_count')
