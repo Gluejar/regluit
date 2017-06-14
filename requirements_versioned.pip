@@ -68,7 +68,7 @@ pyparsing==2.0.3
 python-dateutil==2.5.3
 python-mimeparse==0.1.4
 python-openid==2.2.5
-python-social-auth==0.2.19
+python-social-auth==0.2.21
 pytz==2016.6.1
 rdflib==4.2.0
 rdflib-jsonld==0.3
