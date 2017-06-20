@@ -24,7 +24,7 @@ from django.db.models.signals import post_save, pre_delete
 import regluit
 from regluit.marc.models import MARCRecord as NewMARC
 from regluit.utils.localdatetime import now
-from regluit.questionnaire.models import Landing
+from questionnaire.models import Landing
 
 from regluit.core import mobi
 import regluit.core.cc as cc

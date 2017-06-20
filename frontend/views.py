@@ -134,8 +134,8 @@ from regluit.libraryauth.forms import UserNamePass
 from regluit.libraryauth.views import Authenticator, superlogin, login_user
 from regluit.libraryauth.models import Library
 from regluit.marc.views import qs_marc_records
-from regluit.questionnaire.models import Landing, Questionnaire
-from regluit.questionnaire.views import export_summary as answer_summary, export_csv as export_answers
+from questionnaire.models import Landing, Questionnaire
+from questionnaire.views import export_summary as answer_summary, export_csv as export_answers
 
 logger = logging.getLogger(__name__)
 

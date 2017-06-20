@@ -71,7 +71,7 @@ from regluit.utils.text import sanitize_line, remove_badxml
 from regluit.mobi import Mobi
 from regluit.pyepub import EPUB
 from regluit.bisac.models import BisacHeading
-from regluit.questionnaire.models import Questionnaire
+from questionnaire.models import Questionnaire
 
 logger = logging.getLogger(__name__)
 nulls = [False, 'delete', '']
