@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 class EditionResource(ModelResource):
     work = fields.ForeignKey('regluit.api.resources.WorkResource', 'work')
     identifiers = fields.ToManyField('regluit.api.resources.IdentifierResource', 'identifiers')
+    ebooks = fields.ToManyField('regluit.api.resources.EbookResource', 'ebooks')
     class Meta:
         authentication = ApiKeyAuthentication()
         queryset = models.Edition.objects.all()
@@ -122,6 +123,21 @@ class SubjectResource(ModelResource):
         authentication = ApiKeyAuthentication()
         queryset = models.Subject.objects.all()
         resource_name = 'subject'
+
+class EbookResource(ModelResource):
+    edition = fields.ToOneField(EditionResource, 'edition')
+    class Meta:
+        authentication = ApiKeyAuthentication()
+        queryset = models.Ebook.objects.all()
+        resource_name = 'ebook'
+        excludes = ['url']
+
+class PublisherResource(ModelResource):
+    ebooks = fields.ToManyField(EbookResource, attribute=lambda bundle: models.Ebook.objects.filter(edition__publisher_name=bundle.obj.name))
+    class Meta:
+        authentication = ApiKeyAuthentication()
+        queryset = models.Publisher.objects.all()
+        resource_name = 'publisher'
 
 class FreeResource(ModelResource):
     def alter_list_data_to_serialize(self, request, data):

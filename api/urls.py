@@ -25,6 +25,8 @@ v1_api.register(resources.CampaignResource())
 v1_api.register(resources.AuthorResource())
 v1_api.register(resources.SubjectResource())
 v1_api.register(resources.FreeResource())
+v1_api.register(resources.PublisherResource())
+v1_api.register(resources.EbookResource())
 
 urlpatterns = [
     url(r'^help$', ApiHelpView.as_view(), name="api_help"),
