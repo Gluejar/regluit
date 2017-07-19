@@ -5,7 +5,12 @@ from django import forms
 from django.contrib.admin import ModelAdmin
 from django.contrib.admin import site as admin_site
 from django.contrib.auth.models import User
-from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
+from selectable.forms import ( 
+    AutoCompleteSelectWidget,
+    AutoCompleteSelectField,
+    AutoCompleteSelectMultipleWidget,
+    AutoCompleteSelectMultipleField,
+)
 
 """
 regluit imports
@@ -22,13 +27,13 @@ from regluit.core.lookups import (
 
 class ClaimAdminForm(forms.ModelForm):
     work = AutoCompleteSelectField(
-            WorkLookup,
-            widget=AutoCompleteSelectWidget(WorkLookup),
+            lookup_class=WorkLookup,
+            widget=AutoCompleteSelectWidget(lookup_class=WorkLookup),
             required=True,
         )
     user = AutoCompleteSelectField(
-            OwnerLookup,
-            widget=AutoCompleteSelectWidget(OwnerLookup),
+            lookup_class=OwnerLookup,
+            widget=AutoCompleteSelectWidget(lookup_class=OwnerLookup),
             required=True,
         )
     class Meta(object):
@@ -42,8 +47,8 @@ class ClaimAdmin(ModelAdmin):
     
 class RightsHolderAdminForm(forms.ModelForm):
     owner = AutoCompleteSelectField(
-            OwnerLookup,
-            widget=AutoCompleteSelectWidget(OwnerLookup),
+            lookup_class=OwnerLookup,
+            widget=AutoCompleteSelectWidget(lookup_class=OwnerLookup),
             required=True,
         )
     class Meta(object):
@@ -99,15 +104,11 @@ class SubjectAdmin(ModelAdmin):
     
 class EditionAdminForm(forms.ModelForm):
     work = AutoCompleteSelectField(
-            WorkLookup,
             label='Work',
-            widget=AutoCompleteSelectWidget(WorkLookup),
             required=True,
         )
     publisher_name = AutoCompleteSelectField(
-            PublisherNameLookup,
             label='Publisher Name',
-            widget=AutoCompleteSelectWidget(PublisherNameLookup),
             required=False,
         )
     class Meta(object):
@@ -122,9 +123,7 @@ class EditionAdmin(ModelAdmin):
 
 class PublisherAdminForm(forms.ModelForm):
     name = AutoCompleteSelectField(
-            PublisherNameLookup,
             label='Name',
-            widget=AutoCompleteSelectWidget(PublisherNameLookup),
             required=True,
         )
 
@@ -178,15 +177,11 @@ class PressAdmin(ModelAdmin):
 
 class WorkRelationAdminForm(forms.ModelForm):
     to_work = AutoCompleteSelectField(
-            WorkLookup,
             label='To Work',
-            widget=AutoCompleteSelectWidget(WorkLookup),
             required=True,
         )
     from_work = AutoCompleteSelectField(
-            WorkLookup,
             label='From Work',
-            widget=AutoCompleteSelectWidget(WorkLookup),
             required=True,
         )
     class Meta(object):
@@ -199,15 +194,11 @@ class WorkRelationAdmin(ModelAdmin):
     
 class IdentifierAdminForm(forms.ModelForm):
     work = AutoCompleteSelectField(
-            WorkLookup,
             label='Work',
-            widget=AutoCompleteSelectWidget(WorkLookup, attrs={'size':60}),
             required=False,
         )
     edition = AutoCompleteSelectField(
-            EditionLookup,
             label='Edition',
-            widget=AutoCompleteSelectWidget(EditionLookup, attrs={'size':60}),
             required=True,
         )
     class Meta(object):
