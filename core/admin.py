@@ -68,12 +68,23 @@ class PremiumAdmin(ModelAdmin):
     list_display = ('campaign', 'amount', 'description')
     date_hierarchy = 'created'
 
+class CampaignAdminForm(forms.ModelForm):
+    managers = AutoCompleteSelectMultipleField(
+            lookup_class=OwnerLookup,
+            widget= AutoCompleteSelectMultipleWidget(lookup_class=OwnerLookup),
+            required=True,
+        )
+    class Meta(object):
+        model = models.Campaign
+        fields = ('managers', 'name', 'description', 'details', 'license', 'activated', 'paypal_receiver', 
+            'status', 'type', 'email', 'do_watermark', 'use_add_ask', )
+
 class CampaignAdmin(ModelAdmin):
     list_display = ('work', 'created', 'status')
     date_hierarchy = 'created'
-    exclude = ('edition', 'work', 'managers', 'publisher', 'activated', 'deadline')
     search_fields = ['work']
-
+    form = CampaignAdminForm
+ 
 class WorkAdmin(ModelAdmin):
     search_fields = ['title']
     ordering = ('title',)
@@ -104,11 +115,15 @@ class SubjectAdmin(ModelAdmin):
     
 class EditionAdminForm(forms.ModelForm):
     work = AutoCompleteSelectField(
+            lookup_class=WorkLookup,
             label='Work',
+            widget=AutoCompleteSelectWidget(lookup_class=WorkLookup),
             required=True,
         )
     publisher_name = AutoCompleteSelectField(
+            lookup_class=PublisherNameLookup,
             label='Publisher Name',
+            widget=AutoCompleteSelectWidget(lookup_class=PublisherNameLookup),
             required=False,
         )
     class Meta(object):
@@ -123,7 +138,9 @@ class EditionAdmin(ModelAdmin):
 
 class PublisherAdminForm(forms.ModelForm):
     name = AutoCompleteSelectField(
+            lookup_class=PublisherNameLookup,
             label='Name',
+            widget=AutoCompleteSelectWidget(lookup_class=PublisherNameLookup),
             required=True,
         )
 
@@ -177,11 +194,15 @@ class PressAdmin(ModelAdmin):
 
 class WorkRelationAdminForm(forms.ModelForm):
     to_work = AutoCompleteSelectField(
+            lookup_class=WorkLookup,
             label='To Work',
+            widget=AutoCompleteSelectWidget(lookup_class=WorkLookup),
             required=True,
         )
     from_work = AutoCompleteSelectField(
+            lookup_class=WorkLookup,
             label='From Work',
+            widget=AutoCompleteSelectWidget(lookup_class=WorkLookup),
             required=True,
         )
     class Meta(object):
@@ -194,11 +215,15 @@ class WorkRelationAdmin(ModelAdmin):
     
 class IdentifierAdminForm(forms.ModelForm):
     work = AutoCompleteSelectField(
+            lookup_class=WorkLookup,
             label='Work',
+            widget=AutoCompleteSelectWidget(lookup_class=WorkLookup, attrs={'size':60}),
             required=False,
         )
     edition = AutoCompleteSelectField(
+            lookup_class=EditionLookup,
             label='Edition',
+            widget=AutoCompleteSelectWidget(lookup_class=EditionLookup, attrs={'size':60}),
             required=True,
         )
     class Meta(object):
