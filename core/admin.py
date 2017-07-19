@@ -169,6 +169,14 @@ class EbookAdmin(ModelAdmin):
     ordering = ('edition__title',)
     exclude = ('edition','user', 'filesize')
 
+class EbookFileAdmin(ModelAdmin):
+    search_fields = ('ebook__edition__title',)  # search by provider using leading url
+    list_display = ('created', 'format', 'edition', 'asking')
+    date_hierarchy = 'created'
+    ordering = ('edition__work',)
+    fields = ('file', 'format','edition', 'asking', 'ebook')
+    readonly_fields  = ('file', 'edition', 'asking', 'ebook')
+
 class WishlistAdmin(ModelAdmin):
     date_hierarchy = 'created'
 
@@ -248,6 +256,7 @@ admin_site.register(models.Campaign, CampaignAdmin)
 admin_site.register(models.CeleryTask, CeleryTaskAdmin)
 admin_site.register(models.Claim, ClaimAdmin)
 admin_site.register(models.Ebook, EbookAdmin)
+admin_site.register(models.EbookFile, EbookFileAdmin)
 admin_site.register(models.Edition, EditionAdmin)
 admin_site.register(models.Gift, GiftAdmin)
 admin_site.register(models.Identifier, IdentifierAdmin)
