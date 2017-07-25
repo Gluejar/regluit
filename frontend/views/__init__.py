@@ -136,7 +136,7 @@ from regluit.marc.views import qs_marc_records
 from questionnaire.models import Landing, Questionnaire
 from questionnaire.views import export_summary as answer_summary, export_csv as export_answers
 
-from .bibedit import new_edition, user_can_edit_work
+from .bibedit import new_edition, user_can_edit_work, safe_get_work
 
 
 logger = logging.getLogger(__name__)
@@ -187,16 +187,6 @@ def next(request):
         return response
     else:
         return HttpResponseRedirect('/')
-
-def safe_get_work(work_id):
-    """
-    use this rather than querying the db directly for a work by id
-    """
-    try:
-        work = models.safe_get_work(work_id)
-    except models.Work.DoesNotExist:
-        raise Http404
-    return work
 
 def cover_width(work):
     if work.percent_of_goal() < 100:
@@ -488,13 +478,6 @@ def edition_uploads(request, edition_id):
         })
     return render(request, 'edition_uploads.html', context)
 
-def add_subject(subject_name, work, authority=''):
-    try:
-        subject = models.Subject.objects.get(name=subject_name)
-    except models.Subject.DoesNotExist:
-        subject = models.Subject.objects.create(name=subject_name, authority=authority)
-    subject.works.add(work)
-
 @login_required
 def manage_ebooks(request, edition_id, by=None):
     if edition_id:
@@ -518,7 +501,7 @@ def manage_ebooks(request, edition_id, by=None):
                     format=ebook_form.cleaned_data['format'],
                     edition=edition,
                     active=True,
-                    
+
                 )
                 ebook_form.instance.url = new_ebf.file.url
                 ebook_form.instance.provider = "Unglue.it"
@@ -1271,8 +1254,8 @@ class FundView(FormView):
         else:
             data = {}
             kwargs['initial'] = data
-        t_id=self.kwargs["t_id"]            
-        
+        t_id=self.kwargs["t_id"]
+
         if self.transaction is None:
             self.transaction = get_object_or_404(Transaction, id=t_id)
 
@@ -1316,7 +1299,7 @@ class FundView(FormView):
             # if there's an email address, put it in the receipt column, so far unused.
             self.transaction.receipt = form.cleaned_data.get("email", None)
             t, url = p.charge(self.transaction, return_url = return_url, token=stripe_token)
-            
+
         elif self.transaction.campaign.type == THANKS and self.transaction.user == None:
             #anonymous user, just charge the card!
             if self.request.user.is_authenticated():
@@ -1473,7 +1456,7 @@ class FundCompleteView(TemplateView):
 
         if self.transaction:
             if not self.transaction.campaign:
-                 return self.render_to_response(context)
+                return self.render_to_response(context)
             if self.transaction.campaign.type == THANKS:
                 return DownloadView.as_view()(request, work=self.transaction.campaign.work)
 
@@ -1722,11 +1705,11 @@ def surveys_summary(request, qid, work_id):
     if not request.user.is_authenticated() :
         return HttpResponseRedirect(reverse('surveys'))
     return answer_summary(
-        request, 
+        request,
         qid,
         answer_filter=works_user_can_admin_filter(request, work_id),
     )
-              
+
 def new_survey(request, work_id):
     if not request.user.is_authenticated() :
         return HttpResponseRedirect(reverse('surveys'))

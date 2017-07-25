@@ -1,4 +1,10 @@
+'''
+views to edit bibmodels
+'''
 from django.contrib.auth.decorators import login_required
+from django.core.files.storage import default_storage
+from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.http import (
     HttpResponseRedirect,
     Http404,
@@ -10,17 +16,44 @@ from regluit.frontend.forms import EditionForm
 
 
 def user_can_edit_work(user, work):
+    '''
+    Check if a user is allowed to edit the work
+    '''
     if user.is_staff :
         return True
     elif work and work.last_campaign():
         return user in work.last_campaign().managers.all()
-    elif user.rights_holder.count() and (work == None or not work.last_campaign()): # allow rights holders to edit unless there is a campaign
+    elif user.rights_holder.count() and (work == None or not work.last_campaign()):
+        # allow rights holders to edit unless there is a campaign
         return True
     else:
         return False
 
+def safe_get_work(work_id):
+    """
+    use this rather than querying the db directly for a work by id
+    """
+    try:
+        work = models.safe_get_work(work_id)
+    except models.Work.DoesNotExist:
+        raise Http404
+    return work
+
+def add_subject(subject_name, work, authority=''):
+    '''
+    add a subject to a work
+    '''
+    try:
+        subject = models.Subject.objects.get(name=subject_name)
+    except models.Subject.DoesNotExist:
+        subject = models.Subject.objects.create(name=subject_name, authority=authority)
+    subject.works.add(work)
+
 @login_required
 def new_edition(request, work_id, edition_id, by=None):
+    '''
+    view for editing and creating editions
+    '''
     if not request.user.is_authenticated():
         return render(request, "admins_only.html")
     # if the work and edition are set, we save the edition and set the work
@@ -74,7 +107,10 @@ def new_edition(request, work_id, edition_id, by=None):
     }
     if request.method == 'POST':
         form = None
-        edition.new_authors = zip(request.POST.getlist('new_author'), request.POST.getlist('new_author_relation'))
+        edition.new_authors = zip(
+            request.POST.getlist('new_author'),
+            request.POST.getlist('new_author_relation')
+        )
         edition.new_subjects = request.POST.getlist('new_subject')
         if edition.id and admin:
             for author in edition.authors.all():
@@ -88,7 +124,7 @@ def new_edition(request, work_id, edition_id, by=None):
                     work_rel.delete()
                     form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
                     break
-                
+
         if request.POST.has_key('add_author_submit') and admin:
             new_author_name = request.POST['add_author'].strip()
             new_author_relation =  request.POST['add_author_relation']
@@ -126,14 +162,22 @@ def new_edition(request, work_id, edition_id, by=None):
                     if id_val == 'delete':
                         edition.identifiers.filter(type=id_type).delete()
                     elif id_val:
-                        existing = models.Identifier.objects.filter(type=id_type, value=form.cleaned_data[id_type])
+                        existing = models.Identifier.objects.filter(
+                            type=id_type,
+                            value=form.cleaned_data[id_type]
+                        )
                         if existing.count() and existing[0].edition != edition:
                             return render(request, 'new_edition.html', {
                                 'form': form,  'edition': edition, 'admin': admin,
                                 'id_msg': "%s = %s already exists"%(id_type, id_val),
                             })
                         else:
-                            models.Identifier.set(type=id_type, value=id_val, edition=edition, work=work)
+                            models.Identifier.set(
+                                type=id_type,
+                                value=id_val,
+                                edition=edition,
+                                work=work
+                            )
                 for relator in edition.relators.all():
                     if request.POST.has_key('change_relator_%s' % relator.id):
                         new_relation = request.POST['change_relator_%s' % relator.id]
@@ -144,7 +188,7 @@ def new_edition(request, work_id, edition_id, by=None):
                         to_work=work,
                         from_work=related_work,
                         relation=form.cleaned_data['add_work_relation'],
-                    )                    
+                    )
                 for (author_name, author_relation) in edition.new_authors:
                     edition.add_author(author_name, author_relation)
                 if form.cleaned_data.has_key('bisac'):
@@ -158,10 +202,14 @@ def new_edition(request, work_id, edition_id, by=None):
                 cover_file = form.cleaned_data.get("coverfile", None)
                 if cover_file:
                     # save it
-                    cover_file_name = '/Users/%s/covers/%s/%s' % (request.user.username, edition.pk, cover_file.name)
-                    file = default_storage.open(cover_file_name, 'w')
-                    file.write(cover_file.read())
-                    file.close()
+                    cover_file_name = '/Users/%s/covers/%s/%s' % (
+                        request.user.username,
+                        edition.pk,
+                        cover_file.name
+                    )
+                    new_file = default_storage.open(cover_file_name, 'w')
+                    new_file.write(cover_file.read())
+                    new_file.close()
                     #and put its url into cover_image
                     edition.cover_image = default_storage.url(cover_file_name)
                     edition.save()
