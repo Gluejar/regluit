@@ -136,7 +136,7 @@ from regluit.marc.views import qs_marc_records
 from questionnaire.models import Landing, Questionnaire
 from questionnaire.views import export_summary as answer_summary, export_csv as export_answers
 
-from .bibedit import new_edition, user_can_edit_work, safe_get_work
+from .bibedit import new_edition, user_can_edit_work, safe_get_work, get_edition
 
 
 logger = logging.getLogger(__name__)
@@ -418,10 +418,7 @@ def edition_uploads(request, edition_id):
     context = {}
     if not request.user.is_authenticated() :
         return render(request, "admins_only.html")
-    try:
-        edition = models.Edition.objects.get(id = edition_id)
-    except models.Edition.DoesNotExist:
-        raise Http404
+    edition = get_edition(edition_id)
     campaign_type = edition.work.last_campaign().type
     if not user_can_edit_work(request.user, edition.work):
         return render(request, "admins_only.html")

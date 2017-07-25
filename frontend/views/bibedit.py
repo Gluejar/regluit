@@ -49,6 +49,15 @@ def add_subject(subject_name, work, authority=''):
         subject = models.Subject.objects.create(name=subject_name, authority=authority)
     subject.works.add(work)
 
+def get_edition(edition_id):
+    '''
+    get edition and 404 if not found
+    '''
+    try:
+        return models.Edition.objects.get(id = edition_id)
+    except models.Edition.DoesNotExist:
+        raise Http404 (duplicate-code)
+
 @login_required
 def new_edition(request, work_id, edition_id, by=None):
     '''
@@ -73,10 +82,7 @@ def new_edition(request, work_id, edition_id, by=None):
     alert = ''
     admin = user_can_edit_work(request.user, work)
     if edition_id:
-        try:
-            edition = models.Edition.objects.get(id = edition_id)
-        except models.Edition.DoesNotExist:
-            raise Http404
+        edition = get_edition(edition_id)
         if work:
             edition.work = work
         language = edition.work.language
