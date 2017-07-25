@@ -91,7 +91,6 @@ from regluit.frontend.forms import (
     CustomPremiumForm,
     OfferForm,
     EditManagersForm,
-    EditionForm,
     PledgeCancelForm,
     getTransferCreditForm,
     CCForm,
@@ -136,6 +135,9 @@ from regluit.libraryauth.models import Library
 from regluit.marc.views import qs_marc_records
 from questionnaire.models import Landing, Questionnaire
 from questionnaire.views import export_summary as answer_summary, export_csv as export_answers
+
+from .bibedit import new_edition, user_can_edit_work
+
 
 logger = logging.getLogger(__name__)
 
@@ -492,172 +494,6 @@ def add_subject(subject_name, work, authority=''):
     except models.Subject.DoesNotExist:
         subject = models.Subject.objects.create(name=subject_name, authority=authority)
     subject.works.add(work)
-
-def user_can_edit_work(user, work):
-    if user.is_staff :
-        return True
-    elif work and work.last_campaign():
-        return user in work.last_campaign().managers.all()
-    elif user.rights_holder.count() and (work == None or not work.last_campaign()): # allow rights holders to edit unless there is a campaign
-        return True
-    else:
-        return False
-
-
-
-@login_required
-def new_edition(request, work_id, edition_id, by=None):
-    if not request.user.is_authenticated():
-        return render(request, "admins_only.html")
-    # if the work and edition are set, we save the edition and set the work
-    language = 'en'
-    age_level = ''
-    description = ''
-    title = ''
-    if work_id:
-        work = safe_get_work(work_id)
-        language = work.language
-        age_level = work.age_level
-        description = work.description
-        title = work.title
-    else:
-        work = None
-
-    alert = ''
-    admin = user_can_edit_work(request.user, work)
-    if edition_id:
-        try:
-            edition = models.Edition.objects.get(id = edition_id)
-        except models.Edition.DoesNotExist:
-            raise Http404
-        if work:
-            edition.work = work
-        language = edition.work.language
-        age_level = edition.work.age_level
-        description = edition.work.description
-    else:
-        edition = models.Edition()
-        if work:
-            edition.work = work
-            edition.publication_date = work.earliest_publication_date
-            edition.new_authors = []
-            for relator in work.relators():
-                edition.new_authors.append((relator.author.name, relator.relation.code))
-
-    initial = {
-        'language': language,
-        'age_level': age_level,
-        'publisher_name': edition.publisher_name,
-        'isbn': edition.isbn_13,
-        'oclc': edition.oclc,
-        'description': description,
-        'title': title,
-        'goog': edition.googlebooks_id,
-        'gdrd': edition.goodreads_id,
-        'thng': edition.librarything_id,
-        'http': edition.http_id,
-        'doi': edition.id_for('doi'),
-    }
-    if request.method == 'POST':
-        form = None
-        edition.new_authors = zip(request.POST.getlist('new_author'), request.POST.getlist('new_author_relation'))
-        edition.new_subjects = request.POST.getlist('new_subject')
-        if edition.id and admin:
-            for author in edition.authors.all():
-                if request.POST.has_key('delete_author_%s' % author.id):
-                    edition.remove_author(author)
-                    form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
-                    break
-            work_rels = models.WorkRelation.objects.filter(Q(to_work=work) | Q(from_work=work))
-            for work_rel in work_rels:
-                if request.POST.has_key('delete_work_rel_%s' % work_rel.id):
-                    work_rel.delete()
-                    form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
-                    break
-                
-        if request.POST.has_key('add_author_submit') and admin:
-            new_author_name = request.POST['add_author'].strip()
-            new_author_relation =  request.POST['add_author_relation']
-            try:
-                author = models.Author.objects.get(name=new_author_name)
-            except models.Author.DoesNotExist:
-                author = models.Author.objects.create(name=new_author_name)
-            edition.new_authors.append((new_author_name, new_author_relation))
-            form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
-        elif not form and admin:
-            form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
-            if form.is_valid():
-                form.save()
-                if not work:
-                    work = models.Work(
-                        title=form.cleaned_data['title'],
-                        language=form.cleaned_data['language'],
-                        age_level=form.cleaned_data['age_level'],
-                        description=form.cleaned_data['description'],
-                    )
-                    work.save()
-                    edition.work = work
-                    edition.save()
-                else:
-                    work.description = form.cleaned_data['description']
-                    work.title = form.cleaned_data['title']
-                    work.publication_range = None  # will reset on next access
-                    work.language = form.cleaned_data['language']
-                    work.age_level = form.cleaned_data['age_level']
-                    work.save()
-
-                id_msg = ""
-                for id_type in ('isbn', 'oclc', 'goog', 'thng', 'gdrd', 'http', 'doi'):
-                    id_val = form.cleaned_data[id_type]
-                    if id_val == 'delete':
-                        edition.identifiers.filter(type=id_type).delete()
-                    elif id_val:
-                        existing = models.Identifier.objects.filter(type=id_type, value=form.cleaned_data[id_type])
-                        if existing.count() and existing[0].edition != edition:
-                            return render(request, 'new_edition.html', {
-                                'form': form,  'edition': edition, 'admin': admin,
-                                'id_msg': "%s = %s already exists"%(id_type, id_val),
-                            })
-                        else:
-                            models.Identifier.set(type=id_type, value=id_val, edition=edition, work=work)
-                for relator in edition.relators.all():
-                    if request.POST.has_key('change_relator_%s' % relator.id):
-                        new_relation = request.POST['change_relator_%s' % relator.id]
-                        relator.set(new_relation)
-                related_work = form.cleaned_data['add_related_work']
-                if related_work:
-                    models.WorkRelation.objects.get_or_create(
-                        to_work=work,
-                        from_work=related_work,
-                        relation=form.cleaned_data['add_work_relation'],
-                    )                    
-                for (author_name, author_relation) in edition.new_authors:
-                    edition.add_author(author_name, author_relation)
-                if form.cleaned_data.has_key('bisac'):
-                    bisacsh = form.cleaned_data['bisac']
-                    while bisacsh:
-                        add_subject(bisacsh.full_label, work, authority="bisacsh")
-                        bisacsh = bisacsh.parent
-                for subject_name in edition.new_subjects:
-                    add_subject(subject_name, work)
-                work_url = reverse('work', kwargs={'work_id': edition.work.id})
-                cover_file = form.cleaned_data.get("coverfile", None)
-                if cover_file:
-                    # save it
-                    cover_file_name = '/Users/%s/covers/%s/%s' % (request.user.username, edition.pk, cover_file.name)
-                    file = default_storage.open(cover_file_name, 'w')
-                    file.write(cover_file.read())
-                    file.close()
-                    #and put its url into cover_image
-                    edition.cover_image = default_storage.url(cover_file_name)
-                    edition.save()
-                return HttpResponseRedirect(work_url)
-    else:
-        form = EditionForm(instance=edition, initial=initial)
-    return render(request, 'new_edition.html', {
-            'form': form, 'edition': edition, 'admin':admin, 'alert':alert,
-        })
-
 
 @login_required
 def manage_ebooks(request, edition_id, by=None):
