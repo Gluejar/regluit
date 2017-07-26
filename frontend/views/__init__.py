@@ -136,7 +136,7 @@ from regluit.marc.views import qs_marc_records
 from questionnaire.models import Landing, Questionnaire
 from questionnaire.views import export_summary as answer_summary, export_csv as export_answers
 
-from .bibedit import new_edition, user_can_edit_work, safe_get_work, get_edition
+from .bibedit import edit_edition, user_can_edit_work, safe_get_work, get_edition
 
 
 logger = logging.getLogger(__name__)

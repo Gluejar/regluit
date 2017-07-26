@@ -12,7 +12,7 @@ from django.http import (
 from django.shortcuts import render
 
 from regluit.core import models
-from regluit.frontend.forms import EditionForm
+from regluit.frontend.forms import EditionForm, IdentifierForm
 
 
 def user_can_edit_work(user, work):
@@ -58,13 +58,46 @@ def get_edition(edition_id):
     except models.Edition.DoesNotExist:
         raise Http404 (duplicate-code)
 
+def get_metadata(id_type, id_value):
+    return {'title': 'test'}
+
 @login_required
-def new_edition(request, work_id, edition_id, by=None):
+def new_edition(request, by=None):
     '''
-    view for editing and creating editions
+    view for creating editions
     '''
-    if not request.user.is_authenticated():
-        return render(request, "admins_only.html")
+    alert = ''
+    if request.method == 'POST':
+        form = IdentifierForm(data=request.POST)
+        if form.is_valid() and form.identifier:
+            # pre-existing identifier
+            work_id = form.identifier.work.id if form.identifier.work else ''
+            edition_id = form.identifier.edition.id if form.identifier.edition else ''
+            return HttpResponseRedirect(
+                reverse('new_edition', kwargs={'work_id': work_id, 'edition_id': edition_id})
+            )
+        elif form.is_valid():
+            id_type = form.cleaned_data['id_type']
+            id_value = form.cleaned_data['id_value']
+            metadata = get_metadata(id_type, id_value)
+            title = metadata.get('title','!!! missing title !!!')
+            work = models.Work.objects.create(title=title)
+            edition = models.Edition.objects.create(title="!!!", work=work)
+            models.Identifier.set(type=id_type, value=id_value, work=work, edition=edition)
+            return HttpResponseRedirect(
+                reverse('new_edition', kwargs={'work_id': work.id, 'edition_id': edition.id})
+            )          
+    else:
+        form = IdentifierForm()
+    return render(request, 'new_edition.html', {'form': form, 'alert':alert})
+
+@login_required
+def edit_edition(request, work_id, edition_id, by=None):
+    '''
+    view for editing  editions
+    '''
+    if not work_id and not edition_id:
+        return new_edition(request, by=by)
     # if the work and edition are set, we save the edition and set the work
     language = 'en'
     age_level = ''
@@ -101,16 +134,9 @@ def new_edition(request, work_id, edition_id, by=None):
         'language': language,
         'age_level': age_level,
         'publisher_name': edition.publisher_name,
-        'isbn': edition.isbn_13,
-        'oclc': edition.oclc,
         'description': description,
         'title': title,
-        'goog': edition.googlebooks_id,
-        'gdrd': edition.goodreads_id,
-        'thng': edition.librarything_id,
-        'http': edition.http_id,
-        'doi': edition.id_for('doi'),
-    }
+    } 
     if request.method == 'POST':
         form = None
         edition.new_authors = zip(
@@ -162,28 +188,20 @@ def new_edition(request, work_id, edition_id, by=None):
                     work.age_level = form.cleaned_data['age_level']
                     work.save()
 
-                id_msg = ""
-                for id_type in ('isbn', 'oclc', 'goog', 'thng', 'gdrd', 'http', 'doi'):
-                    id_val = form.cleaned_data[id_type]
-                    if id_val == 'delete':
+                id_type = form.cleaned_data['id_type']
+                id_val = form.cleaned_data['id_value']
+                if id_val == 'delete': 
+                    if edition.identifiers.exclude(type=id_type):
                         edition.identifiers.filter(type=id_type).delete()
-                    elif id_val:
-                        existing = models.Identifier.objects.filter(
-                            type=id_type,
-                            value=form.cleaned_data[id_type]
-                        )
-                        if existing.count() and existing[0].edition != edition:
-                            return render(request, 'new_edition.html', {
-                                'form': form,  'edition': edition, 'admin': admin,
-                                'id_msg': "%s = %s already exists"%(id_type, id_val),
-                            })
-                        else:
-                            models.Identifier.set(
-                                type=id_type,
-                                value=id_val,
-                                edition=edition,
-                                work=work
-                            )
+                    else:
+                        alert = ('Can\'t delete identifier -  must have at least one left.')
+                elif id_val:
+                    models.Identifier.set(
+                        type=id_type,
+                        value=id_val,
+                        edition=edition,
+                        work=work
+                    )
                 for relator in edition.relators.all():
                     if request.POST.has_key('change_relator_%s' % relator.id):
                         new_relation = request.POST['change_relator_%s' % relator.id]
@@ -219,10 +237,16 @@ def new_edition(request, work_id, edition_id, by=None):
                     #and put its url into cover_image
                     edition.cover_image = default_storage.url(cover_file_name)
                     edition.save()
-                return HttpResponseRedirect(work_url)
+                if not alert:
+                    return HttpResponseRedirect(work_url)
     else:
         form = EditionForm(instance=edition, initial=initial)
-    return render(request, 'new_edition.html', {
-            'form': form, 'edition': edition, 'admin':admin, 'alert':alert,
+        
+    return render(request, 'edit_edition.html', {
+            'form': form,
+            'identform': IdentifierForm(),
+            'edition': edition,
+            'admin': admin,
+            'alert': alert,
         })
 

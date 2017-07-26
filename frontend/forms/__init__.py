@@ -65,7 +65,7 @@ from regluit.utils.fields import ISBNField
 from regluit.mobi import Mobi
 from regluit.pyepub import EPUB
 
-from .bibforms import EditionForm
+from .bibforms import EditionForm, IdentifierForm
 from questionnaire.models import Questionnaire
 
 logger = logging.getLogger(__name__)

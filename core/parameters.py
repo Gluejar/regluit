@@ -15,6 +15,7 @@ AGE_LEVEL_CHOICES = (
     ('15-18', 'Teen - Grade 10-12, Age 15-18'),
     ('18-', 'Adult/Advanced Reader')
 )
+
 TEXT_RELATION_CHOICES = (
     ('translation', 'translation'),
     ('revision', 'revision'),
@@ -22,6 +23,25 @@ TEXT_RELATION_CHOICES = (
     ('compilation', 'compilation')
 )
 
+ID_CHOICES = (
+    ('http', 'Web Address'),    
+    ('isbn', 'ISBN'),
+    ('doab', 'DOABooks ID'),
+    ('gtbg', 'Project Gutenberg Number'),
+    ('doi', 'Digital Object Identifier'),
+    ('oclc', 'OCLC Number'),
+    ('goog', 'Google Books ID'),
+    ('olib', 'Open Library ID'),
+    ('gdrd', 'Goodreads ID'),
+    ('thng', 'Library Thing ID'),
+    ('olwk', 'Open Library Work ID'),
+    ('glue', 'Unglue.it ID'),
+    ('ltwk', 'Library Thing Work ID'),
+)
+
+WORK_IDENTIFIERS = ('doi','olwk','glue','ltwk')
+
+ID_CHOICES_MAP = dict(ID_CHOICES)
 
 
 
