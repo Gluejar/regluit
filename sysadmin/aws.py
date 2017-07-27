@@ -75,7 +75,7 @@ def route53_records(domain_name, name, record_type):
 
 def modify_rds_parameter(group_name, parameter, value, apply_immediate=False):
     """change parameter in RDS parameter group_name to value
-    http://stackoverflow.com/a/9085381/7782
+    https://stackoverflow.com/a/9085381/7782
     Remember to make sure that the parameter group is actually associated with the db.
     You will likely need to reboot db too.
     """

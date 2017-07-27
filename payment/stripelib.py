@@ -57,7 +57,7 @@ STRIPE_EVENT_TYPES = ['account.updated', 'account.application.deauthorized', 'ba
 
 logger = logging.getLogger(__name__)
 
-# http://stackoverflow.com/questions/2348317/how-to-write-a-pager-for-python-iterators/2350904#2350904        
+# https://stackoverflow.com/questions/2348317/how-to-write-a-pager-for-python-iterators/2350904#2350904        
 def grouper(iterable, page_size):
     page= []
     for item in iterable:
@@ -155,7 +155,7 @@ def filter_none(d):
     
 # if you create a Customer object, then you'll be able to charge multiple times. You can create a customer with a token.
 
-# http://en.wikipedia.org/wiki/Luhn_algorithm#Implementation_of_standard_Mod_10
+# https://en.wikipedia.org/wiki/Luhn_algorithm#Implementation_of_standard_Mod_10
 
 def luhn_checksum(card_number):
     def digits_of(n):

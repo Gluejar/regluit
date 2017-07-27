@@ -1,6 +1,6 @@
 ## {{{ http://code.activestate.com/recipes/498104/ (r1)
 
-## also http://stackoverflow.com/questions/4047511/checking-if-an-isbn-number-is-correct
+## also https://stackoverflow.com/questions/4047511/checking-if-an-isbn-number-is-correct
 
 import re
 

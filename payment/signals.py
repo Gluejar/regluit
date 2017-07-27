@@ -19,7 +19,7 @@ from django.contrib.auth.models import User
 # create Credit to associate with User
 def create_user_objects(sender, created, instance, **kwargs):
     # use get_model to avoid circular import problem with models
-    # don't create Credit if we are loading fixtures http://stackoverflow.com/a/3500009/7782
+    # don't create Credit if we are loading fixtures https://stackoverflow.com/a/3500009/7782
     if not kwargs.get('raw', False):
         try:
             Credit = apps.get_model('payment', 'Credit')

@@ -29,7 +29,7 @@
 
     <h2 class="thank-you">Thank you!</h2>
     {% if not campaign %}
-	    <p class="pledge_complete">You've just donated ${{ transaction.amount|floatformat:2|intcomma }} to the <a href="http://ebookfoundation.org">Free Ebook Foundation</a></p>
+	    <p class="pledge_complete">You've just donated ${{ transaction.amount|floatformat:2|intcomma }} to the <a href="https://ebookfoundation.org">Free Ebook Foundation</a></p>
     {% endif %}
     {% ifequal campaign.type 1 %}
 	    <p class="pledge_complete">You've just {% if modified %}modified your pledge for{% else %}pledged{% endif %} ${{ transaction.amount|floatformat:2|intcomma }} to <I><a href="{% url 'work' work.id %}">{{ work.title }}</a></I>.  If it reaches its goal of ${{ campaign.target|intcomma }} by {{ campaign.deadline|date:"M d Y"}}, it will be unglued for all to enjoy.</p>
@@ -74,8 +74,8 @@
 	{% else %}
 	
 	<ul class="social menu pledge">
-		<a href="https://www.facebook.com/sharer.php?u=http://ebookfoundation.org"><li class="facebook first"><span>Facebook</span></li></a>
-		<a href="https://twitter.com/intent/tweet?url=http://ebookfoundation.org&amp;text=I%20just%20supported%20The%20Free%20Ebook%20Foundation.%20Will%20you%20join%20me%3F"><li class="twitter"><span>Twitter</span></li></a>
+		<a href="https://www.facebook.com/sharer.php?u=https://ebookfoundation.org"><li class="facebook first"><span>Facebook</span></li></a>
+		<a href="https://twitter.com/intent/tweet?url=https://ebookfoundation.org&amp;text=I%20just%20supported%20The%20Free%20Ebook%20Foundation.%20Will%20you%20join%20me%3F"><li class="twitter"><span>Twitter</span></li></a>
 	</ul>
 	{% endif %}
 </div>

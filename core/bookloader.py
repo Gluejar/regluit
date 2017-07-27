@@ -479,7 +479,7 @@ def thingisbn(isbn):
     Library Thing. (takes isbn_10 or isbn_13, returns isbn_10, except for 979 isbns, which come back as isbn_13')
     """
     logger.info("looking up %s at ThingISBN" , isbn)
-    url = "http://www.librarything.com/api/thingISBN/%s" % isbn
+    url = "https://www.librarything.com/api/thingISBN/%s" % isbn
     xml = requests.get(url, headers={"User-Agent": settings.USER_AGENT}).content
     doc = ElementTree.fromstring(xml)
     return [e.text for e in doc.findall('isbn')]
@@ -590,7 +590,7 @@ def add_openlibrary(work, hard_refresh = False):
     w = None # openlibrary work json
 
     # get the 1st openlibrary match by isbn that has an associated work
-    url = "http://openlibrary.org/api/books"
+    url = "https://openlibrary.org/api/books"
     params = {"format": "json", "jscmd": "details"}
     subjects = []
     for edition in work.editions.all():
@@ -621,7 +621,7 @@ def add_openlibrary(work, hard_refresh = False):
                     logger.info("got openlibrary work %s for isbn %s", work_key, isbn_key)
                     models.Identifier.get_or_add(type='olwk',value=work_key,work=work)
                     try:
-                        w = _get_json("http://openlibrary.org" + work_key,type='ol')
+                        w = _get_json("https://openlibrary.org" + work_key,type='ol')
                         if w.has_key('description'):
                             description=w['description']
                             if isinstance(description,dict):

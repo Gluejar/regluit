@@ -2,7 +2,7 @@
 
 Your donation of ${{transaction.max_amount|default:"0"}} to the Free Ebook Foundation will help us make free ebooks of all types more accessible for those that need them.  The Free Ebook Foundation is a US 501(c)3 non-profit organization. Our tax ID number is 61-1767266. Your gift is tax deductible to the full extent provided by the law.
 
-For more information about the Free Ebook Foundation, visit http://ebookfoundation.org/
+For more information about the Free Ebook Foundation, visit https://ebookfoundation.org/
 
 Thank you again for your generous support.
 

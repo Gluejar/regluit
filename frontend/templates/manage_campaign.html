@@ -181,10 +181,10 @@ Please fix the following before launching your campaign:
 {% ifnotequal campaign_status 'ACTIVE' %}
     {% ifnotequal campaign.type 3 %}
         <h3>License being offered</h3>
-        <p> This is the license you are offering to use once the campaign succeeds. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.  Once your campaign is active, you'll be able to switch to a less restrictive license, but not a more restrictive one.  We encourage you to pick the least restrictive license you are comfortable with, as this will increase the ways people can use your unglued ebook and motivate more people to donate.</p>
+        <p> This is the license you are offering to use once the campaign succeeds. For more information on the licenses you can use, see <a href="https://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.  Once your campaign is active, you'll be able to switch to a less restrictive license, but not a more restrictive one.  We encourage you to pick the least restrictive license you are comfortable with, as this will increase the ways people can use your unglued ebook and motivate more people to donate.</p>
 	{% else %}
         <h3>License Being Used</h3>
-        <p> This is the license you are using. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.  
+        <p> This is the license you are using. For more information on the licenses you can use, see <a href="https://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.  
         Once your campaign is active, you'll be able to switch to a less restrictive license, but not a more restrictive one.  
         We encourage you to pick the least restrictive license you are comfortable with, as this will increase the ways people can use your unglued ebook and motivate more people to participate.
         </p>
@@ -241,7 +241,7 @@ Please fix the following before launching your campaign:
 	{% else %}
 	<p>You are offering your ebook under a <b><a href="{{campaign.license_url }}">{{ campaign.license }}</a></b> license.</p>
 	{% endifnotequal %}
-	<p>Since your campaign is active, you may only change the license to remove restrictions. For more information on the licenses you can use, see <a href="http://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.</p>
+	<p>Since your campaign is active, you may only change the license to remove restrictions. For more information on the licenses you can use, see <a href="https://creativecommons.org/licenses">Creative Commons: About the Licenses</a>.</p>
 	<div>
 	{{ form.license.errors }}<span>{{ form.license }}</span>
 	</div>

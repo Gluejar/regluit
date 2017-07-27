@@ -73,7 +73,7 @@ export ANSIBLE_VAULT_PASSWORD_FILE=[path]
 ```
 
 To use `git diff` with these encrypted files, see the
-[.gitattributes](https://github.com/Gluejar/regluit/blob/open_source/.gitattributes) has been added to allow for using `git diff` with `ansible-vault` files: [git - How to diff ansible vault changes? - Stack Overflow](http://stackoverflow.com/questions/29937195/how-to-diff-ansible-vault-changes/39511274#39511274).  One highlight from the tips, run:
+[.gitattributes](https://github.com/Gluejar/regluit/blob/open_source/.gitattributes) has been added to allow for using `git diff` with `ansible-vault` files: [git - How to diff ansible vault changes? - Stack Overflow](https://stackoverflow.com/questions/29937195/how-to-diff-ansible-vault-changes/39511274#39511274).  One highlight from the tips, run:
 
 
 ```

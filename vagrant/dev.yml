@@ -156,7 +156,7 @@
     # installing mysql
     # https://github.com/bennojoy/mysql --> probably the right way
     # how do you make use of other people's playbooks in the right way?
-    # http://stackoverflow.com/a/7740571/7782
+    # https://stackoverflow.com/a/7740571/7782
     
     - name: mysql setup
       raw: debconf-set-selections <<< 'mysql-server-5.5 mysql-server/root_password password {{mysql_root_pw}}'
@@ -190,8 +190,8 @@
 
  
     # running stuff within a virtualenv
-    # http://stackoverflow.com/a/20572360
-    # http://stackoverflow.com/questions/20575084/best-way-to-always-run-ansible-inside-a-virtualenv-on-remote-machines?rq=1
+    # https://stackoverflow.com/a/20572360
+    # https://stackoverflow.com/questions/20575084/best-way-to-always-run-ansible-inside-a-virtualenv-on-remote-machines?rq=1
 
 
     #sudo("ln -s /opt/regluit/deploy/please.conf /etc/apache2/sites-available/please")
@@ -276,7 +276,7 @@
     
     #Run syncdb on the application
     # TO DO: syncdb might be deprecated
-    # http://stackoverflow.com/a/29683785
+    # https://stackoverflow.com/a/29683785
 
     - name: django syncdb
       django_manage: >

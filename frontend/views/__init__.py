@@ -2577,11 +2577,11 @@ def work_librarything(request, work_id):
         url = work.librarything_url
     elif isbn:
         # TODO: do the redirect here and capture the work id?
-        url = "http://www.librarything.com/isbn/%s" % isbn
+        url = "https://www.librarything.com/isbn/%s" % isbn
     else:
         term = work.title + " " + work.author()
         q = urlencode({'searchtpe': 'work', 'term': term})
-        url = "http://www.librarything.com/search.php?" + q
+        url = "https://www.librarything.com/search.php?" + q
     return HttpResponseRedirect(url)
 
 def work_openlibrary(request, work_id):
@@ -2593,20 +2593,20 @@ def work_openlibrary(request, work_id):
         url = work.openlibrary_url
     elif len(isbns) > 0:
         isbns = ",".join(isbns)
-        u = 'http://openlibrary.org/api/books?bibkeys=%s&jscmd=data&format=json' % isbns
+        u = 'https://openlibrary.org/api/books?bibkeys=%s&jscmd=data&format=json' % isbns
         try:
             j = json.loads(requests.get(u).content)
             # as long as there were some matches get the first one and route to it
             if len(j.keys()) > 0:
                 first = j.keys()[0]
-                url = "http://openlibrary.org" + j[first]['key']
+                url = "https://openlibrary.org" + j[first]['key']
         except ValueError:
             # fail at openlibrary
             logger.warning("failed to get OpenLibrary json at %s" % u)
     # fall back to doing a search on openlibrary
     if not url:
         q = urlencode({'q': work.title + " " + work.author()})
-        url = "http://openlibrary.org/search?" + q
+        url = "https://openlibrary.org/search?" + q
     return HttpResponseRedirect(url)
 
 def work_goodreads(request, work_id):
@@ -2615,10 +2615,10 @@ def work_goodreads(request, work_id):
     if work.goodreads_id:
         url = work.goodreads_url
     elif isbn:
-        url = "http://www.goodreads.com/book/isbn/%s" % isbn
+        url = "https://www.goodreads.com/book/isbn/%s" % isbn
     else:
         q = urlencode({'query': work.title + " " + work.author()})
-        url = "http://www.goodreads.com/search?" + q
+        url = "https://www.goodreads.com/search?" + q
     return HttpResponseRedirect(url)
 
 @login_required
@@ -3219,10 +3219,10 @@ def send_to_kindle(request, work_id, javascript='0'):
 
 
     """
-    Amazon SES has a 10 MB size limit (http://aws.amazon.com/ses/faqs/#49) in messages sent
+    Amazon SES has a 10 MB size limit (https://aws.amazon.com/ses/faqs/#49) in messages sent
     to determine whether the file will meet this limit, we probably need to compare the
     size of the mime-encoded file to 10 MB. (and it's unclear exactly what the Amazon FAQ means precisely by
-    MB either: http://en.wikipedia.org/wiki/Megabyte) http://www.velocityreviews.com/forums/t335208-how-to-get-size-of-email-attachment.html might help
+    MB either: https://en.wikipedia.org/wiki/Megabyte) http://www.velocityreviews.com/forums/t335208-how-to-get-size-of-email-attachment.html might help
 
     for the moment, we will hardwire a 749229 limit in filesize:
     * assume conservative size of megabyte, 1000000B
