@@ -12,6 +12,13 @@ from django.http import (
 from django.shortcuts import render
 
 from regluit.core import models
+from regluit.core.bookloader import (
+    add_by_googlebooks_id,
+    add_by_isbn,
+    add_by_oclc,
+    add_by_webpage,
+)
+from regluit.core.loaders.utils import ids_from_urls
 from regluit.frontend.forms import EditionForm, IdentifierForm
 
 
@@ -58,8 +65,45 @@ def get_edition(edition_id):
     except models.Edition.DoesNotExist:
         raise Http404 (duplicate-code)
 
-def get_metadata(id_type, id_value):
-    return {'title': 'test'}
+def get_edition_for_id(id_type, id_value):
+    identifiers = {id_type: id_value}
+    if id_type == 'http':
+        # check for urls implying other identifiers
+        identifiers.update(ids_from_urls(id_value))
+        for new_id_type in identifiers.keys():
+            idents = models.Identifier.objects.filter(
+                type=new_id_type,
+                value=identifiers[new_id_type],
+            )
+            if idents:
+                ident = idents[0]
+                return ident.edition if ident.edition else ident.work.preferred_edition
+
+    #need to make a new edition
+    if identifiers.has_key('goog'):
+        edition = add_by_googlebooks_id(identifiers['goog'])
+        if edition:
+            return edition
+
+    if identifiers.has_key('isbn'):
+        edition = add_by_isbn(identifiers['isbn'])
+        if edition:
+            return edition
+    
+    if identifiers.has_key('oclc'):
+        edition = add_by_oclc(identifiers['oclc'])
+        if edition:
+            return edition
+    
+    if identifiers.has_key('http'):
+        edition = add_by_webpage(identifiers['http'])
+        return edition
+    
+    # return a dummy edition
+    title = metadata.get('title','!!! missing title !!!')
+    work = models.Work.objects.create(title=title)
+    edition = models.Edition.objects.create(title='!!! missing title !!!', work=work)
+    return edition
 
 @login_required
 def new_edition(request, by=None):
@@ -69,24 +113,24 @@ def new_edition(request, by=None):
     alert = ''
     if request.method == 'POST':
         form = IdentifierForm(data=request.POST)
-        if form.is_valid() and form.identifier:
-            # pre-existing identifier
-            work_id = form.identifier.work.id if form.identifier.work else ''
-            edition_id = form.identifier.edition.id if form.identifier.edition else ''
-            return HttpResponseRedirect(
-                reverse('new_edition', kwargs={'work_id': work_id, 'edition_id': edition_id})
-            )
-        elif form.is_valid():
+        if form.is_valid():
             id_type = form.cleaned_data['id_type']
             id_value = form.cleaned_data['id_value']
-            metadata = get_metadata(id_type, id_value)
-            title = metadata.get('title','!!! missing title !!!')
-            work = models.Work.objects.create(title=title)
-            edition = models.Edition.objects.create(title="!!!", work=work)
-            models.Identifier.set(type=id_type, value=id_value, work=work, edition=edition)
+            identifiers = models.Identifier.objects.filter(type=id_type, value=id_value)
+            if identifiers:
+                # pre-existing identifier
+                ident = identifiers[0]
+                work = ident.work
+                edition = ident.edition if ident.edition else work.preferred_edition
+            else:
+                edition = get_edition_for_id(id_type, id_value)
+            
             return HttpResponseRedirect(
-                reverse('new_edition', kwargs={'work_id': work.id, 'edition_id': edition.id})
-            )          
+                reverse('new_edition', kwargs={
+                    'work_id': edition.work.id,
+                    'edition_id': edition.id
+                })
+            )
     else:
         form = IdentifierForm()
     return render(request, 'new_edition.html', {'form': form, 'alert':alert})

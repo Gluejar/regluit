@@ -60,21 +60,21 @@ ID_VALIDATION = {
         "The OCLCnum must be 8 or more digits."),
     'goog': (r'^([a-zA-Z0-9\-_]{12}|delete)$', 
         "The Google id must be 12 alphanumeric characters, dash or underscore."),
-    'olib': (r'^(\d{1,8}|delete)$',
-        "The Open Library ID must be 1-8 digits."),
     'gdrd': (r'^(\d{1,8}|delete)$', 
         "The Goodreads ID must be 1-8 digits."),
     'thng': (r'(^\d{1,8}|delete)$', 
         "The LibraryThing ID must be 1-8 digits."),
-    'olwk': (r'^(\d{1,8}|delete)$', 
-        "The Open Library ID must be 1-8 digits."),
+    'olwk': (r'^(/works/\)?OLd{1,8}W|delete)$', 
+        "The Open Library Work ID looks like 'OL####W'."),
     'glue': (r'^(\d{1,6}|delete)$', 
         "The Unglue.it ID must be 1-6 digits."),
     'ltwk': (r'^(\d{1,8}|delete)$', 
-        "The LibraryThing ID must be 1-8 digits."),
+        "The LibraryThing work ID must be 1-8 digits."),
 }
 
 def isbn_cleaner(value):
+    if value == 'delete':
+        return value
     if not value:
         raise forms.ValidationError('no identifier value found')
     elif value == 'delete':
@@ -84,9 +84,22 @@ def isbn_cleaner(value):
         raise forms.ValidationError(isbn.error)
     isbn.validate()
     return isbn.to_string()
+
+def olwk_cleaner(value):
+    if not value == 'delete' and value.startswith('/works/'):
+        value = '/works/{}'.format(value)
+    return value
+
+doi_match = re.compile( r'10\.\d+/\S+')
+def doi_cleaner(value):
+    if not value == 'delete' and not value.startswith('10.'):
+        return doi_match.match(value).group(0)
+    return value
         
 ID_MORE_VALIDATION = {
-    'isbn': isbn_cleaner
+    'isbn': isbn_cleaner,
+    'olwk': olwk_cleaner,
+    'olwk': doi_cleaner,
 }
 
 def identifier_cleaner(id_type):
@@ -114,11 +127,6 @@ class IdentifierForm(forms.ModelForm):
     def clean(self):
         id_type = self.cleaned_data['id_type']
         id_value = self.cleaned_data['id_value'].strip()
-        identifier = Identifier.objects.filter(type=id_type, value=id_value)
-        if identifier:
-            self.identifier = identifier[0]
-            return self.cleaned_data
-        
         self.cleaned_data['value'] = identifier_cleaner(id_type)(id_value)
         return self.cleaned_data
                         

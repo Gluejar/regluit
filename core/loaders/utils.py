@@ -23,7 +23,7 @@ def utf8_general_ci_norm(s):
     Normalize a la MySQL utf8_general_ci collation
     (As of 2016.05.24, we're using the utf8_general_ci collation for author names)
     
-    http://stackoverflow.com/questions/1036454/what-are-the-diffrences-between-utf8-general-ci-and-utf8-unicode-ci/1036459#1036459
+    https://stackoverflow.com/questions/1036454/what-are-the-diffrences-between-utf8-general-ci-and-utf8-unicode-ci/1036459#1036459
 
     * converts to Unicode normalization form D for canonical decomposition
     * removes any combining characters
@@ -331,3 +331,23 @@ def loaded_book_ok(book, work, edition):
 
 
     return True
+
+ID_URLPATTERNS = {
+    'goog': re.compile(r'[\./]google\.com/books\?.*id=([a-zA-Z0-9\-_]{12})'),
+    'olwk': re.compile(r'[\./]openlibrary\.org(/works/OL\d{1-8}W)'),
+    'gdrd': re.compile(r'[\./]goodreads\.com/book/show/(\d{1-8})'),
+    'ltwk': re.compile(r'[\./]librarything\.com/work/(\d{1-8})'),
+    'oclc': re.compile(r'\.worldcat\.org/.*oclc/(\d{8-12})'),
+    'doi': re.compile(r'[\./]doi\.org/(10\.\d+/\S+)'),
+    'gtbg': re.compile(r'[\./]gutenberg\.org/ebooks/(\d{1-6})'),
+}
+
+def ids_from_urls(url):
+    ids = {}
+    for ident in ID_URLPATTERNS.keys():
+        id_match = ID_URLPATTERNS[ident].search(url)
+        if id_match:
+            ids[ident] = id_match.group(1)
+    return ids
+        
+    

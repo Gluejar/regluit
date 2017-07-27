@@ -833,10 +833,21 @@ def unreverse(name):
 
 def load_from_yaml(yaml_url, test_mode=False):
     """
+    This really should be called 'load_from_github_yaml'
+    
     if mock_ebook is True, don't construct list of ebooks from a release -- rather use an epub
     """
     all_metadata = Pandata(yaml_url)
+    loader = GithubLoader(yaml_url)
     for metadata in all_metadata.get_edition_list():
+        loader.load_from_pandata(metadata)
+        loader.load_ebooks(metadata, test_mode)
+
+class BasePandataLoader(object):
+    def __init__(self, url):
+        self.base_url = url
+        
+    def load_from_pandata(self, metadata):
         #find an work to associate
         work = edition = None
         if metadata.url:
@@ -894,14 +905,18 @@ def load_from_yaml(yaml_url, test_mode=False):
         # the default edition uses the first cover in covers.
         for cover in metadata.covers:
             if cover.get('image_path', False):
-                edition.cover_image=urljoin(yaml_url,cover['image_path'])
+                edition.cover_image=urljoin(self.base_url,cover['image_path'])
                 break
         edition.save()
+        return work.id
+
+class GithubLoader(BasePandataLoader):
+    def load_ebooks(self, metadata):
         # create Ebook for any ebook in the corresponding GitHub release
         # assuming yaml_url of form (from GitHub, though not necessarily GITenberg)
         # https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/raw/master/metadata.yaml
-
-        url_path = urlparse(yaml_url).path.split("/")
+        
+        url_path = urlparse(self.base_url).path.split("/")
         (repo_owner, repo_name) = (url_path[1], url_path[2])
         repo_tag = metadata._version
         # allow for there not to be a token in the settings
@@ -921,7 +936,7 @@ def load_from_yaml(yaml_url, test_mode=False):
             for (ebook_format, ebook_name) in ebooks_in_release:
                 (book_name_prefix, _ ) =  re.search(r'(.*)\.([^\.]*)$', ebook_name).groups()
                 (ebook, created)= models.Ebook.objects.get_or_create(
-                    url=git_download_from_yaml_url(yaml_url,metadata._version,edition_name=book_name_prefix,
+                    url=git_download_from_yaml_url(self.base_url,metadata._version,edition_name=book_name_prefix,
                                                    format_= ebook_format),
                     provider='Github',
                     rights = cc.match_license(metadata.rights),
@@ -930,7 +945,6 @@ def load_from_yaml(yaml_url, test_mode=False):
                     )
                 ebook.set_version(metadata._version)
 
-    return work.id
         
 def git_download_from_yaml_url(yaml_url, version, edition_name='book', format_='epub'):
     # go from https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/raw/master/metadata.yaml
@@ -957,6 +971,10 @@ def release_from_tag(repo, tag_name):
     json = repo._json(repo._get(url), 200)
     return Release(json, repo) if json else None
 
+def add_by_webpage(url, work=None):
+    e = models.Edition(title='!!! missing title !!!')
+
+
 
 def ebooks_in_github_release(repo_owner, repo_name, tag, token=None):
     """
@@ -980,3 +998,6 @@ def ebooks_in_github_release(repo_owner, repo_name, tag, token=None):
     return [(EBOOK_FORMATS.get(asset.content_type), asset.name)
             for asset in release.iter_assets()
             if EBOOK_FORMATS.get(asset.content_type) is not None]
+     
+            
+            

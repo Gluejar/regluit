@@ -45,7 +45,7 @@ from regluit.core.parameters import (
     WORK_IDENTIFIERS,
 )
 
-# fix truncated file problems per http://stackoverflow.com/questions/12984426/python-pil-ioerror-image-file-truncated-with-big-images
+# fix truncated file problems per https://stackoverflow.com/questions/12984426/python-pil-ioerror-image-file-truncated-with-big-images
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 logger = logging.getLogger(__name__)
@@ -162,7 +162,7 @@ class Work(models.Model):
     @property
     def googlebooks_url(self):
         if self.googlebooks_id:
-            return "http://books.google.com/books?id=%s" % self.googlebooks_id
+            return "https://books.google.com/books?id=%s" % self.googlebooks_id
         else:
             return ''
 
@@ -178,7 +178,7 @@ class Work(models.Model):
 
     @property
     def goodreads_url(self):
-        return "http://www.goodreads.com/book/show/%s" % self.goodreads_id
+        return "https://www.goodreads.com/book/show/%s" % self.goodreads_id
 
     @property
     def librarything_id(self):
@@ -186,7 +186,7 @@ class Work(models.Model):
 
     @property
     def librarything_url(self):
-        return "http://www.librarything.com/work/%s" % self.librarything_id
+        return "https://www.librarything.com/work/%s" % self.librarything_id
 
     @property
     def openlibrary_id(self):
@@ -194,7 +194,7 @@ class Work(models.Model):
 
     @property
     def openlibrary_url(self):
-        return "http://openlibrary.org" + self.openlibrary_id
+        return "https://openlibrary.org" + self.openlibrary_id
 
     def cover_filetype(self):
         if self.uses_google_cover():
