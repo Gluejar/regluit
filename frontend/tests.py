@@ -272,7 +272,7 @@ class PledgingUiTests(TestCase):
 class UnifiedCampaignTests(TestCase):
     fixtures = ['initial_data.json','basic_campaign_test.json']
 
-    def test_setup(self):
+    def verify_setup(self):
         # testing basics:  are there 3 users?
 
         self.assertEqual(User.objects.count(), 3)
@@ -289,7 +289,7 @@ class UnifiedCampaignTests(TestCase):
         self.assertEqual(Work.objects.count(), 3)
         self.assertEqual(Campaign.objects.count(), 2)
 
-    def test_junk_webhook(self):
+    def do_test_junk_webhook(self):
         """send in junk json and then an event that doesn't exist"""
         # non-json
         ipn_url = reverse("HandleIPN", args=('stripelib',))
@@ -456,12 +456,13 @@ class UnifiedCampaignTests(TestCase):
 
 
     def test_good_bad_cc_scenarios(self):
-        num_prev_emails = len(mail.outbox)
+        self.verify_setup()
+        self.do_test_junk_webhook()
         self.good_cc_scenario()
         self.bad_cc_scenario()
         self.recharge_with_new_card()
         self.stripe_token_none()
-        self.assertEqual(len(mail.outbox), num_prev_emails + 8)
+        self.assertEqual(len(mail.outbox), 9)
 
         # expect these 6 notices :
         # u'pledge_charged', <User: dataunbound>,
