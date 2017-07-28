@@ -337,11 +337,13 @@ class UnifiedCampaignTests(TestCase):
         # r.content holds the page content
         # create a stripe token to submit to form
         
-        # track start time and end time of these stipe interactions so that we can limit the window of Events to look for
-        time0 = time.time()
         
         sc = StripeClient()
         stripe_token = sc.create_token(card=card)
+
+        # track start time and end time of these stipe interactions so that we can limit the window of Events to look for
+        # time0 = time.time() <--- this method was brittle because of clock skew and latency
+        time0 = stripe_token['created']
         r = self.client.post(pledge_fund_path, data={'stripe_token':stripe_token.id}, follow=True)
         
         # where are we now?
@@ -359,11 +361,9 @@ class UnifiedCampaignTests(TestCase):
             pass
         else:
             charge_exception = None
-        
-        time1 = time.time()
-        
-        # retrieve events from this period -- need to pass in ints for event creation times
-        events = list(sc._all_objs('Event', created={'gte':int(time0-1.0), 'lte':int(time1+1.0)}))
+                
+        # retrieve events from this period
+        events = list(sc._all_objs('Event', created={'gte': time0}))
         
         return (events, charge_exception)
 
@@ -438,19 +438,19 @@ class UnifiedCampaignTests(TestCase):
         # set up a good card
         card1 = card(number=TEST_CARDS[0][0], exp_month=1, exp_year='2020', cvc='123', name='dataunbound',
           address_line1="100 Jackson St.", address_line2="", address_zip="94706", address_state="CA", address_country=None)  # good card
-
-        # track start time and end time of these stipe interactions so that we can limit the window of Events to look for
-        time0 = time.time()
         
         sc = StripeClient()
         stripe_token = sc.create_token(card=card1)
+
+        # track start time and end time of these stipe interactions so that we can limit the window of Events to look for
+        time0 = stripe_token['created']
         
         r = self.client.post("/accounts/manage/", data={'stripe_token':stripe_token.id}, follow=True)
         
-        time1 = time.time()
+        #time1 = time.time()
         
         # retrieve events from this period -- need to pass in ints for event creation times
-        events = list(sc._all_objs('Event', created={'gte':int(time0-1.0), 'lte':int(time1+1.0)}))
+        events = list(sc._all_objs('Event', created={'gte': time0}))
         
         # now feed each of the events to the IPN processor.
         ipn_url = reverse("HandleIPN", args=('stripelib',))
@@ -464,11 +464,21 @@ class UnifiedCampaignTests(TestCase):
         
         
     def test_good_bad_cc_scenarios(self):
+        num_prev_emails = len(mail.outbox)
         self.good_cc_scenario()
         self.bad_cc_scenario()
         self.recharge_with_new_card()
         self.stripe_token_none()
-        self.confirm_num_mail()
+        self.assertEqual(len(mail.outbox), num_prev_emails + 8)  
+        
+        # expect these 6 notices :
+        # u'pledge_charged', <User: dataunbound>,
+        # u'pledge_failed', <User: dataunbound>,
+        # u'new_wisher', <User: hmelville>,
+        # u'pledge_you_have_pledged', <User: dataunbound>,
+        # u'pledge_charged', <User: RaymondYee>,
+        # u'pledge_you_have_pledged', <User: RaymondYee>,
+        # plus two customer creation emails     
     
     def stripe_token_none(self):
         """Test that if an empty stripe_token is submitted to pledge page, we catch that issue and present normal error page to user"""
@@ -507,37 +517,4 @@ class UnifiedCampaignTests(TestCase):
 
         r = self.client.post(pledge_fund_path, data={'stripe_token':stripe_token}, follow=True)
         self.assertEqual(r.status_code, 200)
-
-  
-    def confirm_num_mail(self):
-        # look at emails generated through these scenarios 
-        #print len(mail.outbox)
-        #for (i, m) in enumerate(mail.outbox):
-        #    print i, m.subject
-        #    if i in [5]:
-        #        print m.body
-            
-        self.assertEqual(len(mail.outbox), 9)
-        
-        # print out notices and eventually write tests here to check expected
-                
-        #from notification.models import Notice
-        #print [(n.id, n.notice_type.label, n.recipient, n.added) for n in Notice.objects.all()]
-
-#[(6L, u'pledge_charged', <User: dataunbound>, datetime.datetime(2012, 11, 21, 18, 33, 15)),
-#(5L, u'pledge_failed', <User: dataunbound>, datetime.datetime(2012, 11, 21, 18, 33, 10)),
-#(4L, u'new_wisher', <User: hmelville>, datetime.datetime(2012, 11, 21, 18, 33, 8)),
-#(3L, u'pledge_you_have_pledged', <User: dataunbound>, datetime.datetime(2012, 11, 21, 18, 33, 7)),
-#(2L, u'pledge_charged', <User: RaymondYee>, datetime.datetime(2012, 11, 21, 18, 33, 3)),
-#(1L, u'pledge_you_have_pledged', <User: RaymondYee>, datetime.datetime(2012, 11, 21, 18, 32, 56))]        
-        
-#0 [localhost:8000] Thank you for supporting Pro Web 2.0 Mashups at Unglue.it!
-#1 [localhost:8000] Thanks to you, the campaign for Pro Web 2.0 Mashups has succeeded!
-#2 Stripe Customer (id cus_0ji1hFS8xLluuZ;  description: RaymondYee) created
-#3 [localhost:8000] Thank you for supporting Moby Dick at Unglue.it!
-#4 [localhost:8000] Someone new has wished for your work at Unglue.it
-#5 [localhost:8000] Thanks to you, the campaign for Moby Dick has succeeded!  However, your credit card charge failed.
-#6 Stripe Customer (id cus_0ji2Cmu6sXKBCi;  description: dataunbound) created
-#7 [localhost:8000] Thanks to you, the campaign for Moby Dick has succeeded!
-#8 Stripe Customer (id cus_0ji24dPDiFGWU2;  description: dataunbound) created
 
