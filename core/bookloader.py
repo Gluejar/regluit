@@ -21,16 +21,17 @@ from github3 import (login, GitHub)
 from github3.repos.release import Release
 
 from gitenberg.metadata.pandata import Pandata
-from ..marc.models import inverse_marc_rels
 
 # regluit imports
 
 import regluit
 import regluit.core.isbn
-
-from regluit.core import models
+from regluit.marc.models import inverse_marc_rels
 from regluit.utils.localdatetime import now
-import regluit.core.cc as cc
+
+from . import cc
+from . import models
+from .loaders.scrape import BaseScraper
 
 logger = logging.getLogger(__name__)
 request_log = logging.getLogger("requests")
@@ -771,9 +772,9 @@ class BasePandataLoader(object):
     def __init__(self, url):
         self.base_url = url
 
-    def load_from_pandata(self, metadata):
+    def load_from_pandata(self, metadata, work=None):
         #find an work to associate
-        work = edition = None
+        edition = None
         if metadata.url:
             new_ids = [('http', 'http', metadata.url)]
         else:
@@ -804,7 +805,9 @@ class BasePandataLoader(object):
             edition.set_publisher(metadata.publisher)
         if metadata.publication_date: #always believe yaml
             edition.publication_date = metadata.publication_date
-        if metadata.description and len(metadata.description)>len(work.description): #be careful about overwriting the work description
+        if metadata.description and len(metadata.description) > len(work.description):
+            #be careful about overwriting the work description
+            print len(metadata.description)
             work.description = metadata.description
         if metadata.creator: #always believe yaml
             edition.authors.clear()
@@ -831,8 +834,12 @@ class BasePandataLoader(object):
             if cover.get('image_path', False):
                 edition.cover_image = urljoin(self.base_url, cover['image_path'])
                 break
+        work.save()
         edition.save()
         return edition
+
+    def load_ebooks(self, metadata, edition, test_mode=False):
+        pass
 
 class GithubLoader(BasePandataLoader):
     def load_ebooks(self, metadata, edition, test_mode=False):
@@ -919,6 +926,9 @@ def ebooks_in_github_release(repo_owner, repo_name, tag, token=None):
             if EBOOK_FORMATS.get(asset.content_type) is not None]
 
 def add_by_webpage(url, work=None):
-    e = models.Edition(title='!!! missing title !!!')
+    scraper = BaseScraper(url)
+    loader = BasePandataLoader(url)
+    edition = loader.load_from_pandata(scraper.metadata, work)
+    return edition if edition else None
 
 
