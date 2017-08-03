@@ -21,14 +21,13 @@ from regluit.core.lookups import (
     EditionNoteLookup,
 )
 from regluit.bisac.models import BisacHeading
-from regluit.core.isbn import ISBN
 from regluit.core.models import Edition, Identifier
 from regluit.core.parameters import (
     AGE_LEVEL_CHOICES,
     ID_CHOICES,
     TEXT_RELATION_CHOICES,
 )
-from regluit.utils.fields import ISBNField
+from regluit.core.validation import identifier_cleaner
 from regluit.utils.text import sanitize_line, remove_badxml
 
 CREATOR_RELATIONS = (
@@ -44,81 +43,6 @@ NULLS = [False, 'delete', '']
 
 bisac_headings = BisacHeading.objects.all()
 
-ID_VALIDATION = {
-    'http': (re.compile(r"(https?|ftp)://(-\.)?([^\s/?\.#]+\.?)+(/[^\s]*)?$",
-         flags=re.IGNORECASE|re.S ), 
-         "The Web Address must be a valid http(s) URL."),  
-    'isbn':  (r'^([\dxX\-–— ]+|delete)$', 
-        "The ISBN must be a valid ISBN-13."),
-    'doab': (r'^(\d{1,6}|delete)$', 
-        "The value must be 1-6 digits."),
-    'gtbg': (r'^(\d{1,6}|delete)$',
-        "The Gutenberg number must be 1-6 digits."),
-    'doi': (r'^(https?://dx\.doi\.org/|https?://doi\.org/)?(10\.\d+/\S+|delete)$', 
-        "The DOI value must be a valid DOI."),
-    'oclc': (r'^(\d{8,12}|delete)$', 
-        "The OCLCnum must be 8 or more digits."),
-    'goog': (r'^([a-zA-Z0-9\-_]{12}|delete)$', 
-        "The Google id must be 12 alphanumeric characters, dash or underscore."),
-    'gdrd': (r'^(\d{1,8}|delete)$', 
-        "The Goodreads ID must be 1-8 digits."),
-    'thng': (r'(^\d{1,8}|delete)$', 
-        "The LibraryThing ID must be 1-8 digits."),
-    'olwk': (r'^(/works/\)?OLd{1,8}W|delete)$', 
-        "The Open Library Work ID looks like 'OL####W'."),
-    'glue': (r'^(\d{1,6}|delete)$', 
-        "The Unglue.it ID must be 1-6 digits."),
-    'ltwk': (r'^(\d{1,8}|delete)$', 
-        "The LibraryThing work ID must be 1-8 digits."),
-}
-
-def isbn_cleaner(value):
-    if value == 'delete':
-        return value
-    if not value:
-        raise forms.ValidationError('no identifier value found')
-    elif value == 'delete':
-        return value
-    isbn=ISBN(value)
-    if isbn.error:
-        raise forms.ValidationError(isbn.error)
-    isbn.validate()
-    return isbn.to_string()
-
-def olwk_cleaner(value):
-    if not value == 'delete' and value.startswith('/works/'):
-        value = '/works/{}'.format(value)
-    return value
-
-doi_match = re.compile( r'10\.\d+/\S+')
-def doi_cleaner(value):
-    if not value == 'delete' and not value.startswith('10.'):
-        return doi_match.match(value).group(0)
-    return value
-        
-ID_MORE_VALIDATION = {
-    'isbn': isbn_cleaner,
-    'olwk': olwk_cleaner,
-    'olwk': doi_cleaner,
-}
-
-def identifier_cleaner(id_type):
-    print id_type
-    if ID_VALIDATION.has_key(id_type):
-        (regex, err_msg) = ID_VALIDATION[id_type]
-        extra = ID_MORE_VALIDATION.get(id_type, None)
-        if isinstance(regex, (str, unicode)):
-            regex = re.compile(regex)
-        def cleaner(value):
-            if regex.match(value):
-                if extra:
-                    value = extra(value)
-                return value
-            else:
-                raise forms.ValidationError(err_msg)
-        return cleaner
-    return lambda value: value
-
 class IdentifierForm(forms.ModelForm):
     id_type = forms.ChoiceField(label='Identifier Type', choices=ID_CHOICES)
     id_value = forms.CharField(label='Identifier Value', widget=forms.TextInput(attrs={'size': 60}))
@@ -126,7 +50,7 @@ class IdentifierForm(forms.ModelForm):
     
     def clean(self):
         id_type = self.cleaned_data['id_type']
-        id_value = self.cleaned_data['id_value'].strip()
+        id_value = self.cleaned_data.get('id_value','').strip()
         self.cleaned_data['value'] = identifier_cleaner(id_type)(id_value)
         return self.cleaned_data
                         
@@ -172,7 +96,11 @@ class EditionForm(forms.ModelForm):
     )
 
     id_type = forms.ChoiceField(label='Identifier Type', choices=ID_CHOICES)
-    id_value = forms.CharField(label='Identifier Value', widget=forms.TextInput(attrs={'size': 60}))
+    id_value = forms.CharField(
+        label='Identifier Value',
+        widget=forms.TextInput(attrs={'size': 60}),
+        required=False,
+    )
     language = forms.ChoiceField(choices=LANGUAGES)
     age_level = forms.ChoiceField(choices=AGE_LEVEL_CHOICES, required=False)
     description = forms.CharField( required=False, widget=CKEditorWidget())
@@ -212,15 +140,16 @@ class EditionForm(forms.ModelForm):
 
     def clean(self):
         id_type = self.cleaned_data['id_type']
-        id_value = self.cleaned_data['id_value'].strip()
-        identifier = Identifier.objects.filter(type=id_type, value=id_value)
-        if identifier:
-            err_msg = "{} is a duplicate for work #{}.".format(identifier[0], identifier[0].work.id)
-            self.add_error('id_value', forms.ValidationError(err_msg))
-        try:
-            self.cleaned_data['value'] = identifier_cleaner(id_type)(id_value)
-        except forms.ValidationError, ve:
-            self.add_error('id_value', forms.ValidationError('{}: {}'.format(ve.message, id_value)))
+        id_value = self.cleaned_data.get('id_value','').strip()
+        if id_value:
+            identifier = Identifier.objects.filter(type=id_type, value=id_value)
+            if identifier:
+                err_msg = "{} is a duplicate for work #{}.".format(identifier[0], identifier[0].work.id)
+                self.add_error('id_value', forms.ValidationError(err_msg))
+            try:
+                self.cleaned_data['value'] = identifier_cleaner(id_type)(id_value)
+            except forms.ValidationError, ve:
+                self.add_error('id_value', forms.ValidationError('{}: {}'.format(ve.message, id_value)))
         return self.cleaned_data
 
     class Meta:

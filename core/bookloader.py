@@ -31,6 +31,7 @@ from regluit.utils.localdatetime import now
 
 from . import cc
 from . import models
+from .validation import identifier_cleaner
 from .loaders.scrape import BaseScraper
 
 logger = logging.getLogger(__name__)
@@ -72,13 +73,10 @@ def add_by_oclc_from_google(oclc):
 
 def valid_isbn(isbn):
     try:
-        isbn = regluit.core.isbn.ISBN(isbn)
+        return identifier_cleaner('isbn')(isbn)
     except:
         logger.exception("invalid isbn: %s", isbn)
         return None
-    if not isbn.valid:
-        return None
-    return isbn.to_string()
 
 def add_by_isbn(isbn, work=None, language='xx', title=''):
     if not isbn:
@@ -744,6 +742,7 @@ class LookupFailure(Exception):
     pass
 
 IDTABLE = [('librarything','ltwk'),('goodreads','gdrd'),('openlibrary','olwk'),('gutenberg','gtbg'),('isbn','isbn'),('oclc','oclc'),('edition_id','edid') ]
+EDITION_IDENTIFIERS = ('goog', 'isbn', 'oclc', 'http', 'edid')
 
 def unreverse(name):
     if not ',' in name:
@@ -773,8 +772,11 @@ class BasePandataLoader(object):
         self.base_url = url
 
     def load_from_pandata(self, metadata, work=None):
+        ''' metadata is a Pandata object'''
+        
         #find an work to associate
         edition = None
+        has_ed_id = False
         if metadata.url:
             new_ids = [('http', 'http', metadata.url)]
         else:
@@ -782,9 +784,12 @@ class BasePandataLoader(object):
         for (identifier, id_code) in IDTABLE:
             # note that the work chosen is the last associated
             value = metadata.edition_identifiers.get(identifier, None)
+            value = identifier_cleaner(id_code)(value)
             if not value:
                 value = metadata.identifiers.get(identifier, None)
             if value:
+                if id_code in EDITION_IDENTIFIERS:
+                    has_ed_id = True
                 value =  value[0] if isinstance(value, list) else value
                 try:
                     id = models.Identifier.objects.get(type=id_code, value=value)
@@ -792,7 +797,9 @@ class BasePandataLoader(object):
                     if id.edition and not edition:
                         edition = id.edition
                 except models.Identifier.DoesNotExist:
-                    new_ids.append((identifier, id_code, value))
+                    if id_code != 'edid' or not has_ed_id:  #last in loop
+                        # only need to create edid if there is no edition id for the edition
+                        new_ids.append((identifier, id_code, value))
 
 
         if not work:
@@ -800,7 +807,7 @@ class BasePandataLoader(object):
         if not edition:
             edition =  models.Edition.objects.create(title=metadata.title, work=work)
         for (identifier, id_code, value) in new_ids:
-            models.Identifier.set(type=id_code, value=value, edition=edition if id_code in ('isbn', 'oclc','edid') else None, work=work)
+            models.Identifier.set(type=id_code, value=value, edition=edition if id_code in EDITION_IDENTIFIERS else None, work=work)
         if metadata.publisher: #always believe yaml
             edition.set_publisher(metadata.publisher)
         if metadata.publication_date: #always believe yaml
@@ -834,13 +841,16 @@ class BasePandataLoader(object):
             if cover.get('image_path', False):
                 edition.cover_image = urljoin(self.base_url, cover['image_path'])
                 break
+            elif cover.get('image_url', False):
+                edition.cover_image = cover['image_url']
+                break
         work.save()
         edition.save()
         return edition
 
     def load_ebooks(self, metadata, edition, test_mode=False):
         pass
-
+            
 class GithubLoader(BasePandataLoader):
     def load_ebooks(self, metadata, edition, test_mode=False):
         # create Ebook for any ebook in the corresponding GitHub release
@@ -928,7 +938,12 @@ def ebooks_in_github_release(repo_owner, repo_name, tag, token=None):
 def add_by_webpage(url, work=None):
     scraper = BaseScraper(url)
     loader = BasePandataLoader(url)
-    edition = loader.load_from_pandata(scraper.metadata, work)
+    pandata = Pandata()
+    pandata.metadata = scraper.metadata
+    for metadata in pandata.get_edition_list():
+        edition = loader.load_from_pandata(metadata, work)
+        work = edition.work
     return edition if edition else None
+
 
 
