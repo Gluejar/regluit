@@ -741,7 +741,10 @@ def load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn, url
 class LookupFailure(Exception):
     pass
 
-IDTABLE = [('librarything','ltwk'),('goodreads','gdrd'),('openlibrary','olwk'),('gutenberg','gtbg'),('isbn','isbn'),('oclc','oclc'),('edition_id','edid') ]
+IDTABLE = [('librarything','ltwk'),('goodreads','gdrd'),('openlibrary','olwk'),
+    ('gutenberg','gtbg'),('isbn','isbn'),('oclc','oclc'),
+    ('edition_id','edid'), ('googlebooks', 'goog')
+]
 EDITION_IDENTIFIERS = ('goog', 'isbn', 'oclc', 'http', 'edid')
 
 def unreverse(name):
@@ -814,7 +817,6 @@ class BasePandataLoader(object):
             edition.publication_date = metadata.publication_date
         if metadata.description and len(metadata.description) > len(work.description):
             #be careful about overwriting the work description
-            print len(metadata.description)
             work.description = metadata.description
         if metadata.creator: #always believe yaml
             edition.authors.clear()

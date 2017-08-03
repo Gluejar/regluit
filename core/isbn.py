@@ -1,3 +1,4 @@
+# encoding: utf-8
 ## {{{ http://code.activestate.com/recipes/498104/ (r1)
 
 ## also https://stackoverflow.com/questions/4047511/checking-if-an-isbn-number-is-correct
@@ -44,12 +45,14 @@ def convert_10_to_13(isbn):
     except:
         return None
 
+ISBN_REGEX = re.compile(r'^(\d{9}|\d{12})(\d|X)$')
+DASH_REGEX = re.compile(r'[ \-–—]+')
 def strip(s):
     """Strips away any - or spaces.  If the remaining string is of length 10 or 13 with digits only in anything but the last
     check digit (which may be X), then return '' -- otherwise return the remaining string"""
     try:
-        s = s.replace("-", "").replace(" ", "").upper()
-        match = re.search(r'^(\d{9}|\d{12})(\d|X)$', s)
+        s = DASH_REGEX.sub('', s).upper()
+        match = ISBN_REGEX.search(s)
     except:
         return None
     

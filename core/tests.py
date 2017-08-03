@@ -1,3 +1,4 @@
+# encoding: utf-8
 """
 external library imports
 """
@@ -790,6 +791,7 @@ class ISBNTest(TestCase):
         milosz_10 = '006019667X'
         milosz_13 = '9780060196677'
         python_10 = '0-672-32978-6'
+        funky = '0–672—329 78-6' # endash, mdash, space
         python_10_wrong = '0-672-32978-7'
         python_13 = '978-0-672-32978-4'
         
@@ -798,8 +800,11 @@ class ISBNTest(TestCase):
         # return None for invalid characters
         self.assertEqual(None, isbn.ISBN("978-0-M72-32978-X").to_string('13'))
         self.assertEqual(isbn.ISBN("978-0-M72-32978-X").valid, False)
+        self.assertEqual(None, bookloader.valid_isbn("978-0-M72-32978-X"))
         # check that only ISBN 13 starting with 978 or 979 are accepted
         self.assertEqual(None, isbn.ISBN("111-0-M72-32978-X").to_string())
+        self.assertEqual(None, bookloader.valid_isbn("111-0-M72-32978-X"))
+        self.assertEqual(isbn_python_13, bookloader.valid_isbn(funky))
         
         # right type?
         self.assertEqual(isbn_python_10.type, '10')
@@ -807,12 +812,18 @@ class ISBNTest(TestCase):
         # valid?
         self.assertEqual(isbn_python_10.valid, True)
         self.assertEqual(isbn.ISBN(python_10_wrong).valid, False)
+        self.assertEqual(13, len(bookloader.valid_isbn(isbn_python_10)))
+        self.assertEqual(None, bookloader.valid_isbn(python_10_wrong))
         
         # do conversion -- first the outside methods
         self.assertEqual(isbn.convert_10_to_13(isbn.strip(python_10)),isbn.strip(python_13))
-        self.assertEqual(isbn.convert_13_to_10(isbn.strip(python_13)),isbn.strip(python_10))
+        self.assertEqual(isbn.convert_10_to_13(isbn.strip(python_10)),isbn.strip(python_13))
+        self.assertEqual(isbn.convert_13_to_10(isbn.strip(python_13)),bookloader.valid_isbn(python_10))
+        self.assertEqual(isbn.convert_13_to_10(isbn.strip(python_13)),bookloader.valid_isbn(python_13))
         self.assertEqual(isbn.convert_13_to_10('xxxxxxxxxxxxx'),None)
         self.assertEqual(isbn.convert_10_to_13('xxxxxxxxxx'),None)
+        self.assertEqual(None, bookloader.valid_isbn('xxxxxxxxxxxxx'))
+        self.assertEqual(None, bookloader.valid_isbn('xxxxxxxxxx'))
         
         # check formatting
         self.assertEqual(isbn.ISBN(python_13).to_string(type='13'), '9780672329784')
