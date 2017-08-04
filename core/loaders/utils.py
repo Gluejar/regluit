@@ -340,6 +340,7 @@ ID_URLPATTERNS = {
     'oclc': re.compile(r'\.worldcat\.org/.*oclc/(\d{8-12})'),
     'doi': re.compile(r'[\./]doi\.org/(10\.\d+/\S+)'),
     'gtbg': re.compile(r'[\./]gutenberg\.org/ebooks/(\d{1-6})'),
+    'glue': re.compile(r'[\./]unglue\.it/work/(\d{1-7})'),
 }
 
 def ids_from_urls(url):

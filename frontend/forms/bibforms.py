@@ -45,13 +45,23 @@ bisac_headings = BisacHeading.objects.all()
 
 class IdentifierForm(forms.ModelForm):
     id_type = forms.ChoiceField(label='Identifier Type', choices=ID_CHOICES)
-    id_value = forms.CharField(label='Identifier Value', widget=forms.TextInput(attrs={'size': 60}))
+    id_value = forms.CharField(
+        label='Identifier Value',
+        widget=forms.TextInput(attrs={'size': 60}),
+        required=False,
+    )
+    make_new = forms.BooleanField(
+        label='There\'s no existing Identifier, so please use an Unglue.it ID',
+        required=False,
+    )
     identifier = None
     
     def clean(self):
         id_type = self.cleaned_data['id_type']
-        id_value = self.cleaned_data.get('id_value','').strip()
-        self.cleaned_data['value'] = identifier_cleaner(id_type)(id_value)
+        id_value = self.cleaned_data.get('id_value', '').strip()
+        make_new =  self.cleaned_data.get('make_new', False)
+        if not make_new:
+            self.cleaned_data['value'] = identifier_cleaner(id_type)(id_value)
         return self.cleaned_data
                         
     class Meta:

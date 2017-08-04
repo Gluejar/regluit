@@ -31,6 +31,7 @@ from regluit.utils.localdatetime import now
 
 from . import cc
 from . import models
+from .parameters import WORK_IDENTIFIERS
 from .validation import identifier_cleaner
 from .loaders.scrape import BaseScraper
 
@@ -741,11 +742,10 @@ def load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn, url
 class LookupFailure(Exception):
     pass
 
-IDTABLE = [('librarything','ltwk'),('goodreads','gdrd'),('openlibrary','olwk'),
-    ('gutenberg','gtbg'),('isbn','isbn'),('oclc','oclc'),
-    ('edition_id','edid'), ('googlebooks', 'goog')
+IDTABLE = [('librarything', 'ltwk'),('goodreads', 'gdrd'),('openlibrary', 'olwk'),
+    ('gutenberg', 'gtbg'),('isbn', 'isbn'),('oclc', 'oclc'),
+    ('edition_id', 'edid'), ('googlebooks', 'goog')
 ]
-EDITION_IDENTIFIERS = ('goog', 'isbn', 'oclc', 'http', 'edid')
 
 def unreverse(name):
     if not ',' in name:
@@ -791,7 +791,7 @@ class BasePandataLoader(object):
             if not value:
                 value = metadata.identifiers.get(identifier, None)
             if value:
-                if id_code in EDITION_IDENTIFIERS:
+                if id_code not in WORK_IDENTIFIERS:
                     has_ed_id = True
                 value =  value[0] if isinstance(value, list) else value
                 try:

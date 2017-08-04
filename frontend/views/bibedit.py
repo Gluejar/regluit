@@ -12,12 +12,15 @@ from django.http import (
 from django.shortcuts import render
 
 from regluit.core import models
+
 from regluit.core.bookloader import (
     add_by_googlebooks_id,
     add_by_isbn,
     add_by_oclc,
     add_by_webpage,
 )
+from regluit.core.parameters import WORK_IDENTIFIERS
+
 from regluit.core.loaders.utils import ids_from_urls
 from regluit.frontend.forms import EditionForm, IdentifierForm
 
@@ -66,6 +69,7 @@ def get_edition(edition_id):
         raise Http404 (duplicate-code)
 
 def get_edition_for_id(id_type, id_value):
+    ''' the identifier is assumed to not be in database '''
     identifiers = {id_type: id_value}
     if id_type == 'http':
         # check for urls implying other identifiers
@@ -98,11 +102,23 @@ def get_edition_for_id(id_type, id_value):
     if identifiers.has_key('http'):
         edition = add_by_webpage(identifiers['http'])
         return edition
+
     
-    # return a dummy edition
-    title = metadata.get('title','!!! missing title !!!')
+    # return a dummy edition and identifier
+    
+    title = '!!! missing title !!!'
     work = models.Work.objects.create(title=title)
     edition = models.Edition.objects.create(title='!!! missing title !!!', work=work)
+    for key in identifiers.keys():
+        if key == 'glue':
+            id_value = work.id
+        if key not in ('http', 'goog', 'oclc', 'isbn'):
+            if key in WORK_IDENTIFIERS:
+                edid = str(edition.id)
+                models.Identifier.objects.create(type='edid', value=edid, work=work, edition=edition)  
+                models.Identifier.objects.create(type=key, value=id_value, work=work, edition=None) 
+            else:
+                models.Identifier.objects.create(type=key, value=id_value, work=work, edition=edition)
     return edition
 
 @login_required
@@ -114,16 +130,19 @@ def new_edition(request, by=None):
     if request.method == 'POST':
         form = IdentifierForm(data=request.POST)
         if form.is_valid():
-            id_type = form.cleaned_data['id_type']
-            id_value = form.cleaned_data['id_value']
-            identifiers = models.Identifier.objects.filter(type=id_type, value=id_value)
-            if identifiers:
-                # pre-existing identifier
-                ident = identifiers[0]
-                work = ident.work
-                edition = ident.edition if ident.edition else work.preferred_edition
+            if form.cleaned_data.get('make_new', False):
+                edition = get_edition_for_id('glue', 'new')
             else:
-                edition = get_edition_for_id(id_type, id_value)
+                id_type = form.cleaned_data['id_type']
+                id_value = form.cleaned_data['id_value']
+                identifiers = models.Identifier.objects.filter(type=id_type, value=id_value)
+                if identifiers:
+                    # pre-existing identifier
+                    ident = identifiers[0]
+                    work = ident.work
+                    edition = ident.edition if ident.edition else work.preferred_edition
+                else:
+                    edition = get_edition_for_id(id_type, id_value)
             
             return HttpResponseRedirect(
                 reverse('new_edition', kwargs={

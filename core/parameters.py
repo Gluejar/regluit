@@ -34,8 +34,12 @@ ID_CHOICES = (
     ('gdrd', 'Goodreads ID'),
     ('thng', 'Library Thing ID'),
     ('olwk', 'Open Library Work ID'),
-    ('glue', 'Unglue.it ID'),
     ('ltwk', 'Library Thing Work ID'),
+)
+
+OTHER_ID_CHOICES = (
+    ('glue', 'Unglue.it ID'),
+    ('edid', 'pragmatic edition ID'),
 )
 
 WORK_IDENTIFIERS = ('doi','olwk','glue','ltwk')
