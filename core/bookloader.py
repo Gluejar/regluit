@@ -5,6 +5,10 @@ import json
 import logging
 import re
 import requests
+import urllib2
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
+from regluit.core.validation import test_file
 
 from datetime import timedelta
 from xml.etree import ElementTree
@@ -14,8 +18,10 @@ from urlparse import (urljoin, urlparse)
 # django imports
 
 from django.conf import settings
+from django.core.files.base import ContentFile
 from django_comments.models import Comment
 from django.db import IntegrityError
+from django.forms import ValidationError
 
 from github3 import (login, GitHub)
 from github3.repos.release import Release
@@ -770,6 +776,42 @@ def load_from_yaml(yaml_url, test_mode=False):
         loader.load_ebooks(metadata, edition, test_mode)
     return edition.work.id if edition else None
 
+def edition_for_ident(id_type, id_value):
+    for ident in models.Identifier.objects.filter(type=id_type, value=id_value):
+        return ident.edition if ident.edition else ident.work.editions[0]
+    
+def edition_for_etype(etype, metadata, default=None):
+    '''
+    assumes the metadata contains the isbn_etype attributes, and that the editions have been created.
+    etype is 'epub', 'pdf', etc.
+    '''
+    isbn = metadata.metadata.get('isbn_{}'.format(etype), None)
+    if not isbn:
+        isbn = metadata.metadata.get('isbn_electronic', None)
+    if isbn:
+        return edition_for_ident('isbn', isbn)
+    else:
+        if default:
+            return default
+        # just return some edition
+        for key in metadata.identifiers.keys():
+            return edition_for_ident(key, metadata.identifiers[key])
+        for key in metadata.edition_identifiers.keys():
+            return edition_for_ident(key, metadata.identifiers[key])
+    
+MATCH_LICENSE = re.compile(r'creativecommons.org/licenses/([^/]+)/')
+
+def load_ebookfile(url, etype):
+    try:
+        r = requests.get(url)
+        ebookfile = ContentFile(r.content)
+        test_file(ebookfile, etype)
+        return ebookfile
+    except IOError, e:
+        logger.error(u'could not open {}'.format(url))
+    except ValidationError, e:
+        logger.error(u'downloaded {} was not a valid {}'.format(url, etype))
+     
 class BasePandataLoader(object):
     def __init__(self, url):
         self.base_url = url
@@ -810,7 +852,7 @@ class BasePandataLoader(object):
         if not edition:
             edition =  models.Edition.objects.create(title=metadata.title, work=work)
         for (identifier, id_code, value) in new_ids:
-            models.Identifier.set(type=id_code, value=value, edition=edition if id_code in EDITION_IDENTIFIERS else None, work=work)
+            models.Identifier.set(type=id_code, value=value, edition=edition if id_code not in WORK_IDENTIFIERS else None, work=work)
         if metadata.publisher: #always believe yaml
             edition.set_publisher(metadata.publisher)
         if metadata.publication_date: #always believe yaml
@@ -851,7 +893,36 @@ class BasePandataLoader(object):
         return edition
 
     def load_ebooks(self, metadata, edition, test_mode=False):
-        pass
+        default_edition = edition
+        for key in ['epub', 'pdf', 'mobi']:
+            url = metadata.metadata.get('download_url_{}'.format(key), None)
+            if url:
+                edition = edition_for_etype(key, metadata, default=default_edition)
+                if edition:
+                    contentfile = load_ebookfile(url, key)
+                    if contentfile:
+                        contentfile_name = '/loaded/ebook_{}.{}'.format(edition.id, key)
+                        path = default_storage.save(contentfile_name, contentfile) 
+                        lic = MATCH_LICENSE.search(metadata.rights_url)
+                        license = 'CC {}'.format(lic.group(1).upper()) if lic else ''
+                        ebf = models.EbookFile.objects.create(
+                            format=key,
+                            edition=edition,
+                        )
+                        ebf.file.save(contentfile_name, contentfile)
+                        ebf.file.close()
+                        (ebook, created) = models.Ebook.objects.get_or_create(
+                            url=ebf.file.url,
+                            provider='Unglue.it',
+                            rights=license,
+                            format=key,
+                            edition=edition,
+                            filesize=contentfile.size,
+                            active=False,
+                        )
+                        ebf.ebook =  ebook
+                        ebf.save()
+                    
             
 class GithubLoader(BasePandataLoader):
     def load_ebooks(self, metadata, edition, test_mode=False):
@@ -877,14 +948,18 @@ class GithubLoader(BasePandataLoader):
                 ebooks_in_release =  ebooks_in_github_release(repo_owner, repo_name, repo_tag, token=token)
 
             for (ebook_format, ebook_name) in ebooks_in_release:
-                (book_name_prefix, _ ) =  re.search(r'(.*)\.([^\.]*)$', ebook_name).groups()
-                (ebook, created)= models.Ebook.objects.get_or_create(
-                    url=git_download_from_yaml_url(self.base_url,metadata._version,edition_name=book_name_prefix,
-                                                   format_= ebook_format),
+                (book_name_prefix, _ ) = re.search(r'(.*)\.([^\.]*)$', ebook_name).groups()
+                (ebook, created) = models.Ebook.objects.get_or_create(
+                    url=git_download_from_yaml_url(
+                        self.base_url,
+                        metadata._version,
+                        edition_name=book_name_prefix,
+                        format_= ebook_format
+                    ),
                     provider='Github',
-                    rights = cc.match_license(metadata.rights),
-                    format = ebook_format,
-                    edition = edition,
+                    rights=cc.match_license(metadata.rights),
+                    format=ebook_format,
+                    edition=edition,
                     )
                 ebook.set_version(metadata._version)
 
@@ -938,6 +1013,7 @@ def ebooks_in_github_release(repo_owner, repo_name, tag, token=None):
             if EBOOK_FORMATS.get(asset.content_type) is not None]
 
 def add_by_webpage(url, work=None):
+    edition = None
     scraper = BaseScraper(url)
     loader = BasePandataLoader(url)
     pandata = Pandata()
@@ -945,6 +1021,7 @@ def add_by_webpage(url, work=None):
     for metadata in pandata.get_edition_list():
         edition = loader.load_from_pandata(metadata, work)
         work = edition.work
+    loader.load_ebooks(pandata, edition)
     return edition if edition else None
 
 

@@ -12,6 +12,7 @@ from regluit.core.validation import identifier_cleaner
 logger = logging.getLogger(__name__)
 
 CONTAINS_COVER = re.compile('cover')
+CONTAINS_CC = re.compile('creativecommons.org')
 
 class BaseScraper(object):
     def __init__(self, url):
@@ -32,6 +33,8 @@ class BaseScraper(object):
                 self.get_pubdate()
                 self.get_authors()
                 self.get_cover()
+                self.get_downloads()
+                self.get_license()
             if not self.metadata.get('title', None):
                 self.set('title', '!!! missing title !!!')
             if not self.metadata.get('language', None):
@@ -164,3 +167,16 @@ class BaseScraper(object):
             cover_uri = img[0].get('src', None)
             if cover_uri:
                 self.set('covers', [{'image_url': urljoin(self.base, cover_uri)}])
+                
+    def get_downloads(self):
+        for dl_type in ['epub', 'mobi', 'pdf']:
+            dl_meta = 'citation_{}_url'.format(dl_type)
+            value = self.check_metas([dl_meta])
+            if value:
+                self.set('download_url_{}'.format(dl_type), value)
+                
+    def get_license(self):
+        '''only looks for cc licenses'''
+        links = self.doc.find_all(href=CONTAINS_CC)
+        for link in links:
+            self.set('rights_url', link['href'])
