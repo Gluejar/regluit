@@ -25,8 +25,6 @@ from selectable.forms import (
     AutoCompleteSelectField
 )
 
-from PyPDF2 import PdfFileReader
-
 #regluit imports
 
 from regluit.core.models import (
@@ -60,10 +58,10 @@ from regluit.core.lookups import (
     WorkLookup,
     SubjectLookup,
 )
+from regluit.core.validation import test_file
 from regluit.utils.localdatetime import now
 from regluit.utils.fields import ISBNField
-from regluit.mobi import Mobi
-from regluit.pyepub import EPUB
+
 
 from .bibforms import EditionForm, IdentifierForm
 from questionnaire.models import Questionnaire
@@ -94,25 +92,6 @@ class SurveyForm(forms.Form):
             self.work = None
             raise forms.ValidationError( 'That ISBN is not in our database')
 
-def test_file(the_file):
-    if the_file and the_file.name:
-        if format == 'epub':
-            try:
-                book = EPUB(the_file.file)
-            except Exception as e:
-                raise forms.ValidationError(_('Are you sure this is an EPUB file?: %s' % e) )
-        elif format == 'mobi':
-            try:
-                book = Mobi(the_file.file)
-                book.parse()
-            except Exception as e:
-                raise forms.ValidationError(_('Are you sure this is a MOBI file?: %s' % e) )
-        elif format == 'pdf':
-            try:
-                doc = PdfFileReader(the_file.file)
-            except Exception, e:
-                raise forms.ValidationError(_('%s is not a valid PDF file' % the_file.name) )
-
 class EbookFileForm(forms.ModelForm):
     file = forms.FileField(max_length=16777216)
     version_label = forms.CharField(max_length=512, required=False)
@@ -140,9 +119,9 @@ class EbookFileForm(forms.ModelForm):
             return self.cleaned_data.get('format','')
 
     def clean(self):
-        format = self.cleaned_data['format']
+        fformat = self.cleaned_data['format']
         the_file = self.cleaned_data.get('file', None)
-        test_file(the_file)
+        test_file(the_file, fformat)
         return self.cleaned_data
 
     class Meta:

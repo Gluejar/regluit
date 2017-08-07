@@ -3,7 +3,12 @@
 methods to validate and clean identifiers
 '''
 import re
+
+from PyPDF2 import PdfFileReader
+
 from django.forms import ValidationError
+from regluit.pyepub import EPUB
+from regluit.mobi import Mobi
 from .isbn import ISBN
 
 ID_VALIDATION = {
@@ -82,4 +87,24 @@ def identifier_cleaner(id_type):
                 raise ValidationError(err_msg)
         return cleaner
     return lambda value: value
+
+def test_file(the_file, fformat):
+    if the_file and the_file.name:
+        if fformat == 'epub':
+            try:
+                book = EPUB(the_file.file)
+            except Exception as e:
+                raise forms.ValidationError(_('Are you sure this is an EPUB file?: %s' % e) )
+        elif fformat == 'mobi':
+            try:
+                book = Mobi(the_file.file)
+                book.parse()
+            except Exception as e:
+                raise forms.ValidationError(_('Are you sure this is a MOBI file?: %s' % e) )
+        elif fformat == 'pdf':
+            try:
+                doc = PdfFileReader(the_file.file)
+            except Exception, e:
+                raise forms.ValidationError(_('%s is not a valid PDF file' % the_file.name) )
+    return True
 
