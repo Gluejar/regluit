@@ -5,7 +5,6 @@ import json
 import logging
 import re
 import requests
-import urllib2
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from regluit.core.validation import test_file
@@ -802,11 +801,17 @@ def edition_for_etype(etype, metadata, default=None):
 MATCH_LICENSE = re.compile(r'creativecommons.org/licenses/([^/]+)/')
 
 def load_ebookfile(url, etype):
+    '''
+    return a ContentFile if a new ebook has been loaded
+    '''
+    ebfs = models.EbookFile.objects.filter(source=url)
+    if ebfs:
+        return None
     try:
         r = requests.get(url)
-        ebookfile = ContentFile(r.content)
-        test_file(ebookfile, etype)
-        return ebookfile
+        contentfile = ContentFile(r.content)
+        test_file(contentfile, etype)
+        return contentfile
     except IOError, e:
         logger.error(u'could not open {}'.format(url))
     except ValidationError, e:
@@ -908,6 +913,7 @@ class BasePandataLoader(object):
                         ebf = models.EbookFile.objects.create(
                             format=key,
                             edition=edition,
+                            source=url,
                         )
                         ebf.file.save(contentfile_name, contentfile)
                         ebf.file.close()

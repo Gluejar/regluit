@@ -127,7 +127,7 @@ class EbookFileForm(forms.ModelForm):
     class Meta:
         model = EbookFile
         widgets = { 'edition': forms.HiddenInput}
-        exclude = { 'created', 'asking', 'ebook' }
+        fields = ('file', 'format', 'edition')
 
 class EbookForm(forms.ModelForm):
     file = forms.FileField(max_length=16777216, required=False)

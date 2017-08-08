@@ -1016,6 +1016,7 @@ class EbookFile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     asking = models.BooleanField(default=False)
     ebook = models.ForeignKey('Ebook', related_name='ebook_files', null=True)
+    source = models.URLField(null=True, blank=True)
     version = None
     def check_file(self):
         if self.format == 'epub':
@@ -1097,7 +1098,12 @@ class Ebook(models.Model):
                     if self.save:
                         self.filesize = self.filesize if self.filesize < 2147483647 else 2147483647  # largest safe positive integer
                         self.save()
-                    ebf = EbookFile.objects.create(edition=self.edition, ebook=self, format=self.format)
+                    ebf = EbookFile.objects.create(
+                        edition=self.edition,
+                        ebook=self,
+                        format=self.format,
+                        source=self.url
+                    )
                     ebf.file.save(path_for_file(ebf, None), ContentFile(r.read()))
                     ebf.file.close()
                     ebf.save()
