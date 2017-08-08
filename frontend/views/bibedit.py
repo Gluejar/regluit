@@ -99,6 +99,13 @@ def get_edition_for_id(id_type, id_value):
         if edition:
             return edition
     
+    if identifiers.has_key('glue'):
+        try:
+            work = models.safe_get_work(identifiers['glue'])
+            return work.preferred_edition
+        except:
+            pass
+    
     if identifiers.has_key('http'):
         edition = add_by_webpage(identifiers['http'])
         return edition
