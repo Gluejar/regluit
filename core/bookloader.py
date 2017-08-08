@@ -747,9 +747,9 @@ def load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn, url
 class LookupFailure(Exception):
     pass
 
-IDTABLE = [('librarything', 'ltwk'),('goodreads', 'gdrd'),('openlibrary', 'olwk'),
-    ('gutenberg', 'gtbg'),('isbn', 'isbn'),('oclc', 'oclc'),
-    ('edition_id', 'edid'), ('googlebooks', 'goog')
+IDTABLE = [('librarything', 'ltwk'), ('goodreads', 'gdrd'), ('openlibrary', 'olwk'),
+    ('gutenberg', 'gtbg'), ('isbn', 'isbn'), ('oclc', 'oclc'),
+    ('edition_id', 'edid'), ('googlebooks', 'goog'), ('doi', 'doi'),
 ]
 
 def unreverse(name):
@@ -776,6 +776,7 @@ def load_from_yaml(yaml_url, test_mode=False):
     return edition.work.id if edition else None
 
 def edition_for_ident(id_type, id_value):
+    print 'returning edition for {}: {}'.format(id_type, id_value)
     for ident in models.Identifier.objects.filter(type=id_type, value=id_value):
         return ident.edition if ident.edition else ident.work.editions[0]
     
@@ -784,9 +785,9 @@ def edition_for_etype(etype, metadata, default=None):
     assumes the metadata contains the isbn_etype attributes, and that the editions have been created.
     etype is 'epub', 'pdf', etc.
     '''
-    isbn = metadata.metadata.get('isbn_{}'.format(etype), None)
+    isbn = metadata.identifiers.get('isbn_{}'.format(etype), None)
     if not isbn:
-        isbn = metadata.metadata.get('isbn_electronic', None)
+        isbn = metadata.identifiers.get('isbn_electronic', None)
     if isbn:
         return edition_for_ident('isbn', isbn)
     else:
