@@ -42,7 +42,7 @@ onload = function(){
                 ISBN: <span itemprop="isbn">{{ edition.isbn_13 }}</span><br />
             {% endif %}
             {% if edition.oclc %}
-                OCLC: <a href="http://www.worldcat.org/oclc/{{ edition.oclc }}">{{ edition.oclc }}</a><br />
+                OCLC: <a href="https://www.worldcat.org/oclc/{{ edition.oclc }}">{{ edition.oclc }}</a><br />
             {% endif %}
 
 {% include 'edition_upload.html' %}

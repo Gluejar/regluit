@@ -83,7 +83,7 @@ def selective_social_user(backend, uid, user=None, *args, **kwargs):
             'is_new': user is None,
             'new_association': False}
 
-# http://stackoverflow.com/a/19361220
+# https://stackoverflow.com/a/19361220
 # adapting https://github.com/omab/python-social-auth/blob/v0.2.10/social/apps/django_app/middleware.py#L25
 
 class SocialAuthExceptionMiddlewareWithoutMessages(SocialAuthExceptionMiddleware):

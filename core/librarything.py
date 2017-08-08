@@ -19,7 +19,7 @@ class LibraryThing(object):
     This class retrieves and parses the CSV representation of a LibraryThing user's library.
     """
     url = "https://www.librarything.com"
-    csv_file_url = "http://www.librarything.com/export-csv"
+    csv_file_url = "https://www.librarything.com/export-csv"
     
     def __init__(self, username=None, password=None):
         self.username = username
@@ -160,7 +160,7 @@ class LibraryThing(object):
         cookies = r.cookies
         
         while next_page:
-            url = "http://www.librarything.com/catalog_bottom.php?view=%s&viewstyle=%d&collection=%d&offset=%d" % (self.username,
+            url = "https://www.librarything.com/catalog_bottom.php?view=%s&viewstyle=%d&collection=%d&offset=%d" % (self.username,
                                         view_style, COLLECTION, offset)
             logger.info("url: %s", url)
             if cookies is None:

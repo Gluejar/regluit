@@ -5,6 +5,7 @@ from django import forms
 from django.contrib.admin import ModelAdmin
 from django.contrib.admin import site as admin_site
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from selectable.forms import ( 
     AutoCompleteSelectWidget,
     AutoCompleteSelectField,
@@ -170,12 +171,27 @@ class EbookAdmin(ModelAdmin):
     exclude = ('edition','user', 'filesize')
 
 class EbookFileAdmin(ModelAdmin):
-    search_fields = ('ebook__edition__title',)  # search by provider using leading url
-    list_display = ('created', 'format', 'edition', 'asking')
+    search_fields = ('ebook__edition__title', 'source')  # search by provider using leading url
+    list_display = ('created', 'format', 'ebook_link', 'asking')
     date_hierarchy = 'created'
     ordering = ('edition__work',)
-    fields = ('file', 'format','edition', 'asking', 'ebook')
-    readonly_fields  = ('file', 'edition', 'asking', 'ebook')
+    fields = ('file', 'format', 'edition_link', 'ebook_link', 'source')
+    readonly_fields  = ('file', 'edition_link', 'ebook_link', 'ebook')
+    def edition_link(self, obj):
+        if obj.edition:
+            link = reverse("admin:core_edition_change", args=[obj.edition.id]) 
+            return u'<a href="%s">%s</a>' % (link,obj.edition)
+        else:
+            return u''
+    def ebook_link(self, obj):
+        if obj.ebook:
+            link = reverse("admin:core_ebook_change", args=[obj.ebook.id]) 
+            return u'<a href="%s">%s</a>' % (link,obj.ebook)
+        else:
+            return u''
+    edition_link.allow_tags=True
+    ebook_link.allow_tags=True
+
 
 class WishlistAdmin(ModelAdmin):
     date_hierarchy = 'created'

@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 
 from regluit.core.models import Subject
 
-#http://stackoverflow.com/questions/8733233/filtering-out-certain-bytes-in-python
+#https://stackoverflow.com/questions/8733233/filtering-out-certain-bytes-in-python
 
 def valid_xml_char_ordinal(c):
     codepoint = ord(c)

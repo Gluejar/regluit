@@ -477,7 +477,7 @@ class Campaign(models.Model):
             # copy custom premiums
             new_premiums = self.premiums.filter(type='CU')
 
-            # setting pk to None will insert new copy http://stackoverflow.com/a/4736172/7782
+            # setting pk to None will insert new copy https://stackoverflow.com/a/4736172/7782
             self.pk = None
             self.status = 'INITIALIZED'
 

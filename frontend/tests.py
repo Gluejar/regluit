@@ -215,9 +215,9 @@ class PledgingUiTests(TestCase):
 
         # login and heck whether user logged in
         self.assertTrue(self.client.login(username=self.USERNAME, password=self.PASSWORD))
-        # http://stackoverflow.com/a/6013115
-        #self.assertEqual(self.client.session['_auth_user_id'], self.user.pk)
-
+        # https://stackoverflow.com/a/6013115
+        #self.assertEqual(self.client.session['_auth_user_id'], self.user.pk)  
+        
         user = auth.get_user(self.client)
         assert user.is_authenticated()
 
