@@ -226,7 +226,18 @@ def edit_edition(request, work_id, edition_id, by=None):
                     work_rel.delete()
                     form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
                     break
-
+            activate_all = request.POST.has_key('activate_all_ebooks')
+            deactivate_all = request.POST.has_key('deactivate_all_ebooks')
+            ebookchange = False
+            for ebook in work.ebooks_all():
+                if request.POST.has_key('activate_ebook_%s' % ebook.id) or activate_all:
+                    ebook.activate()
+                    ebookchange = True
+                elif request.POST.has_key('deactivate_ebook_%s' % ebook.id) or deactivate_all:
+                    ebook.deactivate()
+                    ebookchange = True
+            if ebookchange:
+                form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
         if request.POST.has_key('add_author_submit') and admin:
             new_author_name = request.POST['add_author'].strip()
             new_author_relation =  request.POST['add_author_relation']

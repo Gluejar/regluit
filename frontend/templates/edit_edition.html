@@ -217,7 +217,11 @@ ul.fancytree-container {
 		</p>
 	</div>    
 	<input type="submit" name="create_new_edition" style="font-size: larger;" value="{% if edition.pk %}Save Edits{% else %}Create Edition{% endif %}" id="submit">
+    {% with edition.work as work %}
+    {% include 'ebook_list.html' %}
+    {% endwith %}
 </form>
+
 {% if edition.work %}
 
 <h2>More Edition Management</h2>
