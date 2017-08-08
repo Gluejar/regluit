@@ -34,6 +34,7 @@ from regluit.core.parameters import (
     AGE_LEVEL_CHOICES,
     BORROWED,
     BUY2UNGLUE,
+    ID_CHOICES_MAP,
     INDIVIDUAL,
     LIBRARY,
     OFFER_CHOICES,
@@ -41,9 +42,10 @@ from regluit.core.parameters import (
     TEXT_RELATION_CHOICES,
     THANKED,
     THANKS,
+    WORK_IDENTIFIERS,
 )
 
-# fix truncated file problems per http://stackoverflow.com/questions/12984426/python-pil-ioerror-image-file-truncated-with-big-images
+# fix truncated file problems per https://stackoverflow.com/questions/12984426/python-pil-ioerror-image-file-truncated-with-big-images
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 logger = logging.getLogger(__name__)
@@ -56,7 +58,6 @@ def id_for(obj, type):
         return obj.identifiers.filter(type=type)[0].value
     except IndexError:
         return ''
-
 
 class Identifier(models.Model):
     # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, doab, gtbg, glue, doi
@@ -72,7 +73,13 @@ class Identifier(models.Model):
     def set(type=None, value=None, edition=None, work=None):
         # if there's already an id of this type for this work and edition, change it
         # if not, create it. if the id exists and points to something else, change it.
-        identifier = Identifier.get_or_add(type=type, value=value, edition=edition, work=work)
+        try:
+            identifier = Identifier.objects.filter(type=type, value=value)[0]
+        except IndexError:
+            if type in WORK_IDENTIFIERS:
+                identifier = Identifier.objects.create(type=type, value=value, work=work)
+            else:
+                identifier = Identifier.objects.create(type=type, value=value, work=work, edition=edition)
         if identifier.work.id != work.id:
             identifier.work = work
             identifier.save()
@@ -97,6 +104,9 @@ class Identifier(models.Model):
 
     def __unicode__(self):
         return u'{0}:{1}'.format(self.type, self.value)
+        
+    def label(self):
+        return ID_CHOICES_MAP.get(self.type, self.type)
 
 class Work(models.Model):
     created = models.DateTimeField(auto_now_add=True, db_index=True,)
@@ -152,7 +162,7 @@ class Work(models.Model):
     @property
     def googlebooks_url(self):
         if self.googlebooks_id:
-            return "http://books.google.com/books?id=%s" % self.googlebooks_id
+            return "https://books.google.com/books?id=%s" % self.googlebooks_id
         else:
             return ''
 
@@ -168,7 +178,7 @@ class Work(models.Model):
 
     @property
     def goodreads_url(self):
-        return "http://www.goodreads.com/book/show/%s" % self.goodreads_id
+        return "https://www.goodreads.com/book/show/%s" % self.goodreads_id
 
     @property
     def librarything_id(self):
@@ -176,7 +186,7 @@ class Work(models.Model):
 
     @property
     def librarything_url(self):
-        return "http://www.librarything.com/work/%s" % self.librarything_id
+        return "https://www.librarything.com/work/%s" % self.librarything_id
 
     @property
     def openlibrary_id(self):
@@ -184,7 +194,7 @@ class Work(models.Model):
 
     @property
     def openlibrary_url(self):
-        return "http://openlibrary.org" + self.openlibrary_id
+        return "https://openlibrary.org" + self.openlibrary_id
 
     def cover_filetype(self):
         if self.uses_google_cover():
@@ -201,6 +211,9 @@ class Work(models.Model):
                 return 'jpeg'
             else:
                 return 'image'
+
+    def work_ids(self):
+        return self.identifiers.filter(edition__isnull=True)
 
     def uses_google_cover(self):
         if self.preferred_edition and self.preferred_edition.cover_image:
@@ -1003,6 +1016,7 @@ class EbookFile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     asking = models.BooleanField(default=False)
     ebook = models.ForeignKey('Ebook', related_name='ebook_files', null=True)
+    source = models.URLField(null=True, blank=True)
     version = None
     def check_file(self):
         if self.format == 'epub':
@@ -1084,7 +1098,12 @@ class Ebook(models.Model):
                     if self.save:
                         self.filesize = self.filesize if self.filesize < 2147483647 else 2147483647  # largest safe positive integer
                         self.save()
-                    ebf = EbookFile.objects.create(edition=self.edition, ebook=self, format=self.format)
+                    ebf = EbookFile.objects.create(
+                        edition=self.edition,
+                        ebook=self,
+                        format=self.format,
+                        source=self.url
+                    )
                     ebf.file.save(path_for_file(ebf, None), ContentFile(r.read()))
                     ebf.file.close()
                     ebf.save()

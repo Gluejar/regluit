@@ -1,3 +1,4 @@
+# encoding: utf-8
 """
 external library imports
 """
@@ -201,7 +202,7 @@ class BookLoaderTests(TestCase):
     def test_thingisbn_mock(self):
         with requests_mock.Mocker(real_http=True) as m:
             with open(os.path.join(TESTDIR, '9780441569595.xml')) as lt:
-                m.get('http://www.librarything.com/api/thingISBN/0441007465', content=lt.read())
+                m.get('https://www.librarything.com/api/thingISBN/0441007465', content=lt.read())
             self.test_thingisbn(mocking=True)
 
     def test_thingisbn(self, mocking=False):
@@ -222,7 +223,7 @@ class BookLoaderTests(TestCase):
         # ask for related editions to be added using the work we just created
         with requests_mock.Mocker(real_http=True) as m:
             with open(os.path.join(TESTDIR, '9780441569595.xml')) as lt:
-                m.get('http://www.librarything.com/api/thingISBN/0441007465', content=lt.read())
+                m.get('https://www.librarything.com/api/thingISBN/0441007465', content=lt.read())
             bookloader.add_related('0441007465') # should join the editions
         self.assertTrue(models.Edition.objects.count() >= edbefore)
         self.assertTrue(models.Work.objects.filter(language=lang).count() < langbefore)
@@ -243,7 +244,7 @@ class BookLoaderTests(TestCase):
         edition = bookloader.add_by_isbn('9780606301121') # A People's History Of The United States
         with requests_mock.Mocker(real_http=True) as m:
             with open(os.path.join(TESTDIR, '9780061989834.xml')) as lt:
-                m.get('http://www.librarything.com/api/thingISBN/9780606301121', content=lt.read())
+                m.get('https://www.librarything.com/api/thingISBN/9780606301121', content=lt.read())
             edition = tasks.populate_edition.run(edition.isbn_13)
         self.assertTrue(edition.work.editions.all().count() > 10)
         self.assertTrue(edition.work.subjects.all().count() > 8)
@@ -444,7 +445,7 @@ class BookLoaderTests(TestCase):
                 self.assertEqual(w.first_epub_url(), ebook_epub.url)
                 self.assertEqual(w.first_pdf_url(), ebook_pdf.url)
     
-                ebook_pdf.url='http://en.wikisource.org/wiki/Frankenstein'      
+                ebook_pdf.url='https://en.wikisource.org/wiki/Frankenstein'      
                 self.assertEqual(ebook_pdf.set_provider(), 'Wikisource')
     
                 self.user.wishlist.add_work(w, 'test')        
@@ -492,12 +493,12 @@ class BookLoaderTests(TestCase):
         title = "Moby Dick"
         ol_work_id = "/works/OL102749W"
         gutenberg_etext_id = 2701
-        epub_url = "http://www.gutenberg.org/cache/epub/2701/pg2701.epub"
-        license = 'http://www.gutenberg.org/license'
+        epub_url = "https://www.gutenberg.org/cache/epub/2701/pg2701.epub"
+        license = 'https://www.gutenberg.org/license'
         lang = 'en'
         format = 'epub'
         publication_date = datetime(2001,7,1)
-        seed_isbn = '9780142000083' # http://www.amazon.com/Moby-Dick-Whale-Penguin-Classics-Deluxe/dp/0142000086
+        seed_isbn = '9780142000083' # https://www.amazon.com/Moby-Dick-Whale-Penguin-Classics-Deluxe/dp/0142000086
         
         ebook = bookloader.load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn, epub_url, format, license, lang, publication_date)
         self.assertEqual(ebook.url, epub_url)
@@ -575,7 +576,7 @@ class CampaignTests(TestCase):
 
     def test_required_fields(self):
         # a campaign must have a target, deadline and a work
-        # see http://stackoverflow.com/questions/21458387/transactionmanagementerror-you-cant-execute-queries-until-the-end-of-the-atom
+        # see https://stackoverflow.com/questions/21458387/transactionmanagementerror-you-cant-execute-queries-until-the-end-of-the-atom
         with transaction.atomic():
             c = Campaign()
             self.assertRaises(IntegrityError, c.save)
@@ -591,7 +592,7 @@ class CampaignTests(TestCase):
         c = Campaign(target=D('1000.00'), deadline=datetime(2013, 1, 1), work=w)
         c.license = 'CC BY-NC'
         c.save()
-        self.assertEqual(c.license_url, 'http://creativecommons.org/licenses/by-nc/3.0/')
+        self.assertEqual(c.license_url, 'https://creativecommons.org/licenses/by-nc/3.0/')
         self.assertEqual(c.license_badge, '/static/images/ccbync.png')
         
     def test_campaign_status(self):
@@ -769,7 +770,7 @@ class GoodreadsTest(TestCase):
         gc = goodreads.GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
         reviews = gc.review_list_unauth(user_id=gr_uid, shelf='read')
         # test to see whether there is a book field in each of the review
-        # url for test is http://www.goodreads.com/review/list.xml?id=767708&shelf=read&page=1&per_page=20&order=a&v=2&key=[key]
+        # url for test is https://www.goodreads.com/review/list.xml?id=767708&shelf=read&page=1&per_page=20&order=a&v=2&key=[key]
         self.assertTrue(all([r.has_key("book") for r in reviews]))
 
 class LibraryThingTest(TestCase):
@@ -790,6 +791,7 @@ class ISBNTest(TestCase):
         milosz_10 = '006019667X'
         milosz_13 = '9780060196677'
         python_10 = '0-672-32978-6'
+        funky = '0–672—329 78-6' # endash, mdash, space
         python_10_wrong = '0-672-32978-7'
         python_13 = '978-0-672-32978-4'
         
@@ -798,8 +800,11 @@ class ISBNTest(TestCase):
         # return None for invalid characters
         self.assertEqual(None, isbn.ISBN("978-0-M72-32978-X").to_string('13'))
         self.assertEqual(isbn.ISBN("978-0-M72-32978-X").valid, False)
+        self.assertEqual(None, bookloader.valid_isbn("978-0-M72-32978-X"))
         # check that only ISBN 13 starting with 978 or 979 are accepted
         self.assertEqual(None, isbn.ISBN("111-0-M72-32978-X").to_string())
+        self.assertEqual(None, bookloader.valid_isbn("111-0-M72-32978-X"))
+        self.assertEqual(isbn_python_13.to_string(), bookloader.valid_isbn(funky))
         
         # right type?
         self.assertEqual(isbn_python_10.type, '10')
@@ -807,12 +812,16 @@ class ISBNTest(TestCase):
         # valid?
         self.assertEqual(isbn_python_10.valid, True)
         self.assertEqual(isbn.ISBN(python_10_wrong).valid, False)
+        self.assertEqual(13, len(bookloader.valid_isbn(python_10)))
+        self.assertEqual(isbn_python_13.to_string(), bookloader.valid_isbn(python_10_wrong))
         
         # do conversion -- first the outside methods
         self.assertEqual(isbn.convert_10_to_13(isbn.strip(python_10)),isbn.strip(python_13))
-        self.assertEqual(isbn.convert_13_to_10(isbn.strip(python_13)),isbn.strip(python_10))
+        self.assertEqual(isbn.convert_10_to_13(isbn.strip(python_10)),isbn.strip(python_13))
         self.assertEqual(isbn.convert_13_to_10('xxxxxxxxxxxxx'),None)
         self.assertEqual(isbn.convert_10_to_13('xxxxxxxxxx'),None)
+        self.assertEqual(None, bookloader.valid_isbn('xxxxxxxxxxxxx'))
+        self.assertEqual(None, bookloader.valid_isbn('xxxxxxxxxx'))
         
         # check formatting
         self.assertEqual(isbn.ISBN(python_13).to_string(type='13'), '9780672329784')
@@ -897,12 +906,12 @@ class DownloadPageTest(TestCase):
         e2.save()
         
         eb1 = models.Ebook()
-        eb1.url = "http://example.org"
+        eb1.url = "https://example.org"
         eb1.edition = e1
         eb1.format = 'epub'
         
         eb2 = models.Ebook()
-        eb2.url = "http://example2.com"
+        eb2.url = "https://example2.com"
         eb2.edition = e2
         eb2.format = 'mobi'
         
@@ -1203,7 +1212,7 @@ class OnixLoaderTests(TestCase):
              'Subtitle': u'',
              'TableOfContents': u'',
              'Title': u'Immersion into Noise',
-             'URL': u'http://dx.doi.org/10.3998/ohp.9618970.0001.001',
+             'URL': u'https://doi.org/10.3998/ohp.9618970.0001.001',
              'eISBN': u'N/A',
              'eListPrice': u'N/A',
              'ePublicationDate': u'',
@@ -1218,7 +1227,7 @@ class OnixLoaderTests(TestCase):
             'keywords': u'Greece; Greek History; Lord Byron; War of Independence; Philhellenes; war; history; Romanticism', 
             'Publication type': u'Monograph', 'GBP price epub': u'5.95', 'publication month': u'11', 'no of tables': u'', 
             'GBP price paperback': u'15.95', 'AUD price epub': u'9.95', 'ISBN 4 with dashes': u'978-1-906924-02-7-epub', 
-            'DOI prefix': u'10.11647', 'License URL (human-readable summary)': u'http://creativecommons.org/licenses/by-nc-nd/2.0/', 
+            'DOI prefix': u'10.11647', 'License URL (human-readable summary)': u'https://creativecommons.org/licenses/by-nc-nd/2.0/', 
             'Contributor 5 surname': u'', 'Contributor 1 first name': u'William', 'Contributor 6 first name': u'', 
             'ONIX Role Code (List 17)6': u'', 'ONIX Role Code (List 17)5': u'', 'ONIX Role Code (List 17)4': u'', 
             'ONIX Role Code (List 17)3': u'', 'ONIX Role Code (List 17)2': u'A24', 'ONIX Role Code (List 17)1': u'A01', 
@@ -1226,7 +1235,7 @@ class OnixLoaderTests(TestCase):
             'ISBN 3 with dashes': u'978-1-906924-02-7', 'Countries excluded': u'None', 'first edition publication date': u'39753', 
             'Original Language': u'English', 'ISBN 1 with dashes': u'978-1-906924-00-3', 'Contributor 4 first name': u'', 
             'ISBN 5 with dashes': u'978-1-906924-02-7-mobi', 'Contributor 2 surname': u'Beaton', 
-            'License URL (our copyright tab)': u'http://www.openbookpublishers.com/isbn/9781906924003#copyright', 
+            'License URL (our copyright tab)': u'https://www.openbookpublishers.com/isbn/9781906924003#copyright', 
             'BISAC subject code 1': u'HIS042000', 'BISAC subject code 3': u'HIS037060', 
             'BISAC subject code 2': u'HIS054000', 'BISAC subject code 5': u'', 
             'BISAC subject code 4': u'', 'Status': u'Active', 'Geographic rights': u'Worldwide', 

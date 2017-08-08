@@ -5,7 +5,7 @@ contributor:
         gutenberg_agent_id: 25396
         agent_name: John Schoenherr
         agent_sortname: Schoenherr, John
-        wikipedia: http://en.wikipedia.org/wiki/John_Schoenherr
+        wikipedia: https://en.wikipedia.org/wiki/John_Schoenherr
 covers:
    -
     image_path: 20728-h/images/illus-front.jpg
@@ -18,7 +18,7 @@ creator:
         gutenberg_agent_id: 8301
         agent_name: H. Beam Piper
         agent_sortname: Piper, H. Beam
-        wikipedia: http://en.wikipedia.org/wiki/H._Beam_Piper
+        wikipedia: https://en.wikipedia.org/wiki/H._Beam_Piper
 description: 
 funding_info: 
 identifiers:
