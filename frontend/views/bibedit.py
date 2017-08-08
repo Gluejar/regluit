@@ -68,7 +68,7 @@ def get_edition(edition_id):
     except models.Edition.DoesNotExist:
         raise Http404 (duplicate-code)
 
-def get_edition_for_id(id_type, id_value):
+def get_edition_for_id(id_type, id_value, user=None):
     ''' the identifier is assumed to not be in database '''
     identifiers = {id_type: id_value}
     if id_type == 'http':
@@ -107,7 +107,7 @@ def get_edition_for_id(id_type, id_value):
             pass
     
     if identifiers.has_key('http'):
-        edition = add_by_webpage(identifiers['http'])
+        edition = add_by_webpage(identifiers['http'], user=user)
         return edition
 
     
@@ -149,7 +149,7 @@ def new_edition(request, by=None):
                     work = ident.work
                     edition = ident.edition if ident.edition else work.preferred_edition
                 else:
-                    edition = get_edition_for_id(id_type, id_value)
+                    edition = get_edition_for_id(id_type, id_value, user=request.user)
             
             return HttpResponseRedirect(
                 reverse('new_edition', kwargs={

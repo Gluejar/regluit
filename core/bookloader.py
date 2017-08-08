@@ -897,7 +897,7 @@ class BasePandataLoader(object):
         edition.save()
         return edition
 
-    def load_ebooks(self, metadata, edition, test_mode=False):
+    def load_ebooks(self, metadata, edition, test_mode=False, user=None):
         default_edition = edition
         for key in ['epub', 'pdf', 'mobi']:
             url = metadata.metadata.get('download_url_{}'.format(key), None)
@@ -917,7 +917,7 @@ class BasePandataLoader(object):
                         )
                         ebf.file.save(contentfile_name, contentfile)
                         ebf.file.close()
-                        (ebook, created) = models.Ebook.objects.get_or_create(
+                        ebook = models.Ebook.objects.create(
                             url=ebf.file.url,
                             provider='Unglue.it',
                             rights=license,
@@ -925,6 +925,7 @@ class BasePandataLoader(object):
                             edition=edition,
                             filesize=contentfile.size,
                             active=False,
+                            user=user,
                         )
                         ebf.ebook =  ebook
                         ebf.save()
@@ -1018,7 +1019,7 @@ def ebooks_in_github_release(repo_owner, repo_name, tag, token=None):
             for asset in release.iter_assets()
             if EBOOK_FORMATS.get(asset.content_type) is not None]
 
-def add_by_webpage(url, work=None):
+def add_by_webpage(url, work=None, user=None):
     edition = None
     scraper = BaseScraper(url)
     loader = BasePandataLoader(url)
@@ -1027,7 +1028,7 @@ def add_by_webpage(url, work=None):
     for metadata in pandata.get_edition_list():
         edition = loader.load_from_pandata(metadata, work)
         work = edition.work
-    loader.load_ebooks(pandata, edition)
+    loader.load_ebooks(pandata, edition, user=user)
     return edition if edition else None
 
 
