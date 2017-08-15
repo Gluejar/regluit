@@ -879,7 +879,7 @@ class BasePandataLoader(object):
         if metadata.description and len(metadata.description) > len(work.description):
             #be careful about overwriting the work description
             work.description = metadata.description
-        if metadata.creator: #always believe yaml
+        if metadata.creator and not edition.authors.count(): 
             edition.authors.clear()
             for key in metadata.creator.keys():
                 creators = metadata.creator[key]
