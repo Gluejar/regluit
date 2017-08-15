@@ -166,7 +166,8 @@ ul.fancytree-container {
         {% endif %}
         <p> Add/Change an Identifier (Enter 'delete' to remove it). </p>
         {{ form.id_value.errors }} 
-		{{ identform.as_p }}
+		{{ identform.id_type }}
+		{{ identform.id_value}}
 		<p><b>Description</b>: <br />
 		{{ form.description.errors }}{{ form.description }}<br />
 		(<i>{% if work.last_campaign %}
