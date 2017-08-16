@@ -29,6 +29,7 @@ from questionnaire.models import Landing
 from regluit.core import mobi
 import regluit.core.cc as cc
 from regluit.core.epub import test_epub
+from regluit.core.links import id_url
 
 from regluit.core.parameters import (
     AGE_LEVEL_CHOICES,
@@ -107,6 +108,9 @@ class Identifier(models.Model):
         
     def label(self):
         return ID_CHOICES_MAP.get(self.type, self.type)
+        
+    def url(self):
+        return id_url(self.type, self.value)
 
 class Work(models.Model):
     created = models.DateTimeField(auto_now_add=True, db_index=True,)
@@ -161,10 +165,7 @@ class Work(models.Model):
 
     @property
     def googlebooks_url(self):
-        if self.googlebooks_id:
-            return "https://books.google.com/books?id=%s" % self.googlebooks_id
-        else:
-            return ''
+        return id_url('goog', self.googlebooks_id)
 
     @property
     def goodreads_id(self):
@@ -178,7 +179,7 @@ class Work(models.Model):
 
     @property
     def goodreads_url(self):
-        return "https://www.goodreads.com/book/show/%s" % self.goodreads_id
+        return id_url('gdrd', self.goodreads_id)
 
     @property
     def librarything_id(self):
@@ -186,7 +187,7 @@ class Work(models.Model):
 
     @property
     def librarything_url(self):
-        return "https://www.librarything.com/work/%s" % self.librarything_id
+        return id_url('ltwk', self.librarything_id)
 
     @property
     def openlibrary_id(self):
@@ -194,8 +195,8 @@ class Work(models.Model):
 
     @property
     def openlibrary_url(self):
-        return "https://openlibrary.org" + self.openlibrary_id
-
+        return id_url('olwk', self.openlibrary_id)
+        
     def cover_filetype(self):
         if self.uses_google_cover():
             return 'jpeg'

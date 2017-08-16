@@ -99,14 +99,15 @@ class BaseScraper(object):
         if value:
             self.identifiers['doi'] = value
         isbns = {}
-        label_map = {'epub': 'EPUB', 'mobi': 'Mobi', 'paper': 
-            'Paperback', 'pdf': 'PDF', 'hard':'Hardback'}
+        label_map = {'epub': 'EPUB', 'mobi': 'Mobi', 
+            'paper': 'Paperback', 'pdf': 'PDF', 'hard':'Hardback'}
         for key in label_map.keys():
             isbn_key = 'isbn_{}'.format(key)
             value = self.check_metas(['citation_isbn'], type=label_map[key])
             value = identifier_cleaner('isbn')(value)
             if value:
                 isbns[isbn_key] = value
+                self.identifiers['isbn_{}'] = value
                 
         ed_list = []
         if len(isbns):
@@ -114,7 +115,7 @@ class BaseScraper(object):
             for key in isbns.keys():
                 isbn_type = key.split('_')[-1]
                 ed_list.append({
-                    'edition': isbn_type,
+                    'edition_note': isbn_type,
                     'edition_identifiers': {'isbn': isbns[key]}
                 })
         else:
@@ -124,7 +125,7 @@ class BaseScraper(object):
                     isbn = identifier_cleaner('isbn')(isbn)
                     if isbn:
                         ed_list.append({
-                            'edition': isbn,
+                            '_edition': isbn,
                             'edition_identifiers': {'isbn': isbn}
                         })
         if len(ed_list):
