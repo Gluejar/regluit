@@ -856,9 +856,22 @@ class BasePandataLoader(object):
         if not work:
             work = models.Work.objects.create(title=metadata.title, language=metadata.language)
         if not edition:
-            edition =  models.Edition.objects.create(title=metadata.title, work=work)
+            if metadata.edition_note:
+                (note, created) = models.EditionNote.objects.get_or_create(note=metadata.edition_note)
+            else:
+                note = None
+            edition =  models.Edition.objects.create(
+                title=metadata.title,
+                work=work,
+                note=note,
+            )
         for (identifier, id_code, value) in new_ids:
-            models.Identifier.set(type=id_code, value=value, edition=edition if id_code not in WORK_IDENTIFIERS else None, work=work)
+            models.Identifier.set(
+                type=id_code,
+                value=value,
+                edition=edition if id_code not in WORK_IDENTIFIERS else None,
+                work=work,
+            )
         if metadata.publisher: #always believe yaml
             edition.set_publisher(metadata.publisher)
         if metadata.publication_date: #always believe yaml
@@ -866,7 +879,7 @@ class BasePandataLoader(object):
         if metadata.description and len(metadata.description) > len(work.description):
             #be careful about overwriting the work description
             work.description = metadata.description
-        if metadata.creator: #always believe yaml
+        if metadata.creator and not edition.authors.count(): 
             edition.authors.clear()
             for key in metadata.creator.keys():
                 creators = metadata.creator[key]

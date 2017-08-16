@@ -3,7 +3,7 @@
 <ul>
 {% for ebook in work.ebooks_all %}
 <li>
-<a href="{{ ebook.url }}">{{ ebook.format }}</a>, created {{ ebook.created }}{% if ebook.user %}, 
+<a href="{{ ebook.url }}">{{ ebook.format }}, {{ ebook.rights }}</a>, created {{ ebook.created }}{% if ebook.user %}, 
 by <a href="{% url 'supporter' ebook.user.id %}">{{ ebook.user }}</a>{% endif %}.
 {% if ebook.filesize %}{{ ebook.filesize }}{% else %}??{% endif %}B 
 {% if ebook.version_label %}{{ ebook.version }}{% endif %}
