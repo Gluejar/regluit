@@ -152,7 +152,7 @@ ul.fancytree-container {
         <p><b>For the Work:</b></p>
         <ul class="bullets">
         {% for ident in edition.work.work_ids %}
-        <li><b>{{ ident.label }}</b>: {{ ident.value }}</li>
+        <li><b>{{ ident.label }}</b>: {% if ident.url %}<a href='{{ ident.url }}'>{{ ident.value }}</a>{% else %}{{ ident.value }}{% endif %}</li>
         {% endfor %}
         </ul>
         {% endif %}
@@ -160,7 +160,7 @@ ul.fancytree-container {
         <p><b>For the Edition:</b></p>
         <ul class="bullets">
         {% for ident in edition.identifiers.all %}
-        <li><b>{{ ident.label }}</b>: {{ ident.value }}</li>
+        <li><b>{{ ident.label }}</b>: {% if ident.url %}<a href='{{ ident.url }}'>{{ ident.value }}</a>{% else %}{{ ident.value }}{% endif %}</li>
         {% endfor %}
         </ul>
         {% endif %}
