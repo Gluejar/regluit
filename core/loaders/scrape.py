@@ -107,7 +107,7 @@ class BaseScraper(object):
             value = identifier_cleaner('isbn')(value)
             if value:
                 isbns[isbn_key] = value
-                self.identifiers['isbn_{}'] = value
+                self.identifiers[isbn_key] = value
                 
         ed_list = []
         if len(isbns):
