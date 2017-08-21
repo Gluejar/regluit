@@ -168,7 +168,7 @@ class ApiHelpView(TemplateView):
 
 class OPDSNavigationView(TemplateView):
     json=False
-    # http://stackoverflow.com/a/6867976: secret to how to change content-type
+    # https://stackoverflow.com/a/6867976: secret to how to change content-type
     
     def render_to_response(self, context, **response_kwargs):
         if json:

@@ -287,9 +287,20 @@ class Acq(models.Model):
             self.format = 'mobi'
             self.filesize = 0
         def save(self):
-            # TODO how to handle filesize?
             return True
-
+        def get_archive(self):
+            try:
+                r = urllib2.urlopen(self.url)
+                try:
+                    self.filesize = int(r.info().getheaders("Content-Length")[0])
+                except IndexError:
+                    # response has no Content-Length header probably a bad link
+                    logging.error('Bad link error: {}'.format(self.url))
+                return r
+            except IOError:
+                logger.error(u'could not open {}'.format(self.url))
+        
+        
     def ebook(self):
         return self.mock_ebook(self)
 
@@ -406,6 +417,14 @@ class Hold(models.Model):
     def ahead(self):
         return Hold.objects.filter(work=self.work, library=self.library, created__lt=self.created).count()
 
+STATUS_CHOICES = (
+    ('INITIALIZED','INITIALIZED'),
+    ('ACTIVE', 'ACTIVE'), 
+    ('SUSPENDED',  'SUSPENDED'),
+    ('WITHDRAWN', 'WITHDRAWN'),
+    ('SUCCESSFUL', 'SUCCESSFUL'),
+    ('UNSUCCESSFUL', 'UNSUCCESSFUL')
+)
 class Campaign(models.Model):
     LICENSE_CHOICES = cc.FREECHOICES
     created = models.DateTimeField(auto_now_add=True,)
@@ -424,7 +443,8 @@ class Campaign(models.Model):
     work = models.ForeignKey("Work", related_name="campaigns", null=False)
     managers = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="campaigns", null=False)
     # status: INITIALIZED, ACTIVE, SUSPENDED, WITHDRAWN, SUCCESSFUL, UNSUCCESSFUL
-    status = models.CharField(max_length=15, null=True, blank=False, default="INITIALIZED", db_index=True,)
+    status = models.CharField( max_length=15, null=True, blank=False, default="INITIALIZED", 
+        db_index=True, choices=STATUS_CHOICES)
     type = models.PositiveSmallIntegerField(null=False, default=REWARDS,
                                             choices=((REWARDS, 'Pledge-to-unglue campaign'),
                                                      (BUY2UNGLUE, 'Buy-to-unglue campaign'),
@@ -457,7 +477,7 @@ class Campaign(models.Model):
             # copy custom premiums
             new_premiums = self.premiums.filter(type='CU')
 
-            # setting pk to None will insert new copy http://stackoverflow.com/a/4736172/7782
+            # setting pk to None will insert new copy https://stackoverflow.com/a/4736172/7782
             self.pk = None
             self.status = 'INITIALIZED'
 

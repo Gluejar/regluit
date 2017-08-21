@@ -22,7 +22,7 @@ urlpatterns = [
     url(r"^notification/", include('notification.urls')),
     url(r'^ckeditor/', include('ckeditor.urls')),
     # questionnaire urls
-    url(r'^survey/', include('regluit.questionnaire.urls')),
+    url(r'^survey/', include('questionnaire.urls')),
     # sitemaps
     url(r'^sitemap\.xml$', index, {'sitemaps': sitemaps},
         name='django.contrib.sitemaps.views.sitemap'),

@@ -37,8 +37,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     end
 
   
-   # 512MB not enough for compiling lxml: http://stackoverflow.com/a/25916353/7782
-   # http://stackoverflow.com/a/26468913/7782 --> for how to get to this setting
+   # 512MB not enough for compiling lxml: https://stackoverflow.com/a/25916353/7782
+   # https://stackoverflow.com/a/26468913/7782 --> for how to get to this setting
     node.vm.provider "virtualbox" do |v|
         v.memory = 1024
         v.cpus = 2

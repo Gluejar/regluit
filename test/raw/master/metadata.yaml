@@ -10,7 +10,7 @@ contributor:
     deathdate: 1933
     gutenberg_agent_id: '37155'
     url: http://www.gutenberg.org/2009/agents/37155
-    wikipedia: http://en.wikipedia.org/wiki/E._W._Kemble
+    wikipedia: https://en.wikipedia.org/wiki/E._W._Kemble
 edition_list:
     -
         _edition: rtc_isbn
@@ -32,8 +32,8 @@ creator:
     deathdate: 1910
     gutenberg_agent_id: '53'
     url: http://www.gutenberg.org/2009/agents/53
-    wikipedia: http://en.wikipedia.org/wiki/Mark_Twain
-description: 'Wikipedia: http://en.wikipedia.org/wiki/Adventures_of_Huckleberry_Finn'
+    wikipedia: https://en.wikipedia.org/wiki/Mark_Twain
+description: 'Wikipedia: https://en.wikipedia.org/wiki/Adventures_of_Huckleberry_Finn'
 gutenberg_bookshelf:
 - Banned Books from Anne Haight's list
 - Best Books Ever Listings
@@ -45,7 +45,7 @@ language: en
 publication_date: 2015-08-01
 publisher: Project Gutenberg
 rights: PD-US
-rights_url: http://creativecommons.org/licenses/by-nc/4.0/
+rights_url: https://creativecommons.org/licenses/by-nc/4.0/
 subjects:
 - !lcsh Male friendship -- Fiction
 - !lcsh Fugitive slaves -- Fiction

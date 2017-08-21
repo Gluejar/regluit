@@ -3,7 +3,7 @@ import sys
 import unicodedata
 
 
-#http://stackoverflow.com/questions/1707890/fast-way-to-filter-illegal-xml-unicode-chars-in-python
+#https://stackoverflow.com/questions/1707890/fast-way-to-filter-illegal-xml-unicode-chars-in-python
 _illegal_unichrs = [(0x00, 0x08), (0x0B, 0x0C), (0x0E, 0x1F), 
                         (0x7F, 0x84), (0x86, 0x9F), 
                         (0xFDD0, 0xFDDF), (0xFFFE, 0xFFFF)] 

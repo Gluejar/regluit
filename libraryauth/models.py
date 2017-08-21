@@ -235,7 +235,7 @@ class Block(models.Model):
         ordering = ['lower',]
 
 
-# from http://en.wikipedia.org/wiki/Luhn_algorithm#Implementation_of_standard_Mod_10
+# from https://en.wikipedia.org/wiki/Luhn_algorithm#Implementation_of_standard_Mod_10
 def luhn_checksum(card_number):
     def digits_of(n):
         return [int(d) for d in str(n)]

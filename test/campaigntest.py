@@ -211,7 +211,7 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     
     # click on biggest campaign list
     # I have no idea why selenium thinks a is not displayed....so that's why I'm going up one element.
-    # http://stackoverflow.com/a/6141678/7782
+    # https://stackoverflow.com/a/6141678/7782
     #biggest_campaign_link = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("li > a[href*='/campaigns/ending']"))
     #biggest_campaign_link.click()
     #time.sleep(1)

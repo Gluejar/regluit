@@ -5,13 +5,13 @@
 ## need to add versioned CC  entries
 
 INFO_CC = (
-    ('CC BY-NC-ND', 'by-nc-nd', 'Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported (CC BY-NC-ND 3.0)', 'http://creativecommons.org/licenses/by-nc-nd/3.0/', 'Creative Commons Attribution-NonCommercial-NoDerivs'),     
-    ('CC BY-NC-SA', 'by-nc-sa', 'Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0)', 'http://creativecommons.org/licenses/by-nc-sa/3.0/', 'Creative Commons Attribution-NonCommercial-ShareAlike'),
-    ('CC BY-NC', 'by-nc', 'Creative Commons Attribution-NonCommercial 3.0 Unported (CC BY-NC 3.0)', 'http://creativecommons.org/licenses/by-nc/3.0/', 'Creative Commons Attribution-NonCommercial'),
-    ('CC BY-ND', 'by-nd', 'Creative Commons Attribution-NoDerivs 3.0 Unported (CC BY-ND 3.0)', 'http://creativecommons.org/licenses/by-nd/3.0/','Creative Commons Attribution-NoDerivs'), 
-    ('CC BY-SA', 'by-sa', 'Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)', 'http://creativecommons.org/licenses/by-sa/3.0/', 'Creative Commons Attribution-ShareAlike'),
-    ('CC BY', 'by', 'Creative Commons Attribution 3.0 Unported (CC BY 3.0)', 'http://creativecommons.org/licenses/by/3.0/', 'Creative Commons Attribution'), 
-    ('CC0', 'cc0', 'No Rights Reserved (CC0)', 'http://creativecommons.org/about/cc0', 'No Rights Reserved (CC0)'),
+    ('CC BY-NC-ND', 'by-nc-nd', 'Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported (CC BY-NC-ND 3.0)', 'https://creativecommons.org/licenses/by-nc-nd/3.0/', 'Creative Commons Attribution-NonCommercial-NoDerivs'),     
+    ('CC BY-NC-SA', 'by-nc-sa', 'Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0)', 'https://creativecommons.org/licenses/by-nc-sa/3.0/', 'Creative Commons Attribution-NonCommercial-ShareAlike'),
+    ('CC BY-NC', 'by-nc', 'Creative Commons Attribution-NonCommercial 3.0 Unported (CC BY-NC 3.0)', 'https://creativecommons.org/licenses/by-nc/3.0/', 'Creative Commons Attribution-NonCommercial'),
+    ('CC BY-ND', 'by-nd', 'Creative Commons Attribution-NoDerivs 3.0 Unported (CC BY-ND 3.0)', 'https://creativecommons.org/licenses/by-nd/3.0/','Creative Commons Attribution-NoDerivs'), 
+    ('CC BY-SA', 'by-sa', 'Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)', 'https://creativecommons.org/licenses/by-sa/3.0/', 'Creative Commons Attribution-ShareAlike'),
+    ('CC BY', 'by', 'Creative Commons Attribution 3.0 Unported (CC BY 3.0)', 'https://creativecommons.org/licenses/by/3.0/', 'Creative Commons Attribution'), 
+    ('CC0', 'cc0', 'No Rights Reserved (CC0)', 'https://creativecommons.org/about/cc0', 'No Rights Reserved (CC0)'),
 )
 INFO_FREE = INFO_CC + (
     ('GFDL', 'gdfl', 'GNU Free Documentation License', 'http://www.gnu.org/licenses/fdl-1.3-standalone.html', 'GNU Free Documentation License'),
@@ -19,7 +19,7 @@ INFO_FREE = INFO_CC + (
     ('OSI', 'opensource', 'OSI Approved License', 'https://opensource.org/licenses', 'OSI Approved License'),
 )
 INFO_PD = (
-    ('PD-US', 'pd-us', 'Public Domain, US', 'http://creativecommons.org/about/pdm', 'Public Domain, US'),
+    ('PD-US', 'pd-us', 'Public Domain, US', 'https://creativecommons.org/about/pdm', 'Public Domain, US'),
 )
 INFO_ALL = INFO_FREE + INFO_PD
 # CCHOICES, CCGRANTS, and FORMATS are all used in places that expect tuples

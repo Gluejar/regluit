@@ -85,8 +85,6 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    join(PROJECT_DIR,'questionnaire/static/'),
-
 )
 
 # List of finder classes that know how to find static files in
@@ -138,7 +136,7 @@ MIDDLEWARE_CLASSES = (
     'maintenancemode.middleware.MaintenanceModeMiddleware',
     'regluit.libraryauth.auth.SocialAuthExceptionMiddlewareWithoutMessages',
     'django.middleware.locale.LocaleMiddleware',
-    'regluit.questionnaire.request_cache.RequestCacheMiddleware',
+    'questionnaire.request_cache.RequestCacheMiddleware',
 )
 
 ROOT_URLCONF = 'regluit.urls'
@@ -182,8 +180,8 @@ INSTALLED_APPS = (
     'regluit.pyepub',
     'regluit.libraryauth', 
     'transmeta',
-    'regluit.questionnaire',
-    'regluit.questionnaire.page',  
+    'questionnaire',
+    'questionnaire.page',  
 )
 
 # A sample logging configuration. The only tangible logging
@@ -463,6 +461,8 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520 #20MB
 
 QUESTIONNAIRE_USE_SESSION = False
 QUESTIONNAIRE_DEBUG = True
+QUESTIONNAIRE_ITEM_MODEL = 'core.Work'
+QUESTIONNAIRE_SHOW_ITEM_RESULTS = False
 
 # Selenium related -- set if Se tests run
 FIREFOX_PATH = ''

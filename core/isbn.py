@@ -1,6 +1,7 @@
+# encoding: utf-8
 ## {{{ http://code.activestate.com/recipes/498104/ (r1)
 
-## also http://stackoverflow.com/questions/4047511/checking-if-an-isbn-number-is-correct
+## also https://stackoverflow.com/questions/4047511/checking-if-an-isbn-number-is-correct
 
 import re
 
@@ -35,7 +36,7 @@ def _convert_10_to_13(isbn):
 
 def convert_10_to_13(isbn):
     try:
-        isbn=ISBN(isbn)
+        isbn = ISBN(isbn)
         isbn.validate()
         if isbn.valid:
             return isbn.to_string()
@@ -44,20 +45,24 @@ def convert_10_to_13(isbn):
     except:
         return None
 
+ISBN_REGEX = re.compile(r'^(\d{9}|\d{12})(\d|X)$')
+DASH_REGEX = re.compile(r'[ \-–—]+')
 def strip(s):
-    """Strips away any - or spaces.  If the remaining string is of length 10 or 13 with digits only in anything but the last
-    check digit (which may be X), then return '' -- otherwise return the remaining string"""
+    """Strips away any - or spaces.  If the remaining string is of length 10 or 13
+    with digits only in anything but the last
+    check digit (which may be X), then return '' -- otherwise return the remaining string
+    """
     try:
-        s = s.replace("-", "").replace(" ", "").upper()
-        match = re.search(r'^(\d{9}|\d{12})(\d|X)$', s)
+        s = DASH_REGEX.sub('', s).upper()
+        match = ISBN_REGEX.search(s)
     except:
         return None
-    
+
     if not match:
         return None
     else:
         return s
-   
+
 def _convert_13_to_10(isbn):
     assert len(isbn) == 13
     # only ISBN-13 starting with 978 can have a valid ISBN 10 partner
@@ -66,7 +71,7 @@ def _convert_13_to_10(isbn):
 
 def convert_13_to_10(isbn):
     try:
-        isbn=ISBN(isbn)
+        isbn = ISBN(isbn)
         isbn.validate()
         if isbn.valid:
             return isbn.to_string(type='10')
@@ -74,7 +79,7 @@ def convert_13_to_10(isbn):
             return None
     except:
         return None
-    
+
 class ISBNException(Exception):
     pass
 
@@ -82,10 +87,10 @@ class ISBN(object):
     def __init__(self, input_isbn):
         self.input_isbn = input_isbn
         self.error = None
-        
+
         stripped_isbn = strip(input_isbn)
-            
-        if stripped_isbn is None or len(stripped_isbn) not in (10,13):
+
+        if stripped_isbn is None or len(stripped_isbn) not in (10, 13):
             self.error = "input_isbn does not seem to be a valid ISBN"
             self.__type = None
             self.__valid = False
@@ -99,17 +104,18 @@ class ISBN(object):
             self.__isbn10 = stripped_isbn
             self.__valid_10 = stripped_isbn[0:9] + check_digit_10(stripped_isbn[0:9])
             self.__valid = (self.__isbn10 == self.__valid_10)
-            
+
             # this is the corresponding ISBN 13 based on the assumption of a valid ISBN 10
             self.__isbn13 = _convert_10_to_13(stripped_isbn)
-            self.__valid_13 = self.__isbn13  
+            self.__valid_13 = self.__isbn13
 
         elif len(stripped_isbn) == 13:
-            # Assume ISBN 13 all have to begin with 978 or 979 and only 978 ISBNs can possibly have ISBN-10 counterpart
-            
+            # Assume ISBN 13 all have to begin with 978 or 979 and only 978 ISBNs
+            # can possibly have ISBN-10 counterpart
+
             self.__type = '13'
             self.__isbn13 = stripped_isbn
-            
+
             if stripped_isbn[0:3] not in ['978','979']:
                 self.error = "ISBN 13 must begin with 978 or 979 not %s " % (stripped_isbn[0:3])
                 self.__valid = False
@@ -117,7 +123,7 @@ class ISBN(object):
             else:
                 self.__valid_13 = stripped_isbn[0:12] + check_digit_13(stripped_isbn[0:12])
                 self.__valid = (self.__isbn13 == self.__valid_13)
-            
+
             # now check to see whether the isbn starts with 978 -- only then convert to ISBN -10
             if self.__isbn13[0:3] == '978':
                 self.__isbn10 = _convert_13_to_10(stripped_isbn)
@@ -158,11 +164,11 @@ class ISBN(object):
                 s = self.__isbn13
                 return "%s-%s-%s-%s-%s" % (s[0:3], s[3], s[4:7], s[7:12], s[12])
             else:
-                return self.__isbn13 
+                return self.__isbn13
     def __unicode__(self):
-        return unicode(self.to_string(type=self.type,hyphenate=False))
+        return unicode(self.to_string(type=self.type, hyphenate=False))
     def __str__(self):
-        s = self.to_string(type=self.type,hyphenate=False)
+        s = self.to_string(type=self.type, hyphenate=False)
         if s is not None:
             return s
         else:
@@ -177,14 +183,16 @@ class ISBN(object):
         else:
             try:
                 other_isbn = ISBN(other)
-                if (self.valid and other_isbn.valid) and (self.to_string('13') == other_isbn.to_string('13')):
+                if ((self.valid and other_isbn.valid) and
+                    (self.to_string('13') ==  other_isbn.to_string('13'))
+                ):
                     return True
                 else:
                     return False
             except:
                 return False
-                
+
     def __ne__(self, other):
         return not (self.__eq__(other))
-    
-    
+
+

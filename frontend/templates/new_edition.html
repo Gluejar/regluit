@@ -4,227 +4,31 @@
 {% block extra_extra_head %}
 {{ block.super }}
   <link rel="stylesheet" href="/static/css/ui-lightness/jquery-ui-1.8.16.custom.css" type="text/css" media="screen">
-  <link href="/static/css/ui.fancytree.min.css" rel="stylesheet" type="text/css">
-  <style type="text/css">
-ul.fancytree-container {
-	width: 100%;
-	height: 10em;
-	overflow: auto;
-	position: relative;
-	margin-top: 0.5em;
-}
-</style>
 {{ form.media.css }}
 <script type="text/javascript" src="{{ jquery_ui_home }}" ></script>
-  <script src="/static/js/jquery.fancytree-all.min.js" type="text/javascript"></script>
-  <script type="text/javascript">
-	$j(function(){
-		// Initialize Fancytree
-		$j("#tree").fancytree({
-			extensions: ["glyph"],
-			checkbox: true,
-			selectMode: 1,
-			glyph: {
-				map: {
-					doc: "fa fa-file-o",
-					docOpen: "fa fa-file-o",
-					checkbox: "fa fa-square-o",
-					checkboxSelected: "fa fa-check-square-o",
-					checkboxUnknown: "fa fa-square",
-					dragHelper: "fa arrow-right",
-					dropMarker: "fa long-arrow-right",
-					error: "fa fa-warning",
-					expanderClosed: "fa fa-caret-right",
-					expanderLazy: "fa fa-angle-right",
-					expanderOpen: "fa fa-caret-down",
-					folder: "fa fa-folder-o",
-					folderOpen: "fa fa-folder-open-o",
-					loading: "fa fa-spinner fa-pulse"
-				}
-			},
-			source: { url: "/bisac/tree", cache: true }
-		});
-		$j("#editform").submit(function() {
-          // Render hidden <input> elements for active and selected nodes
-          $j("#tree").fancytree("getTree").generateFormElements(selected="bisac");
-          //alert("POST data:\n" + $j.param($j(this).serializeArray()));
-          return true;
-        });
-
-	$j().ready(function(){
-        var contentblock = $j('#content-block');
-        contentblock.on("click", "span.deletebutton", function () {
-            var kw = $j(this).attr('data');
-            var li = $j(this).parent();
-            
-            // perform action
-            {% if edition.work %}
-            jQuery.post('{% url 'kw_edit' edition.work.id %}', {'remove_kw': kw, 'csrfmiddlewaretoken': '{{ csrf_token }}' }, function(data) {
-                li.html('kw removed');
-            });
-            {% else %}
-            li.html('kw removed');
-            {% endif %}
-        });
-    // this is the id of the submit button
-
-    $j('#add_subject_submit').click(function(event) { 
-           data= $j('#id_add_subject_0').attr('value')
-           if (data == 'xxbadform'){
-                alert("bad keyword");
-           } else {
-                $j('#kw_list').append('<li>' + data + '<input type="hidden" name="new_subject" value="'+data +'" /><span class="deletebutton" data="' + data +'">x</span></li>')
-           }; // data will be the added kw.
-         });
-
-    });
-});
-
-  </script>
 
 {{ form.media.js }}
 {% endblock %}
 
 {% block doccontent %}
-{% if admin %}
-    {% if edition.pk %}
-    <h2>Edit Edition for <a href="{% url 'work' edition.work.id %}">{{ edition.work.title }}</a></h2>
-    {% else %}
-    <h2>Create New Edition</h2>
-    {% endif %}
 
-<p>Title and ISBN 13 (or DOI, OCLCNum or URL) are required; the rest is optional, though a cover image is strongly recommended.</p>
+
+    <h2>Create New Edition</h2>
+    <p>Step 1 -  <b>Identifier</b></p>
+
+
+<p>To add a work and edition to Unglue.it, we need to start with an identifier. We'll see if we can find some metadata based on the identifier you give us. If you give us an ISBN, we'll often be able to find some. If there's no ISBN, give us a URL (a web address) and we'll check the page for bibliographic info. </p>
 <form id="editform" enctype="multipart/form-data" method="POST" action="#">
 	{% csrf_token %}
-	{{ form.work }}
-	{{ form.non_field_errors }}
-	<!--{{ form.errors }}-->
-	<div> 
-		<p><b>Title</b>: {{ form.title.errors }}{{ form.title }}</p>
-		<p><b>Publisher Name</b> : {{ form.publisher_name.errors }}{{ form.publisher_name }}<br />(If you change this, click another form element before submitting)</p>
-		
-		<p>
-		<b>Authors</b>:
-		{% if edition.pk and edition.relators or edition.new_authors %}
-		<ul>
-            {% for relator in form.relators %}
-                <li>{{ relator.relator.name }} {{ relator.select }} <input type="submit" name="delete_author_{{ relator.relator.author.id }}" value="x"  class="deletebutton" title="delete author"></li>
-            {% endfor %}
-			{% for author in edition.new_authors %}
-				<li>{{ author.0 }}<input type="hidden" name="new_author" value="{{ author.0 }}" /> ({{ author.1 }})<input type="hidden" name="new_author_relation" value="{{ author.1 }}" /></li>
-			{% endfor %}
-		</ul>
-        {% else %}
-        (None listed)
-		{% endif %}
-		</p>
-		
-		<p><b>Add a Creator</b> (<I>Firstname Lastname</I>): {{ form.add_author.errors }}{{ form.add_author }}{{ form.add_author_relation.errors }}{{ form.add_author_relation }}
-		<input type="submit" name="add_author_submit" value="Add Author" id="submit_author"></p>
-
-		<p><b>Language</b>: {{ form.language.errors }}{{ form.language }}</p>
-		{% if edition.pk %}
-		<p><b>Add a Related Work</b>: {{ form.add_work_relation.errors }}{{ form.add_work_relation }} of {{ form.add_related_work.errors }}{{ form.add_related_work }}</p>
-            <ul>{% for work_rel in edition.work.works_related_to.all %}
-            <li>
-            This work is a {{ work_rel.relation }} of <a href="{% url 'work' work_rel.from_work.id %}">{{ work_rel.from_work }}</a>.
-            <input type="submit" name="delete_work_rel_{{ work_rel.id }}" value="x"  class="deletebutton" title="delete work relation">
-            </li>
-            {% endfor %}
-            {% for work_rel in edition.work.works_related_from.all %}
-            <li>
-            <a href="{% url 'work' work_rel.to_work.id %}">{{ work_rel.to_work }}</a> is a {{ work_rel.relation }} of this work.
-            <input type="submit" name="delete_work_rel_{{ work_rel.id }}" value="x"  class="deletebutton" title="delete work relation">
-            </li>
-            {% endfor %}</ul>
-        
-        
-        {% endif %}
-		<p><b>Age Level</b>: {{ form.age_level.errors }}{{ form.age_level }}</p>
-		<p><b>Edition Note</b>: {{ form.note.errors }}{{ form.note }}</p>
-        <h4> Identifiers </h4>
-        {% if id_msg %} <span class="errorlist">{{ id_msg }} </span>{% endif %}
-        <p> Enter 'delete' to remove the identifier. </p>
-		<p><b>ISBN-13</b>: {{ form.isbn.errors }}{{ form.isbn }}</p>
-		<p><b>OCLC Number</b>: {{ form.oclc.errors }}{{ form.oclc }}</p>
-		<p><b>Google Books ID</b>: {{ form.goog.errors }}{{ form.goog }}</p>
-		<p><b>GoodReads ID</b>: {{ form.gdrd.errors }}{{ form.gdrd }}</p>
-		<p><b>LibraryThing ID</b>: {{ form.thng.errors }}{{ form.thng }}</p>
-		<p><b>DOI</b>: {{ form.doi.errors }}{{ form.doi }}</p>
-		<p><b>HTTP(S) ID</b>: {{ form.http.errors }}{{ form.http }}</p>
-		<p><b>Description</b>: <br />
-		{{ form.description.errors }}{{ form.description }}<br />
-		(<i>{% if work.last_campaign %}
-		        {% ifequal work.last_campaign.type 3 %}
-		        This will appear in the Description tab on the book page.  
-		        {% else %}
-		        The campaign pitch will override this description.
-		        {% endifequal %}
-		    {% else %}
-		    This will appear in the Description tab on the book page. 
-		    {% endif %}
-        </i>)</p>
-		<p><b>Publication Date</b> (<I>four-digit year</I>): {{ form.publication_date.errors }}{{ form.publication_date }}</p>
-            <p><b>Subjects</b>:
-            <ul id="kw_list">
-                {% if edition.work.pk and edition.work.subjects %}
-                    {% for subject in edition.work.subjects.all %}
-                        <li>{{ subject.name }}
-                        {% if subject.authority %}
-                        ({{subject.authority}})
-                        {% endif %}
-                        <span class="deletebutton" data="{{ subject.name }}">x</span></li>
-                    {% endfor %}
-                {% endif %}
-                {% for new_subject in edition.new_subjects %}
-                    <li>{{ new_subject }}<input type="hidden" name="new_subject" value="{{ new_subject }}" /></li>
-                {% endfor %}
-            </ul>
-            
-            <b>Add a Subject</b>: {{ form.add_subject.errors }}{{ form.add_subject }}
-            <a class="fakeinput" id="add_subject_submit"  style="font-size: smaller;" >Add Subject</a></p>
-        <p id="tree" name="is_bisac"><b>Add BISAC Subject</b>:
-        
-        </p>
-		
-		<p><b>Cover Image</b>: <br />
-		{% if edition.cover_image %}
-		<img src="{{edition.cover_image}}" /><br />
-		{% else %}
-		[ no cover specified for this edition ]<br />
-		{% endif %}
-		{{ form.cover_image.errors }}{{ form.cover_image }}{{ form.cover_image.help_text }}
-		(<i>Enter a URL for an image, at least 300 px wide. The image will be scaled to the proportions of a 6x9 cover. </i>)<br />
-		OR...<br />
-		
-		{{ form.coverfile.errors }}{{ form.coverfile }}{{ form.coverfile.help_text }}
-		(<i>upload a cover image file (we'll automatically size if for you). </i>)<br />
-		</p>
-	</div>    
-	<input type="submit" name="create_new_edition" style="font-size: larger;" value="{% if edition.pk %}Save Edits{% else %}Create Edition{% endif %}" id="submit">
+	{{ form.as_p }}
+	<!--{{ form.errors.as_data }}-->
+	
+	<p> 
+	<input type="submit" name="new_edition_identifier" style="font-size: larger;" value="Start Edition" id="submit">
+	</p>
 </form>
-{% if edition.work %}
-
-<h2>More Edition Management</h2>
-
-<div><a href="{% url 'merge' edition.work.id  %}">Merge other works into this one</a></div>
-<div><a href="{% url 'work_editions' edition.work.id  %}">Remove editions from this work</a></div>
-{% if edition.id %}
-<div><a href="{% url 'manage_ebooks' edition.id  %}">Add ebooks for this edition</a></div>
-{% endif %}
-{% if request.user.is_staff %}
-<div><a href="{% url 'feature' edition.work.id  %}">Feature this work today</a></div>
-{% endif %}
 <br />
-{% endif %}
 
-{% else %}
-    {% if edition.work %}
-    {% include 'edition_display.html' %}
-    {% else %}
-    Sorry, there's no work specified.
-    {% endif %}
-{% endif %}
 
 {% endblock %}
 

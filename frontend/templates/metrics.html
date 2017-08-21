@@ -117,7 +117,9 @@
         </li>
         <li>{{ ebookfiles.days7.count }} have been added in the past 7 days.{% if request.user.is_staff %} 
             <ul class="terms">{% for ebook_file in ebookfiles.days7 %}
-                <li>{{ebook_file.edition.work.title}}: <a href="{{ebook_file.file.url}}">{{ebook_file.file}}</a> created {{ebook_file.created}}</li>
+                <li>{{ebook_file.edition.work.title}}:  <a href="{{ebook_file.file.url}}">{{ebook_file.file}}</a> created {{ebook_file.created}} by {{ebook_file.ebook.user}}<br/>
+                ({% if not ebook_file.ebook.active %}in{% endif %}active) <a href="{% url 'new_edition' ebook_file.edition.work.id ebook_file.edition.id %}">edit</a>
+                </li>
             {% endfor %}</ul>{% endif %}
 
         </li>
