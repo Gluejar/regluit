@@ -192,7 +192,6 @@ class BaseScraper(object):
             self.set('rights_url', link['href'])
 
 def scrape_sitemap(url, maxnum=None):
-    print type(maxnum)
     try:
         response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
         doc = BeautifulSoup(response.content, 'lxml')
