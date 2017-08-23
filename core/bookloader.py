@@ -38,7 +38,7 @@ from . import cc
 from . import models
 from .parameters import WORK_IDENTIFIERS
 from .validation import identifier_cleaner
-from .loaders.scrape import BaseScraper
+from .loaders.scrape import BaseScraper, scrape_sitemap
 
 logger = logging.getLogger(__name__)
 request_log = logging.getLogger("requests")
@@ -776,7 +776,7 @@ def load_from_yaml(yaml_url, test_mode=False):
     return edition.work.id if edition else None
 
 def edition_for_ident(id_type, id_value):
-    print 'returning edition for {}: {}'.format(id_type, id_value)
+    #print 'returning edition for {}: {}'.format(id_type, id_value)
     for ident in models.Identifier.objects.filter(type=id_type, value=id_value):
         return ident.edition if ident.edition else ident.work.editions[0]
     
@@ -1044,6 +1044,22 @@ def add_by_webpage(url, work=None, user=None):
         work = edition.work
     loader.load_ebooks(pandata, edition, user=user)
     return edition if edition else None
+
+def add_by_sitemap(url, maxnum=None):
+    editions = []
+    scraper = BaseScraper(url)
+    for bookdata in scrape_sitemap(url, maxnum=maxnum):
+        edition = None
+        loader = BasePandataLoader(bookdata.base)
+        pandata = Pandata()
+        pandata.metadata = bookdata.metadata
+        for metadata in pandata.get_edition_list():
+            edition = loader.load_from_pandata(metadata, None)
+            work = edition.work
+        loader.load_ebooks(pandata, edition)
+        if edition:
+            editions.append(edition)
+    return editions
 
 
 

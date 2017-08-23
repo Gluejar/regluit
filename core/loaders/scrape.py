@@ -15,6 +15,9 @@ CONTAINS_COVER = re.compile('cover')
 CONTAINS_CC = re.compile('creativecommons.org')
 
 class BaseScraper(object):
+    '''
+    designed to make at least a decent gues for webpages that embed metadata
+    '''
     def __init__(self, url):
         self.metadata = {}
         self.identifiers = {'http': url}
@@ -24,6 +27,7 @@ class BaseScraper(object):
             response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
             if response.status_code == 200:
                 self.doc = BeautifulSoup(response.content, 'lxml')
+                self.get_genre()
                 self.get_title()
                 self.get_language()
                 self.get_description()
@@ -41,7 +45,7 @@ class BaseScraper(object):
                 self.set('language', 'en')
         except requests.exceptions.RequestException as e:
             logger.error(e)
-            self.metadata = None
+            self.metadata = {}
         self.metadata['identifiers'] = self.identifiers
     
     def set(self, name, value):
@@ -74,6 +78,11 @@ class BaseScraper(object):
             if value:
                 return value
         return value 
+
+    def get_genre(self):
+        value = self.check_metas(['DC.Type','dc.type'])
+        if value and value == 'Text.Book':
+            self.set('genre', 'book')            
 
     def get_title(self):
         value = self.check_metas(['DC.Title','dc.title', 'citation_title', 'title'])
@@ -181,3 +190,15 @@ class BaseScraper(object):
         links = self.doc.find_all(href=CONTAINS_CC)
         for link in links:
             self.set('rights_url', link['href'])
+
+def scrape_sitemap(url, maxnum=None):
+    print type(maxnum)
+    try:
+        response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
+        doc = BeautifulSoup(response.content, 'lxml')
+        for page in doc.find_all('loc')[0:maxnum]:
+            scraper = BaseScraper(page.text)
+            if scraper.metadata.get('genre', None) == 'book':
+                yield scraper
+    except requests.exceptions.RequestException as e:
+        logger.error(e)
