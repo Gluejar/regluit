@@ -844,7 +844,15 @@ class BasePandataLoader(object):
                 value =  value[0] if isinstance(value, list) else value
                 try:
                     id = models.Identifier.objects.get(type=id_code, value=value)
-                    work = id.work
+                    if work and id.work and id.work.id is not work.id:
+                        # dangerous! merge newer into older
+                        if work.id < id.work.id:
+                            merge_works(work, id.work)
+                        else:
+                            merge_works(id.work, work)
+                            work = id.work
+                    else:
+                        work = id.work
                     if id.edition and not edition:
                         edition = id.edition
                 except models.Identifier.DoesNotExist:
@@ -1049,12 +1057,12 @@ def add_by_sitemap(url, maxnum=None):
     editions = []
     scraper = BaseScraper(url)
     for bookdata in scrape_sitemap(url, maxnum=maxnum):
-        edition = None
+        edition = work = None
         loader = BasePandataLoader(bookdata.base)
         pandata = Pandata()
         pandata.metadata = bookdata.metadata
         for metadata in pandata.get_edition_list():
-            edition = loader.load_from_pandata(metadata, None)
+            edition = loader.load_from_pandata(metadata, work)
             work = edition.work
         loader.load_ebooks(pandata, edition)
         if edition:
