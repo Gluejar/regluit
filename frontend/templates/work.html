@@ -280,14 +280,18 @@
                                     </div>
                                     <div>
                                     {% for work_rel in work.works_related_to.all %}
-                                    <p>
-                                    This work is a {{ work_rel.relation }} of <a href="{% url 'work' work_rel.from_work.id %}">{{ work_rel.from_work }}</a>.
-                                    </p>
+                                        {% if work_rel.from_work.language != 'xx' and work.language != 'xx' %}
+                                        <p>
+                                        This work is a {{ work_rel.relation }} of <a href="{% url 'work' work_rel.from_work.id %}">{{ work_rel.from_work }}</a>.
+                                        </p>
+                                        {% endif %}
                                     {% endfor %}
                                     {% for work_rel in work.works_related_from.all %}
-                                    <p>
-                                    <a href="{% url 'work' work_rel.to_work.id %}">{{ work_rel.to_work }}</a> is a {{ work_rel.relation }} of this work.
-                                    </p>
+                                        {% if work.language != 'xx' and work_rel.to_work.language != 'xx' %}
+                                        <p>
+                                        <a href="{% url 'work' work_rel.to_work.id %}">{{ work_rel.to_work }}</a> is a {{ work_rel.relation }} of this work.
+                                        </p>
+                                        {% endif %}
                                     {% endfor %}
                                     {% if work.doab %}
                                     <p>
