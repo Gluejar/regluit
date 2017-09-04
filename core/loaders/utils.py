@@ -220,9 +220,7 @@ def load_from_books(books):
         for isbn in isbns:
             edition = add_by_isbn_from_google(isbn, work=work)
             if edition and edition.work != work:
-                merge_works(work, edition.work)
-                work = work if work.pk is not None else edition.work
-                edition.work=work # because integrity errors if not
+                work = merge_works(work, edition.work)
             if not edition:
                 edition= Edition(title=title, work=work)
                 edition.save()
