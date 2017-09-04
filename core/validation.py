@@ -43,7 +43,7 @@ def isbn_cleaner(value):
     if value == 'delete':
         return value
     if not value:
-        raise forms.ValidationError('no identifier value found')
+        raise ValidationError('no identifier value found')
     elif value == 'delete':
         return value
     isbn=ISBN(value)
