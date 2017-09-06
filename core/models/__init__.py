@@ -1034,6 +1034,7 @@ class Campaign(models.Model):
                 url=ebf.file.url,
                 version_label=ebf.version['label'],
                 version_iter=ebf.version['iter'],
+                filesize=ebf.file.size,
             )
             ebf.ebook = ebook
             ebf.save()
@@ -1041,7 +1042,8 @@ class Campaign(models.Model):
 
         for old_ebf in self.work.ebookfiles().filter(asking=True).exclude(pk__in=new_ebf_pks):
             obsolete = Ebook.objects.filter(url=old_ebf.file.url)
-            old_ebf.ebook.deactivate()
+            if old_ebf.ebook:
+                old_ebf.ebook.deactivate()
             old_ebf.file.delete()
             old_ebf.delete()
         

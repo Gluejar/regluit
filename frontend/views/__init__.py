@@ -465,6 +465,7 @@ def edition_uploads(request, edition_id):
                     )
                     form.instance.ebook = new_ebook
                     form.instance.ebook.set_next_iter()
+                    form.instance.save()
 
         else:
             context['upload_error'] = form.errors
@@ -968,7 +969,7 @@ class MergeView(FormView):
         context = self.get_context_data()
         if self.request.POST.has_key('confirm_merge_works'):
             context['old_work_id'] = other_work.id
-            merge_works(self.work, other_work, self.request.user)
+            self.work = merge_works(self.work, other_work, self.request.user)
             context['merge_complete'] = True
         else:
             context['form'] = WorkForm(initial={'other_work':other_work})
