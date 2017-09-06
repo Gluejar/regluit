@@ -465,6 +465,7 @@ def edition_uploads(request, edition_id):
                     )
                     form.instance.ebook = new_ebook
                     form.instance.ebook.set_next_iter()
+                    form.instance.save()
 
         else:
             context['upload_error'] = form.errors
