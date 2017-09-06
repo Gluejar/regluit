@@ -1034,6 +1034,7 @@ class Campaign(models.Model):
                 url=ebf.file.url,
                 version_label=ebf.version['label'],
                 version_iter=ebf.version['iter'],
+                filesize=ebf.file.size,
             )
             ebf.ebook = ebook
             ebf.save()
