@@ -33,7 +33,9 @@ def onix_feed_for_work(work):
     feed = etree.fromstring(feed_xml)
     feed.append(header(work))
     for edition in models.Edition.objects.filter(work=work,ebooks__isnull=False).distinct():
-        feed.append(product(edition))
+        edition_prod = product(edition)
+        if edition_prod:
+            feed.append(product(edition))
     return etree.tostring(feed, pretty_print=True)
     
 def header(facet=None):

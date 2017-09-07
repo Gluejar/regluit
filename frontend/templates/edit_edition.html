@@ -204,11 +204,9 @@ ul.fancytree-container {
         </p>
 		
 		<p><b>Cover Image</b>: <br />
-		{% if edition.cover_image %}
-		<img src="{{edition.cover_image}}" /><br />
-		{% else %}
-		[ no cover specified for this edition ]<br />
-		{% endif %}
+		<div class="cover-image">
+		<img src="{{edition.cover_image_thumbnail}}" />
+		</div>
 		{{ form.cover_image.errors }}{{ form.cover_image }}{{ form.cover_image.help_text }}
 		(<i>Enter a URL for an image, at least 300 px wide. The image will be scaled to the proportions of a 6x9 cover. </i>)<br />
 		OR...<br />
