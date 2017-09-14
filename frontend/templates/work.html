@@ -82,7 +82,7 @@
                                     <img src="{{ work.cover_image_thumbnail }}" alt="Find {{ work.title }} at Google Books" title="Find {{ work.title }} at Google Books" width="131" height="192" /></a>
                                 </div>
                             {% else %}
-                                <div id="book-detail-img">
+                                <div id="book-detail-img" class="book-cover" >
                                     <img itemprop="image" src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" />
                                 </div>
                             {% endif %}
