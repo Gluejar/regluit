@@ -44,7 +44,7 @@ function put_un_in_cookie2(){
                 <h3 class="featured_books">Today's Featured Free eBook</h3>
                     {% with featured as work %}
                         <div class="book-detail">
-                            <div id="book-detail-img" style="float:left;padding-right:10px">
+                            <div id="book-detail-img" class="book-cover" style="float:left;padding-right:10px">
                             <a href="{% url 'work' featured.id %}">
                                 {% if work.googlebooks_id %}
                                     <img src="{{ work.cover_image_thumbnail }}" alt="Find {{ work.title }} at Google Books" title="Find {{ work.title }} at Google Books" width="131" height="192" />
