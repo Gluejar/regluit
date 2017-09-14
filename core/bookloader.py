@@ -38,7 +38,7 @@ from . import cc
 from . import models
 from .parameters import WORK_IDENTIFIERS
 from .validation import identifier_cleaner
-from .loaders.scrape import BaseScraper
+from .loaders.scrape import BaseScraper, scrape_sitemap
 
 logger = logging.getLogger(__name__)
 request_log = logging.getLogger("requests")
@@ -413,7 +413,6 @@ def relate_isbn(isbn, cluster_size=1):
                 elif related_edition.work.id != edition.work.id:
                     logger.debug("merge_works path 1 %s %s", edition.work.id, related_edition.work.id )
                     merge_works(related_edition.work, edition.work)
-
                 if related_edition.work.editions.count()>cluster_size:
                     return related_edition.work
     return edition.work
@@ -452,7 +451,7 @@ def add_related(isbn):
                     related_edition.save()
                 elif related_edition.work.id != work.id:
                     logger.debug("merge_works path 1 %s %s", work.id, related_edition.work.id )
-                    merge_works(work, related_edition.work)
+                    work = merge_works(work, related_edition.work)
             else:
                 if other_editions.has_key(related_language):
                     other_editions[related_language].append(related_edition)
@@ -469,11 +468,14 @@ def add_related(isbn):
             works_to_merge = set([ed.work for ed in lang_group[1:]]) - set([lang_edition.work])
             for w in works_to_merge:
                 logger.debug("merge_works path 2 %s %s", lang_edition.work.id, w.id )
-                merge_works(lang_edition.work, w)
-            models.WorkRelation.objects.get_or_create(to_work=lang_edition.work, from_work=work, relation='translation')
+                merged_work = merge_works(lang_edition.work, w)
+        models.WorkRelation.objects.get_or_create(
+            to_work=lang_group[0].work,
+            from_work=work,
+            relation='translation'
+        )
 
     return new_editions
-
 
 def thingisbn(isbn):
     """given an ISBN return a list of related edition ISBNs, according to
@@ -492,7 +494,7 @@ def merge_works(w1, w2, user=None):
     logger.info("merging work %s into %s", w2.id, w1.id)
     # don't merge if the works are the same or at least one of the works has no id (for example, when w2 has already been deleted)
     if w1 is None or w2 is None or w1.id == w2.id or w1.id is None or w2.id is None:
-        return
+        return w1
     if w2.selected_edition != None and w1.selected_edition == None:
         #the merge should be reversed
         temp = w1
@@ -546,9 +548,14 @@ def merge_works(w1, w2, user=None):
     for subject in w2.subjects.all():
         if subject not in w1.subjects.all():
             w1.subjects.add(subject)
-
-
+    for work_relation in w2.works_related_to.all():
+        work_relation.to_work = w1
+        work_relation.save()
+    for work_relation in w2.works_related_from.all():
+        work_relation.from_work = w1
+        work_relation.save()
     w2.delete()
+    return w1
 
 def detach_edition(e):
     """will detach edition from its work, creating a new stub work. if remerge=true, will see if there's another work to attach to
@@ -776,7 +783,7 @@ def load_from_yaml(yaml_url, test_mode=False):
     return edition.work.id if edition else None
 
 def edition_for_ident(id_type, id_value):
-    print 'returning edition for {}: {}'.format(id_type, id_value)
+    #print 'returning edition for {}: {}'.format(id_type, id_value)
     for ident in models.Identifier.objects.filter(type=id_type, value=id_value):
         return ident.edition if ident.edition else ident.work.editions[0]
     
@@ -844,7 +851,15 @@ class BasePandataLoader(object):
                 value =  value[0] if isinstance(value, list) else value
                 try:
                     id = models.Identifier.objects.get(type=id_code, value=value)
-                    work = id.work
+                    if work and id.work and id.work.id is not work.id:
+                        # dangerous! merge newer into older
+                        if work.id < id.work.id:
+                            merge_works(work, id.work)
+                        else:
+                            merge_works(id.work, work)
+                            work = id.work
+                    else:
+                        work = id.work
                     if id.edition and not edition:
                         edition = id.edition
                 except models.Identifier.DoesNotExist:
@@ -1044,6 +1059,22 @@ def add_by_webpage(url, work=None, user=None):
         work = edition.work
     loader.load_ebooks(pandata, edition, user=user)
     return edition if edition else None
+
+def add_by_sitemap(url, maxnum=None):
+    editions = []
+    scraper = BaseScraper(url)
+    for bookdata in scrape_sitemap(url, maxnum=maxnum):
+        edition = work = None
+        loader = BasePandataLoader(bookdata.base)
+        pandata = Pandata()
+        pandata.metadata = bookdata.metadata
+        for metadata in pandata.get_edition_list():
+            edition = loader.load_from_pandata(metadata, work)
+            work = edition.work
+        loader.load_ebooks(pandata, edition)
+        if edition:
+            editions.append(edition)
+    return editions
 
 
 

@@ -15,6 +15,9 @@ CONTAINS_COVER = re.compile('cover')
 CONTAINS_CC = re.compile('creativecommons.org')
 
 class BaseScraper(object):
+    '''
+    designed to make at least a decent gues for webpages that embed metadata
+    '''
     def __init__(self, url):
         self.metadata = {}
         self.identifiers = {'http': url}
@@ -24,6 +27,7 @@ class BaseScraper(object):
             response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
             if response.status_code == 200:
                 self.doc = BeautifulSoup(response.content, 'lxml')
+                self.get_genre()
                 self.get_title()
                 self.get_language()
                 self.get_description()
@@ -41,7 +45,7 @@ class BaseScraper(object):
                 self.set('language', 'en')
         except requests.exceptions.RequestException as e:
             logger.error(e)
-            self.metadata = None
+            self.metadata = {}
         self.metadata['identifiers'] = self.identifiers
     
     def set(self, name, value):
@@ -75,18 +79,28 @@ class BaseScraper(object):
                 return value
         return value 
 
+    def get_genre(self):
+        value = self.check_metas(['DC.Type', 'dc.type', 'og:type'])
+        if value and value in ('Text.Book', 'book'):
+            self.set('genre', 'book')            
+
     def get_title(self):
-        value = self.check_metas(['DC.Title','dc.title', 'citation_title', 'title'])
+        value = self.check_metas(['DC.Title', 'dc.title', 'citation_title', 'title'])
         if not value:
             value =  self.fetch_one_el_content('title')
         self.set('title', value)
         
     def get_language(self):
-        value = self.check_metas(['DC.Language','dc.language','language'])
+        value = self.check_metas(['DC.Language', 'dc.language', 'language'])
         self.set('language', value)
 
     def get_description(self):
-        value = self.check_metas(['DC.Description','dc.description','description'])
+        value = self.check_metas([
+            'DC.Description',
+            'dc.description',
+            'og:description',
+            'description'
+        ])
         self.set('description',  value)
 
     def get_identifiers(self):
@@ -100,7 +114,7 @@ class BaseScraper(object):
             self.identifiers['doi'] = value
         isbns = {}
         label_map = {'epub': 'EPUB', 'mobi': 'Mobi', 
-            'paper': 'Paperback', 'pdf': 'PDF', 'hard':'Hardback'}
+            'paper': 'Paperback', 'pdf':'PDF', 'hard':'Hardback'}
         for key in label_map.keys():
             isbn_key = 'isbn_{}'.format(key)
             value = self.check_metas(['citation_isbn'], type=label_map[key])
@@ -126,7 +140,7 @@ class BaseScraper(object):
                     if isbn:
                         ed_list.append({
                             '_edition': isbn,
-                            'edition_identifiers': {'isbn': isbn}
+                            'edition_identifiers': {'isbn':isbn}
                         })
         if len(ed_list):
             self.set('edition_list', ed_list)
@@ -147,7 +161,10 @@ class BaseScraper(object):
             self.set('publication_date', value)
 
     def get_authors(self):
-        value_list = self.check_metas(['DC.Creator.PersonalName', 'citation_author',], list_mode='list')
+        value_list = self.check_metas([
+            'DC.Creator.PersonalName',
+            'citation_author',
+        ], list_mode='list')
         if not value_list:
             return
         if len(value_list) == 1:
@@ -161,13 +178,17 @@ class BaseScraper(object):
         self.set('creator', creator)
     
     def get_cover(self):
-        block = self.doc.find(class_=CONTAINS_COVER)
-        block = block if block else self.doc
-        img = block.find_all('img', src=CONTAINS_COVER)
-        if img:
-            cover_uri = img[0].get('src', None)
-            if cover_uri:
-                self.set('covers', [{'image_url': urljoin(self.base, cover_uri)}])
+        image_url = self.check_metas(['og.image'])
+        if not image_url:
+            block = self.doc.find(class_=CONTAINS_COVER)
+            block = block if block else self.doc
+            img = block.find_all('img', src=CONTAINS_COVER)
+            if img:
+                cover_uri = img[0].get('src', None)
+                if cover_uri:
+                    image_url = urljoin(self.base, cover_uri)
+        if image_url:
+            self.set('covers', [{'image_url': image_url}])
                 
     def get_downloads(self):
         for dl_type in ['epub', 'mobi', 'pdf']:
@@ -181,3 +202,14 @@ class BaseScraper(object):
         links = self.doc.find_all(href=CONTAINS_CC)
         for link in links:
             self.set('rights_url', link['href'])
+
+def scrape_sitemap(url, maxnum=None):
+    try:
+        response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
+        doc = BeautifulSoup(response.content, 'lxml')
+        for page in doc.find_all('loc')[0:maxnum]:
+            scraper = BaseScraper(page.text)
+            if scraper.metadata.get('genre', None) == 'book':
+                yield scraper
+    except requests.exceptions.RequestException as e:
+        logger.error(e)
