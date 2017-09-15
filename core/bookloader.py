@@ -650,7 +650,7 @@ def add_openlibrary(work, hard_refresh = False):
     # add the subjects to the Work
     for s in subjects:
         logger.info("adding subject %s to work %s", s, work.id)
-        subject, created = models.Subject.set_by_name(s, work=work)
+        subject = models.Subject.set_by_name(s, work=work)
 
     work.save()
 
