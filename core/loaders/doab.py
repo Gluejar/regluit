@@ -18,6 +18,7 @@ from regluit.core import models, tasks
 from regluit.core import bookloader
 from regluit.core.bookloader import add_by_isbn, merge_works
 from regluit.core.isbn import ISBN
+from regluit.core.validation import valid_subject
 
 logger = logging.getLogger(__name__)
 
@@ -100,8 +101,8 @@ def attach_more_doab_metadata(edition, description, subjects,
         
     # update subjects
     for s in subjects:
-        if bookloader.valid_subject(s):
-            work.subjects.add(models.Subject.objects.get_or_create(name=s)[0])
+        if valid_subject(s):
+            models.Subject.set_by_name(s, work=work)
     
     # set reading level of work if it's empty; doab is for adults.
     if not work.age_level:
