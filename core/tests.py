@@ -64,7 +64,8 @@ from regluit.core.models import (
 )
 from regluit.libraryauth.models import Library
 from regluit.core.parameters import TESTING, LIBRARY, RESERVE
-from regluit.core.loaders.utils import (load_from_books, loaded_book_ok)
+from regluit.core.loaders.utils import (load_from_books, loaded_book_ok, )
+from regluit.core.validation import valid_subject
 from regluit.frontend.views import safe_get_work
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
@@ -107,11 +108,6 @@ class BookLoaderTests(TestCase):
             f = ebook.get_archive()
         self.assertTrue(EbookFile.objects.all().count()>num_ebf)
         
-    def test_valid_subject(self):
-        self.assertTrue(bookloader.valid_subject('A, valid, suj\xc3t'))
-        self.assertFalse(bookloader.valid_subject('A, valid, suj\xc3t, '))
-        self.assertFalse(bookloader.valid_subject('A valid suj\xc3t \x01'))
-    
     def test_add_by_isbn_mock(self):
         with requests_mock.Mocker(real_http=True) as m:
             with open(os.path.join(TESTDIR, 'gb_hamilton.json')) as gb:
@@ -879,17 +875,37 @@ class SafeGetWorkTest(TestCase):
         self.assertRaises(Http404, safe_get_work, 3)
 
 class WorkTests(TestCase):    
+    def setUp(self):
+        self.w1 = models.Work.objects.create()
+        self.w2 = models.Work.objects.create()
+
     def test_preferred_edition(self):
-        w1 = models.Work.objects.create()
-        w2 = models.Work.objects.create()
-        ww = models.WasWork.objects.create(work=w1, was= w2.id)
-        e1 = models.Edition.objects.create(work=w1)
-        self.assertEqual(e1, w1.preferred_edition)
-        e2 = models.Edition.objects.create(work=w1)
-        w1.selected_edition=e2
-        w1.save()
-        self.assertEqual(e2, w1.preferred_edition)
-        self.assertEqual(e2, w2.preferred_edition)
+        ww = models.WasWork.objects.create(work=self.w1, was= self.w2.id)
+        e1 = models.Edition.objects.create(work=self.w1)
+        self.assertEqual(e1, self.w1.preferred_edition)
+        e2 = models.Edition.objects.create(work=self.w1)
+        self.w1.selected_edition=e2
+        self.w1.save()
+        self.assertEqual(e2, self.w1.preferred_edition)
+        self.assertEqual(e2, self.w2.preferred_edition)
+        
+    def test_valid_subject(self):
+        self.assertTrue(valid_subject('A, valid, suj\xc3t'))
+        self.assertFalse(valid_subject('A, valid, suj\xc3t, '))
+        self.assertFalse(valid_subject('A valid suj\xc3t \x01'))
+        Subject.set_by_name('A, valid, suj\xc3t; A, valid, suj\xc3t, ', work=self.w1)
+        self.assertEqual(1, self.w1.subjects.count())
+        sub = Subject.set_by_name('nyt:hardcover_advice=2011-06-18', work=self.w1)
+        self.assertEqual(sub.name, 'NYT Bestseller - Hardcover advice')
+        self.assertEqual(2, self.w1.subjects.count())
+        sub2 = Subject.set_by_name('!lcsh: Something', work=self.w1)
+        self.assertEqual(sub2.name, 'Something')
+        self.assertEqual(3, self.w1.subjects.count())
+        sub3 = Subject.set_by_name('Something', work=self.w1)
+        self.assertEqual(sub3.name, 'Something')
+        self.assertEqual(3, self.w1.subjects.count())
+        self.assertEqual(sub3.authority, 'lcsh')
+        
         
 class DownloadPageTest(TestCase):
     fixtures = ['initial_data.json']
