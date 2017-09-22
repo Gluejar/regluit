@@ -1,6 +1,7 @@
 import logging
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
+from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from registration.forms import RegistrationForm
@@ -66,12 +67,20 @@ class AuthForm(AuthenticationForm):
         else:
             super(AuthForm, self).__init__(*args, **kwargs)
             
-class SocialAwarePasswordChangeForm(PasswordChangeForm):
-    def clean_old_password(self):
-        if self.user.has_usable_password():
-            return super(SocialAwarePasswordChangeForm,self).clean_old_password()
-        else:
-            return self.cleaned_data["old_password"]
+class SocialAwarePasswordResetForm(PasswordResetForm):
+    def get_users(self, email):
+        """
+        Send the reset form even if the user password is not usable
+        """
+        active_users = get_user_model()._default_manager.filter(
+            email__iexact=email, is_active=True)
+        return active_users
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if not get_user_model().objects.filter(email__iexact=email, is_active=True).exists():
+            raise forms.ValidationError("There aren't ungluers with that email address!")
+        return email
   
 
 class NewLibraryForm(forms.ModelForm):
