@@ -266,11 +266,5 @@ def edit_user(request, redirect_to=None):
                 return HttpResponseRedirect(redirect_to if redirect_to else reverse('home')) # Redirect after POST
     return render(request,'registration/user_change_form.html', {'form': form})  
 
-@login_required
-def social_auth_reset_password(request):
-    if not request.user.has_usable_password():
-        request.user.set_password('%010x' % random.randrange(16**10))
-        request.user.save()
-    return password_reset(request)
     
     
