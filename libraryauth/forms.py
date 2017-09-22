@@ -1,6 +1,6 @@
 import logging
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from registration.forms import RegistrationForm
@@ -57,7 +57,6 @@ class RegistrationFormNoDisposableEmail(RegistrationForm):
         if is_disposable(self.cleaned_data['email']):
             raise forms.ValidationError(_("Please supply a permanent email address."))
         return self.cleaned_data['email']
-    
 
 class AuthForm(AuthenticationForm):
     def __init__(self, request=None, *args, **kwargs):
@@ -67,6 +66,14 @@ class AuthForm(AuthenticationForm):
         else:
             super(AuthForm, self).__init__(*args, **kwargs)
             
+class SocialAwarePasswordChangeForm(PasswordChangeForm):
+    def clean_old_password(self):
+        if self.user.has_usable_password():
+            return super(SocialAwarePasswordChangeForm,self).clean_old_password()
+        else:
+            return self.cleaned_data["old_password"]
+  
+
 class NewLibraryForm(forms.ModelForm):
     username = forms.RegexField(
         label=_("Library Username"), 

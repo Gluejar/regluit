@@ -1,6 +1,5 @@
 from django.conf.urls import patterns, url, include
-from django.core.urlresolvers import reverse
-#from django.views.generic.simple import direct_to_template
+from django.core.urlresolvers import reverse_lazy
 from django.views.generic.base import TemplateView
 from django.contrib.auth.decorators import login_required
 from . import views, models, forms
@@ -55,6 +54,10 @@ urlpatterns = [
             template_name='registration/welcome.html',
             extra_context={'suppress_search_box': True,} 
         ) ), 
+    url(r'^accounts/password/change/$',
+                           views.social_aware_password_change,
+                           {'post_change_redirect': reverse_lazy('auth_password_change_done')},
+                           name='libraryauth_password_change'),
     url(r'^socialauth/', include('social.apps.django_app.urls', namespace='social')),
     url('accounts/', include('email_change.urls')),
     url(r'^accounts/', include('registration.backends.model_activation.urls')),
