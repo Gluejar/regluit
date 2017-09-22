@@ -1,6 +1,7 @@
 import logging
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from registration.forms import RegistrationForm
@@ -57,7 +58,6 @@ class RegistrationFormNoDisposableEmail(RegistrationForm):
         if is_disposable(self.cleaned_data['email']):
             raise forms.ValidationError(_("Please supply a permanent email address."))
         return self.cleaned_data['email']
-    
 
 class AuthForm(AuthenticationForm):
     def __init__(self, request=None, *args, **kwargs):
@@ -67,6 +67,22 @@ class AuthForm(AuthenticationForm):
         else:
             super(AuthForm, self).__init__(*args, **kwargs)
             
+class SocialAwarePasswordResetForm(PasswordResetForm):
+    def get_users(self, email):
+        """
+        Send the reset form even if the user password is not usable
+        """
+        active_users = get_user_model()._default_manager.filter(
+            email__iexact=email, is_active=True)
+        return active_users
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if not get_user_model().objects.filter(email__iexact=email, is_active=True).exists():
+            raise forms.ValidationError("There aren't ungluers with that email address!")
+        return email
+  
+
 class NewLibraryForm(forms.ModelForm):
     username = forms.RegexField(
         label=_("Library Username"), 
