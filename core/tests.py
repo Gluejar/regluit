@@ -119,13 +119,13 @@ class BookLoaderTests(TestCase):
         if not (mocking or settings.TEST_INTEGRATION):
             return
         # edition
-        edition = bookloader.add_by_isbn('9781594200090')
+        edition = bookloader.add_by_isbn('9780143034759')
         self.assertEqual(edition.title, u'Alexander Hamilton')
-        self.assertEqual(edition.publication_date, u'2004')
-        self.assertEqual(edition.publisher, u'Perseus Books Group')
-        self.assertEqual(edition.isbn_10, '1594200092')
-        self.assertEqual(edition.isbn_13, '9781594200090')
-        self.assertEqual(edition.googlebooks_id, 'y1_R-rjdcb0C')
+        self.assertEqual(edition.publication_date, u'2005')
+        self.assertEqual(edition.publisher, u'Penguin')
+        self.assertEqual(edition.isbn_10, '0143034758')
+        self.assertEqual(edition.isbn_13, '9780143034759')
+        self.assertEqual(edition.googlebooks_id, '4iafgTEhU3QC')
 
         # authors
         self.assertEqual(edition.authors.all().count(), 1)
@@ -133,12 +133,12 @@ class BookLoaderTests(TestCase):
 
         # work
         self.assertTrue(edition.work)
-        self.assertEqual(edition.work.googlebooks_id, 'y1_R-rjdcb0C')
-        self.assertEqual(edition.work.first_isbn_13(), '9781594200090')
+        self.assertEqual(edition.work.googlebooks_id, '4iafgTEhU3QC')
+        self.assertEqual(edition.work.first_isbn_13(), '9780143034759')
         
         # test duplicate pubname 
         ed2 = Edition.objects.create(work=edition.work)
-        ed2.set_publisher(u'Perseus Books Group')
+        ed2.set_publisher(u'Penguin')
         
         # publisher names
         old_pub_name = edition.publisher_name
@@ -149,7 +149,7 @@ class BookLoaderTests(TestCase):
         self.assertEqual(edition.work.publishers().count(), 1)
         old_pub_name.publisher = pub
         old_pub_name.save()
-        edition.set_publisher(u'Perseus Books Group')
+        edition.set_publisher(u'Penguin')
         self.assertEqual(edition.publisher, u'test publisher name') # Perseus has been aliased
 
     def test_language_locale_mock(self):

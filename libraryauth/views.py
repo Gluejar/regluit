@@ -3,14 +3,16 @@ import random
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.shortcuts import get_object_or_404, render
-from django.contrib.auth.views import login, password_reset
-
+from django.contrib.auth.forms import SetPasswordForm
+from django.contrib.auth.views import login, password_reset, password_change
 from django.contrib.auth import login as login_to_user
 from django.contrib.auth import load_backend
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
 from django.views.generic.edit import FormView, CreateView, UpdateView, SingleObjectMixin
+
 from registration.backends.model_activation.views import RegistrationView
+
 from . import backends
 from .models import Library
 from .forms import AuthForm, LibraryForm, NewLibraryForm, RegistrationFormNoDisposableEmail, UserData
@@ -54,6 +56,10 @@ def superlogin(request, extra_context={}, **kwargs):
         request.session["add_wishlist"]=request.GET["add"]
     return login(request, extra_context=extra_context, authentication_form=AuthForm, **kwargs)
 
+def social_aware_password_change(request, **kwargs):
+    if request.user.has_usable_password():
+        return password_change(request, **kwargs)
+    return password_change(request, password_change_form=SetPasswordForm, **kwargs)
 
 class Authenticator:
     request=None
@@ -266,11 +272,5 @@ def edit_user(request, redirect_to=None):
                 return HttpResponseRedirect(redirect_to if redirect_to else reverse('home')) # Redirect after POST
     return render(request,'registration/user_change_form.html', {'form': form})  
 
-@login_required
-def social_auth_reset_password(request):
-    if not request.user.has_usable_password():
-        request.user.set_password('%010x' % random.randrange(16**10))
-        request.user.save()
-    return password_reset(request)
     
     
