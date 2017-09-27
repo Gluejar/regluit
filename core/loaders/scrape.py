@@ -65,6 +65,12 @@ class BaseScraper(object):
             attrs['name'] = meta_name
             
             metas = self.doc.find_all('meta', attrs=attrs)
+            if len(metas) == 0:
+                # some sites put schema.org metadata in metas
+                del(attrs['name'])
+                attrs['itemprop'] = meta_name
+                metas = self.doc.find_all('meta', attrs=attrs)
+                del(attrs['itemprop'])
             for meta in metas:
                 el_value = meta.get('content', '').strip()
                 if list_mode == 'longest':
@@ -91,7 +97,7 @@ class BaseScraper(object):
         self.set('title', value)
         
     def get_language(self):
-        value = self.check_metas(['DC.Language', 'dc.language', 'language'])
+        value = self.check_metas(['DC.Language', 'dc.language', 'language', 'inLanguage'])
         self.set('language', value)
 
     def get_description(self):
@@ -105,6 +111,9 @@ class BaseScraper(object):
 
     def get_identifiers(self):
         value = self.check_metas(['DC.Identifier.URI'])
+        if not value:
+            value = self.doc.select_one('link[rel=canonical]')
+            value = value['href'] if value else None
         value = identifier_cleaner('http')(value)
         if value:
             self.identifiers['http'] = value
@@ -156,7 +165,7 @@ class BaseScraper(object):
             self.set('publisher', value)
 
     def get_pubdate(self):
-        value = self.check_metas(['citation_publication_date', 'DC.Date.issued'])
+        value = self.check_metas(['citation_publication_date', 'DC.Date.issued', 'datePublished'])
         if value:
             self.set('publication_date', value)
 
@@ -164,21 +173,28 @@ class BaseScraper(object):
         value_list = self.check_metas([
             'DC.Creator.PersonalName',
             'citation_author',
+            'author',
         ], list_mode='list')
         if not value_list:
             return
+        creator_list = []
         if len(value_list) == 1:
-            creator = {'author': {'agent_name': value_list[0]}}
-        else:
-            creator_list = []
-            for auth in value_list: 
-                 creator_list.append({'agent_name': auth})
-            creator = {'authors': creator_list }
-                
-        self.set('creator', creator)
+            #first check if the value is really a list
+            auth = value_list[0]
+            authlist = auth.split(' and ')
+            if len(authlist) == 1:
+                self.set('creator',  {'author': {'agent_name': auth}})
+                return
+            else:
+                value_list = authlist[0].split(',') + [authlist[1]]
+
+        for auth in value_list: 
+             creator_list.append({'agent_name': auth})
+
+        self.set('creator', {'authors': creator_list })
     
     def get_cover(self):
-        image_url = self.check_metas(['og.image'])
+        image_url = self.check_metas(['og.image', 'image'])
         if not image_url:
             block = self.doc.find(class_=CONTAINS_COVER)
             block = block if block else self.doc
@@ -202,6 +218,32 @@ class BaseScraper(object):
         links = self.doc.find_all(href=CONTAINS_CC)
         for link in links:
             self.set('rights_url', link['href'])
+
+class PressbooksScraper(BaseScraper):
+    def get_downloads(self):
+        for dl_type in ['epub', 'mobi', 'pdf']:
+            download_el = self.doc.select_one('.{}'.format(dl_type))
+            if download_el and download_el.find_parent():
+                value = download_el.find_parent().get('href') 
+                if value:
+                    self.set('download_url_{}'.format(dl_type), value)
+
+    def get_publisher(self):
+        value = self.doc.select_one('.cie-name')
+        value = value.text if value else None
+        if value:
+            self.set('publisher', value)
+        else:
+            super(PressbooksScraper, self).get_publisher()
+    
+    def get_title(self):
+        value = self.doc.select_one('.entry-title a[title]')
+        value = value['title'] if value else None
+        if value:
+            self.set('title', value)
+        else:
+            super(PressbooksScraper, self).get_title()
+
 
 def scrape_sitemap(url, maxnum=None):
     try:
