@@ -4,25 +4,25 @@
  "items": [
   {
    "kind": "books#volume",
-   "id": "y1_R-rjdcb0C",
-   "etag": "Z9u3yL2Mbk4",
-   "selfLink": "https://www.googleapis.com/books/v1/volumes/y1_R-rjdcb0C",
+   "id": "4iafgTEhU3QC",
+   "etag": "oDa3LHhjykQ",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/4iafgTEhU3QC",
    "volumeInfo": {
     "title": "Alexander Hamilton",
     "authors": [
      "Ron Chernow"
     ],
-    "publisher": "Perseus Books Group",
-    "publishedDate": "2004",
-    "description": "The personal life of Alexander Hamilton, an illegitimate, largely self-taught orphan from the Caribbean who rose to become George Washington's aide-de-camp and the first Treasury Secretary of the United States, is captured in a definitive biography by the National Book Award-winning author of The House of Morgan. 400,000 first printing.",
+    "publisher": "Penguin",
+    "publishedDate": "2005",
+    "description": "The personal life of Alexander Hamilton, an illegitimate, largely self-taught orphan from the Caribbean who rose to become George Washington's aide-de-camp and the first Treasury Secretary of the United States, is captured in a definitive biography by the National Book Award-winning author of The House of Morgan. Reprint.",
     "industryIdentifiers": [
      {
       "type": "ISBN_10",
-      "identifier": "1594200092"
+      "identifier": "0143034758"
      },
      {
       "type": "ISBN_13",
-      "identifier": "9781594200090"
+      "identifier": "9780143034759"
      }
     ],
     "readingModes": {
@@ -34,19 +34,19 @@
     "categories": [
      "Biography & Autobiography"
     ],
-    "averageRating": 4.0,
-    "ratingsCount": 32,
+    "averageRating": 4.5,
+    "ratingsCount": 46,
     "maturityRating": "NOT_MATURE",
     "allowAnonLogging": false,
     "contentVersion": "preview-1.0.0",
     "imageLinks": {
-     "smallThumbnail": "http://books.google.com/books/content?id=y1_R-rjdcb0C&printsec=frontcover&img=1&zoom=5&source=gbs_api",
-     "thumbnail": "http://books.google.com/books/content?id=y1_R-rjdcb0C&printsec=frontcover&img=1&zoom=1&source=gbs_api"
+     "smallThumbnail": "http://books.google.com/books/content?id=4iafgTEhU3QC&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=4iafgTEhU3QC&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
     },
     "language": "en",
-    "previewLink": "http://books.google.com/books?id=y1_R-rjdcb0C&dq=isbn:9781594200090&hl=&cd=1&source=gbs_api",
-    "infoLink": "http://books.google.com/books?id=y1_R-rjdcb0C&dq=isbn:9781594200090&hl=&source=gbs_api",
-    "canonicalVolumeLink": "http://books.google.com/books/about/Alexander_Hamilton.html?hl=&id=y1_R-rjdcb0C"
+    "previewLink": "http://books.google.com/books?id=4iafgTEhU3QC&printsec=frontcover&dq=isbn:9780143034759&hl=&cd=1&source=gbs_api",
+    "infoLink": "http://books.google.com/books?id=4iafgTEhU3QC&dq=isbn:9780143034759&hl=&source=gbs_api",
+    "canonicalVolumeLink": "https://books.google.com/books/about/Alexander_Hamilton.html?hl=&id=4iafgTEhU3QC"
    },
    "saleInfo": {
     "country": "US",
@@ -55,18 +55,18 @@
    },
    "accessInfo": {
     "country": "US",
-    "viewability": "NO_PAGES",
-    "embeddable": false,
+    "viewability": "PARTIAL",
+    "embeddable": true,
     "publicDomain": false,
-    "textToSpeechPermission": "ALLOWED",
+    "textToSpeechPermission": "ALLOWED_FOR_ACCESSIBILITY",
     "epub": {
      "isAvailable": false
     },
     "pdf": {
      "isAvailable": false
     },
-    "webReaderLink": "http://books.google.com/books/reader?id=y1_R-rjdcb0C&hl=&printsec=frontcover&output=reader&source=gbs_api",
-    "accessViewStatus": "NONE",
+    "webReaderLink": "http://play.google.com/books/reader?id=4iafgTEhU3QC&hl=&printsec=frontcover&source=gbs_api",
+    "accessViewStatus": "SAMPLE",
     "quoteSharingAllowed": false
    },
    "searchInfo": {
