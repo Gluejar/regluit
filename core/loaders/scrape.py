@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 CONTAINS_COVER = re.compile('cover')
 CONTAINS_CC = re.compile('creativecommons.org')
 
-class BaseScraper(object):
+class BaseScraper(object):    
     '''
     designed to make at least a decent gues for webpages that embed metadata
     '''
@@ -219,6 +219,11 @@ class BaseScraper(object):
         for link in links:
             self.set('rights_url', link['href'])
 
+    @classmethod
+    def can_scrape(cls, url):
+        ''' return True if the class can scrape the URL '''
+        return True
+        
 class PressbooksScraper(BaseScraper):
     def get_downloads(self):
         for dl_type in ['epub', 'mobi', 'pdf']:
@@ -244,13 +249,23 @@ class PressbooksScraper(BaseScraper):
         else:
             super(PressbooksScraper, self).get_title()
 
+    @classmethod
+    def can_scrape(cls, url):
+        ''' return True if the class can scrape the URL '''
+        return url.find('press.rebus.community') > 0 or url.find('pressbooks.com') > 0
 
+def get_scraper(url):
+    scrapers = [PressbooksScraper, BaseScraper]
+    for scraper in scrapers:
+        if scraper.can_scrape(url):
+            return scraper(url)
+            
 def scrape_sitemap(url, maxnum=None):
     try:
         response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
         doc = BeautifulSoup(response.content, 'lxml')
         for page in doc.find_all('loc')[0:maxnum]:
-            scraper = BaseScraper(page.text)
+            scraper = get_scraper(page.text)
             if scraper.metadata.get('genre', None) == 'book':
                 yield scraper
     except requests.exceptions.RequestException as e:
