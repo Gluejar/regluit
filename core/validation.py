@@ -129,3 +129,31 @@ def valid_subject( subject_name ):
                 return False
     return True
 
+def authlist_cleaner(authlist):
+    ''' given a author string or list of author strings, checks that the author string
+        is not a list of author names and that no author is repeated'''
+    if isinstance(authlist, str):
+        authlist = [authlist]
+    cleaned = []
+    for auth in authlist:
+        for cleaned_auth in auth_cleaner(auth):
+            if cleaned_auth not in cleaned:
+                cleaned.append(cleaned_auth)
+    return cleaned
+
+# Match comma but not ", Jr"
+comma_list_delim = re.compile(r',(?! *Jr[\., ])')
+spaces = re.compile(r'\s+')
+
+def auth_cleaner(auth):
+    ''' given a author string checks that the author string
+        is not a list of author names'''
+    cleaned = []
+
+    if ';' in auth:
+        authlist =  auth.split(';')
+    else:
+        authlist = comma_list_delim.split(auth)
+    for auth in authlist:
+        cleaned.append(spaces.sub(' ', auth.strip()))
+    return cleaned

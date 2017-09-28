@@ -38,7 +38,7 @@ from . import cc
 from . import models
 from .parameters import WORK_IDENTIFIERS
 from .validation import identifier_cleaner
-from .loaders.scrape import BaseScraper, scrape_sitemap
+from .loaders.scrape import get_scraper, scrape_sitemap
 
 logger = logging.getLogger(__name__)
 request_log = logging.getLogger("requests")
@@ -1023,7 +1023,7 @@ def ebooks_in_github_release(repo_owner, repo_name, tag, token=None):
 
 def add_by_webpage(url, work=None, user=None):
     edition = None
-    scraper = BaseScraper(url)
+    scraper = get_scraper(url)
     loader = BasePandataLoader(url)
     pandata = Pandata()
     pandata.metadata = scraper.metadata
@@ -1035,7 +1035,6 @@ def add_by_webpage(url, work=None, user=None):
 
 def add_by_sitemap(url, maxnum=None):
     editions = []
-    scraper = BaseScraper(url)
     for bookdata in scrape_sitemap(url, maxnum=maxnum):
         edition = work = None
         loader = BasePandataLoader(bookdata.base)
