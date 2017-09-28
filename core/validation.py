@@ -144,12 +144,13 @@ def authlist_cleaner(authlist):
 # Match comma but not ", Jr"
 comma_list_delim = re.compile(r',(?! *Jr[\., ])')
 spaces = re.compile(r'\s+')
+_and_ = re.compile(r',? and ')
 
 def auth_cleaner(auth):
     ''' given a author string checks that the author string
         is not a list of author names'''
     cleaned = []
-
+    auth = _and_.sub(',', auth)
     if ';' in auth:
         authlist =  auth.split(';')
     else:
