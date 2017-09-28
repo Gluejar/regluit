@@ -7,7 +7,7 @@ from django.conf import settings
 from urlparse import urljoin
 
 from regluit.core import models
-from regluit.core.validation import identifier_cleaner
+from regluit.core.validation import identifier_cleaner, authlist_cleaner
 
 logger = logging.getLogger(__name__)
 
@@ -47,6 +47,10 @@ class BaseScraper(object):
             logger.error(e)
             self.metadata = {}
         self.metadata['identifiers'] = self.identifiers
+
+    #
+    # utilities
+    #
     
     def set(self, name, value):
         self.metadata[name] = value
@@ -84,6 +88,16 @@ class BaseScraper(object):
             if value:
                 return value
         return value 
+    
+    def get_dt_dd(self, name):
+        ''' get the content of <dd> after a <dt> containing name'''
+        dt = self.doc.find('dt', string=re.compile(name))
+        dd = dt.find_next_sibling('dd') if dt else None
+        return dd.text if dd else None
+
+    #
+    # getters
+    #
 
     def get_genre(self):
         value = self.check_metas(['DC.Type', 'dc.type', 'og:type'])
@@ -109,6 +123,20 @@ class BaseScraper(object):
         ])
         self.set('description',  value)
 
+    def get_isbns(self):
+        '''return a dict of edition keys and ISBNs'''
+        isbns = {}
+        label_map = {'epub': 'EPUB', 'mobi': 'Mobi', 
+            'paper': 'Paperback', 'pdf':'PDF', 'hard':'Hardback'}
+        for key in label_map.keys():
+            isbn_key = 'isbn_{}'.format(key)
+            value = self.check_metas(['citation_isbn'], type=label_map[key])
+            value = identifier_cleaner('isbn')(value)
+            if value:
+                isbns[isbn_key] = value
+                self.identifiers[isbn_key] = value
+        return isbns
+
     def get_identifiers(self):
         value = self.check_metas(['DC.Identifier.URI'])
         if not value:
@@ -121,17 +149,8 @@ class BaseScraper(object):
         value = identifier_cleaner('doi')(value)
         if value:
             self.identifiers['doi'] = value
-        isbns = {}
-        label_map = {'epub': 'EPUB', 'mobi': 'Mobi', 
-            'paper': 'Paperback', 'pdf':'PDF', 'hard':'Hardback'}
-        for key in label_map.keys():
-            isbn_key = 'isbn_{}'.format(key)
-            value = self.check_metas(['citation_isbn'], type=label_map[key])
-            value = identifier_cleaner('isbn')(value)
-            if value:
-                isbns[isbn_key] = value
-                self.identifiers[isbn_key] = value
-                
+
+        isbns = self.get_isbns()                
         ed_list = []
         if len(isbns):
             #need to create edition list
@@ -178,18 +197,12 @@ class BaseScraper(object):
         if not value_list:
             return
         creator_list = []
+        value_list = authlist_cleaner(value_list)
         if len(value_list) == 1:
-            #first check if the value is really a list
-            auth = value_list[0]
-            authlist = auth.split(' and ')
-            if len(authlist) == 1:
-                self.set('creator',  {'author': {'agent_name': auth}})
-                return
-            else:
-                value_list = authlist[0].split(',') + [authlist[1]]
-
+            self.set('creator',  {'author': {'agent_name': auth.strip()}})
+            return
         for auth in value_list: 
-             creator_list.append({'agent_name': auth})
+             creator_list.append({'agent_name': auth.strip()})
 
         self.set('creator', {'authors': creator_list })
     
@@ -234,8 +247,10 @@ class PressbooksScraper(BaseScraper):
                     self.set('download_url_{}'.format(dl_type), value)
 
     def get_publisher(self):
-        value = self.doc.select_one('.cie-name')
-        value = value.text if value else None
+        value = self.get_dt_dd('Publisher')
+        if not value:
+            value = self.doc.select_one('.cie-name')
+            value = value.text if value else None
         if value:
             self.set('publisher', value)
         else:
@@ -249,6 +264,16 @@ class PressbooksScraper(BaseScraper):
         else:
             super(PressbooksScraper, self).get_title()
 
+    def get_isbns(self):
+        '''add isbn identifiers and return a dict of edition keys and ISBNs'''
+        isbns = {}
+        for (key, label) in [('electronic', 'Ebook ISBN'), ('paper', 'Print ISBN')]:
+            isbn = identifier_cleaner('isbn')(self.get_dt_dd(label))
+            if isbn:
+                self.identifiers['isbn_{}'.format(key)] = isbn
+                isbns[key] = isbn
+        return isbns
+                
     @classmethod
     def can_scrape(cls, url):
         ''' return True if the class can scrape the URL '''
