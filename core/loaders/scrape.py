@@ -199,10 +199,10 @@ class BaseScraper(object):
         creator_list = []
         value_list = authlist_cleaner(value_list)
         if len(value_list) == 1:
-            self.set('creator',  {'author': {'agent_name': auth.strip()}})
+            self.set('creator',  {'author': {'agent_name': value_list[0]}})
             return
         for auth in value_list: 
-             creator_list.append({'agent_name': auth.strip()})
+             creator_list.append({'agent_name': auth})
 
         self.set('creator', {'authors': creator_list })
     
