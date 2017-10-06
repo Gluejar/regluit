@@ -167,7 +167,7 @@ class EbookForm(forms.ModelForm):
         format = self.cleaned_data.get('format', '')
         the_file = self.cleaned_data.get('file', None)
         url = self.cleaned_data.get('url', None)
-        test_file(the_file)
+        test_file(the_file, format)
         if not the_file and not url:
             raise forms.ValidationError(_("Either a link or a file is required."))
         if the_file and url:

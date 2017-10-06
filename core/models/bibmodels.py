@@ -30,6 +30,7 @@ from regluit.core import mobi
 import regluit.core.cc as cc
 from regluit.core.epub import test_epub
 from regluit.core.links import id_url
+from regluit.core.validation import valid_subject
 
 from regluit.core.parameters import (
     AGE_LEVEL_CHOICES,
@@ -759,7 +760,42 @@ class Subject(models.Model):
 
     class Meta:
         ordering = ['name']
+    
+    @classmethod
+    def set_by_name(cls, subject, work=None, authority=None):
+        ''' use this method whenever you would be creating a new subject!'''
+        subject = subject.strip()
+        
+        # make sure it's not a ; delineated list
+        subjects = subject.split(';')
+        for additional_subject in subjects[1:]:
+            cls.set_by_name(additional_subject, work, authority)
+        subject = subjects[0]
+        # make sure there's no heading
+        headingmatch = re.match(r'^!(.+):(.+)', subject)
+        if headingmatch:
+            subject = headingmatch.group(2).strip()
+            authority = headingmatch.group(1).strip()
+        elif subject.startswith('nyt:'):
+            subject = subject[4:].split('=')[0].replace('_', ' ').strip().capitalize()
+            subject = 'NYT Bestseller - {}'.format(subject)
+            authority = 'nyt'
+        elif subject.startswith('award:'):
+            subject = subject[6:].split('=')[0].replace('_', ' ').strip().capitalize()
+            subject = 'Award Winner - {}'.format(subject)
+            authority = 'award'
 
+        if valid_subject(subject):
+            (subject_obj, created) = cls.objects.get_or_create(name=subject)
+            if not subject_obj.authority and authority:
+                subject_obj.authority = authority
+                subject_obj.save()
+        
+            subject_obj.works.add(work)
+            return subject_obj   
+        else:
+            return None
+    
     def __unicode__(self):
         return self.name
 

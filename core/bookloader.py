@@ -38,7 +38,7 @@ from . import cc
 from . import models
 from .parameters import WORK_IDENTIFIERS
 from .validation import identifier_cleaner
-from .loaders.scrape import BaseScraper, scrape_sitemap
+from .loaders.scrape import get_scraper, scrape_sitemap
 
 logger = logging.getLogger(__name__)
 request_log = logging.getLogger("requests")
@@ -649,34 +649,10 @@ def add_openlibrary(work, hard_refresh = False):
 
     # add the subjects to the Work
     for s in subjects:
-        if valid_subject(s):
-            logger.info("adding subject %s to work %s", s, work.id)
-            subject, created = models.Subject.objects.get_or_create(name=s)
-            work.subjects.add(subject)
+        logger.info("adding subject %s to work %s", s, work.id)
+        subject = models.Subject.set_by_name(s, work=work)
 
     work.save()
-
-def valid_xml_char_ordinal(c):
-    codepoint = ord(c)
-    # conditions ordered by presumed frequency
-    return (
-        0x20 <= codepoint <= 0xD7FF or
-        codepoint in (0x9, 0xA, 0xD) or
-        0xE000 <= codepoint <= 0xFFFD or
-        0x10000 <= codepoint <= 0x10FFFF
-        )
-
-def valid_subject( subject_name ):
-    num_commas = 0
-    for c in subject_name:
-        if not valid_xml_char_ordinal(c):
-            return False
-        if c == ',':
-            num_commas += 1
-            if num_commas > 2:
-                return False
-    return True
-
 
 
 def _get_json(url, params={}, type='gb'):
@@ -909,11 +885,8 @@ class BasePandataLoader(object):
                 (authority, heading)  = ( '', yaml_subject)
             else:
                 continue
-            (subject, created) = models.Subject.objects.get_or_create(name=heading)
-            if not subject.authority and authority:
-                subject.authority = authority
-                subject.save()
-            subject.works.add(work)
+            subject = models.Subject.set_by_name(heading, work=work, authority=authority)
+
         # the default edition uses the first cover in covers.
         for cover in metadata.covers:
             if cover.get('image_path', False):
@@ -1050,7 +1023,7 @@ def ebooks_in_github_release(repo_owner, repo_name, tag, token=None):
 
 def add_by_webpage(url, work=None, user=None):
     edition = None
-    scraper = BaseScraper(url)
+    scraper = get_scraper(url)
     loader = BasePandataLoader(url)
     pandata = Pandata()
     pandata.metadata = scraper.metadata
@@ -1062,7 +1035,6 @@ def add_by_webpage(url, work=None, user=None):
 
 def add_by_sitemap(url, maxnum=None):
     editions = []
-    scraper = BaseScraper(url)
     for bookdata in scrape_sitemap(url, maxnum=maxnum):
         edition = work = None
         loader = BasePandataLoader(bookdata.base)
