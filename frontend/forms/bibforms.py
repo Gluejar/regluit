@@ -61,7 +61,7 @@ class IdentifierForm(forms.ModelForm):
         id_value = self.cleaned_data.get('id_value', '').strip()
         make_new =  self.cleaned_data.get('make_new', False)
         if not make_new:
-            self.cleaned_data['value'] = identifier_cleaner(id_type)(id_value)
+            self.cleaned_data['id_value'] = identifier_cleaner(id_type)(id_value)
         return self.cleaned_data
                         
     class Meta:
