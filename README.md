@@ -33,7 +33,7 @@ to install python-setuptools in step 1:
 1. edit  the files in settings/keys filling in account and key information OR  if you have the ansible vault password, install ansible, then from the vagrant directory run `ansible-playbook create_keys.yml`
 1. `echo 'export DJANGO_SETTINGS_MODULE=regluit.settings.me' >> ~/.virtualenvs/regluit/bin/postactivate`
 1. `deactivate ; workon regluit`
-1. `django-admin.py syncdb --migrate --noinput`
+1. `django-admin.py migrate --noinput`
 1. `django-admin.py celeryd --loglevel=INFO` start the celery daemon to perform asynchronous tasks like adding related editions, and display logging information in the foreground.`
 1. `django-admin.py celerybeat -l INFO` to start the celerybeat daemon to handle scheduled tasks.
 1. `django-admin.py runserver 0.0.0.0:8000` (you can change the port number from the default value of 8000)
