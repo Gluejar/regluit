@@ -1702,19 +1702,12 @@ def surveys_summary(request, qid, work_id):
     if not request.user.is_authenticated() :
         return HttpResponseRedirect(reverse('surveys'))
     return answer_summary(
-<<<<<<< HEAD:frontend/views.py
         request, 
         qid,
         answer_filter=works_user_can_admin_filter(request, work_id),
     )
-              
-=======
-        request,
-        qid,
-        answer_filter=works_user_can_admin_filter(request, work_id),
-    )
 
->>>>>>> Gluejar/master:frontend/views/__init__.py
+
 def new_survey(request, work_id):
     if not request.user.is_authenticated() :
         return HttpResponseRedirect(reverse('surveys'))
