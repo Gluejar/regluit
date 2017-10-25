@@ -1,9 +1,7 @@
 regluit - "The Unglue.it web application and website"
 =======
 
-Another repo - https://github.com/EbookFoundation/regluit will be the place for collaborative development for Unglue.it. Add issues and submit pull requests there. As of January 19, 2017, https://github.com/Gluejar/regluit is still being used for production builds.
-
-
+This repo - https://github.com/EbookFoundation/regluit will be the place for collaborative development for Unglue.it. Add issues and submit pull requests here. As of January 19, 2017, https://github.com/Gluejar/regluit is still being used for production builds.
 
 The first version of the unglue.it codebase was a services-oriented project named "unglu". 
 We decided that "unglu" was too complicated, so we started over and named the new project "regluit".
@@ -21,7 +19,8 @@ Here are some instructions for setting up regluit for development on
 an Ubuntu system. If you are on OS X see notes below 
 to install python-setuptools in step 1:
 
-1. `aptitude install python-setuptools git python-lxml` 
+1. `sudo apt-get upgrade gcc`
+1. `sudo apt-get install python-setuptools git python-lxml build_essential libssl-dev libffi-dev python2.7dev libxml2-dev libxslt-dev libmysqlclient-dev`
 1. `sudo easy_install virtualenv virtualenvwrapper`
 1. `git clone git@github.com:Gluejar/regluit.git`
 1. `cd regluit`
@@ -35,7 +34,7 @@ to install python-setuptools in step 1:
 1. edit  the files in settings/keys filling in account and key information OR  if you have the ansible vault password, install ansible, then from the vagrant directory run `ansible-playbook create_keys.yml`
 1. `echo 'export DJANGO_SETTINGS_MODULE=regluit.settings.me' >> ~/.virtualenvs/regluit/bin/postactivate`
 1. `deactivate ; workon regluit`
-1. `django-admin.py syncdb --migrate --noinput`
+1. `django-admin.py migrate --noinput`
 1. `django-admin.py celeryd --loglevel=INFO` start the celery daemon to perform asynchronous tasks like adding related editions, and display logging information in the foreground.`
 1. `django-admin.py celerybeat -l INFO` to start the celerybeat daemon to handle scheduled tasks.
 1. `django-admin.py runserver 0.0.0.0:8000` (you can change the port number from the default value of 8000)

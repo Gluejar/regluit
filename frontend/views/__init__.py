@@ -138,7 +138,6 @@ from questionnaire.views import export_summary as answer_summary, export_csv as 
 
 from .bibedit import edit_edition, user_can_edit_work, safe_get_work, get_edition
 
-
 logger = logging.getLogger(__name__)
 
 def static_redirect_view(request, file_name, dir=""):
@@ -1703,10 +1702,11 @@ def surveys_summary(request, qid, work_id):
     if not request.user.is_authenticated() :
         return HttpResponseRedirect(reverse('surveys'))
     return answer_summary(
-        request,
+        request, 
         qid,
         answer_filter=works_user_can_admin_filter(request, work_id),
     )
+
 
 def new_survey(request, work_id):
     if not request.user.is_authenticated() :
