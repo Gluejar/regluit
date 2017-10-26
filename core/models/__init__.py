@@ -1211,6 +1211,9 @@ class UserProfile(models.Model):
     librarything_id = models.CharField(max_length=31, blank=True)
     badges = models.ManyToManyField('Badge', related_name='holders', blank=True)
     kindle_email = models.EmailField(max_length=254, blank=True)
+    
+    # keep track of work the user adds
+    works = models.ManyToManyField('Work', related_name='contributors', blank=True)
 
     goodreads_user_id = models.CharField(max_length=32, null=True, blank=True)
     goodreads_user_name = models.CharField(max_length=200, null=True, blank=True)

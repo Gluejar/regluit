@@ -129,6 +129,17 @@ def valid_subject( subject_name ):
                 return False
     return True
 
+reverse_name_comma = re.compile(r',(?! *Jr[\., ])')
+
+def unreverse_name(name):
+    if not reverse_name_comma.search(name):
+        return name
+    (last, rest) = name.split(',', 1)
+    if not ',' in rest:
+        return '%s %s' % (rest.strip(), last.strip())
+    (first, rest) = rest.split(',', 1)
+    return '%s %s, %s' % (first.strip(), last.strip(), rest.strip())
+
 def authlist_cleaner(authlist):
     ''' given a author string or list of author strings, checks that the author string
         is not a list of author names and that no author is repeated'''
@@ -144,16 +155,18 @@ def authlist_cleaner(authlist):
 # Match comma but not ", Jr"
 comma_list_delim = re.compile(r',(?! *Jr[\., ])')
 spaces = re.compile(r'\s+')
-_and_ = re.compile(r',? and ')
+_and_ = re.compile(r',? (and|\&) ')
+semicolon_list_delim = re.compile(r'[\;|\&]')
 
 def auth_cleaner(auth):
     ''' given a author string checks that the author string
         is not a list of author names'''
     cleaned = []
-    auth = _and_.sub(',', auth)
     if ';' in auth:
-        authlist =  auth.split(';')
+        authlist =  semicolon_list_delim.split(auth)
+        authlist = [unreverse_name(name) for name in authlist]
     else:
+        auth = _and_.sub(',', auth)
         authlist = comma_list_delim.split(auth)
     for auth in authlist:
         cleaned.append(spaces.sub(' ', auth.strip()))
