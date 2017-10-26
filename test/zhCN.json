@@ -1,0 +1,271 @@
+{
+ "kind": "books#volumes",
+ "totalItems": 3,
+ "items": [
+  {
+   "kind": "books#volume",
+   "id": "JikgAgAAQBAJ",
+   "etag": "HZe9MmdRNx0",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/JikgAgAAQBAJ",
+   "volumeInfo": {
+    "title": "大宋王朝4",
+    "subtitle": "",
+    "authors": [
+     "王新龙"
+    ],
+    "publisher": "青苹果数据中心",
+    "publishedDate": "2013-11-21",
+    "description": "?大宋王朝，武运国势萎弱不振，但经济繁荣，文化昌盛，政治军事与经济文化形成极其鲜明的对照，貌似不和谐地并存于一体，本书从经济、文化、科技等不同的层面重新审视两宋，试图全方位地向读者展示大宋历史的始末。",
+    "readingModes": {
+     "text": true,
+     "image": true
+    },
+    "printType": "BOOK",
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "1.1.1.0.preview.3",
+    "panelizationSummary": {
+     "containsEpubBubbles": false,
+     "containsImageBubbles": false
+    },
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=JikgAgAAQBAJ&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=JikgAgAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "zh-CN",
+    "previewLink": "http://books.google.com/books?id=JikgAgAAQBAJ&printsec=frontcover&dq=isbn:9787104030126&hl=&cd=1&source=gbs_api",
+    "infoLink": "https://play.google.com/store/books/details?id=JikgAgAAQBAJ&source=gbs_api",
+    "canonicalVolumeLink": "https://market.android.com/details?id=book-JikgAgAAQBAJ"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "FOR_SALE",
+    "isEbook": true,
+    "listPrice": {
+     "amount": 0.99,
+     "currencyCode": "USD"
+    },
+    "retailPrice": {
+     "amount": 0.99,
+     "currencyCode": "USD"
+    },
+    "buyLink": "https://play.google.com/store/books/details?id=JikgAgAAQBAJ&rdid=book-JikgAgAAQBAJ&rdot=1&source=gbs_api",
+    "offers": [
+     {
+      "finskyOfferType": 1,
+      "listPrice": {
+       "amountInMicros": 990000.0,
+       "currencyCode": "USD"
+      },
+      "retailPrice": {
+       "amountInMicros": 990000.0,
+       "currencyCode": "USD"
+      },
+      "giftable": true
+     }
+    ]
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "PARTIAL",
+    "embeddable": true,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": true,
+     "acsTokenLink": "http://books.google.com/books/download/%E5%A4%A7%E5%AE%8B%E7%8E%8B%E6%9C%9D4-sample-epub.acsm?id=JikgAgAAQBAJ&format=epub&output=acs4_fulfillment_token&dl_type=sample&source=gbs_api"
+    },
+    "pdf": {
+     "isAvailable": true,
+     "acsTokenLink": "http://books.google.com/books/download/%E5%A4%A7%E5%AE%8B%E7%8E%8B%E6%9C%9D4-sample-pdf.acsm?id=JikgAgAAQBAJ&format=pdf&output=acs4_fulfillment_token&dl_type=sample&source=gbs_api"
+    },
+    "webReaderLink": "http://play.google.com/books/reader?id=JikgAgAAQBAJ&hl=&printsec=frontcover&source=gbs_api",
+    "accessViewStatus": "SAMPLE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "大宋王朝，武运国势萎弱不振，但经济繁荣，文化昌盛，政治军事与经济文化形成极其鲜明的对照，貌似不和谐地并存于一体，本书从经济、文化、科技等不同的层面重新审视两宋， ..."
+   }
+  },
+  {
+   "kind": "books#volume",
+   "id": "McQdAgAAQBAJ",
+   "etag": "qTN9nxDWgE0",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/McQdAgAAQBAJ",
+   "volumeInfo": {
+    "title": "大宋王朝1",
+    "subtitle": "",
+    "authors": [
+     "王新龙"
+    ],
+    "publisher": "青苹果数据中心",
+    "publishedDate": "2013-11-20",
+    "description": "大宋王朝，武运国势萎弱不振，但经济繁荣，文化昌盛，政治军事与经济文化形成极其鲜明的对照，貌似不和谐地并存于一体，本书从经济、文化、科技等不同的层面重新审视两宋，试图全方位地向读者展示大宋历史的始末。",
+    "industryIdentifiers": [
+     {
+      "type": "ISBN_13",
+      "identifier": "9787104030126"
+     },
+     {
+      "type": "ISBN_10",
+      "identifier": "7104030123"
+     }
+    ],
+    "readingModes": {
+     "text": true,
+     "image": true
+    },
+    "printType": "BOOK",
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "1.1.1.0.preview.3",
+    "panelizationSummary": {
+     "containsEpubBubbles": false,
+     "containsImageBubbles": false
+    },
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=McQdAgAAQBAJ&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=McQdAgAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "zh-CN",
+    "previewLink": "http://books.google.com/books?id=McQdAgAAQBAJ&printsec=frontcover&dq=isbn:9787104030126&hl=&cd=2&source=gbs_api",
+    "infoLink": "https://play.google.com/store/books/details?id=McQdAgAAQBAJ&source=gbs_api",
+    "canonicalVolumeLink": "https://market.android.com/details?id=book-McQdAgAAQBAJ"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "FOR_SALE",
+    "isEbook": true,
+    "listPrice": {
+     "amount": 0.99,
+     "currencyCode": "USD"
+    },
+    "retailPrice": {
+     "amount": 0.99,
+     "currencyCode": "USD"
+    },
+    "buyLink": "https://play.google.com/store/books/details?id=McQdAgAAQBAJ&rdid=book-McQdAgAAQBAJ&rdot=1&source=gbs_api",
+    "offers": [
+     {
+      "finskyOfferType": 1,
+      "listPrice": {
+       "amountInMicros": 990000.0,
+       "currencyCode": "USD"
+      },
+      "retailPrice": {
+       "amountInMicros": 990000.0,
+       "currencyCode": "USD"
+      },
+      "giftable": true
+     }
+    ]
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "PARTIAL",
+    "embeddable": true,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": true,
+     "acsTokenLink": "http://books.google.com/books/download/%E5%A4%A7%E5%AE%8B%E7%8E%8B%E6%9C%9D1-sample-epub.acsm?id=McQdAgAAQBAJ&format=epub&output=acs4_fulfillment_token&dl_type=sample&source=gbs_api"
+    },
+    "pdf": {
+     "isAvailable": true,
+     "acsTokenLink": "http://books.google.com/books/download/%E5%A4%A7%E5%AE%8B%E7%8E%8B%E6%9C%9D1-sample-pdf.acsm?id=McQdAgAAQBAJ&format=pdf&output=acs4_fulfillment_token&dl_type=sample&source=gbs_api"
+    },
+    "webReaderLink": "http://play.google.com/books/reader?id=McQdAgAAQBAJ&hl=&printsec=frontcover&source=gbs_api",
+    "accessViewStatus": "SAMPLE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "大宋王朝，武运国势萎弱不振，但经济繁荣，文化昌盛，政治军事与经济文化形成极其鲜明的对照，貌似不和谐地并存于一体，本书从经济、文化、科技等不同的层面重新审视两宋， ..."
+   }
+  },
+  {
+   "kind": "books#volume",
+   "id": "oMQdAgAAQBAJ",
+   "etag": "6h2krng35eI",
+   "selfLink": "https://www.googleapis.com/books/v1/volumes/oMQdAgAAQBAJ",
+   "volumeInfo": {
+    "title": "大宋王朝3",
+    "subtitle": "",
+    "authors": [
+     "王新龙"
+    ],
+    "publisher": "青苹果数据中心",
+    "publishedDate": "2013-11-20",
+    "description": "?大宋王朝，武运国势萎弱不振，但经济繁荣，文化昌盛，政治军事与经济文化形成极其鲜明的对照，貌似不和谐地并存于一体，本书从经济、文化、科技等不同的层面重新审视两宋，试图全方位地向读者展示大宋历史的始末。",
+    "readingModes": {
+     "text": true,
+     "image": true
+    },
+    "printType": "BOOK",
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "2.1.1.0.preview.3",
+    "panelizationSummary": {
+     "containsEpubBubbles": false,
+     "containsImageBubbles": false
+    },
+    "imageLinks": {
+     "smallThumbnail": "http://books.google.com/books/content?id=oMQdAgAAQBAJ&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+     "thumbnail": "http://books.google.com/books/content?id=oMQdAgAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+    },
+    "language": "zh-CN",
+    "previewLink": "http://books.google.com/books?id=oMQdAgAAQBAJ&printsec=frontcover&dq=isbn:9787104030126&hl=&cd=3&source=gbs_api",
+    "infoLink": "https://play.google.com/store/books/details?id=oMQdAgAAQBAJ&source=gbs_api",
+    "canonicalVolumeLink": "https://market.android.com/details?id=book-oMQdAgAAQBAJ"
+   },
+   "saleInfo": {
+    "country": "US",
+    "saleability": "FOR_SALE",
+    "isEbook": true,
+    "listPrice": {
+     "amount": 0.99,
+     "currencyCode": "USD"
+    },
+    "retailPrice": {
+     "amount": 0.99,
+     "currencyCode": "USD"
+    },
+    "buyLink": "https://play.google.com/store/books/details?id=oMQdAgAAQBAJ&rdid=book-oMQdAgAAQBAJ&rdot=1&source=gbs_api",
+    "offers": [
+     {
+      "finskyOfferType": 1,
+      "listPrice": {
+       "amountInMicros": 990000.0,
+       "currencyCode": "USD"
+      },
+      "retailPrice": {
+       "amountInMicros": 990000.0,
+       "currencyCode": "USD"
+      },
+      "giftable": true
+     }
+    ]
+   },
+   "accessInfo": {
+    "country": "US",
+    "viewability": "PARTIAL",
+    "embeddable": true,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+     "isAvailable": true,
+     "acsTokenLink": "http://books.google.com/books/download/%E5%A4%A7%E5%AE%8B%E7%8E%8B%E6%9C%9D3-sample-epub.acsm?id=oMQdAgAAQBAJ&format=epub&output=acs4_fulfillment_token&dl_type=sample&source=gbs_api"
+    },
+    "pdf": {
+     "isAvailable": true,
+     "acsTokenLink": "http://books.google.com/books/download/%E5%A4%A7%E5%AE%8B%E7%8E%8B%E6%9C%9D3-sample-pdf.acsm?id=oMQdAgAAQBAJ&format=pdf&output=acs4_fulfillment_token&dl_type=sample&source=gbs_api"
+    },
+    "webReaderLink": "http://play.google.com/books/reader?id=oMQdAgAAQBAJ&hl=&printsec=frontcover&source=gbs_api",
+    "accessViewStatus": "SAMPLE",
+    "quoteSharingAllowed": false
+   },
+   "searchInfo": {
+    "textSnippet": "大宋王朝，武运国势萎弱不振，但经济繁荣，文化昌盛，政治军事与经济文化形成极其鲜明的对照，貌似不和谐地并存于一体，本书从经济、文化、科技等不同的层面重新审视两宋， ..."
+   }
+  }
+ ]
+}
