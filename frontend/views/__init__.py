@@ -397,6 +397,7 @@ def work(request, work_id, action='display'):
 
     return render(request, 'work.html', {
         'work': work,
+        'user_can_edit_work': user_can_edit_work(request.user, work),
         'premiums': premiums,
         'ungluers': userlists.supporting_users(work, 5),
         'claimform': claimform,
@@ -642,6 +643,8 @@ def googlebooks(request, googlebooks_id):
             if edition.new:
                 # add related editions asynchronously
                 tasks.populate_edition.delay(edition.isbn_13)
+                if request.user.is_authenticated():
+                    request.user.profile.works.add(edition.work)
         except bookloader.LookupFailure:
             logger.warning("failed to load googlebooks_id %s" % googlebooks_id)
             return HttpResponseNotFound("failed looking up googlebooks id %s" % googlebooks_id)

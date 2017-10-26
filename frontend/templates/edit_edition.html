@@ -238,7 +238,12 @@ ul.fancytree-container {
 
 {% else %}
     {% if edition.work %}
+    <h2><a href="{% url 'work' edition.work.id %}">{{ edition.work.title }}</a> was added to Unglue.it on {{ edition.work.created }}</h2>
     {% include 'edition_display.html' %}
+    <div class="launch_top pale">
+        Are you the author or other rightsholder for this work?
+        To edit the metadata or add editions, become an Unglue.it <a href="{% url 'rightsholders' %}">rights holder</a>.         
+    </div>
     {% else %}
     Sorry, there's no work specified.
     {% endif %}

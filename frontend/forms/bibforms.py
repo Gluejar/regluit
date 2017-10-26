@@ -51,7 +51,7 @@ class IdentifierForm(forms.ModelForm):
         required=False,
     )
     make_new = forms.BooleanField(
-        label='There\'s no existing Identifier, so please use an Unglue.it ID',
+        label='There\'s no existing Identifier. ',
         required=False,
     )
     identifier = None

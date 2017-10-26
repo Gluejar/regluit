@@ -517,6 +517,9 @@ def merge_works(w1, w2, user=None):
         w2source = wishlist.work_source(w2)
         wishlist.remove_work(w2)
         wishlist.add_work(w1, w2source)
+    for userprofile in w2.contributors.all():
+        userprofile.works.remove(w2)
+        userprofile.works.add(w1)
     for identifier in w2.identifiers.all():
         identifier.work = w1
         identifier.save()

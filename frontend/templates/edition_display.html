@@ -39,11 +39,7 @@
                 web: <a href="{{ edition.http_id }}">{{ edition.http_id }}</a><br />
             {% endif %}
             {% if not managing %}
-                {% if user.is_staff %}
-                    <a href="{% url 'new_edition' work_id edition.id %}">Edit this edition</a><br />
-                {% elif user in work.last_campaign.managers.all %}
-                    <a href="{% url 'new_edition' work_id edition.id %}">Edit this edition</a><br />
-                {% elif user.rights_holder.count and not work.last_campaign %}
+                {% if user_can_edit_work %}
                     <a href="{% url 'new_edition' work_id edition.id %}">Edit this edition</a><br />
                 {% endif %}
                 {% if user.is_authenticated %}
