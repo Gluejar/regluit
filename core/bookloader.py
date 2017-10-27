@@ -37,7 +37,7 @@ from regluit.utils.localdatetime import now
 from . import cc
 from . import models
 from .parameters import WORK_IDENTIFIERS
-from .validation import identifier_cleaner
+from .validation import identifier_cleaner, unreverse_name
 from .loaders.scrape import get_scraper, scrape_sitemap
 
 logger = logging.getLogger(__name__)
@@ -517,6 +517,9 @@ def merge_works(w1, w2, user=None):
         w2source = wishlist.work_source(w2)
         wishlist.remove_work(w2)
         wishlist.add_work(w1, w2source)
+    for userprofile in w2.contributors.all():
+        userprofile.works.remove(w2)
+        userprofile.works.add(w1)
     for identifier in w2.identifiers.all():
         identifier.work = w1
         identifier.save()
@@ -735,16 +738,6 @@ IDTABLE = [('librarything', 'ltwk'), ('goodreads', 'gdrd'), ('openlibrary', 'olw
     ('edition_id', 'edid'), ('googlebooks', 'goog'), ('doi', 'doi'),
 ]
 
-def unreverse(name):
-    if not ',' in name:
-        return name
-    (last, rest) = name.split(',', 1)
-    if not ',' in rest:
-        return '%s %s' % (rest.strip(), last.strip())
-    (first, rest) = rest.split(',', 1)
-    return '%s %s, %s' % (first.strip(), last.strip(), rest.strip())
-
-
 def load_from_yaml(yaml_url, test_mode=False):
     """
     This really should be called 'load_from_github_yaml'
@@ -877,7 +870,7 @@ class BasePandataLoader(object):
                 rel_code = inverse_marc_rels.get(key, 'aut')
                 creators = creators if isinstance(creators, list) else [creators]
                 for creator in creators:
-                    edition.add_author(unreverse(creator.get('agent_name', '')), relation=rel_code)
+                    edition.add_author(unreverse_name(creator.get('agent_name', '')), relation=rel_code)
         for yaml_subject in metadata.subjects: #always add yaml subjects (don't clear)
             if isinstance(yaml_subject, tuple):
                 (authority, heading)  = yaml_subject

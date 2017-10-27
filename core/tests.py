@@ -154,15 +154,15 @@ class BookLoaderTests(TestCase):
 
     def test_language_locale_mock(self):
         with requests_mock.Mocker(real_http=True) as m:
-            with open(os.path.join(TESTDIR, 'zhTW.json')) as gb:
+            with open(os.path.join(TESTDIR, 'zhCN.json')) as gb:
                 m.get('https://www.googleapis.com/books/v1/volumes', content=gb.read())
             self.test_language_locale(mocking=True)
         
     def test_language_locale(self, mocking=False):
         if not (mocking or settings.TEST_INTEGRATION):
             return
-        edition = bookloader.add_by_isbn('9789570336467')
-        self.assertEqual(edition.work.language, 'zh-TW')
+        edition = bookloader.add_by_isbn('9787104030126')
+        self.assertEqual(edition.work.language, 'zh-CN')
 
     def test_update_edition_mock(self):
         with requests_mock.Mocker(real_http=True) as m:

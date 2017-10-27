@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 #from gitenberg.metadata.pandata import Pandata
 from django.conf import settings
 from urlparse import urljoin
+from RISparser import read as readris
 
 from regluit.core import models
 from regluit.core.validation import identifier_cleaner, authlist_cleaner
@@ -13,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 CONTAINS_COVER = re.compile('cover')
 CONTAINS_CC = re.compile('creativecommons.org')
+CONTAINS_OCLCNUM = re.compile('worldcat.org/oclc/(\d+)')
 
 class BaseScraper(object):    
     '''
@@ -26,7 +28,9 @@ class BaseScraper(object):
         try:
             response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
             if response.status_code == 200:
+                self.base = response.url
                 self.doc = BeautifulSoup(response.content, 'lxml')
+                self.setup()
                 self.get_genre()
                 self.get_title()
                 self.get_language()
@@ -94,7 +98,18 @@ class BaseScraper(object):
         dt = self.doc.find('dt', string=re.compile(name))
         dd = dt.find_next_sibling('dd') if dt else None
         return dd.text if dd else None
+  
+    def get_itemprop(self, name):
+        value_list = []
+        attrs = {'itemprop': name}
+        props = self.doc.find_all(attrs=attrs)
+        for el in props:
+            value_list.append(el.text)
+        return value_list
 
+    def setup(self):
+        # use this method to get auxiliary resources based on doc
+        pass
     #
     # getters
     #
@@ -105,7 +120,7 @@ class BaseScraper(object):
             self.set('genre', 'book')            
 
     def get_title(self):
-        value = self.check_metas(['DC.Title', 'dc.title', 'citation_title', 'title'])
+        value = self.check_metas(['DC.Title', 'dc.title', 'citation_title', 'og:title', 'title'])
         if not value:
             value =  self.fetch_one_el_content('title')
         self.set('title', value)
@@ -150,7 +165,17 @@ class BaseScraper(object):
         if value:
             self.identifiers['doi'] = value
 
-        isbns = self.get_isbns()                
+        #look for oclc numbers           
+        links = self.doc.find_all(href=CONTAINS_OCLCNUM)
+        for link in links:
+            oclcmatch = CONTAINS_OCLCNUM.search(link['href'])
+            if oclcmatch:
+                value = identifier_cleaner('oclc')(oclcmatch.group(1))
+                if value:
+                    self.identifiers['oclc'] = value
+                    break
+
+        isbns = self.get_isbns()
         ed_list = []
         if len(isbns):
             #need to create edition list
@@ -195,7 +220,9 @@ class BaseScraper(object):
             'author',
         ], list_mode='list')
         if not value_list:
-            return
+            value_list = self.get_itemprop('author')
+            if not value_list:
+                return
         creator_list = []
         value_list = authlist_cleaner(value_list)
         if len(value_list) == 1:
@@ -207,16 +234,16 @@ class BaseScraper(object):
         self.set('creator', {'authors': creator_list })
     
     def get_cover(self):
-        image_url = self.check_metas(['og.image', 'image'])
+        image_url = self.check_metas(['og.image', 'image', 'twitter:image'])
         if not image_url:
             block = self.doc.find(class_=CONTAINS_COVER)
             block = block if block else self.doc
             img = block.find_all('img', src=CONTAINS_COVER)
             if img:
                 cover_uri = img[0].get('src', None)
-                if cover_uri:
-                    image_url = urljoin(self.base, cover_uri)
         if image_url:
+            if not image_url.startswith('http'):
+                image_url = urljoin(self.base, image_url)
             self.set('covers', [{'image_url': image_url}])
                 
     def get_downloads(self):
@@ -279,8 +306,65 @@ class PressbooksScraper(BaseScraper):
         ''' return True if the class can scrape the URL '''
         return url.find('press.rebus.community') > 0 or url.find('pressbooks.com') > 0
 
+
+class HathitrustScraper(BaseScraper):
+    
+    CATALOG = re.compile(r'catalog.hathitrust.org/Record/(\d+)')
+
+    def setup(self):
+        catalog_a = self.doc.find('a', href=self.CATALOG)
+        if catalog_a:
+            catalog_num = self.CATALOG.search(catalog_a['href']).group(1)
+            ris_url = 'https://catalog.hathitrust.org/Search/SearchExport?handpicked={}&method=ris'.format(catalog_num)
+            response = requests.get(ris_url, headers={"User-Agent": settings.USER_AGENT})
+            records = readris(response.text.splitlines()) if response.status_code == 200 else []
+            for record in records:
+                self.record = record
+                return
+            self.record = {}
+            
+
+    def get_downloads(self):
+        dl_a = self.doc.select_one('#fullPdfLink')
+        value = dl_a['href'] if dl_a else None
+        if value:
+            self.set(
+                'download_url_{}'.format('pdf'), 
+                'https://babel.hathitrust.org{}'.format(value)
+            )
+    
+    def get_isbns(self):
+        isbn = self.record.get('issn', [])
+        value = identifier_cleaner('isbn')(isbn)
+        return {'print': value} if value else {}
+    
+    def get_title(self):
+        self.set('title', self.record.get('title', ''))
+
+    def get_keywords(self):
+        self.set('subjects', self.record.get('keywords', []))
+            
+    def get_publisher(self):
+        self.set('publisher', self.record.get('publisher', ''))
+
+    def get_pubdate(self):
+        self.set('publication_date', self.record.get('year', ''))
+
+    def get_description(self):
+        notes = self.record.get('notes', [])
+        self.set('description', '\r'.join(notes))
+    
+    def get_genre(self):
+        self.set('genre', self.record.get('type_of_reference', '').lower())
+
+    @classmethod
+    def can_scrape(cls, url):
+        ''' return True if the class can scrape the URL '''
+        return url.find('hathitrust.org') > 0 or url.find('hdl.handle.net/2027/') > 0
+
+
 def get_scraper(url):
-    scrapers = [PressbooksScraper, BaseScraper]
+    scrapers = [PressbooksScraper, HathitrustScraper, BaseScraper]
     for scraper in scrapers:
         if scraper.can_scrape(url):
             return scraper(url)
