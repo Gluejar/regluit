@@ -48,7 +48,7 @@ def isbn_cleaner(value):
         return value
     isbn=ISBN(value)
     if isbn.error:
-        raise forms.ValidationError(isbn.error)
+        raise ValidationError(isbn.error)
     isbn.validate()
     return isbn.to_string()
 
@@ -94,18 +94,18 @@ def test_file(the_file, fformat):
             try:
                 book = EPUB(the_file.file)
             except Exception as e:
-                raise forms.ValidationError(_('Are you sure this is an EPUB file?: %s' % e) )
+                raise ValidationError(_('Are you sure this is an EPUB file?: %s' % e) )
         elif fformat == 'mobi':
             try:
                 book = Mobi(the_file.file)
                 book.parse()
             except Exception as e:
-                raise forms.ValidationError(_('Are you sure this is a MOBI file?: %s' % e) )
+                raise ValidationError(_('Are you sure this is a MOBI file?: %s' % e) )
         elif fformat == 'pdf':
             try:
                 doc = PdfFileReader(the_file.file)
             except Exception, e:
-                raise forms.ValidationError(_('%s is not a valid PDF file' % the_file.name) )
+                raise ValidationError(_('%s is not a valid PDF file' % the_file.name) )
     return True
 
 def valid_xml_char_ordinal(c):
@@ -132,6 +132,7 @@ def valid_subject( subject_name ):
 reverse_name_comma = re.compile(r',(?! *Jr[\., ])')
 
 def unreverse_name(name):
+    name = name.strip('.')
     if not reverse_name_comma.search(name):
         return name
     (last, rest) = name.split(',', 1)
@@ -157,12 +158,13 @@ comma_list_delim = re.compile(r',(?! *Jr[\., ])')
 spaces = re.compile(r'\s+')
 _and_ = re.compile(r',? (and|\&) ')
 semicolon_list_delim = re.compile(r'[\;|\&]')
+reversed_name = re.compile(r'(de |la |los |von |van )*\w+, \w+.?( \w+.?)?(, Jr\.?)?')
 
 def auth_cleaner(auth):
     ''' given a author string checks that the author string
         is not a list of author names'''
     cleaned = []
-    if ';' in auth:
+    if ';' in auth or reversed_name.match(auth):
         authlist =  semicolon_list_delim.split(auth)
         authlist = [unreverse_name(name) for name in authlist]
     else:
