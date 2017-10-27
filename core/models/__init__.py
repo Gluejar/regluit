@@ -134,8 +134,11 @@ class CeleryTask(models.Model):
         return f.AsyncResult(self.task_id)
     @property
     def state(self):
-        f = getattr(regluit.core.tasks, self.function_name)
-        return f.AsyncResult(self.task_id).state
+        try:
+            f = getattr(regluit.core.tasks, self.function_name)
+            return f.AsyncResult(self.task_id).state
+        except AttributeError:
+            return None
     @property
     def result(self):
         f = getattr(regluit.core.tasks, self.function_name)
