@@ -274,7 +274,7 @@ def edit_edition(request, work_id, edition_id, by=None):
                     work.publication_range = None  # will reset on next access
                     work.language = form.cleaned_data['language']
                     work.age_level = form.cleaned_data['age_level']
-                    work.save()
+                    work.save(update_fields=['description', 'publication_range', 'language', 'age_level'])
 
                 id_type = form.cleaned_data['id_type']
                 id_val = form.cleaned_data['id_value']
