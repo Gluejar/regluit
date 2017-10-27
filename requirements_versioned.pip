@@ -103,3 +103,4 @@ pycparser==2.14
 setuptools==25.0.0
 urllib3==1.16
 beautifulsoup4==4.6.0
+RISparser==0.4.2
