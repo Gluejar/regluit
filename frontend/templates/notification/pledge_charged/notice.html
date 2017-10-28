@@ -3,11 +3,11 @@
 {% load humanize %}
 
 {% block comments_book %}
-			<a href="{% url 'work' transaction.campaign.work.id %}"><img src="{{ transaction.campaign.work.cover_image_small }}" alt="cover image for {{ transaction.campaign.work.title }}" /></a>
+			<a href="{% url 'work' transaction.campaign.work_id %}"><img src="{{ transaction.campaign.work.cover_image_small }}" alt="cover image for {{ transaction.campaign.work.title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}
-			Hooray! The campaign for <a href="{% url 'work' transaction.campaign.work.id %}">{{ transaction.campaign.work.title }}</a> has succeeded.  Your credit card has been charged ${{ transaction.amount|floatformat:2|intcomma }}.  Thank you again for your help.
+			Hooray! The campaign for <a href="{% url 'work' transaction.campaign.work_id %}">{{ transaction.campaign.work.title }}</a> has succeeded.  Your credit card has been charged ${{ transaction.amount|floatformat:2|intcomma }}.  Thank you again for your help.
 {% endblock %}
 
 {% block comments_textual %}
@@ -21,7 +21,7 @@
 		</p>
 		<p>We will notify you when the unglued ebook is available for you to read.  If you've requested special premiums, the campaign manager, {{ transaction.campaign.rightsholder }}, will be in touch with you via email to request any information needed to deliver your premium.
 		</p>
-		<p>For more information, visit the <a href="{% url 'work' transaction.campaign.work.id %}">campaign page</a>.
+		<p>For more information, visit the <a href="{% url 'work' transaction.campaign.work_id %}">campaign page</a>.
 		
 		</p>
 		<p>Thank you again for your support.

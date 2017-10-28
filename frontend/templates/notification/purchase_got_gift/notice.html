@@ -3,7 +3,7 @@
 {% load humanize %}
 
 {% block comments_book %}
-			<a href="{% url 'work' gift.acq.work.id %}"><img src="{{ gift.acq.work.cover_image_small }}" alt="cover image for {{ gift.acq.work.title }}" /></a>
+			<a href="{% url 'work' gift.acq.work_id %}"><img src="{{ gift.acq.work.cover_image_small }}" alt="cover image for {{ gift.acq.work.title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}
