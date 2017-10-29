@@ -94,9 +94,9 @@ Please fix the following before launching your campaign:
 
 	<div class="preview_campaign">
 	{% ifequal campaign_status 'INITIALIZED' %}
-		<a href="{% url 'work_preview' campaign.work.id %}" class="manage" target="_blank">Preview Your Campaign</a>
+		<a href="{% url 'work_preview' campaign.work_id %}" class="manage" target="_blank">Preview Your Campaign</a>
 	{% else %}
-		<a href="{% url 'work' campaign.work.id %}" class="manage" target="_blank">See Your Campaign</a>
+		<a href="{% url 'work' campaign.work_id %}" class="manage" target="_blank">See Your Campaign</a>
 	{% endifequal %}
 	</div>
 
@@ -136,7 +136,7 @@ Please fix the following before launching your campaign:
         <div class="edition_form" id="edition_{{edition.id}}">
         <p> Edition {{ edition.id }}:  <input type="radio" {% ifequal edition.id form.edition.value %}checked="checked" {% endifequal %}id="id_edition_{{forloop.counter}}" value="{{edition.id}}" name="edition" /><label for="id_edition_{{forloop.counter}}"> Prefer this edition </label>
         <ul style="text-indent:1em">
-        <li style="text-indent:2.5em"><a href="{% url 'new_edition' edition.work.id edition.id %}"> Edit </a> this edition</li>
+        <li style="text-indent:2.5em"><a href="{% url 'new_edition' edition.work_id edition.id %}"> Edit </a> this edition</li>
         {% ifnotequal campaign.type 1 %}
         {% if campaign.rh.can_sell %}
             {% if edition.ebook_files.all.0 %}
@@ -159,7 +159,7 @@ Please fix the following before launching your campaign:
     {% endif %}
     {% if campaign.work.epubfiles.0 %}
         {% for ebf in campaign.work.epubfiles %}
-        <p>{% if ebf.active %}<span class="yikes">ACTIVE</span> {% elif ebf.ebook.active %} MIRROR {% endif %}EPUB file: <a href="{{ebf.file.url}}">{{ebf.file}}</a> <br />created {{ebf.created}}  for edition <a href="#edition_{{ebf.edition.id}}">{{ebf.edition.id}}</a> {% if ebf.asking %}(This file has had the campaign 'ask' added.){% endif %}<br />{% if ebf.active %}{% ifequal action 'mademobi' %}<span class="yikes">A MOBI file is being generated. </span> (Takes a minute or two.) {% else %}You can <a href="{% url 'makemobi' campaign.id ebf.id %}">generate a MOBI file.</a> {% endifequal %}{% endif %}</p>
+        <p>{% if ebf.active %}<span class="yikes">ACTIVE</span> {% elif ebf.ebook.active %} MIRROR {% endif %}EPUB file: <a href="{{ebf.file.url}}">{{ebf.file}}</a> <br />created {{ebf.created}}  for edition <a href="#edition_{{ebf.edition_id}}">{{ebf.edition_id}}</a> {% if ebf.asking %}(This file has had the campaign 'ask' added.){% endif %}<br />{% if ebf.active %}{% ifequal action 'mademobi' %}<span class="yikes">A MOBI file is being generated. </span> (Takes a minute or two.) {% else %}You can <a href="{% url 'makemobi' campaign.id ebf.id %}">generate a MOBI file.</a> {% endifequal %}{% endif %}</p>
         {% endfor %}
         {% if campaign.work.test_acqs.0 %}
             <ul> 
@@ -170,12 +170,12 @@ Please fix the following before launching your campaign:
     {% endif %}
     {% if campaign.work.mobifiles.0 %}
         {% for ebf in campaign.work.mobifiles %}
-        <p>{% if ebf.active %}<span class="yikes">ACTIVE</span> {% endif %}MOBI file: <a href="{{ebf.file.url}}">{{ebf.file}}</a> <br />created {{ebf.created}}  for edition <a href="#edition_{{ebf.edition.id}}">{{ebf.edition.id}}</a> {% if ebf.asking %}(This file has had the campaign 'ask' added.){% endif %}</p>
+        <p>{% if ebf.active %}<span class="yikes">ACTIVE</span> {% endif %}MOBI file: <a href="{{ebf.file.url}}">{{ebf.file}}</a> <br />created {{ebf.created}}  for edition <a href="#edition_{{ebf.edition_id}}">{{ebf.edition_id}}</a> {% if ebf.asking %}(This file has had the campaign 'ask' added.){% endif %}</p>
         {% endfor %}
     {% endif %}
     {% if campaign.work.pdffiles.0 %}
         {% for ebf in campaign.work.pdffiles %}
-        <p>{% if ebf.active %}<span class="yikes">ACTIVE</span> {% endif %}PDF file: <a href="{{ebf.file.url}}">{{ebf.file}}</a> <br />created {{ebf.created}}  for edition <a href="#edition_{{ebf.edition.id}}">{{ebf.edition.id}}</a> {% if ebf.asking %}(This file has had the campaign 'ask' added.){% endif %}</p>
+        <p>{% if ebf.active %}<span class="yikes">ACTIVE</span> {% endif %}PDF file: <a href="{{ebf.file.url}}">{{ebf.file}}</a> <br />created {{ebf.created}}  for edition <a href="#edition_{{ebf.edition_id}}">{{ebf.edition_id}}</a> {% if ebf.asking %}(This file has had the campaign 'ask' added.){% endif %}</p>
         {% endfor %}
     {% endif %}
 {% ifnotequal campaign_status 'ACTIVE' %}
@@ -294,7 +294,7 @@ Please fix the following before launching your campaign:
     Once the user has clicked a "Download" button or a "Read it Now" button, you have a chance for an "ask" - that's where a user can decide to also make a thank-you contribution.
 	The "ask" will be displayed to a user who has clicked a "Download" button. It's your chance to ask for their support. 
 	The user can decide to make a contribution and go enter a credit card, or can scroll down to download. 
-	To see your request in test mode, <a href="{% url 'download' campaign.work.id %}?testmode=1">click here</a>. </p>
+	To see your request in test mode, <a href="{% url 'download' campaign.work_id %}?testmode=1">click here</a>. </p>
 	<p>A strong ask/motivation combination:</p>
     {% else %}
 	<p>This will be displayed in the Campaign tab for your work.  It's your main pitch to supporters/purchasers, and your chance to share your passion for this work, and to inspire readers..</p>
@@ -485,7 +485,7 @@ Please fix the following before launching your campaign:
         <p>Before you hit launch:</p>
         <ul class="bullets">
             <li>Have you proofread your campaign? (Make sure to spellcheck!)</li>
-            <li>Have you <a href="{% url 'work_preview' campaign.work.id %}">previewed your campaign</a>? Does it look how you want it to?</li>
+            <li>Have you <a href="{% url 'work_preview' campaign.work_id %}">previewed your campaign</a>? Does it look how you want it to?</li>
         </ul>
         
         <p>If it doesn't look exactly the way you like, or you're having any trouble with your description, we're happy to help; please <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">contact us</a>.</p>
@@ -529,7 +529,7 @@ Please fix the following before launching your campaign:
 {% endif %}
 {% ifequal campaign.type 1 %}
 <h3>Acknowledgements</h3>
-<p>When you're logged in, the "Ungluers" tab on the <a href="{% url 'work' work.id %}">campaign page</a> will tell you a bit about each ungluer- when they last pledged, for example, and you can send individual messages to each ungluer. Use this tool with care! You can see who your biggest supporters are by looking at the <a href="{% url 'work_acks' campaign.work.id %}">sample acknowledgement page</a>. 
+<p>When you're logged in, the "Ungluers" tab on the <a href="{% url 'work' work.id %}">campaign page</a> will tell you a bit about each ungluer- when they last pledged, for example, and you can send individual messages to each ungluer. Use this tool with care! You can see who your biggest supporters are by looking at the <a href="{% url 'work_acks' campaign.work_id %}">sample acknowledgement page</a>. 
 After your campaign succeeds, you can used this page to generate epub code for the acknowledgements section of your unglued ebook.
 </p>
 {% else %}

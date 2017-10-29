@@ -31,7 +31,7 @@ onload = function(){
 
 {% block doccontent %}
 
-<h2>Add Ebook Links for <a href="{% url 'work' edition.work.id %}">{{ edition.work.title }}</a></h2>
+<h2>Add Ebook Links for <a href="{% url 'work' edition.work_id %}">{{ edition.work.title }}</a></h2>
             {% if edition.publisher %}
                 Publisher: <a href="{% url 'bypubname_list' edition.publisher_name.id %}">{{edition.publisher}}</a><br />
             {% endif %}
@@ -51,10 +51,10 @@ onload = function(){
 {% if request.user.is_staff %}
 <h2>More Edition Management</h2>
 
-<div><a href="{% url 'merge' edition.work.id  %}">Merge other works into this one</a></div>
-<div><a href="{% url 'work_editions' edition.work.id  %}">Remove editions from this work</a></div>
-<div><a href="{% url 'feature' edition.work.id  %}">Feature this work today</a></div>
-<div><a href="{% url 'new_edition' edition.work.id edition.id %}">Edit the edition</a></div>
+<div><a href="{% url 'merge' edition.work_id  %}">Merge other works into this one</a></div>
+<div><a href="{% url 'work_editions' edition.work_id  %}">Remove editions from this work</a></div>
+<div><a href="{% url 'feature' edition.work_id  %}">Feature this work today</a></div>
+<div><a href="{% url 'new_edition' edition.work_id edition.id %}">Edit the edition</a></div>
 {% endif %}
 <br />
 {% endblock %}

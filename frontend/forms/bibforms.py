@@ -154,7 +154,7 @@ class EditionForm(forms.ModelForm):
         if id_value:
             identifier = Identifier.objects.filter(type=id_type, value=id_value)
             if identifier:
-                err_msg = "{} is a duplicate for work #{}.".format(identifier[0], identifier[0].work.id)
+                err_msg = "{} is a duplicate for work #{}.".format(identifier[0], identifier[0].work_id)
                 self.add_error('id_value', forms.ValidationError(err_msg))
             try:
                 self.cleaned_data['value'] = identifier_cleaner(id_type)(id_value)

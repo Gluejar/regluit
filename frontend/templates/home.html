@@ -238,7 +238,7 @@ function put_un_in_cookie2(){
                                             {% elif object.campaign.type == 3 %}
                                                 supported 
                                             {% endif %}<br />
-                                            <a class="user-book-name" href="{% url 'work' object.campaign.work.id %}">{{ object.campaign.work.title }}</a>
+                                            <a class="user-book-name" href="{% url 'work' object.campaign.work_id %}">{{ object.campaign.work.title }}</a>
                                         </span>
                                         {% else %}
                                         <span class="user-avatar">
@@ -247,7 +247,7 @@ function put_un_in_cookie2(){
                                         <span class="user-book-info">
                                             Anonymous User<br />
                                             supported <br />
-                                            <a class="user-book-name" href="{% url 'work' object.campaign.work.id %}">{{ object.campaign.work.title }}</a>
+                                            <a class="user-book-name" href="{% url 'work' object.campaign.work_id %}">{{ object.campaign.work.title }}</a>
                                         </span>
                                         {% endif %}
                                     {% elif event.2 == "comment" %}
@@ -266,7 +266,7 @@ function put_un_in_cookie2(){
                                         <span class="user-book-info">
                                             <a href="{% url 'supporter' object.wishlist.user.username %}">{{ object.wishlist.user.username }}</a><br />
                                             faved<br />
-                                            <a class="user-book-name" href="{% url 'work' object.work.id %}">{{ object.work.title }}</a>
+                                            <a class="user-book-name" href="{% url 'work' object.work_id %}">{{ object.work.title }}</a>
                                         </span>                                    
                                     {% endif %}
                                 {% endwith %}

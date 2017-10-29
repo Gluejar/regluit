@@ -3,7 +3,7 @@
 {% load humanize %}
 
 {% block comments_book %}
-			<a href="{% url 'work' gift.acq.work.id %}"><img src="{{ gift.acq.work.cover_image_small }}" alt="cover image for {{ gift.acq.work.title }}" /></a>
+			<a href="{% url 'work' gift.acq.work_id %}"><img src="{{ gift.acq.work.cover_image_small }}" alt="cover image for {{ gift.acq.work.title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}
@@ -22,10 +22,10 @@ To pick up <i>{{ gift.acq.work.title }}</i>, the ebook that <a href="{% url 'sup
 The ebook will be licensed to you personally, and your license has been embedded in the ebook file. You may download as many times as you need to, but you can't make copies for the use of others until the ungluing date. You can make that date come sooner by encouraging your friends to buy a copy.
 </p>
 <p>
-Thanks to <a href="{% url 'supporter' gift.giver %}">{{ gift.giver }}</a> and other ungluers, <a href="{% url 'work' gift.acq.work.id %}">{{ gift.acq.work.title }}</a> will be eventually be released to the world in an unglued ebook edition. 
+Thanks to <a href="{% url 'supporter' gift.giver %}">{{ gift.giver }}</a> and other ungluers, <a href="{% url 'work' gift.acq.work_id %}">{{ gift.acq.work.title }}</a> will be eventually be released to the world in an unglued ebook edition. 
 </p>
 <p>
-For more information about the book, visit the book's <a href="{% url 'work' gift.acq.work.id %}">unglue.it page</a>
+For more information about the book, visit the book's <a href="{% url 'work' gift.acq.work_id %}">unglue.it page</a>
 
 </p>
 <p>

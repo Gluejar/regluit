@@ -650,7 +650,7 @@ def googlebooks(request, googlebooks_id):
             return HttpResponseNotFound("failed looking up googlebooks id %s" % googlebooks_id)
     if not edition:
         return HttpResponseNotFound("invalid googlebooks id")
-    work_url = reverse('work', kwargs={'work_id': edition.work.id})
+    work_url = reverse('work', kwargs={'work_id': edition.work_id})
 
     # process waiting add request
     if not request.user.is_anonymous() and request.session.has_key("add_wishlist"):
@@ -1273,7 +1273,7 @@ class FundView(FormView):
         data.update(
             {'preapproval_amount':self.transaction.needed_amount,
                 'username':self.request.user.username if self.request.user.is_authenticated() else None,
-                'work_id':self.transaction.campaign.work.id if self.transaction.campaign else None,
+                'work_id':self.transaction.campaign.work_id if self.transaction.campaign else None,
                 'title':self.transaction.campaign.work.title if self.transaction.campaign else COMPANY_TITLE}
             )
         return kwargs
@@ -1466,7 +1466,7 @@ class FundCompleteView(TemplateView):
                     if self.user_is_ok():
                         return self.render_to_response(context)
                     else:
-                        return HttpResponseRedirect(reverse('work', kwargs={'work_id': self.transaction.campaign.work.id}))
+                        return HttpResponseRedirect(reverse('work', kwargs={'work_id': self.transaction.campaign.work_id}))
                 else:
                     return redirect_to_login(request.get_full_path())
         else:
@@ -1479,7 +1479,7 @@ class FundCompleteView(TemplateView):
             # to handle anonymous donors- leakage not an issue
             return True
         else:
-            return self.request.user.id == self.transaction.user.id
+            return self.request.user.id == self.transaction.user_id
 
 
 
@@ -1625,7 +1625,7 @@ class PledgeCancelView(FormView):
                 from regluit.payment.signals import pledge_modified
                 pledge_modified.send(sender=self, transaction=transaction, up_or_down="canceled")
                 logger.info("pledge_modified notice for cancellation: sender {0}, transaction {1}".format(self, transaction))
-                return HttpResponseRedirect(reverse('work', kwargs={'work_id': campaign.work.id}))
+                return HttpResponseRedirect(reverse('work', kwargs={'work_id': campaign.work_id}))
             else:
                 logger.error("Attempt to cancel transaction id {0} failed".format(transaction.id))
                 return HttpResponse("Our attempt to cancel your transaction failed. We have logged this error.")
@@ -1731,7 +1731,7 @@ def new_survey(request, work_id):
         if form.is_valid():
             if not work and form.work:
                 for my_work in my_works:
-                    print '{} {}'.format(my_work.id, form.work.id)
+                    print '{} {}'.format(my_work.id, form.work_id)
                     if my_work == form.work:
                         work = form.work
                         break
@@ -1760,7 +1760,7 @@ def rh_tools(request):
         return render(request, "rh_tools.html")
     for claim in claims:
         if claim.can_open_new:
-            if request.method == 'POST' and  request.POST.has_key('cl_%s-work' % claim.id) and int(request.POST['cl_%s-work' % claim.id]) == claim.work.id :
+            if request.method == 'POST' and  request.POST.has_key('cl_%s-work' % claim.id) and int(request.POST['cl_%s-work' % claim.id]) == claim.work_id :
                 claim.campaign_form = OpenCampaignForm(data = request.POST, prefix = 'cl_'+str(claim.id),)
                 if claim.campaign_form.is_valid():
                     new_campaign = claim.campaign_form.save(commit=False)
@@ -2680,7 +2680,7 @@ def ask_rh(request, campaign_id):
     campaign = get_object_or_404(models.Campaign, id=campaign_id)
     return feedback(request, recipient=campaign.email, template="ask_rh.html",
             message_template="ask_rh.txt",
-            redirect_url = reverse('work', args=[campaign.work.id]),
+            redirect_url = reverse('work', args=[campaign.work_id]),
             extra_context={'campaign':campaign, 'subject':campaign })
 
 def feedback(request, recipient='support@gluejar.com', template='feedback.html', message_template='feedback.txt', extra_context=None, redirect_url=None):
@@ -3018,7 +3018,7 @@ def receive_gift(request, nonce):
     if gift.used:
         if request.user.is_authenticated():
             #check that user hasn't redeemed the gift themselves
-            if (gift.acq.user.id == request.user.id) and not gift.acq.expired:
+            if (gift.acq.user_id == request.user.id) and not gift.acq.expired:
                 return HttpResponseRedirect(reverse('display_gift', args=[gift.id,'existing']))
         return render(request, 'gift_error.html', context)
     if request.user.is_authenticated():
@@ -3069,7 +3069,7 @@ def display_gift(request, gift_id, message):
         gift = models.Gift.objects.get(id=gift_id)
     except models.Gift.DoesNotExist:
         return render(request, 'gift_error.html',)
-    if request.user.id != gift.acq.user.id :
+    if request.user.id != gift.acq.user_id :
         return HttpResponse("this is not your gift")
     redeemed_gift =  request.session.get('gift_nonce', None) == gift.acq.nonce
     context = {'gift': gift, 'work': gift.acq.work , 'message':message }

@@ -179,13 +179,13 @@ class EbookFileAdmin(ModelAdmin):
     readonly_fields  = ('file', 'edition_link', 'ebook_link', 'ebook')
     def edition_link(self, obj):
         if obj.edition:
-            link = reverse("admin:core_edition_change", args=[obj.edition.id]) 
+            link = reverse("admin:core_edition_change", args=[obj.edition_id]) 
             return u'<a href="%s">%s</a>' % (link,obj.edition)
         else:
             return u''
     def ebook_link(self, obj):
         if obj.ebook:
-            link = reverse("admin:core_ebook_change", args=[obj.ebook.id]) 
+            link = reverse("admin:core_ebook_change", args=[obj.ebook_id]) 
             return u'<a href="%s">%s</a>' % (link,obj.ebook)
         else:
             return u''
@@ -206,7 +206,7 @@ class GiftAdmin(ModelAdmin):
     search_fields = ('giver__username', 'to')
     readonly_fields = ('giver', 'acq',) 
     def acq_admin_link(self, gift):
-        return "<a href='/admin/core/acq/%s/'>%s</a>" % (gift.acq.id, gift.acq)
+        return "<a href='/admin/core/acq/%s/'>%s</a>" % (gift.acq_id, gift.acq)
     acq_admin_link.allow_tags = True
 
 class CeleryTaskAdmin(ModelAdmin):

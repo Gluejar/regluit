@@ -16,7 +16,7 @@ Unglue.it is a website whose purpose is to help ebooks become free. Thanks to "{
 
 
 For more information about the book, visit the book's unglue.it page at 
-https://{{ current_site.domain }}{% url 'work' gift.acq.work.id %}
+https://{{ current_site.domain }}{% url 'work' gift.acq.work_id %}
 
 We hope enjoy your new ebook, and we hope you like Unglue.it!
 

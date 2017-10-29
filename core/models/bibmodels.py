@@ -82,11 +82,11 @@ class Identifier(models.Model):
                 identifier = Identifier.objects.create(type=type, value=value, work=work)
             else:
                 identifier = Identifier.objects.create(type=type, value=value, work=work, edition=edition)
-        if identifier.work.id != work.id:
+        if identifier.work_id != work.id:
             identifier.work = work
             identifier.save()
         if identifier.edition and edition:
-            if identifier.edition.id != edition.id:
+            if identifier.edition_id != edition.id:
                 identifier.edition = edition
                 identifier.save()
             others = Identifier.objects.filter(type=type, work=work, edition=edition).exclude(value=value)
@@ -961,7 +961,7 @@ class Edition(models.Model):
         return self.ebooks.filter(active=True)
 
     def download_via_url(self):
-        return settings.BASE_URL_SECURE + reverse('download', args=[self.work.id])
+        return settings.BASE_URL_SECURE + reverse('download', args=[self.work_id])
 
     def authnames(self):
         return [auth.last_name_first for auth in self.authors.all()]
