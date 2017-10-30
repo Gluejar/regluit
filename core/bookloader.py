@@ -735,7 +735,7 @@ class LookupFailure(Exception):
 
 IDTABLE = [('librarything', 'ltwk'), ('goodreads', 'gdrd'), ('openlibrary', 'olwk'),
     ('gutenberg', 'gtbg'), ('isbn', 'isbn'), ('oclc', 'oclc'),
-    ('edition_id', 'edid'), ('googlebooks', 'goog'), ('doi', 'doi'),
+    ('edition_id', 'edid'), ('googlebooks', 'goog'), ('doi', 'doi'), ('http','http'),
 ]
 
 def load_from_yaml(yaml_url, test_mode=False):
