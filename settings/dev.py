@@ -23,8 +23,8 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'regluit.db',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'unglueit',
         'USER': '',
         'PASSWORD': '',
         'HOST': '',
@@ -55,11 +55,13 @@ REDIRECT_IS_HTTPS = False
 
 
 #BASE_URL = 'http://0.0.0.0'
-BASE_URL_SECURE = 'https://0.0.0.0' 
+BASE_URL_SECURE = 'https://0.0.0.0'
 
-# use database as queuing service in development
-BROKER_TRANSPORT = "djkombu.transport.DatabaseTransport"
-#INSTALLED_APPS += ("djkombu",)
+# use redis as queuing service
+BROKER_TRANSPORT = "redis"
+BROKER_HOST = "localhost"
+BROKER_PORT = 6379
+BROKER_VHOST = "0"
 
 # send celery log to Python logging
 CELERYD_HIJACK_ROOT_LOGGER = False
@@ -83,4 +85,3 @@ UNGLUEIT_TEST_PASSWORD = None
 
 # local settings for maintenance mode
 MAINTENANCE_MODE = False
-

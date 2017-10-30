@@ -1,15 +1,13 @@
 regluit - "The Unglue.it web application and website"
 =======
 
-Another repo - https://github.com/EbookFoundation/regluit will be the place for collaborative development for Unglue.it. Add issues and submit pull requests there. As of January 19, 2017, https://github.com/Gluejar/regluit is still being used for production builds.
+This repo - https://github.com/EbookFoundation/regluit will be the place for collaborative development for Unglue.it. Add issues and submit pull requests here. As of January 19, 2017, https://github.com/Gluejar/regluit is still being used for production builds.
 
-
-
-The first version of the unglue.it codebase was a services-oriented project named "unglu". 
+The first version of the unglue.it codebase was a services-oriented project named "unglu".
 We decided that "unglu" was too complicated, so we started over and named the new project "regluit".
-regluit is a Django project that 
-contains four main applications: `core`, `frontend`, `api` and `payment` that can be deployed 
-and configured on as many ec2 instances that are needed to support traffic. 
+regluit is a Django project that
+contains four main applications: `core`, `frontend`, `api` and `payment` that can be deployed
+and configured on as many ec2 instances that are needed to support traffic.
 The partitioning between these modules is not as clean as would be ideal. `payment` is particularly messy because we had to retool it twice because we had to switch from Paypal to Amazon Payments to Stripe.
 
 regluit was originally developed on Django 1.3 (python 2.7) and currently runs on Django 1.8.
@@ -17,11 +15,14 @@ regluit was originally developed on Django 1.3 (python 2.7) and currently runs o
 Develop
 -------
 
-Here are some instructions for setting up regluit for development on 
-an Ubuntu system. If you are on OS X see notes below 
+Here are some instructions for setting up regluit for development on
+an Ubuntu system. If you are on OS X see notes below
 to install python-setuptools in step 1:
 
-1. `aptitude install python-setuptools git python-lxml` 
+1. Ensure MySQL and Redis are installed & running on your system.
+1. Create a MySQL database and user for unglueit.
+1. `sudo apt-get upgrade gcc`
+1. `sudo apt-get install python-setuptools git python-lxml build_essential libssl-dev libffi-dev python2.7dev libxml2-dev libxslt-dev libmysqlclient-dev`
 1. `sudo easy_install virtualenv virtualenvwrapper`
 1. `git clone git@github.com:Gluejar/regluit.git`
 1. `cd regluit`
@@ -31,15 +32,16 @@ to install python-setuptools in step 1:
 1. `cp settings/dev.py settings/me.py`
 1. `mkdir settings/keys/`
 1. `cp settings/dummy/* settings/keys/`
-1. edit `settings/me.py` with path info, etc. to make things work
-1. edit  the files in settings/keys filling in account and key information OR  if you have the ansible vault password, install ansible, then from the vagrant directory run `ansible-playbook create_keys.yml`
+1. Edit `settings/me.py` with proper mysql and redis configurations.
+1. Edit  `settings/keys/common.py` and `settings/keys/host.py` with account and key information OR if you have the ansible vault password, run `ansible-playbook create_keys.yml` inside the vagrant directory.
 1. `echo 'export DJANGO_SETTINGS_MODULE=regluit.settings.me' >> ~/.virtualenvs/regluit/bin/postactivate`
 1. `deactivate ; workon regluit`
-1. `django-admin.py syncdb --migrate --noinput`
-1. `django-admin.py celeryd --loglevel=INFO` start the celery daemon to perform asynchronous tasks like adding related editions, and display logging information in the foreground.`
+1. `django-admin.py migrate --noinput`
+1. `django-admin.py loaddata core/fixtures/initial_data.json core/fixtures/bookloader.json` populate database with test data to run properly.
+1. `django-admin.py celeryd --loglevel=INFO` start the celery daemon to perform asynchronous tasks like adding related editions, and display logging information in the foreground.
 1. `django-admin.py celerybeat -l INFO` to start the celerybeat daemon to handle scheduled tasks.
 1. `django-admin.py runserver 0.0.0.0:8000` (you can change the port number from the default value of 8000)
-1. point your browser at http://localhost:8000/
+1. Point your browser to http://localhost:8000/
 
 CSS development
 
@@ -120,7 +122,7 @@ OS X Developer Notes
 
 To run regluit on OS X you should have XCode installed
 
-Install virtualenvwrapper according 
+Install virtualenvwrapper according
 to the process at http://blog.praveengollakota.com/47430655:
 
 1. `sudo easy\_install pip`
@@ -148,7 +150,7 @@ edit the line ~/.virtualenvs/regluit/build/MySQL-python/setup_posix.py
 to be (using a path that exists on your system)
 1. mysql_config.path = "/usr/local/mysql-5.5.20-osx10.6-x86_64/bin/mysql_config"
 
-You may need to set utf8 in /etc/my.cnf 
+You may need to set utf8 in /etc/my.cnf
 collation-server = utf8_unicode_ci
 
     init-connect='SET NAMES utf8'
