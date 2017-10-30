@@ -163,7 +163,7 @@ def new_edition(request, by=None):
             
             return HttpResponseRedirect(
                 reverse('new_edition', kwargs={
-                    'work_id': edition.work.id,
+                    'work_id': edition.work_id,
                     'edition_id': edition.id
                 })
             )
@@ -274,7 +274,7 @@ def edit_edition(request, work_id, edition_id, by=None):
                     work.publication_range = None  # will reset on next access
                     work.language = form.cleaned_data['language']
                     work.age_level = form.cleaned_data['age_level']
-                    work.save()
+                    work.save(update_fields=['description', 'publication_range', 'language', 'age_level'])
 
                 id_type = form.cleaned_data['id_type']
                 id_val = form.cleaned_data['id_value']
@@ -310,7 +310,7 @@ def edit_edition(request, work_id, edition_id, by=None):
                         bisacsh = bisacsh.parent
                 for subject_name in edition.new_subjects:
                     add_subject(subject_name, work)
-                work_url = reverse('work', kwargs={'work_id': edition.work.id})
+                work_url = reverse('work', kwargs={'work_id': edition.work_id})
                 cover_file = form.cleaned_data.get("coverfile", None)
                 if cover_file:
                     # save it

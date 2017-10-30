@@ -410,8 +410,8 @@ def relate_isbn(isbn, cluster_size=1):
                 if related_edition.work is None:
                     related_edition.work = edition.work
                     related_edition.save()
-                elif related_edition.work.id != edition.work.id:
-                    logger.debug("merge_works path 1 %s %s", edition.work.id, related_edition.work.id )
+                elif related_edition.work_id != edition.work_id:
+                    logger.debug("merge_works path 1 %s %s", edition.work_id, related_edition.work_id )
                     merge_works(related_edition.work, edition.work)
                 if related_edition.work.editions.count()>cluster_size:
                     return related_edition.work
@@ -449,8 +449,8 @@ def add_related(isbn):
                 if related_edition.work is None:
                     related_edition.work = work
                     related_edition.save()
-                elif related_edition.work.id != work.id:
-                    logger.debug("merge_works path 1 %s %s", work.id, related_edition.work.id )
+                elif related_edition.work_id != work.id:
+                    logger.debug("merge_works path 1 %s %s", work.id, related_edition.work_id )
                     work = merge_works(work, related_edition.work)
             else:
                 if other_editions.has_key(related_language):
@@ -460,14 +460,14 @@ def add_related(isbn):
 
     # group the other language editions together
     for lang_group in other_editions.itervalues():
-        logger.debug("lang_group (ed, work): %s", [(ed.id, ed.work.id) for ed in lang_group])
+        logger.debug("lang_group (ed, work): %s", [(ed.id, ed.work_id) for ed in lang_group])
         if len(lang_group)>1:
             lang_edition = lang_group[0]
             logger.debug("lang_edition.id: %s", lang_edition.id)
             # compute the distinct set of works to merge into lang_edition.work
             works_to_merge = set([ed.work for ed in lang_group[1:]]) - set([lang_edition.work])
             for w in works_to_merge:
-                logger.debug("merge_works path 2 %s %s", lang_edition.work.id, w.id )
+                logger.debug("merge_works path 2 %s %s", lang_edition.work_id, w.id )
                 merged_work = merge_works(lang_edition.work, w)
         models.WorkRelation.objects.get_or_create(
             to_work=lang_group[0].work,
@@ -749,7 +749,7 @@ def load_from_yaml(yaml_url, test_mode=False):
     for metadata in all_metadata.get_edition_list():
         edition = loader.load_from_pandata(metadata)
         loader.load_ebooks(metadata, edition, test_mode)
-    return edition.work.id if edition else None
+    return edition.work_id if edition else None
 
 def edition_for_ident(id_type, id_value):
     #print 'returning edition for {}: {}'.format(id_type, id_value)
@@ -820,9 +820,9 @@ class BasePandataLoader(object):
                 value =  value[0] if isinstance(value, list) else value
                 try:
                     id = models.Identifier.objects.get(type=id_code, value=value)
-                    if work and id.work and id.work.id is not work.id:
+                    if work and id.work and id.work_id is not work.id:
                         # dangerous! merge newer into older
-                        if work.id < id.work.id:
+                        if work.id < id.work_id:
                             merge_works(work, id.work)
                         else:
                             merge_works(id.work, work)

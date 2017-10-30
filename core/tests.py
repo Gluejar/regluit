@@ -230,7 +230,7 @@ class BookLoaderTests(TestCase):
         back_point = True
         to_works = [wr.to_work for wr in edition.work.works_related_from.all()]
         for to_work in to_works:
-            if edition.work.id not in [wr1.from_work.id for wr1 in to_work.works_related_to.all()]:
+            if edition.work_id not in [wr1.from_work.id for wr1 in to_work.works_related_to.all()]:
                 back_point = False
                 break
         self.assertTrue(back_point)

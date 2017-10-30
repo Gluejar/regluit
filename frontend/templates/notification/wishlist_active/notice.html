@@ -3,24 +3,24 @@
 {% load humanize %}
 
 {% block comments_book %}
-	<a href="{% url 'work' campaign.work.id %}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ campaign.work.title }}" /></a>
+	<a href="{% url 'work' campaign.work_id %}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ campaign.work.title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}
-	<span>The rights holder, {{ campaign.rightsholder }}, has launched a campaign for <a href="{% url 'work' campaign.work.id %}">{{ campaign.work.title }}</a>!</span>
+	<span>The rights holder, {{ campaign.rightsholder }}, has launched a campaign for <a href="{% url 'work' campaign.work_id %}">{{ campaign.work.title }}</a>!</span>
 {% endblock %}
 
 {% block comments_textual %}
 {% ifequal campaign.type 1 %}
 	<div>Congratulations!  You wished for a campaign, and here it is.  If ungluers like you pledge {{ campaign.target|intcomma }} by {{ campaign.deadline|date:"M d, Y" }}, <I>{{ campaign.work.title }}</i> will be released under a <a href="https://creativecommons.org">Creative Commons</a> license for all to enjoy.</div>
-	<div>You can help!  <a href="{% url 'pledge' campaign.work.id %}">Pledge</a> any amount, and use the sharing options on the <a href="{% url 'work' campaign.work.id %}">campaign page</a> to tell your friends.</a></div>
+	<div>You can help!  <a href="{% url 'pledge' campaign.work_id %}">Pledge</a> any amount, and use the sharing options on the <a href="{% url 'work' campaign.work_id %}">campaign page</a> to tell your friends.</a></div>
 {% endifequal %}
 {% ifequal campaign.type 2 %}
 	<div>Great!  You wished for a campaign, and here it is. Someday, the book will be released under a <a href="https://creativecommons.org">Creative Commons license</a> for everyone to enjoy. Every copy purchased brings that day {{ campaign.days_per_copy|floatformat }} days sooner.</div>
-	<div>You can help!  <a href="{% url 'purchase' campaign.work.id %}">Purchase</a> a copy, and use the sharing options on the <a href="{% url 'work' campaign.work.id %}">campaign page</a> to tell your friends.</a></div>
+	<div>You can help!  <a href="{% url 'purchase' campaign.work_id %}">Purchase</a> a copy, and use the sharing options on the <a href="{% url 'work' campaign.work_id %}">campaign page</a> to tell your friends.</a></div>
 {% endifequal %}
 {% ifequal campaign.type 3 %}
 	<div>There is a new "Thanks for Ungluing" campaign for {{ campaign.work.title }} one of your Creative Commons license favorites.</div>
-	<div>Please join us!  <a href="{% url 'download' campaign.work.id %}">Download</a> a copy, leave a contribution, and use the sharing options on the <a href="{% url 'work' campaign.work.id %}">campaign page</a> to tell your friends.</a></div>
+	<div>Please join us!  <a href="{% url 'download' campaign.work_id %}">Download</a> a copy, leave a contribution, and use the sharing options on the <a href="{% url 'work' campaign.work_id %}">campaign page</a> to tell your friends.</a></div>
 {% endifequal %}
 {% endblock %}

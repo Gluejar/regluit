@@ -129,7 +129,7 @@ def add_all_isbns(isbns, work, language=None, title=None):
         edition = bookloader.add_by_isbn(isbn, work, language=language, title=title)
         if edition:
             first_edition = first_edition if first_edition else edition 
-            if work and (edition.work.id != work.id): 
+            if work and (edition.work_id != work.id): 
                 if work.created < edition.work.created:
                     work = merge_works(work, edition.work)
                 else:

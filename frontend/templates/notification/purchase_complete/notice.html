@@ -3,7 +3,7 @@
 {% load humanize %}
 
 {% block comments_book %}
-			<a href="{% url 'work' transaction.campaign.work.id %}"><img src="{{ transaction.campaign.work.cover_image_small }}" alt="cover image for {{ transaction.campaign.work.title }}" /></a>
+			<a href="{% url 'work' transaction.campaign.work_id %}"><img src="{{ transaction.campaign.work.cover_image_small }}" alt="cover image for {{ transaction.campaign.work.title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}
@@ -31,7 +31,7 @@ https://{{ current_site.domain }}{% url 'receive_gift' gift.acq.nonce %}
 You can send the url yourself if there's been any problem with the email.
 
 {% else %}
-If you have not already done so, download your ebook at <a href="{% url 'download' transaction.campaign.work.id %}">the book's download page.</a>
+If you have not already done so, download your ebook at <a href="{% url 'download' transaction.campaign.work_id %}">the book's download page.</a>
 {% endif %}{% endifequal %}
 
 {% endblock %}
@@ -43,14 +43,14 @@ If you have not already done so, download your ebook at <a href="{% url 'downloa
     {% ifequal transaction.offer.license 1 %}{% if not gift %}
 		<p>This ebook is licensed to you personally, and your personal license has been embedded in the ebook file. You may download as many times as you need to, but you can't make copies for the use of others until the ungluing date. You can make that date come sooner by encouraging your friends to buy a copy.</p>
     {% endif %}{% else %}
-		<p>This ebook {% ifnotequal transaction.extra.copies 1 %}({{ transaction.extra.copies }} copies){% endifnotequal %} is licensed to your library and its license has been embedded in the ebook file. If you'd like to be the first to use it, please <a href="{% url 'borrow' transaction.campaign.work.id %}">get your copy now</a>. After an hour, the ebook will be available to all of your library's users on a one-user-per two weeks basis until the ungluing date, when it will be free to all. You can make that date come sooner by encouraging your friends to buy a copy.</p>
+		<p>This ebook {% ifnotequal transaction.extra.copies 1 %}({{ transaction.extra.copies }} copies){% endifnotequal %} is licensed to your library and its license has been embedded in the ebook file. If you'd like to be the first to use it, please <a href="{% url 'borrow' transaction.campaign.work_id %}">get your copy now</a>. After an hour, the ebook will be available to all of your library's users on a one-user-per two weeks basis until the ungluing date, when it will be free to all. You can make that date come sooner by encouraging your friends to buy a copy.</p>
     {% endifequal %}
 {% endifequal %}
 {% ifequal transaction.campaign.type 3 %}    
     <p>The creators of <i>{{ transaction.campaign.work.title }}</i> would like to thank you for showing your appreciation for making it free.
     </p>
 {% endifequal %}
-		<p>For more information about the book, visit the <a href="{% url 'work' transaction.campaign.work.id %}">book's unglue.it page</a>.
+		<p>For more information about the book, visit the <a href="{% url 'work' transaction.campaign.work_id %}">book's unglue.it page</a>.
 		</p>
 		<p>Thank you again for your support.
 		</p>

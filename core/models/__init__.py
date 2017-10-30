@@ -134,8 +134,11 @@ class CeleryTask(models.Model):
         return f.AsyncResult(self.task_id)
     @property
     def state(self):
-        f = getattr(regluit.core.tasks, self.function_name)
-        return f.AsyncResult(self.task_id).state
+        try:
+            f = getattr(regluit.core.tasks, self.function_name)
+            return f.AsyncResult(self.task_id).state
+        except AttributeError:
+            return None
     @property
     def result(self):
         f = getattr(regluit.core.tasks, self.function_name)
@@ -341,7 +344,7 @@ class Acq(models.Model):
                 'exlibris':0,
                 'chapterfooter':  0,
                 'disclaimer':0,
-                'referenceid': '%s:%s:%s' % (self.work.id, self.user.id, self.id) if do_watermark else 'N/A',
+                'referenceid': '%s:%s:%s' % (self.work_id, self.user_id, self.id) if do_watermark else 'N/A',
                 'kf8mobi': True,
                 'epub': True,
                 }
@@ -352,7 +355,7 @@ class Acq(models.Model):
         return self.watermarked
 
     def _hash(self):
-        return hashlib.md5('%s:%s:%s:%s'%(settings.SOCIAL_AUTH_TWITTER_SECRET, self.user.id, self.work.id, self.created)).hexdigest()
+        return hashlib.md5('%s:%s:%s:%s'%(settings.SOCIAL_AUTH_TWITTER_SECRET, self.user_id, self.work_id, self.created)).hexdigest()
 
     def expire_in(self, delta):
         self.expires = (now() + delta) if delta else now()
@@ -1077,7 +1080,7 @@ class Campaign(models.Model):
             format=format,
             rights=self.license,
             provider="Unglue.it",
-            url=settings.BASE_URL_SECURE + reverse('download_campaign', args=[self.work.id, format]),
+            url=settings.BASE_URL_SECURE + reverse('download_campaign', args=[self.work_id, format]),
             version='unglued',
         )
         old_ebooks = Ebook.objects.exclude(pk=ebook.pk).filter(
@@ -1102,7 +1105,7 @@ class Campaign(models.Model):
                 'exlibris':0,
                 'chapterfooter':0,
                 'disclaimer':0,
-                'referenceid': '%s:%s:%s' % (self.work.id, self.id, self.license),
+                'referenceid': '%s:%s:%s' % (self.work_id, self.id, self.license),
                 'kf8mobi': True,
                 'epub': True,
             }

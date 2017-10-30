@@ -54,7 +54,7 @@
     {% csrf_token %}
 <dl>
 {% for claim, claim_form in pending %}
-	<dt>Title: <a href="{% url 'work' work_id=claim.work.id %}">{{claim.work.title }}</a></dt>
+	<dt>Title: <a href="{% url 'work' work_id=claim.work_id %}">{{claim.work.title }}</a></dt>
 	<dd>Author: {{claim.work.authors_short }}</dd>
 	<dd>By: {{ claim.user.username }}</dd>
 	<dd>On Behalf of: {{ claim.rights_holder.rights_holder_name }}</dd>
@@ -72,7 +72,7 @@
 <h3> Active Claims: {{ active_data.count }} </h3>
 <dl>
 {% for claim in active_data %}
-	<dt>Title: <a href="{% url 'work' work_id=claim.work.id %}">{{claim.work.title }}</a></dt>
+	<dt>Title: <a href="{% url 'work' work_id=claim.work_id %}">{{claim.work.title }}</a></dt>
 	<dd>Author: {{claim.work.authors_short }}</dd>
 	<dd>By: {{ claim.user.username }}</dd>
 	<dd>On Behalf of: {{ claim.rights_holder.rights_holder_name }}</dd>

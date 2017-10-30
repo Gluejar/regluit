@@ -11,7 +11,7 @@ Transaction summary {% endifequal %}
 {% include "notification/pledge_summary.txt" %}    
 
 If you'd like to visit the campaign page, click here: 
-https://{{ current_site.domain }}{% url 'work' transaction.campaign.work.id %}
+https://{{ current_site.domain }}{% url 'work' transaction.campaign.work_id %}
 
 Thank you again for your support.
 
