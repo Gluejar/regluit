@@ -10,6 +10,7 @@
 onload = function(){
     var urlInput = document.getElementById('id_url');
     var formatInput = document.getElementById('id_format');
+    var fileInput = document.getElementById('id_file');
     urlInput.oninput = function(){
         if(urlInput.value.endsWith('.pdf')){
             formatInput.value = 'pdf'
@@ -21,6 +22,20 @@ onload = function(){
             formatInput.value = 'mobi'
         }        
         else if(urlInput.value.endsWith('.html')){
+            formatInput.value = 'html'
+        };
+    };
+    fileInput.onchange = function(){
+        if(fileInput.value.endsWith('.pdf')){
+            formatInput.value = 'pdf'
+        }
+        else if(fileInput.value.endsWith('.epub')){
+            formatInput.value = 'epub'
+        }        
+        else if(fileInput.value.endsWith('.mobi')){
+            formatInput.value = 'mobi'
+        }        
+        else if(fileInput.value.endsWith('.html')){
             formatInput.value = 'html'
         };
     };
