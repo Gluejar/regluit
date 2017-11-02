@@ -107,8 +107,8 @@ from django_comments.signals import comment_was_posted
 
 def notify_comment(comment, request, **kwargs):
     logger.info('comment %s notifying' % comment.pk)
-    other_commenters = User.objects.filter(comment_comments__content_type=comment.content_type, comment_comments__object_pk=comment.object_pk).distinct().exclude(id=comment.user.id)
-    all_wishers = comment.content_object.wished_by().exclude(id=comment.user.id)
+    other_commenters = User.objects.filter(comment_comments__content_type=comment.content_type, comment_comments__object_pk=comment.object_pk).distinct().exclude(id=comment.user_id)
+    all_wishers = comment.content_object.wished_by().exclude(id=comment.user_id)
     other_wishers = all_wishers.exclude(id__in=other_commenters)
     domain = Site.objects.get_current().domain
     if comment.content_object.last_campaign() and comment.user in comment.content_object.last_campaign().managers.all():
@@ -177,7 +177,7 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
         if transaction.offer.license == LIBRARY:
             library = Library.objects.get(id=transaction.extra['library_id'])
             new_acq = Acq.objects.create(user=library.user,work=transaction.campaign.work,license= LIBRARY)
-            if transaction.user.id != library.user.id:  # don't put it on reserve if purchased by the library
+            if transaction.user_id != library.user_id:  # don't put it on reserve if purchased by the library
                 reserve_acq =  Acq.objects.create(user=transaction.user,work=transaction.campaign.work,license= RESERVE, lib_acq = new_acq)
                 reserve_acq.expire_in(datetime.timedelta(hours=2))
             copies = int(transaction.extra.get('copies',1))

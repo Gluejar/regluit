@@ -50,7 +50,7 @@ If you're an author, publisher, or other rights holder, you can participate more
 <h2 id="managed_campaigns">Campaigns You Manage</h2>
 	<dl>
 	{% for campaign in campaigns %}
-		<dt><a href="{% url 'work' work_id=campaign.work.id %}">{{campaign.name }}</a></dt>
+		<dt><a href="{% url 'work' work_id=campaign.work_id %}">{{campaign.name }}</a></dt>
 		<dd>
 			<div class="work_campaigns clearfix">
 			<div class="campaign_info">
@@ -66,7 +66,7 @@ If you're an author, publisher, or other rights holder, you can participate more
 				Created: {{ campaign.created }}<br />
 				${{ campaign.current_total }} sold. ${{ campaign.target }} to go. Ungluing Date: {{ campaign.cc_date }}<br />
 				{% with campaign.work.preferred_edition as edition %}
-					<a href="{% url 'new_edition' edition.work.id edition.id %}"> Edit </a> the preferred edition<br />
+					<a href="{% url 'new_edition' edition.work_id edition.id %}"> Edit </a> the preferred edition<br />
 					You can also <a href="{% url 'edition_uploads' edition.id %}"> Load a file</a> for this edition.<br />
 				{% endwith %}
 			{% endifequal %}
@@ -76,7 +76,7 @@ If you're an author, publisher, or other rights holder, you can participate more
 				Created: {{ campaign.created }}<br />
 				${{ campaign.current_total }} raised from {{ campaign.supporters_count }} ungluers, {{ campaign.anon_count }} others.
 				{% with campaign.work.preferred_edition as edition %}
-					<a href="{% url 'new_edition' edition.work.id edition.id %}"> Edit </a> the preferred edition<br />
+					<a href="{% url 'new_edition' edition.work_id edition.id %}"> Edit </a> the preferred edition<br />
 					You can also <a href="{% url 'edition_uploads' edition.id %}"> Load a file</a> for this edition.<br />
 				{% endwith %}
 			{% endifequal %}
@@ -104,7 +104,7 @@ If you're an author, publisher, or other rights holder, you can participate more
 <h2 id="open_campaigns">Works You Have Claimed</h2>
 	<dl>
 	{% for claim in claims %}
-		<dt>Title: <a href="{% url 'work' work_id=claim.work.id %}">{{claim.work.title }}</a>&nbsp;&nbsp;&nbsp;(work #{{ claim.work.id }})</dt>
+		<dt>Title: <a href="{% url 'work' work_id=claim.work_id %}">{{claim.work.title }}</a>&nbsp;&nbsp;&nbsp;(work #{{ claim.work_id }})</dt>
 		<dd>Author: {{claim.work.authors_short }}
 			<br />On Behalf of: {{ claim.rights_holder.rights_holder_name }}
 			<br />PSA #: {{ claim.rights_holder.id }}
@@ -189,7 +189,7 @@ If you're an author, publisher, or other rights holder, you can participate more
 				<div class="work_campaigns">
 				<ul>
 				{% for ebook in claim.work.ebooks_all %}
-					<li> edition #{{ebook.edition.id}} {{ ebook.format }} {% if not ebook.active %}(inactive){% endif %}
+					<li> edition #{{ebook.edition_id}} {{ ebook.format }} {% if not ebook.active %}(inactive){% endif %}
 					{{ ebook.download_count }} downloads
 					</li>
 				{% endfor %}

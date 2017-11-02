@@ -8,15 +8,15 @@ def delete_newest_ebooks(ebooks):
      """
      for ebook in sorted(ebooks, key=lambda ebook: ebook.created)[1:]:
          print "deleting ebook.id {}, edition.id {} work.id {}".format(ebook.id,
-                                                                       ebook.edition.id,
-                                                                       ebook.edition.work.id)
+                                                                       ebook.edition_id,
+                                                                       ebook.edition.work_id)
          ebook.delete()
          
          intact = ebooks[0]
          print "leaving undeleted: ebook.id {}, edition.id {} work.id {}".format(
             intact.id,
-            intact.edition.id,
-            intact.edition.work.id
+            intact.edition_id,
+            intact.edition.work_id
          )
             
 

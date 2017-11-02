@@ -16,7 +16,7 @@ The ebook will be licensed to you personally, and the license will be embedded i
 Unglue.it is a website whose purpose is to help ebooks become free. Thanks to "{{ gift.giver }}" and other "ungluers", "{{ gift.acq.work.title }}" will be eventually be released in an "unglued" ebook edition, i.e. free to everyone. Purchases of "{{ gift.acq.work.title }}" are helping to make that free edition financially possible.
 
 For more information about the book, visit the book's unglue.it page at 
-https://{{ current_site.domain }}{% url 'work' gift.acq.work.id %}
+https://{{ current_site.domain }}{% url 'work' gift.acq.work_id %}
 
 We hope enjoy your new ebook, and we hope you like Unglue.it!
 

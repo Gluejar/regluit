@@ -51,7 +51,7 @@ class IdentifierForm(forms.ModelForm):
         required=False,
     )
     make_new = forms.BooleanField(
-        label='There\'s no existing Identifier, so please use an Unglue.it ID',
+        label='There\'s no existing Identifier. ',
         required=False,
     )
     identifier = None
@@ -61,7 +61,7 @@ class IdentifierForm(forms.ModelForm):
         id_value = self.cleaned_data.get('id_value', '').strip()
         make_new =  self.cleaned_data.get('make_new', False)
         if not make_new:
-            self.cleaned_data['value'] = identifier_cleaner(id_type)(id_value)
+            self.cleaned_data['id_value'] = identifier_cleaner(id_type)(id_value)
         return self.cleaned_data
                         
     class Meta:
@@ -154,7 +154,7 @@ class EditionForm(forms.ModelForm):
         if id_value:
             identifier = Identifier.objects.filter(type=id_type, value=id_value)
             if identifier:
-                err_msg = "{} is a duplicate for work #{}.".format(identifier[0], identifier[0].work.id)
+                err_msg = "{} is a duplicate for work #{}.".format(identifier[0], identifier[0].work_id)
                 self.add_error('id_value', forms.ValidationError(err_msg))
             try:
                 self.cleaned_data['value'] = identifier_cleaner(id_type)(id_value)

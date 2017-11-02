@@ -2,11 +2,11 @@
 
 
 {% block comments_book %}
-	<a href="{% url 'work' campaign.work.id %}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ campaign.work.title }}" /></a>
+	<a href="{% url 'work' campaign.work_id %}"><img src="{{ campaign.work.cover_image_small }}" alt="cover image for {{ campaign.work.title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}
-	Alas.  The campaign to unglue <a href="{% url 'work' campaign.work.id %}">{{ campaign.work.title }}</a> did not succeed.
+	Alas.  The campaign to unglue <a href="{% url 'work' campaign.work_id %}">{{ campaign.work.title }}</a> did not succeed.
 {% endblock %}
 
 {% block comments_textual %}

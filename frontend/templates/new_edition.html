@@ -18,6 +18,9 @@
 
 
 <p>To add a work and edition to Unglue.it, we need to start with an identifier. We'll see if we can find some metadata based on the identifier you give us. If you give us an ISBN, we'll often be able to find some. If there's no ISBN, give us a URL (a web address) and we'll check the page for bibliographic info. </p>
+{% if not request.user.rights_holder.all.count %}
+    <p>If someone else has already added the work to unglue.it, you may not be able to edit its metadata.</p>
+{% endif %}
 <form id="editform" enctype="multipart/form-data" method="POST" action="#">
 	{% csrf_token %}
 	{{ form.as_p }}

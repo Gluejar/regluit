@@ -3,11 +3,11 @@
 {% load humanize %}
 
 {% block comments_book %}
-			<a href="{% url 'work' transaction.campaign.work.id %}"><img src="{{ transaction.campaign.work.cover_image_small }}" alt="cover image for {{ transaction.campaign.work.title }}" /></a>
+			<a href="{% url 'work' transaction.campaign.work_id %}"><img src="{{ transaction.campaign.work.cover_image_small }}" alt="cover image for {{ transaction.campaign.work.title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}
-			{% ifequal transaction.campaign.type 1 %}The campaign for <a href="{% url 'work' transaction.campaign.work.id %}">{{ transaction.campaign.work.title }}</a> has succeeded.  However, our attempt to charge your pledge for ${{ transaction.amount|floatformat:2|intcomma }} to your credit card failed ({{transaction.error}}).  Will you help us fix that?{% else %}Our attempt to charge a purchase of ${{ transaction.amount|floatformat:2|intcomma }} to your credit card failed ({{transaction.error}}).{% endifequal %}
+			{% ifequal transaction.campaign.type 1 %}The campaign for <a href="{% url 'work' transaction.campaign.work_id %}">{{ transaction.campaign.work.title }}</a> has succeeded.  However, our attempt to charge your pledge for ${{ transaction.amount|floatformat:2|intcomma }} to your credit card failed ({{transaction.error}}).  Will you help us fix that?{% else %}Our attempt to charge a purchase of ${{ transaction.amount|floatformat:2|intcomma }} to your credit card failed ({{transaction.error}}).{% endifequal %}
 {% endblock %}
 
 {% block comments_textual %}
@@ -33,7 +33,7 @@
 		Amount of purchase: {{ transaction.amount|floatformat:2|intcomma }}<br />
 		</p>
 		{% endifequal %}
-		<p>For more information, visit the <a href="{% url 'work' transaction.campaign.work.id %}">campaign page</a>.
+		<p>For more information, visit the <a href="{% url 'work' transaction.campaign.work_id %}">campaign page</a>.
 		
 		</p>
 		<p>Thank you again for your support.
