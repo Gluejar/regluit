@@ -30,6 +30,8 @@ class BaseScraper(object):
             if response.status_code == 200:
                 self.base = response.url
                 self.doc = BeautifulSoup(response.content, 'lxml')
+                for review in self.doc.find_all(itemtype="http://schema.org/Review"):
+                    review.clear()
                 self.setup()
                 self.get_genre()
                 self.get_title()
@@ -141,15 +143,21 @@ class BaseScraper(object):
     def get_isbns(self):
         '''return a dict of edition keys and ISBNs'''
         isbns = {}
+        isbn_cleaner = identifier_cleaner('isbn', quiet=True)
         label_map = {'epub': 'EPUB', 'mobi': 'Mobi', 
             'paper': 'Paperback', 'pdf':'PDF', 'hard':'Hardback'}
         for key in label_map.keys():
             isbn_key = 'isbn_{}'.format(key)
             value = self.check_metas(['citation_isbn'], type=label_map[key])
-            value = identifier_cleaner('isbn')(value)
+            value = isbn_cleaner(value)
             if value:
                 isbns[isbn_key] = value
                 self.identifiers[isbn_key] = value
+        if not isbns:
+            values = self.get_itemprop('isbn')
+            if values:
+                value = isbn_cleaner(values[0])
+                isbns = {'':value} if value else {}
         return isbns
 
     def get_identifiers(self):
@@ -157,11 +165,11 @@ class BaseScraper(object):
         if not value:
             value = self.doc.select_one('link[rel=canonical]')
             value = value['href'] if value else None
-        value = identifier_cleaner('http')(value)
+        value = identifier_cleaner('http', quiet=True)(value)
         if value:
             self.identifiers['http'] = value
         value = self.check_metas(['DC.Identifier.DOI', 'citation_doi'])
-        value = identifier_cleaner('doi')(value)
+        value = identifier_cleaner('doi', quiet=True)(value)
         if value:
             self.identifiers['doi'] = value
 
@@ -170,7 +178,7 @@ class BaseScraper(object):
         for link in links:
             oclcmatch = CONTAINS_OCLCNUM.search(link['href'])
             if oclcmatch:
-                value = identifier_cleaner('oclc')(oclcmatch.group(1))
+                value = identifier_cleaner('oclc', quiet=True)(oclcmatch.group(1))
                 if value:
                     self.identifiers['oclc'] = value
                     break
@@ -189,7 +197,7 @@ class BaseScraper(object):
             value = self.check_metas(['citation_isbn'], list_mode='list')
             if len(value):
                 for isbn in value:
-                    isbn = identifier_cleaner('isbn')(isbn)
+                    isbn = identifier_cleaner('isbn', quiet=True)(isbn)
                     if isbn:
                         ed_list.append({
                             '_edition': isbn,
@@ -295,7 +303,7 @@ class PressbooksScraper(BaseScraper):
         '''add isbn identifiers and return a dict of edition keys and ISBNs'''
         isbns = {}
         for (key, label) in [('electronic', 'Ebook ISBN'), ('paper', 'Print ISBN')]:
-            isbn = identifier_cleaner('isbn')(self.get_dt_dd(label))
+            isbn = identifier_cleaner('isbn', quiet=True)(self.get_dt_dd(label))
             if isbn:
                 self.identifiers['isbn_{}'.format(key)] = isbn
                 isbns[key] = isbn
@@ -335,7 +343,7 @@ class HathitrustScraper(BaseScraper):
     
     def get_isbns(self):
         isbn = self.record.get('issn', [])
-        value = identifier_cleaner('isbn')(isbn)
+        value = identifier_cleaner('isbn', quiet=True)(isbn)
         return {'print': value} if value else {}
     
     def get_title(self):
