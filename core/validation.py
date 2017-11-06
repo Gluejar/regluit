@@ -70,7 +70,7 @@ ID_MORE_VALIDATION = {
     'olwk': doi_cleaner,
 }
 
-def identifier_cleaner(id_type):
+def identifier_cleaner(id_type, quiet=False):
     if ID_VALIDATION.has_key(id_type):
         (regex, err_msg) = ID_VALIDATION[id_type]
         extra = ID_MORE_VALIDATION.get(id_type, None)
@@ -79,12 +79,18 @@ def identifier_cleaner(id_type):
         def cleaner(value):
             if not value:
                 return None
-            if regex.match(value):
-                if extra:
-                    value = extra(value)
-                return value
-            else:
-                raise ValidationError(err_msg)
+            try:
+                if regex.match(value):
+                    if extra:
+                        value = extra(value)
+                    return value
+                else:
+                    raise ValidationError(err_msg)
+            except ValidationError as ve:
+                if quiet:
+                    return None
+                else:
+                    raise ve
         return cleaner
     return lambda value: value
 
