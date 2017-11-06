@@ -30,6 +30,8 @@ class BaseScraper(object):
             if response.status_code == 200:
                 self.base = response.url
                 self.doc = BeautifulSoup(response.content, 'lxml')
+                for review in self.doc.find_all(itemtype="http://schema.org/Review"):
+                    review.clear()
                 self.setup()
                 self.get_genre()
                 self.get_title()
