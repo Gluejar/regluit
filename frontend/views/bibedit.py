@@ -218,6 +218,7 @@ def edit_edition(request, work_id, edition_id, by=None):
         'title': title,
     } 
     if request.method == 'POST':
+        keep_editing = request.POST.has_key('add_author_submit')
         form = None
         edition.new_authors = zip(
             request.POST.getlist('new_author'),
@@ -229,12 +230,14 @@ def edit_edition(request, work_id, edition_id, by=None):
                 if request.POST.has_key('delete_author_%s' % author.id):
                     edition.remove_author(author)
                     form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
+                    keep_editing = True
                     break
             work_rels = models.WorkRelation.objects.filter(Q(to_work=work) | Q(from_work=work))
             for work_rel in work_rels:
                 if request.POST.has_key('delete_work_rel_%s' % work_rel.id):
                     work_rel.delete()
                     form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
+                    keep_editing = True
                     break
             activate_all = request.POST.has_key('activate_all_ebooks')
             deactivate_all = request.POST.has_key('deactivate_all_ebooks')
@@ -247,6 +250,7 @@ def edit_edition(request, work_id, edition_id, by=None):
                     ebook.deactivate()
                     ebookchange = True
             if ebookchange:
+                keep_editing = True
                 form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
         
         if request.POST.get('add_author', None) and admin:
@@ -255,7 +259,7 @@ def edit_edition(request, work_id, edition_id, by=None):
             if (new_author_name, new_author_relation) not in edition.new_authors:
                 edition.new_authors.append((new_author_name, new_author_relation))
         form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
-        if not request.POST.has_key('add_author_submit') and admin:
+        if not keep_editing and admin:
             if form.is_valid():
                 form.save()
                 if not work:
