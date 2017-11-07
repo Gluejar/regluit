@@ -47,7 +47,7 @@ from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormView, CreateView
 from django.views.generic.list import ListView
 from django.views.generic.base import (
     TemplateView,
@@ -1776,7 +1776,7 @@ def rh_tools(request):
                     claim.campaign_form.save_m2m()
                     claim.campaign_form = None
             else:
-                c_type = 2 if claim.rights_holder.can_sell else 1
+                c_type = 2
                 claim.campaign_form = OpenCampaignForm(
                     initial={'work': claim.work, 'name': claim.work.title,  'userid': request.user.id, 'managers': [request.user.id], 'type': c_type},
                     prefix = 'cl_'+str(claim.id),
@@ -1802,6 +1802,20 @@ def rh_tools(request):
                 campaign.clone_form = CloneCampaignForm(initial={'campaign_id':campaign.id}, prefix='c%s' % campaign.id)
     return render(request, "rh_tools.html", {'claims': claims , 'campaigns': campaigns})
 
+class RHAgree(CreateView):
+    template_name = "rh_agree.html"
+    form_class = RightsHolderForm
+    success_url = reverse_lazy('agreed')
+
+    def get_initial(self):
+        return {'owner':self.request.user.id, 'signature':''}
+
+    def form_valid(self, form):
+        form.instance.signer_ip = self.request.META['REMOTE_ADDR']
+        return super(RHAgree, self).form_valid(form)
+        #self.form.instance.save()
+        #return response
+    
 def rh_admin(request, facet='top'):
     if not request.user.is_authenticated() :
         return render(request, "admins_only.html")
@@ -1812,9 +1826,10 @@ def rh_admin(request, facet='top'):
     active_data = models.Claim.objects.filter(status = 'active')
     if  request.method == 'POST':
         if 'create_rights_holder' in request.POST.keys():
-            form = RightsHolderForm(data=request.POST)
+            form = RightsHolderApprovalForm(data=request.POST)
             pending_formset = PendingFormSet (queryset=pending_data)
             if form.is_valid():
+                form.instance.approved = True
                 form.save()
                 form = RightsHolderForm()
         if 'set_claim_status' in request.POST.keys():

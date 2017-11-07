@@ -201,10 +201,18 @@ post_save.connect(notify_claim, sender=Claim)
 
 class RightsHolder(models.Model):
     created = models.DateTimeField(auto_now_add=True)
-    email = models.CharField(max_length=100, blank=True)
+    email = models.CharField(max_length=100, blank=False, default='')
     rights_holder_name = models.CharField(max_length=100, blank=False)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="rights_holder", null=False)
-    can_sell = models.BooleanField(default=False)
+    approved = models.BooleanField(default=False)
+    address =  models.CharField(max_length=400, blank=False, default='')
+    mailing =  models.CharField(max_length=400, blank=False, default='')
+    telephone = models.CharField(max_length=30, blank=True)
+    signer = models.CharField(max_length=100,  blank=False, default='')
+    signer_ip = models.CharField(max_length=20,  null=True)
+    signer_title = models.CharField(max_length=30,  blank=False, default='')
+    signature = models.CharField(max_length=100, blank=False, default='' )
+    
     def __unicode__(self):
         return self.rights_holder_name
 

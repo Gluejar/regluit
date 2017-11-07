@@ -117,7 +117,6 @@ Please fix the following before launching your campaign:
 	{% csrf_token %}
 	{{ form.media }}
 	<h3>Edit the editions (if needed)</h3>
-    {% if campaign.rh.can_sell %}
         {% if campaign.work.ebookfiles.0 %}
             <p>You have uploaded ebook files for this work. </p>
         {% else %}
@@ -128,7 +127,6 @@ Please fix the following before launching your campaign:
                 <p> To distribute ebooks as part of a thanks for ungluing campaign, you will need to upload the ebook files to unglue.it. </p>
             {% endifequal %}
         {% endif %}
-    {% endif %}
 	<p> Please choose the edition that most closely matches the edition to be unglued.  This is the edition whose cover image will display on your book's page.  Your unglued edition should be identical to this edition if possible; you should note any differences under Rights Details below.</p>
     
     {{ form.edition.errors }}
@@ -138,13 +136,11 @@ Please fix the following before launching your campaign:
         <ul style="text-indent:1em">
         <li style="text-indent:2.5em"><a href="{% url 'new_edition' edition.work_id edition.id %}"> Edit </a> this edition</li>
         {% ifnotequal campaign.type 1 %}
-        {% if campaign.rh.can_sell %}
             {% if edition.ebook_files.all.0 %}
                 <li style="text-indent:2.5em">You have uploaded ebook files for this edition. You can <a href="{% url 'edition_uploads' edition.id %}"> manage its ebooks or upload another</a></li>
             {% else %}
                 <li style="text-indent:2.5em">You can <a href="{% url 'edition_uploads' edition.id %}"> Manage ebooks</a> for this edition.</li>
             {% endif %}
-        {% endif %}
         {% endifnotequal %}
         </ul>
         </p>

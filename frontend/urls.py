@@ -5,11 +5,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
 from django.views.generic import ListView, DetailView
 from django.views.generic.base import TemplateView
-#from django.views.generic.simple import direct_to_template
 from django.views.decorators.csrf import csrf_exempt
 
 from regluit.core.feeds import SupporterWishlistFeed
-from regluit.core.models import Campaign
 from regluit.frontend import views 
 
 
@@ -25,6 +23,8 @@ urlpatterns = [
     url(r"^privacy/$", TemplateView.as_view(template_name="privacy.html"), name="privacy"),
     url(r"^terms/$", TemplateView.as_view(template_name="terms.html"), name="terms"),
     url(r"^rightsholders/$", views.rh_tools, name="rightsholders"), 
+    url(r"^rightsholders/agree/$", views.RHAgree.as_view(), name="agree"), 
+    url(r"^rightsholders/agree/submitted$", TemplateView.as_view(template_name='agreed.html'), name="agreed"), 
     url(r"^rightsholders/campaign/(?P<id>\d+)/$", views.manage_campaign, name="manage_campaign"), 
     url(r"^rightsholders/campaign/(?P<id>\d+)/results/$", views.manage_campaign, {'action': 'results'}, name="campaign_results"), 
     url(r"^rightsholders/campaign/(?P<id>\d+)/(?P<ebf>\d+)/makemobi/$", views.manage_campaign, {'action': 'makemobi'}, name="makemobi"),

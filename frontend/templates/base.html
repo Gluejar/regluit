@@ -135,8 +135,9 @@
         <ul>
             {% if user.is_authenticated %}
                 <li><a href="{% url 'manage_account' %}">Account Settings</a></li>
+                <li><a href="{% url 'new_edition' '' '' %}">Add Books to Unglue.it</a></li>
             {% endif %}
-            <li><a href="{% url 'rightsholders' %}">Rights Holder Tools</a></li>
+            <li><a href="{% url 'rightsholders' %}">For Rights Holders</a></li>
             <li><a href="{% url 'privacy' %}">Privacy</a></li>
             <li><a href="{% url 'terms' %}">Terms of Use</a></li>
             {% for library in user.libraries.all %}
@@ -144,7 +145,6 @@
             {% endfor %}
             {% if user.is_staff %}
                 <li><a href="{% url 'rh_admin' %}">Unglue.it Administration</a></li>
-                <li><a href="{% url 'new_edition' '' '' %}">Create New Editions</a></li>
             {% endif %}
         </ul>
     </div>
