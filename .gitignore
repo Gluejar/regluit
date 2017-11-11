@@ -11,4 +11,5 @@ build
 deploy/last-update
 logs/*
 celerybeat.pid
+celerybeat-schedule
 .gitignore~
