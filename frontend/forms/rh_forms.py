@@ -1,6 +1,6 @@
 from django import forms
 
-from regluit.core.models import RightsHolder
+from regluit.core.models import RightsHolder, Claim
 
 class RightsHolderForm(forms.ModelForm):
     email = forms.EmailField(
@@ -10,7 +10,7 @@ class RightsHolderForm(forms.ModelForm):
                 'required': 'Please enter a contact email address for the rights holder.'
             },
     )
-    use4both = forms.BooleanField(label='use business address as mailing address')
+    use4both = forms.BooleanField(label='use business address as mailing address', required=False)
     def clean_rights_holder_name(self):
         rights_holder_name = self.data["rights_holder_name"]
         try:
@@ -55,11 +55,36 @@ class RightsHolderForm(forms.ModelForm):
             },
         }
 
-'''class RightsHolderApprovalForm(RightsHolderForm):
-    owner = AutoCompleteSelectField(
-            OwnerLookup,
-            label='Owner',
-            widget=AutoCompleteSelectWidget(OwnerLookup),
-            required=True,
-    )
-'''
+class UserClaimForm (forms.ModelForm):
+    i_agree = forms.BooleanField(
+            error_messages={'required': 'You must agree to the Terms in order to claim a work.'}
+        )
+
+    def __init__(self, user_instance, *args, **kwargs):
+        super(UserClaimForm, self).__init__(*args, **kwargs)
+        self.fields['rights_holder'] = forms.ModelChoiceField(
+            queryset=user_instance.rights_holder.filter(approved=False),
+            empty_label=None,
+        )
+
+    def clean_work(self):
+        work = self.cleaned_data.get('work', None)
+        if not work:
+            try:
+                workids = self.data['claim-work']
+                if workids:
+                    work = models.WasWork.objects.get(was = workids[0]).work
+                else:
+                    raise forms.ValidationError('That work does not exist.')
+            except models.WasWork.DoesNotExist:
+                raise forms.ValidationError('That work does not exist.')
+        return work
+
+    class Meta:
+        model = Claim
+        exclude = ('status',)
+        widgets = {
+                'user': forms.HiddenInput,
+                'work': forms.HiddenInput,
+        }
+

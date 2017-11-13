@@ -1,0 +1,3 @@
+{% with form=rights_holder rights_holder_name=rights_holder.rights_holder_name signer_title=rights_holder.signer_title owner=rights_holder.owner.username created=rights_holder.created fef_sig='ERIC HELLMAN' %}
+    {% include 'rights_holder_agreement.html' %}
+{% endwith %}

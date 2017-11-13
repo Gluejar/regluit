@@ -33,7 +33,7 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.validators import validate_email
 from django.db.models import Q, Count, Sum
 from django.forms import Select
-from django.forms.models import modelformset_factory, inlineformset_factory
+from django.forms.models import inlineformset_factory
 from django.http import (
     HttpResponseRedirect,
     Http404,
@@ -47,7 +47,7 @@ from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
-from django.views.generic.edit import FormView, CreateView
+from django.views.generic.edit import FormView
 from django.views.generic.list import ListView
 from django.views.generic.base import (
     TemplateView,
@@ -81,7 +81,6 @@ from regluit.frontend.forms import (
     RightsHolderForm,
     UserClaimForm,
     LibraryThingForm,
-    OpenCampaignForm,
     getManageCampaignForm,
     CampaignAdminForm,
     EmailShareForm,
@@ -137,6 +136,7 @@ from questionnaire.models import Landing, Questionnaire
 from questionnaire.views import export_summary as answer_summary, export_csv as export_answers
 
 from .bibedit import edit_edition, user_can_edit_work, safe_get_work, get_edition
+from .rh_views import RHAgree, rh_admin, claim, rh_tools
 
 logger = logging.getLogger(__name__)
 
@@ -1632,30 +1632,6 @@ class PledgeCancelView(FormView):
             logger.error("Exception from attempt to cancel pledge for campaign id {0} for username {1}: {2}".format(campaign_id, user.username, e))
             return HttpResponse("Sorry, something went wrong in canceling your campaign pledge. We have logged this error.")
 
-def claim(request):
-    if  request.method == 'GET':
-        data = request.GET
-    else:
-        data =  request.POST
-    form =  UserClaimForm(request.user, data=data, prefix='claim')
-    if form.is_valid():
-        # make sure we're not creating a duplicate claim
-        if not models.Claim.objects.filter(work=form.cleaned_data['work'], rights_holder=form.cleaned_data['rights_holder']).exclude(status='release').count():
-            form.save()
-        return HttpResponseRedirect(reverse('rightsholders'))
-    else:
-        try:
-            work = models.Work.objects.get(id=data['claim-work'])
-        except models.Work.DoesNotExist:
-            try:
-                work = models.WasWork.objects.get(was = data['claim-work']).work
-            except models.WasWork.DoesNotExist:
-                raise Http404
-        rights_holder = models.RightsHolder.objects.get(id=data['claim-rights_holder'])
-        active_claims = work.claim.exclude(status = 'release')
-        context = {'form': form, 'work': work, 'rights_holder':rights_holder , 'active_claims':active_claims}
-        return render(request, "claim.html", context)
-
 def works_user_can_admin(user):
     return models.Work.objects.filter(
         Q(claim__user = user) | Q(claim__rights_holder__owner = user)
@@ -1750,109 +1726,6 @@ def surveys(request):
     work_ids = [work.id for work in works]
     surveys = Questionnaire.objects.filter(landings__object_id__in=work_ids).distinct()
     return render(request, "surveys.html", {"works":works, "surveys":surveys})
-
-def rh_tools(request):
-    if not request.user.is_authenticated() :
-        return render(request, "rh_tools.html")
-    claims = request.user.claim.filter(user=request.user)
-    campaign_form = "xxx"
-    if not claims:
-        return render(request, "rh_tools.html")
-    for claim in claims:
-        if claim.can_open_new:
-            if request.method == 'POST' and  request.POST.has_key('cl_%s-work' % claim.id) and int(request.POST['cl_%s-work' % claim.id]) == claim.work_id :
-                claim.campaign_form = OpenCampaignForm(data = request.POST, prefix = 'cl_'+str(claim.id),)
-                if claim.campaign_form.is_valid():
-                    new_campaign = claim.campaign_form.save(commit=False)
-                    if new_campaign.type == BUY2UNGLUE:
-                        new_campaign.target = D(settings.UNGLUEIT_MAXIMUM_TARGET)
-                        new_campaign.set_cc_date_initial()
-                    elif new_campaign.type == REWARDS:
-                        new_campaign.deadline = date_today() + timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE))
-                        new_campaign.target = D(settings.UNGLUEIT_MINIMUM_TARGET)
-                    elif new_campaign.type == THANKS:
-                        new_campaign.target = D(settings.UNGLUEIT_MINIMUM_TARGET)
-                    new_campaign.save()
-                    claim.campaign_form.save_m2m()
-                    claim.campaign_form = None
-            else:
-                c_type = 2
-                claim.campaign_form = OpenCampaignForm(
-                    initial={'work': claim.work, 'name': claim.work.title,  'userid': request.user.id, 'managers': [request.user.id], 'type': c_type},
-                    prefix = 'cl_'+str(claim.id),
-                    )
-        if claim.campaign:
-            if claim.campaign.status in ['ACTIVE','INITIALIZED']:
-                if request.method == 'POST' and request.POST.has_key('edit_managers_%s'% claim.campaign.id) :
-                    claim.campaign.edit_managers_form = EditManagersForm(instance=claim.campaign, data=request.POST, prefix=claim.campaign.id)
-                    if claim.campaign.edit_managers_form.is_valid():
-                        claim.campaign.edit_managers_form.save()
-                        claim.campaign.edit_managers_form = EditManagersForm(instance=claim.campaign, prefix=claim.campaign.id)
-                else:
-                    claim.campaign.edit_managers_form = EditManagersForm(instance=claim.campaign, prefix=claim.campaign.id)
-    campaigns = request.user.campaigns.all()
-    new_campaign = None
-    for campaign in campaigns:
-        if campaign.clonable():
-            if request.method == 'POST' and  request.POST.has_key('c%s-campaign_id'% campaign.id):
-                clone_form = CloneCampaignForm(data=request.POST, prefix = 'c%s' % campaign.id)
-                if clone_form.is_valid():
-                    campaign.clone()
-            else:
-                campaign.clone_form = CloneCampaignForm(initial={'campaign_id':campaign.id}, prefix='c%s' % campaign.id)
-    return render(request, "rh_tools.html", {'claims': claims , 'campaigns': campaigns})
-
-class RHAgree(CreateView):
-    template_name = "rh_agree.html"
-    form_class = RightsHolderForm
-    success_url = reverse_lazy('agreed')
-
-    def get_initial(self):
-        return {'owner':self.request.user.id, 'signature':''}
-
-    def form_valid(self, form):
-        form.instance.signer_ip = self.request.META['REMOTE_ADDR']
-        return super(RHAgree, self).form_valid(form)
-        #self.form.instance.save()
-        #return response
-    
-def rh_admin(request, facet='top'):
-    if not request.user.is_authenticated() :
-        return render(request, "admins_only.html")
-    if not request.user.is_staff :
-        return render(request, "admins_only.html")
-    PendingFormSet = modelformset_factory(models.Claim, fields=['status'], extra=0)
-    pending_data = models.Claim.objects.filter(status = 'pending')
-    active_data = models.Claim.objects.filter(status = 'active')
-    if  request.method == 'POST':
-        if 'create_rights_holder' in request.POST.keys():
-            form = RightsHolderApprovalForm(data=request.POST)
-            pending_formset = PendingFormSet (queryset=pending_data)
-            if form.is_valid():
-                form.instance.approved = True
-                form.save()
-                form = RightsHolderForm()
-        if 'set_claim_status' in request.POST.keys():
-            pending_formset = PendingFormSet (request.POST, request.FILES, queryset=pending_data)
-            form = RightsHolderForm()
-            if pending_formset.is_valid():
-                pending_formset.save()
-                pending_formset = PendingFormSet(queryset=pending_data)
-    else:
-        form = RightsHolderForm()
-        pending_formset = PendingFormSet(queryset=pending_data)
-    rights_holders = models.RightsHolder.objects.all()
-
-    context = {
-        'request': request,
-        'rights_holders': rights_holders,
-        'form': form,
-        'pending': zip(pending_data, pending_formset),
-        'pending_formset': pending_formset,
-        'active_data': active_data,
-        'facet': facet,
-    }
-    return render(request, "rights_holders.html", context)
 
 def campaign_admin(request):
     if not request.user.is_authenticated() :
