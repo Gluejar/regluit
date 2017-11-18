@@ -124,7 +124,6 @@
         <span>About Unglue.it</span>
         <ul>
             <li><a href="{% url 'about_specific' 'main' %}" class="hijax">Concept</a></li>
-            <li><a href="{% url 'about' %}">Team</a></li>
             <li><a href="https://blog.unglue.it">Blog</a></li>
             <li><a href="{% url 'press' %}">Press</a></li>
             <li><a href="http://eepurl.com/fKLfI">Newsletter</a></li>
@@ -135,8 +134,9 @@
         <ul>
             {% if user.is_authenticated %}
                 <li><a href="{% url 'manage_account' %}">Account Settings</a></li>
+                <li><a href="{% url 'new_edition' '' '' %}">Add Books to Unglue.it</a></li>
             {% endif %}
-            <li><a href="{% url 'rightsholders' %}">Rights Holder Tools</a></li>
+            <li><a href="{% url 'rightsholders' %}">For Rights Holders</a></li>
             <li><a href="{% url 'privacy' %}">Privacy</a></li>
             <li><a href="{% url 'terms' %}">Terms of Use</a></li>
             {% for library in user.libraries.all %}
@@ -144,7 +144,6 @@
             {% endfor %}
             {% if user.is_staff %}
                 <li><a href="{% url 'rh_admin' %}">Unglue.it Administration</a></li>
-                <li><a href="{% url 'new_edition' '' '' %}">Create New Editions</a></li>
             {% endif %}
         </ul>
     </div>
@@ -155,16 +154,13 @@
             <li><a href="{% url 'faq_location' 'rightsholders' %}">Author/Publisher FAQ</a></li>
             <li><a href="{% url 'api_help' %}">API</a></li>
             <li><a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">Support</a>
-            <li><a href="{% url 'libraries' %}">Unglue.it &hearts; Libraries</a>
+            <li><a href="{% url 'libraries' %}">Unglue.it for Libraries</a>
         </ul>
     </div>
     <div class="column">
         <span>Contact</span>
         <ul>
-            <li>General inquiries</li>
-            <li><a href="mailto:faq@gluejar.com">faq@gluejar.com</a></li>
-            <li>Rights Holders</li>
-            <li><a href="mailto:rights@gluejar.com">rights@gluejar.com</a></li>
+            <li> <a href="mailto:info@ebookfoundation.org"><i class="fa fa-envelope fa-2x"></i></a> <a href="https://twitter.com/unglueit"><i class="fa fa-twitter fa-2x"></i></a> <a href="https://facebook/com/unglueit"><i class="fa fa-facebook fa-2x"></i></a></li>
         </ul>
     </div>
   </div>

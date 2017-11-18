@@ -3,7 +3,7 @@ We want to give you advance notice that your {{ user.profile.account.card_type }
 
 When you receive your new card, simply go to https://{{ site.domain }}{% url 'manage_account' %} to enter your card information. Thank you!
 
-If you have any questions, we are happy to help. Simply email us at support@gluejar.com.
+If you have any questions, we are happy to help. Simply email us at unglueit@ebookfoundation.org.
         
 {% if user.profile.account %}
 The current card we have on file:
