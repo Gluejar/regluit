@@ -11,7 +11,6 @@ If you're running a Pledge Campaign, you need to decide on a funding target, and
 
 Finally, think about how you're going to publicize your campaign: social media, newsletters, media contacts, professional organizations, et cetera.  Have a plan for how to reach out to these potential supporters before you launch your campaign.  Your supporters' sense of connection with you and your book is key to your campaign's success.  Again, email us if you'd like help.
 
-We're thrilled to be working with you.
 {% endifequal %}
 {% ifequal claim.status 'pending' %}
 {{ claim.rights_holder }}'s claim to {{ claim.work.title }} (https://{{ current_site.domain }}{% url 'work' claim.work_id %}) on Unglue.it has been entered. 

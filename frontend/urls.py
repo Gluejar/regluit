@@ -121,7 +121,7 @@ urlpatterns = [
     url(r"^feedback/campaign/(?P<campaign_id>\d+)/?$", views.ask_rh, name="ask_rh"),
     url(r"^feedback/$", views.feedback, name="feedback"),
     url(r"^feedback/thanks/$", TemplateView.as_view(template_name="thanks.html")),
-    url(r"^about/$", TemplateView.as_view(template_name="about.html"),
+    url(r"^about/$", TemplateView.as_view(template_name="about_main.html"),
         name="about"),
     url(r"^comments/$", views.comment, name="comment"),
     url(r"^info/(?P<template_name>[\w\.]*)$", views.InfoPageView.as_view()), 

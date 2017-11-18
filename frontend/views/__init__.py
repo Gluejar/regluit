@@ -2891,7 +2891,7 @@ def about(request, facet):
     try:
         return render(request, template)
     except TemplateDoesNotExist:
-        return render(request, "about.html")
+        return render(request, "about_main.html")
 
 def receive_gift(request, nonce):
     try:
