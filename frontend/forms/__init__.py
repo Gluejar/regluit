@@ -64,8 +64,6 @@ from regluit.utils.fields import ISBNField
 
 
 from .bibforms import EditionForm, IdentifierForm
-from .rh_forms import RightsHolderForm, UserClaimForm
-
 from questionnaire.models import Questionnaire
 
 logger = logging.getLogger(__name__)
@@ -175,6 +173,50 @@ class EbookForm(forms.ModelForm):
         if the_file and url:
             self.cleaned_data['url'] = ''
         return self.cleaned_data
+
+def UserClaimForm ( user_instance, *args, **kwargs ):
+    class ClaimForm(forms.ModelForm):
+        i_agree = forms.BooleanField(error_messages={'required': 'You must agree to the Terms in order to claim a work.'})
+        rights_holder = forms.ModelChoiceField(queryset=user_instance.rights_holder.all(), empty_label=None)
+
+        class Meta:
+            model = Claim
+            exclude = ('status',)
+            widgets = {
+                    'user': forms.HiddenInput,
+                    'work': forms.HiddenInput,
+                }
+
+        def __init__(self):
+            super(ClaimForm, self).__init__(*args, **kwargs)
+
+    return ClaimForm()
+
+class RightsHolderForm(forms.ModelForm):
+    owner = AutoCompleteSelectField(
+            OwnerLookup,
+            label='Owner',
+            widget=AutoCompleteSelectWidget(OwnerLookup),
+            required=True,
+            error_messages={'required': 'Please ensure the owner is a valid Unglue.it account.'},
+        )
+    email = forms.EmailField(
+        label=_("notification email address for rights holder"),
+        max_length=100,
+        error_messages={'required': 'Please enter an email address for the rights holder.'},
+        )
+    class Meta:
+        model = RightsHolder
+        exclude = ()
+
+    def clean_rights_holder_name(self):
+        rights_holder_name = self.data["rights_holder_name"]
+        try:
+            RightsHolder.objects.get(rights_holder_name__iexact=rights_holder_name)
+        except RightsHolder.DoesNotExist:
+            return rights_holder_name
+        raise forms.ValidationError(_("Another rights holder with that name already exists."))
+
 
 class ProfileForm(forms.ModelForm):
     clear_facebook = forms.BooleanField(required=False)

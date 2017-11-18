@@ -1,6 +1,6 @@
 {% extends 'basedocumentation.html' %}
 
-{% block title %} for Rightsholders {% endblock %}
+{% block title %}Tools for Rightsholders {% endblock %}
 {% block extra_extra_head %}
 {{ block.super }}
 <link rel="stylesheet" href="/static/css/ui-lightness/jquery-ui-1.8.16.custom.css" type="text/css" media="screen">
@@ -15,30 +15,279 @@
 
 {% block doccontent %}
 
-<h1>Unglue.it for Rightsholders</h1>
+<h1>unglue.it Tools for Rightsholders</h1>
 
 <div class="presstoc"><div class="pressemail">
-Any questions not covered here?  Please email us at <a href="mailto:rights@ebookfoundation.org">rights@ebookfoundation.org</a>.
+Any questions not covered here?  Please email us at <a href="mailto:rights@gluejar.com">rights@gluejar.com</a>.
 </div></div>
 <h2>Contents</h2>
 <ul class="bullets">
-<li><a href="{% url 'rightsholders' %}#getting_started">Getting Started</a></li>
-<li><a href="{% url 'rightsholders' %}#distributing">Distributing Free Books Through Unglue.it</a></li>
-<li><a href="{% url 'rightsholders' %}#how_to">Becoming an Unglue.it Rights Holder</a></li>
-<li><a href="{% url 'rightsholders' %}#about_campaigns">About Campaigns</a></li>
-</ul>
-
-{% if request.user.rights_holder.count %}
-<h2>Other tools</h2>
-<ul class="bullets">
-
-<li><a href="{% url 'rh_yours' %}#your_rhs">Rights Holders That You Administer</a></li>
-<li><a href="{% url 'rh_campaigns' %}#managed_campaigns">Books/Campaigns You Manage</a></li>
-<li><a href="{% url 'rh_works' %}#open_campaigns">Works You Have Claimed</a></li>
-
-</ul>
+<li><a href="#getting_started">Getting Started</a></li>
+{% if campaigns %}
+<li><a href="#managed_campaigns">Books/Campaigns You Manage</a></li>
 {% endif %}
-{% block toolcontent %}{% endblock %}
+{% if request.user.rights_holder.count %}
+<li><a href="#open_campaigns">Works You Have Claimed</a></li>
+{% endif %}
+{% if request.user.rights_holder.count %}
+<li><a href="#your_rhs">Rights Holders That You Administer</a></li>
+{% endif %}
+<li><a href="#how_to">Registering your Rights</a></li>
+<li><a href="#about_campaigns">About Campaigns</a></li>
+
+</ul>
+<h2 id="getting_started">Getting Started</h2>
+<p>
+If you're an author, publisher, or other rights holder, you can participate more fully in Unglue.it by registering as a rights holder. Registered rights holders can:
+<ul class="bullets">
+<li> Add books to the unglue.it database.</li>
+<li> Set metadata and descriptions for their books.</li>
+<li> Create campaigns for their books. </li>
+</ul>
+</p>
+
+{% if campaigns %}
+<h2 id="managed_campaigns">Campaigns You Manage</h2>
+	<dl>
+	{% for campaign in campaigns %}
+		<dt><a href="{% url 'work' work_id=campaign.work_id %}">{{campaign.name }}</a></dt>
+		<dd>
+			<div class="work_campaigns clearfix">
+			<div class="campaign_info">
+			{% ifequal campaign.type 1 %}
+				<b>Pledge Campaign</b><br />
+				Campaign status: {{ campaign.status }}	<br />
+				Created: {{ campaign.created }}<br />
+				${{ campaign.current_total }} pledged of ${{ campaign.target }}, {{ campaign.supporters_count }} supporters
+			{% endifequal %}
+			{% ifequal campaign.type 2 %}
+				<b>Buy-to-Unglue Campaign</b><br />
+				Campaign status: {{ campaign.status }}	<br />
+				Created: {{ campaign.created }}<br />
+				${{ campaign.current_total }} sold. ${{ campaign.target }} to go. Ungluing Date: {{ campaign.cc_date }}<br />
+				{% with campaign.work.preferred_edition as edition %}
+					<a href="{% url 'new_edition' edition.work_id edition.id %}"> Edit </a> the preferred edition<br />
+					You can also <a href="{% url 'edition_uploads' edition.id %}"> Load a file</a> for this edition.<br />
+				{% endwith %}
+			{% endifequal %}
+			{% ifequal campaign.type 3 %}
+				<b>Thanks-for-Ungluing Campaign</b><br />
+				Campaign status: {{ campaign.status }}	<br />
+				Created: {{ campaign.created }}<br />
+				${{ campaign.current_total }} raised from {{ campaign.supporters_count }} ungluers, {{ campaign.anon_count }} others.
+				{% with campaign.work.preferred_edition as edition %}
+					<a href="{% url 'new_edition' edition.work_id edition.id %}"> Edit </a> the preferred edition<br />
+					You can also <a href="{% url 'edition_uploads' edition.id %}"> Load a file</a> for this edition.<br />
+				{% endwith %}
+			{% endifequal %}
+			</div>
+			{% if campaign.status = 'ACTIVE' or campaign.status = 'INITIALIZED' %}
+				<div>
+					<a href="{% url 'manage_campaign' campaign.id %}" class="manage">Manage This Campaign</a>
+				</div>
+			{% endif %}
+			{% if campaign.clone_form %}
+				<div>
+				<form method="POST" action="#">
+					{% csrf_token %}
+					{{ campaign.clone_form }}{{ campaign.clone_form.errors }}				
+					<input type="submit" name="clone" value="Clone this Campaign">
+				</form>
+				</div>
+			{% endif %}
+			</div>
+		</dd>
+	{% endfor %}
+	</dl>
+{% endif %}
+{% if request.user.rights_holder.count %}
+<h2 id="open_campaigns">Works You Have Claimed</h2>
+	<dl>
+	{% for claim in claims %}
+		<dt>Title: <a href="{% url 'work' work_id=claim.work_id %}">{{claim.work.title }}</a>&nbsp;&nbsp;&nbsp;(work #{{ claim.work_id }})</dt>
+		<dd>Author: {{claim.work.authors_short }}
+			<br />On Behalf of: {{ claim.rights_holder.rights_holder_name }}
+			<br />PSA #: {{ claim.rights_holder.id }}
+			<br />Date of Claim : {{ claim.created }}
+			<br />Status of Claim: {{ claim.get_status_display }}
+			{% if claim.campaign_form  %}
+			<h3>Initialize a campaign for this work</h3>
+			<div class="work_campaigns clearfix" style="padding: 5px;">
+			<form method="POST" action="#managed_campaigns">
+				{% csrf_token %}
+				{{ claim.campaign_form.name }}{{ claim.campaign_form.name.errors }}
+				{% if claim.rights_holder.can_sell %}
+					{% ifequal claim.can_open_new 1 %}
+					<p>Choose the Campaign Type: {{ claim.campaign_form.type }}{{ claim.campaign_form.type.errors }}</p>
+					<ol>
+					<li> <i>Pledge-To-Unglue</i>: These campaigns have a fixed end date. When your pledges reach the target you set, the campaign succeeds and the ebook is released in an open-access <i>unglued</i> edition.</li>
+					<li> <i>Buy-To-Unglue</i>: These campaigns start with a date on which the ebook will become open access. Each sale advances this "ungluing date" an increment based on you funding target.</li>
+					<li> <i>Thanks-For-Ungluing</i>: These campaigns are for books that <i>already</i> have a Creative Commons license.</li>
+					</ol>
+					{% else %}
+					Your previous campaign succeeded, but you can open a new <i>Thanks-For-Ungluing</i> campaign. <input type="hidden" id="cl_{{ claim.id }}-type" name="cl_{{ claim.id }}-type" value="3" />
+					{{ claim.campaign_form.type.errors }}
+					{% endifequal %}
+				{% else %}
+					<input type="hidden" id="cl_{{ claim.id }}-type" name="cl_{{ claim.id }}-type" value="1" />
+				{% endif %}
+				<p>Add another Campaign Manager(s) by their Unglue.it username: </p>
+				<div style="width:220px; padding-left:20px" >{{ claim.campaign_form.managers }}{{ claim.campaign_form.managers.errors }}
+				<br />
+				<input type="submit" name="submit" value="Initialize Campaign">
+				</div>
+				<p>
+				{{ claim.campaign_form.work }}{{ claim.campaign_form.work.errors }}
+				{{ claim.campaign_form.userid }}{{ claim.campaign_form.userid.errors }}
+				</p>
+			</form>
+			</div>
+			{% else %}{%if claim.campaign %}			
+			<h3>Campaign for this work</h3>
+
+			{% with claim.campaign as campaign %}
+			<div class="work_campaigns clearfix">
+				{% if campaign.status = 'ACTIVE' or campaign.status = 'INITIALIZED' %}
+					<div class="campaign_info">
+						Your {{ campaign.get_type_display }}, "{{ campaign.name }}", is {{ campaign.status }}<br />
+						Created: {{ campaign.created }}<br />
+						Manager(s): {% for user in campaign.managers.all %} <a href="{% url 'supporter' user.username %}">{{ user.username }} </a> {% endfor %}
+							<form method="POST" action="#">{% csrf_token %}
+								<div style="width:220px; padding-left:20px" >
+								Add/Remove Managers: 
+								{{ campaign.edit_managers_form.managers }}{{ campaign.edit_managers_form.managers.errors }}
+								<input type="submit" name="edit_managers_{{campaign.id}}" value="Save Managers">
+								</div>
+							</form>
+					</div>
+					{% if request.user in campaign.managers.all %}
+						<div>
+							<a href="{% url 'manage_campaign' campaign.id %}" class="manage">Manage This Campaign</a>
+						</div>
+					{% endif %}
+				{% else %}
+					<div class="campaign_info">
+						Name: Your campaign, "{{ campaign.name }}", is {{ campaign.status }}<br />
+						Created: {{ campaign.created }}<br />
+						Manager(s): {% for user in campaign.managers.all %} <a href="{% url 'supporter' user.username %}">{{ user.username }} </a> {% endfor %}
+						<br />
+						{% ifequal campaign.type 1 %}
+						${{ campaign.current_total }} pledged of ${{ campaign.target }}, {{ campaign.supporters_count }} supporters
+						{% else %}
+						${{ campaign.current_total }} sold. ${{ campaign.target }} to go, Ungluing Date: {{ campaign.cc_date }}
+						{% endifequal %}
+						<br /> <a href="{% url 'campaign_results' campaign.id %}">Transaction Details</a>
+					</div>
+				{% endif %}
+			</div>
+			{% endwith %}
+			{% endif %}
+			{% endif %}
+			{% if claim.work.first_ebook %}
+				<h4> Ebooks for this work </h4>
+				<p>{{ claim.work.download_count }} total downloads</p>
+				<div class="work_campaigns">
+				<ul>
+				{% for ebook in claim.work.ebooks_all %}
+					<li> edition #{{ebook.edition_id}} {{ ebook.format }} {% if not ebook.active %}(inactive){% endif %}
+					{{ ebook.download_count }} downloads
+					</li>
+				{% endfor %}
+				</ul>
+				</div>
+			{% endif %}
+		</dd>
+	{% endfor %}
+	</dl>
+{% endif %}
+{% if request.user.rights_holder.count %}
+<h2 id="your_rhs">Rights Holders That You Administer</h2>
+
+	<dl>
+		{% for rights_holder in request.user.rights_holder.all %}
+		<dt>Name: {{ rights_holder.rights_holder_name }}&nbsp;&nbsp;&nbsp;(rights holder #{{ rights_holder.id }})</dt>
+		<dd>PSA #: {{ rights_holder.id }}
+		<br />contact email: {{ rights_holder.email }}</dd>
+		{% endfor %}
+	</dl>
+{% else %}
+<h2 id="your_rhs">Your Books/Campaigns</h2>
+
+<I>If you were a registered rights holder with Unglue.it, you'd be able to see and manage your campaigns here.  </I>
+{% endif %}
+<h2 id="how_to">Registering Your Rights</h2>
+
+<ol>
+    {% if not request.user.is_authenticated %}
+    <li>Set up an Unglue.it account. (<a href="{% url 'registration_register' %}?next={% url 'rightsholders' %}">Click here</a> or use the Sign Up button at the top of the page).</li>
+    {% else %}
+    <li class="checked">You've already set up an Unglue.it account.</li>
+    {% endif %}
+	{% if not request.user.rights_holder.count %}<li>{% else %}<li class="checked">{% endif %}Sign a <a href="https://www.docracy.com/1mud3ve9w8/unglue-it-non-exclusive-platform-services-agreement">Platform Services Agreement</a>. Unglue.it uses Docracy.com to manage rights holder agreements. If you have any questions, <a href="mailto:rights@gluejar.com?subject=agreement">ask us</a>.</li>
+	{% if claims %}
+	<li class="checked"><i>You have claimed {{ claims.count }}</i> work(s). You can claim more.
+	{% else %}
+	<li><i>Claim</i> your work(s) or send us metadata for books you have rights to.
+	{% endif %}
+	<p><b>Claiming a work</b></p>
+	<p>If your book is indexed in Google books, we can add it to our database automagically. Click on the result list to add your book to our database.</p>
+	<form action="{% url 'search' %}" method="get">
+		<div class="inputalign">
+		<input type="text" id="watermark" size="25" onfocus="imgfocus()" onblur="imgblur(15)" class="inputbox" name="q" value="{{ q }}"><input type="hidden" name="page" value="2">
+		<input type="submit" class="button">
+		</div>
+	</form>
+	<ul class="bullets">
+	    <li>Use the Claim option on the More... tab of each book's page.</li>
+	    <li>Agree to our <a href="{% url 'terms' %}">Terms</a> on the following page.  This includes agreeing that you are making the claim in good faith and can substantiate that you have legal control over worldwide electronic rights to the work.</li>
+	    <li>If you have any questions or you claim a work by mistake, <a href="mailto:rights@gluejar.com?subject=claiming%20works">email us</a>.</li>
+	    <li>We will review your claim.  We may contact you at {{ request.user.email }} if we have any questions.  If this is the wrong email address, please <a href="{% url 'edit_user' %}">change the email address</a> for your account.</li>
+	</ul>
+	<p><b>Entering a work</b></p>
+	<p>If your book is not in Google books, you'll need to enter the metadata yourself.</p>
+	<ul class="bullets">
+	    <li>Use <a href="{% url 'new_edition' '' '' %}">this form</a> to enter the metadata.</li>
+	    <li>Your ebooks must have ISBNs or OCLC numbers assigned.</li>
+	    <li>Your metadata should have title, authors, language, description.</li>
+	    <li>If you have a lot of books to enter, <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">contact us</a> to load ONIX or CSV files for you.</li>
+	</ul></li>
+	{% if campaigns %}
+	<li class="checked">You've set up {{ campaigns.count }} campaign(s).  Manage them <a href="#managed_campaigns">above.</a></li>
+	{% else %}
+	<li>{% if claims %}<a href="#open_campaigns">Set up a campaign</a> for for your book.{% else %} Set up a campaign. All the campaigns you can manage will be listed on this page, above.{% endif %}</li>
+	{% endif %}
+</ol>
+<h2 id="about_campaigns">About Campaigns </h2>
+<p> If you have already released your work under a Creative Commons license, you need to use a "Thanks for Ungluing" campaign. If you have an EPUB file ready to sell, you should use a "Buy to Unglue" campaign. Otherwise, you'll want to offer rewards in a "Pledge-to-Unglue" campaign. </p>
+
+
+<h2>Thanks-for-Ungluing Campaigns</h2>
+<p>Thanks-for-Ungluing is a program designed to help rights holders promote and monetize their Creative Commons licensed books. Rights holders participating in the Thanks-for-Ungluing program can request payment for their books on a pay-what-you-want basis. They can also set suggested prices as well as metadata and descriptions for books that they claim. </p>
+
+<h2>Buy-to-Unglue Campaigns</h2>
+<p>Buy-to-Unglue is a program that sells ebook licenses to reach the campaign goal. To enable ebook sales,  you'll need to upload an epub file for each book. 
+There are no “rewards” for a “Buy to Unglue” campaign, but you may offer time-limited, special price promotions for the ebook.</p>
+
+<p>
+A Buy-to-Unglue Campaign provides long-term promotion and sales opportunities for your ebook before it becomes an Unglued Ebook.  Until the revenue goal is reached, supporters and libraries know that every book that gets purchased through Unglue.it brings the ungluing date closer to the present.
+</p>
+<h2>Pledge-to-Unglue Campaigns</h2>
+<p>For Pledge campaigns, you can run campaigns for books that haven't been converted to digital.  
+Any print book can be scanned to create a digital file that can then become an ePub-format unglued ebook to be released after the Pledge Campaign succeeds.</p>
+<p>Rewards</p>
+<p>Campaigns run for a short period (2-6 months) and can have rewards as a way to motivate and thank supporters for helping to reach your goal.  You are strongly encouraged to add rewards - they are given special prominence on the campaign page.</p>
+
+<p>What should you add as rewards?  Anything (legal) that you think you can reasonably deliver that will get supporters excited about the book.  For example: other books, whether electronic or physical; artwork or multimedia relating to the book, its author, or its themes; in-person or online chats with the author; memorabilia.</p>
+
+<p>Acknowledgements for Pledge Campaigns</p>
+<p>Here are the standard acknowledgements.  These automatically combine with your rewards.  For example, if you offer a $30 reward, ungluers who pledge $30 will receive the $25 acknowledgement as well.</p>
+<ul class="terms">
+<li><em>Any amount</em> &#8212; The unglued ebook</li>
+<li><em>$25 and above</em> &#8212; Their name in the acknowledgements section under "supporters"</li>
+<li><em>$50 and above</em> &#8212; Their name &amp; profile link under "benefactors"</li>
+<li><em>$100 and above</em> &#8212; Their name, profile link, &amp; a dedication under "bibliophiles"</li>
+</ul>
+
 <h2>More Questions</h2>
 <p> Check the FAQ to the left, or <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">send us feedback.</a>
 {% endblock %}

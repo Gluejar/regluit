@@ -24,9 +24,9 @@ The Creative Commons licensing terms for {{ work.title }} allow you to redistrib
 {% endif %}
 
 {% if work.last_campaign_status == 'SUCCESSFUL' %}
-If you have any problems with this unglued ebook, please don't hesitate to let us know at unglueit@ebookfoundation.org. And if you love being able to give this ebook for free to all of your friends, please consider supporting other ebooks for ungluing.
+If you have any problems with this unglued ebook, please don't hesitate to let us know at support@gluejar.com. And if you love being able to give this ebook for free to all of your friends, please consider supporting other ebooks for ungluing.
 {% else %}
-If you have any problems with these ebook files, please don't hesitate to let us know at unglueit@ebookfoundation.org. For example, if the file isn't what it says it is, or if the licensing or copyright status is misrepresented, we want to know as soon as possble.
+If you have any problems with these ebook files, please don't hesitate to let us know at support@gluejar.com. For example, if the file isn't what it says it is, or if the licensing or copyright status is misrepresented, we want to know as soon as possble.
 {% endif %}
 
 Thanks,

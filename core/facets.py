@@ -1,8 +1,7 @@
 from django.apps import apps
-from django.contrib.auth.models import User
 from django.db.models import Q
 from regluit.core import cc
-
+  
 class BaseFacet(object):
     facet_name = 'all'
     model_filters ={}
@@ -277,42 +276,6 @@ class SearchFacetGroup(FacetGroup):
             def description(self):
                 return  "eBooks for {}".format(self.term)
         return KeywordFacet    
-
-class SupporterFacetGroup(FacetGroup):
-    
-    def __init__(self):
-        super(FacetGroup,self).__init__()
-        self.title = 'Supporter Faves'
-        # make facets in TOPKW available for display
-        self.facets = []
-        self.label = '{} are ...'.format(self.title)
-        
-    def has_facet(self, facet_name):
-    
-        # recognize any facet_name that starts with "@" as a valid facet name
-        return facet_name.startswith('@')
-
-    def get_facet_class(self, facet_name):
-        class SupporterFacet(NamedFacet):
-            def set_name(self):
-                self.facet_name = facet_name
-                self.username = self.facet_name[1:]
-                try:
-                    user = User.objects.get(username=self.username)
-                    self.fave_set = user.wishlist.works.all()
-                except User.DoesNotExist:
-                    self.fave_set = self.model.objects.none()
-            
-            def get_query_set(self):
-                return self._get_query_set().filter(pk__in=self.fave_set)
-                 
-            def template(self):
-                return 'facets/supporter.html'
-
-            @property
-            def description(self):
-                return  "eBooks faved by @{}".format(self.username)
-        return SupporterFacet    
    
 class PublisherFacetGroup(FacetGroup):
     
@@ -362,7 +325,7 @@ class PublisherFacetGroup(FacetGroup):
         return PublisherFacet    
 
 # order of groups in facet_groups determines order of display on /free/    
-facet_groups = [KeywordFacetGroup(), FormatFacetGroup(),  LicenseFacetGroup(), PublisherFacetGroup(), IdFacetGroup(), SearchFacetGroup(), SupporterFacetGroup()]
+facet_groups = [KeywordFacetGroup(), FormatFacetGroup(),  LicenseFacetGroup(), PublisherFacetGroup(), IdFacetGroup(), SearchFacetGroup()]
 
 def get_facet(facet_name):
     for facet_group in facet_groups:
