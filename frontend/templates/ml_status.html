@@ -5,7 +5,7 @@ You are subscribed to the Unglue.it Newsletter. It comes roughly twice a month. 
 <input type="submit" name="ml_unsubscribe" value="Unsubscribe" />
 </form>
 {% else %}
-You are NOT subscribed to the Unglue.it Newsletter.  It comes roughly twice a month. If you have just become an ungluer, your list invitation should be on its way. Put "gluenews@gluejar.com" in your contact list to make sure you get it.<br />
+You are NOT subscribed to the Unglue.it Newsletter.  It comes roughly twice a month. If you have just become an ungluer, your list invitation should be on its way. Put "unglueit@ebookfoundation.org" in your contact list to make sure you get it.<br />
 <form id="ml_subscribe" action="{% url 'ml_subscribe' %}" method="POST">
 {% csrf_token %}
 <input type="submit" name="ml_subscribe" value="Subscribe" />

@@ -34,7 +34,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'me@gmail.com'
 EMAIL_HOST_PASSWORD = 'my-password'
 EMAIL_PORT = 587
-DEFAULT_FROM_EMAIL = 'info@gluejar.com'
+DEFAULT_FROM_EMAIL = 'info@ebookfoundation.org'
 
 
 # formerly of settings/common.py to surface old vars
