@@ -7,7 +7,7 @@ WSGISocketPrefix /opt/regluit
 
 ServerName {% if class == 'prod' %}unglue.it{% else %}{{class}}.unglue.it{% endif %}
 
-ServerAdmin info@gluejar.com
+ServerAdmin info@ebookfoundation.org
 
 Redirect permanent / {% if class == 'prod' %}https://unglue.it{% else %}https://{{class}}.unglue.it{% endif %}
 
@@ -18,7 +18,7 @@ Redirect permanent / {% if class == 'prod' %}https://unglue.it{% else %}https://
 
 ServerName {% if class == 'prod' %}unglue.it:443{% else %}{{class}}.unglue.it:443{% endif %}
 
-ServerAdmin info@gluejar.com
+ServerAdmin info@ebookfoundation.org
 
 SSLEngine on
 SSLProtocol All -SSLv2 -SSLv3

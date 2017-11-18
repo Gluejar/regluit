@@ -1,7 +1,7 @@
 {% load humanize %}
 As you requested, we've updated your account with the payment method you provided.
 
-If you have any questions, we are happy to help. Simply email us at support@gluejar.com.
+If you have any questions, we are happy to help. Simply email us at unglueit@ebookfoundation.org.
         
 {% if user.profile.account %}
 The current card we have on file:
