@@ -17,7 +17,7 @@ Or the best idea: talk about it with those you love.  We'll need lots of help fr
 
 If you want to change your pledge, just use the button at https://{{ current_site.domain }}{% url 'work' transaction.campaign.work_id %}
 
-If you have any problems with your pledge, don't hesitate to contact us at unglueit@ebookfoundation.org
+If you have any problems with your pledge, don't hesitate to contact us at support@gluejar.com
 
 Thanks for being part of Unglue.it.
 

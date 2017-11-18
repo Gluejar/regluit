@@ -47,7 +47,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 #  EMAIL_HOST_USER is in keys/host
 #  EMAIL_HOST_PASSWORD is in keys/host
 EMAIL_PORT = 587
-DEFAULT_FROM_EMAIL = 'info@ebookfoundation.org'
+DEFAULT_FROM_EMAIL = 'info@gluejar.com'
 
 # for use with test google account only
 GOOGLE_DISPLAY_NAME = 'Unglue.It'

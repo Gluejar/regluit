@@ -425,7 +425,7 @@
                                                         {% if request.user.rights_holder.all.count %}
                                                             Is this work yours?  Claim it: <br /><br />
                                         
-                                                            <form method="POST" action="{% url 'claim' %}">
+                                                            <form method="GET" action="{% url 'claim' %}">
                                                                 {% csrf_token %}
                                                                 {{ claimform.user }}
                                                                 {{ claimform.work }}
