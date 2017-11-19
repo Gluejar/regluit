@@ -24,6 +24,8 @@ from regluit.core.parameters import WORK_IDENTIFIERS
 from regluit.core.loaders.utils import ids_from_urls
 from regluit.frontend.forms import EditionForm, IdentifierForm
 
+from .rh_views import user_is_rh
+
 
 def user_can_edit_work(user, work):
     '''
@@ -35,7 +37,7 @@ def user_can_edit_work(user, work):
         return True
     elif work and work.last_campaign():
         return user in work.last_campaign().managers.all()
-    elif user.rights_holder.count() and (work == None or not work.last_campaign()):
+    elif user_is_rh(user) and (work == None or not work.last_campaign()):
         # allow rights holders to edit unless there is a campaign
         return True
     elif work and work.claim.all():

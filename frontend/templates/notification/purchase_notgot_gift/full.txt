@@ -14,7 +14,7 @@ You can send the link yourself to make sure that it gets to the right place.
 You can also "regift" the ebook to a different email address. To do so, FIRST log in to the {{ gift.giver }} account on Unglue.it, and then click on 
 https://{{ current_site.domain }}{% url 'receive_gift' gift.acq.nonce %}
 
-If you have any problems or questions, don't hesitate to contact Unglue.it support at support@gluejar.com
+If you have any problems or questions, don't hesitate to contact Unglue.it support at unglueit@ebookfoundation.org
 
 the Unglue.it team
 

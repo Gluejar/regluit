@@ -18,69 +18,60 @@
 <li><a href="{% url 'subjects' %}">Subjects</a> (set keywords)</li>
 {% if facet = 'top' %}
 <li><a href="{% url 'accepted' %}">Accepted Rights Holders</a></li>
-<li><a href="{% url 'claims' %}">Active Claims</a></li>
 {% else %}
 <li><a href="{% url 'rh_admin' %}">Unglue.it Admin</a></li>
 {% endif %}
 </ul>
-{% if facet = 'top' %}
-<h2>Rights Holder Admin</h2>
-
-<h3> Create New Rights Holder </h3>
-<form method="POST" action="#">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" name="create_rights_holder" value="Create" id="submit">
-</form>
-{% endif %}
 {% if facet = 'accepted' %}
 <h3> Accepted Rights Holders </h3>
 <dl>
 {% for rights_holder in rights_holders %}
 	<dt>{{ rights_holder.rights_holder_name }}</dt>
-	<dd>PSA #: {{ rights_holder.id }}
+	<dd>Agreement #: {{ rights_holder.id }}
 	<br />email: {{ rights_holder.email }}
 	<br />owner: <a href="{% url 'supporter' rights_holder.owner %}">{{ rights_holder.owner }}</a></dd>
 {% empty %}
 <p>No rights holders have been accepted yet</p>
 {% endfor %}
 </dl>
-{% endif %}
+{% else %}
+<h2>Rights Holder Admin</h2>
 
-{% if pending and facet = 'top' %}
-<h3> Pending Claims </h3>
+{% if pending %}
+<h3> Pending Rights Holders </h3>
 <form method="POST" action="#">
     {{ pending_formset.management_form }}
     {% csrf_token %}
 <dl>
-{% for claim, claim_form in pending %}
-	<dt>Title: <a href="{% url 'work' work_id=claim.work_id %}">{{claim.work.title }}</a></dt>
-	<dd>Author: {{claim.work.authors_short }}</dd>
-	<dd>By: {{ claim.user.username }}</dd>
-	<dd>On Behalf of: {{ claim.rights_holder.rights_holder_name }}</dd>
-	<dd>PSA #: {{ claim.rights_holder.id }}</dd>
-	<dd>Date of Claim : {{ claim.created }}</dd>
-	<dd>Status of Claim: {{ claim.status }}</dd>
-	<dd>Change to:</dd> {{ claim_form.as_p }}
-    <input type="submit" name="set_claim_status" value="Set Claim Status" id="submit">
+{% for rights_holder, rh_form in pending %}
+    <dt>Rights Holder: {{ rights_holder.rights_holder_name }} <a href="{% url 'admin:core_rightsholder_change' rights_holder.id %}">edit</a></dt>
+    <dd style='margin-left: 2em'>Unglue.it Username for Rights Holder: {{ rights_holder.owner.username }}<br />
+    Business Address: <br />
+<pre>{{ rights_holder.address }}</pre><br />
+    Mailing Address: <br />
+<pre>{{ rights_holder.mailing }}</pre><br />
+    Tel: {{ rights_holder.telephone }} <br />
+    Email: {{ rights_holder.email }}<br />
+    Signer Name: {{ rights_holder.signer }}<br />
+    Signer Title: {{ rights_holder.signer_title }}<br />
+    Signature: {{ rights_holder.signature }}<br />
+    {% if rights_holder.claim.all.count %}
+    Claims:
+    <ul>
+    {% for claim in rights_holder.claim.all %}
+    <li><a href='{% url 'work' claim.work_id %}'>{{ claim.work.title }}</a></li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+    {{ rh_form.as_p }}  
+    </dd>
 {% endfor %}
 </dl>
+    <input type="submit" name="approve_rights_holder" value="Approve Rights Holders" id="submit">
 </form>
+{% else %}
+No rightsholders pending.
 {% endif %}
-
-{% if active_data.count and facet = 'claims' %}
-<h3> Active Claims: {{ active_data.count }} </h3>
-<dl>
-{% for claim in active_data %}
-	<dt>Title: <a href="{% url 'work' work_id=claim.work_id %}">{{claim.work.title }}</a></dt>
-	<dd>Author: {{claim.work.authors_short }}</dd>
-	<dd>By: {{ claim.user.username }}</dd>
-	<dd>On Behalf of: {{ claim.rights_holder.rights_holder_name }}</dd>
-	<dd>PSA #: {{ claim.rights_holder.id }}</dd>
-	<dd>Date of Claim : {{ claim.created }}</dd>
-	<dd>Status of Claim: {{ claim.status }}</dd>
-{% endfor %}
-</dl>
 {% endif %}
 
 {% endblock %}

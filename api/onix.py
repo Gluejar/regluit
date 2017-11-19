@@ -42,7 +42,7 @@ def header(facet=None):
     header_node = etree.Element("Header")	
     sender_node = etree.Element("Sender")	
     sender_node.append(text_node("SenderName", "unglue.it"))
-    sender_node.append(text_node("EmailAddress", "support@gluejar.com"))
+    sender_node.append(text_node("EmailAddress", "unglueit@ebookfoundation.org"))
     header_node.append(sender_node)
     header_node.append(text_node("SentDateTime", pytz.utc.localize(datetime.datetime.utcnow()).strftime('%Y%m%dT%H%M%SZ')))
     header_node.append(text_node("MessageNote", facet.title if facet else "Unglue.it Editions"))
