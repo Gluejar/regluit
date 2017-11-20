@@ -101,12 +101,19 @@ class BaseScraper(object):
         dd = dt.find_next_sibling('dd') if dt else None
         return dd.text if dd else None
   
-    def get_itemprop(self, name):
+    def get_itemprop(self, name, **attrs):
         value_list = []
+        list_mode = attrs.pop('list_mode', 'list')
         attrs = {'itemprop': name}
         props = self.doc.find_all(attrs=attrs)
         for el in props:
-            value_list.append(el.text)
+            if list_mode == 'one_item':
+                return el.text if el.text else el.get('content')
+            else:
+                if el.text:
+                    value_list.append(el.text)
+                elif el.has_key('content'):
+                    value_list.append(el['content'])
         return value_list
 
     def setup(self):
@@ -217,7 +224,9 @@ class BaseScraper(object):
             self.set('publisher', value)
 
     def get_pubdate(self):
-        value = self.check_metas(['citation_publication_date', 'DC.Date.issued', 'datePublished'])
+        value = self.get_itemprop('datePublished', list_mode='one_item')
+        if not value:
+            value = self.check_metas(['citation_publication_date', 'DC.Date.issued', 'datePublished'])
         if value:
             self.set('publication_date', value)
 
@@ -311,8 +320,13 @@ class PressbooksScraper(BaseScraper):
                 
     @classmethod
     def can_scrape(cls, url):
+        pb_sites = ['bookkernel.com','milnepublishing.geneseo.edu', 'pressbooks', 
+            'press.rebus.community','pb.unizin.org']
         ''' return True if the class can scrape the URL '''
-        return url.find('press.rebus.community') > 0 or url.find('pressbooks.com') > 0
+        for site in pb_sites:
+            if url.find(site) > 0:
+                return True
+        return False
 
 
 class HathitrustScraper(BaseScraper):
