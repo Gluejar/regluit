@@ -735,7 +735,7 @@ class LookupFailure(Exception):
 
 IDTABLE = [('librarything', 'ltwk'), ('goodreads', 'gdrd'), ('openlibrary', 'olwk'),
     ('gutenberg', 'gtbg'), ('isbn', 'isbn'), ('oclc', 'oclc'),
-    ('edition_id', 'edid'), ('googlebooks', 'goog'), ('doi', 'doi'), ('http','http'),
+    ('googlebooks', 'goog'), ('doi', 'doi'), ('http','http'), ('edition_id', 'edid'),
 ]
 
 def load_from_yaml(yaml_url, test_mode=False):
@@ -835,7 +835,6 @@ class BasePandataLoader(object):
                     if id_code != 'edid' or not has_ed_id:  #last in loop
                         # only need to create edid if there is no edition id for the edition
                         new_ids.append((identifier, id_code, value))
-
 
         if not work:
             work = models.Work.objects.create(title=metadata.title, language=metadata.language)
