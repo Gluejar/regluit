@@ -42,7 +42,7 @@ OTHER_ID_CHOICES = (
     ('edid', 'pragmatic edition ID'),
 )
 
-WORK_IDENTIFIERS = ('doi','olwk','glue','ltwk')
+WORK_IDENTIFIERS = ('doi','olwk','glue','ltwk', 'http')
 
 ID_CHOICES_MAP = dict(ID_CHOICES)
 
