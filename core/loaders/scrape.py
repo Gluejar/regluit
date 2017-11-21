@@ -257,7 +257,7 @@ class BaseScraper(object):
             block = block if block else self.doc
             img = block.find_all('img', src=CONTAINS_COVER)
             if img:
-                cover_uri = img[0].get('src', None)
+                image_url = img[0].get('src', None)
         if image_url:
             if not image_url.startswith('http'):
                 image_url = urljoin(self.base, image_url)
