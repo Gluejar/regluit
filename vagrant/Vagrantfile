@@ -31,7 +31,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "-e class=please",
           "-e hostname=please.unglue.it",
           "-e setdns=true",
-          "-e branch=master",
+          "-e branch=xenial",
           # "--start-at-task=restart_here"
       ]
     end
@@ -56,20 +56,36 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       #aws.instance_type="t1.micro"
       aws.instance_type="m1.small"
       
-      aws.region = "us-east-1"
-      aws.availability_zone = "us-east-1c"
+      # aws.region = "us-east-1"
+      # aws.availability_zone = "us-east-1c"
       # 2015.05.05
       # aws.ami = "ami-d8132bb0"
       # 2016.03.01
       # aws.ami = "ami-03dcdd69"
       # 2017.03.17
       # Trusty 14.04
+      # aws.ami = "ami-9fde7f89"
+      # put into just security group
+      # aws.security_groups = ["just"]
+
+      # FEF
+
+      aws.instance_type="m1.small"
+      aws.region = "us-east-1"
+      aws.availability_zone = "us-east-1a"
+      # 2017.03.17
+      # Trusty 14.04
       aws.ami = "ami-9fde7f89"
       # put into just security group
-      aws.security_groups = ["just"]
+      # regluit-pub-a
+      aws.subnet_id = "subnet-a97777e0"
+      # SSHAccesss, please_ec2
+      aws.associate_public_ip = true
+      aws.security_groups = ["sg-93aed0ef", "sg-f6a1df8a"]
+
       
       aws.tags = {
-      'Name' => 'please_vagrant'
+        'Name' => 'please_vagrant'
       }
    
       override.vm.box = "dummy"
@@ -85,7 +101,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     node.vm.network "private_network", type: "dhcp"
     #node.vm.network "private_network", ip: "192.168.33.10"
 
-    
     node.ssh.forward_agent = true
     
     node.vm.provision 'ansible' do |ansible|

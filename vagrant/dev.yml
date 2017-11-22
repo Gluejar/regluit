@@ -55,9 +55,9 @@
   tasks:
         
     # add repo to get latest version of python 2.7
-    - name: add-apt-repository ppa:fkrull/deadsnakes-python2.7
-      apt_repository: repo='ppa:fkrull/deadsnakes-python2.7' state=present update_cache=true
-      when: class in ['please', 'just', 'prod']
+    # - name: add-apt-repository ppa:fkrull/deadsnakes-python2.7
+    #   apt_repository: repo='ppa:fkrull/deadsnakes-python2.7' state=present update_cache=true
+    #   when: class in ['please', 'just', 'prod']
 
     - name: do apt-get update --fix-missing
       command: apt-get update --fix-missing
