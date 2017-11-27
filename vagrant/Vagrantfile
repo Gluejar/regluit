@@ -84,7 +84,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # put into just security group
       # regluit-pub-a
       aws.subnet_id = "subnet-a97777e0"
-      # SSHAccesss, please_ec2
+      # SSHAccesss, just_ec2
       aws.associate_public_ip = true
       aws.security_groups = ["sg-93aed0ef", "sg-f6a1df8a"]
 
@@ -119,7 +119,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "-e class=just",
           "-e hostname=just.unglue.it",
           "-e setdns=false",
-          "-e branch=master",
+          "-e branch=xenial",
           "-e do_migrate=false"
       ]
 
@@ -142,7 +142,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       aws.instance_type="m1.small"
       
       aws.region = "us-east-1"
-      aws.availability_zone = "us-east-1c"
+      aws.availability_zone = "us-east-1a"
       # aws.ami = "ami-d8132bb0"
       # 2017.03.17
       # Trusty 14.04
@@ -152,7 +152,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # hvm:ebs-ssd 20171121.1  ami-aa2ea6d0
       aws.ami = "ami-aa2ea6d0"
 
-      aws.security_groups = ["just"]
+      # aws.security_groups = ["just"]
+
+      # regluit-pub-a
+      aws.subnet_id = "subnet-a97777e0"
+      # SSHAccesss, just_ec2
+      aws.associate_public_ip = true
+      aws.security_groups = ["sg-93aed0ef", "sg-e0b1b59f"]
       
       aws.tags = {
       'Name' => 'just_vagrant'
@@ -185,7 +191,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "-e class=just",
           "-e hostname=just2.unglue.it",
           "-e setdns=false",
-          "-e branch=master",
+          "-e branch=xenial",
           "-e do_migrate=false"
       ]
 
@@ -208,13 +214,23 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       aws.instance_type="m1.small"
       
       aws.region = "us-east-1"
-      aws.availability_zone = "us-east-1c"
+      aws.availability_zone = "us-east-1a"
       # aws.ami = "ami-d8132bb0"
       # 2017.03.17
       # Trusty 14.04
-      aws.ami = "ami-9fde7f89"
+      # aws.ami = "ami-9fde7f89"
+      # 2017.11.22
+      # Xenial 16.04
+      # hvm:ebs-ssd 20171121.1  ami-aa2ea6d0
+      aws.ami = "ami-aa2ea6d0"
 
-      aws.security_groups = ["just"]
+
+      # aws.security_groups = ["just"]
+      # regluit-pub-a
+      aws.subnet_id = "subnet-a97777e0"
+      # SSHAccesss, just_ec2
+      aws.associate_public_ip = true
+      aws.security_groups = ["sg-93aed0ef", "sg-e0b1b59f"]
       
       aws.tags = {
       'Name' => 'just2_vagrant'
@@ -274,7 +290,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # aws.ami = "ami-d8132bb0"
       # 2017.03.17
       # Trusty 14.04
-      aws.ami = "ami-9fde7f89"
+      # aws.ami = "ami-9fde7f89"
+      # 2017.11.22
+      # Xenial 16.04
+      # hvm:ebs-ssd 20171121.1  ami-aa2ea6d0
+      aws.ami = "ami-aa2ea6d0"
+
 
       aws.security_groups = ["web-production"]
       
@@ -336,7 +357,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # aws.ami = "ami-d8132bb0"
       # 2017.03.17
       # Trusty 14.04
-      aws.ami = "ami-9fde7f89"
+      # aws.ami = "ami-9fde7f89"
+      # 2017.11.22
+      # Xenial 16.04
+      # hvm:ebs-ssd 20171121.1  ami-aa2ea6d0
+      aws.ami = "ami-aa2ea6d0"
+
 
       aws.security_groups = ["web-production"]
       
