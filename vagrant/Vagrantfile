@@ -68,6 +68,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # put into just security group
       # aws.security_groups = ["just"]
 
+
       # FEF
 
       aws.instance_type="m1.small"
@@ -75,7 +76,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       aws.availability_zone = "us-east-1a"
       # 2017.03.17
       # Trusty 14.04
-      aws.ami = "ami-9fde7f89"
+      # aws.ami = "ami-9fde7f89"
+      # 2017.11.22
+      # Xenial 16.04
+      # hvm:ebs-ssd 20171121.1  ami-aa2ea6d0
+      aws.ami = "ami-aa2ea6d0"
       # put into just security group
       # regluit-pub-a
       aws.subnet_id = "subnet-a97777e0"
@@ -141,7 +146,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # aws.ami = "ami-d8132bb0"
       # 2017.03.17
       # Trusty 14.04
-      aws.ami = "ami-9fde7f89"
+      # aws.ami = "ami-9fde7f89"
+      # 2017.11.22
+      # Xenial 16.04
+      # hvm:ebs-ssd 20171121.1  ami-aa2ea6d0
+      aws.ami = "ami-aa2ea6d0"
 
       aws.security_groups = ["just"]
       

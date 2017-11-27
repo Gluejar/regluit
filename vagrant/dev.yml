@@ -44,13 +44,21 @@
     migrate: "{{do_migrate | default('true')}}"
   sudo: yes
 
+  gather_facts: False
   pre_tasks:
+    - name: Install python for Ansible
+      raw: test -e /usr/bin/python || (apt -y update && apt install -y python-minimal)
+      register: output
+      changed_when: output.stdout != ""
+      tags: always
+    - setup: # aka gather_facts
     - name: check apt last update
       stat: path=/var/cache/apt
       register: apt_cache_stat
     - name: update apt if needed
       apt: update_cache=yes
       when: ansible_date_time.epoch|float - apt_cache_stat.stat.mtime > 60*60*12
+
 
   tasks:
         
@@ -66,6 +74,7 @@
       apt: pkg={{ item }} update_cache=yes state=present
       with_items:
         - python2.7
+        - python-pip
         - git-core
         - apache2
         - cronolog
