@@ -19,8 +19,6 @@ from django.utils.translation import ugettext_lazy as _
 from ckeditor.widgets import CKEditorWidget
 
 from selectable.forms import (
-    AutoCompleteSelectMultipleWidget,
-    AutoCompleteSelectMultipleField,
     AutoCompleteSelectWidget,
     AutoCompleteSelectField
 )
@@ -64,8 +62,13 @@ from regluit.utils.fields import ISBNField
 
 
 from .bibforms import EditionForm, IdentifierForm
-from .rh_forms import RightsHolderForm, UserClaimForm
-
+from .rh_forms import (
+    CloneCampaignForm,
+    EditManagersForm,
+    OpenCampaignForm,
+    RightsHolderForm,
+    UserClaimForm
+)
 from questionnaire.models import Questionnaire
 
 logger = logging.getLogger(__name__)
@@ -209,23 +212,6 @@ class ProfileForm(forms.ModelForm):
             self.cleaned_data["avatar_source"] == UNGLUEITAR
         return self.cleaned_data
 
-class CloneCampaignForm(forms.Form):
-    campaign_id = forms.IntegerField(required = True, widget = forms.HiddenInput)
-
-class OpenCampaignForm(forms.ModelForm):
-    managers = AutoCompleteSelectMultipleField(
-            OwnerLookup,
-            label='Campaign Managers',
-            widget=AutoCompleteSelectMultipleWidget(OwnerLookup),
-            required=True,
-            error_messages = {'required': "You must have at least one manager for a campaign."},
-        )
-    userid = forms.IntegerField( required = True, widget = forms.HiddenInput )
-    class Meta:
-        model = Campaign
-        fields = 'name', 'work',  'managers', 'type'
-        widgets = { 'work': forms.HiddenInput, "name": forms.HiddenInput, }
-
 def getTransferCreditForm(maximum, data=None, *args, **kwargs ):
     class TransferCreditForm(forms.Form):
         recipient = AutoCompleteSelectField(
@@ -277,19 +263,6 @@ class OtherWorkForm(WorkForm):
     def __init__(self,  *args, **kwargs):
         super(OtherWorkForm, self).__init__(*args, **kwargs)
         self.fields['other_work'].widget.update_query_parameters({'language':self.work.language})
-
-class EditManagersForm(forms.ModelForm):
-    managers = AutoCompleteSelectMultipleField(
-            OwnerLookup,
-            label='Campaign Managers',
-            widget=AutoCompleteSelectMultipleWidget(OwnerLookup),
-            required=True,
-            error_messages = {'required': "You must have at least one manager for a campaign."},
-        )
-    class Meta:
-        model = Campaign
-        fields = ('id', 'managers')
-        widgets = { 'id': forms.HiddenInput }
 
 class CustomPremiumForm(forms.ModelForm):
 

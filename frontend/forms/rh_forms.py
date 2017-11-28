@@ -1,6 +1,12 @@
+from selectable.forms import (
+    AutoCompleteSelectMultipleWidget,
+    AutoCompleteSelectMultipleField,
+)
+
 from django import forms
 
-from regluit.core.models import RightsHolder, Claim
+from regluit.core.lookups import OwnerLookup
+from regluit.core.models import Campaign, Claim, RightsHolder, WasWork
 
 class RightsHolderForm(forms.ModelForm):
     email = forms.EmailField(
@@ -73,10 +79,10 @@ class UserClaimForm (forms.ModelForm):
             try:
                 workids = self.data['claim-work']
                 if workids:
-                    work = models.WasWork.objects.get(was = workids[0]).work
+                    work = WasWork.objects.get(was = workids[0]).work
                 else:
                     raise forms.ValidationError('That work does not exist.')
-            except models.WasWork.DoesNotExist:
+            except WasWork.DoesNotExist:
                 raise forms.ValidationError('That work does not exist.')
         return work
 
@@ -87,4 +93,35 @@ class UserClaimForm (forms.ModelForm):
                 'user': forms.HiddenInput,
                 'work': forms.HiddenInput,
         }
+
+class EditManagersForm(forms.ModelForm):
+    managers = AutoCompleteSelectMultipleField(
+            OwnerLookup,
+            label='Campaign Managers',
+            widget=AutoCompleteSelectMultipleWidget(OwnerLookup),
+            required=True,
+            error_messages = {'required': "You must have at least one manager for a campaign."},
+        )
+    class Meta:
+        model = Campaign
+        fields = ('id', 'managers')
+        widgets = { 'id': forms.HiddenInput }
+
+class OpenCampaignForm(forms.ModelForm):
+    managers = AutoCompleteSelectMultipleField(
+            OwnerLookup,
+            label='Campaign Managers',
+            widget=AutoCompleteSelectMultipleWidget(OwnerLookup),
+            required=True,
+            error_messages = {'required': "You must have at least one manager for a campaign."},
+        )
+    userid = forms.IntegerField( required = True, widget = forms.HiddenInput )
+    class Meta:
+        model = Campaign
+        fields = 'name', 'work',  'managers', 'type'
+        widgets = { 'work': forms.HiddenInput, "name": forms.HiddenInput, }
+
+class CloneCampaignForm(forms.Form):
+    campaign_id = forms.IntegerField(required = True, widget = forms.HiddenInput)
+
 

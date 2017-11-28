@@ -39,7 +39,7 @@
 				</p>
 			</form>
 			</div>
-			{% else %}{%if claim.campaign %}			
+			{% elif claim.campaign %}			
 			<h3>Campaign for this work</h3>
 
 			{% with claim.campaign as campaign %}
@@ -78,8 +78,10 @@
 				{% endif %}
 			</div>
 			{% endwith %}
+			{% else %}
+			<p><i>When your claim is <b>approved</b>, you will be able to create a campaign.</i></p>
 			{% endif %}
-			{% endif %}
+
 			{% if claim.work.first_ebook %}
 				<h4> Ebooks for this work </h4>
 				<p>{{ claim.work.download_count }} total downloads</p>

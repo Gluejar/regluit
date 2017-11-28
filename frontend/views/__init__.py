@@ -89,7 +89,6 @@ from regluit.frontend.forms import (
     EbookFileForm,
     CustomPremiumForm,
     OfferForm,
-    EditManagersForm,
     PledgeCancelForm,
     getTransferCreditForm,
     CCForm,
@@ -583,7 +582,7 @@ def manage_campaign(request, id, ebf=None, action='manage'):
                     alerts.append(_('Campaign has been launched'))
                 else:
                     alerts.append(_('Campaign has NOT been launched'))
-            new_premium_form = CustomPremiumForm(data={'campaign': campaign})
+            new_premium_form = CustomPremiumForm(initial={'campaign': campaign})
         elif request.POST.has_key('inactivate') :
             activetab = '#2'
             if request.POST.has_key('premium_id'):
@@ -2864,7 +2863,7 @@ def download_campaign(request, work_id, format):
     # Raise 404 unless there is a SUCCESSFUL BUY2UNGLUE campaign associated with work
     try:
         campaign = work.campaigns.get(status='SUCCESSFUL', type=BUY2UNGLUE)
-    except Campaign.DoesNotExist as e:
+    except models.Campaign.DoesNotExist as e:
         raise Http404
 
     ebfs = models.EbookFile.objects.filter(edition__work=campaign.work, format=format).exclude(file='').order_by('-created')
