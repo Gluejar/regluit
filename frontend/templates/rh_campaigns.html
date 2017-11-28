@@ -54,5 +54,16 @@
 		</dd>
 	{% endfor %}
 	</dl>
+{% else %}
+    <h2 id="managed_campaigns">You don't manage any campaigns yet.</h2>
+    <p>
+    {% if request.user.is_anonymous %}
+     You need to <a href="{% url 'login' %}">log in</a>.
+    {% elif claims %}
+    Create a campaign for <a href="{% url 'rh_works' %}#open_campaigns">one of your works</a>.
+    {% else %}
+    You need to <a href="{% url 'rightsholders' %}#add_your_books">claim a work</a> before you start a campaign to support it.
+    {% endif %}
+    </p>
 {% endif %}
 {% endblock %}

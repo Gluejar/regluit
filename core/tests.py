@@ -890,10 +890,10 @@ class WorkTests(TestCase):
         self.assertEqual(e2, self.w2.preferred_edition)
         
     def test_valid_subject(self):
-        self.assertTrue(valid_subject('A, valid, suj\xc3t'))
-        self.assertFalse(valid_subject('A, valid, suj\xc3t, '))
-        self.assertFalse(valid_subject('A valid suj\xc3t \x01'))
-        Subject.set_by_name('A, valid, suj\xc3t; A, valid, suj\xc3t, ', work=self.w1)
+        self.assertTrue(valid_subject(u'A, valid, suj\xc3t'))
+        self.assertFalse(valid_subject(u'A, valid, suj\xc3t, '))
+        self.assertFalse(valid_subject(u'A valid suj\xc3t \x01'))
+        Subject.set_by_name(u'A, valid, suj\xc3t; A, valid, suj\xc3t, ', work=self.w1)
         self.assertEqual(1, self.w1.subjects.count())
         sub = Subject.set_by_name('nyt:hardcover_advice=2011-06-18', work=self.w1)
         self.assertEqual(sub.name, 'NYT Bestseller - Hardcover advice')

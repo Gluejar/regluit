@@ -34,7 +34,7 @@ If you're an author, publisher, or other rights holder, you can participate more
 	{% if campaigns %}
 	<li class="checked">You've set up {{ campaigns.count }} campaign(s).  Manage them <a href="{% url 'rh_campaigns' %}#managed_campaigns">here.</a></li>
 	{% else %}
-	<li>{% if claims %}<a href="#open_campaigns">Set up a campaign</a> for for your book.{% else %} Set up a campaign. All the campaigns you can manage will be listed on this page, above.{% endif %}</li>
+	<li>{% if claims %}<a href="{% url 'rh_works' %}#open_campaigns">Set up a campaign</a> for for your book.{% else %} Set up a campaign. All the campaigns you can manage will be listed on <a href="{% url 'rh_campaigns' %}#managed_campaigns">this page</a>.{% endif %}</li>
 	{% endif %}
 </ol>
 <h2 id="about_campaigns">About Campaigns </h2>
