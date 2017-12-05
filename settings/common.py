@@ -182,7 +182,13 @@ INSTALLED_APPS = (
     'transmeta',
     'questionnaire',
     'questionnaire.page',  
+    'sass_processor',
 )
+
+SASS_PROCESSOR_INCLUDE_DIRS = [
+    os.path.join(PROJECT_DIR, 'static/scss'),
+]
+
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
