@@ -103,7 +103,7 @@ def claim(request):
 
 def rh_tools(request, template_name='rh_intro.html'):
     if not request.user.is_authenticated() :
-        return render(request, "rh_tools.html")
+        return render(request, 'rh_intro.html')
     claims = request.user.claim.filter(user=request.user)
     campaign_form = "xxx"
     if not claims:
