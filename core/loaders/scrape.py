@@ -230,7 +230,7 @@ class BaseScraper(object):
         if value:
             self.set('publication_date', value)
 
-    def get_authors(self):
+    def get_author_list(self):
         value_list = self.check_metas([
             'DC.Creator.PersonalName',
             'citation_author',
@@ -239,9 +239,15 @@ class BaseScraper(object):
         if not value_list:
             value_list = self.get_itemprop('author')
             if not value_list:
-                return
+                return []
+        return value_list
+
+    def get_authors(self):
+        value_list = self.get_author_list()
         creator_list = []
         value_list = authlist_cleaner(value_list)
+        if len(value_list) == 0:
+            return
         if len(value_list) == 1:
             self.set('creator',  {'author': {'agent_name': value_list[0]}})
             return
@@ -383,21 +389,3 @@ class HathitrustScraper(BaseScraper):
     def can_scrape(cls, url):
         ''' return True if the class can scrape the URL '''
         return url.find('hathitrust.org') > 0 or url.find('hdl.handle.net/2027/') > 0
-
-
-def get_scraper(url):
-    scrapers = [PressbooksScraper, HathitrustScraper, BaseScraper]
-    for scraper in scrapers:
-        if scraper.can_scrape(url):
-            return scraper(url)
-            
-def scrape_sitemap(url, maxnum=None):
-    try:
-        response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
-        doc = BeautifulSoup(response.content, 'lxml')
-        for page in doc.find_all('loc')[0:maxnum]:
-            scraper = get_scraper(page.text)
-            if scraper.metadata.get('genre', None) == 'book':
-                yield scraper
-    except requests.exceptions.RequestException as e:
-        logger.error(e)

@@ -38,7 +38,6 @@ from . import cc
 from . import models
 from .parameters import WORK_IDENTIFIERS
 from .validation import identifier_cleaner, unreverse_name
-from .loaders.scrape import get_scraper, scrape_sitemap
 
 logger = logging.getLogger(__name__)
 request_log = logging.getLogger("requests")
@@ -755,7 +754,7 @@ def edition_for_ident(id_type, id_value):
     #print 'returning edition for {}: {}'.format(id_type, id_value)
     for ident in models.Identifier.objects.filter(type=id_type, value=id_value):
         return ident.edition if ident.edition else ident.work.editions[0]
-    
+
 def edition_for_etype(etype, metadata, default=None):
     '''
     assumes the metadata contains the isbn_etype attributes, and that the editions have been created.
@@ -774,7 +773,7 @@ def edition_for_etype(etype, metadata, default=None):
             return edition_for_ident(key, metadata.identifiers[key])
         for key in metadata.edition_identifiers.keys():
             return edition_for_ident(key, metadata.identifiers[key])
-    
+
 MATCH_LICENSE = re.compile(r'creativecommons.org/licenses/([^/]+)/')
 
 def load_ebookfile(url, etype):
@@ -793,14 +792,14 @@ def load_ebookfile(url, etype):
         logger.error(u'could not open {}'.format(url))
     except ValidationError, e:
         logger.error(u'downloaded {} was not a valid {}'.format(url, etype))
-     
+
 class BasePandataLoader(object):
     def __init__(self, url):
         self.base_url = url
 
     def load_from_pandata(self, metadata, work=None):
         ''' metadata is a Pandata object'''
-        
+
         #find an work to associate
         edition = None
         has_ed_id = False
@@ -862,7 +861,7 @@ class BasePandataLoader(object):
         if metadata.description and len(metadata.description) > len(work.description):
             #be careful about overwriting the work description
             work.description = metadata.description
-        if metadata.creator and not edition.authors.count(): 
+        if metadata.creator and not edition.authors.count():
             edition.authors.clear()
             for key in metadata.creator.keys():
                 creators = metadata.creator[key]
@@ -901,7 +900,7 @@ class BasePandataLoader(object):
                     contentfile = load_ebookfile(url, key)
                     if contentfile:
                         contentfile_name = '/loaded/ebook_{}.{}'.format(edition.id, key)
-                        path = default_storage.save(contentfile_name, contentfile) 
+                        path = default_storage.save(contentfile_name, contentfile)
                         lic = MATCH_LICENSE.search(metadata.rights_url)
                         license = 'CC {}'.format(lic.group(1).upper()) if lic else ''
                         ebf = models.EbookFile.objects.create(
@@ -923,8 +922,8 @@ class BasePandataLoader(object):
                         )
                         ebf.ebook =  ebook
                         ebf.save()
-                    
-            
+
+
 class GithubLoader(BasePandataLoader):
     def load_ebooks(self, metadata, edition, test_mode=False):
         # create Ebook for any ebook in the corresponding GitHub release
@@ -1013,21 +1012,10 @@ def ebooks_in_github_release(repo_owner, repo_name, tag, token=None):
             for asset in release.iter_assets()
             if EBOOK_FORMATS.get(asset.content_type) is not None]
 
-def add_by_webpage(url, work=None, user=None):
-    edition = None
-    scraper = get_scraper(url)
-    loader = BasePandataLoader(url)
-    pandata = Pandata()
-    pandata.metadata = scraper.metadata
-    for metadata in pandata.get_edition_list():
-        edition = loader.load_from_pandata(metadata, work)
-        work = edition.work
-    loader.load_ebooks(pandata, edition, user=user)
-    return edition if edition else None
-
-def add_by_sitemap(url, maxnum=None):
+def add_from_bookdatas(bookdatas):
+    ''' bookdatas  are iterators of scrapers '''
     editions = []
-    for bookdata in scrape_sitemap(url, maxnum=maxnum):
+    for bookdata in bookdatas:
         edition = work = None
         loader = BasePandataLoader(bookdata.base)
         pandata = Pandata()
@@ -1039,6 +1027,3 @@ def add_by_sitemap(url, maxnum=None):
         if edition:
             editions.append(edition)
     return editions
-
-
-
