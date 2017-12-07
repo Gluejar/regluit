@@ -242,20 +242,24 @@ class BaseScraper(object):
                 return []
         return value_list
 
+    def get_role(self):
+        return 'author'
+
     def get_authors(self):
+        role = self.get_role()
         value_list = self.get_author_list()
         creator_list = []
         value_list = authlist_cleaner(value_list)
         if len(value_list) == 0:
             return
         if len(value_list) == 1:
-            self.set('creator',  {'author': {'agent_name': value_list[0]}})
+            self.set('creator',  {role: {'agent_name': value_list[0]}})
             return
-        for auth in value_list: 
+        for auth in value_list:
              creator_list.append({'agent_name': auth})
 
-        self.set('creator', {'authors': creator_list })
-    
+        self.set('creator', {'{}s'.format(role): creator_list })
+
     def get_cover(self):
         image_url = self.check_metas(['og.image', 'image', 'twitter:image'])
         if not image_url:

@@ -75,6 +75,11 @@ class SpringerScraper(BaseScraper):
         if not value:
             (SpringerScraper, self).get_title()
     
+    def get_role(self):
+        if self.doc.select_one('#editors'):
+            return 'editor'
+        return 'author'
+
     def get_author_list(self):
         for el in self.doc.select('.authors__name'):
             yield el.text.strip().replace(u'\xa0', u' ')
