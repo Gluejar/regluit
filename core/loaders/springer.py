@@ -28,8 +28,9 @@ class SpringerScraper(BaseScraper):
         if desc:
             value = ''
             for div in desc.contents:
-                text = div.string.replace(u'\xa0', u' ') if div.string else None
+                text = div.get_text() if hasattr(div, 'get_text') else div.string
                 if text:
+                    text = text.replace(u'\xa0', u' ')
                     value = u'{}<p>{}</p>'.format(value, text) 
             self.set('description', value)
 
