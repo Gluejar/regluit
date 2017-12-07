@@ -917,7 +917,9 @@ class BasePandataLoader(object):
             edition.authors.clear()
             for key in metadata.creator.keys():
                 creators = metadata.creator[key]
-                rel_code = inverse_marc_rels.get(key, 'aut')
+                rel_code = inverse_marc_rels.get(key, None)
+                if not rel_code:
+                    rel_code = inverse_marc_rels.get(key.rstrip('s'), 'auth')
                 creators = creators if isinstance(creators, list) else [creators]
                 for creator in creators:
                     edition.add_author(unreverse_name(creator.get('agent_name', '')), relation=rel_code)
