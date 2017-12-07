@@ -4,6 +4,7 @@
 {% load humanize %}
 {% load purchased %}
 {% load lib_acqs %}
+{% load sass_tags %}
 {% block title %}&#151; 
     {% if work.is_free %}
         {{ work.title }} is a Free eBook. {% for fmt in  work.formats %}[{{ fmt }}]{% endfor %}
@@ -18,6 +19,7 @@
     <link rel="stylesheet" href="/static/css/ui-lightness/jquery-ui-1.8.16.custom.css" type="text/css" media="screen">
     {{ kwform.media.css }}
 {% endif %}
+<link href="{% sass_src 'scss/bookview.scss' %}" rel="stylesheet" type="text/css" />
 {% endblock %}
 
 {% block extra_js %}
