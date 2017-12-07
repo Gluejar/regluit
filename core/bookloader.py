@@ -924,7 +924,7 @@ class BasePandataLoader(object):
         for yaml_subject in metadata.subjects: #always add yaml subjects (don't clear)
             if isinstance(yaml_subject, tuple):
                 (authority, heading) = yaml_subject
-            elif isinstance(yaml_subject, str):
+            elif isinstance(yaml_subject, str) or isinstance(yaml_subject, unicode) :
                 (authority, heading) = ('', yaml_subject)
             else:
                 continue
