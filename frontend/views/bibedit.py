@@ -17,10 +17,10 @@ from regluit.core.bookloader import (
     add_by_googlebooks_id,
     add_by_isbn,
     add_by_oclc,
-    add_by_webpage,
 )
 from regluit.core.parameters import WORK_IDENTIFIERS
 
+from regluit.core.loaders import add_by_webpage
 from regluit.core.loaders.utils import ids_from_urls
 from regluit.frontend.forms import EditionForm, IdentifierForm
 

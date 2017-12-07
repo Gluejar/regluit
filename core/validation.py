@@ -61,13 +61,16 @@ doi_match = re.compile( r'10\.\d+/\S+')
 
 def doi_cleaner(value):
     if not value == 'delete' and not value.startswith('10.'):
-        return doi_match.match(value).group(0)
+        try:
+            return doi_match.search(value).group(0)
+        except AttributeError:
+            return ''
     return value
         
 ID_MORE_VALIDATION = {
     'isbn': isbn_cleaner,
     'olwk': olwk_cleaner,
-    'olwk': doi_cleaner,
+    'doi': doi_cleaner,
 }
 
 def identifier_cleaner(id_type, quiet=False):
