@@ -80,7 +80,7 @@ class UserClaimForm (forms.ModelForm):
     def __init__(self, user_instance, *args, **kwargs):
         super(UserClaimForm, self).__init__(*args, **kwargs)
         self.fields['rights_holder'] = forms.ModelChoiceField(
-            queryset=user_instance.rights_holder.filter(approved=False),
+            queryset=user_instance.rights_holder.all(),
             empty_label=None,
         )
 
