@@ -360,7 +360,7 @@ def work(request, work_id, action='display'):
         work.last_campaign_status = 'ACTIVE'
 
     if not request.user.is_anonymous():
-        claimform = UserClaimForm(request.user, data={'claim-work':work.pk, 'claim-user': request.user.id}, prefix = 'claim')
+        claimform = UserClaimForm(request.user, initial={'work':work.pk, 'user': request.user.id}, prefix = 'claim')
     else:
         claimform = None
 
