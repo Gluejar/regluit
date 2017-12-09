@@ -28,8 +28,9 @@ class SpringerScraper(BaseScraper):
         if desc:
             value = ''
             for div in desc.contents:
-                text = div.string.replace(u'\xa0', u' ') if div.string else None
+                text = div.get_text() if hasattr(div, 'get_text') else div.string
                 if text:
+                    text = text.replace(u'\xa0', u' ')
                     value = u'{}<p>{}</p>'.format(value, text) 
             self.set('description', value)
 
@@ -74,6 +75,11 @@ class SpringerScraper(BaseScraper):
         if not value:
             (SpringerScraper, self).get_title()
     
+    def get_role(self):
+        if self.doc.select_one('#editors'):
+            return 'editor'
+        return 'author'
+
     def get_author_list(self):
         for el in self.doc.select('.authors__name'):
             yield el.text.strip().replace(u'\xa0', u' ')
@@ -87,7 +93,7 @@ class SpringerScraper(BaseScraper):
         mention = self.doc.find(string=MENTIONS_CC)   
         if mention:
             lic = MENTIONS_CC.search(mention).group(0)
-            lic_url = 'https://creativecommons.org/licences/{}/'.format(lic[3:].lower())
+            lic_url = 'https://creativecommons.org/licenses/{}/'.format(lic[3:].lower())
             self.set('rights_url', lic_url)
             
     def get_pubdate(self):
