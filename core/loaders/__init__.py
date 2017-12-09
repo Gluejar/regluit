@@ -8,7 +8,7 @@ from .scrape import PressbooksScraper, HathitrustScraper, BaseScraper
 from .springer import SpringerScraper
 
 def get_scraper(url):
-    scrapers = [PressbooksScraper, HathitrustScraper, BaseScraper]
+    scrapers = [PressbooksScraper, HathitrustScraper, SpringerScraper, BaseScraper]
     for scraper in scrapers:
         if scraper.can_scrape(url):
             return scraper(url)
