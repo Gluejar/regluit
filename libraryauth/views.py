@@ -21,7 +21,10 @@ logger = logging.getLogger(__name__)
 
 def get_library_or_404(library=None,  library_id=None):
     if library_id:
-        return get_object_or_404(Library, id=library_id)
+        try:
+            return get_object_or_404(Library, id=library_id)
+        except ValueError:
+            raise Http404
     else:
         return get_object_or_404(Library, user__username=library)
 

@@ -709,7 +709,10 @@ class ByPubView(WorkListView):
     publisher = None
 
     def get_publisher_name(self):
-        self.publisher_name = get_object_or_404(models.PublisherName, id=self.kwargs['pubname'])
+        try:
+            self.publisher_name = get_object_or_404(models.PublisherName, id=self.kwargs['pubname'])
+        except ValueError:
+            raise Http404
         self.set_publisher()
 
     def set_publisher(self):
@@ -1146,7 +1149,11 @@ class FundView(FormView):
         t_id=self.kwargs["t_id"]
 
         if self.transaction is None:
-            self.transaction = get_object_or_404(Transaction, id=t_id)
+            try:
+                self.transaction = get_object_or_404(Transaction, id=t_id)
+            except ValueError:
+                raise Http404
+
 
         if not self.transaction.campaign:
             self.action = 'donation'
@@ -1298,7 +1305,7 @@ class PledgeRechargeView(TemplateView):
         campaign = work.last_campaign()
 
         if campaign is None:
-            return Http404
+            raise Http404
 
         transaction = campaign.transaction_to_recharge(user)
 
@@ -1445,8 +1452,12 @@ class PledgeCancelView(FormView):
         else:
             context["error"] = "You are not logged in."
             return context
+        
+        try:
+            campaign = get_object_or_404(models.Campaign, id=self.kwargs["campaign_id"])
+        except ValueError:
+            raise Http404
 
-        campaign = get_object_or_404(models.Campaign, id=self.kwargs["campaign_id"])
         if campaign.status != 'ACTIVE':
             context["error"] = "{0} is not an active campaign".format(campaign)
             return context
@@ -1493,7 +1504,11 @@ class PledgeCancelView(FormView):
         try:
             # look up the specified campaign and attempt to pull up the appropriate transaction
             # i.e., the transaction actually belongs to user, that the transaction is active
-            campaign = get_object_or_404(models.Campaign, id=self.kwargs["campaign_id"], status='ACTIVE')
+            try:
+                campaign = get_object_or_404(models.Campaign, id=self.kwargs["campaign_id"], status='ACTIVE')
+            except ValueError:
+                raise Http404
+
             transaction = campaign.transaction_set.get(user=user, status=TRANSACTION_STATUS_ACTIVE,
                                                           type=PAYMENT_TYPE_AUTHORIZATION)
             # attempt to cancel the transaction and redirect to the Work page if cancel is successful
@@ -2454,7 +2469,11 @@ def emailshare(request, action):
     return render(request, "emailshare.html", {'form':form})
 
 def ask_rh(request, campaign_id):
-    campaign = get_object_or_404(models.Campaign, id=campaign_id)
+    try:
+        campaign = get_object_or_404(models.Campaign, id=campaign_id)
+    except ValueError:
+        raise Http404
+
     return feedback(request, recipient=campaign.email, template="ask_rh.html",
             message_template="ask_rh.txt",
             redirect_url = reverse('work', args=[campaign.work_id]),
@@ -2737,7 +2756,10 @@ def reserve(request, work_id):
     return PurchaseView.as_view()(request, work_id=work_id)
 
 def download_ebook(request, ebook_id):
-    ebook = get_object_or_404(models.Ebook, id=ebook_id)
+    try:
+        ebook = get_object_or_404(models.Ebook, id=ebook_id)
+    except ValueError:
+        raise Http404
     ebook.increment()
     logger.info("ebook: {0}, user_ip: {1}".format(ebook_id, request.META['REMOTE_ADDR']))
     return HttpResponseRedirect(ebook.url)

@@ -185,7 +185,11 @@ def campaign_results(request, campaign):
         })
 
 def manage_campaign(request, id, ebf=None, action='manage'):
-    campaign = get_object_or_404(models.Campaign, id=id)
+    try:
+        campaign = get_object_or_404(models.Campaign, id=id)
+    except ValueError:
+        raise Http404
+    
     campaign.not_manager = False
     campaign.problems = []
     if (not request.user.is_authenticated()) or \
@@ -272,7 +276,11 @@ def manage_campaign(request, id, ebf=None, action='manage'):
             activetab = '#2'
     else:
         if action == 'makemobi':
-            ebookfile = get_object_or_404(models.EbookFile, id=ebf)
+            try:
+                ebookfile = get_object_or_404(models.EbookFile, id=ebf)
+            except ValueError:
+                raise Http404
+
             tasks.make_mobi.delay(ebookfile)
             return HttpResponseRedirect(reverse('mademobi', args=[campaign.id]))
         elif action == 'mademobi':
