@@ -103,6 +103,9 @@ class SpringerScraper(BaseScraper):
             if yearmatch:
                 self.set('publication_date', yearmatch.group(0))
 
+    def get_publisher(self):
+        self.set('publisher', 'Springer')
+
     @classmethod
     def can_scrape(cls, url):
         ''' return True if the class can scrape the URL '''
