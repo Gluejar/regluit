@@ -482,6 +482,17 @@
                                             </form>
                                         {% endif %}
                                     {% endif %}
+                                    {% with doi=work.doi http_id=work.http_id %}
+                                        {% if doi or http_id %}
+                                        <h4>Links</h4>
+                                        {% if doi %}
+                                            DOI: <a href="https://doi.org/{{ doi }}">{{ doi }}</a><br />
+                                        {% endif %}
+                                        {% if http_id %}
+                                            web: <a href="{{ http_id }}">{{ http_id }}</a><br />
+                                        {% endif %}
+                                        {% endif %}
+                                    {% endwith %}
                                     <h4>Editions</h4>
                                     {% if alert %}
                                         <div class="yikes"><br />{{ alert }}</div>
