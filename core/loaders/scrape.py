@@ -16,7 +16,7 @@ CONTAINS_COVER = re.compile('cover')
 CONTAINS_CC = re.compile('creativecommons.org')
 CONTAINS_OCLCNUM = re.compile('worldcat.org/oclc/(\d+)')
 
-class BaseScraper(object):    
+class BaseScraper(object):
     '''
     designed to make at least a decent gues for webpages that embed metadata
     '''
@@ -57,23 +57,23 @@ class BaseScraper(object):
     #
     # utilities
     #
-    
+
     def set(self, name, value):
         self.metadata[name] = value
-                
+
     def fetch_one_el_content(self, el_name):
         data_el = self.doc.find(el_name)
         value = ''
         if data_el:
             value = data_el.text
-        return value 
-    
+        return value
+
     def check_metas(self, meta_list, **attrs):
         value = ''
         list_mode = attrs.pop('list_mode', 'longest')
         for meta_name in meta_list:
             attrs['name'] = meta_name
-            
+
             metas = self.doc.find_all('meta', attrs=attrs)
             if len(metas) == 0:
                 # some sites put schema.org metadata in metas
@@ -88,19 +88,19 @@ class BaseScraper(object):
                         value = el_value
                 elif list_mode == 'list':
                     if value == '':
-                        value = [el_value] 
+                        value = [el_value]
                     else:
                         value.append(el_value)
             if value:
                 return value
-        return value 
-    
+        return value
+
     def get_dt_dd(self, name):
         ''' get the content of <dd> after a <dt> containing name'''
         dt = self.doc.find('dt', string=re.compile(name))
         dd = dt.find_next_sibling('dd') if dt else None
         return dd.text if dd else None
-  
+
     def get_itemprop(self, name, **attrs):
         value_list = []
         list_mode = attrs.pop('list_mode', 'list')
@@ -126,14 +126,14 @@ class BaseScraper(object):
     def get_genre(self):
         value = self.check_metas(['DC.Type', 'dc.type', 'og:type'])
         if value and value in ('Text.Book', 'book'):
-            self.set('genre', 'book')            
+            self.set('genre', 'book')
 
     def get_title(self):
         value = self.check_metas(['DC.Title', 'dc.title', 'citation_title', 'og:title', 'title'])
         if not value:
             value =  self.fetch_one_el_content('title')
         self.set('title', value)
-        
+
     def get_language(self):
         value = self.check_metas(['DC.Language', 'dc.language', 'language', 'inLanguage'])
         self.set('language', value)
@@ -151,7 +151,7 @@ class BaseScraper(object):
         '''return a dict of edition keys and ISBNs'''
         isbns = {}
         isbn_cleaner = identifier_cleaner('isbn', quiet=True)
-        label_map = {'epub': 'EPUB', 'mobi': 'Mobi', 
+        label_map = {'epub': 'EPUB', 'mobi': 'Mobi',
             'paper': 'Paperback', 'pdf':'PDF', 'hard':'Hardback'}
         for key in label_map.keys():
             isbn_key = 'isbn_{}'.format(key)
@@ -180,7 +180,7 @@ class BaseScraper(object):
         if value:
             self.identifiers['doi'] = value
 
-        #look for oclc numbers           
+        #look for oclc numbers
         links = self.doc.find_all(href=CONTAINS_OCLCNUM)
         for link in links:
             oclcmatch = CONTAINS_OCLCNUM.search(link['href'])
@@ -212,12 +212,12 @@ class BaseScraper(object):
                         })
         if len(ed_list):
             self.set('edition_list', ed_list)
-        
+
     def get_keywords(self):
         value = self.check_metas(['keywords']).strip(',;')
         if value:
             self.set('subjects', re.split(' *[;,] *', value))
-            
+
     def get_publisher(self):
         value = self.check_metas(['citation_publisher', 'DC.Source'])
         if value:
@@ -230,7 +230,7 @@ class BaseScraper(object):
         if value:
             self.set('publication_date', value)
 
-    def get_authors(self):
+    def get_author_list(self):
         value_list = self.check_metas([
             'DC.Creator.PersonalName',
             'citation_author',
@@ -239,17 +239,27 @@ class BaseScraper(object):
         if not value_list:
             value_list = self.get_itemprop('author')
             if not value_list:
-                return
+                return []
+        return value_list
+
+    def get_role(self):
+        return 'author'
+
+    def get_authors(self):
+        role = self.get_role()
+        value_list = self.get_author_list()
         creator_list = []
         value_list = authlist_cleaner(value_list)
-        if len(value_list) == 1:
-            self.set('creator',  {'author': {'agent_name': value_list[0]}})
+        if len(value_list) == 0:
             return
-        for auth in value_list: 
+        if len(value_list) == 1:
+            self.set('creator',  {role: {'agent_name': value_list[0]}})
+            return
+        for auth in value_list:
              creator_list.append({'agent_name': auth})
 
-        self.set('creator', {'authors': creator_list })
-    
+        self.set('creator', {'{}s'.format(role): creator_list })
+
     def get_cover(self):
         image_url = self.check_metas(['og.image', 'image', 'twitter:image'])
         if not image_url:
@@ -262,14 +272,14 @@ class BaseScraper(object):
             if not image_url.startswith('http'):
                 image_url = urljoin(self.base, image_url)
             self.set('covers', [{'image_url': image_url}])
-                
+
     def get_downloads(self):
         for dl_type in ['epub', 'mobi', 'pdf']:
             dl_meta = 'citation_{}_url'.format(dl_type)
             value = self.check_metas([dl_meta])
             if value:
                 self.set('download_url_{}'.format(dl_type), value)
-                
+
     def get_license(self):
         '''only looks for cc licenses'''
         links = self.doc.find_all(href=CONTAINS_CC)
@@ -280,13 +290,13 @@ class BaseScraper(object):
     def can_scrape(cls, url):
         ''' return True if the class can scrape the URL '''
         return True
-        
+
 class PressbooksScraper(BaseScraper):
     def get_downloads(self):
         for dl_type in ['epub', 'mobi', 'pdf']:
             download_el = self.doc.select_one('.{}'.format(dl_type))
             if download_el and download_el.find_parent():
-                value = download_el.find_parent().get('href') 
+                value = download_el.find_parent().get('href')
                 if value:
                     self.set('download_url_{}'.format(dl_type), value)
 
@@ -299,7 +309,7 @@ class PressbooksScraper(BaseScraper):
             self.set('publisher', value)
         else:
             super(PressbooksScraper, self).get_publisher()
-    
+
     def get_title(self):
         value = self.doc.select_one('.entry-title a[title]')
         value = value['title'] if value else None
@@ -317,10 +327,10 @@ class PressbooksScraper(BaseScraper):
                 self.identifiers['isbn_{}'.format(key)] = isbn
                 isbns[key] = isbn
         return isbns
-                
+
     @classmethod
     def can_scrape(cls, url):
-        pb_sites = ['bookkernel.com','milnepublishing.geneseo.edu', 'pressbooks', 
+        pb_sites = ['bookkernel.com','milnepublishing.geneseo.edu', 'pressbooks',
             'press.rebus.community','pb.unizin.org']
         ''' return True if the class can scrape the URL '''
         for site in pb_sites:
@@ -330,7 +340,7 @@ class PressbooksScraper(BaseScraper):
 
 
 class HathitrustScraper(BaseScraper):
-    
+
     CATALOG = re.compile(r'catalog.hathitrust.org/Record/(\d+)')
 
     def setup(self):
@@ -344,28 +354,28 @@ class HathitrustScraper(BaseScraper):
                 self.record = record
                 return
             self.record = {}
-            
+
 
     def get_downloads(self):
         dl_a = self.doc.select_one('#fullPdfLink')
         value = dl_a['href'] if dl_a else None
         if value:
             self.set(
-                'download_url_{}'.format('pdf'), 
+                'download_url_{}'.format('pdf'),
                 'https://babel.hathitrust.org{}'.format(value)
             )
-    
+
     def get_isbns(self):
         isbn = self.record.get('issn', [])
         value = identifier_cleaner('isbn', quiet=True)(isbn)
         return {'print': value} if value else {}
-    
+
     def get_title(self):
         self.set('title', self.record.get('title', ''))
 
     def get_keywords(self):
         self.set('subjects', self.record.get('keywords', []))
-            
+
     def get_publisher(self):
         self.set('publisher', self.record.get('publisher', ''))
 
@@ -375,7 +385,7 @@ class HathitrustScraper(BaseScraper):
     def get_description(self):
         notes = self.record.get('notes', [])
         self.set('description', '\r'.join(notes))
-    
+
     def get_genre(self):
         self.set('genre', self.record.get('type_of_reference', '').lower())
 
@@ -383,21 +393,3 @@ class HathitrustScraper(BaseScraper):
     def can_scrape(cls, url):
         ''' return True if the class can scrape the URL '''
         return url.find('hathitrust.org') > 0 or url.find('hdl.handle.net/2027/') > 0
-
-
-def get_scraper(url):
-    scrapers = [PressbooksScraper, HathitrustScraper, BaseScraper]
-    for scraper in scrapers:
-        if scraper.can_scrape(url):
-            return scraper(url)
-            
-def scrape_sitemap(url, maxnum=None):
-    try:
-        response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
-        doc = BeautifulSoup(response.content, 'lxml')
-        for page in doc.find_all('loc')[0:maxnum]:
-            scraper = get_scraper(page.text)
-            if scraper.metadata.get('genre', None) == 'book':
-                yield scraper
-    except requests.exceptions.RequestException as e:
-        logger.error(e)
