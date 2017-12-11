@@ -74,6 +74,8 @@ STATIC_ROOT = ''
 # Example: "http://media.lawrence.com/static/"
 STATIC_URL = '/static/'
 
+SASS_PROCESSOR_ROOT = os.path.join(PROJECT_DIR, 'static')
+
 # URL prefix for admin static files -- CSS, JavaScript and images.
 # Make sure to use a trailing slash.
 # Examples: "http://foo.com/static/admin/", "/static/admin/".
@@ -182,7 +184,15 @@ INSTALLED_APPS = (
     'transmeta',
     'questionnaire',
     'questionnaire.page',  
+    'sass_processor',
 )
+
+SASS_PROCESSOR_INCLUDE_DIRS = [
+    os.path.join(PROJECT_DIR),
+    os.path.join(PROJECT_DIR, 'static', 'scss'),
+    os.path.join('static', 'scss'),
+]
+
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to

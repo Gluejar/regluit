@@ -22,7 +22,7 @@ to install python-setuptools in step 1:
 1. Ensure MySQL and Redis are installed & running on your system.
 1. Create a MySQL database and user for unglueit.
 1. `sudo apt-get upgrade gcc`
-1. `sudo apt-get install python-setuptools git python-lxml build_essential libssl-dev libffi-dev python2.7dev libxml2-dev libxslt-dev libmysqlclient-dev`
+1. `sudo apt-get install python-setuptools git python-lxml build-essential libssl-dev libffi-dev python2.7-dev libxml2-dev libxslt-dev libmysqlclient-dev`
 1. `sudo easy_install virtualenv virtualenvwrapper`
 1. `git clone git@github.com:Gluejar/regluit.git`
 1. `cd regluit`
