@@ -188,11 +188,9 @@ INSTALLED_APPS = (
 )
 
 SASS_PROCESSOR_INCLUDE_DIRS = [
-    os.path.join(PROJECT_DIR),
     os.path.join(PROJECT_DIR, 'static', 'scss'),
-    os.path.join('static', 'scss'),
 ]
-
+SASS_PROCESSOR_AUTO_INCLUDE = False
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
