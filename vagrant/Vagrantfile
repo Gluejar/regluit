@@ -264,7 +264,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "-e hostname=unglue.it",
           "-e setdns=false",
           "-e do_migrate=false",
-          "-e branch=production"
+          "-e branch=xenial"
       ]
 
     end
@@ -295,7 +295,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # Xenial 16.04
       # hvm:ebs-ssd 20171121.1  ami-aa2ea6d0
       aws.ami = "ami-aa2ea6d0"
-
 
       aws.security_groups = ["web-production"]
       
@@ -331,7 +330,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           "-e hostname=unglue.it",
           "-e setdns=false",
           "-e do_migrate=false",
-          "-e branch=production"
+          "-e branch=xenial"
       ]
 
     end
@@ -362,7 +361,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # Xenial 16.04
       # hvm:ebs-ssd 20171121.1  ami-aa2ea6d0
       aws.ami = "ami-aa2ea6d0"
-
 
       aws.security_groups = ["web-production"]
       
