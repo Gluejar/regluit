@@ -908,11 +908,16 @@ class BasePandataLoader(object):
             )
         if metadata.publisher: #always believe yaml
             edition.set_publisher(metadata.publisher)
+
         if metadata.publication_date: #always believe yaml
             edition.publication_date = metadata.publication_date
+
+        #be careful about overwriting the work description
         if metadata.description and len(metadata.description) > len(work.description):
-            #be careful about overwriting the work description
-            work.description = metadata.description
+            # don't over-write reasonably long descriptions
+            if len(work.description) < 500:
+                work.description = metadata.description
+
         if metadata.creator and not edition.authors.count():
             edition.authors.clear()
             for key in metadata.creator.keys():

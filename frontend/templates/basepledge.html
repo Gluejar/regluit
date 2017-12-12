@@ -1,8 +1,9 @@
 {% extends "registration/registration_base.html" %}
+{% load sass_tags %}
 
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign2.css"  />
-<link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/pledge.scss' %}" />
 {% endblock %}
 
 {% block extra_js %}
