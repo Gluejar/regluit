@@ -23,11 +23,14 @@ class Command(BaseCommand):
                     ebf = ebook.get_archive_ebf()
                     if ebf:
                         try:
+                            print 'making mobi for {}'.format(work.title)
                             if ebf.make_mobi():
-                                print 'made mobi for {}'.format(ebf.edition.work.title)
+                                print 'made mobi'
                                 i = i + 1
                                 break
+                            else:
+                                print 'failed to make mobi'
                         except:
-                            pass
+                            print 'failed to make mobi'
             if i >= max:
                 break
