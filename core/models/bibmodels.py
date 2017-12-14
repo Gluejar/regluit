@@ -1089,6 +1089,7 @@ class EbookFile(models.Model):
             new_ebook = Ebook.objects.create(
                 edition=self.edition,
                 format='mobi',
+                provider='Unglue.it',
                 url=new_mobi_ebf.file.url,
                 rights=self.ebook.rights,
                 version_label=self.ebook.version_label,
