@@ -110,6 +110,9 @@ class Transaction(models.Model):
     # whether the user wants to be not listed publicly
     anonymous = models.BooleanField(default=False)
 
+    # whether the transaction represents a donation
+    donation = models.BooleanField(default=False)
+
     @property
     def tier(self):
         if self.amount < 25:
@@ -210,24 +213,24 @@ class Transaction(models.Model):
         return pe
 
     @classmethod
-    def create(cls,amount=0.00, host=PAYMENT_HOST_NONE, max_amount=0.00, currency='USD',
-                status=TRANSACTION_STATUS_NONE,campaign=None, user=None, pledge_extra=None):
+    def create(cls, amount=0.00, host=PAYMENT_HOST_NONE, max_amount=0.00, currency='USD',
+                status=TRANSACTION_STATUS_NONE, campaign=None, user=None, pledge_extra=None,
+                donation=False):
         if user and user.is_anonymous():
             user = None
+        t = cls.objects.create(
+                amount=amount,
+                host=host,
+                max_amount=max_amount, 
+                currency=currency,
+                status=status,
+                campaign=campaign,
+                user=user,
+                donation=donation,
+        )
         if pledge_extra:
-            t = cls.objects.create(amount=amount,
-                                host=host,
-                                max_amount=max_amount, 
-                                currency=currency,
-                                status=status,
-                                campaign=campaign,
-                                user=user,
-                                )
             t.set_pledge_extra(pledge_extra)
-            return t
-        else:
-            return cls.objects.create(amount=amount, host=host, max_amount=max_amount, currency=currency,status=status,
-                                campaign=campaign, user=user)
+        return t
                             
 class PaymentResponse(models.Model):
     # The API used

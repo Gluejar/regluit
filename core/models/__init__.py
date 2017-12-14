@@ -400,6 +400,7 @@ class Campaign(models.Model):
     publisher = models.ForeignKey("Publisher", related_name="campaigns", null=True)
     do_watermark = models.BooleanField(default=True)
     use_add_ask = models.BooleanField(default=True)
+    charitable = models.BooleanField(default=False)
 
     def __init__(self, *args, **kwargs):
         self.problems = []

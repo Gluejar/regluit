@@ -24,6 +24,10 @@ input[type="submit"], a.fakeinput {
 
 form.pledgeform {
 	width: 470px;
+	
+	.pledgeform_label {
+	    font-size: 80%
+	}
 }
 
 #id_preapproval_amount {
@@ -103,6 +107,21 @@ ul#offers_list li {
 	}
 
 }
+
+.premiums_inactive#select_premiums {
+    background: $blue-grey;	
+    
+    div, div.pledge_amount, ul li, ul li:hover {
+            background: $blue-grey;	
+			color: $text-blue
+    }
+}
+
+#premium_note {
+    font-size: 70%;
+    font-style: italic;
+}
+
 #mandatory_premiums {
 	font-size: $font-size-larger;
 

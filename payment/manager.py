@@ -672,13 +672,14 @@ class PaymentManager( object ):
 
 
             
-    def process_transaction(self, currency,  amount, host=PAYMENT_HOST_NONE, campaign=None,  user=None,
-                  return_url=None, paymentReason="unglue.it Pledge",  pledge_extra=None,
-                  modification=False):
+    def process_transaction(self, currency,  amount, host=PAYMENT_HOST_NONE, campaign=None, 
+         user=None, return_url=None, paymentReason="unglue.it Pledge",  pledge_extra=None,
+         donation=False, modification=False):
         '''
         process
         
-        saves and processes a proposed transaction; decides if the transaction should be processed immediately.
+        saves and processes a proposed transaction; decides if the transaction should be processed 
+        immediately.
         
         currency: a 3-letter currency code, i.e. USD
         amount: the amount to authorize
@@ -690,8 +691,9 @@ class PaymentManager( object ):
         modification: whether this authorize call is part of a modification of an existing pledge
         pledge_extra: extra pledge stuff
         
-        return value: a tuple of the new transaction object and a re-direct url.  If the process fails,
-                      the redirect url will be None
+        return value: a tuple of the new transaction object and a re-direct url.  
+                      If the process fails, the redirect url will be None
+        donation: transaction is a donation
         '''    
         # set the expiry date based on the campaign deadline
         if campaign and campaign.deadline:
@@ -699,14 +701,16 @@ class PaymentManager( object ):
         else:
             expiry = now() + timedelta(days=settings.PREAPPROVAL_PERIOD_AFTER_CAMPAIGN)
 
-        t = Transaction.create(amount=0,
-                                   host = host,
-                                   max_amount=amount,
-                                   currency=currency,
-                                   campaign=campaign,
-                                   user=user,
-                                   pledge_extra=pledge_extra
-                                   )
+        t = Transaction.create(
+                amount=0,
+                host = host,
+                max_amount=amount,
+                currency=currency,
+                campaign=campaign,
+                user=user,
+                pledge_extra=pledge_extra,
+                donation=donation,
+        )
         t.save()
         # does user have enough credit to transact now?
         if user.is_authenticated() and user.credit.available >= amount :

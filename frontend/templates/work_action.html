@@ -3,9 +3,11 @@
     {% if status == 'ACTIVE' %}
       {% if work.last_campaign.type == 1 %}
         {% if pledged %}
-            <div class="btn_support modify"><form action="{% url 'pledge_modify' work_id %}" method="get"><input type="submit" value="Modify Pledge" /></form></div>
+            <div class="btn_support modify"><form action="{% url 'pledge_modify' work_id %}" method="get"><input type="submit" value="Modify Support" /></form></div>
+        {% elif supported %}
+            <div class="btn_support"><form action="{% url 'pledge' work_id %}" method="get"><input type="submit" value="Add Support" /></form></div>
         {% else %}
-            <div class="btn_support"><form action="{% url 'pledge' work_id %}" method="get"><input type="submit" value="Pledge" /></form></div>
+            <div class="btn_support"><form action="{% url 'pledge' work_id %}" method="get"><input type="submit" value="Support" /></form></div>
         {% endif %}
       {% elif work.last_campaign.type == 3 %}
         <div class="btn_support">

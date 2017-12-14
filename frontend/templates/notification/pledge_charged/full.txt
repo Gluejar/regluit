@@ -1,4 +1,19 @@
-{% load humanize %}An Ungluing!
+{% load humanize %}{% if transaction.donation %}{% ifequal transaction.host 'credit' %}Your Unglue.it transaction has completed and ${{transaction.max_amount|default:"0"}} has been deducted from your Unglue.it credit balance. You have ${{transaction.user.credit.available|default:"0"}} of credit left. {% else %}{% if transaction.max_amount > transaction.amount %}Your transaction for ${{transaction.max_amount|default:"0"}} has completed. Your credit card has been charged ${{transaction.amount}} and the rest has been deducted from your unglue.it credit balance. You have ${{transaction.user.credit.available|default:"0"}} of credit left. {% else %}Your Unglue.it credit card transaction has completed and your credit card has been charged ${{ transaction.amount|default:"0" }}. {% endif %}{% endifequal %}
+
+Your donation of ${{transaction.max_amount|default:"0"}} to the Free Ebook Foundation will support our effort to release {{ transaction.campaign.work.title }} to the world in an unglued ebook edition. We'll email you if the campaign succeeds, and when the ebook is available for download. If you'd like to visit the campaign page, click here: 
+https://{{ current_site.domain }}{% url 'work' transaction.campaign.work_id %}
+
+In case the campaign for {{ transaction.campaign.work.title }} does not succeed, we'll use your donation in support of other qualifying ungluing campaigns which qualify for charitable support.
+
+The Free Ebook Foundation is a US 501(c)3 non-profit organization. Our tax ID number is 61-1767266. Your gift is tax deductible to the full extent provided by the law.
+
+For more information about the Free Ebook Foundation, visit https://ebookfoundation.org/
+
+Thank you again for your generous support.
+
+{{ transaction.campaign.rightsholder }} and the Unglue.it team
+
+{% else %}An Ungluing!
 
 Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be released to the world in an unglued ebook edition. Your credit card has been charged ${{ transaction.amount|floatformat:2|intcomma }}.
 
@@ -13,4 +28,4 @@ https://{{ current_site.domain }}{% url 'work' transaction.campaign.work_id %}
 Thank you again for your support.
 
 {{ transaction.campaign.rightsholder }} and the Unglue.it team
-
+{% endif %}

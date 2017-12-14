@@ -347,8 +347,10 @@ def work(request, work_id, action='display'):
     campaign = work.last_campaign()
     editions = work.editions.all().order_by('-publication_date')[:10]
     try:
-        pledged = campaign.transactions().filter(user=request.user, status="ACTIVE")
+        supported =  campaign.transactions().filter(user=request.user)
+        pledged = supported.filter(status="ACTIVE")
     except:
+        supported = None
         pledged = None
 
     cover_width_number = 0
@@ -400,6 +402,7 @@ def work(request, work_id, action='display'):
         'base_url': base_url,
         'editions': editions,
         'pledged': pledged,
+        'supported': supported,
         'activetab': activetab,
         'alert': alert,
         'claimstatus': claimstatus,
@@ -1020,7 +1023,8 @@ class PledgeView(FormView):
                     campaign=self.campaign,
                     user=self.request.user,
                     paymentReason="Unglue.it Pledge for {0}".format(self.campaign.name),
-                    pledge_extra=form.trans_extra
+                    pledge_extra=form.trans_extra,
+                    donation = form.cleaned_data['donation']
                     )
             if url:
                 logger.info("PledgeView url: " + url)
@@ -1158,7 +1162,7 @@ class FundView(FormView):
         if not self.transaction.campaign:
             self.action = 'donation'
         elif self.transaction.campaign.type == REWARDS:
-            self.action = 'pledge'
+            self.action = 'donation' if self.transaction.donation else 'pledge'
         elif self.transaction.campaign.type == THANKS:
             self.action = 'contribution'
         else:

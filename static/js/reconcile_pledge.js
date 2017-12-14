@@ -10,7 +10,9 @@ $j().ready(function() {
 	var submitbutton = $j('#pledgesubmit');
 	var fakesubmitbutton = $j('#fakepledgesubmit');
 	var anonbox = $j('#anonbox input');
+	var donationbox =  $j('#id_donation');
 	var ackSection = $j('#ack_section');
+	var premium_section = $j('#select_premiums');
 	var supporterName = $j('#pass_supporter_name').html();
 	var ackName = $j('#id_ack_name').val();
 	var ackDedication = $j('#id_ack_dedication').val();
@@ -72,6 +74,21 @@ $j().ready(function() {
 		$j('#'+mySpan+' input[type=text]').val('').attr('disabled', 'disabled');
 	}
 
+	// make premium selection inactive: greyed-out and not modifiable
+	var deactivate_premiums = function() {
+		premium_section.addClass('premiums_inactive');
+		$j('#premiums_list li label input').attr('disabled', 'disabled');
+		$j('#premiums_list li:first-child label input').removeAttr('disabled').attr('checked', 'checked');
+		$j('#premium_note').text(' (not available with donation)');
+	}
+
+	// make premium selection inactive: greyed-out and not modifiable
+	var activate_premiums = function() {
+		premium_section.removeClass('premiums_inactive');
+		$j('#premiums_list li label input').removeAttr('disabled');
+		$j('#premium_note').text('');
+	}
+
 	// fill mandatory premium link input with supporter page
 	var activateLink = function() {
 		$j('#ack_link').removeClass('ack_inactive').addClass('ack_active');
@@ -86,6 +103,15 @@ $j().ready(function() {
 		deactivate('ack_name');
 		$j('#id_ack_name').val('Anonymous');
 	}
+
+	// when supporter clicks the donation box, activate/deactivate premium selection
+	donationbox.change(function() {
+		if(this.checked) {
+		    deactivate_premiums();
+		} else {
+		    activate_premiums();
+		}
+	});
 	
 	// selectively highlight/grey out acknowledgements supporter is eligible for
 	var rectifyAcknowledgements = function(current) {
