@@ -12,9 +12,9 @@
 				<div class="moreinfo create-account">
 				<span title="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">Login to Fave</span>
 				</div>
-			{% elif request.user.id in supporters %}
+			{% elif supported %}
 				<div class="moreinfo on-wishlist">
-					<a href="{% url 'work' workid %}">Pledged!</a>
+					<a href="{% url 'work' workid %}">Supported!</a>
 				</div>
 			{% elif supporter == request.user %}
 				{% if wishlist %}

@@ -385,12 +385,12 @@ class CampaignPledgeForm(forms.Form):
         min_value=D('1.00'),
         max_value=D('2000.00'),
         decimal_places=2,
-        label="Pledge Amount",
+        label="Support Amount",
     )
     def amount(self):
         return self.cleaned_data["preapproval_amount"] if self.cleaned_data else None
 
-    anonymous = forms.BooleanField(required=False, label=_("Make this pledge anonymous, please"))
+    anonymous = forms.BooleanField(required=False, label=_("Make this support anonymous, please"))
     ack_name = forms.CharField(
         required=False,
         max_length=64,
@@ -399,6 +399,7 @@ class CampaignPledgeForm(forms.Form):
     ack_dedication = forms.CharField(required=False, max_length=140, label=_("Your dedication:"))
 
     premium_id = forms.IntegerField(required=False)
+    donation = forms.BooleanField(required=False, label=_("Make this a donation, not a pledge."))
     premium = None
 
     @property

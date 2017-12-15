@@ -15,12 +15,12 @@ def bookpanel(context):
     # campaign is ACTIVE, type 1 - REWARDS
     # user has not pledged or user is anonymous
     
-    show_pledge = False
-    if campaign and campaign.type==REWARDS:
+    supported = False
+    if campaign and campaign.type == REWARDS:
         if campaign.status == 'ACTIVE':
-            if user.is_anonymous() or not user.id in context.get('supporters', []):
-                show_pledge = True
-    context['show_pledge'] = show_pledge          
+            if not user.is_anonymous() and user.transaction_set.filter(campaign__work=work):
+                supported = True
+    context['supported'] = supported       
     
     # compute a boolean that's true if bookpanel should show a "purchase" button...
     # campaign is ACTIVE, type 2 - BUY2UNGLUE
@@ -30,7 +30,7 @@ def bookpanel(context):
     # not on the library page
     
     show_purchase = False
-    if campaign and campaign.type==BUY2UNGLUE:
+    if campaign and campaign.type == BUY2UNGLUE:
         if user.is_anonymous() or not context.get('license_is_active', False):
             if campaign.status == 'ACTIVE':
                 if not context.get('borrowable', False):
