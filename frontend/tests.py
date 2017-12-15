@@ -164,6 +164,15 @@ class PageTests(TestCase):
         r = anon_client.get("/free/epub/gfdl/")
         self.assertEqual(r.status_code, 200)
 
+    def test_static(self):
+        # not logged in
+        anon_client = Client()
+        r = anon_client.get("/static/js/sitewide1.js")
+        self.assertEqual(r.status_code, 200)
+        r = anon_client.get("/static/scss/pledge.css")
+        self.assertEqual(r.status_code, 200)
+        
+
 class GoogleBooksTest(TestCase):
     fixtures = ['initial_data.json', 'neuromancer.json']
     def test_googlebooks_id(self):
