@@ -944,10 +944,15 @@ class PledgeView(FormView):
             # Campaign must be ACTIVE
             assert self.campaign.status == 'ACTIVE'
         except Exception, e:
-            # this used to raise an exception, but that seemed pointless. This now has the effect of preventing any pledges.
+            # this used to raise an exception, but that seemed pointless. 
+            # This now has the effect of preventing any pledges.
             return {}
 
-        transactions = self.campaign.transactions().filter(user=self.request.user, status=TRANSACTION_STATUS_ACTIVE, type=PAYMENT_TYPE_AUTHORIZATION)
+        transactions = self.campaign.transactions().filter(
+            user=self.request.user,
+            status=TRANSACTION_STATUS_ACTIVE,
+            type=PAYMENT_TYPE_AUTHORIZATION
+        )
         premium_id = self.request.GET.get('premium_id', self.request.POST.get('premium_id', 150))
         if transactions.count() == 0:
             ack_name = self.request.user.profile.ack_name
@@ -998,40 +1003,55 @@ class PledgeView(FormView):
         return context
 
     def form_valid(self, form):
-        # right now, if there is a non-zero pledge amount, go with that. otherwise, do the pre_approval
-
+        # right now, if there is a non-zero pledge amount, go with that. 
+        # otherwise, do the pre_approval
+        donation = form.cleaned_data['donation']
         p = PaymentManager()
         if self.transaction:
-            # modifying the transaction...
-            assert self.transaction.type == PAYMENT_TYPE_AUTHORIZATION and self.transaction.status == TRANSACTION_STATUS_ACTIVE
-            status,  url = p.modify_transaction(self.transaction, form.cleaned_data["preapproval_amount"],
-                    paymentReason="Unglue.it %s for %s"% (self.action, self.campaign.name) ,
-                    pledge_extra = form.trans_extra
-                    )
-            logger.info("status: {0}, url:{1}".format(status, url))
+            assert self.transaction.type == PAYMENT_TYPE_AUTHORIZATION and \
+                    self.transaction.status == TRANSACTION_STATUS_ACTIVE
 
-            if status and url is not None:
-                logger.info("PledgeView (Modify): " + url)
-                return HttpResponseRedirect(url)
-            elif status and url is None:
-                return HttpResponseRedirect("{0}?tid={1}".format(reverse('pledge_modified'), self.transaction.id))
+            if donation:
+                # cancel transaction, then proceed to make a donation
+                p.cancel_transaction(self.transaction)
             else:
-                return HttpResponse("No modification made")
-        else:
-            t, url = p.process_transaction('USD',  form.amount(),
-                    host = PAYMENT_HOST_NONE,
-                    campaign=self.campaign,
-                    user=self.request.user,
-                    paymentReason="Unglue.it Pledge for {0}".format(self.campaign.name),
+                # modify the pledge...
+                status,  url = p.modify_transaction(
+                    self.transaction,
+                    form.cleaned_data["preapproval_amount"],
+                    paymentReason="Unglue.it %s for %s"% (self.action, self.campaign.name),
                     pledge_extra=form.trans_extra,
-                    donation = form.cleaned_data['donation']
+                )
+                logger.info("status: {0}, url:{1}".format(status, url))
+
+                if status and url is not None:
+                    logger.info("PledgeView (Modify): " + url)
+                    return HttpResponseRedirect(url)
+                elif status and url is None:
+                    return HttpResponseRedirect(
+                        "{0}?tid={1}".format(reverse('pledge_modified'), self.transaction.id)
                     )
-            if url:
-                logger.info("PledgeView url: " + url)
-                return HttpResponseRedirect(url)
-            else:
-                logger.error("Attempt to produce transaction id {0} failed".format(t.id))
-                return HttpResponse("Our attempt to enable your transaction failed. We have logged this error.")
+                else:
+                    return HttpResponse("No modification made")
+
+        t, url = p.process_transaction(
+            'USD',
+            form.amount(),
+            host = PAYMENT_HOST_NONE,
+            campaign=self.campaign,
+            user=self.request.user,
+            paymentReason="Unglue.it Pledge for {0}".format(self.campaign.name),
+            pledge_extra=form.trans_extra,
+            donation = donation
+        )
+        if url:
+            logger.info("PledgeView url: " + url)
+            return HttpResponseRedirect(url)
+        else:
+            logger.error("Attempt to produce transaction id {0} failed".format(t.id))
+            return HttpResponse(
+                "Our attempt to enable your transaction failed. We have logged this error."
+            )
 
 class PurchaseView(PledgeView):
     template_name = "purchase.html"

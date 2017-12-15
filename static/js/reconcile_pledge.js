@@ -108,8 +108,10 @@ $j().ready(function() {
 	donationbox.change(function() {
 		if(this.checked) {
 		    deactivate_premiums();
+		    $j('#change_pledge_notice').addClass('yikes');
 		} else {
 		    activate_premiums();
+		    $j('#change_pledge_notice').removeClass('yikes')
 		}
 	});
 	

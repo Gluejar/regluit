@@ -791,7 +791,7 @@ class PaymentManager( object ):
         modify
         
         Modifies a transaction.  
-        2 main situations:  if the new amount is less than max_amount, no need to go out to PayPal again
+        2 main situations:  if the new amount is less than max_amount, no need to go out to Stripe again
         if new amount is greater than max_amount...need to go out and get new approval.
         to start with, we can use the standard pledge_complete, pledge_cancel machinery
         might have to modify the pledge_complete, pledge_cancel because the messages are going to be
