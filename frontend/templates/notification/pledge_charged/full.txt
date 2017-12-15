@@ -3,7 +3,7 @@
 Your donation of ${{transaction.max_amount|default:"0"}} to the Free Ebook Foundation will support our effort to release {{ transaction.campaign.work.title }} to the world in an unglued ebook edition. We'll email you if the campaign succeeds, and when the ebook is available for download. If you'd like to visit the campaign page, click here: 
 https://{{ current_site.domain }}{% url 'work' transaction.campaign.work_id %}
 
-In case the campaign for {{ transaction.campaign.work.title }} does not succeed, we'll use your donation in support of other qualifying ungluing campaigns which qualify for charitable support.
+In case the campaign for {{ transaction.campaign.work.title }} does not succeed, we'll use your donation in support of other ungluing campaigns which qualify for charitable support.
 
 The Free Ebook Foundation is a US 501(c)3 non-profit organization. Our tax ID number is 61-1767266. Your gift is tax deductible to the full extent provided by the law.
 

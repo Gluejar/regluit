@@ -85,3 +85,7 @@ UNGLUEIT_TEST_PASSWORD = None
 
 # local settings for maintenance mode
 MAINTENANCE_MODE = False
+
+# assume that CSS will get generated on dev
+SASS_OUTPUT_STYLE = 'compressed'
+

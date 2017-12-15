@@ -436,6 +436,10 @@ class CampaignPledgeForm(forms.Form):
         elif preapproval_amount < self.premium.amount:
             logger.info("raising form validating error")
             raise forms.ValidationError(_("Sorry, you must pledge at least $%s to select that premium." % (self.premium.amount)))
+        donation = self.cleaned_data.get('donation', False)
+        if donation and self.premium.amount > 0:
+            raise forms.ValidationError(_("Sorry, donations are not eligible for premiums."))
+        
         return self.cleaned_data
 
 class TokenCCMixin(forms.Form):
