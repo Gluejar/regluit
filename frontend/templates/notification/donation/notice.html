@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block comments_graphical %}
-{% ifequal transaction.host 'credit' %}
+{% if transaction.host == 'credit' %}
     Your Unglue.it transaction has completed and ${{transaction.max_amount|floatformat:2|intcomma}} has been deducted from your Unglue.it credit balance.
     You have ${{transaction.user.credit.available|default:"0"}} of credit left.
 {% else %}
@@ -19,7 +19,7 @@
     {% else %}
         Your Unglue.it credit card transaction has completed and your credit card has been charged ${{ transaction.amount|floatformat:2|intcomma }}.
     {% endif %}
-{% endifequal %}
+{% endif %}
 {% endblock %}
 
 {% block comments_textual %}

@@ -1,9 +1,10 @@
 {% extends 'basedocumentation.html' %}
+{% load sass_tags %}
 
 {% block title %}Your Unglue.it Account{% endblock %}
 {% block extra_extra_head %}
 {{ block.super }}
-<link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/pledge.scss' %}" />
 
 {% include "stripe_stuff.html" %}
 <script>

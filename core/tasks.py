@@ -200,9 +200,11 @@ def notify_unclaimed_gifts():
     unclaimed = Gift.objects.filter(used=None)
     for gift in unclaimed:
         """
-        send notice every 7 days
+        send notice every 7 days, but stop at 10x
         """
         unclaimed_duration = (now() - gift.acq.created ).days
+        if unclaimed_duration > 70:
+            return
         if unclaimed_duration > 0 and unclaimed_duration % 7 == 0 : # first notice in 7 days
             notification.send_now([gift.acq.user], "purchase_gift_waiting", {'gift':gift}, True)
             notification.send_now([gift.giver], "purchase_notgot_gift", {'gift':gift}, True)

@@ -24,7 +24,7 @@ certifi==2016.2.28
 django-celery==3.1.17
 django-ckeditor==4.5.1
 #django-email-change==0.2.3
-git+git://github.com/eshellman/django-email-change.git@e5076a9a2c9a9b61b58cea7e461c8368af07b2ad
+git+git://github.com/eshellman/django-email-change.git@1e71dd320504d56b1fc7d447ce4cffb550cedce7
 django-compat==1.0.10
 django-contrib-comments==1.7.1
 django-endless-pagination==2.0
@@ -43,7 +43,7 @@ django-storages==1.4.1
 django-tastypie==0.13.3
 django-transmeta==0.7.3
 feedparser==5.1.2
-fef-questionnaire==4.0.0
+fef-questionnaire==4.0.1
 freebase==1.0.8
 #gitenberg.metadata==0.1.6
 git+https://github.com/gitenberg-dev/gitberg-build
@@ -104,3 +104,7 @@ setuptools==25.0.0
 urllib3==1.16
 beautifulsoup4==4.6.0
 RISparser==0.4.2
+# include these 2 for development
+#libsass==0.13.4
+#django-compressor==2.2
+django-sass-processor==0.5.6

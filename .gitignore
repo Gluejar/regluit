@@ -11,4 +11,6 @@ build
 deploy/last-update
 logs/*
 celerybeat.pid
+celerybeat-schedule
 .gitignore~
+static/scss/*.css.map

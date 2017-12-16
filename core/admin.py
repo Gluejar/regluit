@@ -68,6 +68,7 @@ class AcqAdmin(ModelAdmin):
 class PremiumAdmin(ModelAdmin):
     list_display = ('campaign', 'amount', 'description')
     date_hierarchy = 'created'
+    fields = ('type', 'amount', 'description', 'limit')
 
 class CampaignAdminForm(forms.ModelForm):
     managers = AutoCompleteSelectMultipleField(
@@ -77,8 +78,10 @@ class CampaignAdminForm(forms.ModelForm):
         )
     class Meta(object):
         model = models.Campaign
-        fields = ('managers', 'name', 'description', 'details', 'license', 'activated', 'paypal_receiver', 
-            'status', 'type', 'email', 'do_watermark', 'use_add_ask', )
+        fields = (
+            'managers', 'name', 'description', 'details', 'license', 'paypal_receiver', 
+            'status', 'type', 'email', 'do_watermark', 'use_add_ask', 'charitable',
+        )
 
 class CampaignAdmin(ModelAdmin):
     list_display = ('work', 'created', 'status')

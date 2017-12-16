@@ -1,10 +1,10 @@
 {% load humanize %}
 {% load libraryauthtags %}
 <div class="trans_summary">
-{% ifequal transaction.campaign.type 1 %}
-    Your pledge: ${{transaction.amount|floatformat:2|intcomma}}.<br />
-    Your premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}You did not request a premium for this campaign.{% endif %}<br />
-    {% if transaction.anonymous %}You asked to pledge anonymously, so you will be counted but not named on the list of supporters.<br />{% endif %}<br />
+{% if transaction.campaign.type == 1 %}
+    Your {% if transaction.donation %}donation{% else %}pledge{% endif %}: ${{transaction.amount|floatformat:2|intcomma}}.<br />
+    {% if transaction.premium %}Your premium: {{ transaction.premium.description }}{% endif %}<br />
+    {% if transaction.anonymous %}You asked to support anonymously, so you will be counted but not named on the list of supporters.<br />{% endif %}<br />
     Acknowledgements: <ul>
 		<li>The unglued ebook will be delivered to your inbox.</li>
 	{% if not transaction.anonymous %}
@@ -22,9 +22,8 @@
 	    <li>The following dedication will be included: <i>{{ transaction.extra.ack_dedication }}</i></li>
 	{% endif %}
 	</ul>
-{% endifequal %}
-{% if transaction.campaign.type == 2 or not transaction.campaign %}
-    {% ifequal transaction.host 'credit' %}
+{% elif transaction.campaign.type == 2 or not transaction.campaign %}
+    {% if transaction.host == 'credit' %}
         Amount: ${{transaction.max_amount|floatformat:2|intcomma}}.<br />
         This amount has been deducted from your Unglue.it credit balance.<br />
         You have ${{request.user.credit.available|default:"0"}} of credit left.<br />
@@ -37,13 +36,13 @@
         {% else %}
             This amount has been charged to your credit card.<br />
         {% endif %}
-    {% endifequal %}
+    {% endif %}
     {% if transaction.campaign %}
     License type: {{ transaction.offer.get_license_display }}<br />
-	{% ifequal transaction.offer.license 2 %}
+	{% if transaction.offer.license == 2 %}
 	    Receiving library: {{ transaction.extra.library_id|libname }}<br />
 	    Number of copies: {{ transaction.extra.copies }}
-	{% endifequal %}
+	{% endif %}
 	{% endif %}
 {% endif %}
 
