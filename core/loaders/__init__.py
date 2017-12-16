@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 
+from django.conf import settings
+
 from gitenberg.metadata.pandata import Pandata
 
 from regluit.core.bookloader import add_from_bookdatas, BasePandataLoader
