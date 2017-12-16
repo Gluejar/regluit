@@ -67,13 +67,14 @@ class SpringerScraper(BaseScraper):
     
     def get_title(self):
         el =  self.doc.select_one('#book-title')
+        value = ''
         if el:
             value = el.text.strip()
             if value:
                 value = value.replace('\n', ': ', 1)
                 self.set('title', value)
         if not value:
-            (SpringerScraper, self).get_title()
+            super(SpringerScraper, self).get_title()
     
     def get_role(self):
         if self.doc.select_one('#editors'):
@@ -109,7 +110,7 @@ class SpringerScraper(BaseScraper):
     @classmethod
     def can_scrape(cls, url):
         ''' return True if the class can scrape the URL '''
-        return url.find('10.1007') or url.find('10.1057')
+        return url.find('10.1007') >= 0 or url.find('10.1057') >= 0
         
 
 search_url = 'https://link.springer.com/search/page/{}?facet-content-type=%22Book%22&package=openaccess'
