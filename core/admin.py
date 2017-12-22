@@ -21,7 +21,8 @@ from regluit.core.lookups import (
     PublisherNameLookup,
     WorkLookup,
     OwnerLookup,
-    EditionLookup
+    EditionLookup,
+    EbookLookup,
 )
 
 
@@ -165,21 +166,51 @@ class PublisherNameAdmin(ModelAdmin):
 class RelationAdmin(ModelAdmin):
     list_display = ('code', 'name')
     search_fields = ['name']
-    
+
+class EbookAdminForm(forms.ModelForm):
+    edition = AutoCompleteSelectField(
+            lookup_class=EditionLookup,
+            label='Edition',
+            widget=AutoCompleteSelectWidget(lookup_class=EditionLookup, attrs={'size':60}),
+            required=True,
+        )
+    class Meta(object):
+        model = models.Ebook
+        exclude = ('user', 'filesize', 'download_count')
+ 
 class EbookAdmin(ModelAdmin):
+    form = EbookAdminForm
     search_fields = ('edition__title','^url')  # search by provider using leading url
-    list_display = ('__unicode__','created', 'user','edition')
+    list_display = ('__unicode__','created', 'user', 'edition')
     date_hierarchy = 'created'
     ordering = ('edition__title',)
-    exclude = ('edition','user', 'filesize')
+    readonly_fields = ('user', 'filesize', 'download_count')
 
+class EbookFileAdminForm(forms.ModelForm):
+    edition = AutoCompleteSelectField(
+            lookup_class=EditionLookup,
+            label='Edition',
+            widget=AutoCompleteSelectWidget(lookup_class=EditionLookup, attrs={'size':60}),
+            required=True,
+        )
+    ebook = AutoCompleteSelectField(
+            lookup_class=EbookLookup,
+            label='Ebook',
+            widget=AutoCompleteSelectWidget(lookup_class=EbookLookup, attrs={'size':60}),
+            required=False,
+        )
+    class Meta(object):
+        model = models.EbookFile
+        fields = ('file', 'format', 'edition', 'ebook', 'source')
+ 
 class EbookFileAdmin(ModelAdmin):
+    form = EbookFileAdminForm
     search_fields = ('ebook__edition__title', 'source')  # search by provider using leading url
     list_display = ('created', 'format', 'ebook_link', 'asking')
     date_hierarchy = 'created'
     ordering = ('edition__work',)
-    fields = ('file', 'format', 'edition_link', 'ebook_link', 'source')
-    readonly_fields  = ('file', 'edition_link', 'ebook_link', 'ebook')
+    fields = ('file', 'format', 'edition', 'edition_link', 'ebook', 'ebook_link', 'source')
+    readonly_fields  = ('file', 'edition_link', 'ebook_link', )
     def edition_link(self, obj):
         if obj.edition:
             link = reverse("admin:core_edition_change", args=[obj.edition_id]) 
@@ -251,7 +282,7 @@ class IdentifierAdminForm(forms.ModelForm):
             lookup_class=EditionLookup,
             label='Edition',
             widget=AutoCompleteSelectWidget(lookup_class=EditionLookup, attrs={'size':60}),
-            required=True,
+            required=False,
         )
     class Meta(object):
         model = models.Identifier

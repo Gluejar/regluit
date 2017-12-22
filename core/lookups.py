@@ -3,7 +3,7 @@ from selectable.registry import registry
 
 from django.contrib.auth.models import User
 from django.db.models import Count
-from regluit.core.models import Work, PublisherName, Edition, Subject, EditionNote
+from regluit.core.models import Work, PublisherName, Edition, Subject, EditionNote, Ebook
 from regluit.utils.text import sanitize_line
 
 class OwnerLookup(ModelLookup):
@@ -32,6 +32,20 @@ class PublisherNameLookup(ModelLookup):
         publisher_name.save()
         return publisher_name
            
+class EbookLookup(ModelLookup):
+    model = Ebook
+    search_fields = ('edition__title__icontains',)
+    filters = {'edition__isnull': False, }
+
+    def get_item(self, value):
+        item = None
+        if value:
+            try:
+                item = Ebook.objects.get(pk=value)
+            except (ValueError, Ebook.DoesNotExist):
+                item = None
+        return item
+
 class EditionLookup(ModelLookup):
     model = Edition
     search_fields = ('title__icontains',)
@@ -70,3 +84,4 @@ registry.register(PublisherNameLookup)
 registry.register(EditionLookup)
 registry.register(SubjectLookup)
 registry.register(EditionNoteLookup)
+registry.register(EbookLookup)
