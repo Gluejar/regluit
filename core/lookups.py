@@ -13,12 +13,12 @@ class OwnerLookup(ModelLookup):
 class WorkLookup(ModelLookup):
     model = Work
     search_fields = ('title__istartswith',)
-    def get_item_label(self,item):
-        return "%s (%s, %s)"%(item.title,item.id,item.language)
-        
-    def get_item_value(self,item):
-        return "%s (%s, %s)"%(item.title,item.id,item.language)
-        
+    def get_item_label(self, item):
+        return "%s (%s, %s)"%(item.title, item.id, item.language)
+
+    def get_item_value(self, item):
+        return "%s (%s, %s)"%(item.title, item.id, item.language)
+
     def get_query(self, request, term):
         results = super(WorkLookup, self).get_query(request, term)
         return results
@@ -31,7 +31,7 @@ class PublisherNameLookup(ModelLookup):
         publisher_name, created = PublisherName.objects.get_or_create(name=value)
         publisher_name.save()
         return publisher_name
-           
+
 class EbookLookup(ModelLookup):
     model = Ebook
     search_fields = ('edition__title__icontains',)
@@ -66,9 +66,11 @@ class EditionLookup(ModelLookup):
 class SubjectLookup(ModelLookup):
     model = Subject
     search_fields = ('name__icontains',)
-    
+
     def get_query(self, request, term):
-        return super(SubjectLookup, self).get_query( request, term).annotate(Count('works')).order_by('-works__count')
+        return super(SubjectLookup, self).get_query(
+            request, term
+        ).annotate(Count('works')).order_by('-works__count')
 
 class EditionNoteLookup(ModelLookup):
     model = EditionNote
