@@ -8,9 +8,10 @@ from gitenberg.metadata.pandata import Pandata
 from regluit.core.bookloader import add_from_bookdatas, BasePandataLoader
 from .scrape import PressbooksScraper, HathitrustScraper, BaseScraper
 from .springer import SpringerScraper
+from .ubiquity import UbiquityScraper
 
 def get_scraper(url):
-    scrapers = [PressbooksScraper, HathitrustScraper, SpringerScraper, BaseScraper]
+    scrapers = [PressbooksScraper, HathitrustScraper, SpringerScraper, UbiquityScraper, BaseScraper]
     for scraper in scrapers:
         if scraper.can_scrape(url):
             return scraper(url)
