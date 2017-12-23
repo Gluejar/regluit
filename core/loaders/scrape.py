@@ -1,5 +1,6 @@
 import re
 import logging
+from urlparse import urlparse
 import requests
 from bs4 import BeautifulSoup
 #from gitenberg.metadata.pandata import Pandata
@@ -18,8 +19,27 @@ CONTAINS_OCLCNUM = re.compile('worldcat.org/oclc/(\d+)')
 
 class BaseScraper(object):
     '''
-    designed to make at least a decent gues for webpages that embed metadata
+    designed to make at least a decent guess for webpages that embed metadata
     '''
+    can_scrape_hosts = False
+    can_scrape_strings = [''] #should always return true
+    @classmethod
+    def can_scrape(cls, url):
+        ''' return True if the class can scrape the URL '''
+        if not (cls.can_scrape_hosts or cls.can_scrape_strings):
+            return True
+        if cls.can_scrape_hosts:
+            urlhost = urlparse(url).hostname
+            if urlhost:
+                for host in cls.can_scrape_hosts:
+                    if urlhost.endswith(host):
+                        return True
+        if cls.can_scrape_strings:
+            for pass_str in cls.can_scrape_strings:
+                if url.find(pass_str) >= 0:
+                    return True
+        return False
+
     def __init__(self, url):
         self.metadata = {}
         self.identifiers = {'http': url}
@@ -286,12 +306,12 @@ class BaseScraper(object):
         for link in links:
             self.set('rights_url', link['href'])
 
-    @classmethod
-    def can_scrape(cls, url):
-        ''' return True if the class can scrape the URL '''
-        return True
 
 class PressbooksScraper(BaseScraper):
+    can_scrape_hosts = ['bookkernel.com', 'milnepublishing.geneseo.edu',
+            'press.rebus.community', 'pb.unizin.org']
+    can_scrape_strings = ['pressbooks']
+
     def get_downloads(self):
         for dl_type in ['epub', 'mobi', 'pdf']:
             download_el = self.doc.select_one('.{}'.format(dl_type))
@@ -328,19 +348,12 @@ class PressbooksScraper(BaseScraper):
                 isbns[key] = isbn
         return isbns
 
-    @classmethod
-    def can_scrape(cls, url):
-        pb_sites = ['bookkernel.com','milnepublishing.geneseo.edu', 'pressbooks',
-            'press.rebus.community','pb.unizin.org']
-        ''' return True if the class can scrape the URL '''
-        for site in pb_sites:
-            if url.find(site) > 0:
-                return True
-        return False
 
 
 class HathitrustScraper(BaseScraper):
 
+    can_scrape_hosts = ['hathitrust.org']
+    can_scrape_strings = ['hdl.handle.net/2027/']
     CATALOG = re.compile(r'catalog.hathitrust.org/Record/(\d+)')
 
     def setup(self):
@@ -388,8 +401,3 @@ class HathitrustScraper(BaseScraper):
 
     def get_genre(self):
         self.set('genre', self.record.get('type_of_reference', '').lower())
-
-    @classmethod
-    def can_scrape(cls, url):
-        ''' return True if the class can scrape the URL '''
-        return url.find('hathitrust.org') > 0 or url.find('hdl.handle.net/2027/') > 0
