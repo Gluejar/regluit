@@ -3,7 +3,7 @@ from selectable.registry import registry
 
 from django.contrib.auth.models import User
 from django.db.models import Count
-from regluit.core.models import Work, PublisherName, Edition, Subject, EditionNote
+from regluit.core.models import Work, PublisherName, Edition, Subject, EditionNote, Ebook
 from regluit.utils.text import sanitize_line
 
 class OwnerLookup(ModelLookup):
@@ -13,12 +13,12 @@ class OwnerLookup(ModelLookup):
 class WorkLookup(ModelLookup):
     model = Work
     search_fields = ('title__istartswith',)
-    def get_item_label(self,item):
-        return "%s (%s, %s)"%(item.title,item.id,item.language)
-        
-    def get_item_value(self,item):
-        return "%s (%s, %s)"%(item.title,item.id,item.language)
-        
+    def get_item_label(self, item):
+        return "%s (%s, %s)"%(item.title, item.id, item.language)
+
+    def get_item_value(self, item):
+        return "%s (%s, %s)"%(item.title, item.id, item.language)
+
     def get_query(self, request, term):
         results = super(WorkLookup, self).get_query(request, term)
         return results
@@ -31,7 +31,21 @@ class PublisherNameLookup(ModelLookup):
         publisher_name, created = PublisherName.objects.get_or_create(name=value)
         publisher_name.save()
         return publisher_name
-           
+
+class EbookLookup(ModelLookup):
+    model = Ebook
+    search_fields = ('edition__title__icontains',)
+    filters = {'edition__isnull': False, }
+
+    def get_item(self, value):
+        item = None
+        if value:
+            try:
+                item = Ebook.objects.get(pk=value)
+            except (ValueError, Ebook.DoesNotExist):
+                item = None
+        return item
+
 class EditionLookup(ModelLookup):
     model = Edition
     search_fields = ('title__icontains',)
@@ -52,9 +66,11 @@ class EditionLookup(ModelLookup):
 class SubjectLookup(ModelLookup):
     model = Subject
     search_fields = ('name__icontains',)
-    
+
     def get_query(self, request, term):
-        return super(SubjectLookup, self).get_query( request, term).annotate(Count('works')).order_by('-works__count')
+        return super(SubjectLookup, self).get_query(
+            request, term
+        ).annotate(Count('works')).order_by('-works__count')
 
 class EditionNoteLookup(ModelLookup):
     model = EditionNote
@@ -70,3 +86,4 @@ registry.register(PublisherNameLookup)
 registry.register(EditionLookup)
 registry.register(SubjectLookup)
 registry.register(EditionNoteLookup)
+registry.register(EbookLookup)

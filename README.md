@@ -41,11 +41,13 @@ to install python-setuptools in step 1:
 1. `django-admin.py celeryd --loglevel=INFO` start the celery daemon to perform asynchronous tasks like adding related editions, and display logging information in the foreground.
 1. `django-admin.py celerybeat -l INFO` to start the celerybeat daemon to handle scheduled tasks.
 1. `django-admin.py runserver 0.0.0.0:8000` (you can change the port number from the default value of 8000)
+1. make sure a [redis server](https://redis.io/topics/quickstart) is running
 1. Point your browser to http://localhost:8000/
 
 CSS development
 
-1. We are using Less version 2.8 for CSS. http://incident57.com/less/. We use minified CSS.
+1. We used Less version 2.8 for CSS. http://incident57.com/less/. We use minified CSS.
+1. New CSS development is using SCSS. Install libsass and django-compressor.
 
 Production Deployment
 ---------------------
