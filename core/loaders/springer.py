@@ -1,8 +1,9 @@
 import re
-import requests
-
-from bs4 import BeautifulSoup
 from urlparse import urljoin
+
+import requests
+from bs4 import BeautifulSoup
+
 from django.conf import settings
 
 from regluit.core.validation import identifier_cleaner
@@ -14,11 +15,12 @@ MENTIONS_CC = re.compile(r'CC BY(-NC)?(-ND|-SA)?', flags=re.I)
 HAS_YEAR = re.compile(r'(19|20)\d\d')
 
 class SpringerScraper(BaseScraper):
+    can_scrape_strings =['10.1007', '10.1057']
     def get_downloads(self):
         for dl_type in ['epub', 'mobi', 'pdf']:
             download_el = self.doc.find('a', title=re.compile(dl_type.upper()))
             if download_el:
-                value = download_el.get('href') 
+                value = download_el.get('href')
                 if value:
                     value = urljoin(self.base, value)
                     self.set('download_url_{}'.format(dl_type), value)
@@ -31,7 +33,7 @@ class SpringerScraper(BaseScraper):
                 text = div.get_text() if hasattr(div, 'get_text') else div.string
                 if text:
                     text = text.replace(u'\xa0', u' ')
-                    value = u'{}<p>{}</p>'.format(value, text) 
+                    value = u'{}<p>{}</p>'.format(value, text)
             self.set('description', value)
 
     def get_keywords(self):
@@ -42,7 +44,7 @@ class SpringerScraper(BaseScraper):
             if 'Open Access' in value:
                 value.remove('Open Access')
             self.set('subjects',  value)
-    
+
     def get_identifiers(self):
         super(SpringerScraper, self).get_identifiers()
         el =  self.doc.select_one('#doi-url')
@@ -64,7 +66,7 @@ class SpringerScraper(BaseScraper):
             if value:
                 isbns['electronic'] = value
         return isbns
-    
+
     def get_title(self):
         el =  self.doc.select_one('#book-title')
         value = ''
@@ -75,7 +77,7 @@ class SpringerScraper(BaseScraper):
                 self.set('title', value)
         if not value:
             super(SpringerScraper, self).get_title()
-    
+
     def get_role(self):
         if self.doc.select_one('#editors'):
             return 'editor'
@@ -84,19 +86,19 @@ class SpringerScraper(BaseScraper):
     def get_author_list(self):
         for el in self.doc.select('.authors__name'):
             yield el.text.strip().replace(u'\xa0', u' ')
-            
+
     def get_license(self):
         '''only looks for cc licenses'''
         links = self.doc.find_all(href=CONTAINS_CC)
         for link in links:
             self.set('rights_url', link['href'])
             return
-        mention = self.doc.find(string=MENTIONS_CC)   
+        mention = self.doc.find(string=MENTIONS_CC)
         if mention:
             lic = MENTIONS_CC.search(mention).group(0)
             lic_url = 'https://creativecommons.org/licenses/{}/'.format(lic[3:].lower())
             self.set('rights_url', lic_url)
-            
+
     def get_pubdate(self):
         pubinfo = self.doc.select_one('#copyright-info')
         if pubinfo:
@@ -106,12 +108,6 @@ class SpringerScraper(BaseScraper):
 
     def get_publisher(self):
         self.set('publisher', 'Springer')
-
-    @classmethod
-    def can_scrape(cls, url):
-        ''' return True if the class can scrape the URL '''
-        return url.find('10.1007') >= 0 or url.find('10.1057') >= 0
-        
 
 search_url = 'https://link.springer.com/search/page/{}?facet-content-type=%22Book%22&package=openaccess'
 def load_springer(num_pages):

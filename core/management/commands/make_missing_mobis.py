@@ -23,7 +23,7 @@ class Command(BaseCommand):
                     ebf = ebook.get_archive_ebf()
                     if ebf:
                         try:
-                            print 'making mobi for {}'.format(work.title)
+                            print u'making mobi for {}'.format(work.title)
                             if ebf.make_mobi():
                                 print 'made mobi'
                                 i = i + 1
