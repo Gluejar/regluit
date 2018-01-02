@@ -22,7 +22,7 @@ class BaseScraper(object):
     designed to make at least a decent guess for webpages that embed metadata
     '''
     can_scrape_hosts = False
-    can_scrape_strings = [''] #should always return true
+    can_scrape_strings = False 
     @classmethod
     def can_scrape(cls, url):
         ''' return True if the class can scrape the URL '''
