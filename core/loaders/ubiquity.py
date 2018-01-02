@@ -22,7 +22,7 @@ class UbiquityScraper(BaseScraper):
 
     def get_language(self):
         langlabel = self.doc.find(string='Language')
-        lang = langlabel.parent.parent.find_next_sibling()
+        lang = langlabel.parent.parent.find_next_sibling() if langlabel else ''
         lang = lang.get_text() if lang else ''
         lang = get_language_code(lang) if lang else ''
         if lang:
