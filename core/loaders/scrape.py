@@ -101,6 +101,11 @@ class BaseScraper(object):
                 attrs['itemprop'] = meta_name
                 metas = self.doc.find_all('meta', attrs=attrs)
                 del(attrs['itemprop'])
+            if len(metas) == 0:
+                # og metadata in often in 'property' not name
+                attrs['property'] = meta_name
+                metas = self.doc.find_all('meta', attrs=attrs)
+                del(attrs['property'])
             for meta in metas:
                 el_value = meta.get('content', '').strip()
                 if list_mode == 'longest':
@@ -126,6 +131,8 @@ class BaseScraper(object):
         list_mode = attrs.pop('list_mode', 'list')
         attrs = {'itemprop': name}
         props = self.doc.find_all(attrs=attrs)
+        attrs = {'property': name}
+        props = props if props else  self.doc.find_all(attrs=attrs)
         for el in props:
             if list_mode == 'one_item':
                 return el.text if el.text else el.get('content')
@@ -181,7 +188,8 @@ class BaseScraper(object):
                 isbns[isbn_key] = value
                 self.identifiers[isbn_key] = value
         if not isbns:
-            values = self.get_itemprop('isbn')
+            values = self.check_metas(['book:isbn', 'books:isbn'], list_mode='list')
+            values = values if values else self.get_itemprop('isbn')
             if values:
                 value = isbn_cleaner(values[0])
                 isbns = {'':value} if value else {}
@@ -246,7 +254,10 @@ class BaseScraper(object):
     def get_pubdate(self):
         value = self.get_itemprop('datePublished', list_mode='one_item')
         if not value:
-            value = self.check_metas(['citation_publication_date', 'DC.Date.issued', 'datePublished'])
+            value = self.check_metas([
+                'citation_publication_date', 'DC.Date.issued', 'datePublished',
+                'books:release_date', 'book:release_date'
+            ])
         if value:
             self.set('publication_date', value)
 
@@ -281,7 +292,7 @@ class BaseScraper(object):
         self.set('creator', {'{}s'.format(role): creator_list })
 
     def get_cover(self):
-        image_url = self.check_metas(['og.image', 'image', 'twitter:image'])
+        image_url = self.check_metas(['og:image', 'image', 'twitter:image'])
         if not image_url:
             block = self.doc.find(class_=CONTAINS_COVER)
             block = block if block else self.doc

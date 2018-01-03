@@ -217,7 +217,7 @@
                 <span class="kw_id" id="l{{ workid }}" data-kw="{{setkw}}">Set <i>{{setkw}}</i></span>
             </div>
         {% endif %}
-    {% elif not supported %}
+    {% elif show_pledge %}
         <div class="listview panelfront side1 add-wishlist">
             <span class="booklist_pledge"><a href="{% url 'pledge' work_id=workid %}" class="fakeinput">Support</a></span>
         </div>
