@@ -92,8 +92,7 @@ class BaseScraper(object):
         value = ''
         list_mode = attrs.pop('list_mode', 'longest')
         for meta_name in meta_list:
-            attrs['name'] = meta_name
-
+            attrs['name'] = re.compile(meta_name, flags=re.I)
             metas = self.doc.find_all('meta', attrs=attrs)
             if len(metas) == 0:
                 # some sites put schema.org metadata in metas
@@ -151,24 +150,23 @@ class BaseScraper(object):
     #
 
     def get_genre(self):
-        value = self.check_metas(['DC.Type', 'dc.type', 'og:type'])
+        value = self.check_metas([r'dc\.type', 'og:type'])
         if value and value in ('Text.Book', 'book'):
             self.set('genre', 'book')
 
     def get_title(self):
-        value = self.check_metas(['DC.Title', 'dc.title', 'citation_title', 'og:title', 'title'])
+        value = self.check_metas([r'dc\.title', 'citation_title', 'og:title', 'title'])
         if not value:
             value =  self.fetch_one_el_content('title')
         self.set('title', value)
 
     def get_language(self):
-        value = self.check_metas(['DC.Language', 'dc.language', 'language', 'inLanguage'])
+        value = self.check_metas([r'dc\.language', 'language', 'inLanguage'])
         self.set('language', value)
 
     def get_description(self):
         value = self.check_metas([
-            'DC.Description',
-            'dc.description',
+            r'dc\.description',
             'og:description',
             'description'
         ])
@@ -196,14 +194,14 @@ class BaseScraper(object):
         return isbns
 
     def get_identifiers(self):
-        value = self.check_metas(['DC.Identifier.URI'])
+        value = self.check_metas([r'DC\.Identifier\.URI'])
         if not value:
             value = self.doc.select_one('link[rel=canonical]')
             value = value['href'] if value else None
         value = identifier_cleaner('http', quiet=True)(value)
         if value:
             self.identifiers['http'] = value
-        value = self.check_metas(['DC.Identifier.DOI', 'citation_doi'])
+        value = self.check_metas([r'DC\.Identifier\.DOI', 'citation_doi'])
         value = identifier_cleaner('doi', quiet=True)(value)
         if value:
             self.identifiers['doi'] = value
@@ -247,7 +245,7 @@ class BaseScraper(object):
             self.set('subjects', re.split(' *[;,] *', value))
 
     def get_publisher(self):
-        value = self.check_metas(['citation_publisher', 'DC.Source'])
+        value = self.check_metas(['citation_publisher', r'DC\.Source'])
         if value:
             self.set('publisher', value)
 
@@ -255,20 +253,20 @@ class BaseScraper(object):
         value = self.get_itemprop('datePublished', list_mode='one_item')
         if not value:
             value = self.check_metas([
-                'citation_publication_date', 'DC.Date.issued', 'datePublished',
+                'citation_publication_date', r'DC\.Date\.issued', 'datePublished',
                 'books:release_date', 'book:release_date'
             ])
         if value:
             self.set('publication_date', value)
 
     def get_author_list(self):
-        value_list = self.check_metas([
-            'DC.Creator.PersonalName',
-            'citation_author',
-            'author',
-        ], list_mode='list')
+        value_list = self.get_itemprop('author')
         if not value_list:
-            value_list = self.get_itemprop('author')
+            value_list = self.check_metas([
+                r'DC\.Creator\.PersonalName',
+                'citation_author',
+                'author',
+            ], list_mode='list')
             if not value_list:
                 return []
         return value_list
