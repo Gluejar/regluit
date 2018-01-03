@@ -6,7 +6,6 @@ from bs4 import BeautifulSoup
 #from gitenberg.metadata.pandata import Pandata
 from django.conf import settings
 from urlparse import urljoin
-from RISparser import read as readris
 
 from regluit.core import models
 from regluit.core.validation import authlist_cleaner, identifier_cleaner, validate_date
@@ -318,97 +317,6 @@ class BaseScraper(object):
             self.set('rights_url', link['href'])
 
 
-class PressbooksScraper(BaseScraper):
-    can_scrape_hosts = ['bookkernel.com', 'milnepublishing.geneseo.edu',
-            'press.rebus.community', 'pb.unizin.org']
-    can_scrape_strings = ['pressbooks']
-
-    def get_downloads(self):
-        for dl_type in ['epub', 'mobi', 'pdf']:
-            download_el = self.doc.select_one('.{}'.format(dl_type))
-            if download_el and download_el.find_parent():
-                value = download_el.find_parent().get('href')
-                if value:
-                    self.set('download_url_{}'.format(dl_type), value)
-
-    def get_publisher(self):
-        value = self.get_dt_dd('Publisher')
-        if not value:
-            value = self.doc.select_one('.cie-name')
-            value = value.text if value else None
-        if value:
-            self.set('publisher', value)
-        else:
-            super(PressbooksScraper, self).get_publisher()
-
-    def get_title(self):
-        value = self.doc.select_one('.entry-title a[title]')
-        value = value['title'] if value else None
-        if value:
-            self.set('title', value)
-        else:
-            super(PressbooksScraper, self).get_title()
-
-    def get_isbns(self):
-        '''add isbn identifiers and return a dict of edition keys and ISBNs'''
-        isbns = {}
-        for (key, label) in [('electronic', 'Ebook ISBN'), ('paper', 'Print ISBN')]:
-            isbn = identifier_cleaner('isbn', quiet=True)(self.get_dt_dd(label))
-            if isbn:
-                self.identifiers['isbn_{}'.format(key)] = isbn
-                isbns[key] = isbn
-        return isbns
 
 
 
-class HathitrustScraper(BaseScraper):
-
-    can_scrape_hosts = ['hathitrust.org']
-    can_scrape_strings = ['hdl.handle.net/2027/']
-    CATALOG = re.compile(r'catalog.hathitrust.org/Record/(\d+)')
-
-    def setup(self):
-        catalog_a = self.doc.find('a', href=self.CATALOG)
-        if catalog_a:
-            catalog_num = self.CATALOG.search(catalog_a['href']).group(1)
-            ris_url = 'https://catalog.hathitrust.org/Search/SearchExport?handpicked={}&method=ris'.format(catalog_num)
-            response = requests.get(ris_url, headers={"User-Agent": settings.USER_AGENT})
-            records = readris(response.text.splitlines()) if response.status_code == 200 else []
-            for record in records:
-                self.record = record
-                return
-            self.record = {}
-
-
-    def get_downloads(self):
-        dl_a = self.doc.select_one('#fullPdfLink')
-        value = dl_a['href'] if dl_a else None
-        if value:
-            self.set(
-                'download_url_{}'.format('pdf'),
-                'https://babel.hathitrust.org{}'.format(value)
-            )
-
-    def get_isbns(self):
-        isbn = self.record.get('issn', [])
-        value = identifier_cleaner('isbn', quiet=True)(isbn)
-        return {'print': value} if value else {}
-
-    def get_title(self):
-        self.set('title', self.record.get('title', ''))
-
-    def get_keywords(self):
-        self.set('subjects', self.record.get('keywords', []))
-
-    def get_publisher(self):
-        self.set('publisher', self.record.get('publisher', ''))
-
-    def get_pubdate(self):
-        self.set('publication_date', self.record.get('year', ''))
-
-    def get_description(self):
-        notes = self.record.get('notes', [])
-        self.set('description', '\r'.join(notes))
-
-    def get_genre(self):
-        self.set('genre', self.record.get('type_of_reference', '').lower())

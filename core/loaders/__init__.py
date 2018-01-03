@@ -6,7 +6,9 @@ from django.conf import settings
 from gitenberg.metadata.pandata import Pandata
 
 from regluit.core.bookloader import add_from_bookdatas, BasePandataLoader
-from .scrape import PressbooksScraper, HathitrustScraper, BaseScraper
+from .scrape import BaseScraper
+from .hathitrust import HathitrustScraper
+from .pressbooks import PressbooksScraper
 from .springer import SpringerScraper
 from .ubiquity import UbiquityScraper
 
