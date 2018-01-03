@@ -21,6 +21,7 @@ from regluit.core.lookups import (
     EditionNoteLookup,
 )
 from regluit.bisac.models import BisacHeading
+from regluit.core.cc import CHOICES as RIGHTS_CHOICES
 from regluit.core.models import Edition, Identifier
 from regluit.core.parameters import (
     AGE_LEVEL_CHOICES,
@@ -122,6 +123,8 @@ class EditionForm(forms.ModelForm):
         required=False,
         allow_new=True,
         )
+    set_rights = forms.CharField(widget=forms.Select(choices=RIGHTS_CHOICES), required=False)
+    
     def __init__(self,  *args, **kwargs):
         super(EditionForm, self).__init__(*args, **kwargs)
         self.relators = []
