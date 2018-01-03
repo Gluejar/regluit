@@ -9,7 +9,7 @@ from urlparse import urljoin
 from RISparser import read as readris
 
 from regluit.core import models
-from regluit.core.validation import identifier_cleaner, authlist_cleaner
+from regluit.core.validation import authlist_cleaner, identifier_cleaner, validate_date
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +22,7 @@ class BaseScraper(object):
     designed to make at least a decent guess for webpages that embed metadata
     '''
     can_scrape_hosts = False
-    can_scrape_strings = False 
+    can_scrape_strings = False
     @classmethod
     def can_scrape(cls, url):
         ''' return True if the class can scrape the URL '''
@@ -257,7 +257,9 @@ class BaseScraper(object):
                 'books:release_date', 'book:release_date'
             ])
         if value:
-            self.set('publication_date', value)
+            value = validate_date(value)
+            if value:
+                self.set('publication_date', value)
 
     def get_author_list(self):
         value_list = self.get_itemprop('author')

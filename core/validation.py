@@ -3,6 +3,8 @@
 methods to validate and clean identifiers
 '''
 import re
+import datetime
+from dateutil.parser import parse
 
 from PyPDF2 import PdfFileReader
 
@@ -182,3 +184,21 @@ def auth_cleaner(auth):
     for auth in authlist:
         cleaned.append(spaces.sub(' ', auth.strip()))
     return cleaned
+
+MATCHYEAR = re.compile(r'(1|2)\d\d\d')
+MATCHYMD = re.compile(r'(1|2)\d\d\d-\d\d-\d\d')
+
+def validate_date(date_string):
+    ymd = MATCHYMD.search(date_string)
+    if ymd:
+        return ymd.group(0)
+    try:
+        date = parse(date_string.strip(), default=datetime.date(999,1,1))
+        if date.year != 999:
+            return date.strftime('%Y')
+    except ValueError:
+        year = MATCHYEAR.search(date_string)
+        if year:
+            return year.group(0)
+        else:
+            return ''
