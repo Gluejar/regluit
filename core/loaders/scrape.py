@@ -91,7 +91,7 @@ class BaseScraper(object):
         value = ''
         list_mode = attrs.pop('list_mode', 'longest')
         for meta_name in meta_list:
-            attrs['name'] = re.compile(meta_name, flags=re.I)
+            attrs['name'] = re.compile('^{}$'.format(meta_name), flags=re.I)
             metas = self.doc.find_all('meta', attrs=attrs)
             if len(metas) == 0:
                 # some sites put schema.org metadata in metas
