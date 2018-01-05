@@ -11,7 +11,15 @@
         Help us make  {{ work.title }} a Free eBook!
     {% endif %}{% if action == 'editions' %} – All Editions{% endif %}
 {% endblock %}
-
+{% block extra_meta %}
+<meta property="og:title" content="{{ work.title }}" />
+<meta property="og:type" content="book" />
+<meta property="og:url" content="https://unglue.it{% url 'work' work.id %}" />
+<meta property="og:image" content="{{ work.cover_image_thumbnail }}" />
+<meta property="og:site_name" content="Unglue.it" />
+{% for author in work.relators %}<meta property="book:author" content="{{ author.name }}" />{% endfor %}
+{% if work.first_isbn_13 %}<meta property="book:isbn" content="{{ work.first_isbn_13 }}" />{% endif %}
+{% endblock %}
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign2.css"  />
 {% if user.is_staff or user in work.last_campaign.managers.all %}
@@ -92,9 +100,9 @@
                                 <div>
                                         <div class="pubinfo">
                                             <h3 class="book-author">
-                                            <span  itemprop="author"><a href="{% url 'search' %}?q={{ work.relators.0.author.name|urlencode }}&amp;ty=au" />{{ work.relators.0.name }}</a></span>{% if work.authors.count == 2 %}
-                                                and <span  itemprop="author"><a href="{% url 'search' %}?q={{ work.relators.1.author.name|urlencode }}&amp;ty=au" />{{ work.relators.1.name }}</a></span>
-                                            {% endif %}{% if work.relators.count > 2 %}{% for author in work.relators %}{% if not forloop.first %}, <span  itemprop="author"><a href="{% url 'search' %}?q={{ author.author.name|urlencode }}&amp;ty=au" />{{ author.name }}</a></span>{% endif %}{% endfor %}
+                                            <span  itemprop="author"><a href="{% url 'search' %}?q={{ work.relators.0.author.name|urlencode }}&amp;ty=au" >{{ work.relators.0.name }}</a></span>{% if work.authors.count == 2 %}
+                                                and <span  itemprop="author"><a href="{% url 'search' %}?q={{ work.relators.1.author.name|urlencode }}&amp;ty=au" >{{ work.relators.1.name }}</a></span>
+                                            {% endif %}{% if work.relators.count > 2 %}{% for author in work.relators %}{% if not forloop.first %}, <span  itemprop="author"><a href="{% url 'search' %}?q={{ author.author.name|urlencode }}&amp;ty=au" >{{ author.name }}</a></span>{% endif %}{% endfor %}
                                             {% endif %}
                                             </h3>
                                             <h3 class="book-year"> 
@@ -295,7 +303,7 @@
                                     {% endfor %}
                                     {% if work.doab %}
                                     <p>
-                                    This book is included in <a href="http://www.doabooks.org/doab?func=search&query=rid%3A{{ work.doab }}">DOAB</a>.
+                                    This book is included in <a href="http://www.doabooks.org/doab?func=search&amp;query=rid%3A{{ work.doab }}">DOAB</a>.
                                     </p>
                                     {% endif %}
                                     {% if work.gtbg %}
@@ -332,7 +340,7 @@
                                                     </span>
                                                 </a>
                                                 <div class="show_supporter_contact_form" >
-                                                    <img src="/static/images/icons/email.png" title="contact supporter" />
+                                                    <img src="/static/images/icons/email.png" alt="email" title="contact supporter" />
                                                 </div>
                                                 <div class="info_for_managers">
                                                     {{ supporter }}<br />
