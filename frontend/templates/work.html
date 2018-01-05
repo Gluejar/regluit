@@ -11,7 +11,15 @@
         Help us make  {{ work.title }} a Free eBook!
     {% endif %}{% if action == 'editions' %} – All Editions{% endif %}
 {% endblock %}
-
+{% block extra_meta %}
+<meta property="og:title" content="{{ work.title }}" />
+<meta property="og:type" content="book" />
+<meta property="og:url" content="https://unglue.it{% url 'work' work.id %}" />
+<meta property="og:image" content="{{ work.cover_image_thumbnail }}" />
+<meta property="og:site_name" content="Unglue.it" />
+{% for author in work.relators %}<meta property="book:author" content="{{ author.name }}" />{% endfor %}
+{% if work.first_isbn_13 %}<meta property="book:isbn" content="{{ work.first_isbn_13 }}" />{% endif %}
+{% endblock %}
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="/static/css/campaign2.css"  />
 {% if user.is_staff or user in work.last_campaign.managers.all %}
