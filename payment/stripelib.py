@@ -46,6 +46,8 @@ STRIPE_EVENT_TYPES = ['account.updated', 'account.application.deauthorized', 'ba
     'charge.dispute.created', 'charge.dispute.updated', 'charge.dispute.closed',
     'customer.created', 'customer.updated', 'customer.deleted',
     'customer.card.created', 'customer.card.updated', 'customer.card.deleted',
+    'customer.source.created', 'customer.source.deleted', 'customer.source.expiring', 
+    'customer.source.updated',
     'customer.subscription.created', 'customer.subscription.updated',
     'customer.subscription.deleted', 'customer.subscription.trial_will_end',
     'customer.discount.created', 'customer.discount.updated',
