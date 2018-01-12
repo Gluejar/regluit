@@ -63,6 +63,7 @@ class RhPageTests(TestCase):
     def test_anonymous(self):
         anon_client = Client()
         r = anon_client.get("/work/{}/".format(self.work.id))
+        r = anon_client.head("/work/{}/".format(self.work.id))
         self.assertEqual(r.status_code, 200)
         csrfmatch =  re.search("name='csrfmiddlewaretoken' value='([^']*)'", r.content)
         self.assertFalse(csrfmatch)

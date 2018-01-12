@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% load humanize %}
+{% block title %}&#151; 
+    {% if work.is_free %}
+        {{ work.title }} is a Free eBook. {% for fmt in  work.formats %}[{{ fmt }}]{% endfor %}
+    {% else %}
+        Help us make  {{ work.title }} a Free eBook!
+    {% endif %}{% if action == 'editions' %} – All Editions{% endif %}
+{% endblock %}
+{% block extra_meta %}
+<meta property="og:title" content="{{ work.title }}" />
+<meta property="og:type" content="book" />
+<meta property="og:url" content="https://unglue.it{% url 'work' work.id %}" />
+<meta property="og:image" content="{{ work.cover_image_thumbnail }}" />
+<meta property="og:site_name" content="Unglue.it" />
+{% for author in work.relators %}<meta property="book:author" content="{{ author.name }}" />{% endfor %}
+{% if work.first_isbn_13 %}<meta property="book:isbn" content="{{ work.first_isbn_13 }}" />{% endif %}
+{% endblock %}
+
+
+{% block topsection %}
+    <div class="book-detail-info">
+        <div class="layout">
+            <h2 class="book-name" itemprop="name">{{ work.title }}</h2>
+        <div>
+                <div class="pubinfo">
+                    <h3 class="book-author">
+                    <span  itemprop="author"><a href="{% url 'search' %}?q={{ work.relators.0.author.name|urlencode }}&amp;ty=au" >{{ work.relators.0.name }}</a></span>{% if work.authors.count == 2 %}
+                        and <span  itemprop="author"><a href="{% url 'search' %}?q={{ work.relators.1.author.name|urlencode }}&amp;ty=au" >{{ work.relators.1.name }}</a></span>
+                    {% endif %}{% if work.relators.count > 2 %}{% for author in work.relators %}{% if not forloop.first %}, <span  itemprop="author"><a href="{% url 'search' %}?q={{ author.author.name|urlencode }}&amp;ty=au" >{{ author.name }}</a></span>{% endif %}{% endfor %}
+                    {% endif %}
+                    </h3>
+                    <h3 class="book-year"> 
+                        {% if work.last_campaign.publisher %}
+                        <span itemprop="publisher"><a href="{% url 'bypubname_list' work.last_campaign.publisher.name.id %}">{{ work.last_campaign.publisher }}</a></span>
+                        {% endif %}
+                        <span itemprop="datePublished">{{ work.publication_date }}</span>
+                        <meta itemprop="inLanguage" content="work.language" />
+                        <meta itemprop="typicalAgeRange" content="work.age_range" />
+                    </h3>
+                </div>
+            </div>
+    </div>
+{% endblock %}

@@ -300,7 +300,8 @@ def acks(request, work):
 def work(request, work_id, action='display'):
     work = safe_get_work(work_id)
     alert = ''
-
+    if request.method == "HEAD":
+        return render(request, 'worksummary.html', {'work': work,})
     formset = None
     if action == "acks":
         return acks(request, work)
