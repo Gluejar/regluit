@@ -300,7 +300,8 @@ def acks(request, work):
 def work(request, work_id, action='display'):
     work = safe_get_work(work_id)
     alert = ''
-
+    if request.method == "HEAD":
+        return render(request, 'worksummary.html', {'work': work,})
     formset = None
     if action == "acks":
         return acks(request, work)
@@ -524,11 +525,20 @@ def manage_ebooks(request, edition_id, by=None):
         })
 
 
+BAD_ROBOTS = [u'memoryBot']
+def is_bad_robot(request):
+    user_agent = request.META.get('HTTP_USER_AGENT', '')
+    for robot in BAD_ROBOTS:
+        if robot in user_agent:
+            return True
+    return False        
 
 def googlebooks(request, googlebooks_id):
     try:
         edition = models.Identifier.objects.get(type='goog', value=googlebooks_id).edition
     except models.Identifier.DoesNotExist:
+        if is_bad_robot(request):
+            return HttpResponseNotFound("failed looking up googlebooks id %s" % googlebooks_id)
         try:
             edition = bookloader.add_by_googlebooks_id(googlebooks_id)
             if edition.new:
@@ -1916,12 +1926,18 @@ def search(request):
             results = models.Work.objects.none()
             break
         else:
-            results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=1)
-            gbo = 'y'
+            if is_bad_robot(request):
+                results = models.Work.objects.none()
+            else:
+                results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=1)
+                gbo = 'y'
     else:
         if gbo == 'n':
             page = page-1 # because page=1 is the unglue.it results
-        results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=page)
+        if is_bad_robot(request):
+            results = models.Work.objects.none()
+        else:
+            results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=page)
         campaign_works = None
 
     # flag search result as on wishlist as appropriate
