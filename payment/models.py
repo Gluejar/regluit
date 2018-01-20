@@ -452,9 +452,12 @@ class Account(models.Model):
             new_status = self.calculated_status()
         else:
             new_status = value
-
-        self.status = new_status
-        self.save()
+        
+        if new_status == 'EXPIRED':
+            self.deactivate()
+        elif old_status != new_status:
+            self.status = new_status
+            self.save()
         
         # don't notify null users (non-users can buy-to-unglue or thank-for-ungluing)
         if self.user and (not send_notice_on_change_only or (old_status != new_status)):
