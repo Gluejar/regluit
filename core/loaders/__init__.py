@@ -1,14 +1,27 @@
 import requests
 from bs4 import BeautifulSoup
 
+from django.conf import settings
+
 from gitenberg.metadata.pandata import Pandata
 
 from regluit.core.bookloader import add_from_bookdatas, BasePandataLoader
-from .scrape import PressbooksScraper, HathitrustScraper, BaseScraper
+from .scrape import BaseScraper
+from .hathitrust import HathitrustScraper
+from .pressbooks import PressbooksScraper
 from .springer import SpringerScraper
+from .ubiquity import UbiquityScraper
+from .smashwords import SmashwordsScraper
 
 def get_scraper(url):
-    scrapers = [PressbooksScraper, HathitrustScraper, SpringerScraper, BaseScraper]
+    scrapers = [
+        PressbooksScraper,
+        HathitrustScraper,
+        SpringerScraper,
+        UbiquityScraper,
+        SmashwordsScraper,
+        BaseScraper,
+    ]
     for scraper in scrapers:
         if scraper.can_scrape(url):
             return scraper(url)

@@ -244,6 +244,12 @@ def edit_edition(request, work_id, edition_id, by=None):
             activate_all = request.POST.has_key('activate_all_ebooks')
             deactivate_all = request.POST.has_key('deactivate_all_ebooks')
             ebookchange = False
+            if request.POST.has_key('set_ebook_rights') and request.POST.has_key('set_rights'):
+                rights = request.POST['set_rights']
+                for ebook in work.ebooks_all():
+                    ebook.rights = rights
+                    ebook.save()
+                    ebookchange = True
             for ebook in work.ebooks_all():
                 if request.POST.has_key('activate_ebook_%s' % ebook.id) or activate_all:
                     ebook.activate()

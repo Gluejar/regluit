@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from regluit.core.bookloader import add_by_sitemap
+from regluit.core.loaders import add_by_sitemap
 
 class Command(BaseCommand):
     help = "load books based on a website sitemap"
