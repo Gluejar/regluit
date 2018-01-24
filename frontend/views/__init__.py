@@ -397,7 +397,6 @@ def work(request, work_id, action='display'):
         'work': work,
         'user_can_edit_work': user_can_edit_work(request.user, work),
         'premiums': premiums,
-        'ungluers': userlists.supporting_users(work, 5),
         'claimform': claimform,
         'wishers': wishers,
         'base_url': base_url,
