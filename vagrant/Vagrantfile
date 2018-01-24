@@ -286,7 +286,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       aws.instance_type="c1.medium"
       
       aws.region = "us-east-1"
-      aws.availability_zone = "us-east-1c"
+      #aws.availability_zone = "us-east-1c"
+      # 2017.12.15 -- for some reason 1c doesn't hava the capacity
+      aws.availability_zone = "us-east-1b"
       # aws.ami = "ami-d8132bb0"
       # 2017.03.17
       # Trusty 14.04
