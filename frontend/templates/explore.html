@@ -33,7 +33,9 @@
                                 {% endif %}
                                 </li>
                                 <li><a href="{% url 'campaign_list' 'ending' %}"><span>Active Campaigns</span></a></li>
-                                <li><a href="{% url 'comment' %}"><span>Latest Comments</span></a></li>
+                                {% if not request.user.is_anonymous %}
+                                    <li><a href="{% url 'comment' %}"><span>Latest Comments</span></a></li>
+                                {% endif %}
                                 <li><a href="{% url 'work_list' 'popular' %}"><span>Site Favorites</span></a></li>
                                 <li><a href="{% url 'work_list' 'new' %}"><span>Latest Favorites</span></a></li>
                                 <!--<li><a href="{% url 'work_list' 'recommended' %}"><span>Noteworthy</span></a></li>-->
