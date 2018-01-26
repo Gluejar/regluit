@@ -425,6 +425,7 @@ SHOW_GOOGLE_ANALYTICS = False
 
 # to enable uploading to S3 and integration of django-storages + django-ckeditor
 # some variables to be overriddden in more specific settings files -- e.g., prod.py, 
+CKEDITOR_ALLOW_NONIMAGE_FILES = False
 
 AWS_ACCESS_KEY_ID = ''
 AWS_SECRET_ACCESS_KEY = ''
