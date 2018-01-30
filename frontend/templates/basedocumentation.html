@@ -1,11 +1,13 @@
 {% extends "registration/registration_base.html" %}
+
+{% load sass_tags %}
 {% block extra_js %}
 
 <script type="text/javascript" src="/static/js/definitions.js"></script>
 {% endblock %}
 {% block extra_extra_head %}
-<link type="text/css" rel="stylesheet" href="/static/css/landingpage4.css" />
-<link type="text/css" rel="stylesheet" href="/static/css/book_panel2.css" />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/landingpage4.scss' %}" />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/book_panel2.scss' %}" />
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
 
 {% endblock %}
