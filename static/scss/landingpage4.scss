@@ -7,7 +7,7 @@
 
 #main-container.main-container-fl .js-main {
 	width:968px;
-	background:#fff url("${image-base}landingpage/container-top.png") top center no-repeat;
+	background:#fff url("#{$image-base}landingpage/container-top.png") top center no-repeat;
 }
 #js-maincol-fl { 
 	padding:30px 30px 0 30px;
@@ -178,7 +178,7 @@ div.signup_btn {
 	overflow:hidden;
 	
 	a {
-		background: url("${image-base}bg.png") no-repeat scroll right top transparent;
+		background: url("#{$image-base}bg.png") no-repeat scroll right top transparent;
 		color: #fff;
     	display: block;
     	font-size: $font-size-default;
@@ -190,7 +190,7 @@ div.signup_btn {
 		float:left;
 		
 		span {
-			background: url("${image-base}bg.png") no-repeat scroll -770px -36px transparent;
+			background: url("#{$image-base}bg.png") no-repeat scroll -770px -36px transparent;
     	display: block;
     	margin-right: 29px;
     	padding: 0 5px 0 15px;

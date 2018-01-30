@@ -186,9 +186,10 @@ $cursor-disabled:                not-allowed;
 	line-height:$x; 
 }
 
-.mediaborder {
+@mixin mediaborder-base()
+{
 	padding: 5px;
-	border: solid 5px #EDF3F4;
+	border: solid 5px $pale-blue;
 }
 
 @mixin actionbuttons()

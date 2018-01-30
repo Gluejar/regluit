@@ -26,7 +26,7 @@
 		form { 
 			float:left; 
 			width:210px; 
-			background:url("${image-base}landingpage/search-box-two.png") 0 0 no-repeat; 
+			background:url("#{$image-base}landingpage/search-box-two.png") 0 0 no-repeat; 
 			height:36px; 
 			display:block; 
 			overflow:hidden; 
@@ -41,13 +41,13 @@
 	
 	a.prev {
 		@include clickyarrows();
-		background:url("${image-base}landingpage/arrow-left.png") 0 0 no-repeat;
+		background:url("#{$image-base}landingpage/arrow-left.png") 0 0 no-repeat;
 		left: 0;
 	}
 
 	a.next {
 		@include clickyarrows();
-		background:url("${image-base}landingpage/arrow-right.png") 0 0 no-repeat;
+		background:url("#{$image-base}landingpage/arrow-right.png") 0 0 no-repeat;
 		right: 0; 
 	}	
 }
@@ -72,7 +72,7 @@
 	}
 	
 	&.greenbutton { 
-		background:url("${image-base}landingpage/search-button-two.png") 0 0 no-repeat;
+		background:url("#{$image-base}landingpage/search-button-two.png") 0 0 no-repeat;
 		width:40px; 
 		height:40px; 
 		padding:0; 
@@ -86,7 +86,7 @@
 }
 
 #js-slide .jsmodule > h3 { 
-	background:url("${image-base}landingpage/bg-slide.png") bottom center no-repeat; 
+	background:url("#{$image-base}landingpage/bg-slide.png") bottom center no-repeat; 
 	padding-bottom:7px; 
 	padding-left:35px;
 	
