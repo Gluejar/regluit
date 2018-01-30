@@ -13,7 +13,7 @@
 	float: left;
 	margin-right:10px;
 	width:151px;
-	
+
 	img {
 		.mediaborder;
 	}
@@ -47,7 +47,7 @@
 		font-weight:normal;
 		color:@link-color;
 	}
-	
+
 	> div {
 		width:100%;
 		clear:both;
@@ -56,50 +56,46 @@
 		border-top:1px solid @pale-blue;
 		padding:10px 0;
 	}
-	
+
 	> div.layout {
 		border: none;
 		padding: 0;
-		
+
 		div.pubinfo {
 			float: left;
 			width: auto;
 			padding-bottom: 7px;
-		}		
+		}
 	}
-	
-	.btn_wishlist span {
-		text-align: right;
-	}
-	
+
 	.find-book label {
         float:left;
         line-height:31px;
 	}
-	
+
 	.find-link {
 		float:right;
-		
+
 		img {
 			padding: 2px;
 			.one-border-radius(5px);
 		}
 	}
-	
+
 	.pledged-info {
 		padding:10px 0;
 		position: relative;
-		
+
 		&.noborder {
 		    border-top: none;
 		    padding-top: 0;
 		}
-		
+
 		.campaign-status-info {
 		    float: left;
 		    width: 50%;
 		    margin-top: @font-size-default;
-		    
+
 		    span {
 		        font-size: @font-size-larger;
 		        color: @medium-blue;
@@ -107,7 +103,7 @@
 		    }
 		}
 	}
-	
+
 	.thermometer {
 	    .one-border-radius(10px);
 	    border: solid 2px @blue-grey;
@@ -118,22 +114,22 @@
 
         /* looks better if we start the gradient a little closer to the success color */
         @greener-than-alert: #CF6944;
-        
+
         background: -webkit-gradient(linear, left top, right top, from(@call-to-action), to(@greener-than-alert));
         background: -webkit-linear-gradient(left, @greener-than-alert, @call-to-action);
         background: -moz-linear-gradient(left, @greener-than-alert, @call-to-action);
         background: -ms-linear-gradient(left, @greener-than-alert, @call-to-action);
         background: -o-linear-gradient(left, @greener-than-alert, @call-to-action);
         background: linear-gradient(left, @greener-than-alert, @call-to-action);
-    
-        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='@alert', endColorstr='@call-to-action'); /* IE6 & IE7 */  
-        -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='@alert', endColorstr='@call-to-action')"; /* IE8+ */  	    
-	    
+
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='@alert', endColorstr='@call-to-action'); /* IE6 & IE7 */
+        -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='@alert', endColorstr='@call-to-action')"; /* IE8+ */
+
 	    &.successful {
 	        border-color: @bright-blue;
 	        background: @pale-blue;
 	    }
-	    
+
 	    .cover {
 	        position: absolute;
 	        right: 0;
@@ -143,11 +139,11 @@
 	        margin-top: -7px;
 	        background: lighten(@blue-grey, 10%);
 	    }
-	    
+
 	    span {
 	        display: none;
 	    }
-	    
+
 	    &:hover span {
 	        display: block;
 	        position: absolute;
@@ -166,7 +162,7 @@
 	    span.explanation{
 	        display: none;
 	    }
-	    
+
 	    &:hover span.explanation {
 	        display: block;
 	        position: absolute;
@@ -181,7 +177,7 @@
 	        .one-border-radius(10px);
 	        padding: 5px;
 	    }
-	
+
 	}
 	.status {
 		position: absolute;
@@ -190,5 +186,5 @@
 		height: 25px;
 		margin-top: -12px;
 	}
-	
+
 }
