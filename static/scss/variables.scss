@@ -154,7 +154,8 @@ $cursor-disabled:                not-allowed;
 	background:$hex url($url) left bottom repeat-x;	
 }
 
-.roundedspan {
+@mixin roundedspan
+{
 	border:1px solid #d4d4d4;
 	@include one-border-radius(7px);
 	padding:1px; 
