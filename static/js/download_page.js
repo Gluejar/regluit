@@ -4,10 +4,10 @@ var $j = jQuery.noConflict();
 // on an element not present on pageload, so binding it via on is useless
 if (document.createStyleSheet) {
     // make it work in IE <= 8
-    document.createStyleSheet('/static/css/enhanced_download_ie.css');
+    document.createStyleSheet('/static/scss/enhanced_download_ie.css');
 }
 else {
-    $j('<link rel="stylesheet" type="text/css" href="/static/css/enhanced_download.css" />').appendTo('head'); 
+    $j('<link rel="stylesheet" type="text/css" href="/static/scss/enhanced_download.css" />').appendTo('head'); 
 }
 
 // browser has a better sense of DOM changes than jQuery, so user can trigger click element
