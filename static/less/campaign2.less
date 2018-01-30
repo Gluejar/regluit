@@ -24,7 +24,7 @@
 		border:none;
 		margin:0;
 		line-height: 16px;
-		
+
 		/* Bubble in upper left looks different depending on campaign status */
 		&.ACTIVE {
 			background: @green;
@@ -33,7 +33,7 @@
 			font-weight: normal;
 			line-height: 20px;
 		}
-		
+
 		&.No.campaign.yet {
 			background: @orange;
 			color: white;
@@ -42,15 +42,15 @@
 		span {
 			display: inline-block;
 			vertical-align: middle;
-			
+
 			&.spacer {
 				visibility: none;
-			}	
-			
+			}
+
 			&.findtheungluers {
 				cursor: pointer;
 			}
-		}				
+		}
 	}
 }
 
@@ -60,7 +60,7 @@
 }
 
 #js-slide .jsmodule {
-	width: 660px !important;	
+	width: 660px !important;
 }
 
 #js-search {
@@ -74,14 +74,14 @@
 	text-align: left;
 	font-weight: normal;
 	font-size: @font-size-default;
-	
+
 	> li {
 		margin-bottom: 14px;
 	}
 
 	.errorlist {
-		margin-top: 7px; 
-		
+		margin-top: 7px;
+
 		li {
 			width: auto;
 			height: auto;
@@ -98,7 +98,7 @@
 	width:470px;
 	margin:0 10px;
 
-	div#content-block { 
+	div#content-block {
 		background: none;
 		padding:0;
 	}
@@ -113,13 +113,13 @@
 .add-wishlist, .add-wishlist-workpage, &.remove-wishlist-workpage, .remove-wishlist, &.on-wishlist, &.create-account {
 	float: right;
 	cursor: pointer;
-            
+
 	span {
     	font-weight:normal;
         color:@text-blue;
         text-transform: none;
         padding-left:20px;
-        
+
         &.on-wishlist {
     		background:url("@{image-base}checkmark_small.png") left center no-repeat;
     		cursor: default;
@@ -138,15 +138,15 @@
 /* Center - tabs and content below them */
 div#content-block-content {
   padding-left: 5px;
-  
+
   a {
   	color: @medium-blue;
   }
-  
+
   #tabs-1 img {
   	.mediaborder;
   }
-  
+
   #tabs-3 {
   	margin-left: -5px;
   }
@@ -154,15 +154,15 @@ div#content-block-content {
 
 .tabs-content {
 	padding-right: 5px;
-	
+
 	iframe {
 		.mediaborder;
 	}
-	
+
 	form {
 	margin-left: -5px;
 	}
-	
+
 	.clearfix {
 	    margin-bottom: 10px;
 	    border-bottom: 2px solid @blue-grey;
@@ -179,12 +179,12 @@ div#content-block-content {
 .work_supporter_avatar {
 	float: left;
 	margin-right: 5px;
-	
+
 	img {
 		.one-border-radius(5px);
 	}
 }
-	
+
 .work_supporter_name {
 	.height(50px);
 	float: left;
@@ -197,13 +197,13 @@ div#content-block-content {
 	min-width: 235px;
 	float: left;
 }
-.show_supporter_contact_form 
+.show_supporter_contact_form
 {
     display:block;
     margin-left: 5px;
     float: right;
 }
-.supporter_contact_form 
+.supporter_contact_form
 {
     display:none;
     margin-left: 5px;
@@ -243,24 +243,24 @@ div#content-block-content {
 	margin-left: -5px;
 }
 
-.editions {	
+.editions {
 	div {
 		float:left;
 		padding-bottom: 5px;
 		margin-bottom: 5px;
 	}
-	
+
 	.image {
 		width: 60px;
 		overflow: hidden;
 	}
-	
-    .metadata { 
+
+    .metadata {
     	display:block;
         overflow: hidden;
         margin-left: 5px;
     }
-    
+
     a:hover {
     	text-decoration: underline;
     }
@@ -273,7 +273,7 @@ div#content-block-content {
 
 .show_more_edition {
   text-align: right;
-  
+
   &:hover {
 	  text-decoration: underline;
   }
@@ -283,7 +283,7 @@ div#content-block-content {
   display:none;
   clear: both;
   padding-bottom: 10px;
-  padding-left: 60px;  
+  padding-left: 60px;
 }
 
 .more_ebooks {
@@ -300,7 +300,7 @@ div#content-block-content {
     .add-wishlist, .on-wishlist, .create-account {
         float: none;
     }
-    
+
     .on-wishlist {
         margin-left: 20px;
     }
@@ -310,7 +310,7 @@ div#content-block-content {
 	float:right;
 	width:235px;
 	margin-bottom: 20px;
-	
+
 	h3.jsmod-title {
 		background:@medium-blue-grey;
 		.one-border-radius(10px);
@@ -320,7 +320,7 @@ div#content-block-content {
 		font-size: @font-size-larger;
 		margin:0 0 10px 0;
 		color: white;
-		
+
 		span {
 			padding:0;
 			color:#fff;
@@ -331,11 +331,11 @@ div#content-block-content {
 
 	.jsmodule {
 		margin-bottom:10px;
-		
+
 		a:hover {
 			text-decoration: none;
 		}
-	}	
+	}
 }
 
 #pledge-rightcol {
@@ -346,7 +346,7 @@ div#content-block-content {
 	border:1px solid @blue-grey;
 	.one-border-radius(10px);
 	padding:10px;
-} 
+}
 
 #widgetcode {
 	display: none;
@@ -366,18 +366,18 @@ ul.support li {
 	&.last {
 	    border-bottom: none;
 	}
-	
+
 	span {
 		display:block;
 		padding-right:10px;
 
-		&.menu-item-price { 
+		&.menu-item-price {
 			font-size: @font-size-header;
 			float: left;
 			display: inline;
 			margin-bottom: 3px;
 		}
-		
+
 		&.menu-item-desc {
 			float: none;
 			clear: both;
@@ -386,7 +386,7 @@ ul.support li {
 			line-height: @font-size-larger*1.3;
 		}
 	}
-	
+
 	&:hover {
 		color: #fff;
 		background:@call-to-action url("@{image-base}icons/pledgearrow-hover.png") 98% center no-repeat;
@@ -417,7 +417,7 @@ ul.support li {
 	margin: 20px auto;
 }
 
-div#libtools {    
+div#libtools {
 	border:1px solid @blue-grey;
 	.one-border-radius(10px);
 	padding:10px;

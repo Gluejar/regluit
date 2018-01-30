@@ -23,6 +23,7 @@
 {% endblock %}
 
 {% block content %}
+{% with work.id as work_id %}
     <div class="wrapper">
         <div class="bookImage">
             {% if work.uses_google_cover %}
@@ -74,17 +75,50 @@
         </div>
         <div class="bookSidebar">
             <div>
-                Favorite
+                <div class="btn_wishlist" id="wishlist_actions">
+                    {% if request.user.is_anonymous %}
+                        <div class="create-account">
+                            <span title="{% url 'work' work_id %}">Login to Fave</span>
+                        </div>
+                    {% elif request.user.id in work.last_campaign.supporters %}
+                        <div class="add-wishlist">
+                            <span class="on-wishlist">Faved!</span>
+                        </div>
+                    {% elif work in request.user.wishlist.works.all %}
+                        <div class="remove-wishlist-workpage">
+                            <span id="w{{ work_id }}">Remove from My Faves</span>
+                        </div>
+                    {% else %}
+                        <div class="add-wishlist">
+                            <span class="work_id" id="w{{ work_id }}">Add to My Faves</span>
+                        </div>
+                    {% endif %}
+                </div>
             </div>
             <div>
-                GoodReads
+                <a rel="nofollow" class="find-goodreads" href="{% url 'work_goodreads' work_id %}"><img src="/static/images/supporter_icons/goodreads_square.png" title="Find on GoodReads"  alt="Find on GoodReads" /></a>
+                <span>GoodReads</span>
             </div>
             <div>
-                LibraryThing
+                <a rel="nofollow" class="find-librarything" href="{% url 'work_librarything' work_id %}"><img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" alt="Find on LibraryThing" /></a>
+                <span>LibraryThing</span>
+            </div>
+            <div class="bookDownload">
+                <button>Download</button>
+            </div>
+            <div class="bookDonate">
+                <button>Donate</button>
             </div>
         </div>
         <div class="bookComments">
             <h2>Comments</h2>
+            {% render_comment_list for work %}
+            {% if user.is_authenticated %}
+                {% render_comment_form for work %}
+            {% else %}
+            <p>You must be <a href="{% url 'superlogin' %}?next={{ request.get_full_path|urlencode }}">logged in</a> to comment.</p>
+            {% endif %}
         </div>
     </div>
+{% endwith %}
 {% endblock %}
