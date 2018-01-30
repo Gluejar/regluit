@@ -191,6 +191,9 @@ SASS_PROCESSOR_INCLUDE_DIRS = [
     os.path.join(PROJECT_DIR),
     os.path.join(PROJECT_DIR, 'static', 'scss'),
     os.path.join('static', 'scss'),
+    os.path.join(PROJECT_DIR, 'static', 'scss', 'foundation', 'scss'),
+    os.path.join('static', 'scss', 'foundation', 'scss'),
+    # static/scss/foundation/scss/foundation.scss
 ]
 
 
