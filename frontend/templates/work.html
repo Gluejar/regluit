@@ -2,8 +2,10 @@
 
 {% load comments %}
 {% load humanize %}
-{% load purchased %}
 {% load lib_acqs %}
+{% load purchased %}
+{% load sass_tags %}
+
 {% block title %}&#151; 
     {% if work.is_free %}
         {{ work.title }} is a Free eBook. {% for fmt in  work.formats %}[{{ fmt }}]{% endfor %}
@@ -21,7 +23,7 @@
 {% if work.first_isbn_13 %}<meta property="book:isbn" content="{{ work.first_isbn_13 }}" />{% endif %}
 {% endblock %}
 {% block extra_css %}
-<link type="text/css" rel="stylesheet" href="/static/css/campaign2.css"  />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/campaign2.scss' %}"  />
 {% if user.is_staff or user in work.last_campaign.managers.all %}
     <link rel="stylesheet" href="/static/css/ui-lightness/jquery-ui-1.8.16.custom.css" type="text/css" media="screen">
     {{ kwform.media.css }}

@@ -1,6 +1,7 @@
 {% extends 'basedocumentation.html' %}
 
 {% load humanize %}
+{% load sass_tags %}
 
 {% block title %}Campaign Management{% endblock %}
 
@@ -11,8 +12,8 @@ textarea {
 	width: 90%;
 }
 </style>
-<link type="text/css" rel="stylesheet" href="/static/css/manage_campaign.css" />
-<link type="text/css" rel="stylesheet" href="/static/css/campaign2.css" />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/manage_campaign.scss' %}" />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/campaign2.scss' %}" />
 
 <script type="text/javascript" src="/static/js/tabs.js"></script>
 

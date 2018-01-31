@@ -1,11 +1,12 @@
 {% extends 'basepledge.html' %}
 
 {% load humanize %}
+{% load sass_tags %}
 
 {% block title %}Pledge Recharge{% endblock %}
 
 {% block extra_css %}
-<link type="text/css" rel="stylesheet" href="/static/css/campaign2.css"  />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/campaign2.scss' %}"  />
 {% endblock %}
 
 {% block doccontent %}

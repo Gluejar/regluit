@@ -1,5 +1,6 @@
 {% load truncatechars %}
 {% load lang_utils %}
+{% load explore %}{% explore %}
             <div class="jsmodule">
                 <h3 class="jsmod-title"><span>Explore</span></h3>
                 <div class="jsmod-content">
@@ -32,7 +33,23 @@
                                     </ul>
                                 {% endif %}
                                 </li>
-                                <li><a href="{% url 'campaign_list' 'ending' %}"><span>Active Campaigns</span></a></li>
+                                {% if top_pledge %}
+                                <li>Pledge to...
+                                    <ul class="menu level3">
+                                    {% for campaign in top_pledge %}
+                                    <li><a href="{% url 'work' campaign.work.id %}">
+                                        <img class="thumbnail" src="{{ campaign.work.cover_image_thumbnail }}" title="{{ campaign.work.title }}"/>
+                                        <span class="thumbnail-caption">{{ campaign.work.title }}</span>
+                                    </a></li>
+                                    {% if forloop.counter == 4 %}
+                                    <li><a href="{% url 'campaign_list' 'pledge' %}"><span>...more</span></a></li>
+                                    {% endif %}
+                                    {% endfor %}
+                                    </ul>
+                                </li>
+                                {% endif %}
+                                <li><a href="{% url 'campaign_list' 'b2u' %}"><span>Buy to unglue...</span></a></li>
+                                <li><a href="{% url 'campaign_list' 't4u' %}"><span>Thank for ...</span></a></li>
                                 {% if not request.user.is_anonymous %}
                                     <li><a href="{% url 'comment' %}"><span>Latest Comments</span></a></li>
                                 {% endif %}

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% load truncatechars %}
+{% load sass_tags %}
 {% block title %}&#151; Support Free eBooks{% endblock %}
 
 {% block extra_meta %}
@@ -12,9 +13,9 @@
 
 
 {% block extra_css %}
-<link type="text/css" rel="stylesheet" href="/static/css/landingpage4.css"  />
-<link type="text/css" rel="stylesheet" href="/static/css/searchandbrowse2.css"  />
-<link type="text/css" rel="stylesheet" href="/static/css/book_panel2.css"  />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/landingpage4.scss' %}"  />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/searchandbrowse2.scss' %}"  />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/book_panel2.scss' %}"  />
 {% endblock %}
 {% block extra_js %}
 

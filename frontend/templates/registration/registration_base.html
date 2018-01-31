@@ -1,4 +1,7 @@
 {% extends "base.html" %}
+
+{% load sass_tags %}
+
 {% block extra_js %}
 <script type="text/javascript">
 var $j = jQuery.noConflict();
@@ -29,9 +32,9 @@ $j(document).ready(function() {
 {% endblock %}
 
 {% block extra_head %}
-	<link href="/static/css/documentation2.css" rel="stylesheet" type="text/css" />
+	<link href="{% sass_src 'scss/documentation2.scss' %}" rel="stylesheet" type="text/css" />
 {% block extra_extra_head %}
-    <link type="text/css" rel="stylesheet" href="/static/css/registration2.css" />
+    <link type="text/css" rel="stylesheet" href="{% sass_src 'scss/registration2.scss' %}" />
 {% endblock %}
 {% endblock %}
 

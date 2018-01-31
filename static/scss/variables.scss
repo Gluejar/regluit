@@ -13,9 +13,9 @@ $alert: #e35351;
 $orange: #e18551;
 $yellow: #efd45e;
 $image-base: "/static/images/";
-$background-header: "${image-base}bg.png";
-$background-body: "${image-base}bg-body.png";
-$background-booklist: "${image-base}booklist/bg.png";
+$background-header: "#{$image-base}bg.png";
+$background-body: "#{$image-base}bg-body.png";
+$background-booklist: "#{$image-base}booklist/bg.png";
 $font-size-default: 13px;
 $font-size-larger: 15px;
 $font-size-header: 19px;
@@ -112,7 +112,7 @@ $btn-link-disabled-color:        $gray-light;
 //** Disabled cursor for form controls and buttons.
 $cursor-disabled:                not-allowed;
 
-.header-text {
+@mixin header-text {
 	display:block;
 	text-decoration:none;
 	font-weight:bold;
@@ -121,9 +121,9 @@ $cursor-disabled:                not-allowed;
 
 @mixin border-radius($topleft, $topright, $bottomright, $bottomleft)
 {
-  -moz-border-radius: $arguments;
-  -webkit-border-radius: $arguments;
-  border-radius: $arguments;
+  -moz-border-radius: $topleft $topright $bottomright $bottomleft;
+  -webkit-border-radius:  $topleft $topright $bottomright $bottomleft;
+  border-radius:  $topleft $topright $bottomright $bottomleft;
 }
 
 @mixin one-border-radius($radius)
@@ -150,11 +150,12 @@ $cursor-disabled:                not-allowed;
 
 @mixin supporter-color-span($hex, $color)
 {
-	$url: %("%sheader-button-%s.png", $image-base, $color);
+	$url: "#{$image-base}header-button-#{$color}.png";
 	background:$hex url($url) left bottom repeat-x;	
 }
 
-.roundedspan {
+@mixin roundedspan
+{
 	border:1px solid #d4d4d4;
 	@include one-border-radius(7px);
 	padding:1px; 
@@ -185,12 +186,14 @@ $cursor-disabled:                not-allowed;
 	line-height:$x; 
 }
 
-.mediaborder {
+@mixin mediaborder-base()
+{
 	padding: 5px;
-	border: solid 5px #EDF3F4;
+	border: solid 5px $pale-blue;
 }
 
-.actionbuttons {
+@mixin actionbuttons()
+{
 	width: auto;
 	@include height(36px);
 	background: $call-to-action;
