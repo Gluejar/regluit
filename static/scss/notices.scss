@@ -60,7 +60,7 @@ table input[type="submit"] {
 	}
 			
 	.comments_book {
-		.mediaborder;
+		@include mediaborder-base;
 		margin-right: 10px;
 		margin-bottom: 10px;
 		max-width: 80px;
