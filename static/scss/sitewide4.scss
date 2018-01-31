@@ -54,12 +54,12 @@
     display:block; 
 }
 
-@mixin utilitylinks($topbottom, $leftright)
+@mixin utilitylinks($topbottom, $leftright, $fontsize)
 {
-    padding:$topbottom $leftright;
+    padding:$topbottom 0 $topbottom $leftright;
     a {
         color:$medium-blue;
-        font-size: $font-size-larger;
+        font-size: $fontsize;
     }
 }
 
@@ -597,7 +597,7 @@ a#readon {
         }
 
         &.level2 li {
-            @include utilitylinks(5px, 20px);
+            @include utilitylinks(5px, 20px, $font-size-larger);
             
             img {
             	vertical-align: middle;
@@ -614,7 +614,18 @@ a#readon {
             }
         }
         &.level3 li {
-            @include utilitylinks(0px, 20px);
+            @include utilitylinks(0px, 20px, $font-size-default);
+            a img.thumbnail {
+                margin-right: 2px;
+                height: 50px;
+                width: 32px;
+            }
+            a span.thumbnail-caption {
+                font-size: $font-size-small; 
+                display: inline-block;
+                width: 154px;
+                overflow-y: scroll;
+            }
         }
     }
 }
@@ -706,7 +717,7 @@ div#content-block-content, div#content-block-content-1 {
         }
         
         li {
-            @include utilitylinks(5px, 0);
+            @include utilitylinks(5px, 0, $font-size-larger);
             text-transform: none;
             list-style: none;
             margin-left: 0;
