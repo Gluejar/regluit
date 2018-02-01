@@ -1,7 +1,3 @@
-* {
-    // color: red !important;
-}
-
 @media screen and (max-width: 480px) {
     .wrapper {
         display: grid;
@@ -13,6 +9,10 @@
                              "bookComments bookComments bookComments";
     }
 
+    .wrapper {
+        margin: 10px;
+    }
+
     .bookImage {
         display: flex;
         justify-content: center;
@@ -20,6 +20,7 @@
 
     .bookSidebar {
         flex-direction: row;
+        flex-wrap: wrap;
     }
 
     .book-sidebar-item {
@@ -75,6 +76,10 @@
 .bookSidebar {
     display: flex;
     grid-area: bookSidebar;
+}
+
+.book-sidebar-item {
+    margin-bottom: 16px;
 }
 
 .bookComments {
