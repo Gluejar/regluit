@@ -1,26 +1,73 @@
-* {
-    // color: red !important;
-}
-
 @media screen and (max-width: 480px) {
     .wrapper {
         display: grid;
-        grid-template-columns: 20% 60% 20%;
+        grid-template-columns: fit-content 1fr 20%;
         grid-template-rows: auto auto;
-        grid-template-areas: "bookImage bookImage bookImage"
-                             "bookSidebar bookSidebar bookSidebar"
+        grid-template-areas: "bookImage       bookImage       bookImage"
+                             "bookSidebar     bookSidebar     bookSidebar"
                              "bookDescription bookDescription bookDescription"
-                             "bookComments bookComments bookComments"
+                             "bookComments    bookComments    bookComments";
+    }
+
+    .pubinfo {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .wrapper {
+        margin: 10px;
+    }
+
+    .bookImage {
+        display: flex;
+        justify-content: center;
+    }
+
+    .bookSidebar {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .book-sidebar-item {
+        flex: auto;
+    }
+
+    .book-sidebar-item span {
+        display: none;
+    }
+
+    .bookDownload {
+        flex: 100%;
+    }
+
+    .bookDonate {
+        flex: 100%;
+    }
+
+    .bookComments {
+        margin-top: 15px;
     }
 }
 
 @media screen and (min-width: 480px) {
     .wrapper {
         display: grid;
-        grid-template-columns: 20% 60% 20%;
+        grid-template-columns: fit-content 1fr 20%;
         grid-template-rows: auto auto;
         grid-template-areas: "bookImage bookDescription bookSidebar"
-                             "bookComments bookComments bookComments"
+                             ".         bookComments    .";
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 1000px;
+    }
+
+    .bookDescription {
+        padding-right: 15px;
+    }
+
+    .bookSidebar {
+        flex-direction: column;
     }
 }
 
@@ -35,9 +82,16 @@
 .bookDescription {
     grid-area: bookDescription;
 }
+
 .bookSidebar {
+    display: flex;
     grid-area: bookSidebar;
 }
+
+.book-sidebar-item {
+    margin-bottom: 16px;
+}
+
 .bookComments {
     grid-area: bookComments;
 }
@@ -46,6 +100,7 @@
     text-align: right;
 }
 
+//TODO remove me
 .btn_wishlist div{
     float: none;
 }

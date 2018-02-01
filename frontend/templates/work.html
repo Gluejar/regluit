@@ -27,37 +27,35 @@
     <div class="wrapper">
         <div class="bookImage">
             {% if work.uses_google_cover %}
-                <div class="book-cover" id="book-detail-img">
-                    <a href="{{ work.googlebooks_url }}">
-                    <img src="{{ work.cover_image_thumbnail }}" alt="Find {{ work.title }} at Google Books" title="Find {{ work.title }} at Google Books" width="131" height="192" /></a>
-                </div>
+                <a href="{{ work.googlebooks_url }}">
+                    <img src="{{ work.cover_image_thumbnail }}" alt="Find {{ work.title }} at Google Books" title="Find {{ work.title }} at Google Books" width="131" height="192" />
+                </a>
             {% else %}
-                <div id="book-detail-img" class="book-cover" >
-                    <img itemprop="image" src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" />
-                </div>
+                <img itemprop="image" src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" />
             {% endif %}
         </div>
         <div class="bookDescription">
-            <div class="layout">
+            <div class="pubinfo">
                 <h2 class="book-name" itemprop="name">{{ work.title }}</h2>
-                <div>
-                    <div class="pubinfo">
-                        <h3 class="book-author">
-                        <span  itemprop="author"><a href="{% url 'search' %}?q={{ work.relators.0.author.name|urlencode }}&amp;ty=au" />{{ work.relators.0.name }}</a></span>{% if work.authors.count == 2 %}
-                            and <span  itemprop="author"><a href="{% url 'search' %}?q={{ work.relators.1.author.name|urlencode }}&amp;ty=au" />{{ work.relators.1.name }}</a></span>
-                        {% endif %}{% if work.relators.count > 2 %}{% for author in work.relators %}{% if not forloop.first %}, <span  itemprop="author"><a href="{% url 'search' %}?q={{ author.author.name|urlencode }}&amp;ty=au" />{{ author.name }}</a></span>{% endif %}{% endfor %}
-                        {% endif %}
-                        </h3>
-                        <h3 class="book-year">
-                            {% if work.last_campaign.publisher %}
-                            <span itemprop="publisher"><a href="{% url 'bypubname_list' work.last_campaign.publisher.name.id %}">{{ work.last_campaign.publisher }}</a></span>
-                            {% endif %}
-                            <span itemprop="datePublished">{{ work.publication_date }}</span>
-                            <meta itemprop="inLanguage" content="work.language" />
-                            <meta itemprop="typicalAgeRange" content="work.age_range" />
-                        </h3>
-                    </div>
-                </div>
+                <h3 class="book-author">
+                    <span  itemprop="author">
+                        <a href="{% url 'search' %}?q={{ work.relators.0.author.name|urlencode }}&amp;ty=au" />
+                            {{ work.relators.0.name }}
+                        </a>
+                    </span>
+                    {% if work.authors.count == 2 %}
+                    and <span  itemprop="author"><a href="{% url 'search' %}?q={{ work.relators.1.author.name|urlencode }}&amp;ty=au" />{{ work.relators.1.name }}</a></span>
+                {% endif %}{% if work.relators.count > 2 %}{% for author in work.relators %}{% if not forloop.first %}, <span  itemprop="author"><a href="{% url 'search' %}?q={{ author.author.name|urlencode }}&amp;ty=au" />{{ author.name }}</a></span>{% endif %}{% endfor %}
+                {% endif %}
+                </h3>
+                <h3 class="book-year">
+                    {% if work.last_campaign.publisher %}
+                    <span itemprop="publisher"><a href="{% url 'bypubname_list' work.last_campaign.publisher.name.id %}">{{ work.last_campaign.publisher }}</a></span>
+                    {% endif %}
+                    <span itemprop="datePublished">{{ work.publication_date }}</span>
+                    <meta itemprop="inLanguage" content="work.language" />
+                    <meta itemprop="typicalAgeRange" content="work.age_range" />
+                </h3>
             </div>
             <div  itemprop="description">
             {% if status == 'ACTIVE'  %}
@@ -74,7 +72,7 @@
             </div>
         </div>
         <div class="bookSidebar">
-            <div>
+            <div class="book-sidebar-item">
                 <div class="btn_wishlist" id="wishlist_actions">
                     {% if request.user.is_anonymous %}
                         <div class="create-account">
@@ -95,19 +93,19 @@
                     {% endif %}
                 </div>
             </div>
-            <div>
+            <div class="book-sidebar-item">
                 <a rel="nofollow" class="find-goodreads" href="{% url 'work_goodreads' work_id %}"><img src="/static/images/supporter_icons/goodreads_square.png" title="Find on GoodReads"  alt="Find on GoodReads" /></a>
                 <span>GoodReads</span>
             </div>
-            <div>
+            <div class="book-sidebar-item">
                 <a rel="nofollow" class="find-librarything" href="{% url 'work_librarything' work_id %}"><img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" alt="Find on LibraryThing" /></a>
                 <span>LibraryThing</span>
             </div>
             <div class="bookDownload">
-                <button>Download</button>
+                <button class="button expanded">Download</button>
             </div>
             <div class="bookDonate">
-                <button>Donate</button>
+                <button class="button expanded">Donate</button>
             </div>
         </div>
         <div class="bookComments">
