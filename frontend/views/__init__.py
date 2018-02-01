@@ -659,7 +659,6 @@ class WorkListView(FilterableListView):
     def get_context_data(self, **kwargs):
         context = super(WorkListView, self).get_context_data(**kwargs)
         qs = self.get_queryset()
-        context['ungluers'] = userlists.work_list_users(qs, 5)
         context['facet'] = self.kwargs.get('facet','')
         works_unglued = qs.filter(is_free = True).distinct() | qs.filter(campaigns__status='SUCCESSFUL').distinct()
         context['works_unglued'] = works_unglued[:self.max_works]
@@ -787,7 +786,6 @@ class UngluedListView(FilterableListView):
     def get_context_data(self, **kwargs):
         context = super(UngluedListView, self).get_context_data(**kwargs)
         qs = self.get_queryset()
-        context['ungluers'] = userlists.work_list_users(qs, 5)
         facet = self.kwargs['facet']
         context['facet'] = facet
         if facet == 'cc' or facet == 'creativecommons':
@@ -836,7 +834,6 @@ class CampaignListView(FilterableListView):
     def get_context_data(self, **kwargs):
         context = super(CampaignListView, self).get_context_data(**kwargs)
         qs = self.get_queryset()
-        context['ungluers'] = userlists.campaign_list_users(qs, 5)
         facet = self.kwargs['facet']
         context['facet'] = facet
         context['facet_label'] = FACET_LABELS.get(facet, 'Active')
@@ -1851,7 +1848,6 @@ def supporter(request, supporter_username, template_name, extra_context={}):
             "backing": backing,
             "wished": wished,
             "profile_form": profile_form,
-            "ungluers": userlists.other_users(supporter, 5),
             "activetab": activetab,
     }
     context.update(extra_context)

@@ -1,13 +1,15 @@
 {% extends 'base.html' %}
 
 {% load endless %}
+{% load sass_tags %}
 {% load truncatechars %}
+
 {% block title %} &#8212; {{ library }}{% endblock %}
 {% block extra_css %}
-<link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />
-<link type="text/css" rel="stylesheet" href="/static/css/searchandbrowse2.css" />
-<link type="text/css" rel="stylesheet" href="/static/css/book_list.css" />
-<link type="text/css" rel="stylesheet" href="/static/css/book_panel2.css" />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/supporter_layout.scss' %}" />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/searchandbrowse2.scss' %}" />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/book_list.scss' %}" />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/book_panel2.scss' %}" />
 {% endblock %}
 {% block extra_js %}
 <script type="text/javascript" src="/static/js/wishlist.js"></script>

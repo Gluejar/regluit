@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
+{% load sass_tags %}
 
 {% block title %} Users of {{ library }} {% endblock %}
 {% block extra_css %}
-<link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />
-<link type="text/css" rel="stylesheet" href="/static/css/liblist.css" />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/supporter_layout.scss' %}" />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/liblist.scss' %}" />
 {% endblock %}
 {% block extra_head %}
 <script type="text/javascript" src="{{ jquery_ui_home }}"></script>

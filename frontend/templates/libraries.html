@@ -1,9 +1,11 @@
 {% extends 'basedocumentation.html' %}
 
+{% load sass_tags %}
+
 {% block title %} &#x2665; Libraries{% endblock %}
 {% block extra_css %}
-    <link type="text/css" rel="stylesheet" href="/static/css/campaign2.css" />
-    <link type="text/css" rel="stylesheet" href="/static/css/libraries.css" />
+    <link type="text/css" rel="stylesheet" href="{% sass_src 'scss/campaign2.scss' %}" />
+    <link type="text/css" rel="stylesheet" href="{% sass_src 'scss/libraries.scss' %}" />
 {% endblock %}
 
 {% block extra_js %}
