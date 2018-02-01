@@ -9,6 +9,12 @@
                              "bookComments bookComments bookComments";
     }
 
+    .pubinfo {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
     .wrapper {
         margin: 10px;
     }
