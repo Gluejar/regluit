@@ -528,7 +528,11 @@ BAD_ROBOTS = [u'memoryBot']
 def is_bad_robot(request):
     user_agent = request.META.get('HTTP_USER_AGENT', '')
     for robot in BAD_ROBOTS:
-        if robot in user_agent:
+        try:
+            if robot in user_agent:
+                return True
+        except UnicodeDecodeError:
+            # user agent is sending illegal header
             return True
     return False        
 
@@ -1898,7 +1902,7 @@ class ManageAccount(FormView):
             return render(self.request, self.template_name, self.get_context_data())
 
 def search(request):
-    q = request.GET.get('q', '')
+    q = request.GET.get('q', '').strip()
     ty = request.GET.get('ty', 'g')  # ge= 'general, au= 'author'
     request.session['q'] = q
     try:
@@ -1908,7 +1912,7 @@ def search(request):
         page = 1
     gbo = request.GET.get('gbo', 'n') # gbo is flag for google books only
     our_stuff =  Q(is_free=True) | Q(campaigns__isnull=False)
-    if q != '' and page == 1 and not gbo == 'y':
+    if len(q) > 1 and page == 1 and not gbo == 'y':
         isbnq = ISBN(q)
         if isbnq.valid:
             work_query = Q(identifiers__value=str(isbnq), identifiers__type="isbn")
