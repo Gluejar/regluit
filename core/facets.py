@@ -130,8 +130,10 @@ class FormatFacetGroup(FacetGroup):
                 return  "These eBooks available in %s format." % self.facet_name
         return FormatFacet    
 
-idtitles = {'doab': 'indexed in DOAB', 'gtbg':'available in Project Gutenberg'}
-idlabels = {'doab': 'DOAB', 'gtbg':'Project Gutenberg'}
+idtitles = {'doab': 'indexed in DOAB', 'gtbg':'available in Project Gutenberg', 
+            '-doab': 'not in DOAB', '-gtbg':'not from Project Gutenberg', }
+idlabels = {'doab': 'DOAB', 'gtbg':'Project Gutenberg', 
+            '-doab': 'not DOAB', '-gtbg':'not Project Gutenberg'}
 class IdFacetGroup(FacetGroup):
     def __init__(self):
         super(FacetGroup,self).__init__()
@@ -144,10 +146,16 @@ class IdFacetGroup(FacetGroup):
             def set_name(self):
                 self.facet_name=facet_name
             def id_filter(query_set):
-                return query_set.filter(identifiers__type=facet_name)
+                if facet_name[0] == '-':
+                    return query_set.exclude(identifiers__type=facet_name[1:])
+                else:
+                    return query_set.filter(identifiers__type=facet_name)
             model_filters = {}
             def get_query_set(self):
-                return self._get_query_set().filter(identifiers__type=self.facet_name)
+                if facet_name[0] == '-':
+                    return self._get_query_set().exclude(identifiers__type=self.facet_name[1:])
+                else:
+                    return self._get_query_set().filter(identifiers__type=self.facet_name)
             def template(self):
                 return 'facets/id.html'
             @property    
