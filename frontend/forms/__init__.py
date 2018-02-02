@@ -154,12 +154,12 @@ class EbookForm(forms.ModelForm):
         new_label = self.data.get('new_version_label','')
         return new_label if new_label else self.cleaned_data['version_label']
 
-    def clean_provider(self):
+    def set_provider(self):
         url = self.cleaned_data['url']
         new_provider = Ebook.infer_provider(url)
         if url and not new_provider:
             raise forms.ValidationError(_("At this time, ebook URLs must point at Internet Archive, Wikisources, Wikibooks, Hathitrust, Project Gutenberg, raw files at Github, Google Books, or OApen."))
-        return new_provider if new_provider else "Unglue.it"
+        self.cleaned_data['provider'] = new_provider if new_provider else "Unglue.it"
 
     def clean_url(self):
         url = self.cleaned_data['url']
@@ -170,6 +170,7 @@ class EbookForm(forms.ModelForm):
         raise forms.ValidationError(_("There's already an ebook with that url."))
 
     def clean(self):
+        self.set_provider()
         format = self.cleaned_data.get('format', '')
         the_file = self.cleaned_data.get('file', None)
         url = self.cleaned_data.get('url', None)
