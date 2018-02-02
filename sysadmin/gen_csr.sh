@@ -17,7 +17,7 @@ LOCALITY="Montclair";
 ORGNAME="Gluejar, Inc.";
 ORGUNIT="";
 CNAME="*.unglue.it";
-EMAIL="support@gluejar.com";
+EMAIL="unglueit@ebookfoundation.org";
 PASSWORD="";
 OPTION_COMPANY_NAME="";
 

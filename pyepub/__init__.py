@@ -141,8 +141,11 @@ class EPUB(zipfile.ZipFile):
             raise InvalidEpub("Cannot process an EPUB without unique-identifier attribute of the package element")
         # Get and parse the TOC
         toc_id = self.opf[2].get("toc")
-        expr = ".//{0}item[@id='{1:s}']".format(NAMESPACE["opf"], toc_id)
-        toc_name = self.opf.find(expr).get("href")
+        if toc_id:
+            expr = ".//{0}item[@id='{1:s}']".format(NAMESPACE["opf"], toc_id)
+        else:
+            expr = ".//{0}item[@properties='nav']".format(NAMESPACE["opf"])
+        toc_name = self.opf.find(expr).get("href")    
         self.ncx_path = os.path.join(self.root_folder, toc_name)
         self.ncx = ET.fromstring(self.read(self.ncx_path))
         self.contents = [{"name": i[0][0].text or "None",           # Build a list of toc elements

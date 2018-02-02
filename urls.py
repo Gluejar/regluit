@@ -1,5 +1,9 @@
 from django.conf.urls import patterns, url, include
+from django.contrib.auth.decorators import login_required
 from django.contrib.sitemaps.views import index, sitemap
+from django.views.decorators.cache import never_cache
+
+from ckeditor import views as ckedit_views
 
 from regluit.admin import site
 from regluit.core.sitemaps import WorkSitemap, PublisherSitemap
@@ -20,7 +24,8 @@ urlpatterns = [
     url(r'^admin/', include(site.urls)), 
     url(r'^comments/', include('django_comments.urls')),
     url(r"^notification/", include('notification.urls')),
-    url(r'^ckeditor/', include('ckeditor.urls')),
+    url(r'^ckeditor/upload/', login_required(ckedit_views.upload), name='ckeditor_upload'),
+    url(r'^ckeditor/browse/', never_cache(login_required(ckedit_views.browse)), name='ckeditor_browse'),
     # questionnaire urls
     url(r'^survey/', include('questionnaire.urls')),
     # sitemaps

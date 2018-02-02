@@ -2,13 +2,14 @@
 
 {% load endless %}
 {% load lang_utils %}
+{% load sass_tags %}
 
 {% block title %} Ready-to-Read Works {% if pub_lang %} in {{pub_lang|ez_lang_name}}{% endif %}{% endblock %}
 {% block extra_css %}
-<link type="text/css" rel="stylesheet" href="/static/css/supporter_layout.css" />
-<link type="text/css" rel="stylesheet" href="/static/css/book_list.css" />
-<link type="text/css" rel="stylesheet" href="/static/css/book_panel2.css" />
-<link type="text/css" rel="stylesheet" href="/static/css/lists.css" />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/supporter_layout.scss' %}" />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/book_list.scss' %}" />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/book_panel2.scss' %}" />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/lists.scss' %}" />
 {% endblock %}
 {% block extra_head %}
 <script type="text/javascript" src="/static/js/wishlist.js"></script>

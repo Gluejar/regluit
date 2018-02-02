@@ -21,6 +21,7 @@ from regluit.core.lookups import (
     EditionNoteLookup,
 )
 from regluit.bisac.models import BisacHeading
+from regluit.core.cc import CHOICES as RIGHTS_CHOICES
 from regluit.core.models import Edition, Identifier
 from regluit.core.parameters import (
     AGE_LEVEL_CHOICES,
@@ -122,6 +123,8 @@ class EditionForm(forms.ModelForm):
         required=False,
         allow_new=True,
         )
+    set_rights = forms.CharField(widget=forms.Select(choices=RIGHTS_CHOICES), required=False)
+    
     def __init__(self,  *args, **kwargs):
         super(EditionForm, self).__init__(*args, **kwargs)
         self.relators = []
@@ -132,12 +135,6 @@ class EditionForm(forms.ModelForm):
                     relator.relation.code
                 )
                 self.relators.append({'relator':relator, 'select':select})
-
-    def clean_doi(self):
-        doi = self.cleaned_data["doi"]
-        if doi and doi.startswith("http"):
-            return doi.split('/', 3)[3]
-        return doi
 
     def clean_title(self):
         return sanitize_line(self.cleaned_data["title"])
@@ -157,7 +154,7 @@ class EditionForm(forms.ModelForm):
                 err_msg = "{} is a duplicate for work #{}.".format(identifier[0], identifier[0].work_id)
                 self.add_error('id_value', forms.ValidationError(err_msg))
             try:
-                self.cleaned_data['value'] = identifier_cleaner(id_type)(id_value)
+                self.cleaned_data['id_value'] = identifier_cleaner(id_type)(id_value)
             except forms.ValidationError, ve:
                 self.add_error('id_value', forms.ValidationError('{}: {}'.format(ve.message, id_value)))
         return self.cleaned_data

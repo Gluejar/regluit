@@ -76,6 +76,20 @@ XML: <a href="/api/v1/identifier/?format=xml&amp;api_key={{api_key}}&amp;usernam
 
     <h3>OPDS Catalog Feeds</h3>
     <p>We have a basic implementation of <a href="http://opds-spec.org/specs/opds-catalog-1-1-20110627/">OPDS</a> feeds. You don't need a key to use them. The starting point is <code><a href="{% url 'opds' %}">{{base_url}}{% url 'opds' %}</a></code></p>
+    <p>
+    Examples:
+    <dl>
+    <dt>filtered by format</dt>
+    <dd><code><a href="{% url 'opds_acqusition' 'epub' %}">{{base_url}}{% url 'opds_acqusition' 'epub' %}</a></code></dd>
+    <dt>filtered by license</dt>
+    <dd><code><a href="{% url 'opds_acqusition' 'by-sa' %}">{{base_url}}{% url 'opds_acqusition' 'by-sa' %}</a></code></dd>
+    <dt>filtered by title search</dt>
+    <dd><code><a href="{% url 'opds_acqusition' 's.open' %}">{{base_url}}{% url 'opds_acqusition' 's.open' %}</a></code></dd>
+    <dt>filtered by keyword</dt>
+    <dd><code><a href="{% url 'opds_acqusition' 'kw.fiction' %}">{{base_url}}{% url 'opds_acqusition' 'kw.fiction' %}</a></code></dd>
+    <dt>filtered by ungluer</dt>
+    <dd><code><a href="{% url 'opds_acqusition' '@eric' %}">{{base_url}}{% url 'opds_acqusition' '@eric' %}</a></code></dd>
+    </p>
         <p>There's also an OPDS record available for every work on unglue.it. For example, requesting, <code><a href="{% url 'opds_acqusition' 'all'%}?work=13950">{{base_url}}{% url 'opds_acqusition' 'all'%}?work=13950</a></code> get you to the web page or opds record for <i>A Christmas Carol</i>.</p>
    
     <h3>ONIX Catalog Feeds</h3>

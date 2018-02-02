@@ -4,6 +4,7 @@ User-agent: *
 Disallow: /accounts/
 Disallow: /feedback/
 Disallow: /socialauth/
+Disallow: /search/
 Disallow: /googlebooks/
 {% else %}
 User-agent: *

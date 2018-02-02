@@ -74,6 +74,8 @@ STATIC_ROOT = ''
 # Example: "http://media.lawrence.com/static/"
 STATIC_URL = '/static/'
 
+SASS_PROCESSOR_ROOT = os.path.join(PROJECT_DIR, 'static')
+
 # URL prefix for admin static files -- CSS, JavaScript and images.
 # Make sure to use a trailing slash.
 # Examples: "http://foo.com/static/admin/", "/static/admin/".
@@ -182,7 +184,13 @@ INSTALLED_APPS = (
     'transmeta',
     'questionnaire',
     'questionnaire.page',  
+    'sass_processor',
 )
+
+SASS_PROCESSOR_INCLUDE_DIRS = [
+    os.path.join(PROJECT_DIR, 'static', 'scss'),
+]
+SASS_PROCESSOR_AUTO_INCLUDE = False
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -234,7 +242,7 @@ LOGGING = {
 EMAIL_HOST = 'smtp.gluejar.com'
 DEFAULT_FROM_EMAIL = 'notices@gluejar.com'
 SERVER_EMAIL = 'notices@gluejar.com'
-SUPPORT_EMAIL = 'support@gluejar.com'
+SUPPORT_EMAIL = 'unglueit@ebookfoundation.org'
 ACCOUNT_ACTIVATION_DAYS = 30
 SESSION_COOKIE_AGE = 3628800 # 6 weeks
 
@@ -321,6 +329,7 @@ USER_AGENT = "unglue.it.bot v0.0.1 <https://unglue.it>"
 GLUEJAR_COMMISSION = 0.06
 PREAPPROVAL_PERIOD = 365 # days to ask for in a preapproval
 PREAPPROVAL_PERIOD_AFTER_CAMPAIGN = 90 # if we ask for preapproval time after a campaign deadline
+PAYPAL_GLUEJAR_EMAIL = 'info@ebookfoundation.org' #legacy code needs this
 
 # How many days we will try to collect on failed transactions until they are written off
 RECHARGE_WINDOW = 14
@@ -417,6 +426,7 @@ SHOW_GOOGLE_ANALYTICS = False
 
 # to enable uploading to S3 and integration of django-storages + django-ckeditor
 # some variables to be overriddden in more specific settings files -- e.g., prod.py, 
+CKEDITOR_ALLOW_NONIMAGE_FILES = False
 
 AWS_ACCESS_KEY_ID = ''
 AWS_SECRET_ACCESS_KEY = ''

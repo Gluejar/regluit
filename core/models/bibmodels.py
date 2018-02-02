@@ -150,6 +150,14 @@ class Work(models.Model):
         return id_for(self, 'doab')
 
     @property
+    def doi(self):
+        return self.id_for('doi')
+
+    @property
+    def http_id(self):
+        return self.id_for('http')
+
+    @property
     def googlebooks_id(self):
         try:
             preferred_id = self.preferred_edition.googlebooks_id
@@ -887,6 +895,8 @@ class Edition(models.Model):
         return regluit.core.isbn.convert_13_to_10(self.isbn_13)
 
     def id_for(self, type):
+        if type in WORK_IDENTIFIERS:
+            return self.work.id_for(type)
         return id_for(self, type)
 
     @property
@@ -906,16 +916,8 @@ class Edition(models.Model):
         return self.id_for('oclc')
 
     @property
-    def doi(self):
-        return self.id_for('doi')
-
-    @property
     def goodreads_id(self):
         return self.id_for('gdrd')
-
-    @property
-    def http_id(self):
-        return self.id_for('http')
 
     @staticmethod
     def get_by_isbn(isbn):
@@ -1070,13 +1072,24 @@ class EbookFile(models.Model):
     def make_mobi(self):
         if not self.format == 'epub' or not settings.MOBIGEN_URL:
             return False
-        new_mobi_ebf = EbookFile.objects.create(edition=self.edition, format='mobi', asking=self.asking)
-        new_mobi_ebf.file.save(path_for_file('ebf', None), ContentFile(mobi.convert_to_mobi(self.file.url)))
+        try:
+            mobi_cf = ContentFile(mobi.convert_to_mobi(self.file.url))
+        except:
+            return False
+        new_mobi_ebf = EbookFile.objects.create(
+            edition=self.edition,
+            format='mobi',
+            asking=self.asking,
+            source=self.file.url
+        )
+            
+        new_mobi_ebf.file.save(path_for_file('ebf', None), mobi_cf)
         new_mobi_ebf.save()
         if self.ebook:
             new_ebook = Ebook.objects.create(
                 edition=self.edition,
                 format='mobi',
+                provider='Unglue.it',
                 url=new_mobi_ebf.file.url,
                 rights=self.ebook.rights,
                 version_label=self.ebook.version_label,
