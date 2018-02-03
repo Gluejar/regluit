@@ -1,6 +1,6 @@
 @import "variables.scss";
 
-.block-inner { 
+.block-inner {
 	padding-right:10px;
 }
 
@@ -14,38 +14,38 @@
 	width:100%;
 	clear:both;
 	padding-top: 10px;
-	
-	.block { 
-		float:left; 
+
+	.block {
+		float:left;
 	}
-	
+
 	.block1, .block3 {
 		width:25%;
 	}
-	
+
 	.block2 {
 		width:50%;
-		
+
 		div {
 			float: left;
 			max-width: 340px;
 		}
-		
+
 		input {
 			margin-left: 5px;
 		}
 	}
 
-	input { 
-		float:left; 
+	input {
+		float:left;
 		margin:3px 10px 0 0;
 		width: 45%;
-		
+
 		&[type=checkbox] {
 			float: none;
 			width: auto;
 		}
-		
+
 		&#librarything_input, &#goodreads_input {
 			width: auto;
 			cursor: pointer;
@@ -53,25 +53,25 @@
 			color: $text-blue;
 			cursor: pointer;
 		}
-		
+
 		&.profile-save {
 			width: 116px;
 			cursor: pointer;
-		}		
+		}
 	}
-	
+
 	label {
-		float:left; 
+		float:left;
 		width:90%;
-	}	
-	
+	}
+
 	textarea {
 		width:95%;
 	}
-	
+
 	select {
 		margin-bottom: 5px;
-	}	
+	}
 }
 
 #user-block1 {
@@ -102,14 +102,14 @@
 	width:75%;
 }
 
-.user-block3, 
+.user-block3,
 .user-block4 {
 	float:left;
 	width:25%;
-	
+
 	&.recommended {
  		margin-top: auto;
- 		
+
  		img {
  			margin-right: 7px;
  		}
@@ -134,7 +134,7 @@
     position: absolute;
     bottom: 0;
     left: 60px;
-    
+
     img {
         vertical-align:text-bottom;
         border:1px solid #d4d4d4;
@@ -142,7 +142,7 @@
     }
 }
 
-.social { 
+.social {
 	width:100%;
 }
 
@@ -152,7 +152,7 @@
     margin-right: -5px;
     border: 2px solid white;
     padding: 3px 2px 2px 3px;
-    
+
     &:hover {
         border: 2px solid $call-to-action;
         @include one-border-radius(5px);
@@ -169,7 +169,7 @@ span.special-user-name {
 }
 
 span.user-name,
-span.user-short-info { 
+span.user-short-info {
 	display: block;
 }
 
@@ -178,14 +178,14 @@ span.user-short-info {
 }
 
 span.user-name,
-span.user-name a { 
+span.user-name a {
 	font-size: $font-size-default;
 	color:$text-blue;
 }
 
-span.user-status-title { 
-	float:left; 
-	margin-right: 8px; 
+span.user-status-title {
+	float:left;
+	margin-right: 8px;
 	padding-top: 5px;
 }
 
@@ -197,26 +197,26 @@ span.blue {
 	@include supporter-color-span(#a7d26a, "blue");
 }
 
-span.orange { 
+span.orange {
 	@include supporter-color-span(#eabc7c, "orange");
 }
 
-span.grey { 
+span.grey {
 	@include supporter-color-span(#bacfd6, "grey");
 }
 
-div.check-list { 
-	float: left; 
+div.check-list {
+	float: left;
 	padding-bottom:7px;
 	clear: both;
 }
 
-a.profile-edit { 
-	display:block; 
+a.profile-edit {
+	display:block;
 //	background:url("#{$image-base}header/icon-edit.png") right top no-repeat;
 }
 
-div.profile-save { 
+div.profile-save {
 	padding-top:15px;
 	border: none;
 }
@@ -235,16 +235,16 @@ input.profile-save {
 	background: url("#{$image-base}supporter_icons/goodreads_square.png") left center no-repeat;
 	min-height: 33px;
 	margin: 12px auto;
-	
+
 	span {
 		display: inline-block;
 		vertical-align: middle;
 	}
-	
+
 	div, input {
 		margin: auto 10px auto 36px;
 	}
-	
+
 	#goodreads_shelves {
 		margin: auto 10px auto 36px;
 		display: block;
@@ -264,16 +264,16 @@ input.profile-save {
 .weareonthat {
 	background: url("#{$image-base}checkmark_small.png") left center no-repeat;
 }
-span.my-setting { 
+span.my-setting {
 	@include height(40px);
-	display:block; 
-	padding:0 0 10px 10px; 
+	display:block;
+	padding:0 0 10px 10px;
 	font-size: $font-size-header;
 	font-weight: bold;
 	cursor:pointer;
 }
 
-span.my-setting.active { 
+span.my-setting.active {
 	background:$blue-grey url("#{$image-base}header/collspane.png") 90% center no-repeat;
 }
 
@@ -284,7 +284,7 @@ span.my-setting.active {
     margin-top: 10px;
     width: 100%;
 	border-bottom: 4px solid $blue-grey;
-    
+
     ul.tabs li a:hover {
     	text-decoration: none;
     }
@@ -311,32 +311,32 @@ span.my-setting.active {
 	}
 }
 
-#tabs ul.book-list-view { 
+#tabs ul.book-list-view {
 	margin-bottom:0 !important;
 }
 
 #tabs-1,
 #tabs-2,
-#tabs-3 { 
+#tabs-3 {
 	margin-left:10px;
 }
 
 ul.tabs {
 	float:left;
-	padding:0; 
-	margin:0; 
+	padding:0;
+	margin:0;
 	list-style:none;
 
 	li {
-		float: left; 
-		@include height(46px); 
+		float: left;
+		@include height(46px);
 		margin-right:2px;
-		
+
 		&.tabs1, &.tabs2, &.tabs3 {
 			width:112px;
 		}
 
-		a { 
+		a {
 			@include height(46px);
 			display:block;
 			text-align:center;
@@ -346,31 +346,31 @@ ul.tabs {
 			background:$medium-blue;
 			color:#fff;
 		}
-		
+
 		&.tabs1 a:hover, &.tabs1.active a {
 			background:$green;
 			color:#fff
-		} 
+		}
 
 		&.tabs2 a:hover, &.tabs2.active a {
 			background:#eabc7c;
 			color:#fff;
-		} 
+		}
 
 		&.tabs3 a:hover, &.tabs3.active a {
 			background:$blue-grey;
 			color:$text-blue;
-		} 
+		}
 	}
 }
 
 #rss {
 	height: 46px;
-	
+
 	img {
 		padding: 16px 0 0 14px;
 	}
-	
+
 	span {
 		margin-left: 3px;
 		font-size: $font-size-default;
@@ -421,7 +421,7 @@ div#content-block-content {
 	padding:10px;
 }
 
-.book-image { 
+.book-image {
 	padding:0 0 10px 0;
 }
 
@@ -471,7 +471,7 @@ div#content-block-content {
 }
 
 #js-slide .jsmodule {
-	width: 660px !important;	
+	width: 660px !important;
 }
 
 #js-maincontainer-bot-block {
@@ -486,7 +486,7 @@ div#content-block-content {
 	@include one-border-radius(5px);
 	width: 665px;
 	margin: 7px 0;
-	
+
 	a {
 		font-size: $font-size-larger;
 		color: $call-to-action;

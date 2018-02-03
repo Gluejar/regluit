@@ -8,7 +8,7 @@
 }
 
 input[name="launch"] {
-	display: none;	
+	display: none;
 }
 
 #launchme {
@@ -19,7 +19,7 @@ input[name="launch"] {
     span, input[type="text"], textarea {
         float: left;
     }
-    
+
     input[type="submit"] {
         float: right;
     }
@@ -27,16 +27,16 @@ input[name="launch"] {
     input[type="text"] {
         width: 33%;
     }
-    
+
     textarea {
         width: 60%;
     }
-    
+
     .premium_add_label {
         width: 30%;
         margin-right: 2%;
     }
-    
+
     .premium_field_label {
         width: 1%;
         margin-left: -1%;
