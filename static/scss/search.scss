@@ -4,7 +4,7 @@ span.rounded {
 	@include roundedspan;
 }
 
-span.grey { 
+span.grey {
 	@include supporter-color-span(#bacfd6, grey);
 }
 

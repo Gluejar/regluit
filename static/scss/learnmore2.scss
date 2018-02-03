@@ -1,13 +1,13 @@
 @import "variables.scss";
 
 .user-block {
-	width:100%; 
+	width:100%;
 	clear:both;
 }
 
 #user-block1 {
 	width:100%;
-	
+
 	a#readon {
 		float: left;
 	}
@@ -17,13 +17,13 @@
 	background: none;
 }
 
-.learnmore_block { 
+.learnmore_block {
 	float: left;
-	width:100%; 
+	width:100%;
 	clear:both;
 	border-top: solid 1px $bright-blue;
 	margin-top: 20px;
-	
+
 	.learnmore_row{
 	    border-bottom: dashed 2px $bright-blue;
         clear: left;
@@ -31,7 +31,7 @@
 	}
 	.arrow {
 	     font-size: 24pt;
-	     color: $bright-blue; 
+	     color: $bright-blue;
 	     line-height: 48pt;
 	     float: left;
 	     padding-right: 8px;
@@ -61,7 +61,7 @@
             font-size: 48pt;
             line-height: 48pt;
             font-style: normal;
-            
+
             .makeaskgive{
                 position: relative;
                 z-index: 1;
@@ -97,7 +97,7 @@
                 display: inherit;
                 font-size: 10pt;
                 padding: .7em 1em;
-                top: -15px;            
+                top: -15px;
             }
         }
 		&.last {
@@ -109,7 +109,7 @@
 				color: $call-to-action;
 				font-weight: bold;
 				margin-top: 10px;
-				
+
 				img {
 					margin-left: 5px;
 					vertical-align: middle;
@@ -117,11 +117,11 @@
 				}
 			}
 		}
-		
+
 		&.right {
 		    float: right;
 		}
-	}	
+	}
 }
 
 input[type="submit"].qtbutton{
@@ -133,7 +133,7 @@ input[type="submit"].qtbutton{
 	display: none;
 	line-height: 25px;
 	padding-bottom: 10px;
-	
+
 	&#active {
 		display: inherit;
 	}
