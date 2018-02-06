@@ -69,6 +69,105 @@
             {% else %}
                 {{ work.last_campaign.description|safe }}
             {% endif %}
+
+            <div class="description-more-content">
+                {% if action == 'display' %}
+                    {% if status == 'ACTIVE' %}
+                        {% if work.last_campaign.type == 1 %}
+                            <h3 class="tabcontent-title">A campaign is running to unglue <i>{{work.title}}</i>!</h3>
+                            <p>The rights holder, {% for claim in work.claim.all %}
+                                {% if claim.status == 'active' %}
+                                {{ claim.rights_holder.rights_holder_name }}
+                                {% endif %}
+                            {% endfor %}
+                            , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook (<a href="{{ work.last_campaign.license_url }}">{{ work.last_campaign.license }}</a>) if ungluers can join together to raise ${{ work.last_campaign.target|floatformat:0|intcomma }} by {{ work.last_campaign.deadline }}.
+                            You can help!</p>
+                        {% endif %}
+                        {% if work.last_campaign.type == 2 %}
+                            <h3 class="tabcontent-title">A Buy-to-Unglue Campaign is running to unglue <i>{{work.title}}</i>!</h3>
+                            <p>The rights holder, {% for claim in work.claim.all %}
+                                {% if claim.status == 'active' %}
+                                {{ claim.rights_holder.rights_holder_name }}
+                                {% endif %}
+                            {% endfor %}
+                            , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook (<a href="{{ work.last_campaign.license_url }}">{{ work.last_campaign.license }}</a>) on {{ work.last_campaign.cc_date }}. For every copy that ungluers purchase, that date gets sooner. ${{ work.last_campaign.left|floatformat:0|intcomma }} of sales will unglue the book <i>TODAY</i>.
+                            You can help!</p>
+                        {% endif %}
+                        {% if work.last_campaign.type == 3 %}
+                            <h3 class="tabcontent-title">A Thanks-for-Ungluing Campaign is running to reward the creators of <i>{{work.title}}</i>!</h3>
+                            <p>The rights holder, {% for claim in work.claim.all %}
+                                {% if claim.status == 'active' %}
+                                {{ claim.rights_holder.rights_holder_name }}
+                                {% endif %}
+                            {% endfor %}
+                            , has released <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook (<a href="{{ work.last_campaign.license_url }}">{{ work.last_campaign.license }}</a>) .
+                            You can help us say "Thank You!" so that other creators will do the same.</p>
+                        {% endif %}
+                        <h4>Campaign details: the fine print</h4>
+                        {{ work.last_campaign.details|safe }}
+                    {% endif %}
+
+                    {% if status == 'SUCCESSFUL' %}
+                        <h3 class="tabcontent-title">A campaign has succeeded to unglue <i>{{work.title}}</i>!</h3>
+                        <p>The rights holder, {% for claim in work.claim.all %}
+                            {% if claim.status == 'active' %}
+                            {{ claim.rights_holder.rights_holder_name }}
+                            {% endif %}
+                        {% endfor %}
+                        , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook (<a href="{{ work.last_campaign.license_url }}">{{ work.last_campaign.license }}</a>) thanks to the efforts of ungluers like you.</p>
+                        <h4>Campaign details: the fine print</h4>
+                        {{ work.last_campaign.details|safe }}
+                    {% endif %}
+                    {% if status != 'ACTIVE' and status != 'SUCCESSFUL' %}
+                        <h4> Rights Information </h4>
+                        {% if claimstatus == 'one_active' %}
+                          <p>This work has been claimed by {{ rights_holder_name }}.</p>
+                        {% else %}
+                            {% if claimstatus == 'disputed' %}
+                                <p>Rights claims are pending.</p>
+                            {% else %}
+                                {% if claimstatus == 'one_pending' %}
+                                    <p>A claim for this work by {{ rights_holder_name }} is pending.</p>
+                                {% else %}
+                                    {% if request.user.rights_holder.all.count %}
+                                        Is this work yours?  Claim it: <br /><br />
+
+                                        <form method="GET" action="{% url 'claim' %}">
+                                            {% csrf_token %}
+                                            {{ claimform.user }}
+                                            {{ claimform.work }}
+                                            {{ claimform.rights_holder }}
+                                            <input type="submit" name="submit" value="Claim" />
+                                         </form><br />
+                                    {% else %}
+                                        Are you the author or publisher of this work? If so, you can claim it as yours by <a href="{% url 'rightsholders' %}">registering as an Unglue.it rights holder</a>.
+                                    {% endif %}
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                    {% if work.is_free %}
+                        <h4>Downloads</h4>
+                        <div class="pledged-info">
+                            This work has been downloaded {{ work.download_count }} times via unglue.it ebook links.
+                            <ol>
+                            {% for ebook in work.ebooks.all %}
+                            <li>{{ ebook.download_count }} -  {{ ebook.format }} {% if ebook.version_label %}  ({{ ebook.version_label }}) {% endif %}({{ ebook.rights }}) at {{ ebook.provider }}. </li>
+                            {% endfor %}
+                            </ol>
+                        </div>
+                        {% if user.is_staff %}
+                            <p>
+                            <a href="{% url 'feature' work.id %}">Feature this work today.</a>
+                            </p>
+                        {% endif %}
+                    {% endif %}
+                    {% if user.is_staff %}
+                        <h4>Related Works</h4>
+                        <div><a href="{% url 'merge' work_id  %}">Merge other works into this one</a></div>
+                    {% endif %}
+                {% endif %}
+                </div>
             </div>
         </div>
         <div class="bookSidebar">

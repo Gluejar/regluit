@@ -1,15 +1,9 @@
 @import 'settings/settings';
 @import 'foundation';
 @include foundation-everything;
-<<<<<<< HEAD
-=======
 
 @include breakpoint(small only) {
     #feedback {
         display: none;
     }
 }
-
-
-
->>>>>>> newfoundation
