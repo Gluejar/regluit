@@ -1,4 +1,6 @@
-@media screen and (max-width: 480px) {
+@import 'foundation';
+
+@include breakpoint (small down) {
     .wrapper {
         display: grid;
         grid-template-columns: fit-content 1fr 20%;
@@ -50,7 +52,7 @@
     }
 }
 
-@media screen and (min-width: 480px) {
+@include breakpoint (medium) {
     .wrapper {
         display: grid;
         grid-template-columns: fit-content 1fr 20%;
