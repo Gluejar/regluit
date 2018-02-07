@@ -323,7 +323,7 @@ class PaymentManager( object ):
         
         # only allow active transactions to go through again, if there is an error, intervention is needed
         transactions = Transaction.objects.filter(campaign=campaign, status=TRANSACTION_STATUS_ACTIVE)
-        
+
         results = []
         
         for t in transactions:
