@@ -77,7 +77,6 @@ class Processor(baseprocessor.Processor):
             This Execute function debits the user credits and pledge and credits the recipient.
         '''
         def __init__(self, transaction=None):
-            print transaction
             self.transaction = transaction
             amount = transaction.amount
             # make sure transaction hasn't already been executed
