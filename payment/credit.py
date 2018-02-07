@@ -5,7 +5,16 @@ from django.contrib.auth.models import User
 
 from regluit.payment import baseprocessor
 from regluit.payment.baseprocessor import BasePaymentRequest
-from regluit.payment.parameters import *
+from regluit.payment.parameters import (
+    PAYMENT_HOST_CREDIT,
+    PAYMENT_TYPE_AUTHORIZATION,
+    PAYMENT_TYPE_INSTANT,
+    TRANSACTION_STATUS_ACTIVE,
+    TRANSACTION_STATUS_COMPLETE,
+    TRANSACTION_STATUS_ERROR,
+    TRANSACTION_STATUS_CANCELED,
+)
+from regluit.payment.signals import transaction_charged
 
 def pledge_transaction(t,user,amount):
     """commit <amount> from a <user>'s credit to a specified transaction <t>"""
@@ -67,3 +76,31 @@ class Processor(baseprocessor.Processor):
             self.approved = transaction.approved
             self.currency = transaction.currency
             self.amount = transaction.amount
+
+    class Execute(BasePaymentRequest):
+        '''
+            This Execute function debits the user credits and pledge and credits the recipient.
+        '''
+        def __init__(self, transaction=None):
+            print transaction
+            self.transaction = transaction
+            amount = transaction.amount
+            # make sure transaction hasn't already been executed
+            if transaction.status == TRANSACTION_STATUS_COMPLETE:
+                return
+
+            used = transaction.user.credit.use_pledge(amount)
+            if used:
+                user_to_pay = transaction.campaign.user_to_pay
+                credited = user_to_pay.credit.add_to_balance(amount, notify=False)
+                transaction.status = TRANSACTION_STATUS_COMPLETE
+                transaction.date_payment = now()
+                transaction.save()
+                
+                # fire signal for sucessful transaction
+                transaction_charged.send(sender=self, transaction=transaction)
+
+
+
+
+

@@ -290,7 +290,7 @@ class Credit(models.Model):
     def available(self):
         return self.balance - self.pledged
     
-    def add_to_balance(self, num_credits):
+    def add_to_balance(self, num_credits, notify=True):
         if self.pledged - self.balance >  num_credits :  # negative to withdraw
             return False
         else:
@@ -300,10 +300,11 @@ class Credit(models.Model):
                 CreditLog(user = self.user, amount = num_credits, action="add_to_balance").save()
             except:
                 logger.exception("failed to log add_to_balance of %s", num_credits)
-            try: 
-                credit_balance_added.send(sender=self, amount=num_credits)
-            except:
-                logger.exception("credit_balance_added failed  of %s", num_credits)
+            if notify:
+                try: 
+                    credit_balance_added.send(sender=self, amount=num_credits)
+                except:
+                    logger.exception("credit_balance_added notification failed  of %s", num_credits)
             return True
     
     def add_to_pledged(self, num_credits):
@@ -327,27 +328,26 @@ class Credit(models.Model):
             return False
         if self.pledged <  num_credits :
             return False
-        else:
-            self.pledged=self.pledged - num_credits
-            self.balance = self.balance - num_credits
-            self.save()
-            try:
-                CreditLog(user = self.user, amount = - num_credits, action="use_pledge").save()
-            except:
-                logger.exception("failed to log use_pledge of %s", num_credits)
-            return True
+        self.pledged = self.pledged - num_credits
+        self.balance = self.balance - num_credits
+        self.save()
+        try:
+            CreditLog(user = self.user, amount = - num_credits, action="use_pledge").save()
+        except:
+            logger.exception("failed to log use_pledge of %s", num_credits)
+        return True
             
-    def transfer_to(self, receiver, num_credits):
+    def transfer_to(self, receiver, num_credits, notify=True):
         num_credits=Decimal(num_credits)
         if num_credits is Decimal('NaN') or not isinstance( receiver, User):
             logger.info('fail: %s, %s' % (num_credits,receiver))
             return False
         if self.add_to_balance(-num_credits):
-            if receiver.credit.add_to_balance(num_credits):
+            if receiver.credit.add_to_balance(num_credits, notify):
                 return True
             else:
                 # unwind transfer
-                self.add_to_balance(num_credits)
+                self.add_to_balance(num_credits, notify)
                 return False
         else:
             return False
