@@ -272,7 +272,7 @@ class Receiver(models.Model):
         return u"Receiver -- email: {0} status: {1} transaction: {2}".format(self.email, self.status, unicode(self.transaction))
 
 class CreditLog(models.Model):
-    # a write only record of Gift Credit Transactions
+    # a write only record of Unglue.it Credit Transactions
     user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True) 
     amount = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
     timestamp = models.DateTimeField(auto_now=True)

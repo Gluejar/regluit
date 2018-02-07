@@ -1,4 +1,4 @@
-{% load humanize %}{% if transaction.donation %}{% ifequal transaction.host 'credit' %}Your Unglue.it transaction has completed and ${{transaction.max_amount|default:"0"}} has been deducted from your Unglue.it credit balance. You have ${{transaction.user.credit.available|default:"0"}} of credit left. {% else %}{% if transaction.max_amount > transaction.amount %}Your transaction for ${{transaction.max_amount|default:"0"}} has completed. Your credit card has been charged ${{transaction.amount}} and the rest has been deducted from your unglue.it credit balance. You have ${{transaction.user.credit.available|default:"0"}} of credit left. {% else %}Your Unglue.it credit card transaction has completed and your credit card has been charged ${{ transaction.amount|default:"0" }}. {% endif %}{% endifequal %}
+{% load humanize %}{% if transaction.donation %}{% if transaction.host == 'credit' %}Your Unglue.it transaction has completed and ${{transaction.max_amount|default:"0"}} has been deducted from your Unglue.it credit balance. You have ${{transaction.user.credit.available|default:"0"}} of credit left. {% elif transaction.max_amount > transaction.amount %}Your transaction for ${{transaction.max_amount|default:"0"}} has completed. Your credit card has been charged ${{transaction.amount}} and the rest has been deducted from your unglue.it credit balance. You have ${{transaction.user.credit.available|default:"0"}} of credit left. {% else %}Your Unglue.it credit card transaction has completed and your credit card has been charged ${{ transaction.amount|default:"0" }}. {% endif %}
 
 Your donation of ${{transaction.max_amount|default:"0"}} to the Free Ebook Foundation will support our effort to release {{ transaction.campaign.work.title }} to the world in an unglued ebook edition. We'll email you if the campaign succeeds, and when the ebook is available for download. If you'd like to visit the campaign page, click here: 
 https://{{ current_site.domain }}{% url 'work' transaction.campaign.work_id %}
@@ -15,7 +15,7 @@ Thank you again for your generous support.
 
 {% else %}An Ungluing!
 
-Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be released to the world in an unglued ebook edition. Your credit card has been charged ${{ transaction.amount|floatformat:2|intcomma }}.
+Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be released to the world in an unglued ebook edition. Your {% if transaction.host == 'credit' %}Unglue.it credit account{% else %}credit card{% endif %} has been charged ${{ transaction.amount|floatformat:2|intcomma }}.
 
 Pledge summary 
 {% include "notification/pledge_summary.txt" %}    
