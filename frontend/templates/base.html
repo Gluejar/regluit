@@ -13,6 +13,9 @@
 
     <link href="{% sass_src 'scss/global.scss' %}" rel="stylesheet" type="text/css" />
     <link href="{% sass_src 'scss/foundation/scss/foundation.scss' %}" rel="stylesheet" type="text/css" />
+    <link href="{% sass_src 'scss/header.scss' %}" rel="stylesheet" type="text/css" />
+    <link type="text/css" rel="stylesheet" href="/static/css/font-awesome.min.css" />
+
 	<script type="text/javascript" src="{{ jquery_home }}"></script>
     <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
 	<script type="text/javascript" src="/static/js/sitewide1.js"></script>
@@ -46,26 +49,18 @@
 	</div>
 </div>
 
-<div id="js-page-wrap">
-    <div id="js-header">
-        <div class="js-main">
-            <div class="js-logo">
-                <a href="{% url 'landing' %}"><img src="/static/images/logo.png" alt="unglue.it" title="unglue.it"  /></a>
-            </div>
-            {% block search_box %}
-            {% if not suppress_search_box %}
-            <div class="js-search">
-            <div class="js-search-inner">
-                <form action="{% url 'search' %}" method="get">
-                	<div class="inputalign">
-                    <input type="text" id="nowatermark" size="25" onfocus="imgfocus()" onblur="imgblur(15)" class="inputbox" name="q" value="{{ q }}">
-                    <input type="submit" class="button">
-					</div>
-                </form>
-            </div>
-            </div>
-            {% endif %}
-            {% endblock %}
+<div id="page-wrapper">
+    <div id="header">
+        <div id="header-logo">
+            <a href="{% url 'landing' %}"><img src="/static/images/logo.png" alt="unglue.it" title="unglue.it"/></a>
+        </div>
+        <div id="header-search-bar">
+            <form action="{% url 'search' %}" method="get">
+                <i class="fa fa-search"></i>
+                <input type="text" id="nowatermark" size="25" onfocus="imgfocus()" onblur="imgblur(15)" class="inputbox" name="q" value="{{ q }}"></input>
+            </form>
+        </div>
+        <div id="header-login">
             {% block signin %}
             {% if user.is_authenticated %}
                 <div class="js-topmenu" id="authenticated">
@@ -100,27 +95,22 @@
                         </ul>
                 </div>
             {% else %}
-                <div class="js-topmenu">
-                    <ul class="menu">
-                        <li><a class="notbutton hijax" href="{% url 'superlogin' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}"><span>Sign In</span></a></li>
-                       {% if not suppress_search_box %}
-                            {% if request.get_full_path != "/accounts/register/" %}
-                                <li  class="last"><a class="btn btn-signup" href="{% url 'registration_register' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Sign Up <i class="fa fa-chevron-right"></i></a></li>
-                            {% endif %}
-                        {% endif %}
-                    </ul>
-                </div>
+                <a class="notbutton hijax" href="{% url 'superlogin' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}"><span>Log In</span></a>
+                <a class="btn btn-signup" href="{% url 'registration_register' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Sign Up <i class="fa fa-chevron-right"></i></a>
             {% endif %}
             {% endblock %}
+        </div>
+        <div id="header-menu">
+            <i class="fa fa-bars"></i>
         </div>
     </div>
 
 {% block news %}
 {% endblock %}
 
-    {% block topsection %}{% endblock %}
-    {% block content %}{% endblock %}
-</div>
+{% block topsection %}{% endblock %}
+{% block content %}{% endblock %}
+
 {% block footer %}
 <div id="footer">
   <div class="js-main">
@@ -174,24 +164,24 @@
   </div>
 </div>
 {% endblock %}
+</div>
+
 {% block counter %}
     {% if show_google_analytics %}
         <script type="text/javascript">
-        
+
           var _gaq = _gaq || [];
           _gaq.push(['_setAccount', 'UA-28369982-1']);
           _gaq.push(['_trackPageview']);
-        
+
           (function() {
             var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
             ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
             var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
           })();
-        
+
         </script>
     {% endif %}
 {% endblock %}
 </body>
 </html>
-
-
