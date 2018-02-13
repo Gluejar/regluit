@@ -122,8 +122,15 @@
     {% block content %}{% endblock %}
 </div>
 {% block footer %}
-<div id="footer">
-  <div class="js-main">
+<div class="footer hide utilityheaders">
+    <ul>
+            <li><a href="{% url 'about' %}">Team</a></li>
+            <li><a href="https://blog.unglue.it">Blog</a></li>
+            <li><a href="{% url 'terms' %}">Terms of Use</a></li>
+            <li><a href="{% url 'faq' %}">General FAQ</a></li>
+    </ul>
+</div>
+<div class="footer utilityheaders">
     <div class="column">
         <span>About Unglue.it</span>
         <ul>
@@ -134,7 +141,7 @@
             <li><a href="http://eepurl.com/fKLfI">Newsletter</a></li>
         </ul>
     </div>
-    <div class="column">
+    <div class="column show-for-medium">
         <span>Your account</span>
         <ul>
             {% if user.is_authenticated %}
@@ -162,7 +169,7 @@
             <li><a href="{% url 'libraries' %}">Unglue.it &hearts; Libraries</a>
         </ul>
     </div>
-    <div class="column">
+    <div class="column show-for-medium">
         <span>Contact</span>
         <ul>
             <li>General inquiries</li>
@@ -171,7 +178,6 @@
             <li><a href="mailto:rights@gluejar.com">rights@gluejar.com</a></li>
         </ul>
     </div>
-  </div>
 </div>
 {% endblock %}
 {% block counter %}
