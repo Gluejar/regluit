@@ -8,7 +8,7 @@
     <meta name="referrer" content="origin" />
     <title>unglue.it {% block title %}{% endblock %}</title>
     <link type="text/css" rel="stylesheet" href="/static/css/sitewide4.css" />
-	<link REL="SHORTCUT ICON" HREF="/static/images/favicon.ico">
+    <link REL="SHORTCUT ICON" HREF="/static/images/favicon.ico">
     {% block extra_css %}{% endblock %}
 
     <link href="{% sass_src 'scss/global.scss' %}" rel="stylesheet" type="text/css" />
@@ -16,11 +16,13 @@
     <link href="{% sass_src 'scss/header.scss' %}" rel="stylesheet" type="text/css" />
     <link type="text/css" rel="stylesheet" href="/static/css/font-awesome.min.css" />
 
-	<script type="text/javascript" src="{{ jquery_home }}"></script>
+    <script type="text/javascript" src="{{ jquery_home }}"></script>
     <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
-	<script type="text/javascript" src="/static/js/sitewide1.js"></script>
-	<script type="text/javascript" src="/static/js/watermark_init.js"></script>
-	<script type="text/javascript" src="/static/js/watermark_change.js"></script>
+    <script type="text/javascript" src="/static/js/sitewide1.js"></script>
+    <script type="text/javascript" src="/static/js/watermark_init.js"></script>
+    <script type="text/javascript" src="/static/js/watermark_change.js"></script>
+    <script type="text/javascript" src="/static/scss/foundation/dist/js/foundation.js"></script>
+    <script defer type="text/javascript" src="/static/js/initialize-foundation.js"></script>
     {% block extra_js %}
     {% endblock %}
 	{% if show_langs %}
