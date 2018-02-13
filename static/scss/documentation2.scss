@@ -20,11 +20,11 @@ body {
 	background:$pale-blue;
 	border:1px solid $blue-grey;
 	@include one-border-radius(12px);
-	
+
 	.jsmodule {
 		border-bottom:1px solid #3c4e52;
 		width:235px;
-		
+
 		&.last {
 			border-bottom:none;
 			padding-bottom:10px;
@@ -59,23 +59,23 @@ body {
 		background: none;
 		margin-bottom: 0;
 	}
-	
+
 	li {
 	    margin-left: 7px;
 	}
-	
+
 	&.terms {
 		list-style: inherit;
 		list-style-position: inside;
 		padding-left: 1em;
 		text-indent: -1em;
-		
+
 		li {
 			@include one-border-radius(auto);
 			background: inherit;
 		}
 	}
-	
+
 	&.bullets {
         list-style-type: disc;
         margin-left: 9px;
@@ -101,7 +101,7 @@ dt {
 dd {
 	margin: 0 0 0 7px;
 	padding-bottom: 7px;
-	
+
 	&.margin {
 	    margin-left: 7px;
 	}
@@ -124,7 +124,7 @@ dd {
 
 .faq {
 	cursor: pointer;
-	
+
 	&:hover {
 		text-decoration: underline;
 	}
@@ -141,7 +141,7 @@ dd {
 		float: left;
 		padding-right: 15px;
 		margin-bottom: 7px;
-		
+
 		&.pressemail {
 			border: solid 2px $text-blue;
 			padding: 5px;
@@ -166,7 +166,7 @@ dd {
 		border-bottom: solid 1px $text-blue;
 		float: left;
 	}
-	
+
 	iframe, div.mediaborder {
 		@include mediaborder-base;
 	}
@@ -175,7 +175,7 @@ dd {
 .pressimages {
 	.outer {
 		clear: both;
-		
+
 		div {
 			float: left;
 			width: 25%;
@@ -184,8 +184,8 @@ dd {
 			&.text {
 				width: 75%;
 			}
-						
-			p { 
+
+			p {
 				margin: 0 auto;
 				padding-left: 10px;
 				padding-right: 10px;
@@ -193,7 +193,7 @@ dd {
 		}
 	}
 	clear: both;
-	
+
 	.screenshot {
 		width: 150px;
 		@include mediaborder-base;
@@ -209,7 +209,7 @@ a.manage {
 	cursor: pointer;
 	@include one-border-radius(5px);
 	border: 1px solid $blue-grey;
-	
+
 	&:hover {
 		text-decoration: none;
 	}
@@ -218,7 +218,7 @@ a.manage {
 .rh_help {
 	cursor: pointer;
 	color: $bright-blue;
-	
+
 	&:hover {
 		text-decoration: underline;
 	}
@@ -239,7 +239,7 @@ a.manage {
 
 	div {
 		float: left;
-	
+
 		&.campaign_info {
 			width: 60%;
 		margin: 5px;
@@ -256,7 +256,7 @@ h2.thank-you {
 .pledge_complete, .pledge_complete a {
 	font-size: $font-size-larger;
 	line-height: 18px;
-	margin-bottom: 15px;	
+	margin-bottom: 15px;
 }
 
 #js-slide .jsmodule.pledge  {
@@ -268,7 +268,7 @@ ul.social.pledge {
 		float: left;
 		padding-right: 30px !important;
 	}
-	
+
 	margin-bottom: 100px;
 }
 

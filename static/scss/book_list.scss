@@ -20,13 +20,13 @@
 
 .row2 .book-list.listview {
 	background: #fff;
-	
+
 	.book-name:hover {
-    	background: #fff;    	
+    	background: #fff;
 	}
 }
 
-div.book-list.listview{ 
+div.book-list.listview{
     clear:both;
     display:block;
     vertical-align: middle;
@@ -50,37 +50,37 @@ div.book-list.listview{
             margin-right:10px;
             background:url("#{$image-base}booklist/booklist-vline.png") right center no-repeat;
             float: left;
-            
-            .title { 
+
+            .title {
                 display:block;
                 line-height:normal;
                 overflow: hidden;
                 @include height(19px);
                 margin-bottom: 5px;
-                font-weight:bold;                
+                font-weight:bold;
             }
-            
+
             .listview.author {
                 overflow: hidden;
                 display:block;
                 line-height:normal;
                 @include height(19px);
             }
-            
+
             &.listview:hover {
                 // allow titles and authors to expand onhover
                 overflow: visible;
 
                 width: auto;
                 min-width: 219px;
-                
+
                 margin-top: -1px;
                 padding-right: 15px;
                 border: 1px solid $blue-grey;
                 @include border-radius(0, 10px, 10px, 0);
                 border-left: none;
             }
-            
+
             &.listview {
                 z-index:100;
                 // z-index only works on positioned elements, so if you
@@ -99,38 +99,38 @@ div.book-list.listview{
             //position: absolute;
             margin-left:255px;
             float:left;
-            
+
             span {
                 font-weight:normal;
                 color:$text-blue;
                 text-transform: none;
                 padding-left:20px;
             }
-            
+
             span.booklist_pledge {
                 padding-left: 18px;
             }
-            
+
         }
-        
+
         &.pledge span.booklist_pledge {
             padding-left: 0;
         }
-        
+
         &.add-wishlist span, &.create-account span {
             background:url("#{$image-base}booklist/add-wishlist.png") left center no-repeat;
         }
-        
+
         &.add-wishlist span.booklist_pledge {
             background: none;
         }
-        
+
         &.remove-wishlist span {
             background:url("#{$image-base}booklist/remove-wishlist-blue.png") left center no-repeat;
         }
-        
+
         &.on-wishlist > span, > span.on-wishlist {
-            background:url("#{$image-base}checkmark_small.png") left center no-repeat;        	
+            background:url("#{$image-base}checkmark_small.png") left center no-repeat;
         }
 
         &.booklist-status {
@@ -157,7 +157,7 @@ div.add-wishlist, div.remove-wishlist {
         max-width: 180px;
         overflow: hidden;
     }
-    
+
     .read_itbutton {
         margin-top: 4px;
     }
@@ -170,7 +170,7 @@ div.unglue-this {
         font-size:11px;
         font-weight:bold;
     }
-    
+
     &.complete {
         .unglue-this-inner1 {
             background:url($background-booklist) 0 -84px no-repeat;
@@ -190,10 +190,10 @@ div.unglue-this {
 
     &.processing {
         .unglue-this-inner1 {
-            background:url($background-booklist) 0 0 no-repeat; 
+            background:url($background-booklist) 0 0 no-repeat;
             height:42px;
         }
-    
+
         .unglue-this-inner2 {
             background:url($background-booklist) 100% -42px no-repeat;
             margin-left:25px;
@@ -208,7 +208,7 @@ ul.book-list-view {
     margin:15px;
     float:right;
     list-style:none;
-    
+
     li {
         float:left;
         margin-right:10px;
@@ -245,24 +245,24 @@ ul.navigation {
     padding:0;
     margin:0;
     list-style:none;
-    
+
     li {
         float: left;
         line-height:normal;
         margin-right:5px;
-        
+
         a {
             color:$dark-blue;
-            font-weight:normal;            
+            font-weight:normal;
         }
-        
+
         &.arrow-l a {
             @include navigation-arrows(0, -168px);
         }
-        
+
         &.arrow-r a {
             @include navigation-arrows(-1px, -185px);
-        }        
+        }
     }
 }
 
@@ -283,16 +283,16 @@ ul.navigation li a:hover, ul.navigation li.active a {
     overflow:hidden;
     position:relative;
     z-index:1;
-    
+
     &:hover {
         overflow:visible;
         z-index:1000;
-        border:none;        
+        border:none;
     }
-    
+
     img {
         position:absolute;
-        /* the excerpt you get looks cooler if you select from the middle, but 
+        /* the excerpt you get looks cooler if you select from the middle, but
         the popup version doesn't extend past the containing div's boundaries,
         so the positioned part is cut off.
         top:-20px;
@@ -304,7 +304,7 @@ ul.navigation li a:hover, ul.navigation li.active a {
 .listview.icons {
     position: absolute;
     right: 31px;
-    
+
     .booklist-status-img {
         @include one-border-radius(4px);
         background-color: #fff;
@@ -318,7 +318,7 @@ ul.navigation li a:hover, ul.navigation li.active a {
     .booklist-status-label, {
         display: none;
     }
-    
+
     .boolist-ebook img {
         margin-top: 6px;
     }
@@ -337,13 +337,13 @@ div#content-block-content {
 	font-weight: normal;
 }
 
-div#libtools {    
+div#libtools {
     margin-left: 15px;
     margin-bottom: 1em;
     border:1px solid $blue-grey;
     border-radius: 10px;
     padding: 10px;
-    
+
     p {
         margin-top: 0px;
     }
@@ -360,7 +360,7 @@ div#libtools {
         padding: 0 10px 0 10px;
         font-size: smaller;
     }
-    
+
     p:first-child {
         font-size: larger;
         margin-top: 5px;
