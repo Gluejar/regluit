@@ -145,7 +145,7 @@ ROOT_URLCONF = 'regluit.urls'
 
 INSTALLED_APPS = (
     'django.contrib.auth',
-    'django.contrib.contenttypes',  
+    'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.sitemaps',
@@ -171,31 +171,30 @@ INSTALLED_APPS = (
     'notification',
     'email_change',
     'ckeditor',
-    'storages', 
+    'storages',
     'sorl.thumbnail',
-    'mptt',   
-    # this must appear *after* django.frontend or else it overrides the 
+    'mptt',
+    # this must appear *after* django.frontend or else it overrides the
     # registration templates in frontend/templates/registration
     'django.contrib.admin',
-    'regluit.distro',               
+    'regluit.distro',
     'regluit.booxtream',
     'regluit.pyepub',
-    'regluit.libraryauth', 
+    'regluit.libraryauth',
     'transmeta',
     'questionnaire',
-    'questionnaire.page',  
+    'questionnaire.page',
     'sass_processor',
 )
 
 SASS_PROCESSOR_INCLUDE_DIRS = [
-    os.path.join(PROJECT_DIR),
     os.path.join(PROJECT_DIR, 'static', 'scss'),
     os.path.join('static', 'scss'),
     os.path.join(PROJECT_DIR, 'static', 'scss', 'foundation', 'scss'),
     os.path.join('static', 'scss', 'foundation', 'scss'),
     # static/scss/foundation/scss/foundation.scss
 ]
-
+SASS_PROCESSOR_AUTO_INCLUDE = False
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -247,7 +246,7 @@ LOGGING = {
 EMAIL_HOST = 'smtp.gluejar.com'
 DEFAULT_FROM_EMAIL = 'notices@gluejar.com'
 SERVER_EMAIL = 'notices@gluejar.com'
-SUPPORT_EMAIL = 'support@gluejar.com'
+SUPPORT_EMAIL = 'unglueit@ebookfoundation.org'
 ACCOUNT_ACTIVATION_DAYS = 30
 SESSION_COOKIE_AGE = 3628800 # 6 weeks
 
@@ -292,14 +291,14 @@ SOCIAL_AUTH_PIPELINE = (
     # Make up a username for this person, appends a random string at the end if
     # there's any collision.
     'social.pipeline.user.get_username',
-    
+
     # make username < 222 in length
     'regluit.libraryauth.auth.chop_username',
-    
+
     # Send a validation email to the user to verify its email address.
     # Disabled by default.
     # 'social.pipeline.mail.mail_validation',
-    
+
     # Associates the current social details with another user account with
     # a similar email address. don't use twitter or facebook to log in
     'regluit.libraryauth.auth.selectively_associate_by_email',
@@ -309,7 +308,7 @@ SOCIAL_AUTH_PIPELINE = (
 
     # Create the record that associated the social account with this user.
     'social.pipeline.social_auth.associate_user',
-    
+
     # Populate the extra_data field in the social record with the values
     # specified by settings (and the default ones like access_token, etc).
     'social.pipeline.social_auth.load_extra_data',
@@ -330,10 +329,11 @@ LOGIN_ERROR_URL    = '/accounts/login-error/'
 
 USER_AGENT = "unglue.it.bot v0.0.1 <https://unglue.it>"
 
-# The amount of the transaction that Gluejar takes 
+# The amount of the transaction that Gluejar takes
 GLUEJAR_COMMISSION = 0.06
 PREAPPROVAL_PERIOD = 365 # days to ask for in a preapproval
 PREAPPROVAL_PERIOD_AFTER_CAMPAIGN = 90 # if we ask for preapproval time after a campaign deadline
+PAYPAL_GLUEJAR_EMAIL = 'info@ebookfoundation.org' #legacy code needs this
 
 # How many days we will try to collect on failed transactions until they are written off
 RECHARGE_WINDOW = 14
@@ -377,7 +377,7 @@ UPDATE_ACTIVE_CAMPAIGN_STATUSES = {
 EBOOK_NOTIFICATIONS_JOB = {
     "task": "regluit.core.tasks.report_new_ebooks",
     "schedule": crontab(hour=0, minute=30),
-    "args": ()    
+    "args": ()
 }
 
 NOTIFY_ENDING_SOON_JOB = {
@@ -401,13 +401,13 @@ UPDATE_ACCOUNT_STATUSES = {
 NOTIFY_EXPIRING_ACCOUNTS = {
     "task": "regluit.payment.tasks.notify_expiring_accounts",
     "schedule": crontab(day_of_month=22, hour=0, minute=30),
-    "args": ()    
+    "args": ()
 }
 
 NOTIFY_UNCLAIMED_GIFTS = {
     "task": "regluit.core.tasks.notify_unclaimed_gifts",
     "schedule": crontab( hour=2, minute=15),
-    "args": ()    
+    "args": ()
 }
 
 # by default, in common, we don't turn any of the celerybeat jobs on -- turn them on in the local settings file
@@ -424,12 +424,13 @@ MAINTENANCE_MODE = False
 # Sequence of URL path regexes to exclude from the maintenance mode.
 MAINTENANCE_IGNORE_URLS = {}
 
-    
+
 # we should suppress Google Analytics outside of production
 SHOW_GOOGLE_ANALYTICS = False
 
 # to enable uploading to S3 and integration of django-storages + django-ckeditor
-# some variables to be overriddden in more specific settings files -- e.g., prod.py, 
+# some variables to be overriddden in more specific settings files -- e.g., prod.py,
+CKEDITOR_ALLOW_NONIMAGE_FILES = False
 
 AWS_ACCESS_KEY_ID = ''
 AWS_SECRET_ACCESS_KEY = ''
@@ -493,5 +494,4 @@ except ImportError:
 if AWS_SECRET_ACCESS_KEY:
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
 else:
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage' 
-
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'

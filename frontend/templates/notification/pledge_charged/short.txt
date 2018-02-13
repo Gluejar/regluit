@@ -1,1 +1,1 @@
-Your pledge to the campaign to unglue {{transaction.campaign.work.title}} has been charged.
+Your {% if transaction.donation %}donation{% else %}pledge{% endif %} for the campaign to unglue {{transaction.campaign.work.title}} has been charged.

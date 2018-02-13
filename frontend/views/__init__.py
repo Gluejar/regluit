@@ -33,7 +33,7 @@ from django.core.urlresolvers import reverse, reverse_lazy
 from django.core.validators import validate_email
 from django.db.models import Q, Count, Sum
 from django.forms import Select
-from django.forms.models import modelformset_factory, inlineformset_factory
+from django.forms.models import inlineformset_factory
 from django.http import (
     HttpResponseRedirect,
     Http404,
@@ -81,16 +81,11 @@ from regluit.frontend.forms import (
     RightsHolderForm,
     UserClaimForm,
     LibraryThingForm,
-    OpenCampaignForm,
-    getManageCampaignForm,
     CampaignAdminForm,
     EmailShareForm,
     FeedbackForm,
     EbookForm,
     EbookFileForm,
-    CustomPremiumForm,
-    OfferForm,
-    EditManagersForm,
     PledgeCancelForm,
     getTransferCreditForm,
     CCForm,
@@ -137,6 +132,7 @@ from questionnaire.models import Landing, Questionnaire
 from questionnaire.views import export_summary as answer_summary, export_csv as export_answers
 
 from .bibedit import edit_edition, user_can_edit_work, safe_get_work, get_edition
+from .rh_views import campaign_results, claim, manage_campaign, rh_admin, RHAgree, rh_tools
 
 logger = logging.getLogger(__name__)
 
@@ -304,7 +300,8 @@ def acks(request, work):
 def work(request, work_id, action='display'):
     work = safe_get_work(work_id)
     alert = ''
-
+    if request.method == "HEAD":
+        return render(request, 'worksummary.html', {'work': work,})
     formset = None
     if action == "acks":
         return acks(request, work)
@@ -351,8 +348,10 @@ def work(request, work_id, action='display'):
     campaign = work.last_campaign()
     editions = work.editions.all().order_by('-publication_date')[:10]
     try:
-        pledged = campaign.transactions().filter(user=request.user, status="ACTIVE")
+        supported =  campaign.transactions().filter(user=request.user)
+        pledged = supported.filter(status="ACTIVE")
     except:
+        supported = None
         pledged = None
 
     cover_width_number = 0
@@ -364,7 +363,7 @@ def work(request, work_id, action='display'):
         work.last_campaign_status = 'ACTIVE'
 
     if not request.user.is_anonymous():
-        claimform = UserClaimForm(request.user, data={'claim-work':work.pk, 'claim-user': request.user.id}, prefix = 'claim')
+        claimform = UserClaimForm(request.user, initial={'work':work.pk, 'user': request.user.id}, prefix = 'claim')
     else:
         claimform = None
 
@@ -398,12 +397,12 @@ def work(request, work_id, action='display'):
         'work': work,
         'user_can_edit_work': user_can_edit_work(request.user, work),
         'premiums': premiums,
-        'ungluers': userlists.supporting_users(work, 5),
         'claimform': claimform,
         'wishers': wishers,
         'base_url': base_url,
         'editions': editions,
         'pledged': pledged,
+        'supported': supported,
         'activetab': activetab,
         'alert': alert,
         'claimstatus': claimstatus,
@@ -524,119 +523,25 @@ def manage_ebooks(request, edition_id, by=None):
              'ebook_form': ebook_form, 'show_ebook_form':show_ebook_form,
         })
 
-def campaign_results(request, campaign):
-    return render(request, 'campaign_results.html', {
-            'campaign': campaign,
-        })
 
-
-def manage_campaign(request, id, ebf=None, action='manage'):
-    campaign = get_object_or_404(models.Campaign, id=id)
-    campaign.not_manager = False
-    campaign.problems = []
-    if (not request.user.is_authenticated()) or (not request.user in campaign.managers.all() and not request.user.is_staff):
-        campaign.not_manager = True
-        return render(request, 'manage_campaign.html', {'campaign': campaign})
-    if action == 'results':
-        return campaign_results(request, campaign)
-    alerts = []
-    activetab = '#1'
-    offers = campaign.work.offers.all()
-    for offer in offers:
-        offer.offer_form = OfferForm(instance=offer, prefix='offer_%d'%offer.id)
-
-    if request.method == 'POST' :
-        if request.POST.has_key('add_premium') :
-            new_premium_form = CustomPremiumForm(data=request.POST)
-            if new_premium_form.is_valid():
-                new_premium_form.save()
-                alerts.append(_('New premium has been added'))
-                new_premium_form = CustomPremiumForm(initial={'campaign': campaign})
-            else:
-                alerts.append(_('New premium has not been added'))
-            form = getManageCampaignForm(instance=campaign)
-            activetab = '#2'
-        elif request.POST.has_key('save') or request.POST.has_key('launch') :
-            form = getManageCampaignForm(instance=campaign, data=request.POST)
-            if form.is_valid():
-                form.save()
-                campaign.dollar_per_day = None
-                campaign.set_dollar_per_day()
-                campaign.work.selected_edition = campaign.edition
-                if campaign.type in {BUY2UNGLUE, THANKS} :
-                    offers = campaign.work.create_offers()
-                    for offer in offers:
-                        offer.offer_form = OfferForm(instance=offer, prefix='offer_%d'%offer.id)
-                campaign.update_left()
-                if campaign.type is THANKS :
-                    campaign.work.description = form.cleaned_data['work_description']
-                    tasks.process_ebfs.delay(campaign)
-                campaign.work.save()
-                alerts.append(_('Campaign data has been saved'))
-                activetab = '#2'
-            else:
-                alerts.append(_('Campaign data has NOT been saved'))
-            if 'launch' in request.POST.keys():
-                activetab = '#3'
-                if (campaign.launchable and form.is_valid()) and (not settings.IS_PREVIEW or request.user.is_staff):
-                    campaign.activate()
-                    alerts.append(_('Campaign has been launched'))
-                else:
-                    alerts.append(_('Campaign has NOT been launched'))
-            new_premium_form = CustomPremiumForm(data={'campaign': campaign})
-        elif request.POST.has_key('inactivate') :
-            activetab = '#2'
-            if request.POST.has_key('premium_id'):
-                premiums_to_stop = request.POST.getlist('premium_id')
-                for premium_to_stop in premiums_to_stop:
-                    selected_premium = models.Premium.objects.get(id=premium_to_stop)
-                    if selected_premium.type == 'CU':
-                        selected_premium.type = 'XX'
-                        selected_premium.save()
-                        alerts.append(_('Premium %s has been inactivated'% premium_to_stop))
-            form = getManageCampaignForm(instance=campaign)
-            new_premium_form = CustomPremiumForm(initial={'campaign': campaign})
-        elif request.POST.has_key('change_offer'):
-            for offer in offers :
-                if request.POST.has_key('offer_%d-work' % offer.id) :
-                    offer.offer_form = OfferForm(instance=offer, data = request.POST, prefix='offer_%d'%offer.id)
-                    if offer.offer_form.is_valid():
-                        offer.offer_form.save()
-                        offer.active =  True
-                        offer.save()
-                        alerts.append(_('Offer has been changed'))
-                    else:
-                        alerts.append(_('Offer has not been changed'))
-            form = getManageCampaignForm(instance=campaign)
-            new_premium_form = CustomPremiumForm(data={'campaign': campaign})
-            activetab = '#2'
-    else:
-        if action == 'makemobi':
-            ebookfile = get_object_or_404(models.EbookFile, id=ebf)
-            tasks.make_mobi.delay(ebookfile)
-            return HttpResponseRedirect(reverse('mademobi', args=[campaign.id]))
-        elif action == 'mademobi':
-            alerts.append('A MOBI file is being generated')
-        form = getManageCampaignForm(instance=campaign, initial={'work_description':campaign.work.description})
-        new_premium_form = CustomPremiumForm(initial={'campaign': campaign})
-
-    return render(request, 'manage_campaign.html', {
-        'campaign': campaign,
-        'form':form,
-        'problems': campaign.problems,
-        'alerts': alerts,
-        'premiums' : campaign.custom_premiums(),
-        'premium_form' : new_premium_form,
-        'work': campaign.work,
-        'activetab': activetab,
-        'offers':offers,
-        'action':action,
-    })
+BAD_ROBOTS = [u'memoryBot']
+def is_bad_robot(request):
+    user_agent = request.META.get('HTTP_USER_AGENT', '')
+    for robot in BAD_ROBOTS:
+        try:
+            if robot in user_agent:
+                return True
+        except UnicodeDecodeError:
+            # user agent is sending illegal header
+            return True
+    return False        
 
 def googlebooks(request, googlebooks_id):
     try:
         edition = models.Identifier.objects.get(type='goog', value=googlebooks_id).edition
     except models.Identifier.DoesNotExist:
+        if is_bad_robot(request):
+            return HttpResponseNotFound("failed looking up googlebooks id %s" % googlebooks_id)
         try:
             edition = bookloader.add_by_googlebooks_id(googlebooks_id)
             if edition.new:
@@ -758,7 +663,6 @@ class WorkListView(FilterableListView):
     def get_context_data(self, **kwargs):
         context = super(WorkListView, self).get_context_data(**kwargs)
         qs = self.get_queryset()
-        context['ungluers'] = userlists.work_list_users(qs, 5)
         context['facet'] = self.kwargs.get('facet','')
         works_unglued = qs.filter(is_free = True).distinct() | qs.filter(campaigns__status='SUCCESSFUL').distinct()
         context['works_unglued'] = works_unglued[:self.max_works]
@@ -820,7 +724,10 @@ class ByPubView(WorkListView):
     publisher = None
 
     def get_publisher_name(self):
-        self.publisher_name = get_object_or_404(models.PublisherName, id=self.kwargs['pubname'])
+        try:
+            self.publisher_name = get_object_or_404(models.PublisherName, id=self.kwargs['pubname'])
+        except ValueError:
+            raise Http404
         self.set_publisher()
 
     def set_publisher(self):
@@ -883,7 +790,6 @@ class UngluedListView(FilterableListView):
     def get_context_data(self, **kwargs):
         context = super(UngluedListView, self).get_context_data(**kwargs)
         qs = self.get_queryset()
-        context['ungluers'] = userlists.work_list_users(qs, 5)
         facet = self.kwargs['facet']
         context['facet'] = facet
         if facet == 'cc' or facet == 'creativecommons':
@@ -932,7 +838,6 @@ class CampaignListView(FilterableListView):
     def get_context_data(self, **kwargs):
         context = super(CampaignListView, self).get_context_data(**kwargs)
         qs = self.get_queryset()
-        context['ungluers'] = userlists.campaign_list_users(qs, 5)
         facet = self.kwargs['facet']
         context['facet'] = facet
         context['facet_label'] = FACET_LABELS.get(facet, 'Active')
@@ -1049,10 +954,15 @@ class PledgeView(FormView):
             # Campaign must be ACTIVE
             assert self.campaign.status == 'ACTIVE'
         except Exception, e:
-            # this used to raise an exception, but that seemed pointless. This now has the effect of preventing any pledges.
+            # this used to raise an exception, but that seemed pointless. 
+            # This now has the effect of preventing any pledges.
             return {}
 
-        transactions = self.campaign.transactions().filter(user=self.request.user, status=TRANSACTION_STATUS_ACTIVE, type=PAYMENT_TYPE_AUTHORIZATION)
+        transactions = self.campaign.transactions().filter(
+            user=self.request.user,
+            status=TRANSACTION_STATUS_ACTIVE,
+            type=PAYMENT_TYPE_AUTHORIZATION
+        )
         premium_id = self.request.GET.get('premium_id', self.request.POST.get('premium_id', 150))
         if transactions.count() == 0:
             ack_name = self.request.user.profile.ack_name
@@ -1103,39 +1013,55 @@ class PledgeView(FormView):
         return context
 
     def form_valid(self, form):
-        # right now, if there is a non-zero pledge amount, go with that. otherwise, do the pre_approval
-
+        # right now, if there is a non-zero pledge amount, go with that. 
+        # otherwise, do the pre_approval
+        donation = form.cleaned_data['donation']
         p = PaymentManager()
         if self.transaction:
-            # modifying the transaction...
-            assert self.transaction.type == PAYMENT_TYPE_AUTHORIZATION and self.transaction.status == TRANSACTION_STATUS_ACTIVE
-            status,  url = p.modify_transaction(self.transaction, form.cleaned_data["preapproval_amount"],
-                    paymentReason="Unglue.it %s for %s"% (self.action, self.campaign.name) ,
-                    pledge_extra = form.trans_extra
-                    )
-            logger.info("status: {0}, url:{1}".format(status, url))
+            assert self.transaction.type == PAYMENT_TYPE_AUTHORIZATION and \
+                    self.transaction.status == TRANSACTION_STATUS_ACTIVE
 
-            if status and url is not None:
-                logger.info("PledgeView (Modify): " + url)
-                return HttpResponseRedirect(url)
-            elif status and url is None:
-                return HttpResponseRedirect("{0}?tid={1}".format(reverse('pledge_modified'), self.transaction.id))
+            if donation:
+                # cancel transaction, then proceed to make a donation
+                p.cancel_transaction(self.transaction)
             else:
-                return HttpResponse("No modification made")
-        else:
-            t, url = p.process_transaction('USD',  form.amount(),
-                    host = PAYMENT_HOST_NONE,
-                    campaign=self.campaign,
-                    user=self.request.user,
-                    paymentReason="Unglue.it Pledge for {0}".format(self.campaign.name),
-                    pledge_extra=form.trans_extra
+                # modify the pledge...
+                status,  url = p.modify_transaction(
+                    self.transaction,
+                    form.cleaned_data["preapproval_amount"],
+                    paymentReason="Unglue.it %s for %s"% (self.action, self.campaign.name),
+                    pledge_extra=form.trans_extra,
+                )
+                logger.info("status: {0}, url:{1}".format(status, url))
+
+                if status and url is not None:
+                    logger.info("PledgeView (Modify): " + url)
+                    return HttpResponseRedirect(url)
+                elif status and url is None:
+                    return HttpResponseRedirect(
+                        "{0}?tid={1}".format(reverse('pledge_modified'), self.transaction.id)
                     )
-            if url:
-                logger.info("PledgeView url: " + url)
-                return HttpResponseRedirect(url)
-            else:
-                logger.error("Attempt to produce transaction id {0} failed".format(t.id))
-                return HttpResponse("Our attempt to enable your transaction failed. We have logged this error.")
+                else:
+                    return HttpResponse("No modification made")
+
+        t, url = p.process_transaction(
+            'USD',
+            form.amount(),
+            host = PAYMENT_HOST_NONE,
+            campaign=self.campaign,
+            user=self.request.user,
+            paymentReason="Unglue.it Pledge for {0}".format(self.campaign.name),
+            pledge_extra=form.trans_extra,
+            donation = donation
+        )
+        if url:
+            logger.info("PledgeView url: " + url)
+            return HttpResponseRedirect(url)
+        else:
+            logger.error("Attempt to produce transaction id {0} failed".format(t.id))
+            return HttpResponse(
+                "Our attempt to enable your transaction failed. We have logged this error."
+            )
 
 class PurchaseView(PledgeView):
     template_name = "purchase.html"
@@ -1257,12 +1183,16 @@ class FundView(FormView):
         t_id=self.kwargs["t_id"]
 
         if self.transaction is None:
-            self.transaction = get_object_or_404(Transaction, id=t_id)
+            try:
+                self.transaction = get_object_or_404(Transaction, id=t_id)
+            except ValueError:
+                raise Http404
+
 
         if not self.transaction.campaign:
             self.action = 'donation'
         elif self.transaction.campaign.type == REWARDS:
-            self.action = 'pledge'
+            self.action = 'donation' if self.transaction.donation else 'pledge'
         elif self.transaction.campaign.type == THANKS:
             self.action = 'contribution'
         else:
@@ -1409,7 +1339,7 @@ class PledgeRechargeView(TemplateView):
         campaign = work.last_campaign()
 
         if campaign is None:
-            return Http404
+            raise Http404
 
         transaction = campaign.transaction_to_recharge(user)
 
@@ -1556,8 +1486,12 @@ class PledgeCancelView(FormView):
         else:
             context["error"] = "You are not logged in."
             return context
+        
+        try:
+            campaign = get_object_or_404(models.Campaign, id=self.kwargs["campaign_id"])
+        except ValueError:
+            raise Http404
 
-        campaign = get_object_or_404(models.Campaign, id=self.kwargs["campaign_id"])
         if campaign.status != 'ACTIVE':
             context["error"] = "{0} is not an active campaign".format(campaign)
             return context
@@ -1604,7 +1538,11 @@ class PledgeCancelView(FormView):
         try:
             # look up the specified campaign and attempt to pull up the appropriate transaction
             # i.e., the transaction actually belongs to user, that the transaction is active
-            campaign = get_object_or_404(models.Campaign, id=self.kwargs["campaign_id"], status='ACTIVE')
+            try:
+                campaign = get_object_or_404(models.Campaign, id=self.kwargs["campaign_id"], status='ACTIVE')
+            except ValueError:
+                raise Http404
+
             transaction = campaign.transaction_set.get(user=user, status=TRANSACTION_STATUS_ACTIVE,
                                                           type=PAYMENT_TYPE_AUTHORIZATION)
             # attempt to cancel the transaction and redirect to the Work page if cancel is successful
@@ -1631,30 +1569,6 @@ class PledgeCancelView(FormView):
         except Exception, e:
             logger.error("Exception from attempt to cancel pledge for campaign id {0} for username {1}: {2}".format(campaign_id, user.username, e))
             return HttpResponse("Sorry, something went wrong in canceling your campaign pledge. We have logged this error.")
-
-def claim(request):
-    if  request.method == 'GET':
-        data = request.GET
-    else:
-        data =  request.POST
-    form =  UserClaimForm(request.user, data=data, prefix='claim')
-    if form.is_valid():
-        # make sure we're not creating a duplicate claim
-        if not models.Claim.objects.filter(work=form.cleaned_data['work'], rights_holder=form.cleaned_data['rights_holder']).exclude(status='release').count():
-            form.save()
-        return HttpResponseRedirect(reverse('rightsholders'))
-    else:
-        try:
-            work = models.Work.objects.get(id=data['claim-work'])
-        except models.Work.DoesNotExist:
-            try:
-                work = models.WasWork.objects.get(was = data['claim-work']).work
-            except models.WasWork.DoesNotExist:
-                raise Http404
-        rights_holder = models.RightsHolder.objects.get(id=data['claim-rights_holder'])
-        active_claims = work.claim.exclude(status = 'release')
-        context = {'form': form, 'work': work, 'rights_holder':rights_holder , 'active_claims':active_claims}
-        return render(request, "claim.html", context)
 
 def works_user_can_admin(user):
     return models.Work.objects.filter(
@@ -1750,94 +1664,6 @@ def surveys(request):
     work_ids = [work.id for work in works]
     surveys = Questionnaire.objects.filter(landings__object_id__in=work_ids).distinct()
     return render(request, "surveys.html", {"works":works, "surveys":surveys})
-
-def rh_tools(request):
-    if not request.user.is_authenticated() :
-        return render(request, "rh_tools.html")
-    claims = request.user.claim.filter(user=request.user)
-    campaign_form = "xxx"
-    if not claims:
-        return render(request, "rh_tools.html")
-    for claim in claims:
-        if claim.can_open_new:
-            if request.method == 'POST' and  request.POST.has_key('cl_%s-work' % claim.id) and int(request.POST['cl_%s-work' % claim.id]) == claim.work_id :
-                claim.campaign_form = OpenCampaignForm(data = request.POST, prefix = 'cl_'+str(claim.id),)
-                if claim.campaign_form.is_valid():
-                    new_campaign = claim.campaign_form.save(commit=False)
-                    if new_campaign.type == BUY2UNGLUE:
-                        new_campaign.target = D(settings.UNGLUEIT_MAXIMUM_TARGET)
-                        new_campaign.set_cc_date_initial()
-                    elif new_campaign.type == REWARDS:
-                        new_campaign.deadline = date_today() + timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE))
-                        new_campaign.target = D(settings.UNGLUEIT_MINIMUM_TARGET)
-                    elif new_campaign.type == THANKS:
-                        new_campaign.target = D(settings.UNGLUEIT_MINIMUM_TARGET)
-                    new_campaign.save()
-                    claim.campaign_form.save_m2m()
-                    claim.campaign_form = None
-            else:
-                c_type = 2 if claim.rights_holder.can_sell else 1
-                claim.campaign_form = OpenCampaignForm(
-                    initial={'work': claim.work, 'name': claim.work.title,  'userid': request.user.id, 'managers': [request.user.id], 'type': c_type},
-                    prefix = 'cl_'+str(claim.id),
-                    )
-        if claim.campaign:
-            if claim.campaign.status in ['ACTIVE','INITIALIZED']:
-                if request.method == 'POST' and request.POST.has_key('edit_managers_%s'% claim.campaign.id) :
-                    claim.campaign.edit_managers_form = EditManagersForm(instance=claim.campaign, data=request.POST, prefix=claim.campaign.id)
-                    if claim.campaign.edit_managers_form.is_valid():
-                        claim.campaign.edit_managers_form.save()
-                        claim.campaign.edit_managers_form = EditManagersForm(instance=claim.campaign, prefix=claim.campaign.id)
-                else:
-                    claim.campaign.edit_managers_form = EditManagersForm(instance=claim.campaign, prefix=claim.campaign.id)
-    campaigns = request.user.campaigns.all()
-    new_campaign = None
-    for campaign in campaigns:
-        if campaign.clonable():
-            if request.method == 'POST' and  request.POST.has_key('c%s-campaign_id'% campaign.id):
-                clone_form = CloneCampaignForm(data=request.POST, prefix = 'c%s' % campaign.id)
-                if clone_form.is_valid():
-                    campaign.clone()
-            else:
-                campaign.clone_form = CloneCampaignForm(initial={'campaign_id':campaign.id}, prefix='c%s' % campaign.id)
-    return render(request, "rh_tools.html", {'claims': claims , 'campaigns': campaigns})
-
-def rh_admin(request, facet='top'):
-    if not request.user.is_authenticated() :
-        return render(request, "admins_only.html")
-    if not request.user.is_staff :
-        return render(request, "admins_only.html")
-    PendingFormSet = modelformset_factory(models.Claim, fields=['status'], extra=0)
-    pending_data = models.Claim.objects.filter(status = 'pending')
-    active_data = models.Claim.objects.filter(status = 'active')
-    if  request.method == 'POST':
-        if 'create_rights_holder' in request.POST.keys():
-            form = RightsHolderForm(data=request.POST)
-            pending_formset = PendingFormSet (queryset=pending_data)
-            if form.is_valid():
-                form.save()
-                form = RightsHolderForm()
-        if 'set_claim_status' in request.POST.keys():
-            pending_formset = PendingFormSet (request.POST, request.FILES, queryset=pending_data)
-            form = RightsHolderForm()
-            if pending_formset.is_valid():
-                pending_formset.save()
-                pending_formset = PendingFormSet(queryset=pending_data)
-    else:
-        form = RightsHolderForm()
-        pending_formset = PendingFormSet(queryset=pending_data)
-    rights_holders = models.RightsHolder.objects.all()
-
-    context = {
-        'request': request,
-        'rights_holders': rights_holders,
-        'form': form,
-        'pending': zip(pending_data, pending_formset),
-        'pending_formset': pending_formset,
-        'active_data': active_data,
-        'facet': facet,
-    }
-    return render(request, "rights_holders.html", context)
 
 def campaign_admin(request):
     if not request.user.is_authenticated() :
@@ -2026,7 +1852,6 @@ def supporter(request, supporter_username, template_name, extra_context={}):
             "backing": backing,
             "wished": wished,
             "profile_form": profile_form,
-            "ungluers": userlists.other_users(supporter, 5),
             "activetab": activetab,
     }
     context.update(extra_context)
@@ -2077,7 +1902,7 @@ class ManageAccount(FormView):
             return render(self.request, self.template_name, self.get_context_data())
 
 def search(request):
-    q = request.GET.get('q', '')
+    q = request.GET.get('q', '').strip()
     ty = request.GET.get('ty', 'g')  # ge= 'general, au= 'author'
     request.session['q'] = q
     try:
@@ -2087,7 +1912,7 @@ def search(request):
         page = 1
     gbo = request.GET.get('gbo', 'n') # gbo is flag for google books only
     our_stuff =  Q(is_free=True) | Q(campaigns__isnull=False)
-    if q != '' and page == 1 and not gbo == 'y':
+    if len(q) > 1 and page == 1 and not gbo == 'y':
         isbnq = ISBN(q)
         if isbnq.valid:
             work_query = Q(identifiers__value=str(isbnq), identifiers__type="isbn")
@@ -2100,12 +1925,18 @@ def search(request):
             results = models.Work.objects.none()
             break
         else:
-            results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=1)
-            gbo = 'y'
+            if is_bad_robot(request):
+                results = models.Work.objects.none()
+            else:
+                results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=1)
+                gbo = 'y'
     else:
         if gbo == 'n':
             page = page-1 # because page=1 is the unglue.it results
-        results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=page)
+        if is_bad_robot(request):
+            results = models.Work.objects.none()
+        else:
+            results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=page)
         campaign_works = None
 
     # flag search result as on wishlist as appropriate
@@ -2677,13 +2508,17 @@ def emailshare(request, action):
     return render(request, "emailshare.html", {'form':form})
 
 def ask_rh(request, campaign_id):
-    campaign = get_object_or_404(models.Campaign, id=campaign_id)
+    try:
+        campaign = get_object_or_404(models.Campaign, id=campaign_id)
+    except ValueError:
+        raise Http404
+
     return feedback(request, recipient=campaign.email, template="ask_rh.html",
             message_template="ask_rh.txt",
             redirect_url = reverse('work', args=[campaign.work_id]),
             extra_context={'campaign':campaign, 'subject':campaign })
 
-def feedback(request, recipient='support@gluejar.com', template='feedback.html', message_template='feedback.txt', extra_context=None, redirect_url=None):
+def feedback(request, recipient='unglueit@ebookfoundation.org', template='feedback.html', message_template='feedback.txt', extra_context=None, redirect_url=None):
     context = extra_context or {}
     context['num1'] = randint(0, 10)
     context['num2'] = randint(0, 10)
@@ -2960,7 +2795,10 @@ def reserve(request, work_id):
     return PurchaseView.as_view()(request, work_id=work_id)
 
 def download_ebook(request, ebook_id):
-    ebook = get_object_or_404(models.Ebook, id=ebook_id)
+    try:
+        ebook = get_object_or_404(models.Ebook, id=ebook_id)
+    except ValueError:
+        raise Http404
     ebook.increment()
     logger.info("ebook: {0}, user_ip: {1}".format(ebook_id, request.META['REMOTE_ADDR']))
     return HttpResponseRedirect(ebook.url)
@@ -2976,7 +2814,7 @@ def download_campaign(request, work_id, format):
     # Raise 404 unless there is a SUCCESSFUL BUY2UNGLUE campaign associated with work
     try:
         campaign = work.campaigns.get(status='SUCCESSFUL', type=BUY2UNGLUE)
-    except Campaign.DoesNotExist as e:
+    except models.Campaign.DoesNotExist as e:
         raise Http404
 
     ebfs = models.EbookFile.objects.filter(edition__work=campaign.work, format=format).exclude(file='').order_by('-created')
@@ -3003,7 +2841,7 @@ def about(request, facet):
     try:
         return render(request, template)
     except TemplateDoesNotExist:
-        return render(request, "about.html")
+        return render(request, "about_main.html")
 
 def receive_gift(request, nonce):
     try:

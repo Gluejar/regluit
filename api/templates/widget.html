@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+<!DOCTYPE html>{% load sass_tags %}
 <html>
 <head>
     <title>unglue.it: {{work.title}}</title>
-    <link type="text/css" rel="stylesheet" href="/static/css/sitewide4.css" />
-    <link type="text/css" rel="stylesheet" href="/static/css/book_panel2.css" />
+    <link type="text/css" rel="stylesheet" href="{% sass_src 'scss/sitewide4.scss' %}" />
+    <link type="text/css" rel="stylesheet" href="{% sass_src 'scss/book_panel2.scss' %}" />
 
     <style type="text/css">
     	body {

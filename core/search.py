@@ -60,6 +60,8 @@ def gluejar_search(q, user_ip='69.243.24.29', page=1):
 
 
 def googlebooks_search(q, user_ip, page):
+    if len(q) < 2 or len(q) > 2000:
+        return {}
     # XXX: need to pass IP address of user in from the frontend 
     headers = {'X-Forwarded-For': user_ip}
     start = (page - 1) * 10 

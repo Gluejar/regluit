@@ -1,0 +1,22 @@
+{% extends 'rh_tools.html' %}
+{% block toolcontent %}
+{% if request.user.rights_holder.count %}
+<h2 id="your_rhs">Rights Holders That You Administer</h2>
+
+	<dl>
+		{% for rights_holder in request.user.rights_holder.all %}
+		<dt>Name: {{ rights_holder.rights_holder_name }}&nbsp;&nbsp;&nbsp;(rights holder #{{ rights_holder.id }}
+		        {% if not rights_holder.approved %}<i>pending approval</i>{% endif %}) </dt>
+		<dd>Agreement #: {{ rights_holder.id }}
+		<br />contact email: {{ rights_holder.email }}
+		</dd>
+		{% empty %}
+		<dt>You haven't signed a <a href="{% url 'agree' %}">Unglue.it Rights Holder Agreement</a>.</dt>
+		{% endfor %}
+	</dl>
+{% else %}
+<h2 id="your_rhs">Your Books/Campaigns</h2>
+
+<I>You haven't signed a <a href="{% url 'agree' %}">Unglue.it Rights Holder Agreement</a>. If you were a registered rights holder with Unglue.it, you'd see your agreement status here.  </I>
+{% endif %}
+{% endblock %}

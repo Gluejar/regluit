@@ -1,10 +1,11 @@
 {% extends 'comments/base.html' %}
 
 {% load i18n %}
+{% load sass_tags %}
 
 {% block title %}{% trans "Preview your comment" %}{% endblock %}
 {% block extra_css %}
-<link type="text/css" rel="stylesheet" href="/static/css/campaign2.css"  />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/campaign2.scss' %}"  />
 {% endblock %}
 
 {% block doccontent %}

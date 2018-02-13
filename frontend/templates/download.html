@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 
 {% load humanize %}
+{% load sass_tags %}
+
 {% with work.title as title %}
 {% block title %}
 &mdash; Downloads for {{ work.title }}
@@ -8,6 +10,7 @@
 
 {% block extra_js %}
 <script type="text/javascript" src="/static/js/embed.js"></script>
+<!-- select {% sass_src 'scss/enhanced_download.scss' %} or {% sass_src 'scss/enhanced_download_ie.scss' %} -->
 <script type="text/javascript" src="/static/js/download_page.js"></script>
 <script type="text/javascript">
 var $j = jQuery.noConflict();

@@ -1,0 +1,75 @@
+/* Campaign and manage_campaign use same tab styling, so it's factored out here */
+
+#tabs{ 
+	border-bottom: 4px solid $medium-blue;
+    clear: both;
+    float: left;
+    margin-top: 10px;
+    width: 100%;
+
+	ul.book-list-view {
+		margin-bottom:4px !important;
+	}
+}
+
+#tabs-1, #tabs-2, #tabs-3, #tabs-4 {
+	display:none;
+}
+
+#tabs-1.active, #tabs-2.active, #tabs-3.active, #tabs-4.active {
+	display: inherit;
+}
+
+#tabs-2 textarea {
+	width: 95%;
+}
+
+ul.tabs {
+	float:left;
+	padding:0;
+	margin:0;
+	list-style:none;
+	width: 100%;
+	
+	li {
+		float: left;
+		height: 46px;
+		line-height: 20px;
+		padding-right:2px;
+		width: 116px;
+		background: none;
+		margin: 0;
+		padding: 0 2px 0 0;
+		
+		&.tabs4 {
+			padding-right:0px;
+		}
+		
+		a { 
+			height: 41px;
+			line-height: 18px;
+			display:block;
+			text-align:center;
+			padding:0 10px;
+			min-width:80px;
+			@include border-radius(7px, 7px, 0, 0);
+			background:$blue-grey;
+			color:$text-blue;
+			padding-top: 5px;
+			
+			&:hover {
+				text-decoration: none;
+			}
+			
+			div {
+				padding-top: 8px;
+			}
+		}
+		
+		a:hover, &.active a {
+			background:$medium-blue;
+			color:#fff;
+		}
+	}
+
+}

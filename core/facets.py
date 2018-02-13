@@ -1,7 +1,8 @@
 from django.apps import apps
+from django.contrib.auth.models import User
 from django.db.models import Q
 from regluit.core import cc
-  
+
 class BaseFacet(object):
     facet_name = 'all'
     model_filters ={}
@@ -129,8 +130,10 @@ class FormatFacetGroup(FacetGroup):
                 return  "These eBooks available in %s format." % self.facet_name
         return FormatFacet    
 
-idtitles = {'doab': 'indexed in DOAB', 'gtbg':'available in Project Gutenberg'}
-idlabels = {'doab': 'DOAB', 'gtbg':'Project Gutenberg'}
+idtitles = {'doab': 'indexed in DOAB', 'gtbg':'available in Project Gutenberg', 
+            '-doab': 'not in DOAB', '-gtbg':'not from Project Gutenberg', }
+idlabels = {'doab': 'DOAB', 'gtbg':'Project Gutenberg', 
+            '-doab': 'not DOAB', '-gtbg':'not Project Gutenberg'}
 class IdFacetGroup(FacetGroup):
     def __init__(self):
         super(FacetGroup,self).__init__()
@@ -143,10 +146,16 @@ class IdFacetGroup(FacetGroup):
             def set_name(self):
                 self.facet_name=facet_name
             def id_filter(query_set):
-                return query_set.filter(identifiers__type=facet_name)
+                if facet_name[0] == '-':
+                    return query_set.exclude(identifiers__type=facet_name[1:])
+                else:
+                    return query_set.filter(identifiers__type=facet_name)
             model_filters = {}
             def get_query_set(self):
-                return self._get_query_set().filter(identifiers__type=self.facet_name)
+                if facet_name[0] == '-':
+                    return self._get_query_set().exclude(identifiers__type=self.facet_name[1:])
+                else:
+                    return self._get_query_set().filter(identifiers__type=self.facet_name)
             def template(self):
                 return 'facets/id.html'
             @property    
@@ -276,6 +285,42 @@ class SearchFacetGroup(FacetGroup):
             def description(self):
                 return  "eBooks for {}".format(self.term)
         return KeywordFacet    
+
+class SupporterFacetGroup(FacetGroup):
+    
+    def __init__(self):
+        super(FacetGroup,self).__init__()
+        self.title = 'Supporter Faves'
+        # make facets in TOPKW available for display
+        self.facets = []
+        self.label = '{} are ...'.format(self.title)
+        
+    def has_facet(self, facet_name):
+    
+        # recognize any facet_name that starts with "@" as a valid facet name
+        return facet_name.startswith('@')
+
+    def get_facet_class(self, facet_name):
+        class SupporterFacet(NamedFacet):
+            def set_name(self):
+                self.facet_name = facet_name
+                self.username = self.facet_name[1:]
+                try:
+                    user = User.objects.get(username=self.username)
+                    self.fave_set = user.wishlist.works.all()
+                except User.DoesNotExist:
+                    self.fave_set = self.model.objects.none()
+            
+            def get_query_set(self):
+                return self._get_query_set().filter(pk__in=self.fave_set)
+                 
+            def template(self):
+                return 'facets/supporter.html'
+
+            @property
+            def description(self):
+                return  "eBooks faved by @{}".format(self.username)
+        return SupporterFacet    
    
 class PublisherFacetGroup(FacetGroup):
     
@@ -325,7 +370,7 @@ class PublisherFacetGroup(FacetGroup):
         return PublisherFacet    
 
 # order of groups in facet_groups determines order of display on /free/    
-facet_groups = [KeywordFacetGroup(), FormatFacetGroup(),  LicenseFacetGroup(), PublisherFacetGroup(), IdFacetGroup(), SearchFacetGroup()]
+facet_groups = [KeywordFacetGroup(), FormatFacetGroup(),  LicenseFacetGroup(), PublisherFacetGroup(), IdFacetGroup(), SearchFacetGroup(), SupporterFacetGroup()]
 
 def get_facet(facet_name):
     for facet_group in facet_groups:
