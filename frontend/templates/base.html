@@ -56,8 +56,8 @@
         </div>
         <div id="header-search-bar">
             <form action="{% url 'search' %}" method="get">
+                <input type="text" placeholder="Search" id="nowatermark" size="25" onfocus="imgfocus()" onblur="imgblur(15)" class="inputbox" name="q" value="{{ q }}"></input>
                 <i class="fa fa-search"></i>
-                <input type="text" id="nowatermark" size="25" onfocus="imgfocus()" onblur="imgblur(15)" class="inputbox" name="q" value="{{ q }}"></input>
             </form>
         </div>
         <div id="header-login">
@@ -102,6 +102,20 @@
         </div>
         <div id="header-menu">
             <i class="fa fa-bars"></i>
+            <ul class="vertical menu drilldown" data-drilldown>
+              <li><a href="#">One</a></li>
+              <li>
+                <a href="#">Two</a>
+                <ul class="menu vertical nested">
+                  <li><a href="#">Two A</a></li>
+                  <li><a href="#">Two B</a></li>
+                  <li><a href="#">Two C</a></li>
+                  <li><a href="#">Two D</a></li>
+                </ul>
+              </li>
+              <li><a href="#">Three</a></li>
+              <li><a href="#">Four</a></li>
+            </ul>
         </div>
     </div>
 
