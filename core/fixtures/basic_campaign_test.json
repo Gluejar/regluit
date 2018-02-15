@@ -465,7 +465,7 @@
     "pk": 150, 
     "model": "core.premium", 
     "fields": {
-      "description": "No premium, thanks!  I just want to help unglue.", 
+      "description": "Nothing extra, thanks!  I just want to support this campaign.", 
       "campaign": null, 
       "created": "2011-11-17T22:03:37", 
       "amount": "0", 

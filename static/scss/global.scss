@@ -1,6 +1,7 @@
 @import 'settings/settings';
 @import 'foundation';
 @import 'variables';
+
 @include foundation-everything;
 
 @include breakpoint(small only) {
@@ -29,5 +30,30 @@
         width: 143px;
         margin-left: -106px;
         border: 1px solid $gray;
+    }
+}
+
+.footer {
+    background-color: $pale-blue;
+    clear: both;
+    padding: 15px 0px 5px 0px;
+    margin-top: 20px;
+    overflow: hidden;
+    display: flex;
+    justify-content: space-around;
+    flex-direction: row;
+
+
+    ul {
+        padding-top:5px;
+        margin-left:0;
+        padding-left:0;
+    }
+
+    li {
+        /* .utilitylinks(5px, 0); */
+        text-transform: none;
+        list-style: none;
+        margin-left: 0;
     }
 }

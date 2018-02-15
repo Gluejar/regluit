@@ -17,12 +17,14 @@ from regluit.core.bookloader import (
     add_by_googlebooks_id,
     add_by_isbn,
     add_by_oclc,
-    add_by_webpage,
 )
 from regluit.core.parameters import WORK_IDENTIFIERS
 
+from regluit.core.loaders import add_by_webpage
 from regluit.core.loaders.utils import ids_from_urls
 from regluit.frontend.forms import EditionForm, IdentifierForm
+
+from .rh_views import user_is_rh
 
 
 def user_can_edit_work(user, work):
@@ -35,7 +37,7 @@ def user_can_edit_work(user, work):
         return True
     elif work and work.last_campaign():
         return user in work.last_campaign().managers.all()
-    elif user.rights_holder.count() and (work == None or not work.last_campaign()):
+    elif user_is_rh(user) and (work == None or not work.last_campaign()):
         # allow rights holders to edit unless there is a campaign
         return True
     elif work and work.claim.all():
@@ -218,6 +220,7 @@ def edit_edition(request, work_id, edition_id, by=None):
         'title': title,
     } 
     if request.method == 'POST':
+        keep_editing = request.POST.has_key('add_author_submit')
         form = None
         edition.new_authors = zip(
             request.POST.getlist('new_author'),
@@ -229,16 +232,24 @@ def edit_edition(request, work_id, edition_id, by=None):
                 if request.POST.has_key('delete_author_%s' % author.id):
                     edition.remove_author(author)
                     form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
+                    keep_editing = True
                     break
             work_rels = models.WorkRelation.objects.filter(Q(to_work=work) | Q(from_work=work))
             for work_rel in work_rels:
                 if request.POST.has_key('delete_work_rel_%s' % work_rel.id):
                     work_rel.delete()
                     form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
+                    keep_editing = True
                     break
             activate_all = request.POST.has_key('activate_all_ebooks')
             deactivate_all = request.POST.has_key('deactivate_all_ebooks')
             ebookchange = False
+            if request.POST.has_key('set_ebook_rights') and request.POST.has_key('set_rights'):
+                rights = request.POST['set_rights']
+                for ebook in work.ebooks_all():
+                    ebook.rights = rights
+                    ebook.save()
+                    ebookchange = True
             for ebook in work.ebooks_all():
                 if request.POST.has_key('activate_ebook_%s' % ebook.id) or activate_all:
                     ebook.activate()
@@ -247,6 +258,7 @@ def edit_edition(request, work_id, edition_id, by=None):
                     ebook.deactivate()
                     ebookchange = True
             if ebookchange:
+                keep_editing = True
                 form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
         
         if request.POST.get('add_author', None) and admin:
@@ -255,7 +267,7 @@ def edit_edition(request, work_id, edition_id, by=None):
             if (new_author_name, new_author_relation) not in edition.new_authors:
                 edition.new_authors.append((new_author_name, new_author_relation))
         form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
-        if not request.POST.has_key('add_author_submit') and admin:
+        if not keep_editing and admin:
             if form.is_valid():
                 form.save()
                 if not work:

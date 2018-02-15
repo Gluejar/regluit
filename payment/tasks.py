@@ -52,7 +52,7 @@ def update_account_status(all_accounts=True, send_notice_on_change_only=True):
 # task run roughly 8 days ahead of card expirations
 @task
 def notify_expiring_accounts():    
-    expiring_accounts = Account.objects.filter(status='EXPIRING')
+    expiring_accounts = Account.objects.filter(status='EXPIRING', user__isnull=False)
     for account in expiring_accounts:
         notification.send_now([account.user], "account_expiring", {
                     'user': account.user,

@@ -5,11 +5,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
 from django.views.generic import ListView, DetailView
 from django.views.generic.base import TemplateView
-#from django.views.generic.simple import direct_to_template
 from django.views.decorators.csrf import csrf_exempt
 
 from regluit.core.feeds import SupporterWishlistFeed
-from regluit.core.models import Campaign
 from regluit.frontend import views 
 
 
@@ -25,6 +23,12 @@ urlpatterns = [
     url(r"^privacy/$", TemplateView.as_view(template_name="privacy.html"), name="privacy"),
     url(r"^terms/$", TemplateView.as_view(template_name="terms.html"), name="terms"),
     url(r"^rightsholders/$", views.rh_tools, name="rightsholders"), 
+    url(r"^rightsholders/yours/$", views.rh_tools, {'template_name': 'rh_yours.html'}, name="rh_yours"), 
+    url(r"^rightsholders/campaigns/$", views.rh_tools, {'template_name': 'rh_campaigns.html'}, name="rh_campaigns"), 
+    url(r"^rightsholders/works/$", views.rh_tools, {'template_name': 'rh_works.html'},name="rh_works"), 
+    url(r"^rightsholders/agree/$", views.RHAgree.as_view(), name="agree"), 
+    url(r"^rightsholders/programs/$", TemplateView.as_view(template_name='programs.html'), name="programs"), 
+    url(r"^rightsholders/agree/submitted$", TemplateView.as_view(template_name='agreed.html'), name="agreed"), 
     url(r"^rightsholders/campaign/(?P<id>\d+)/$", views.manage_campaign, name="manage_campaign"), 
     url(r"^rightsholders/campaign/(?P<id>\d+)/results/$", views.manage_campaign, {'action': 'results'}, name="campaign_results"), 
     url(r"^rightsholders/campaign/(?P<id>\d+)/(?P<ebf>\d+)/makemobi/$", views.manage_campaign, {'action': 'makemobi'}, name="makemobi"),
@@ -38,7 +42,6 @@ urlpatterns = [
     url(r"^rightsholders/surveys/summary_(?P<qid>\d+)_(?P<work_id>\d*).csv$", views.surveys_summary, name="survey_summary"),
     url(r"^rh_admin/$", views.rh_admin, name="rh_admin"),
     url(r"^rh_admin/accepted/$", views.rh_admin, {'facet': 'accepted'}, name="accepted"),
-    url(r"^rh_admin/claims/$", views.rh_admin, {'facet': 'claims'}, name="claims"),
     url(r"^campaign_admin/$", views.campaign_admin, name="campaign_admin"),    
     url(r"^faq/$", views.FAQView.as_view(), {'location':'faq', 'sublocation':'all'}, name="faq"), 
     url(r"^faq/(?P<location>\w*)/$", views.FAQView.as_view(), {'sublocation':'all'}, name="faq_location"), 
@@ -118,7 +121,7 @@ urlpatterns = [
     url(r"^feedback/campaign/(?P<campaign_id>\d+)/?$", views.ask_rh, name="ask_rh"),
     url(r"^feedback/$", views.feedback, name="feedback"),
     url(r"^feedback/thanks/$", TemplateView.as_view(template_name="thanks.html")),
-    url(r"^about/$", TemplateView.as_view(template_name="about.html"),
+    url(r"^about/$", TemplateView.as_view(template_name="about_main.html"),
         name="about"),
     url(r"^comments/$", views.comment, name="comment"),
     url(r"^info/(?P<template_name>[\w\.]*)$", views.InfoPageView.as_view()), 

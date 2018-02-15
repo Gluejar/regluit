@@ -110,6 +110,9 @@ class Transaction(models.Model):
     # whether the user wants to be not listed publicly
     anonymous = models.BooleanField(default=False)
 
+    # whether the transaction represents a donation
+    donation = models.BooleanField(default=False)
+
     @property
     def tier(self):
         if self.amount < 25:
@@ -210,24 +213,24 @@ class Transaction(models.Model):
         return pe
 
     @classmethod
-    def create(cls,amount=0.00, host=PAYMENT_HOST_NONE, max_amount=0.00, currency='USD',
-                status=TRANSACTION_STATUS_NONE,campaign=None, user=None, pledge_extra=None):
+    def create(cls, amount=0.00, host=PAYMENT_HOST_NONE, max_amount=0.00, currency='USD',
+                status=TRANSACTION_STATUS_NONE, campaign=None, user=None, pledge_extra=None,
+                donation=False):
         if user and user.is_anonymous():
             user = None
+        t = cls.objects.create(
+                amount=amount,
+                host=host,
+                max_amount=max_amount, 
+                currency=currency,
+                status=status,
+                campaign=campaign,
+                user=user,
+                donation=donation,
+        )
         if pledge_extra:
-            t = cls.objects.create(amount=amount,
-                                host=host,
-                                max_amount=max_amount, 
-                                currency=currency,
-                                status=status,
-                                campaign=campaign,
-                                user=user,
-                                )
             t.set_pledge_extra(pledge_extra)
-            return t
-        else:
-            return cls.objects.create(amount=amount, host=host, max_amount=max_amount, currency=currency,status=status,
-                                campaign=campaign, user=user)
+        return t
                             
 class PaymentResponse(models.Model):
     # The API used
@@ -434,11 +437,14 @@ class Account(models.Model):
                 
  
     def update_status( self, value=None, send_notice_on_change_only=True):
-        """set Account.status = value unless value is None, in which case, we set Account.status=self.calculated_status()
+        """set Account.status = value unless value is None, in which case, 
+        we set Account.status=self.calculated_status()
         fire off associated notifications
         
-        By default, send notices only if the status is *changing*.  Set send_notice_on_change_only = False to
-        send notice based on new_status regardless of old status.  (Useful for initialization)
+        By default, send notices only if the status is *changing*.  
+        Set send_notice_on_change_only = False to
+        send notice based on new_status regardless of old status.  
+        (Useful for initialization)
         """
         old_status = self.status
         
@@ -446,11 +452,15 @@ class Account(models.Model):
             new_status = self.calculated_status()
         else:
             new_status = value
-
-        self.status = new_status
-        self.save()
         
-        if not send_notice_on_change_only or (old_status != new_status):
+        if new_status == 'EXPIRED':
+            self.deactivate()
+        elif old_status != new_status:
+            self.status = new_status
+            self.save()
+        
+        # don't notify null users (non-users can buy-to-unglue or thank-for-ungluing)
+        if self.user and (not send_notice_on_change_only or (old_status != new_status)):
 
             logger.info( "Account status change: %d %s %s", self.pk, old_status, new_status)
             
@@ -476,7 +486,7 @@ class Account(models.Model):
                 }, True)
                 
             elif new_status == 'ERROR':
-                # TO DO:  we need to figure out notice needs to be sent out if we get an ERROR status.
+                # TO DO:  what to do?
                 pass
 
             elif new_status == 'DEACTIVATED':

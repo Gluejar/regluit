@@ -1,0 +1,69 @@
+{% extends 'rh_tools.html' %}
+{% block toolcontent %}
+
+{% if campaigns %}
+<h2 id="managed_campaigns">Campaigns You Manage</h2>
+	<dl>
+	{% for campaign in campaigns %}
+		<dt><a href="{% url 'work' work_id=campaign.work_id %}">{{campaign.name }}</a></dt>
+		<dd>
+			<div class="work_campaigns clearfix">
+			<div class="campaign_info">
+			{% ifequal campaign.type 1 %}
+				<b>Pledge Campaign</b><br />
+				Campaign status: {{ campaign.status }}	<br />
+				Created: {{ campaign.created }}<br />
+				${{ campaign.current_total }} pledged of ${{ campaign.target }}, {{ campaign.supporters_count }} supporters
+			{% endifequal %}
+			{% ifequal campaign.type 2 %}
+				<b>Buy-to-Unglue Campaign</b><br />
+				Campaign status: {{ campaign.status }}	<br />
+				Created: {{ campaign.created }}<br />
+				${{ campaign.current_total }} sold. ${{ campaign.target }} to go. Ungluing Date: {{ campaign.cc_date }}<br />
+				{% with campaign.work.preferred_edition as edition %}
+					<a href="{% url 'new_edition' edition.work_id edition.id %}"> Edit </a> the preferred edition<br />
+					You can also <a href="{% url 'edition_uploads' edition.id %}"> Load a file</a> for this edition.<br />
+				{% endwith %}
+			{% endifequal %}
+			{% ifequal campaign.type 3 %}
+				<b>Thanks-for-Ungluing Campaign</b><br />
+				Campaign status: {{ campaign.status }}	<br />
+				Created: {{ campaign.created }}<br />
+				${{ campaign.current_total }} raised from {{ campaign.supporters_count }} ungluers, {{ campaign.anon_count }} others.
+				{% with campaign.work.preferred_edition as edition %}
+					<a href="{% url 'new_edition' edition.work_id edition.id %}"> Edit </a> the preferred edition<br />
+					You can also <a href="{% url 'edition_uploads' edition.id %}"> Load a file</a> for this edition.<br />
+				{% endwith %}
+			{% endifequal %}
+			</div>
+			{% if campaign.status = 'ACTIVE' or campaign.status = 'INITIALIZED' %}
+				<div>
+					<a href="{% url 'manage_campaign' campaign.id %}" class="manage">Manage This Campaign</a>
+				</div>
+			{% endif %}
+			{% if campaign.clone_form %}
+				<div>
+				<form method="POST" action="#">
+					{% csrf_token %}
+					{{ campaign.clone_form }}{{ campaign.clone_form.errors }}				
+					<input type="submit" name="clone" value="Clone this Campaign">
+				</form>
+				</div>
+			{% endif %}
+			</div>
+		</dd>
+	{% endfor %}
+	</dl>
+{% else %}
+    <h2 id="managed_campaigns">You don't manage any campaigns yet.</h2>
+    <p>
+    {% if request.user.is_anonymous %}
+     You need to <a href="{% url 'login' %}">log in</a>.
+    {% elif claims %}
+    Create a campaign for <a href="{% url 'rh_works' %}#open_campaigns">one of your works</a>.
+    {% else %}
+    You need to <a href="{% url 'rightsholders' %}#add_your_books">claim a work</a> before you start a campaign to support it.
+    {% endif %}
+    </p>
+{% endif %}
+{% endblock %}

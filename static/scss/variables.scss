@@ -1,4 +1,4 @@
-
+/* variables and mixins used in multiple less files go here */
 $text-blue: #3d4e53;
 $medium-blue: #6994a3;
 $medium-blue-grey: #a7c1ca;
@@ -107,3 +107,131 @@ $btn-danger-bg:                  $brand-danger;
 $btn-danger-border:              darken($btn-danger-bg, 5%);
 
 $btn-link-disabled-color:        $gray-light;
+
+
+//** Disabled cursor for form controls and buttons.
+$cursor-disabled:                not-allowed;
+
+@mixin header-text {
+	display:block;
+	text-decoration:none;
+	font-weight:bold;
+	letter-spacing: -.05em;
+}
+
+@mixin border-radius($topleft, $topright, $bottomright, $bottomleft)
+{
+  -moz-border-radius: $topleft $topright $bottomright $bottomleft;
+  -webkit-border-radius:  $topleft $topright $bottomright $bottomleft;
+  border-radius:  $topleft $topright $bottomright $bottomleft;
+}
+
+@mixin one-border-radius($radius)
+{
+  -moz-border-radius: $radius;
+  -webkit-border-radius:  $radius;
+  border-radius:  $radius;
+}
+
+.panelborders {
+	border-width: 1px 0px;
+	border-style: solid none;
+	border-color: #FFFFFF;
+}
+
+@mixin navigation-arrows($x, $y)
+{
+	background:url($background-booklist) $x $y no-repeat;
+	width:10px;
+	height:15px;
+	display:block;
+	text-indent:-10000px;
+}
+
+@mixin supporter-color-span($hex, $color)
+{
+	$url: "#{$image-base}header-button-#{$color}.png";
+	background:$hex url($url) left bottom repeat-x;	
+}
+
+@mixin roundedspan
+{
+	border:1px solid #d4d4d4;
+	@include one-border-radius(7px);
+	padding:1px; 
+	color:#fff; 
+	margin:0 8px 0 0;
+	display:inline-block;
+	
+	> span { 
+		padding:7px 7px; 
+		min-width:15px; 
+		@include one-border-radius(5px);
+		text-align:center; 
+		display:inline-block;
+		
+		.hovertext {
+			display: none;
+		}
+			
+		&:hover .hovertext {
+			display: inline;
+		}
+	}
+}
+
+@mixin height($x)
+{
+	height:$x; 
+	line-height:$x; 
+}
+
+@mixin mediaborder-base()
+{
+	padding: 5px;
+	border: solid 5px $pale-blue;
+}
+
+@mixin actionbuttons()
+{
+	width: auto;
+	@include height(36px);
+	background: $call-to-action;
+	border: 1px solid transparent;
+	color: white;
+	cursor: pointer;
+	font-size: 13px;
+	font-weight: $btn-font-weight;
+	padding: 0 15px;
+	margin: 5px 0;
+}
+
+@mixin errors()
+{
+	@include one-border-radius(16px);
+	border: solid $alert 3px;
+	clear: both;
+	width: 90%;
+	height: auto;
+	line-height: 16px;
+	padding: 7px 0;
+	font-weight: bold;
+	font-size: 13px;
+	text-align: center;	
+	
+	li {
+		list-style: none;
+		border: none;
+	}
+}
+
+@mixin clickyarrows()
+{
+	text-indent:-10000px; 
+	font-size:0;
+	width:15px; 
+	height:22px; 
+	display:block; 
+	position:absolute; 
+	top:45%;
+}

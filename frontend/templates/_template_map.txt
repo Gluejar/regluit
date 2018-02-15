@@ -36,6 +36,7 @@ base.html    extra_css(empty)  extra_js(empty)    extra_head(empty)
             about.html
             about_smashwords.html
             admins_only.html
+            agreed.html
             api_help.html
             ask_rh.html
             campaign_admin.html    extra_extra_head
@@ -69,7 +70,13 @@ base.html    extra_css(empty)  extra_js(empty)    extra_head(empty)
             press_new.html
             press_submitterator.html
             privacy.html
+            programs.html
+            rh_agree.html
             rh_tools.html    extra_extra_head
+                rh_campaigns.html
+                rh_intro.html
+                rh_works.html
+                rh_yours.html
             rights_holders.html    extra_extra_head
             surveys.html
             terms.html   extra_css
@@ -131,7 +138,9 @@ base.html    extra_css(empty)  extra_js(empty)    extra_head(empty)
         recommended.html
     
 COMPONENT TEMPLATES  
-about_lightbox_footer.html 
+about_lightbox_footer.html
+accepted_agreement.html
+add_your_books.html
 book_plain.html 
 book_panel_addbutton.html
 cardform.html
@@ -158,6 +167,7 @@ registration/login_form.html
 registration/password_reset_email.html
 registration/registration_closed.html
 registration/test_template_name.html
+rights_holder_agreement.html
 sidebar_pledge_complete.html
 slideshow.html
 split.html

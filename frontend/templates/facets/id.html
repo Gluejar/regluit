@@ -7,5 +7,11 @@
         {% if facet.facet_name == 'doab' %}
             These books are included in the <a href="http://doabooks.org/">Directory of Open Access Books</a>. This means that they have been peer-reviewed and are of interest to scholars.
         {% endif %}
+        {% if facet.facet_name == '-gtbg' %}
+            These books are not included in <a href="https://www.gutenberg.org">Project Gutenberg</a>. 
+        {% endif %}
+        {% if facet.facet_name == '-doab' %}
+            These books do not seem to be included in the <a href="http://doabooks.org/">Directory of Open Access Books</a>. 
+        {% endif %}
         </p>
 </div>

@@ -1,0 +1,104 @@
+{% extends 'rh_tools.html' %}
+{% block toolcontent %}
+
+{% if request.user.rights_holder.count %}
+<h2 id="open_campaigns">Works You Have Claimed</h2>
+	<dl>
+	{% for claim in claims %}
+		<dt>Title: <a href="{% url 'work' work_id=claim.work_id %}">{{claim.work.title }}</a>&nbsp;&nbsp;&nbsp;(work #{{ claim.work_id }})</dt>
+		<dd style='margin-left: 2em'>Author: {{claim.work.authors_short }}
+			<br />On Behalf of: {{ claim.rights_holder.rights_holder_name }}
+			<br />Agreement #: {{ claim.rights_holder.id }}
+			<br />Date of Claim : {{ claim.created }}
+			<br />Status of Claim: {{ claim.get_status_display }}
+			{% if claim.campaign_form  %}
+			<h3>Initialize a campaign for this work</h3>
+			<div class="work_campaigns clearfix" style="padding: 5px;">
+			<form method="POST" action="#managed_campaigns">
+				{% csrf_token %}
+				{{ claim.campaign_form.name }}{{ claim.campaign_form.name.errors }}
+					{% ifequal claim.can_open_new 1 %}
+					<p>Choose the Campaign Type: {{ claim.campaign_form.type }}{{ claim.campaign_form.type.errors }}</p>
+					<ol>
+					<li> <i>Pledge-To-Unglue</i>: These campaigns have a fixed end date. When your pledges reach the target you set, the campaign succeeds and the ebook is released in an open-access <i>unglued</i> edition.</li>
+					<li> <i>Buy-To-Unglue</i>: These campaigns start with a date on which the ebook will become open access. Each sale advances this "ungluing date" an increment based on you funding target.</li>
+					<li> <i>Thanks-For-Ungluing</i>: These campaigns are for books that <i>already</i> have a Creative Commons license.</li>
+					</ol>
+					{% else %}
+					Your previous campaign succeeded, but you can open a new <i>Thanks-For-Ungluing</i> campaign. <input type="hidden" id="cl_{{ claim.id }}-type" name="cl_{{ claim.id }}-type" value="3" />
+					{{ claim.campaign_form.type.errors }}
+					{% endifequal %}
+				<p>Add another Campaign Manager(s) by their Unglue.it username: </p>
+				<div style="width:220px; padding-left:20px" >{{ claim.campaign_form.managers }}{{ claim.campaign_form.managers.errors }}
+				<br />
+				<input type="submit" name="submit" value="Initialize Campaign">
+				</div>
+				<p>
+				{{ claim.campaign_form.work }}{{ claim.campaign_form.work.errors }}
+				{{ claim.campaign_form.userid }}{{ claim.campaign_form.userid.errors }}
+				</p>
+			</form>
+			</div>
+			{% elif claim.campaign %}			
+			<h3>Campaign for this work</h3>
+
+			{% with claim.campaign as campaign %}
+			<div class="work_campaigns clearfix">
+				{% if campaign.status = 'ACTIVE' or campaign.status = 'INITIALIZED' %}
+					<div class="campaign_info">
+						Your {{ campaign.get_type_display }}, "{{ campaign.name }}", is {{ campaign.status }}<br />
+						Created: {{ campaign.created }}<br />
+						Manager(s): {% for user in campaign.managers.all %} <a href="{% url 'supporter' user.username %}">{{ user.username }} </a> {% endfor %}
+							<form method="POST" action="#">{% csrf_token %}
+								<div style="width:220px; padding-left:20px" >
+								Add/Remove Managers: 
+								{{ campaign.edit_managers_form.managers }}{{ campaign.edit_managers_form.managers.errors }}
+								<input type="submit" name="edit_managers_{{campaign.id}}" value="Save Managers">
+								</div>
+							</form>
+					</div>
+					{% if request.user in campaign.managers.all %}
+						<div>
+							<a href="{% url 'manage_campaign' campaign.id %}" class="manage">Manage This Campaign</a>
+						</div>
+					{% endif %}
+				{% else %}
+					<div class="campaign_info">
+						Name: Your campaign, "{{ campaign.name }}", is {{ campaign.status }}<br />
+						Created: {{ campaign.created }}<br />
+						Manager(s): {% for user in campaign.managers.all %} <a href="{% url 'supporter' user.username %}">{{ user.username }} </a> {% endfor %}
+						<br />
+						{% ifequal campaign.type 1 %}
+						${{ campaign.current_total }} pledged of ${{ campaign.target }}, {{ campaign.supporters_count }} supporters
+						{% else %}
+						${{ campaign.current_total }} sold. ${{ campaign.target }} to go, Ungluing Date: {{ campaign.cc_date }}
+						{% endifequal %}
+						<br /> <a href="{% url 'campaign_results' campaign.id %}">Transaction Details</a>
+					</div>
+				{% endif %}
+			</div>
+			{% endwith %}
+			{% else %}
+			<p><i>When your claim is <b>approved</b>, you will be able to create a campaign.</i></p>
+			{% endif %}
+
+			{% if claim.work.first_ebook %}
+				<h4> Ebooks for this work </h4>
+				<p>{{ claim.work.download_count }} total downloads</p>
+				<div class="work_campaigns">
+				<ul>
+				{% for ebook in claim.work.ebooks_all %}
+					<li> edition #{{ebook.edition_id}} {{ ebook.format }} {% if not ebook.active %}(inactive){% endif %}
+					{{ ebook.download_count }} downloads
+					</li>
+				{% endfor %}
+				</ul>
+				</div>
+			{% endif %}
+		</dd>
+	{% empty %}
+	    <dd> You have not claimed any works. </dd>
+	{% endfor %}
+	</dl>
+{% endif %}
+{% endblock %}

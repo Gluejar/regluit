@@ -3,7 +3,7 @@
 {% load purchased %}
 {% load lib_acqs %}
 {% load bookpanel %}
-{% with first_ebook=work.first_ebook supporters=work.last_campaign.supporters thumbnail=work.cover_image_thumbnail author=work.authors_short title=work.title last_campaign=work.last_campaign status=work.last_campaign.status deadline=work.last_campaign.deadline workid=work.id wishlist=request.user.wishlist.works.all %}
+{% with first_ebook=work.first_ebook thumbnail=work.cover_image_thumbnail author=work.authors_short title=work.title last_campaign=work.last_campaign status=work.last_campaign.status deadline=work.last_campaign.deadline workid=work.id wishlist=request.user.wishlist.works.all %}
 {% purchased %}{% lib_acqs %}{% bookpanel %}
 <div class="thewholebook listview tabs {% if tab_override %}{{tab_override}}{% elif first_ebook or status == 'SUCCESSFUL' %}tabs-1{% elif status == 'ACTIVE' %}tabs-2{% else %}tabs-3{% endif %}">
 <div class="listview book-list">
@@ -109,7 +109,7 @@
                         {% endif %}
                     </div>                    
                 </div>
-                {% if request.user.id in supporters %}
+                {% if not supported %}
                     <div class="white_text bottom_button">
                         {% include "book_panel_addbutton.html" %}	
                     </div>		
@@ -119,7 +119,7 @@
                     </div>		
                     <div class="white_text bottom_button" >
                         {% if work.last_campaign.type == 1 %}
-                            <a href="{% url 'pledge' work_id=workid %}"><span class="read_itbutton pledge button_text"><span>Pledge</span></span></a>
+                            <a href="{% url 'pledge' work_id=workid %}"><span class="read_itbutton pledge button_text"><span>Support</span></span></a>
                         {% elif work.last_campaign.type == 2 %}
                             {% if in_library %}
                                 <a href="{% url 'purchase' work_id=workid %}"><span class="read_itbutton pledge button_text"><span>Reserve It</span></span></a>                           
@@ -219,7 +219,7 @@
         {% endif %}
     {% elif show_pledge %}
         <div class="listview panelfront side1 add-wishlist">
-            <span class="booklist_pledge"><a href="{% url 'pledge' work_id=workid %}" class="fakeinput">Pledge</a></span>
+            <span class="booklist_pledge"><a href="{% url 'pledge' work_id=workid %}" class="fakeinput">Support</a></span>
         </div>
     {% elif show_purchase %}
         <div class="listview panelfront side1 add-wishlist">
@@ -241,8 +241,8 @@
                     <span>{% if purchased.gifts.all.count %}A gift to you!{% else %}Purchased!{% endif %}</span>
                 {% elif borrowed %}
                     <span>Borrowed! ...until</span>
-                {% elif request.user.id in supporters %}
-                    <span>Pledged!</span>
+                {% elif supported %}
+                    <span>Supported!</span>
                 {% else %}
                    <span>Faved!</span>
                 {% endif %}

@@ -47,7 +47,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 #  EMAIL_HOST_USER is in keys/host
 #  EMAIL_HOST_PASSWORD is in keys/host
 EMAIL_PORT = 587
-DEFAULT_FROM_EMAIL = 'info@gluejar.com'
+DEFAULT_FROM_EMAIL = 'info@ebookfoundation.org'
 
 # for use with test google account only
 GOOGLE_DISPLAY_NAME = 'Unglue.It'
@@ -85,3 +85,7 @@ UNGLUEIT_TEST_PASSWORD = None
 
 # local settings for maintenance mode
 MAINTENANCE_MODE = False
+
+# assume that CSS will get generated on dev
+SASS_OUTPUT_STYLE = 'compressed'
+
