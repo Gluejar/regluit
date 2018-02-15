@@ -18,11 +18,10 @@
 
     <script type="text/javascript" src="{{ jquery_home }}"></script>
     <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
-    <script type="text/javascript" src="/static/js/sitewide1.js"></script>
+    <script type="text/javascript" src="/static/scss/foundation/dist/js/foundation.js"></script>
     <script type="text/javascript" src="/static/js/watermark_init.js"></script>
     <script type="text/javascript" src="/static/js/watermark_change.js"></script>
-    <script type="text/javascript" src="/static/scss/foundation/dist/js/foundation.js"></script>
-    <script defer type="text/javascript" src="/static/js/initialize-foundation.js"></script>
+    <script defer type="text/javascript" src="/static/js/sitewide1.js"></script>
     {% block extra_js %}
     {% endblock %}
 	{% if show_langs %}
@@ -103,21 +102,27 @@
             {% endblock %}
         </div>
         <div id="header-menu">
-            <i class="fa fa-bars"></i>
-            <ul class="vertical menu drilldown" data-drilldown>
-              <li><a href="#">One</a></li>
-              <li>
-                <a href="#">Two</a>
-                <ul class="menu vertical nested">
-                  <li><a href="#">Two A</a></li>
-                  <li><a href="#">Two B</a></li>
-                  <li><a href="#">Two C</a></li>
-                  <li><a href="#">Two D</a></li>
+            <label for="menu-drilldown-box" toggle-header-menu>
+                <i class="fa fa-bars"></i>
+            </label>
+            <div class="top-menu" style="visibility: hidden;">
+                <ul class="vertical menu drilldown" data-drilldown >
+                    <label for="menu-drilldown-box">
+                        <li toggle-header-menu><a href="#">Back</a></li>
+                    </label>
+                <li>
+                    <a href="#">Two</a>
+                    <ul class="menu vertical nested">
+                    <li><a href="#">Two A</a></li>
+                    <li><a href="#">Two B</a></li>
+                    <li><a href="#">Two C</a></li>
+                    <li><a href="#">Two D</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">Three</a></li>
+                <li><a href="#">Four</a></li>
                 </ul>
-              </li>
-              <li><a href="#">Three</a></li>
-              <li><a href="#">Four</a></li>
-            </ul>
+            </div>
         </div>
     </div>
 

@@ -82,4 +82,21 @@ $j(document).ready(function() {
     $j('#i_haz_notifications_badge').click(function() {
         event.stopPropagation();
     });
+
+    $j('[toggle-header-menu]').click(function () {toggleVisibility('.top-menu')})
+
+    function toggleVisibility(selector) {
+        var element = document.querySelector(selector);
+        element.style.visibility = element.style.visibility === 'hidden' ? 'visible' : 'hidden';
+    }
+
+    // Initialize foundation
+    document.querySelectorAll('[data-drilldown]').forEach(element => {
+        new Foundation.Drilldown($j(element), {});
+    });
+
+    document.querySelectorAll('[data-dropdown-menu]').forEach(element => {
+        new Foundation.DropdownMenu($j(element), {});
+    });
+
 });
