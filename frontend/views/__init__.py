@@ -1050,7 +1050,7 @@ class PledgeView(FormView):
             host = PAYMENT_HOST_NONE,
             campaign=self.campaign,
             user=self.request.user,
-            paymentReason="Unglue.it Pledge for {0}".format(self.campaign.name),
+            paymentReason=u"Unglue.it Pledge for {0}".format(self.campaign.name),
             pledge_extra=form.trans_extra,
             donation = donation
         )
