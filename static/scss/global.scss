@@ -1,6 +1,7 @@
 @import 'settings/settings';
 @import 'foundation';
-@import 'colors';
+@import 'variables';
+
 @include foundation-everything;
 
 @include breakpoint(small only) {
@@ -9,6 +10,28 @@
     }
 }
 
+.top-menu {
+    position: absolute;
+    background-color: $background-body;
+    box-sizing: border-box;
+}
+
+@include breakpoint (small down) {
+    .top-menu {
+        height: 100vh;
+        width: 100vw;
+        top: 0;
+        left: 0;
+    }
+}
+
+@include breakpoint (medium) {
+    .top-menu {
+        width: 143px;
+        margin-left: -106px;
+        border: 1px solid $gray;
+    }
+}
 
 .footer {
     background-color: $pale-blue;

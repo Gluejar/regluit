@@ -1390,7 +1390,7 @@ html, body {
   height: 100%; }
 
 body {
-  background: url("/static/images/bg-body.png") 0 0 repeat-x;
+  background: url(#fefefe) 0 0 repeat-x;
   padding: 0 0 20px 0;
   margin: 0;
   font-size: 13px;
@@ -1970,7 +1970,7 @@ a#readon {
 
 div#content-block {
   overflow: hidden;
-  background: url("/static/images/bg.png") 100% -223px no-repeat;
+  background: url("${image-base}bg.png") 100% -223px no-repeat;
   padding: 0 0 0 7px;
   margin-bottom: 20px; }
   div#content-block.jsmodule {
@@ -2275,4 +2275,4 @@ li.checked {
   font-weight: bold;
   cursor: pointer; }
 
-/*# sourceMappingURL=../../../../../../static/scss/sitewide4.css.map */
+/*# sourceMappingURL=../../../../../static/scss/sitewide4.css.map */

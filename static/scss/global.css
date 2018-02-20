@@ -11,6 +11,12 @@
     left: auto;
     margin: 0 auto; } }
 
+/* variables and mixins used in multiple less files go here */
+.panelborders {
+  border-width: 1px 0px;
+  border-style: solid none;
+  border-color: #FFFFFF; }
+
 /*! normalize-scss | MIT/GPLv2 License | bit.ly/normalize-scss */
 /* Document
        ========================================================================== */
@@ -4432,9 +4438,7 @@ table {
   width: 100%;
   margin-bottom: 1rem;
   border-radius: 0; }
-  thead,
-  tbody,
-  tfoot {
+  thead, tbody, tfoot {
     border: 1px solid #f1f1f1;
     background-color: #fefefe; }
   caption {
@@ -4446,18 +4450,13 @@ table {
   tfoot {
     background: #f1f1f1;
     color: #0a0a0a; }
-  thead tr,
-  tfoot tr {
+  thead tr, tfoot tr {
     background: transparent; }
-  thead th,
-  thead td,
-  tfoot th,
-  tfoot td {
+  thead th, thead td, tfoot th, tfoot td {
     padding: 0.5rem 0.625rem 0.625rem;
     font-weight: bold;
     text-align: left; }
-  tbody th,
-  tbody td {
+  tbody th, tbody td {
     padding: 0.5rem 0.625rem 0.625rem; }
   tbody tr:nth-child(even) {
     border-bottom: 0;
@@ -5022,8 +5021,26 @@ a.thumbnail {
   #feedback {
     display: none; } }
 
+.top-menu {
+  position: absolute;
+  background-color: #fefefe;
+  box-sizing: border-box; }
+
+@media screen and (max-width: 39.9375em) {
+  .top-menu {
+    height: 100vh;
+    width: 100vw;
+    top: 0;
+    left: 0; } }
+
+@media print, screen and (min-width: 40em) {
+  .top-menu {
+    width: 143px;
+    margin-left: -106px;
+    border: 1px solid #555555; } }
+
 .footer {
-  background-color: #EDF3F4;
+  background-color: #edf3f4;
   clear: both;
   padding: 15px 0px 5px 0px;
   margin-top: 20px;
@@ -5041,4 +5058,4 @@ a.thumbnail {
     list-style: none;
     margin-left: 0; }
 
-/*# sourceMappingURL=../../../../../../static/scss/global.css.map */
+/*# sourceMappingURL=../../../../../static/scss/global.css.map */

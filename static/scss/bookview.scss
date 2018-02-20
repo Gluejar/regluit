@@ -58,7 +58,6 @@
     @include mobile();
 }
 
-
 @supports not (grid-template-rows: auto) {
     @include mobile();
 }

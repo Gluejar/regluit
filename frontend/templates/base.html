@@ -6,20 +6,24 @@
     <meta charset="utf-8" />
     <meta name="referrer" content="origin" />
     <title>unglue.it {% block title %}{% endblock %}</title>
+    <link REL="SHORTCUT ICON" HREF="/static/images/favicon.ico">
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:site" content="@unglueit" />
     {% block extra_meta %}{% endblock %}
     <link type="text/css" rel="stylesheet" href="{% sass_src 'scss/sitewide4.scss' %}" />
-	<link REL="SHORTCUT ICON" HREF="/static/images/favicon.ico">
     {% block extra_css %}{% endblock %}
 
     <link href="{% sass_src 'scss/global.scss' %}" rel="stylesheet" type="text/css" />
     <link href="{% sass_src 'scss/foundation/scss/foundation.scss' %}" rel="stylesheet" type="text/css" />
-	<script type="text/javascript" src="{{ jquery_home }}"></script>
+    <link href="{% sass_src 'scss/header.scss' %}" rel="stylesheet" type="text/css" />
+    <link type="text/css" rel="stylesheet" href="/static/css/font-awesome.min.css" />
+
+    <script type="text/javascript" src="{{ jquery_home }}"></script>
     <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
-	<script type="text/javascript" src="/static/js/sitewide1.js"></script>
-	<script type="text/javascript" src="/static/js/watermark_init.js"></script>
-	<script type="text/javascript" src="/static/js/watermark_change.js"></script>
+    <script type="text/javascript" src="/static/scss/foundation/dist/js/foundation.js"></script>
+    <script type="text/javascript" src="/static/js/watermark_init.js"></script>
+    <script type="text/javascript" src="/static/js/watermark_change.js"></script>
+    <script defer type="text/javascript" src="/static/js/sitewide1.js"></script>
     {% block extra_js %}
     {% endblock %}
 	{% if show_langs %}
@@ -48,26 +52,18 @@
 	</div>
 </div>
 
-<div id="js-page-wrap">
-    <div id="js-header">
-        <div class="js-main">
-            <div class="js-logo">
-                <a href="{% url 'landing' %}"><img src="/static/images/logo.png" alt="unglue.it" title="unglue.it"  /></a>
-            </div>
-            {% block search_box %}
-            {% if not suppress_search_box %}
-            <div class="js-search">
-            <div class="js-search-inner">
-                <form action="{% url 'search' %}" method="get">
-                	<div class="inputalign">
-                    <input type="text" id="nowatermark" size="25" onfocus="imgfocus()" onblur="imgblur(15)" class="inputbox" name="q" value="{{ q }}">
-                    <input type="submit" class="button">
-					</div>
-                </form>
-            </div>
-            </div>
-            {% endif %}
-            {% endblock %}
+<div id="page-wrapper">
+    <div id="header">
+        <div id="header-logo">
+            <a href="{% url 'landing' %}"><img src="/static/images/logo.png" alt="unglue.it" title="unglue.it"/></a>
+        </div>
+        <div id="header-search-bar">
+            <form action="{% url 'search' %}" method="get">
+                <input type="text" placeholder="Search" id="nowatermark" size="25" onfocus="imgfocus()" onblur="imgblur(15)" class="inputbox" name="q" value="{{ q }}"></input>
+                <i class="fa fa-search"></i>
+            </form>
+        </div>
+        <div id="header-login">
             {% block signin %}
             {% if user.is_authenticated %}
                 <div class="js-topmenu" id="authenticated">
@@ -102,27 +98,42 @@
                         </ul>
                 </div>
             {% else %}
-                <div class="js-topmenu">
-                    <ul class="menu">
-                        <li><a class="notbutton hijax" href="{% url 'superlogin' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}"><span>Sign In</span></a></li>
-                       {% if not suppress_search_box %}
-                            {% if request.get_full_path != "/accounts/register/" %}
-                                <li  class="last"><a class="btn btn-signup" href="{% url 'registration_register' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Sign Up <i class="fa fa-chevron-right"></i></a></li>
-                            {% endif %}
-                        {% endif %}
-                    </ul>
-                </div>
+                <a class="notbutton hijax" href="{% url 'superlogin' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}"><span>Log In</span></a>
+                <a class="btn btn-signup" href="{% url 'registration_register' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Sign Up <i class="fa fa-chevron-right"></i></a>
             {% endif %}
             {% endblock %}
+        </div>
+        <div id="header-menu">
+            <label for="menu-drilldown-box" toggle-header-menu>
+                <i class="fa fa-bars"></i>
+            </label>
+            <div class="top-menu" style="visibility: hidden;">
+                <ul class="vertical menu drilldown" data-drilldown >
+                    <label for="menu-drilldown-box">
+                        <li toggle-header-menu><a href="#">Back</a></li>
+                    </label>
+                <li>
+                    <a href="#">Two</a>
+                    <ul class="menu vertical nested">
+                    <li><a href="#">Two A</a></li>
+                    <li><a href="#">Two B</a></li>
+                    <li><a href="#">Two C</a></li>
+                    <li><a href="#">Two D</a></li>
+                    </ul>
+                </li>
+                <li><a href="#">Three</a></li>
+                <li><a href="#">Four</a></li>
+                </ul>
+            </div>
         </div>
     </div>
 
 {% block news %}
 {% endblock %}
 
-    {% block topsection %}{% endblock %}
-    {% block content %}{% endblock %}
-</div>
+{% block topsection %}{% endblock %}
+{% block content %}{% endblock %}
+
 {% block footer %}
 <div class="footer hide utilityheaders">
     <ul>
@@ -178,6 +189,8 @@
     </div>
 </div>
 {% endblock %}
+</div>
+
 {% block counter %}
     {% if show_google_analytics %}
         <script type="text/javascript">
