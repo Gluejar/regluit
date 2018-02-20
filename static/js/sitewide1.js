@@ -10,14 +10,14 @@ $j(document).ready(function() {
         var work_page = $j(this).attr("href").split("download")[0];
         var isDownload =$j(this).attr("href").indexOf("download");
         var vars = $j(this).attr("href").split("next=");
-        
+
 		$j("#lightbox").load($j(this).attr("href") + " #lightbox_content", function() {
 		    // centering divs of dynamic width: shockingly hard. make sure lightbox is centered on load.
             var hijaxWidth = $j('#about_expandable').width() + 28;
             var windowWidth = $j(document).width();
             var marginWidth = (windowWidth - hijaxWidth)/2;
             $j('#about_expandable').css({'margin-left': marginWidth, 'margin-right': marginWidth});
-            
+
             // position div vertically relative to top of viewport, to ensure visibility
             // regardless of where on the page the user clicked to activate it
             var marginTop = window.pageYOffset;
@@ -31,9 +31,9 @@ $j(document).ready(function() {
                 $j.getScript('https://www.dropbox.com/static/api/2/dropins.js');
                 $j.cookie('next', work_page, {path: '/'});
             }
-            else {		
+            else {
                 //need to push next cookie for sign-in links
-                
+
                 if (vars.length>1){
                     next=vars[1];
                     if(next!='') {
@@ -46,7 +46,7 @@ $j(document).ready(function() {
             $j('#feedback, #js-page-wrap, #footer').css({"opacity": "0.07"});
             $j('#about_expandable').css({'position': 'absolute'});
             $j('#about_expandable').fadeTo("slow", 1);
-        
+
             // if we're on a supporter page, personalize our about box
             // by writing the supporter's name in
             if ($j(location).attr('pathname').slice(0,11) == '/supporter/') {
@@ -63,7 +63,7 @@ $j(document).ready(function() {
             }
 		});
 	});
-	
+
 	// fade-in normal page elements on collapse
 	$j('#about_collapser').on("click", function(){
 		$j('#js-topsection, .launch_top, .preview, #main-container, #js-rightcol, #js-header, #js-page-wrap, #footer, #feedback').fadeTo("slow", 1);
@@ -83,7 +83,7 @@ $j(document).ready(function() {
         event.stopPropagation();
     });
 
-    $j('[toggle-header-menu]').click(function () {toggleVisibility('.top-menu')})
+    $j('[toggle-header-menu]').click(function () {toggleVisibility('#top-menu')})
 
     function toggleVisibility(selector) {
         var element = document.querySelector(selector);
