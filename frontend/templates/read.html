@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% load humanize %}
+{% load lib_acqs %}
+{% load purchased %}
+{% load sass_tags %}
+{% block title %}&#151;
+        Read {{ work.title }} online at unglue.it
+{% endblock %}
+{% block extra_meta %}
+<meta property="og:title" content="{{ work.title }}" />
+<meta property="og:type" content="book" />
+<meta property="og:url" content="https://unglue.it{% url 'work' work.id %}" />
+<meta property="og:image" content="{{ work.cover_image_thumbnail }}" />
+<meta property="og:site_name" content="Unglue.it" />
+{% for author in work.relators %}
+    <meta property="book:author" content="{{ author.name }}" />
+{% endfor %}
+{% if work.first_isbn_13 %}
+    <meta property="book:isbn" content="{{ work.first_isbn_13 }}" />
+{% endif %}
+{% endblock %}
+{% block extra_css %}
+    <link type="text/css" rel="stylesheet" href="{% sass_src 'scss/read.scss' %}"  />
+{% endblock %}
+
+{% block content %}
+    {% with work.id as work_id %}
+        <div class="wrapper">
+            you found it
+        </div>
+    {% endwith %}
+{% endblock %}

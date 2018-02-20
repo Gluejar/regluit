@@ -297,6 +297,11 @@ def stub(request):
 def acks(request, work):
     return render(request, 'front_matter.html', {'campaign': work.last_campaign()})
 
+def read(request, work_id):
+    return render(request, 'read.html', {
+        'work': safe_get_work(work_id),
+    })
+
 def work(request, work_id, action='display'):
     work = safe_get_work(work_id)
     alert = ''
@@ -410,7 +415,7 @@ def work(request, work_id, action='display'):
         'cover_width': cover_width_number,
         'action': action,
         'formset': formset,
-        'kwform': SubjectSelectForm()
+        'kwform': subjectselectform()
     })
 
 def edition_uploads(request, edition_id):
