@@ -13,4 +13,5 @@ logs/*
 celerybeat.pid
 celerybeat-schedule
 .gitignore~
-static/scss/*.css.map
+static/scss/**/*.css
+static/scss/**/*.css.map
