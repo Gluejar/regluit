@@ -1,19 +1,19 @@
 {% if amount > 0 %}
     {% if amount == 1 %}
-        {{ user.username }}, 1 gift credit has been added to your unglue.it gift credit account.
+        {{ user.username }}, 1 Unglue.it credit has been added to your unglue.it gift credit account.
     {% else %}
-        {{ user.username }}, {{ amount }} gift credits have been added to your unglue.it gift credit account.
+        {{ user.username }}, {{ amount }} Unglue.it credits have been added to your unglue.it gift credit account.
     {% endif %}
 {% else %}
     {% if amount == 1 %}
-        {{ user.username }}, 1 gift credit has been deducted from your unglue.it gift credit account.
+        {{ user.username }}, 1 Unglue.it credit has been deducted from your unglue.it gift credit account.
     {% else %}
-        {{ user.username }}, {{ minus_amount }} gift credits have been deducted from your unglue.it gift credit account.
+        {{ user.username }}, {{ minus_amount }} Unglue.it credits have been deducted from your unglue.it gift credit account.
     {% endif %}
 {% endif %}
-You have a balance of {{ user.credit.balance }} gift credits.
-You have pledged {{ user.credit.pledged }} gift credits to ungluing campaigns.
-You have {{ user.credit.available }} gift credits available to pledge or transfer.
-You can manage your gift credit account at https://unglue.it/gift/
+You have a balance of {{ user.credit.balance }} Unglue.it credits.
+You have pledged {{ user.credit.pledged }} Unglue.it credits to ungluing campaigns.
+You have {{ user.credit.available }} Unglue.it credits available to pledge or transfer.
+You can manage your Unglue.it credit account at https://unglue.it/gift/
 
-Gift credits can be used in support of any type of ungluing campaign.
+Unglue.it credits can be used in support of any type of ungluing campaign.

@@ -1,20 +1,13 @@
-{% if work.last_campaign_status == 'SUCCESSFUL' %}
-{{ work.title }}, which is on your ungluing list, is now available for download as an Unglued Ebook.  
+New ebook files for "{{ work.title }}", which is on your ungluing list, are available for download.  
 
-{% else %}
-{{ work.title }}, which is on your ungluing list, is available for download as a {{ work.ebooks.0.get_rights_display }} ebook.  
-
-{% if work.ebooks.0.user %}
-We'd like to thank Ungluer {{work.ebooks.0.user}} for adding the link(s). 
-
-{% endif %}
-{% endif %}
-Here are the files available for download:
+Here are the files now available:
 {% for ebook in work.ebooks %}
 File type: {{ ebook.get_format_display }}
-License: {{ ebook.get_rights_display }}
+{% if ebook.version_label %}Version: {{ ebook.version_label }}
+{% endif %}License: {{ ebook.get_rights_display }}
 Host Site: {{ ebook.provider }}
 URL: {{ ebook.download_url }}
+Date Added: {{ ebook.created|date:"M d, Y" }}
 
 {% endfor %}
 {% if work.ebooks.0.rights == 'PD-US' %}

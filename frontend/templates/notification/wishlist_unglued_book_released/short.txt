@@ -1,1 +1,1 @@
-{{ work.title }} is available for download!
+New ebook files for {{ work.title }} are available for download!
