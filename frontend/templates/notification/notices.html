@@ -1,12 +1,12 @@
 {% extends 'notification/base.html' %}
-
+{% load sass_tags %}
 
 {% load i18n %}
 
 {% block title %}{% trans "Notices" %}{% endblock %}
 
 {% block extra_css %}
-<link type="text/css" rel="stylesheet" href="/static/css/notices.css" />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/notices.scss' %}" />
 {% endblock %}
 
 {% block doccontent %}
@@ -30,10 +30,6 @@
 {% if unseen_count > 0 %}
     {% for notice in notices %}
         {% if notice.unseen %}
-        	{% comment %}
-        	Note: do not call is_unseen because it will mark the notification as seen,
-        	and we're leaving that up to the user.
-        	{% endcomment %}
             <div class="notice">
                 {{ notice.message|safe }}
             </div>
