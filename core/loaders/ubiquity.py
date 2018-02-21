@@ -18,7 +18,7 @@ class UbiquityScraper(BaseScraper):
         for desc in descs:
             if desc.find(string=HAS_EDS):
                 return 'editor'
-        return super(self, UbiquityScraper).get_role()
+        return super(UbiquityScraper, self).get_role()
 
     def get_language(self):
         langlabel = self.doc.find(string='Language')
@@ -28,4 +28,4 @@ class UbiquityScraper(BaseScraper):
         if lang:
             self.set('language', lang)
         else:
-            super(self, UbiquityScraper).get_language()
+            super(UbiquityScraper, self).get_language()
