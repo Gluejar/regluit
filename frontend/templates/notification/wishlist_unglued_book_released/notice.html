@@ -11,35 +11,26 @@
 {% endblock %}
 
 {% block comments_textual %}
-	{% if work.last_campaign_status == 'SUCCESSFUL' %}
 		<p>
-		Great News!  <a href="{% url 'work' work.id %}">{{ work.title }}</a> which is on your ungluing list is now available for download as an Unglued Ebook.  
+		New ebook files for <a href="{% url 'work' work.id %}">{{ work.title }}</a>, are available for download. 
 		</p>
-	{% else %}
-		<p>
-		Good News!  <a href="{% url 'work' work.id %}">{{ work.title }}</a> which is on your ungluing list is available for download as a {{ work.ebooks.0.get_rights_display }} ebook.  
-		</p>
-		{% if work.ebooks.0.user %}
-			<p>
-			We'd like to thank Ungluer {{work.ebooks.0.user}} for adding the link(s). 
-			</p>
-		{% endif %}
-	{% endif %}
 
-	<p>Here are the files available for download:</p>
+	<p>Here are the files now available for download:</p>
 	<table>
 	<tr>
 	<th>File type</th>
+	<th>Version</th>
 	<th>License</th>
-	<th>Host Site</th>
 	<th>URL</th>
+	<th>Date Added</th>
 	</tr>
 	{% for ebook in work.ebooks %}
 		<tr>
 		<td>{{ ebook.get_format_display }}</td>
+		<td>{{ ebook.version_label }}</td>
 		<td>{{ ebook.get_rights_display }}</td>
-		<td>{{ ebook.provider }}</td>
 		<td><a href="{{ ebook.download_url }}">{{ ebook.download_url|truncatechars:30 }}</a></td>
+		<td>{{ ebook.created|date:"M d, Y" }}</td>
 		</tr>
 	{% endfor %}
 	

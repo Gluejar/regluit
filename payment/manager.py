@@ -323,7 +323,7 @@ class PaymentManager( object ):
         
         # only allow active transactions to go through again, if there is an error, intervention is needed
         transactions = Transaction.objects.filter(campaign=campaign, status=TRANSACTION_STATUS_ACTIVE)
-        
+
         results = []
         
         for t in transactions:
@@ -460,8 +460,6 @@ class PaymentManager( object ):
         
         # Mark as payment attempted so we will poll this periodically for status changes
         transaction.set_payment()
-        
-        # here's where we need to add handling for credit transactions in pledge campaigns
         
         p = transaction.get_payment_class().Execute(transaction)
         

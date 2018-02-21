@@ -40,7 +40,7 @@
 {% else %}
 		<p>Congratulations!</p>
 		
-		<p>Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be released to the world in an unglued ebook edition. {{ transaction.host|capfirst }} has been charged to your credit card.</p>
+		<p>Thanks to you and other ungluers, {{ transaction.campaign.work.title }} will be released to the world in an unglued ebook edition. Your {% if transaction.host == 'credit' %}Unglue.it credit account{% else %}credit card{% endif %} has been charged ${{ transaction.amount|floatformat:2|intcomma }}.</p>
 		
 		<p><b>Pledge Summary</b><br />
 		Amount pledged: {{ transaction.amount|floatformat:2|intcomma }}<br />

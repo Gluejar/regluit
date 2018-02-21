@@ -1,1 +1,1 @@
-{% if amount > 0 %}{{ amount }} gift credits have been added to your unglue.it gift credit account.{% else %}{{ minus_amount }} gift credits have been deducted from your unglue.it gift credit account.{% endif %}
+{% if amount > 0 %}{{ amount }} Unglue.it credits have been added to your unglue.it credit account.{% else %}{{ minus_amount }} Unglue.it credits have been deducted from your unglue.it credit account.{% endif %}

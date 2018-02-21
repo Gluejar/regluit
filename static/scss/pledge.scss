@@ -16,7 +16,7 @@ input[type="submit"], a.fakeinput {
 	padding: 10px;
 	font-size: $font-size-header;
 	background: $pale-blue;
-	
+
 	&.premium_level {
 		margin-top: 3px;
 	}
@@ -24,7 +24,7 @@ input[type="submit"], a.fakeinput {
 
 form.pledgeform {
 	width: 470px;
-	
+
 	.pledgeform_label {
 	    font-size: 80%
 	}
@@ -46,7 +46,7 @@ p {
 
 .jsmodule.pledge {
 	margin: auto;
-	
+
 	.jsmod-content {
 		float: right !important;
 	}
@@ -58,7 +58,7 @@ p {
 	border: solid 2px $blue-grey;
 	@include one-border-radius(5px);
 	padding: 7px;
-		
+
 	h4 {
 		margin: 0 0 5px 0;
 	}
@@ -83,7 +83,7 @@ span.menu-item-price {
 }
 
 ul#offers_list li {
-    
+
     div.on {
         display: block;
 	    background: $pale-blue;
@@ -109,10 +109,10 @@ ul#offers_list li {
 }
 
 .premiums_inactive#select_premiums {
-    background: $blue-grey;	
-    
+    background: $blue-grey;
+
     div, div.pledge_amount, ul li, ul li:hover {
-            background: $blue-grey;	
+            background: $blue-grey;
 			color: $text-blue
     }
 }
@@ -127,24 +127,24 @@ ul#offers_list li {
 
 	div {
 		float: left;
-		
+
 		&.ack_level {
 			width: 16%;
 			margin-right: 3%;
 			height: 100%;
 			padding: 1%;
 		}
-		
+
 		&.ack_header {
 			width: 73%;
 			padding: 1%;
 		}
-		
+
 		&.ack_active, &.ack_inactive {
 			width: 100%;
 			font-size: $font-size-default;
 		}
-		
+
 		&.ack_active {
 			.ack_header, .ack_level {
 				border: solid $text-blue;
@@ -152,12 +152,12 @@ ul#offers_list li {
 				background: white;
 			}
 		}
-		
+
 		&.ack_inactive {
 			.ack_header, .ack_level {
 				border: solid $blue-grey;
 				border-width: 1%;
-				background: $blue-grey;		
+				background: $blue-grey;
 			}
 
 			input, textarea {
@@ -166,11 +166,11 @@ ul#offers_list li {
 			}
 		}
 	}
-	
+
 	> div {
 		margin: 7px 0;
 	}
-	
+
 	input[type=text], textarea {
 		width: 95%;
 		font-size: $font-size-larger;
@@ -195,39 +195,39 @@ ul#offers_list li {
         float: left;
         line-height: normal;
     }
-    
+
     input[type="submit"] {
         float: left;
     }
-    
+
     div {
         width: 50%;
         float: left;
-        
+
         ul {
             background: $pale-blue;
         }
-       
+
         &.highlight {
             ul {
                 border-color: $medium-blue-grey;
                 background: white;
             }
-            
+
             color: $dark-green;
         }
     }
-    
+
     ul {
         padding: 5px 10px 5px 15px;
         border: solid 1px $blue-grey;
         margin-right: 15px;
         list-style-type: none;
-        
+
         li {
             margin: 5px 0;
         }
-        
+
         a {
             color: $medium-blue;
         }
@@ -238,12 +238,12 @@ ul#offers_list li {
     &.off {
         display: none;
     }
-    
+
     border: 3px solid $blue-grey;
     @include one-border-radius(5px);
     margin-top: 10px;
     padding: 10px;
-    
+
     div.innards {
         input[type="text"],input[type="password"]  {
             font-size: $font-size-larger;
@@ -252,16 +252,16 @@ ul#offers_list li {
             padding: 1% 1%;
             margin: 1% 0;
             color: $text-blue;
-            
+
             &:disabled {
                 border-color: white;
             }
-            
+
             &.address, &#card_Number, &#id_email {
                 width: 61%;
-            }            
+            }
         }
-    
+
         label {
             width: 31%;
             float: left;
@@ -272,8 +272,8 @@ ul#offers_list li {
             padding: 1% 2% 1% 0;
             margin: 1% 0;
             text-align: right;
-        } 
-        
+        }
+
         .form-row span {
             float: left;
             line-height: $font-size-larger*1.5;
@@ -282,12 +282,12 @@ ul#offers_list li {
             padding: 1% 0;
         }
     }
-    
+
     .cvc {
         position: relative;
         z-index: 0;
     }
-    
+
     #cvc_help {
         font-style: italic;
         float: none;
@@ -295,7 +295,7 @@ ul#offers_list li {
         color: $link-color;
         cursor: pointer;
     }
-    
+
     #cvc_answer {
         display: none;
         z-index: 100;
@@ -309,7 +309,7 @@ ul#offers_list li {
         right: 0;
         opacity: 1;
         background-color: white;
-        
+
         img {
             float: right;
             margin-left: 5px;

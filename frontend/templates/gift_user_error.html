@@ -10,9 +10,9 @@
 <div class="jsmodule rounded clearfix">
     <div class="jsmod-content">
 
-	<div><h2>Wrong user for gift credit</h2>
+	<div><h2>Wrong user for Unglue.it credit</h2>
 		<div>
-		<p>Unglue.it would like to process your gift credit, but you are currently logged in as <code>{{request.user.username}}</code>. Your gift credit for ${{ envelope.amount }}.{{ envelope.cents }} is designated for <code>{{ envelope.username }}</code>. To record your credit, you need to <a href='{% url 'auth_logout' %}?next={{ request.get_full_path|urlencode }}'>log out</a>, and then <a href='{% url 'superlogin' %}?next={{ request.get_full_path|urlencode }}'>log in</a> as <code>{{ envelope.username }}</code>. If you have any problem, don't hesitate to <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">contact us</a>.
+		<p>Unglue.it would like to process your Unglue.it credit, but you are currently logged in as <code>{{request.user.username}}</code>. Your Unglue.it credit for ${{ envelope.amount }}.{{ envelope.cents }} is designated for <code>{{ envelope.username }}</code>. To record your credit, you need to <a href='{% url 'auth_logout' %}?next={{ request.get_full_path|urlencode }}'>log out</a>, and then <a href='{% url 'superlogin' %}?next={{ request.get_full_path|urlencode }}'>log in</a> as <code>{{ envelope.username }}</code>. If you have any problem, don't hesitate to <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">contact us</a>.
         </p>
         </div>
 	</div>
