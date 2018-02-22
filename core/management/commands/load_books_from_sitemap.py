@@ -30,9 +30,9 @@ class Command(BaseCommand):
             books = []
             for sitemap in content:
                 added = add_by_sitemap(sitemap.strip(), maxnum=max)
-                max = max - len(added)
+                max = max - len(added) if max else max
                 books =  books + added
-                if max < 0:
+                if max and max < 0:
                     break
         else:
             books = add_by_sitemap(url, maxnum=max)  
