@@ -169,10 +169,8 @@ class LibraryThing(object):
                 r = requests.get(url, cookies=cookies)
                 
             if r.status_code != httplib.OK:
-                raise LibraryThingException("Error accessing %s: %s" % (url, e))
-                logger.info("Error accessing %s: %s", url, e)
+                raise LibraryThingException("Error accessing %s: status %s" % (url, r.status_code))
             etree = html.fromstring(r.content)
-            #logger.info("r.content %s", r.content)
             cookies = r.cookies  # retain the cookies
             
             # look for a page bar
