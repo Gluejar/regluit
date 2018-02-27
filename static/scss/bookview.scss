@@ -1,3 +1,4 @@
+@import 'variables';
 @import 'foundation';
 
 @mixin mobile() {
@@ -69,7 +70,7 @@
             grid-template-columns: fit-content 1fr 20%;
             grid-template-rows: auto auto;
             grid-template-areas: "bookImage bookDescription bookSidebar"
-                                ".         bookComments    .";
+                                 ".         bookComments    .";
             margin-left: auto;
             margin-right: auto;
             max-width: 1000px;
@@ -87,6 +88,12 @@
 
 .bookImage {
     grid-area: bookImage;
+    padding: 15px;
+
+    img {
+        padding: 5px;
+        border: solid 5px $gray-lighter;
+    }
 }
 
 .bookImage div {
