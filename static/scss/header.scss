@@ -12,7 +12,11 @@
 }
 
 #header-logo {
-    align-self: flex-start
+    align-self: flex-start;
+
+    img {
+        max-height: 48px;
+    }
 }
 
 #header-search-bar {
