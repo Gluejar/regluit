@@ -179,6 +179,12 @@
             </div>
         </div>
         <div class="bookSidebar">
+            <div class="bookDownload">
+                <button class="button expanded success">Download</button>
+            </div>
+            <div class="bookDonate">
+                <button class="button expanded success">Donate</button>
+            </div>
             <div class="book-sidebar-item">
                 <div class="btn_wishlist" id="wishlist_actions">
                     {% if request.user.is_anonymous %}
@@ -211,12 +217,6 @@
                     <img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" alt="Find on LibraryThing" />
                     <span>LibraryThing</span>
                 </a>
-            </div>
-            <div class="bookDownload">
-                <button class="button expanded">Download</button>
-            </div>
-            <div class="bookDonate">
-                <button class="button expanded">Donate</button>
             </div>
         </div>
         <div class="bookComments">
