@@ -1,0 +1,36 @@
+---
+- name: Migrate databse
+  django_manage:
+    app_path: "{{ project_path }}"
+    command: "migrate --noinput"
+    virtualenv: "{{ project_path }}/venv"
+    settings: "{{ django_settings_module }}"
+
+- name: Import fixtures
+  django_manage:
+    app_path: "{{ project_path }}"
+    command: "loaddata"
+    virtualenv: "{{ project_path }}/venv"
+    settings: "{{ django_settings_module }}"
+    fixtures: "core/fixtures/initial_data.json core/fixtures/bookloader.json"
+
+- name: Start Celery Worker
+  django_manage:
+    app_path: "{{ project_path }}"
+    command: "celery worker --detach --loglevel=INFO"
+    virtualenv: "{{ project_path }}/venv"
+    settings: "{{ django_settings_module }}"
+
+- name: Start Celery Beat
+  django_manage:
+    app_path: "{{ project_path }}"
+    command: "celery beat --detach --loglevel=INFO"
+    virtualenv: "{{ project_path }}/venv"
+    settings: "{{ django_settings_module }}"
+
+# - name: Start the Django development server
+#   django_manage:
+#     app_path: "{{ project_path }}"
+#     command: "runserver {{ django_server_ip }}:{{ django_server_port }}"
+#     virtualenv: "{{ project_path }}/venv"
+#     settings: "{{ django_settings_module }}"

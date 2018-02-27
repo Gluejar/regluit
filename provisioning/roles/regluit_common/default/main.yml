@@ -1,0 +1,6 @@
+project_path: "/vagrant"
+django_settings_module: "regluit.settings.me"
+virtualenv_name: "venv"
+mysql_db_name: "regluit"
+mysql_db_user: "regluit"
+mysql_db_pass: "password123"

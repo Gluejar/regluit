@@ -30,7 +30,6 @@ django-contrib-comments==1.7.1
 django-endless-pagination==2.0
 django-extensions==1.6.1
 django-jsonfield==1.0.0
-#django-kombu==0.9.4
 django-maintenancemode==0.11.2
 django-mptt==0.8.5
 #django-nose-selenium==0.7.3
@@ -85,9 +84,6 @@ sorl-thumbnail==12.3
 ssh==1.7.14
 stevedore==1.12.0
 stripe==1.9.1
-virtualenv==1.4.9
-# virtualenv-clone==0.2.4 not sure why I have this in my env
-#virtualenvwrapper==3.6
 wsgiref==0.1.2
 xhtml2pdf==0.0.6
 #for urllib3 secure

@@ -1,0 +1,6 @@
+project_path: "/opt/regluit"
+virtualenv_name: "venv"
+django_settings_module: "regluit.settings.me"
+mysql_db_name: "regluit"
+mysql_db_user: "regluit"
+mysql_db_pass: "password123"
