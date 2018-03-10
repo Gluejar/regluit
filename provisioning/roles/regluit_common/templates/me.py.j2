@@ -27,8 +27,8 @@ DATABASES = {
         'NAME': '{{ mysql_db_name }}',
         'USER': '{{ mysql_db_user }}',
         'PASSWORD': '{{ mysql_db_pass }}',
-        'HOST': '',
-        'PORT': '',
+        'HOST': '{{ mysql_db_host }}',
+        'PORT': '{{ mysql_db_port }} ',
         'TEST_CHARSET': 'utf8',
     }
 }
@@ -58,10 +58,10 @@ REDIRECT_IS_HTTPS = False
 BASE_URL_SECURE = 'https://0.0.0.0'
 
 # use redis as queuing service
-BROKER_TRANSPORT = "redis"
-BROKER_HOST = "localhost"
-BROKER_PORT = 6379
-BROKER_VHOST = "0"
+BROKER_TRANSPORT = "{{ broker_transport }}"
+BROKER_HOST = "{{ broker_host }}"
+BROKER_PORT = {{ broker_port }}
+BROKER_VHOST = "{{ broker_vhost }}"
 
 # send celery log to Python logging
 CELERYD_HIJACK_ROOT_LOGGER = False

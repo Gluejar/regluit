@@ -28,9 +28,21 @@
     virtualenv: "{{ project_path }}/venv"
     settings: "{{ django_settings_module }}"
 
-# - name: Start the Django development server
-#   django_manage:
-#     app_path: "{{ project_path }}"
-#     command: "runserver {{ django_server_ip }}:{{ django_server_port }}"
-#     virtualenv: "{{ project_path }}/venv"
-#     settings: "{{ django_settings_module }}"
+- name: Copy activation script
+  template:
+    src: "activate_venv.sh.j2"
+    dest: "/home/{{ ansible_user }}/activate_venv.sh"
+    owner: "{{ ansible_user }}"
+    mode: "u=rx,g=rx,o=rwx"
+
+- name: Source activation script in bash profile
+  blockinfile:
+    path: "/home/{{ ansible_user }}/.profile"
+    block: |
+      if [ -f ~/activate_venv.sh ]; then
+        source ~/activate_venv.sh
+      fi
+    marker: "# {mark} SOURCE REGLUIT ACTIVATION SCRIPT ON LOGIN"
+
+- debug:
+    msg: "Successfully provisioned regluit development environment."

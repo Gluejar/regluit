@@ -51,4 +51,6 @@ Vagrant.configure("2") do |config|
     ansible.install = true
   end
 
+  config.vm.post_up_message = "Successfully created regluit-local VM. Run 'vagrant ssh' to log in and start the development server."
+
 end
