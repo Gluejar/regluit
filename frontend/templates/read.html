@@ -14,11 +14,46 @@
     {% if work.first_isbn_13 %}
         <meta property="book:isbn" content="{{ work.first_isbn_13 }}" />
     {% endif %}
+    <link type="text/css" rel="stylesheet" href="/static/css/reader/normalize.css" />
+    <link type="text/css" rel="stylesheet" href="/static/css/reader/main.css" />
+    <link type="text/css" rel="stylesheet" href="/static/css/reader/popup.css" />
+    <link type="text/css" rel="stylesheet" href="/static/css/reader/annotations.css" />
     <link type="text/css" rel="stylesheet" href="{% sass_src 'scss/read.scss' %}"  />
+
+    <script src="/static/js/reader/libs/jquery.min.js"></script>
+    <script src="/static/js/reader/libs/zip.min.js"></script>
+
+    <script>
+    "use strict";
+
+    document.onreadystatechange = function () {
+        if (document.readyState == "complete") {
+        EPUBJS.filePath = "js/libs/";
+        EPUBJS.cssPath = window.location.href.replace(window.location.hash, '').replace('index.html', '') + "css/";
+        // fileStorage.filePath = EPUBJS.filePath;
+
+        window.reader = ePubReader("moby-dick/");
+        }
+    };
+    </script>
+
+    <!-- Full Screen -->
+    <script src="/static/js/reader/libs/screenfull.min.js"></script>
+
+    <!-- Render -->
+    <script src="/static/js/reader/epub.min.js"></script>
+
+    <!-- Hooks -->
+    <script src="/static/js/reader/hooks.min.js"></script>
+
+    <!-- Reader -->
+    <script src="/static/js/reader/reader.min.js"></script>
+
 </head>
 
 {% with work.id as work_id %}
 <body>
+    <div>{{work}}</div>
     <div id="sidebar">
     <div id="panels">
         <input id="searchBox" placeholder="search" type="search">
