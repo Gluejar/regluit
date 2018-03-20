@@ -415,7 +415,7 @@ def work(request, work_id, action='display'):
         'cover_width': cover_width_number,
         'action': action,
         'formset': formset,
-        'kwform': subjectselectform()
+        'kwform': SubjectSelectForm()
     })
 
 def edition_uploads(request, edition_id):
