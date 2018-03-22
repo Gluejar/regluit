@@ -110,15 +110,19 @@ class SpringerScraper(BaseScraper):
         self.set('publisher', 'Springer')
 
 search_url = 'https://link.springer.com/search/page/{}?facet-content-type=%22Book%22&package=openaccess'
-def load_springer(num_pages):
-    def springer_open_books(num_pages):
-        for page in range(1, num_pages+1):
+def load_springer(startpage=1, endpage=None):
+    def springer_open_books(startpage, endpage):
+        endpage = endpage if endpage else startpage + 10
+        for page in range(startpage, endpage + 1):
             url = search_url.format(page)
-            response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
-            if response.status_code == 200:
-                base = response.url
-                doc = BeautifulSoup(response.content, 'lxml')
-                for link in doc.select('a.title'):
-                    book_url = urljoin(base, link['href'])
-                    yield SpringerScraper(book_url)
-    return add_from_bookdatas(springer_open_books(num_pages))
+            try:
+                response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
+                if response.status_code == 200:
+                    base = response.url
+                    doc = BeautifulSoup(response.content, 'lxml')
+                    for link in doc.select('a.title'):
+                        book_url = urljoin(base, link['href'])
+                        yield SpringerScraper(book_url)
+            except requests.exceptions.ConnectionError:
+                print 'couldn\'t connect to %s' % url
+    return add_from_bookdatas(springer_open_books(startpage, endpage))
