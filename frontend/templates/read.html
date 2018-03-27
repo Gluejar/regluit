@@ -32,7 +32,7 @@
         EPUBJS.cssPath = window.location.href.replace(window.location.hash, '').replace('index.html', '') + "css/";
         // fileStorage.filePath = EPUBJS.filePath;
 
-        window.reader = ePubReader("https://unglue.it/download_ebook/30881/", {restore: true});
+            window.reader = ePubReader("{{url}}", {restore: true});
         }
     };
     </script>

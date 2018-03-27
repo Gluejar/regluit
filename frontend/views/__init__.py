@@ -298,8 +298,13 @@ def acks(request, work):
     return render(request, 'front_matter.html', {'campaign': work.last_campaign()})
 
 def read(request, work_id):
+    try:
+        ebook = get_object_or_404(models.Ebook, id=work_id)
+    except ValueError:
+        raise Http404
     return render(request, 'read.html', {
         'work': safe_get_work(work_id),
+        'url': ebook.url,
     })
 
 def work(request, work_id, action='display'):
