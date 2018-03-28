@@ -208,11 +208,20 @@
                 <a rel="nofollow" class="find-librarything" href="{% url 'work_librarything' work_id %}"><img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" alt="Find on LibraryThing" /></a>
                 <span>LibraryThing</span>
             </div>
+            <div class="bookRead">
+                <a href="{% url 'read' work_id %}">
+                    <button class="button expanded">Read</button>
+                </a>
+            </div>
             <div class="bookDownload">
-                <button class="button expanded">Download</button>
+                <a href="{% url 'download' work_id %}">
+                    <button class="button expanded">Download</button>
+                </a>
             </div>
             <div class="bookDonate">
-                <button class="button expanded">Donate</button>
+                <a href="{% url 'download' work_id %}">
+                    <button class="button expanded">Donate</button>
+                </a>
             </div>
         </div>
         <div class="bookComments">
