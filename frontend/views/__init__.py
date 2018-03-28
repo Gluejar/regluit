@@ -298,17 +298,20 @@ def acks(request, work):
     return render(request, 'front_matter.html', {'campaign': work.last_campaign()})
 
 def read(request, work_id):
+    work = safe_get_work(work_id)
     try:
-        ebook = get_object_or_404(models.Ebook, id=work_id)
-    except ValueError:
+        ebook_id = work.first_epub().id
+        url = get_object_or_404(models.Ebook, id=ebook_id).url
+    except (ValueError, AttributeError):
         raise Http404
     return render(request, 'read.html', {
-        'work': safe_get_work(work_id),
-        'url': ebook.url,
+        'work': work,
+        'url': url,
     })
 
 def work(request, work_id, action='display'):
     work = safe_get_work(work_id)
+    print work.first_epub().id
     alert = ''
     if request.method == "HEAD":
         return render(request, 'worksummary.html', {'work': work,})
