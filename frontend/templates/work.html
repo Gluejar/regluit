@@ -179,6 +179,12 @@
             </div>
         </div>
         <div class="bookSidebar">
+            <div class="bookDownload">
+                <button class="button expanded success">Download</button>
+            </div>
+            <div class="bookDonate">
+                <button class="button expanded success">Donate</button>
+            </div>
             <div class="book-sidebar-item">
                 <div class="btn_wishlist" id="wishlist_actions">
                     {% if request.user.is_anonymous %}
@@ -201,18 +207,16 @@
                 </div>
             </div>
             <div class="book-sidebar-item">
-                <a rel="nofollow" class="find-goodreads" href="{% url 'work_goodreads' work_id %}"><img src="/static/images/supporter_icons/goodreads_square.png" title="Find on GoodReads"  alt="Find on GoodReads" /></a>
-                <span>GoodReads</span>
+                <a rel="nofollow" class="find-goodreads" href="{% url 'work_goodreads' work_id %}">
+                    <img src="/static/images/supporter_icons/goodreads_square.png" title="Find on GoodReads"  alt="Find on GoodReads" />
+                    <span>GoodReads</span>
+                </a>
             </div>
             <div class="book-sidebar-item">
-                <a rel="nofollow" class="find-librarything" href="{% url 'work_librarything' work_id %}"><img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" alt="Find on LibraryThing" /></a>
-                <span>LibraryThing</span>
-            </div>
-            <div class="bookDownload">
-                <button class="button expanded">Download</button>
-            </div>
-            <div class="bookDonate">
-                <button class="button expanded">Donate</button>
+                <a rel="nofollow" class="find-librarything" href="{% url 'work_librarything' work_id %}">
+                    <img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" alt="Find on LibraryThing" />
+                    <span>LibraryThing</span>
+                </a>
             </div>
         </div>
         <div class="bookComments">
