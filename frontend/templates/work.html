@@ -179,6 +179,21 @@
             </div>
         </div>
         <div class="bookSidebar">
+            <div class="bookRead">
+                <a href="{% url 'read' work_id %}">
+                    <button class="button expanded success">Read</button>
+                </a>
+            </div>
+            <div class="bookDownload">
+                <a href="{% url 'download' work_id %}">
+                    <button class="button expanded success">Download</button>
+                </a>
+            </div>
+            <div class="bookDonate">
+                <a href="{% url 'download' work_id %}">
+                    <button class="button expanded success">Donate</button>
+                </a>
+            </div>
             <div class="book-sidebar-item">
                 <div class="btn_wishlist" id="wishlist_actions">
                     {% if request.user.is_anonymous %}
@@ -201,26 +216,15 @@
                 </div>
             </div>
             <div class="book-sidebar-item">
-                <a rel="nofollow" class="find-goodreads" href="{% url 'work_goodreads' work_id %}"><img src="/static/images/supporter_icons/goodreads_square.png" title="Find on GoodReads"  alt="Find on GoodReads" /></a>
-                <span>GoodReads</span>
+                <a rel="nofollow" class="find-goodreads" href="{% url 'work_goodreads' work_id %}">
+                    <img src="/static/images/supporter_icons/goodreads_square.png" title="Find on GoodReads"  alt="Find on GoodReads" />
+                    <span>GoodReads</span>
+                </a>
             </div>
             <div class="book-sidebar-item">
-                <a rel="nofollow" class="find-librarything" href="{% url 'work_librarything' work_id %}"><img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" alt="Find on LibraryThing" /></a>
-                <span>LibraryThing</span>
-            </div>
-            <div class="bookRead">
-                <a href="{% url 'read' work_id %}">
-                    <button class="button expanded">Read</button>
-                </a>
-            </div>
-            <div class="bookDownload">
-                <a href="{% url 'download' work_id %}">
-                    <button class="button expanded">Download</button>
-                </a>
-            </div>
-            <div class="bookDonate">
-                <a href="{% url 'download' work_id %}">
-                    <button class="button expanded">Donate</button>
+                <a rel="nofollow" class="find-librarything" href="{% url 'work_librarything' work_id %}">
+                    <img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" alt="Find on LibraryThing" />
+                    <span>LibraryThing</span>
                 </a>
             </div>
         </div>

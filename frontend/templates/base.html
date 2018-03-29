@@ -98,7 +98,7 @@
                 </div>
             {% else %}
                 <a class="notbutton hijax" href="{% url 'superlogin' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}"><span>Log In</span></a>
-                <a class="btn btn-signup" href="{% url 'registration_register' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Sign Up <i class="fa fa-chevron-right"></i></a>
+                <a class="button success" href="{% url 'registration_register' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Sign Up</a>
             {% endif %}
             {% endblock %}
         </div>
@@ -106,22 +106,31 @@
             <label for="menu-drilldown-box" toggle-header-menu>
                 <i class="fa fa-bars"></i>
             </label>
-            <div class="top-menu" style="visibility: hidden;">
+            <div id="top-menu" style="visibility: hidden;">
                 <ul class="vertical menu drilldown" data-drilldown >
                     <label for="menu-drilldown-box">
                         <li toggle-header-menu><a href="#">Back</a></li>
                     </label>
-                <li>
-                    <a href="#">Two</a>
-                    <ul class="menu vertical nested">
-                    <li><a href="#">Two A</a></li>
-                    <li><a href="#">Two B</a></li>
-                    <li><a href="#">Two C</a></li>
-                    <li><a href="#">Two D</a></li>
-                    </ul>
-                </li>
-                <li><a href="#">Three</a></li>
-                <li><a href="#">Four</a></li>
+                    <li>
+                        <a href="#">Account</a>
+                        <ul class="menu vertical nested">
+                            <li><a href="#">Pledges</a></li>
+                            <li><a href="#">Notices</a></li>
+                            <li><a href="#">Profile Settings</a></li>
+                            <li><a href="#">Sign out</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">About Unglue.it</a>
+                        <ul class="menu vertical nested">
+                            <li><a href="{% url 'about' %}">Concept</a></li>
+                            <li><a href="https://blog.unglue.it/">Blog</a></li>
+                            <li><a href="{% url 'press' %}">Press</a></li>
+                            <li><a href="http://eepurl.com/fKLfI">Newsletter</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="{% url 'faq' %}">FAQ</a></li>
+                    <li><a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">Help</a></li>
                 </ul>
             </div>
         </div>

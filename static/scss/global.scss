@@ -1,6 +1,6 @@
-@import 'settings/settings';
-@import 'foundation';
+@import 'settings';
 @import 'variables';
+@import 'foundation';
 
 @include foundation-everything;
 
@@ -10,23 +10,51 @@
     }
 }
 
-.top-menu {
-    position: absolute;
+#top-menu {
+    position: fixed;
     background-color: $background-body;
     box-sizing: border-box;
 }
 
 @include breakpoint (small down) {
-    .top-menu {
+    #top-menu {
         height: 100vh;
         width: 100vw;
         top: 0;
         left: 0;
+        &> div {
+            height: 100vh;
+            .menu {
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                height: 100vh;
+
+                label {
+                    flex: 1;
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                }
+
+                li {
+                    a {
+                        display: flex;
+                        flex-direction: row;
+                        align-items: center;
+                        font-size: 2vh;
+
+                        height: 100%;
+                    }
+                    flex: 1;
+                }
+            }
+        }
     }
 }
 
 @include breakpoint (medium) {
-    .top-menu {
+    #top-menu {
         width: 143px;
         margin-left: -106px;
         border: 1px solid $gray;
