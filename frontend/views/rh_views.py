@@ -88,6 +88,8 @@ class ClaimView(CreateView):
         return HttpResponseRedirect(reverse('rightsholders'))
 
     def get_context_data(self, form):
+        if not form.is_valid():
+            return {'form': form}
         work = form.cleaned_data['work']
         rights_holder = form.cleaned_data['rights_holder']
         active_claims = work.claim.exclude(status = 'release')
