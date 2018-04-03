@@ -179,11 +179,13 @@
             </div>
         </div>
         <div class="bookSidebar">
+            {% if has_online_book %}
             <div class="bookRead">
                 <a href="{% url 'read' work_id %}">
                     <button class="button expanded success">Read</button>
                 </a>
             </div>
+            {% endif %}
             <div class="bookDownload">
                 <a href="{% url 'download' work_id %}">
                     <button class="button expanded success">Download</button>
