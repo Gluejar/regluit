@@ -311,7 +311,6 @@ def read(request, work_id):
 
 def work(request, work_id, action='display'):
     work = safe_get_work(work_id)
-    print work.first_epub().id
     alert = ''
     if request.method == "HEAD":
         return render(request, 'worksummary.html', {'work': work,})
