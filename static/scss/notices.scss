@@ -1,0 +1,97 @@
+@import "variables.scss";
+
+.notices_menu {
+	float: right;
+	@include one-border-radius(20px);
+	background: $pale-blue;
+	padding: 10px 20px;
+	margin: -15px auto 7px 7px;
+
+	a {
+		font-size: $font-size-default;
+		font-weight: bold;
+	}
+}
+
+#js-main-container {
+	float: none !important;
+	padding-right: 15px;
+}
+
+/* notice_settings */
+th {
+	text-align: left;
+}
+
+tr {
+	line-height:24px;
+
+	&.row1{
+		background: $pale-blue;
+	}
+}
+
+td {
+	padding-left: 7px;
+	padding-right: 7px;
+
+	&#last {
+		padding: 0;
+	}
+}
+
+table input[type="submit"] {
+	float: right;
+	margin-right: 0;
+}
+
+/* comment containers */
+
+.comments {
+	border: solid 3px $blue-grey;
+	margin: 3px auto;
+
+	hr {
+		margin: 10px auto 5px;
+		color: $blue-grey;
+		background-color: $blue-grey;
+		height:2px;
+		border: 0;
+	}
+
+	.comments_book {
+		@include mediaborder-base;
+		margin-right: 10px;
+		margin-bottom: 10px;
+		max-width: 80px;
+
+		img {
+			max-width: 80px;
+		}
+	}
+
+	.comments_textual {
+		padding: 10px 5px 5px;
+
+		div {
+			margin-bottom: 5px;
+		}
+	}
+
+	.comments_info {
+		border-bottom: solid 1px $blue-grey;
+		padding: 5px;
+
+		div {
+			float: left;
+		}
+
+		.comments_graphical {
+			padding: 5px auto;
+		}
+
+		span {
+			text-indent: 0;
+		}
+	}
+}

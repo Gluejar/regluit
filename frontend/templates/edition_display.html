@@ -1,10 +1,8 @@
 <div class="clearfix">
     <div class="editions">
-            {% if edition.googlebooks_id %}
-                <div class="image">
-                    <img src="{{ edition.cover_image_small }}" title="edition cover" alt="edition cover" />
-                </div>
-            {% endif %}
+            <div class="book-cover">
+                <img src="{{ edition.cover_image_thumbnail }}" title="edition cover" alt="edition cover" />
+            </div>
         <div class="metadata" id="edition_{{edition.id}}">
             {% if edition.title != work.title %}
                 Title: {{edition.title}}<br />
@@ -34,18 +32,8 @@
             {% if edition.oclc %}
                 OCLC: <a href="https://www.worldcat.org/oclc/{{ edition.oclc }}">{{ edition.oclc }}</a><br />
             {% endif %}
-            {% if edition.doi %}
-                DOI: <a href="https://doi.org/{{ edition.doi }}">{{ edition.doi }}</a><br />
-            {% endif %}
-            {% if edition.http_id %}
-                web: <a href="{{ edition.http_id }}">{{ edition.http_id }}</a><br />
-            {% endif %}
             {% if not managing %}
-                {% if user.is_staff %}
-                    <a href="{% url 'new_edition' work_id edition.id %}">Edit this edition</a><br />
-                {% elif user in work.last_campaign.managers.all %}
-                    <a href="{% url 'new_edition' work_id edition.id %}">Edit this edition</a><br />
-                {% elif user.rights_holder.count and not work.last_campaign %}
+                {% if user_can_edit_work %}
                     <a href="{% url 'new_edition' work_id edition.id %}">Edit this edition</a><br />
                 {% endif %}
                 {% if user.is_authenticated %}

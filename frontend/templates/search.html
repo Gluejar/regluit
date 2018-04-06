@@ -1,8 +1,11 @@
 {% extends "base.html" %}
+
+{% load sass_tags %}
+
 {% block extra_css %}
-<link rel="stylesheet" href="/static/css/book_list.css">
-<link rel="stylesheet" href="/static/css/book_panel2.css">
-<link rel="stylesheet" href="/static/css/search.css">
+<link rel="stylesheet" href="{% sass_src 'scss/book_list.scss' %}">
+<link rel="stylesheet" href="{% sass_src 'scss/book_panel2.scss' %}">
+<link rel="stylesheet" href="{% sass_src 'scss/search.scss' %}">
 <style type="text/css">
 #scrolldown:last-child{ display:block}
 #scrolldown{ display:none}

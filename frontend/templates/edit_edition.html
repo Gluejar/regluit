@@ -59,7 +59,7 @@ ul.fancytree-container {
             
             // perform action
             {% if edition.work %}
-            jQuery.post('{% url 'kw_edit' edition.work.id %}', {'remove_kw': kw, 'csrfmiddlewaretoken': '{{ csrf_token }}' }, function(data) {
+            jQuery.post('{% url 'kw_edit' edition.work_id %}', {'remove_kw': kw, 'csrfmiddlewaretoken': '{{ csrf_token }}' }, function(data) {
                 li.html('kw removed');
             });
             {% else %}
@@ -88,7 +88,7 @@ ul.fancytree-container {
 {% block doccontent %}
 {% if admin %}
     {% if edition.pk %}
-    <h2>Edit Edition for <a href="{% url 'work' edition.work.id %}">{{ edition.work.title }}</a></h2>
+    <h2>Edit Edition for <a href="{% url 'work' edition.work_id %}">{{ edition.work.title }}</a></h2>
     {% else %}
     <h2>Create New Edition</h2>
     {% endif %}
@@ -204,11 +204,9 @@ ul.fancytree-container {
         </p>
 		
 		<p><b>Cover Image</b>: <br />
-		{% if edition.cover_image %}
-		<img src="{{edition.cover_image}}" /><br />
-		{% else %}
-		[ no cover specified for this edition ]<br />
-		{% endif %}
+		<div class="cover-image">
+		<img src="{{edition.cover_image_thumbnail}}" />
+		</div>
 		{{ form.cover_image.errors }}{{ form.cover_image }}{{ form.cover_image.help_text }}
 		(<i>Enter a URL for an image, at least 300 px wide. The image will be scaled to the proportions of a 6x9 cover. </i>)<br />
 		OR...<br />
@@ -227,20 +225,25 @@ ul.fancytree-container {
 
 <h2>More Edition Management</h2>
 
-<div><a href="{% url 'merge' edition.work.id  %}">Merge other works into this one</a></div>
-<div><a href="{% url 'work_editions' edition.work.id  %}">Remove editions from this work</a></div>
+<div><a href="{% url 'merge' edition.work_id  %}">Merge other works into this one</a></div>
+<div><a href="{% url 'work_editions' edition.work_id  %}">Remove editions from this work</a></div>
 {% if edition.id %}
 <div><a href="{% url 'manage_ebooks' edition.id  %}">Add ebooks for this edition</a></div>
 {% endif %}
 {% if request.user.is_staff %}
-<div><a href="{% url 'feature' edition.work.id  %}">Feature this work today</a></div>
+<div><a href="{% url 'feature' edition.work_id  %}">Feature this work today</a></div>
 {% endif %}
 <br />
 {% endif %}
 
 {% else %}
     {% if edition.work %}
+    <h2><a href="{% url 'work' edition.work_id %}">{{ edition.work.title }}</a> was added to Unglue.it on {{ edition.work.created }}</h2>
     {% include 'edition_display.html' %}
+    <div class="launch_top pale">
+        Are you the author or other rightsholder for this work?
+        To edit the metadata or add editions, become an Unglue.it <a href="{% url 'rightsholders' %}">rights holder</a>.         
+    </div>
     {% else %}
     Sorry, there's no work specified.
     {% endif %}

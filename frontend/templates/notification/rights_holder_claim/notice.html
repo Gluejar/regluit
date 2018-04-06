@@ -2,7 +2,7 @@
 
 
 {% block comments_book %}
-	<a href="{% url 'work' claim.work.id %}"><img src="{{ claim.work.cover_image_small }}" alt="cover image for {{ claim.work.title }}" /></a>
+	<a href="{% url 'work' claim.work_id %}"><img src="{{ claim.work.cover_image_small }}" alt="cover image for {{ claim.work.title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}
@@ -17,7 +17,7 @@
 <br /><br />
 You are now free to start a campaign to sell or unglue your work.  If you're logged in, you can <a href="{% url 'rightsholders' %}">open a campaign</a>.  (You can also find this page by clicking on "Rights Holder Tools" at the bottom of any Unglue.it page.)
 <br /><br />
-To run a campaign, you'll need to set up campaign parameters.  You'll also need to write a pitch.  For Pledge-to-Unglue and Buy-to-Unglue campaigns, this will appear in the Description tab on your book's <a href="{% url 'work' claim.work.id %}">work page</a>.  Think about who your book's audience is, and remind them why they'll love this book -- your pitch is not a catalog page!  We encourage video, audio, and links to make your pitch come alive.  For Thanks-for-Ungluing, your pitch will occur when the user clicks a Download button. You should emphasize how the ungluer's support enables you to keep doing what you do. Feel free to email us (rights@gluejar.com) if you need any help with this.
+To run a campaign, you'll need to set up campaign parameters.  You'll also need to write a pitch.  For Pledge-to-Unglue and Buy-to-Unglue campaigns, this will appear in the Description tab on your book's <a href="{% url 'work' claim.work_id %}">work page</a>.  Think about who your book's audience is, and remind them why they'll love this book -- your pitch is not a catalog page!  We encourage video, audio, and links to make your pitch come alive.  For Thanks-for-Ungluing, your pitch will occur when the user clicks a Download button. You should emphasize how the ungluer's support enables you to keep doing what you do. Feel free to email us (rights@ebookfoundation.org) if you need any help with this.
 <br /><br />
 If you're running a Buy-to-Unglue or Thanks-for-Ungluing Campaign, now is the time to upload your digital files. For Buy-to-Unglue, you need to decide on revenue targets and pricing for individual and library licenses.
 <br /><br />
@@ -25,12 +25,11 @@ If you're running a Pledge Campaign, you need to decide on a funding target, and
 <br /><br />
 Finally, think about how you're going to publicize your campaign: social media, newsletters, media contacts, professional organizations, et cetera.  Have a plan for how to reach out to these potential supporters before you launch your campaign.  Your supporters' sense of connection with you and your book is key to your campaign's success.  Again, email us if you'd like help.
 
-We're thrilled to be working with you.
 	{% endifequal %}
 	{% ifequal claim.status 'pending' %}
-	The claim for <a href="{% url 'work' claim.work.id %}">{{ claim.work.title }}</a> will be examined, and we'll email you.  <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">Contact us</a> if you need any help.
+	The claim for <a href="{% url 'work' claim.work_id %}">{{ claim.work.title }}</a> will be examined, and we'll email you.  <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">Contact us</a> if you need any help.
 	{% endifequal %}
 	{% ifequal claim.status 'release' %}
-	The claim for <a href="{% url 'work' claim.work.id %}">{{ claim.work.title }}</a> has been released.  Contact us at rights@gluejar.com if you have questions.
+	The claim for <a href="{% url 'work' claim.work_id %}">{{ claim.work.title }}</a> has been released.  Contact us at rights@ebookfoundation.org if you have questions.
 	{% endifequal %}
 {% endblock %}

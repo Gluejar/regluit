@@ -1,0 +1,107 @@
+<div id="doc-wrapper"><div class="doc-sign" id="doc-content"> <!--{{ form.errors }}--><form method="POST" action="#" > {% csrf_token %} 
+<p style="text-align: center;"><strong>UNGLUE.IT RIGHTS HOLDER AGREEMENT</strong></p> 
+{{ form.rights_holder_name.errors }}
+<p style="text-align: justify;"><strong>Date:</strong> {{ created }}</p> 
+
+<p style="text-align: justify;"><strong>Rights Holder:</strong> {{ form.rights_holder_name }}</p> 
+
+<p style="text-align: justify;"><strong>Unglue.it Username for Rights Holder:</strong> <span class="rh_data">{{ form.owner }}{{ request.user.username }}</span></p> 
+{{ form.address.errors }}
+<p style="text-align: justify;"><strong>Business Address: </strong> <br /> {{ form.address }}</p> 
+{{ form.mailing.errors }}
+<p style="text-align: justify;"><strong>Mailing Address: </strong>{% if form.use4both %} copy from Business Address {{ form.use4both }}{% endif %}<br /> {{ form.mailing }}</p> 
+{{ form.telephone.errors }}{{ form.email.errors }}
+<p style="text-align: justify;"> <strong>Tel:</strong> {{ form.telephone }} <strong>Email:</strong> {{ form.email }}</p> 
+{{ form.signer.errors }}
+<p style="text-align: justify;">Signer Name: {{ form.signer }}</p> 
+{{ form.signer_title.errors }}
+<p style="text-align: justify;">Signer Title: {{ form.signer_title }}</p> 
+
+<p><strong>FREE EBOOK FOUNDATION, INC.</strong>, a New Jersey Not-for-profit corporation (<strong><em>Distributor</em></strong>), and the above described <strong><em>Rights Holder</em></strong>, agree as follows:</p> 
+
+<p style="text-indent: 0pt"><strong>1. Parties.</strong> The Distributor is the owner and operator of <strong><em>Unglue.it</em></strong>, a platform for the digital distribution of written materials via the unglue.it website and any other URLs designated by the Distributor for such purpose. The Rights Holder is the copyright owner or authorized publisher or licensed  distributor of certain published written materials which the Rights Holder wants to distribute on Unglue.it.</p> 
+
+<p style="text-indent: 0pt"><strong style="text-indent: 0pt">2. Purpose.</strong> This Agreement sets forth the rights and obligations of the parties and applies to all written materials uploaded by the Rights Holder onto the Unglue.it platform using the Unglue.it web interface (individually, a <strong style="text-indent: 0pt"><em>Uploaded Work</em></strong><em style="text-indent: 0pt"> </em>and collectively, <strong style="text-indent: 0pt"><em>Uploaded Works</em></strong>). The parties intend to collaborate in the release and distribution of the Uploaded Works under a Creative Commons License or such other "free" license as shall then pertain to release of creative works (<strong style="text-indent: 0pt"><em>CC License</em></strong>). For works not yet released under such a license, the date that the Rights Holder agrees, as determined by terms of the applicable Programs, to release a Uploaded Work under a CC License pursuant to this Agreement shall be referred to as the <strong style="text-indent: 0pt"><em>Ungluing Date.</em></strong></p> 
+
+<p style="text-indent: 0pt"><strong style="text-indent: 0pt">3. Term and Termination.</strong> The term of this Agreement shall begin on the Effective Date. Either party may terminate this Agreement at any time upon thirty (30) days’ notice to the other party. All licenses issued to third parties during the Term are irrevocable (except in the case of a breach by the third party licensee) and shall survive termination. In particular, the Rights Holder must release of the Uploaded Works pursuant to a CC License on or before the determined Ungluing Date, even if the Ungluing Date occurs after the termination of this Agreement.</p> 
+
+<p style="text-indent: 0pt"><strong style="text-indent: 0pt">4. Programs. </strong>The Distributor has one or more models for the distribution and release of Uploaded Works on Unglue.it, as specified in the <strong><em>Program Terms</em></strong> at <a href="{% url 'programs' %}">https://unglue.it{% url 'programs' %}</a>. Under each Program, the Rights Holder agrees to release and distribute the Uploaded Work in a digital format under a CC License (<strong><em>Unglue</em></strong> the Uploaded Work) pursuant to the applicable Program Terms.</p> 
+
+<p style="text-indent: 0pt"><strong style="text-indent: 0pt">5. Grant of Rights.</strong> The Rights Holder hereby authorizes the Distributor as follows:</p> 
+
+<p style="text-indent: 0pt">(a) to display and market Uploaded Works on the Platform, and to copy and transmit Uploaded Works as may be required in order to fulfill its obligations to Ungluers and other licensees pursuant to the terms of use set forth on the Unglue.it website or any applicable licensing agreement or CC License as applicable;</p> 
+
+<p style="text-indent: 36pt">(b) to use the Rights Holder’s name or trademark in association with Uploaded Works or for promotional or editorial purposes in connection with the Programs;</p> 
+
+<p style="text-indent: 36pt">(c) to collect revenues on behalf of the Rights Holder from supporters, purchasers and licensees of Uploaded Works (<strong><em>Ungluers</em></strong>) using a third party payment processor selected in the sole discretion of the Distributor;</p> 
+
+<p style="text-indent: 36pt">(d) to retain, reserve and distribute payments to the Rights Holder and to the Distributor or otherwise pursuant to the terms of this Agreement, or to any agreement that the Distributor may have with a third party payment processor (including, but not limited to, a reasonable reserve against chargebacks or returns for a period of up to six months);</p> 
+
+<p style="text-indent: 36pt">(e) to convey licenses for the Uploaded Works to individuals pursuant to the terms set forth in the Terms of Use set forth on the Unglue.it website (as amended from time to time in the sole discretion of the Distributor);</p> 
+
+<p style="text-indent: 36pt">(f) to convey licenses for the Uploaded Works to libraries and similar non-profit institutions based on the terms set forth in the then current version of the Unglue.it Library License Agreement, a copy of which shall be provided to the Rights Holder upon request; and</p> 
+
+<p style="text-indent: 36pt">(g) to insert the corresponding license notices into the Uploaded Works that reflect the then current Ungluing Date and other applicable license terms.</p> 
+
+<p><strong style="text-indent: 0pt">6. Service Fees.</strong> As full compensation for the services provided by the Distributor in connection with the Programs, the Rights Holder shall pay to the Distributor, and hereby authorizes the Distributor to withhold from revenues collected by the Distributor on behalf of the Rights Holder the fees set forth in the applicable Program Terms.</p> 
+
+<p style="text-indent: 0pt"><strong>7. Payments to Rights Holder.</strong></p> 
+
+<p>(a) In no event shall payment be made until the Rights Holder has delivered to the Distributor a digital file for the applicable Uploaded Work that complies with the delivery specifications set forth on the then-current Unglue.it website terms of use.</p> 
+
+<p>(b) The Distributor shall pay the Rights Holder the proceeds due and owing pursuant to the applicable Program Terms no less than quarterly (or more frequently at the discretion of the Distributor) in arrears, payable on the fifteenth day of the month following the close of each calendar quarter, such payment to cover the previous calendar quarter. For example, payments due in connection with transactions that occur January 1 through March 31 will be paid to the Rights Holder on April 15 of the same year. Each payment shall be accompanied by a statement detailing sales and licensing data, revenues received, return data, reserve and Distribution Fees withheld. Notwithstanding the above, quarterly payments may be deferred until the following pay period in the event that the amount payable to the Rights Holder for any given pay period is less than $100.</p> 
+
+<p><strong>8. Rights Holder Warrantees and Representations.</strong> The Rights Holder warrants and represents as follows:</p> 
+
+<p style="text-indent: 36pt">(a) The Rights Holder is the sole owner of the copyright in the each Uploaded Work, or has the full power and authority to enter into this Agreement on behalf of the copyright owners of each Uploaded Work.</p> 
+
+<p style="text-indent: 36pt">(b) The signer of this Agreement has full authority to enter into this Agreement on behalf of this Rights Holder and to bind the Rights Holder by their signature.</p> 
+
+<p style="text-indent: 36pt">(c) The Rights Holder has all rights necessary to grant the rights granted to the Distributor pursuant to this Agreement, including but not limited to the right to display, market, copy, distribute and transmit the Uploaded Works on the Unglue.it website, the right to license the Uploaded Works to third party individuals, libraries and institutions as contemplated under this Agreement, and to release digital copies of the Uploaded Works under a Creative Commons license upon the successful completion of a campaign.</p> 
+
+<p style="text-indent: 36pt">(d) Neither the Rights Holder nor the copyright owner has entered any agreements with any third party that impact the ability of the Rights Holder to enter into this Agreement or to comply with its obligations hereunder, including but not limited to the obligation to release the Uploaded Work under a CC License on the Ungluing Date.</p> 
+
+<p style="text-indent: 36pt">(e) The Rights Holder assumes sole responsibility for the payment of any royalties or other fees that may be due to third parties in connection with revenues collected by the Distributor in connection with the Uploaded Work.</p> 
+
+<p style="text-indent: 36pt">(f) Each Uploaded Work is original to the copyright owner or the credited author and does not infringe on any statutory or common law copyright or any proprietary right of any third party.</p> 
+
+<p style="text-indent: 36pt">(g) Each Uploaded Work does not invade the privacy of any third party, or contain matter libelous or otherwise in contravention of the rights of any third person.</p> 
+
+<p style="text-indent: 36pt">(h) Each Uploaded Work contains no matter the publication or distribution of which would otherwise violate any federal or state statute or regulation, nor is the Uploaded Work in any manner unlawful, and nothing in the Uploaded Work shall be injurious to the health of a reader of the Uploaded Work.</p> 
+
+<p style="text-indent: 36pt">(i) There is no threatened or pending litigation or third party claim that relates to any Uploaded Work.</p> 
+
+<p style="text-indent: 36pt">(j) The Rights Holder shall comply with the terms set forth in the then current Terms of Use set forth on the Unglue.it website pertaining to the content that may be posted on the Unglue.it site in connection with any campaign.</p> 
+
+<p style="text-indent: 36pt">(k) The Rights Holder shall timely pay any sales taxes, withholding or other taxes relating to revenues processed by the Distributor on behalf of the Rights Holder.</p> 
+
+<p style="text-indent: 36pt">(l) The Rights Holder agrees that any data obtained from Unglue.it or the distributor must always be handled in accordance with the Unglue.it Terms of Service and Privacy Notice.</p> 
+
+<p style="text-indent: 0pt"><strong>9. Reliance of the Distributor on the Rights Holder Representations and Warrantees.</strong> Each of the representations and warrantees of the Rights Holder set forth in this Agreement is true as of the date of this Agreement and shall remain true during the Term. The Distributor may rely on the truth of such representations and warrantees in dealing with any third party including but not limited to Ungluers and licensees. The Distributor is under no obligation to make an independent investigation to determine whether the above representations are true and accurate. Upon the Distributor’s request, the Rights Holder shall provide the Distributor with copies of any and all prior publishing agreements and rights agreements, assignments, releases and consents relating to any Uploaded Work submitted to the Distributor in connection with a Program. The Distributor may, in its sole discretion, decline to accept any Uploaded Work as part of any Program, for any reason or for no reason.</p> 
+
+<p style="text-indent: 0pt"><strong>10. Indemnification.</strong> The Rights Holder shall indemnify and hold harmless the Distributor, its officers, directors, employees, agents, licensees and assigns (<strong><em>Indemnified Parties</em></strong>) from any losses, liabilities, damages, costs and expenses (including reasonable attorneys’ fees) that may arise out of any claim by the Distributor or any third party relating to the alleged breach of any of the Rights Holder’s warrantees and representation as set forth in this Agreement.</p> 
+
+<p style="text-indent: 0pt"><strong>11. Limitation of Liability. </strong>Under no circumstances, including, without limitation, negligence, shall the Distributor or its directors, affiliates, officers, employees, or agents be responsible for any indirect, incidental, special, or consequential damages arising from or in connection with the use of or the inability to use the Program or the web interface, or any content contained on the Unglue.it website, including, without limitation, damages for loss of profits, use, data, or other intangibles.</p> 
+
+<p style="text-indent: 0pt"><strong>12. No Joint Venture.</strong> This Agreement shall not be deemed to have created an agency relationship, partnership or joint venture between the parties.</p> 
+
+<p style="text-indent: 0pt"><strong>13. Entire Understanding.</strong> This Agreement, together with the Terms of Service contained on the Distributor’s website as updated by the Distributor from time to time without notice to the Rights Holder, and any applicable CC licenses, constitute the entire agreement between the parties and supersedes any previous agreements and understandings had between the parties with respect to the Uploaded Works.</p> 
+
+<p style="text-indent: 0pt"><strong>14. Governing Law; Venue.</strong> This Agreement is governed by and shall be interpreted and construed according to the laws of the United States with respect to copyright law and the laws of New York with regard to all other matters. At the Distributor’s option, any claim arising out of or related to this Agreement shall be settled by arbitration administered by a neutral arbitrator selected by the parties. If the Distributor elects to use the court system as its preferred mode of dispute resolution, then the dispute shall be subject to the exclusive jurisdiction of New York State. Prior to the commencement of any arbitration or litigation proceeding, the Distributor may elect to require that the parties’ participate in good faith effort to resolve the dispute through mediation. The venue for all dispute resolution proceedings shall be the city and state of New York.</p> 
+
+<p style="text-indent: 0pt"><strong>15. Execution.</strong> This Agreement may be executed by exchange of emails. Electronic signatures, faxed or scanned signatures shall be as binding as an original signature.</p> 
+
+<p><strong>AGREED AND ACCEPTED:</strong></p> 
+<p style="text-align: justify;">For <strong>FREE EBOOK FOUNDATION, INC. </strong>, Distributor</p> 
+<p style="text-align: justify;">Eric Hellman, President<strong> </strong></p> 
+<p style="text-align: justify;"><em>Signature:{{ fef_sig }}</em></p>
+{{ form.rh_name.errors }}
+<p style="text-align: justify;">For <strong><span id="rh_name">{{ rights_holder_name }}</span></strong>, Rights Holder </p> 
+{{ form.signature.errors }}
+<p style="text-align: justify;"><em>Signature: {{ form.signature }}</em>, <span id="rh_signer_title">{{ signer_title }}</span></p> 
+<p style="text-align: justify;"><em>{{ signer_note }}</p> 
+                    
+                    <input type='submit' name='submit' value='Enter Signature'  />
+                    </form>
+                    </div> 
+                </div>

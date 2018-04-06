@@ -1,0 +1,50 @@
+{% extends 'basedocumentation.html' %}
+
+{% block title %} Rights Holder Agreement {% endblock %}
+{% block extra_extra_head %}
+{{ block.super }}
+<link rel="stylesheet" href="/static/css/ui-lightness/jquery-ui-1.8.16.custom.css" type="text/css" media="screen">
+<script type="text/javascript" src="{{ jquery_ui_home }}"></script>
+<script type="text/javascript">
+onload = function(){
+    var rhInput = document.getElementById('id_rights_holder_name');
+    var rhDisplay = document.getElementById('rh_name');
+    var rhstInput = document.getElementById('id_signer_title');
+    var rhstDisplay = document.getElementById('rh_signer_title');
+    var rhaInput = document.getElementById('id_address');
+    var use4both = document.getElementById('id_use4both');
+    var rhmInput = document.getElementById('id_mailing');
+    rhaInput.oninput = function(){
+        if (use4both.checked == true) {rhmInput.value = rhaInput.value;};
+    };
+    use4both.onchange = function(){
+        if (use4both.checked == true) {rhmInput.value = rhaInput.value;};
+    };
+    rhInput.oninput = function(){
+        rhDisplay.innerHTML = rhInput.value;
+    };
+    rhstInput.oninput = function(){
+        rhstDisplay.innerHTML = rhstInput.value;
+    };
+};
+</script>
+
+{% endblock %}
+
+{% block topsection %}
+{% endblock %}
+
+{% block doccontent %}
+{% with rights_holder_name='[Rights Holder]'  signer_title='[Signer Title]' signer_note='(Type your name to enter your electronic signature.)' %}
+{% if request.user.is_authenticated %}
+    {% with owner=request.user.username%}
+    {% include 'rights_holder_agreement.html' %}
+    {% endwith %}
+{% else %}
+Please <a href="{% url 'superlogin' %}?next={{ request.get_full_path|urlencode }}">log in or create an account</a> to use the rights holder agreement.
+    {% with owner='[unglue.it username]'%}
+    {% include 'rights_holder_agreement.html' %}
+    {% endwith %}
+{% endif %}
+{% endwith %}
+{% endblock %}

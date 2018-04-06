@@ -2,8 +2,10 @@
 
 {% load comments %}
 {% load humanize %}
-{% load purchased %}
 {% load lib_acqs %}
+{% load purchased %}
+{% load sass_tags %}
+
 {% block title %}&#151; 
     {% if work.is_free %}
         {{ work.title }} is a Free eBook. {% for fmt in  work.formats %}[{{ fmt }}]{% endfor %}
@@ -11,9 +13,17 @@
         Help us make  {{ work.title }} a Free eBook!
     {% endif %}{% if action == 'editions' %} – All Editions{% endif %}
 {% endblock %}
-
+{% block extra_meta %}
+<meta property="og:title" content="{{ work.title }}" />
+<meta property="og:type" content="book" />
+<meta property="og:url" content="https://unglue.it{% url 'work' work.id %}" />
+<meta property="og:image" content="{{ work.cover_image_thumbnail }}" />
+<meta property="og:site_name" content="Unglue.it" />
+{% for author in work.relators %}<meta property="book:author" content="{{ author.name }}" />{% endfor %}
+{% if work.first_isbn_13 %}<meta property="book:isbn" content="{{ work.first_isbn_13 }}" />{% endif %}
+{% endblock %}
 {% block extra_css %}
-<link type="text/css" rel="stylesheet" href="/static/css/campaign2.css"  />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/campaign2.scss' %}"  />
 {% if user.is_staff or user in work.last_campaign.managers.all %}
     <link rel="stylesheet" href="/static/css/ui-lightness/jquery-ui-1.8.16.custom.css" type="text/css" media="screen">
     {{ kwform.media.css }}
@@ -77,12 +87,12 @@
                     <div id="content-block">
                         <div class="book-detail">
                             {% if work.uses_google_cover %}
-                                <div id="book-detail-img">
+                                <div class="book-cover" id="book-detail-img">
                                     <a href="{{ work.googlebooks_url }}">
                                     <img src="{{ work.cover_image_thumbnail }}" alt="Find {{ work.title }} at Google Books" title="Find {{ work.title }} at Google Books" width="131" height="192" /></a>
                                 </div>
                             {% else %}
-                                <div id="book-detail-img">
+                                <div id="book-detail-img" class="book-cover" >
                                     <img itemprop="image" src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" />
                                 </div>
                             {% endif %}
@@ -92,9 +102,9 @@
                                 <div>
                                         <div class="pubinfo">
                                             <h3 class="book-author">
-                                            <span  itemprop="author"><a href="{% url 'search' %}?q={{ work.relators.0.author.name|urlencode }}&amp;ty=au" />{{ work.relators.0.name }}</a></span>{% if work.authors.count == 2 %}
-                                                and <span  itemprop="author"><a href="{% url 'search' %}?q={{ work.relators.1.author.name|urlencode }}&amp;ty=au" />{{ work.relators.1.name }}</a></span>
-                                            {% endif %}{% if work.relators.count > 2 %}{% for author in work.relators %}{% if not forloop.first %}, <span  itemprop="author"><a href="{% url 'search' %}?q={{ author.author.name|urlencode }}&amp;ty=au" />{{ author.name }}</a></span>{% endif %}{% endfor %}
+                                            <span  itemprop="author"><a href="{% url 'search' %}?q={{ work.relators.0.author.name|urlencode }}&amp;ty=au" >{{ work.relators.0.name }}</a></span>{% if work.authors.count == 2 %}
+                                                and <span  itemprop="author"><a href="{% url 'search' %}?q={{ work.relators.1.author.name|urlencode }}&amp;ty=au" >{{ work.relators.1.name }}</a></span>
+                                            {% endif %}{% if work.relators.count > 2 %}{% for author in work.relators %}{% if not forloop.first %}, <span  itemprop="author"><a href="{% url 'search' %}?q={{ author.author.name|urlencode }}&amp;ty=au" >{{ author.name }}</a></span>{% endif %}{% endfor %}
                                             {% endif %}
                                             </h3>
                                             <h3 class="book-year"> 
@@ -295,7 +305,7 @@
                                     {% endfor %}
                                     {% if work.doab %}
                                     <p>
-                                    This book is included in <a href="http://www.doabooks.org/doab?func=search&query=rid%3A{{ work.doab }}">DOAB</a>.
+                                    This book is included in <a href="http://www.doabooks.org/doab?func=search&amp;query=rid%3A{{ work.doab }}">DOAB</a>.
                                     </p>
                                     {% endif %}
                                     {% if work.gtbg %}
@@ -332,7 +342,7 @@
                                                     </span>
                                                 </a>
                                                 <div class="show_supporter_contact_form" >
-                                                    <img src="/static/images/icons/email.png" title="contact supporter" />
+                                                    <img src="/static/images/icons/email.png" alt="email" title="contact supporter" />
                                                 </div>
                                                 <div class="info_for_managers">
                                                     {{ supporter }}<br />
@@ -425,7 +435,7 @@
                                                         {% if request.user.rights_holder.all.count %}
                                                             Is this work yours?  Claim it: <br /><br />
                                         
-                                                            <form method="GET" action="{% url 'claim' %}">
+                                                            <form method="POST" action="{% url 'claim' %}">
                                                                 {% csrf_token %}
                                                                 {{ claimform.user }}
                                                                 {{ claimform.work }}
@@ -476,17 +486,28 @@
                                            <ul id="kw_list"></ul>
 
                                         {% endif %}
-                                        {% if user.is_staff or user in work.last_campaign.managers.all %}
+                                        {% if user_can_edit_work %}
                                             <form method="POST"  id="kw_add_form">{% csrf_token %}
                                             {{ kwform.add_kw }}<input type="hidden" name="kw_add" value="true"> <input type="submit" name="kw_add_fake" value="add keyword" id="kw_add_form_submit" />
                                             </form>
                                         {% endif %}
                                     {% endif %}
+                                    {% with doi=work.doi http_id=work.http_id %}
+                                        {% if doi or http_id %}
+                                        <h4>Links</h4>
+                                        {% if doi %}
+                                            DOI: <a href="https://doi.org/{{ doi }}">{{ doi }}</a><br />
+                                        {% endif %}
+                                        {% if http_id %}
+                                            web: <a href="{{ http_id }}">{{ http_id }}</a><br />
+                                        {% endif %}
+                                        {% endif %}
+                                    {% endwith %}
                                     <h4>Editions</h4>
                                     {% if alert %}
                                         <div class="yikes"><br />{{ alert }}</div>
                                     {% endif %}
-                                    {% if user.is_staff or user in work.last_campaign.managers.all %}
+                                    {% if user_can_edit_work %}
                                         <div><a href="{% url 'new_edition' work_id edition.id %}">Create a new edition for this work</a><br /><br /></div>
                                     {% endif %}
                                     

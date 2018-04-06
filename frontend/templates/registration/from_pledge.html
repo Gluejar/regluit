@@ -71,7 +71,7 @@ function put_un_in_cookie(){
         </div>
         <div class="halfcolumn1  login_box">
             <h3>Already Have an Unglue.it Account?</h3>
-            <a href="{% url 'auth_password_reset' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Forgot</a> your password?  </li>
+            <a href="{% url 'libraryauth_password_reset' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Forgot</a> your password?  </li>
             {% include "login_form.html" %}
         </div>
 

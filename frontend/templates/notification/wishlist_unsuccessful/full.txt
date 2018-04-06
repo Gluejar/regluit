@@ -1,10 +1,8 @@
-Alas.  The campaign to unglue {{ campaign.work.title }} (https://{{current_site.domain}}{% url 'work' campaign.work.id %}) has not succeeded.
+Alas.  The campaign to unglue {{ campaign.work.title }} (https://{{current_site.domain}}{% url 'work' campaign.work_id %}) has not succeeded.
 
 If you pledged toward this work, your pledge will expire shortly and your credit card will not be charged, nor will you receive any premiums.
 
-Still want to give {{ campaign.work.title }} to the world?  Don't despair.  Keep it on your wishlist and tell everyone why you love this book.  The rights holder, {{ campaign.rightsholder }}, may run a campaign with different terms in the future.  With your help, we may yet be able to unglue {{ campaign.work.title }}.
-
-There are also other books with active campaigns that need your help: https://unglue.it/campaigns/ending .
+If you donated in support of this work, your donation will be used to support other campaigns that qualify for charitable support.
 
 Thank you for your support.
 

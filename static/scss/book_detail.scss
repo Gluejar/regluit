@@ -1,0 +1,198 @@
+@import "variables.scss";
+
+/* needed for campaign, pledge, and manage_campaign */
+
+.book-detail {
+	float:left;
+	width:100%;
+	clear:both;
+	display:block;
+}
+
+.book-cover {
+	float: left;
+	margin-right:10px;
+	width:151px;
+
+	img {
+		@include mediaborder-base;
+	}
+}
+
+.mediaborder {
+	@include mediaborder-base;
+}
+
+.book-detail-info {
+	float:left;
+	/* if we want to nix the explore bar, width should be 544ish */
+	width:309px;
+
+	h2.book-name, h3.book-author, h3.book-year {
+		padding:0;
+		margin:0;
+		line-height:normal
+	}
+
+	h2.book-name {
+		font-size: $font-size-header;
+		font-weight:bold;
+		color:$text-blue;
+	}
+
+	h3.book-author, h3.book-year {
+		font-size: $font-size-default;
+		font-weight:normal;
+		color:$text-blue;
+	}
+
+	h3.book-author span a, h3.book-year span a{
+		font-size: $font-size-default;
+		font-weight:normal;
+		color:$link-color;
+	}
+
+	> div {
+		width:100%;
+		clear:both;
+		display:block;
+		overflow:hidden;
+		border-top:1px solid $pale-blue;
+		padding:10px 0;
+	}
+
+	> div.layout {
+		border: none;
+		padding: 0;
+
+		div.pubinfo {
+			float: left;
+			width: auto;
+			padding-bottom: 7px;
+		}
+	}
+
+	.btn_wishlist span {
+		text-align: right;
+	}
+
+	.find-book label {
+        float:left;
+        line-height:31px;
+	}
+
+	.find-link {
+		float:right;
+
+		img {
+			padding: 2px;
+			@include one-border-radius(5px);
+		}
+	}
+
+	.pledged-info {
+		padding:10px 0;
+		position: relative;
+
+		&.noborder {
+		    border-top: none;
+		    padding-top: 0;
+		}
+
+		.campaign-status-info {
+		    float: left;
+		    width: 50%;
+		    margin-top: $font-size-default;
+
+		    span {
+		        font-size: $font-size-larger;
+		        color: $medium-blue;
+		        font-weight: bold;
+		    }
+		}
+	}
+
+	.thermometer {
+	    @include one-border-radius(10px);
+	    border: solid 2px $blue-grey;
+	    width: 291px;
+	    padding: 7px;
+	    position: relative;
+	    overflow: visible;
+
+        /* looks better if we start the gradient a little closer to the success color */
+        $greener-than-alert: #CF6944;
+
+        background: -webkit-gradient(linear, left top, right top, from($call-to-action), to($greener-than-alert));
+        background: -webkit-linear-gradient(left, $greener-than-alert, $call-to-action);
+        background: -moz-linear-gradient(left, $greener-than-alert, $call-to-action);
+        background: -ms-linear-gradient(left, $greener-than-alert, $call-to-action);
+        background: -o-linear-gradient(left, $greener-than-alert, $call-to-action);
+        background: linear-gradient(left, $greener-than-alert, $call-to-action);
+
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$alert', endColorstr='$call-to-action'); /* IE6 & IE7 */
+        -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='$alert', endColorstr='$call-to-action')"; /* IE8+ */
+
+	    &.successful {
+	        border-color: $bright-blue;
+	        background: $pale-blue;
+	    }
+
+	    .cover {
+	        position: absolute;
+	        right: 0;
+	        @include border-radius(0, 10px, 10px, 0);
+	        width: 50px;
+	        height: 14px;
+	        margin-top: -7px;
+	        background: lighten($blue-grey, 10%);
+	    }
+
+	    span {
+	        display: none;
+	    }
+
+	    &:hover span {
+	        display: block;
+	        position: absolute;
+	        z-index: 200;
+	        right: 0;
+	        top:-7px;
+	        font-size: $font-size-header;
+	        color: $medium-blue;
+	        background: white;
+	        border: 2px solid $blue-grey;
+	        @include one-border-radius(10px);
+	        padding: 5px;
+	    }
+	}
+	.explainer{
+	    span.explanation{
+	        display: none;
+	    }
+
+	    &:hover span.explanation {
+	        display: block;
+	        position: absolute;
+	        z-index: 200;
+	        right: 0;
+	        top:12px;
+	        font-size: $font-size-default;
+	        font-weight: normal;
+	        color: $text-blue;
+	        background: white;
+	        border: 2px solid $blue-grey;
+	        @include one-border-radius(10px);
+	        padding: 5px;
+	    }
+
+	}
+	.status {
+		position: absolute;
+		top:50%;
+		right:0%;
+		height: 25px;
+		margin-top: -12px;
+	}
+
+}

@@ -26,7 +26,7 @@ class ApiTests(TestCase):
     
     def setUp(self):
         edition = models.Edition.objects.get(pk=1)
-        self.work_id=edition.work.id
+        self.work_id=edition.work_id
         campaign = models.Campaign.objects.create(
             name=edition.work.title,
             work=edition.work, 
@@ -155,7 +155,7 @@ class FeedTests(TestCase):
     def setUp(self):
         edition = models.Edition.objects.get(pk=1)
         ebook = models.Ebook.objects.create(edition=edition, url='http://example.org/', format='epub', rights='CC BY')
-        self.test_work_id = edition.work.id
+        self.test_work_id = edition.work_id
 
     def test_opds(self):
         r = self.client.get('/api/opds/creative_commons/')

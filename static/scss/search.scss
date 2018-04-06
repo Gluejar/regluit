@@ -1,0 +1,15 @@
+@import "variables.scss";
+
+span.rounded {
+	@include roundedspan;
+}
+
+span.grey {
+	@include supporter-color-span(#bacfd6, grey);
+}
+
+.listview .rounded {
+	// cancelling out styles that would otherwise apply
+	line-height: normal;
+	margin-right: 0;
+}

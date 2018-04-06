@@ -1,0 +1,74 @@
+{% extends 'rh_tools.html' %}
+{% block toolcontent %}
+<h2 id="getting_started">Getting Started</h2>
+<p>
+If you're an author, publisher, or other rights holder, you can participate more fully in Unglue.it by registering as a rights holder. Participating rights holders can:
+<ul class="bullets">
+<li> Add books to the unglue.it database.</li>
+<li> Set metadata and descriptions for their books.</li>
+<li> Create campaigns for their books. </li>
+</ul>
+</p>
+
+<h2 id="distributing">Distributing Free Books Through Unglue.it</h2>
+<p> Much of the "supply chain" for ebooks is fueled by a percentage of the ebook's purchase price. When the ebook is free, this supply chain stops running. When we started ungluing ebooks, we were were surprised that even library vendors had minimum prices for their ebooks. Working with partners such as the Internet Archive, the Digital Public Library of America, and New York Public Library, we set out to build a new supply chain that helps free ebooks have their potential impact.
+</p>
+<p>By adding a free-licensed ebook to the unglue.it database, you do a lot more than just add it to Unglue.it. We promote free ebooks on our website and on social networks. Our metadata syndication feeds help propagate that book around the world, into libraries, archives and communities.
+</p>
+<h2 id="how_to">Becoming an Unglue.it Rights Holder</h2>
+
+<ol>
+    {% if not request.user.is_authenticated %}
+    <li>Set up an Unglue.it account. (<a href="{% url 'registration_register' %}?next={% url 'rightsholders' %}">Click here</a> or use the Sign Up button at the top of the page).</li>
+    {% else %}
+    <li class="checked">You've already set up an Unglue.it account.</li>
+    {% endif %}
+	{% if not request.user.rights_holder.count %}<li>{% else %}<li class="checked">{% endif %}Sign a <a href="{% url 'agree' %}">Unglue.it Rights Holder Agreement</a>.  If you have any questions, <a href="mailto:info@ebookfoundation.org?subject=agreement">ask us</a>.</li>
+	{% if claims %}
+	<li class="checked"><i>You have claimed {{ claims.count }}</i> work(s). You can claim more.
+	{% else %}
+	<li><i>Claim</i> your work(s) or send us metadata for books you have rights to.
+	{% endif %}
+    {% include 'add_your_books.html' %}
+    </li>
+	{% if campaigns %}
+	<li class="checked">You've set up {{ campaigns.count }} campaign(s).  Manage them <a href="{% url 'rh_campaigns' %}#managed_campaigns">here.</a> Or, <a href="{% url 'rh_works' %}#open_campaigns">set up a new campaign</a>.</li>
+	{% else %}
+	<li>{% if claims %}<a href="{% url 'rh_works' %}#open_campaigns">Set up a campaign</a> for your book.{% else %} Set up a campaign. All the campaigns you can manage will be listed on <a href="{% url 'rh_campaigns' %}#managed_campaigns">this page</a>.{% endif %}</li>
+	{% endif %}
+</ol>
+<h2 id="about_campaigns">About Campaigns </h2>
+<p>
+Free licenses help ebooks accomplish their missions, but that doesn't mean their creators don't need financial support. Unglue.it has three programs to help creators find that support. 
+</p>
+
+<p> If you have already released your work under a Creative Commons license, you can use the "Thanks for Ungluing" program. If you have an EPUB file ready to sell, you can use the "Buy to Unglue" program. If you need to raise money to complete your ebook, you can offer rewards through the "Pledge-to-Unglue" program. To use one of these programs, you launch a "campaign".</p>
+
+
+<h2>Thanks-for-Ungluing Campaigns</h2>
+<p>Thanks-for-Ungluing is a program designed to help rights holders promote and monetize their Creative Commons licensed books. Rights holders participating in the Thanks-for-Ungluing program can request payment for their books on a pay-what-you-want basis. They can also set suggested prices as well as metadata and descriptions for books that they claim. </p>
+
+<h2>Buy-to-Unglue Campaigns</h2>
+<p>Buy-to-Unglue is a program that sells ebook licenses to reach the campaign goal. To enable ebook sales,  you'll need to upload an epub file for each book. 
+There are no “rewards” for a “Buy to Unglue” campaign, but you may offer time-limited, special price promotions for the ebook.</p>
+
+<p>
+A Buy-to-Unglue Campaign provides long-term promotion and sales opportunities for your ebook before it becomes an Unglued Ebook.  Until the revenue goal is reached, supporters and libraries know that every book that gets purchased through Unglue.it brings the ungluing date closer to the present.
+</p>
+<h2>Pledge-to-Unglue Campaigns</h2>
+<p>For Pledge campaigns, you can run campaigns for books that are incomplete or haven't been converted to digital.  
+Any print book can be scanned to create a digital file that can then become an unglued ebook to be released after the Pledge Campaign succeeds.</p>
+<p>Rewards</p>
+<p>Campaigns run for a short period (2-6 months) and can have rewards as a way to motivate and thank supporters for helping to reach your goal.  You are strongly encouraged to add rewards - they are given special prominence on the campaign page.</p>
+
+<p>What should you add as rewards?  Anything (legal) that you think you can reasonably deliver that will get supporters excited about the book.  For example: other books, whether electronic or physical; artwork or multimedia relating to the book, its author, or its themes; in-person or online chats with the author; memorabilia.</p>
+
+<p>Acknowledgements for Pledge Campaigns</p>
+<p>Here are the standard acknowledgements.  These automatically combine with your rewards.  For example, if you offer a $30 reward, ungluers who pledge $30 will receive the $25 acknowledgement as well.</p>
+<ul class="terms">
+<li><em>Any amount</em> &#8212; The unglued ebook</li>
+<li><em>$25 and above</em> &#8212; Their name in the acknowledgements section under "supporters"</li>
+<li><em>$50 and above</em> &#8212; Their name &amp; profile link under "benefactors"</li>
+<li><em>$100 and above</em> &#8212; Their name, profile link, &amp; a dedication under "bibliophiles"</li>
+</ul>
+{% endblock %}

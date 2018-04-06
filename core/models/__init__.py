@@ -93,6 +93,7 @@ from .bibmodels import (
     WorkRelation,
 )
 
+from .rh_models import Claim, RightsHolder
 pm = PostMonkey(settings.MAILCHIMP_API_KEY)
 
 logger = logging.getLogger(__name__)
@@ -134,8 +135,11 @@ class CeleryTask(models.Model):
         return f.AsyncResult(self.task_id)
     @property
     def state(self):
-        f = getattr(regluit.core.tasks, self.function_name)
-        return f.AsyncResult(self.task_id).state
+        try:
+            f = getattr(regluit.core.tasks, self.function_name)
+            return f.AsyncResult(self.task_id).state
+        except AttributeError:
+            return None
     @property
     def result(self):
         f = getattr(regluit.core.tasks, self.function_name)
@@ -145,65 +149,6 @@ class CeleryTask(models.Model):
         f = getattr(regluit.core.tasks, self.function_name)
         return f.AsyncResult(self.task_id).info
 
-class Claim(models.Model):
-    STATUSES = ((u'active', u'Claim has been accepted.'),
-                (u'pending', u'Claim is pending acceptance.'),
-                (u'release', u'Claim has not been accepted.'),
-               )
-    created = models.DateTimeField(auto_now_add=True)
-    rights_holder = models.ForeignKey("RightsHolder", related_name="claim", null=False)
-    work = models.ForeignKey("Work", related_name="claim", null=False)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="claim", null=False)
-    status = models.CharField(max_length=7, choices=STATUSES, default='active')
-
-    @property
-    def can_open_new(self):
-        # whether a campaign can be opened for this claim
-
-        #must be an active claim
-        if self.status != 'active':
-            return False
-        #can't already be a campaign
-        for campaign in self.campaigns:
-            if campaign.status in ['ACTIVE', 'INITIALIZED']:
-                return 0 # cannot open a new campaign
-            if campaign.status in ['SUCCESSFUL']:
-                return 2  # can open a THANKS campaign
-        return 1 # can open any type of campaign
-
-    def  __unicode__(self):
-        return self.work.title
-
-    @property
-    def campaign(self):
-        return self.work.last_campaign()
-
-    @property
-    def campaigns(self):
-        return self.work.campaigns.all()
-
-def notify_claim(sender, created, instance, **kwargs):
-    if 'example.org' in instance.user.email or hasattr(instance, 'dont_notify'):
-        return
-    try:
-        (rights, new_rights) = User.objects.get_or_create(email='rights@gluejar.com', defaults={'username':'RightsatUnglueit'})
-    except:
-        rights = None
-    if instance.user == instance.rights_holder.owner:
-        ul = (instance.user, rights)
-    else:
-        ul = (instance.user, instance.rights_holder.owner, rights)
-    notification.send(ul, "rights_holder_claim", {'claim': instance,})
-post_save.connect(notify_claim, sender=Claim)
-
-class RightsHolder(models.Model):
-    created = models.DateTimeField(auto_now_add=True)
-    email = models.CharField(max_length=100, blank=True)
-    rights_holder_name = models.CharField(max_length=100, blank=False)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="rights_holder", null=False)
-    can_sell = models.BooleanField(default=False)
-    def __unicode__(self):
-        return self.rights_holder_name
 
 class Premium(models.Model):
     PREMIUM_TYPES = ((u'00', u'Default'), (u'CU', u'Custom'), (u'XX', u'Inactive'))
@@ -341,7 +286,7 @@ class Acq(models.Model):
                 'exlibris':0,
                 'chapterfooter':  0,
                 'disclaimer':0,
-                'referenceid': '%s:%s:%s' % (self.work.id, self.user.id, self.id) if do_watermark else 'N/A',
+                'referenceid': '%s:%s:%s' % (self.work_id, self.user_id, self.id) if do_watermark else 'N/A',
                 'kf8mobi': True,
                 'epub': True,
                 }
@@ -352,7 +297,7 @@ class Acq(models.Model):
         return self.watermarked
 
     def _hash(self):
-        return hashlib.md5('%s:%s:%s:%s'%(settings.SOCIAL_AUTH_TWITTER_SECRET, self.user.id, self.work.id, self.created)).hexdigest()
+        return hashlib.md5('%s:%s:%s:%s'%(settings.SOCIAL_AUTH_TWITTER_SECRET, self.user_id, self.work_id, self.created)).hexdigest()
 
     def expire_in(self, delta):
         self.expires = (now() + delta) if delta else now()
@@ -455,6 +400,7 @@ class Campaign(models.Model):
     publisher = models.ForeignKey("Publisher", related_name="campaigns", null=True)
     do_watermark = models.BooleanField(default=True)
     use_add_ask = models.BooleanField(default=True)
+    charitable = models.BooleanField(default=False)
 
     def __init__(self, *args, **kwargs):
         self.problems = []
@@ -1034,6 +980,7 @@ class Campaign(models.Model):
                 url=ebf.file.url,
                 version_label=ebf.version['label'],
                 version_iter=ebf.version['iter'],
+                filesize=ebf.file.size,
             )
             ebf.ebook = ebook
             ebf.save()
@@ -1041,7 +988,8 @@ class Campaign(models.Model):
 
         for old_ebf in self.work.ebookfiles().filter(asking=True).exclude(pk__in=new_ebf_pks):
             obsolete = Ebook.objects.filter(url=old_ebf.file.url)
-            old_ebf.ebook.deactivate()
+            if old_ebf.ebook:
+                old_ebf.ebook.deactivate()
             old_ebf.file.delete()
             old_ebf.delete()
         
@@ -1075,7 +1023,7 @@ class Campaign(models.Model):
             format=format,
             rights=self.license,
             provider="Unglue.it",
-            url=settings.BASE_URL_SECURE + reverse('download_campaign', args=[self.work.id, format]),
+            url=settings.BASE_URL_SECURE + reverse('download_campaign', args=[self.work_id, format]),
             version='unglued',
         )
         old_ebooks = Ebook.objects.exclude(pk=ebook.pk).filter(
@@ -1100,7 +1048,7 @@ class Campaign(models.Model):
                 'exlibris':0,
                 'chapterfooter':0,
                 'disclaimer':0,
-                'referenceid': '%s:%s:%s' % (self.work.id, self.id, self.license),
+                'referenceid': '%s:%s:%s' % (self.work_id, self.id, self.license),
                 'kf8mobi': True,
                 'epub': True,
             }
@@ -1209,6 +1157,9 @@ class UserProfile(models.Model):
     librarything_id = models.CharField(max_length=31, blank=True)
     badges = models.ManyToManyField('Badge', related_name='holders', blank=True)
     kindle_email = models.EmailField(max_length=254, blank=True)
+    
+    # keep track of work the user adds
+    works = models.ManyToManyField('Work', related_name='contributors', blank=True)
 
     goodreads_user_id = models.CharField(max_length=32, null=True, blank=True)
     goodreads_user_name = models.CharField(max_length=200, null=True, blank=True)

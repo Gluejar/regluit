@@ -1,12 +1,14 @@
 {% extends 'basepledge.html' %}
 
 {% load humanize %}
+{% load sass_tags %}
+
 {% block title %}Pledge Completed{% endblock %}
 
 {% block extra_extra_head %}
-<link type="text/css" rel="stylesheet" href="/static/css/searchandbrowse2.css"  />
-<link type="text/css" rel="stylesheet" href="/static/css/book_panel2.css"  />
-<link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/searchandbrowse2.scss' %}"  />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/book_panel2.scss' %}"  />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/pledge.scss' %}" />
 
 <script src="/static/js/slides.min.jquery.js"></script>
 <script src="/static/js/slideshow.js"></script>
@@ -30,11 +32,13 @@
     <h2 class="thank-you">Thank you!</h2>
     {% if not campaign %}
 	    <p class="pledge_complete">You've just donated ${{ transaction.amount|floatformat:2|intcomma }} to the <a href="https://ebookfoundation.org">Free Ebook Foundation</a></p>
-    {% endif %}
-    {% ifequal campaign.type 1 %}
+    {% elif campaign.type == 1 %}
+        {% if campaign.donation %}
+	    <p class="pledge_complete">You've just donated ${{ transaction.amount|floatformat:2|intcomma }} in support of <I><a href="{% url 'work' work.id %}">{{ work.title }}</a></I>.  If it reaches its goal of ${{ campaign.target|intcomma }} by {{ campaign.deadline|date:"M d Y"}}, it will be unglued for all to enjoy. Otherwise, your donation will be used to support qualifying ungluing campaigns. Your donation to the Free Ebook Foundation is tax-deductible in the US.</p>
+        {% else %}
 	    <p class="pledge_complete">You've just {% if modified %}modified your pledge for{% else %}pledged{% endif %} ${{ transaction.amount|floatformat:2|intcomma }} to <I><a href="{% url 'work' work.id %}">{{ work.title }}</a></I>.  If it reaches its goal of ${{ campaign.target|intcomma }} by {{ campaign.deadline|date:"M d Y"}}, it will be unglued for all to enjoy.</p>
-    {% endifequal %}
-    {% ifequal campaign.type 2 %}
+        {% endif %}
+    {% elif campaign.type == 2 %}
         {% if transaction.extra.give_to %}
 	    <p class="pledge_complete">You've just paid ${{ transaction.amount|floatformat:2|intcomma }} to give a copy of <I><a href="{% url 'work' work.id %}">{{ work.title }}</a></I> to {{ transaction.extra.give_to }}.  Its ungluing date is now <i>{{ campaign.cc_date }}</i>. Thanks for helping to make that day come sooner!</p>
 	    
@@ -51,13 +55,12 @@
         {% endif %}
 
          <div style="height:75px;"></div>
-    {% endifequal %}
-    {% ifequal campaign.type 3 %}
+    {% elif campaign.type == 3 %}
 	    <p class="pledge_complete">You've just contributed ${{ transaction.amount|floatformat:2|intcomma }} to the creators of <I><a href="{% url 'work' work.id %}">{{ work.title }}</a></I> to thank them for making it free to the world.</p>
          <div><a href="{% url 'download' work.id %}" class="fakeinput" style="float:left">Download Now</a> </div>
          <div style="height:75px;"></div>
 
-    {% endifequal %}
+    {% endif %}
 	<div class="modify_notification clearfix">
 	{% include "trans_summary.html" %}
 	</div>

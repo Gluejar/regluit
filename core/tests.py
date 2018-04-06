@@ -64,7 +64,8 @@ from regluit.core.models import (
 )
 from regluit.libraryauth.models import Library
 from regluit.core.parameters import TESTING, LIBRARY, RESERVE
-from regluit.core.loaders.utils import (load_from_books, loaded_book_ok)
+from regluit.core.loaders.utils import (load_from_books, loaded_book_ok, )
+from regluit.core.validation import valid_subject
 from regluit.frontend.views import safe_get_work
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
@@ -107,11 +108,6 @@ class BookLoaderTests(TestCase):
             f = ebook.get_archive()
         self.assertTrue(EbookFile.objects.all().count()>num_ebf)
         
-    def test_valid_subject(self):
-        self.assertTrue(bookloader.valid_subject('A, valid, suj\xc3t'))
-        self.assertFalse(bookloader.valid_subject('A, valid, suj\xc3t, '))
-        self.assertFalse(bookloader.valid_subject('A valid suj\xc3t \x01'))
-    
     def test_add_by_isbn_mock(self):
         with requests_mock.Mocker(real_http=True) as m:
             with open(os.path.join(TESTDIR, 'gb_hamilton.json')) as gb:
@@ -123,13 +119,13 @@ class BookLoaderTests(TestCase):
         if not (mocking or settings.TEST_INTEGRATION):
             return
         # edition
-        edition = bookloader.add_by_isbn('9781594200090')
+        edition = bookloader.add_by_isbn('9780143034759')
         self.assertEqual(edition.title, u'Alexander Hamilton')
-        self.assertEqual(edition.publication_date, u'2004')
-        self.assertEqual(edition.publisher, u'Perseus Books Group')
-        self.assertEqual(edition.isbn_10, '1594200092')
-        self.assertEqual(edition.isbn_13, '9781594200090')
-        self.assertEqual(edition.googlebooks_id, 'y1_R-rjdcb0C')
+        self.assertEqual(edition.publication_date, u'2005')
+        self.assertEqual(edition.publisher, u'Penguin')
+        self.assertEqual(edition.isbn_10, '0143034758')
+        self.assertEqual(edition.isbn_13, '9780143034759')
+        self.assertEqual(edition.googlebooks_id, '4iafgTEhU3QC')
 
         # authors
         self.assertEqual(edition.authors.all().count(), 1)
@@ -137,12 +133,12 @@ class BookLoaderTests(TestCase):
 
         # work
         self.assertTrue(edition.work)
-        self.assertEqual(edition.work.googlebooks_id, 'y1_R-rjdcb0C')
-        self.assertEqual(edition.work.first_isbn_13(), '9781594200090')
+        self.assertEqual(edition.work.googlebooks_id, '4iafgTEhU3QC')
+        self.assertEqual(edition.work.first_isbn_13(), '9780143034759')
         
         # test duplicate pubname 
         ed2 = Edition.objects.create(work=edition.work)
-        ed2.set_publisher(u'Perseus Books Group')
+        ed2.set_publisher(u'Penguin')
         
         # publisher names
         old_pub_name = edition.publisher_name
@@ -153,20 +149,20 @@ class BookLoaderTests(TestCase):
         self.assertEqual(edition.work.publishers().count(), 1)
         old_pub_name.publisher = pub
         old_pub_name.save()
-        edition.set_publisher(u'Perseus Books Group')
+        edition.set_publisher(u'Penguin')
         self.assertEqual(edition.publisher, u'test publisher name') # Perseus has been aliased
 
     def test_language_locale_mock(self):
         with requests_mock.Mocker(real_http=True) as m:
-            with open(os.path.join(TESTDIR, 'zhTW.json')) as gb:
+            with open(os.path.join(TESTDIR, 'zhCN.json')) as gb:
                 m.get('https://www.googleapis.com/books/v1/volumes', content=gb.read())
             self.test_language_locale(mocking=True)
         
     def test_language_locale(self, mocking=False):
         if not (mocking or settings.TEST_INTEGRATION):
             return
-        edition = bookloader.add_by_isbn('9789570336467')
-        self.assertEqual(edition.work.language, 'zh-TW')
+        edition = bookloader.add_by_isbn('9787104030126')
+        self.assertEqual(edition.work.language, 'zh-CN')
 
     def test_update_edition_mock(self):
         with requests_mock.Mocker(real_http=True) as m:
@@ -234,7 +230,7 @@ class BookLoaderTests(TestCase):
         back_point = True
         to_works = [wr.to_work for wr in edition.work.works_related_from.all()]
         for to_work in to_works:
-            if edition.work.id not in [wr1.from_work.id for wr1 in to_work.works_related_to.all()]:
+            if edition.work_id not in [wr1.from_work.id for wr1 in to_work.works_related_to.all()]:
                 back_point = False
                 break
         self.assertTrue(back_point)
@@ -879,17 +875,37 @@ class SafeGetWorkTest(TestCase):
         self.assertRaises(Http404, safe_get_work, 3)
 
 class WorkTests(TestCase):    
+    def setUp(self):
+        self.w1 = models.Work.objects.create()
+        self.w2 = models.Work.objects.create()
+
     def test_preferred_edition(self):
-        w1 = models.Work.objects.create()
-        w2 = models.Work.objects.create()
-        ww = models.WasWork.objects.create(work=w1, was= w2.id)
-        e1 = models.Edition.objects.create(work=w1)
-        self.assertEqual(e1, w1.preferred_edition)
-        e2 = models.Edition.objects.create(work=w1)
-        w1.selected_edition=e2
-        w1.save()
-        self.assertEqual(e2, w1.preferred_edition)
-        self.assertEqual(e2, w2.preferred_edition)
+        ww = models.WasWork.objects.create(work=self.w1, was= self.w2.id)
+        e1 = models.Edition.objects.create(work=self.w1)
+        self.assertEqual(e1, self.w1.preferred_edition)
+        e2 = models.Edition.objects.create(work=self.w1)
+        self.w1.selected_edition=e2
+        self.w1.save()
+        self.assertEqual(e2, self.w1.preferred_edition)
+        self.assertEqual(e2, self.w2.preferred_edition)
+        
+    def test_valid_subject(self):
+        self.assertTrue(valid_subject(u'A, valid, suj\xc3t'))
+        self.assertFalse(valid_subject(u'A, valid, suj\xc3t, '))
+        self.assertFalse(valid_subject(u'A valid suj\xc3t \x01'))
+        Subject.set_by_name(u'A, valid, suj\xc3t; A, valid, suj\xc3t, ', work=self.w1)
+        self.assertEqual(1, self.w1.subjects.count())
+        sub = Subject.set_by_name('nyt:hardcover_advice=2011-06-18', work=self.w1)
+        self.assertEqual(sub.name, 'NYT Bestseller - Hardcover advice')
+        self.assertEqual(2, self.w1.subjects.count())
+        sub2 = Subject.set_by_name('!lcsh: Something', work=self.w1)
+        self.assertEqual(sub2.name, 'Something')
+        self.assertEqual(3, self.w1.subjects.count())
+        sub3 = Subject.set_by_name('Something', work=self.w1)
+        self.assertEqual(sub3.name, 'Something')
+        self.assertEqual(3, self.w1.subjects.count())
+        self.assertEqual(sub3.authority, 'lcsh')
+        
         
 class DownloadPageTest(TestCase):
     fixtures = ['initial_data.json']

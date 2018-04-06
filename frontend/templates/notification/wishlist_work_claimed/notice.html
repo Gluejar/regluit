@@ -2,7 +2,7 @@
 
 
 {% block comments_book %}
-	<a href="{% url 'work' claim.work.id %}"><img src="{{ claim.work.cover_image_small }}" alt="cover image for {{ claim.work.title }}" /></a>
+	<a href="{% url 'work' claim.work_id %}"><img src="{{ claim.work.cover_image_small }}" alt="cover image for {{ claim.work.title }}" /></a>
 {% endblock %}
 
 {% block comments_graphical %}
@@ -12,9 +12,9 @@
 {% block comments_textual %}
 	What does this mean for you?  Rights holders are the people who are legally authorized to license works.  This means they're the only people who can run campaigns on Unglue.it.
 	
-	{{ rightsholder }} may be running a campaign soon, or later, but isn't obligated to.  Want to make that campaign happen?  <a href="https://{{current_site.domain}}{% url 'work' claim.work.id %}?tab=2">Leave a comment</a> and tell your friends:
+	{{ rightsholder }} may be running a campaign soon, or later, but isn't obligated to.  Want to make that campaign happen?  <a href="https://{{current_site.domain}}{% url 'work' claim.work_id %}?tab=2">Leave a comment</a> and tell your friends:
 
-	{% url 'work' claim.work.id as work_url %}
+	{% url 'work' claim.work_id as work_url %}
 	{% include "notification/sharing_block.html" %}
 	
 	Make sure {{ rightsholder }} knows how much you want to give this book to the world.

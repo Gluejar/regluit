@@ -15,7 +15,7 @@
 {% block doccontent %}
 <div style="height:15px"></div>
 <div class="book-detail">
-	<div id="book-detail-img">
+	<div id="book-detail-img" class="book-cover" >
 		<a href="{% url 'work' work.id %}"><img src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" /></a>
     </div>
     
@@ -67,26 +67,32 @@
 		Amount: ${{transaction.amount|floatformat:2|intcomma}}.<br />
 		Your premium: {% if transaction.premium %}{{ transaction.premium.description }}{% else %}You did not request a premium for this campaign.{% endif %}<br />
 		</div>
-	<br /> You can modify your pledge below.
+	<br /> You can modify your pledge below. <span id="change_pledge_notice">If you change your pledge to a donation, the pledge will be cancelled and your credit card charged immediately. </span>
 	</div>
 	{% endif %}
-	{% ifnotequal work.last_campaign.status 'ACTIVE' %}	
+	{% if work.last_campaign.status != 'ACTIVE' %}	
 	<div class="clearfix"><h4>Campaign NOT ACTIVE</h4>
 		This pledge form is not functional because the campaign is NOT ACTIVE.<br /><br /><br />
 	</div>
-	{% endifnotequal %}
+	{% endif %}
 
     	{% comment %}
-    	Even there is a CampaignPledgeForm in frontend/forms.py , the "widget" for premium_id is implemented in HTML here for now.
+    	Even though there is a CampaignPledgeForm in frontend/forms.py , the "widget" for premium selection is implemented in HTML here for now. 
     	{% endcomment %}	
 	
     	<form class="pledgeform" method="POST" action="{% if faqmenu == 'modify' %}{% url 'pledge_modify' work_id=work.id %}{% else %}{% url 'pledge' work_id=work.id %}{% endif %}">
         	{% csrf_token %}
 			{{ form.non_field_errors }}
-        	<div class="pledge_amount">{{ form.preapproval_amount.label_tag }}: {{ form.preapproval_amount.errors }}${{ form.preapproval_amount }}</div>
-        	
+        	<div class="pledge_amount">{{ form.preapproval_amount.label_tag }} {{ form.preapproval_amount.errors }}${{ form.preapproval_amount }}
+        	{% if work.last_campaign.charitable %}
+        	<div class="pledgeform_label">{{ form.donation }} {{ form.donation.label_tag }}</div>
+        	{% else %}
+
+        	{% endif %}
+        	</div>
+        	<div id="select_premiums">
         	{% if premiums|length > 1 %}
-                <div class="pledge_amount premium_level">Choose your premium:</div>
+                <div class="pledge_amount premium_level">Choose your premium<span id="premium_note"></span>:</div>
                 
                 <div style="height:10px;"></div>
     
@@ -119,16 +125,17 @@
                 If the RH hasn't added any premiums, there's no point in displaying the "no premium" option, but we do need to check it off so the form will validate.
                 {% endcomment %}
          	{% endif %}
-
+            </div>
+            
 			<div class="pledge_amount clearfix" id="mandatory_premiums">
-			<div>Depending on your pledge amount, you'll also get these acknowledgements.</div>
+			<div>Depending on your support amount, you'll also get these acknowledgements.</div>
 			<div class="ack_active"><div class="ack_level">Any amount</div><div class="ack_header">The unglued ebook will be delivered to your inbox.</div></div>
 			<div id="ack_name" class="ack_inactive"><div class="ack_level">$25+</div><div class="ack_header">You'll be listed on the acknowledgements page of the unglued ebook<span id="ack_section"></span>.&nbsp;{{ form.ack_name.label_tag }} {{ form.ack_name.errors }}{{ form.ack_name }}</div></div>
 			<div id="ack_link" class="ack_inactive"><div class="ack_level">$50+</div><div class="ack_header">Your acknowledgement will link to your Unglue.it supporter page.{{ form.ack_link }}</div></div>
 			<div id="ack_dedication" class="ack_inactive"><div class="ack_level">$100+</div><div class="ack_header">Your acknowledgement can include a dedication (140 characters max).&nbsp;{{ form.ack_dedication.label_tag }} {{ form.ack_dedication.errors }}{{ form.ack_dedication }}</div></div>
 			</div>
 			<div id="anonbox"><I>{{ form.anonymous.label_tag }}</I> {{ form.anonymous.errors }}{{ form.anonymous }}</div>
-			<input name="pledge" type="submit" {% if faqmenu == 'modify' %}value="Modify Pledge"{% else %}value="Pledge Now"{% endif %} id="pledgesubmit" class="loader-gif" />
+			<input name="pledge" type="submit" {% if faqmenu == 'modify' %}value="Modify Pledge"{% else %}value="Support Now"{% endif %} id="pledgesubmit" class="loader-gif" />
 			<input name="decoy" type="submit" id="fakepledgesubmit" disabled="disabled" />
 			{% comment %}
 				When the pledge amount and premium are in an inconsistent state, the real button is disabled and (via css) hidden; instead we display this fake button with a helpful message.  It's a button so we can reuse all the existing CSS for buttons, so that it looks like the real button has just changed in appearance.  It's hidden and the other one un-disabled and un-hidden when the pledge & premium return to a correct state.  People without javascript enabled will miss out on the front-end corrections but form validation will catch it.

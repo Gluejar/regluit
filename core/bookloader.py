@@ -4,24 +4,22 @@ external library imports
 import json
 import logging
 import re
-import requests
-from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
-from regluit.core.validation import test_file
-
 from datetime import timedelta
 from xml.etree import ElementTree
 from urlparse import (urljoin, urlparse)
+
+import requests
 
 
 # django imports
 
 from django.conf import settings
 from django.core.files.base import ContentFile
-from django_comments.models import Comment
+from django.core.files.storage import default_storage
 from django.db import IntegrityError
 from django.forms import ValidationError
 
+from django_comments.models import Comment
 from github3 import (login, GitHub)
 from github3.repos.release import Release
 
@@ -31,14 +29,14 @@ from gitenberg.metadata.pandata import Pandata
 
 import regluit
 import regluit.core.isbn
+from regluit.core.validation import test_file
 from regluit.marc.models import inverse_marc_rels
 from regluit.utils.localdatetime import now
 
 from . import cc
 from . import models
 from .parameters import WORK_IDENTIFIERS
-from .validation import identifier_cleaner
-from .loaders.scrape import BaseScraper, scrape_sitemap
+from .validation import identifier_cleaner, unreverse_name
 
 logger = logging.getLogger(__name__)
 request_log = logging.getLogger("requests")
@@ -51,7 +49,7 @@ def add_by_oclc(isbn, work=None):
 
 def add_by_oclc_from_google(oclc):
     if oclc:
-        logger.info("adding book by oclc %s" , oclc)
+        logger.info("adding book by oclc %s", oclc)
     else:
         return None
     try:
@@ -63,8 +61,8 @@ def add_by_oclc_from_google(oclc):
         except LookupFailure, e:
             logger.exception("lookup failure for %s", oclc)
             return None
-        if not results.has_key('items') or len(results['items']) == 0:
-            logger.warn("no google hits for %s" , oclc)
+        if not results.has_key('items') or not results['items']:
+            logger.warn("no google hits for %s", oclc)
             return None
 
         try:
@@ -133,11 +131,10 @@ def get_google_isbn_results(isbn):
     except LookupFailure:
         logger.exception("lookup failure for %s", isbn)
         return None
-    if not results.has_key('items') or len(results['items']) == 0:
-        logger.warn("no google hits for %s" , isbn)
+    if not results.has_key('items') or not results['items']:
+        logger.warn("no google hits for %s", isbn)
         return None
-    else:
-        return results
+    return results
 
 def add_ebooks(item, edition):
     access_info = item.get('accessInfo')
@@ -175,7 +172,8 @@ def update_edition(edition):
     except (models.Identifier.DoesNotExist, IndexError):
         return edition
 
-    # do a Google Books lookup on the isbn associated with the edition (there should be either 0 or 1 isbns associated
+    # do a Google Books lookup on the isbn associated with the edition
+    # (there should be either 0 or 1 isbns associated
     # with an edition because of integrity constraint in Identifier)
 
     # if we get some data about this isbn back from Google, update the edition data accordingly
@@ -189,8 +187,9 @@ def update_edition(edition):
         title = d['title']
     else:
         title = ''
-    if len(title) == 0:
-        # need a title to make an edition record; some crap records in GB. use title from parent if available
+    if not title:
+        # need a title to make an edition record; some crap records in GB.
+        # use title from parent if available
         title = edition.work.title
 
     # check for language change
@@ -199,9 +198,11 @@ def update_edition(edition):
     if len(language) > 5:
         language = language[0:5]
 
-    # if the language of the edition no longer matches that of the parent work, attach edition to the
+    # if the language of the edition no longer matches that of the parent work,
+    # attach edition to the
     if edition.work.language != language:
-        logger.info("reconnecting %s since it is %s instead of %s" %(googlebooks_id, language, edition.work.language))
+        logger.info("reconnecting %s since it is %s instead of %s",
+            googlebooks_id, language, edition.work.language)
         old_work = edition.work
 
         new_work = models.Work(title=title, language=language)
@@ -209,10 +210,10 @@ def update_edition(edition):
         edition.work = new_work
         edition.save()
         for identifier in edition.identifiers.all():
-            logger.info("moving identifier %s" % identifier.value)
+            logger.info("moving identifier %s", identifier.value)
             identifier.work = new_work
             identifier.save()
-        if old_work and old_work.editions.count()==0:
+        if old_work and old_work.editions.count() == 0:
             #a dangling work; make sure nothing else is attached!
             merge_works(new_work, old_work)
 
@@ -223,7 +224,12 @@ def update_edition(edition):
     edition.save()
 
     # create identifier if needed
-    models.Identifier.get_or_add(type='goog', value=googlebooks_id, edition=edition, work=edition.work)
+    models.Identifier.get_or_add(
+        type='goog',
+        value=googlebooks_id,
+        edition=edition,
+        work=edition.work
+    )
 
     for a in d.get('authors', []):
         edition.add_author(a)
@@ -240,7 +246,7 @@ def add_by_isbn_from_google(isbn, work=None):
     """
     if not isbn:
         return None
-    if len(isbn)==10:
+    if len(isbn) == 10:
         isbn = regluit.core.isbn.convert_10_to_13(isbn)
 
 
@@ -254,14 +260,18 @@ def add_by_isbn_from_google(isbn, work=None):
     results = get_google_isbn_results(isbn)
     if results:
         try:
-            return add_by_googlebooks_id(results['items'][0]['id'], work=work, results=results['items'][0], isbn=isbn)
+            return add_by_googlebooks_id(
+                results['items'][0]['id'],
+                work=work,
+                results=results['items'][0],
+                isbn=isbn
+            )
         except LookupFailure, e:
             logger.exception("failed to add edition for %s", isbn)
         except IntegrityError, e:
             logger.exception("google books data for %s didn't fit our db", isbn)
         return None
-    else:
-        return None
+    return None
 
 def get_work_by_id(type, value):
     if value:
@@ -296,7 +306,12 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
                 models.Identifier.objects.get(type='isbn', value=isbn).edition
                 # not going to worry about isbn_edition != edition
             except models.Identifier.DoesNotExist:
-                models.Identifier.objects.create(type='isbn', value=isbn, edition=edition, work=edition.work)
+                models.Identifier.objects.create(
+                    type='isbn',
+                    value=isbn,
+                    edition=edition,
+                    work=edition.work
+                )
         return edition
     except models.Identifier.DoesNotExist:
         pass
@@ -314,8 +329,9 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
         title = d['title']
     else:
         title = ''
-    if len(title)==0:
-        # need a title to make an edition record; some crap records in GB. use title from parent if available
+    if not title:
+        # need a title to make an edition record; some crap records in GB. 
+        # use title from parent if available
         if work:
             title = work.title
         else:
@@ -327,8 +343,8 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
     if len(language) > 5:
         language = language[0:5]
     if work and work.language != language:
-        logger.info("not connecting %s since it is %s instead of %s" %
-                (googlebooks_id, language, work.language))
+        logger.info("not connecting %s since it is %s instead of %s",
+                    googlebooks_id, language, work.language)
         work = None
     # isbn = None
     if not isbn:
@@ -355,7 +371,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
     try:
         e = models.Identifier.objects.get(type='goog', value=googlebooks_id).edition
         e.new = False
-        logger.warning( " whoa nellie, somebody else created an edition while we were working.")
+        logger.warning(" whoa nellie, somebody else created an edition while we were working.")
         if work.new:
             work.delete()
         return e
@@ -385,8 +401,8 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
 
 
 def relate_isbn(isbn, cluster_size=1):
-    """add a book by isbn and then see if there's an existing work to add it to so as to make a cluster
-    bigger than cluster_size.
+    """add a book by isbn and then see if there's an existing work to add it to so as to make a
+    cluster bigger than cluster_size.
     """
     logger.info("finding a related work for %s", isbn)
 
@@ -396,12 +412,12 @@ def relate_isbn(isbn, cluster_size=1):
     if edition.work is None:
         logger.info("didn't add related to null work")
         return None
-    if edition.work.editions.count()>cluster_size:
+    if edition.work.editions.count() > cluster_size:
         return edition.work
     for other_isbn in thingisbn(isbn):
         # 979's come back as 13
         logger.debug("other_isbn: %s", other_isbn)
-        if len(other_isbn)==10:
+        if len(other_isbn) == 10:
             other_isbn = regluit.core.isbn.convert_10_to_13(other_isbn)
         related_edition = add_by_isbn(other_isbn, work=edition.work)
         if related_edition:
@@ -410,11 +426,10 @@ def relate_isbn(isbn, cluster_size=1):
                 if related_edition.work is None:
                     related_edition.work = edition.work
                     related_edition.save()
-                elif related_edition.work.id != edition.work.id:
-                    logger.debug("merge_works path 1 %s %s", edition.work.id, related_edition.work.id )
+                elif related_edition.work_id != edition.work_id:
+                    logger.debug("merge_works path 1 %s %s", edition.work_id, related_edition.work_id)
                     merge_works(related_edition.work, edition.work)
-
-                if related_edition.work.editions.count()>cluster_size:
+                if related_edition.work.editions.count() > cluster_size:
                     return related_edition.work
     return edition.work
 
@@ -439,7 +454,7 @@ def add_related(isbn):
     for other_isbn in thingisbn(isbn):
         # 979's come back as 13
         logger.debug("other_isbn: %s", other_isbn)
-        if len(other_isbn)==10:
+        if len(other_isbn) == 10:
             other_isbn = regluit.core.isbn.convert_10_to_13(other_isbn)
         related_edition = add_by_isbn(other_isbn, work=work)
 
@@ -450,9 +465,9 @@ def add_related(isbn):
                 if related_edition.work is None:
                     related_edition.work = work
                     related_edition.save()
-                elif related_edition.work.id != work.id:
-                    logger.debug("merge_works path 1 %s %s", work.id, related_edition.work.id )
-                    merge_works(work, related_edition.work)
+                elif related_edition.work_id != work.id:
+                    logger.debug("merge_works path 1 %s %s", work.id, related_edition.work_id)
+                    work = merge_works(work, related_edition.work)
             else:
                 if other_editions.has_key(related_language):
                     other_editions[related_language].append(related_edition)
@@ -461,25 +476,29 @@ def add_related(isbn):
 
     # group the other language editions together
     for lang_group in other_editions.itervalues():
-        logger.debug("lang_group (ed, work): %s", [(ed.id, ed.work.id) for ed in lang_group])
-        if len(lang_group)>1:
+        logger.debug("lang_group (ed, work): %s", [(ed.id, ed.work_id) for ed in lang_group])
+        if len(lang_group) > 1:
             lang_edition = lang_group[0]
             logger.debug("lang_edition.id: %s", lang_edition.id)
             # compute the distinct set of works to merge into lang_edition.work
             works_to_merge = set([ed.work for ed in lang_group[1:]]) - set([lang_edition.work])
             for w in works_to_merge:
-                logger.debug("merge_works path 2 %s %s", lang_edition.work.id, w.id )
-                merge_works(lang_edition.work, w)
-            models.WorkRelation.objects.get_or_create(to_work=lang_edition.work, from_work=work, relation='translation')
+                logger.debug("merge_works path 2 %s %s", lang_edition.work_id, w.id)
+                merged_work = merge_works(lang_edition.work, w)
+        models.WorkRelation.objects.get_or_create(
+            to_work=lang_group[0].work,
+            from_work=work,
+            relation='translation'
+        )
 
     return new_editions
 
-
 def thingisbn(isbn):
     """given an ISBN return a list of related edition ISBNs, according to
-    Library Thing. (takes isbn_10 or isbn_13, returns isbn_10, except for 979 isbns, which come back as isbn_13')
+    Library Thing. (takes isbn_10 or isbn_13, returns isbn_10, except for 979 isbns,
+    which come back as isbn_13')
     """
-    logger.info("looking up %s at ThingISBN" , isbn)
+    logger.info("looking up %s at ThingISBN", isbn)
     url = "https://www.librarything.com/api/thingISBN/%s" % isbn
     xml = requests.get(url, headers={"User-Agent": settings.USER_AGENT}).content
     doc = ElementTree.fromstring(xml)
@@ -490,16 +509,17 @@ def merge_works(w1, w2, user=None):
     """will merge the second work (w2) into the first (w1)
     """
     logger.info("merging work %s into %s", w2.id, w1.id)
-    # don't merge if the works are the same or at least one of the works has no id (for example, when w2 has already been deleted)
+    # don't merge if the works are the same or at least one of the works has no id
+    #(for example, when w2 has already been deleted)
     if w1 is None or w2 is None or w1.id == w2.id or w1.id is None or w2.id is None:
-        return
-    if w2.selected_edition != None and w1.selected_edition == None:
+        return w1
+    if w2.selected_edition is not None and w1.selected_edition is None:
         #the merge should be reversed
         temp = w1
         w1 = w2
         w2 = temp
     models.WasWork(was=w2.pk, work=w1, user=user).save()
-    for ww in models.WasWork.objects.filter(work = w2):
+    for ww in models.WasWork.objects.filter(work=w2):
         ww.work = w1
         ww.save()
     if w2.description and not w1.description:
@@ -515,6 +535,9 @@ def merge_works(w1, w2, user=None):
         w2source = wishlist.work_source(w2)
         wishlist.remove_work(w2)
         wishlist.add_work(w1, w2source)
+    for userprofile in w2.contributors.all():
+        userprofile.works.remove(w2)
+        userprofile.works.add(w1)
     for identifier in w2.identifiers.all():
         identifier.work = w1
         identifier.save()
@@ -546,15 +569,22 @@ def merge_works(w1, w2, user=None):
     for subject in w2.subjects.all():
         if subject not in w1.subjects.all():
             w1.subjects.add(subject)
-
-
+    for work_relation in w2.works_related_to.all():
+        work_relation.to_work = w1
+        work_relation.save()
+    for work_relation in w2.works_related_from.all():
+        work_relation.from_work = w1
+        work_relation.save()
     w2.delete()
+    return w1
 
 def detach_edition(e):
-    """will detach edition from its work, creating a new stub work. if remerge=true, will see if there's another work to attach to
+    """
+    will detach edition from its work, creating a new stub work. if remerge=true, will see if
+    there's another work to attach to
     """
     logger.info("splitting edition %s from %s", e, e.work)
-    w = models.Work(title=e.title, language = e.work.language)
+    w = models.Work(title=e.title, language=e.work.language)
     w.save()
 
     for identifier in e.identifiers.all():
@@ -564,10 +594,13 @@ def detach_edition(e):
     e.work = w
     e.save()
 
+SPAM_STRINGS = ["GeneralBooksClub.com", "AkashaPublishing.Com"]
 def despam_description(description):
-    """ a lot of descriptions from openlibrary have free-book promotion text; this removes some of it."""
-    if description.find("GeneralBooksClub.com")>-1 or description.find("AkashaPublishing.Com")>-1:
-        return ""
+    """ a lot of descriptions from openlibrary have free-book promotion text;
+    this removes some of it."""
+    for spam in SPAM_STRINGS:
+        if description.find(spam) > -1:
+            return ""
     pieces = description.split("1stWorldLibrary.ORG -")
     if len(pieces) > 1:
         return pieces[1]
@@ -576,7 +609,7 @@ def despam_description(description):
         return pieces[1]
     return description
 
-def add_openlibrary(work, hard_refresh = False):
+def add_openlibrary(work, hard_refresh=False):
     if (not hard_refresh) and work.openlibrary_lookup is not None:
         # don't hit OL if we've visited in the past month or so
         if now()- work.openlibrary_lookup < timedelta(days=30):
@@ -606,17 +639,38 @@ def add_openlibrary(work, hard_refresh = False):
             if e[isbn_key].has_key('details'):
                 if e[isbn_key]['details'].has_key('oclc_numbers'):
                     for oclcnum in e[isbn_key]['details']['oclc_numbers']:
-                        models.Identifier.get_or_add(type='oclc', value=oclcnum, work=work, edition=edition)
+                        models.Identifier.get_or_add(
+                            type='oclc',
+                            value=oclcnum,
+                            work=work,
+                            edition=edition
+                        )
                 if e[isbn_key]['details'].has_key('identifiers'):
                     ids = e[isbn_key]['details']['identifiers']
                     if ids.has_key('goodreads'):
-                        models.Identifier.get_or_add(type='gdrd', value=ids['goodreads'][0], work=work, edition=edition)
+                        models.Identifier.get_or_add(
+                            type='gdrd',
+                            value=ids['goodreads'][0],
+                            work=work, edition=edition
+                        )
                     if ids.has_key('librarything'):
-                        models.Identifier.get_or_add(type='ltwk', value=ids['librarything'][0], work=work)
+                        models.Identifier.get_or_add(
+                            type='ltwk',
+                            value=ids['librarything'][0],
+                            work=work
+                        )
                     if ids.has_key('google'):
-                        models.Identifier.get_or_add(type='goog', value=ids['google'][0], work=work)
+                        models.Identifier.get_or_add(
+                            type='goog',
+                            value=ids['google'][0],
+                            work=work
+                        )
                     if ids.has_key('project_gutenberg'):
-                        models.Identifier.get_or_add(type='gute', value=ids['project_gutenberg'][0], work=work)
+                        models.Identifier.get_or_add(
+                            type='gute',
+                            value=ids['project_gutenberg'][0],
+                            work=work
+                        )
                 if e[isbn_key]['details'].has_key('works'):
                     work_key = e[isbn_key]['details']['works'].pop(0)['key']
                     logger.info("got openlibrary work %s for isbn %s", work_key, isbn_key)
@@ -629,7 +683,9 @@ def add_openlibrary(work, hard_refresh = False):
                                 if description.has_key('value'):
                                     description = description['value']
                             description = despam_description(description)
-                            if not work.description or work.description.startswith('{') or len(description) > len(work.description):
+                            if not work.description or \
+                                   work.description.startswith('{') or \
+                                   len(description) > len(work.description):
                                 work.description = description
                                 work.save()
                         if w.has_key('subjects') and len(w['subjects']) > len(subjects):
@@ -642,34 +698,10 @@ def add_openlibrary(work, hard_refresh = False):
 
     # add the subjects to the Work
     for s in subjects:
-        if valid_subject(s):
-            logger.info("adding subject %s to work %s", s, work.id)
-            subject, created = models.Subject.objects.get_or_create(name=s)
-            work.subjects.add(subject)
+        logger.info("adding subject %s to work %s", s, work.id)
+        subject = models.Subject.set_by_name(s, work=work)
 
     work.save()
-
-def valid_xml_char_ordinal(c):
-    codepoint = ord(c)
-    # conditions ordered by presumed frequency
-    return (
-        0x20 <= codepoint <= 0xD7FF or
-        codepoint in (0x9, 0xA, 0xD) or
-        0xE000 <= codepoint <= 0xFFFD or
-        0x10000 <= codepoint <= 0x10FFFF
-        )
-
-def valid_subject( subject_name ):
-    num_commas = 0
-    for c in subject_name:
-        if not valid_xml_char_ordinal(c):
-            return False
-        if c == ',':
-            num_commas += 1
-            if num_commas > 2:
-                return False
-    return True
-
 
 
 def _get_json(url, params={}, type='gb'):
@@ -684,19 +716,20 @@ def _get_json(url, params={}, type='gb'):
     if response.status_code == 200:
         return json.loads(response.content)
     else:
-        logger.error("unexpected HTTP response: %s" % response)
+        logger.error("unexpected HTTP response: %s", response)
         if response.content:
-            logger.error("response content: %s" % response.content)
+            logger.error("response content: %s", response.content)
         raise LookupFailure("GET failed: url=%s and params=%s" % (url, params))
 
 
-def load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn, url, format, license, lang, publication_date):
-
-    # let's start with instantiating the relevant Work and Edition if they don't already exist
+def load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn, url,
+                           format, license, lang, publication_date):
+    ''' let's start with instantiating the relevant Work and Edition if they don't already exist'''
 
     try:
         work = models.Identifier.objects.get(type='olwk', value=ol_work_id).work
-    except models.Identifier.DoesNotExist: # try to find an Edition with the seed_isbn and use that work to hang off of
+    except models.Identifier.DoesNotExist:
+        # try to find an Edition with the seed_isbn and use that work to hang off of
         sister_edition = add_by_isbn(seed_isbn)
         if sister_edition.new:
             # add related editions asynchronously
@@ -708,14 +741,18 @@ def load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn, url
 
     # Now pull out any existing Gutenberg editions tied to the work with the proper Gutenberg ID
     try:
-        edition = models.Identifier.objects.get(type='gtbg', value=gutenberg_etext_id ).edition
+        edition = models.Identifier.objects.get(type='gtbg', value=gutenberg_etext_id).edition
     except models.Identifier.DoesNotExist:
         edition = models.Edition()
         edition.title = title
         edition.work = work
 
         edition.save()
-        models.Identifier.get_or_add(type='gtbg', value=gutenberg_etext_id, edition=edition, work=work)
+        models.Identifier.get_or_add(
+            type='gtbg',
+            value=gutenberg_etext_id,
+            edition=edition, work=work
+        )
 
     # check to see whether the Edition hasn't already been loaded first
     # search by url
@@ -723,9 +760,9 @@ def load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn, url
 
     # format: what's the controlled vocab?  -- from Google -- alternative would be mimetype
 
-    if len(ebooks):
+    if ebooks:
         ebook = ebooks[0]
-    elif len(ebooks) == 0: # need to create new ebook
+    else: # need to create new ebook
         ebook = models.Ebook()
 
     if len(ebooks) > 1:
@@ -734,7 +771,7 @@ def load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn, url
 
     ebook.format = format
     ebook.provider = 'Project Gutenberg'
-    ebook.url =  url
+    ebook.url = url
     ebook.rights = license
 
     # is an Ebook instantiable without a corresponding Edition? (No, I think)
@@ -748,19 +785,9 @@ class LookupFailure(Exception):
     pass
 
 IDTABLE = [('librarything', 'ltwk'), ('goodreads', 'gdrd'), ('openlibrary', 'olwk'),
-    ('gutenberg', 'gtbg'), ('isbn', 'isbn'), ('oclc', 'oclc'),
-    ('edition_id', 'edid'), ('googlebooks', 'goog'), ('doi', 'doi'),
-]
-
-def unreverse(name):
-    if not ',' in name:
-        return name
-    (last, rest) = name.split(',', 1)
-    if not ',' in rest:
-        return '%s %s' % (rest.strip(), last.strip())
-    (first, rest) = rest.split(',', 1)
-    return '%s %s, %s' % (first.strip(), last.strip(), rest.strip())
-
+           ('gutenberg', 'gtbg'), ('isbn', 'isbn'), ('oclc', 'oclc'),
+           ('googlebooks', 'goog'), ('doi', 'doi'), ('http', 'http'), ('edition_id', 'edid'),
+          ]
 
 def load_from_yaml(yaml_url, test_mode=False):
     """
@@ -773,13 +800,13 @@ def load_from_yaml(yaml_url, test_mode=False):
     for metadata in all_metadata.get_edition_list():
         edition = loader.load_from_pandata(metadata)
         loader.load_ebooks(metadata, edition, test_mode)
-    return edition.work.id if edition else None
+    return edition.work_id if edition else None
 
 def edition_for_ident(id_type, id_value):
     #print 'returning edition for {}: {}'.format(id_type, id_value)
     for ident in models.Identifier.objects.filter(type=id_type, value=id_value):
         return ident.edition if ident.edition else ident.work.editions[0]
-    
+
 def edition_for_etype(etype, metadata, default=None):
     '''
     assumes the metadata contains the isbn_etype attributes, and that the editions have been created.
@@ -798,7 +825,7 @@ def edition_for_etype(etype, metadata, default=None):
             return edition_for_ident(key, metadata.identifiers[key])
         for key in metadata.edition_identifiers.keys():
             return edition_for_ident(key, metadata.identifiers[key])
-    
+
 MATCH_LICENSE = re.compile(r'creativecommons.org/licenses/([^/]+)/')
 
 def load_ebookfile(url, etype):
@@ -817,14 +844,14 @@ def load_ebookfile(url, etype):
         logger.error(u'could not open {}'.format(url))
     except ValidationError, e:
         logger.error(u'downloaded {} was not a valid {}'.format(url, etype))
-     
+
 class BasePandataLoader(object):
     def __init__(self, url):
         self.base_url = url
 
     def load_from_pandata(self, metadata, work=None):
         ''' metadata is a Pandata object'''
-        
+
         #find an work to associate
         edition = None
         has_ed_id = False
@@ -841,12 +868,12 @@ class BasePandataLoader(object):
             if value:
                 if id_code not in WORK_IDENTIFIERS:
                     has_ed_id = True
-                value =  value[0] if isinstance(value, list) else value
+                value = value[0] if isinstance(value, list) else value
                 try:
                     id = models.Identifier.objects.get(type=id_code, value=value)
-                    if work and id.work and id.work.id is not work.id:
+                    if work and id.work and id.work_id is not work.id:
                         # dangerous! merge newer into older
-                        if work.id < id.work.id:
+                        if work.id < id.work_id:
                             merge_works(work, id.work)
                         else:
                             merge_works(id.work, work)
@@ -860,7 +887,6 @@ class BasePandataLoader(object):
                         # only need to create edid if there is no edition id for the edition
                         new_ids.append((identifier, id_code, value))
 
-
         if not work:
             work = models.Work.objects.create(title=metadata.title, language=metadata.language)
         if not edition:
@@ -868,7 +894,7 @@ class BasePandataLoader(object):
                 (note, created) = models.EditionNote.objects.get_or_create(note=metadata.edition_note)
             else:
                 note = None
-            edition =  models.Edition.objects.create(
+            edition = models.Edition.objects.create(
                 title=metadata.title,
                 work=work,
                 note=note,
@@ -882,31 +908,35 @@ class BasePandataLoader(object):
             )
         if metadata.publisher: #always believe yaml
             edition.set_publisher(metadata.publisher)
+
         if metadata.publication_date: #always believe yaml
             edition.publication_date = metadata.publication_date
+
+        #be careful about overwriting the work description
         if metadata.description and len(metadata.description) > len(work.description):
-            #be careful about overwriting the work description
-            work.description = metadata.description
-        if metadata.creator and not edition.authors.count(): 
+            # don't over-write reasonably long descriptions
+            if len(work.description) < 500:
+                work.description = metadata.description
+
+        if metadata.creator and not edition.authors.count():
             edition.authors.clear()
             for key in metadata.creator.keys():
                 creators = metadata.creator[key]
-                rel_code = inverse_marc_rels.get(key, 'aut')
+                rel_code = inverse_marc_rels.get(key, None)
+                if not rel_code:
+                    rel_code = inverse_marc_rels.get(key.rstrip('s'), 'auth')
                 creators = creators if isinstance(creators, list) else [creators]
                 for creator in creators:
-                    edition.add_author(unreverse(creator.get('agent_name', '')), relation=rel_code)
+                    edition.add_author(unreverse_name(creator.get('agent_name', '')), relation=rel_code)
         for yaml_subject in metadata.subjects: #always add yaml subjects (don't clear)
             if isinstance(yaml_subject, tuple):
-                (authority, heading)  = yaml_subject
-            elif isinstance(yaml_subject, str):
-                (authority, heading)  = ( '', yaml_subject)
+                (authority, heading) = yaml_subject
+            elif isinstance(yaml_subject, str) or isinstance(yaml_subject, unicode) :
+                (authority, heading) = ('', yaml_subject)
             else:
                 continue
-            (subject, created) = models.Subject.objects.get_or_create(name=heading)
-            if not subject.authority and authority:
-                subject.authority = authority
-                subject.save()
-            subject.works.add(work)
+            subject = models.Subject.set_by_name(heading, work=work, authority=authority)
+
         # the default edition uses the first cover in covers.
         for cover in metadata.covers:
             if cover.get('image_path', False):
@@ -929,7 +959,7 @@ class BasePandataLoader(object):
                     contentfile = load_ebookfile(url, key)
                     if contentfile:
                         contentfile_name = '/loaded/ebook_{}.{}'.format(edition.id, key)
-                        path = default_storage.save(contentfile_name, contentfile) 
+                        path = default_storage.save(contentfile_name, contentfile)
                         lic = MATCH_LICENSE.search(metadata.rights_url)
                         license = 'CC {}'.format(lic.group(1).upper()) if lic else ''
                         ebf = models.EbookFile.objects.create(
@@ -949,10 +979,10 @@ class BasePandataLoader(object):
                             active=False,
                             user=user,
                         )
-                        ebf.ebook =  ebook
+                        ebf.ebook = ebook
                         ebf.save()
-                    
-            
+
+
 class GithubLoader(BasePandataLoader):
     def load_ebooks(self, metadata, edition, test_mode=False):
         # create Ebook for any ebook in the corresponding GitHub release
@@ -974,16 +1004,16 @@ class GithubLoader(BasePandataLoader):
                 # not using ebook_name in this code
                 ebooks_in_release = [('epub', 'book.epub')]
             else:
-                ebooks_in_release =  ebooks_in_github_release(repo_owner, repo_name, repo_tag, token=token)
+                ebooks_in_release = ebooks_in_github_release(repo_owner, repo_name, repo_tag, token=token)
 
             for (ebook_format, ebook_name) in ebooks_in_release:
-                (book_name_prefix, _ ) = re.search(r'(.*)\.([^\.]*)$', ebook_name).groups()
+                (book_name_prefix, _) = re.search(r'(.*)\.([^\.]*)$', ebook_name).groups()
                 (ebook, created) = models.Ebook.objects.get_or_create(
                     url=git_download_from_yaml_url(
                         self.base_url,
                         metadata._version,
                         edition_name=book_name_prefix,
-                        format_= ebook_format
+                        format_=ebook_format
                     ),
                     provider='Github',
                     rights=cc.match_license(metadata.rights),
@@ -994,8 +1024,10 @@ class GithubLoader(BasePandataLoader):
 
 
 def git_download_from_yaml_url(yaml_url, version, edition_name='book', format_='epub'):
-    # go from https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/raw/master/metadata.yaml
-    # to https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/releases/download/v0.0.3/Adventures-of-Huckleberry-Finn.epub
+    '''
+     go from https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/raw/master/metadata.yaml
+     to https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/releases/download/v0.0.3/Adventures-of-Huckleberry-Finn.epub
+    '''
     if yaml_url.endswith('raw/master/metadata.yaml'):
         repo_url = yaml_url[0:-24]
         #print (repo_url,version,edition_name)
@@ -1041,22 +1073,10 @@ def ebooks_in_github_release(repo_owner, repo_name, tag, token=None):
             for asset in release.iter_assets()
             if EBOOK_FORMATS.get(asset.content_type) is not None]
 
-def add_by_webpage(url, work=None, user=None):
-    edition = None
-    scraper = BaseScraper(url)
-    loader = BasePandataLoader(url)
-    pandata = Pandata()
-    pandata.metadata = scraper.metadata
-    for metadata in pandata.get_edition_list():
-        edition = loader.load_from_pandata(metadata, work)
-        work = edition.work
-    loader.load_ebooks(pandata, edition, user=user)
-    return edition if edition else None
-
-def add_by_sitemap(url, maxnum=None):
+def add_from_bookdatas(bookdatas):
+    ''' bookdatas  are iterators of scrapers '''
     editions = []
-    scraper = BaseScraper(url)
-    for bookdata in scrape_sitemap(url, maxnum=maxnum):
+    for bookdata in bookdatas:
         edition = work = None
         loader = BasePandataLoader(bookdata.base)
         pandata = Pandata()
@@ -1068,6 +1088,3 @@ def add_by_sitemap(url, maxnum=None):
         if edition:
             editions.append(edition)
     return editions
-
-
-

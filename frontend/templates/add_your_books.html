@@ -1,0 +1,20 @@
+	<p id="add_your_books"><b>Claiming a work</b></p>
+	<p>If your book is indexed in Google books, we can add it to our database automagically. Click on the result list to add your book to our database.</p>
+	<form action="{% url 'search' %}" method="get">
+		<div class="inputalign">
+		<input type="text" id="watermark" size="25" onfocus="imgfocus()" onblur="imgblur(15)" class="inputbox" name="q" value="{{ q }}"><input type="hidden" name="page" value="2">
+		<input type="submit" class="button">
+		</div>
+	</form>
+	<ul class="bullets">
+	    <li>Use the Claim option on the More... tab of each book's page.</li>
+	    <li>Agree to our <a href="{% url 'terms' %}">Terms</a> on the following page.  This includes agreeing that you are making the claim in good faith.</li>
+	    <li>If you have any questions or you claim a work by mistake, <a href="mailto:rights@ebookfoundation.org?subject=claiming%20works">email us</a>.</li>
+	</ul>
+	<p><b>Entering a work</b></p>
+	<p>If your book is not in Google books, you'll need to enter the metadata yourself.</p>
+	<ul class="bullets">
+	    <li>Use <a href="{% url 'new_edition' '' '' %}">this form</a> to enter the metadata.</li>
+	    <li>Your metadata should have title, authors, language, description.</li>
+	    <li>If you have a lot of books to enter, <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">contact us</a> to load ONIX or CSV files for you.</li>
+	</ul>

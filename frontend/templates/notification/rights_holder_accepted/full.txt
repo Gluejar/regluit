@@ -1,0 +1,14 @@
+The Rights Holder Agreement, reproduced in plain text below, for {{ rights_holder.rights_holder_name }} has been accepted and is now an official Unglue.it rights holder.
+
+Here's what to do next:  Find on Unglue.it.  On the More... tab of the book page, you'll now see an option to claim the book. Once you've claimed the book, you can edit its metadata.
+
+If you can't find your books Unglue.it,  that's okay.  You can add your books to Unglue.it directly - use this link: https://unglue.it{% url 'rightsholders' %}#add_your_books
+
+Need help with any of this?   Email us at rights@ebookfoundation.org and we'll do our best to help.
+
+The Unglue.it team
+
+##################
+{{ agreement }}
+##################
+{{ signature }}

@@ -1,0 +1,48 @@
+@import "variables.scss";
+@import "campaign_tabs.scss";
+@import "book_detail.scss";
+
+.preview_campaign {
+	float: right;
+	margin-right: 40px;
+}
+
+input[name="launch"] {
+	display: none;
+}
+
+#launchme {
+	margin: 15px auto;
+}
+
+#premium_add {
+    span, input[type="text"], textarea {
+        float: left;
+    }
+
+    input[type="submit"] {
+        float: right;
+    }
+
+    input[type="text"] {
+        width: 33%;
+    }
+
+    textarea {
+        width: 60%;
+    }
+
+    .premium_add_label {
+        width: 30%;
+        margin-right: 2%;
+    }
+
+    .premium_field_label {
+        width: 1%;
+        margin-left: -1%;
+    }
+}
+
+div.edition_form {
+    margin-bottom: 2em;
+}

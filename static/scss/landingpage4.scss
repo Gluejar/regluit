@@ -1,0 +1,396 @@
+@import "variables.scss";
+@import "learnmore2.scss";
+
+#expandable {
+	display: none;
+}
+
+#main-container.main-container-fl .js-main {
+	width:968px;
+	background:#fff url("#{$image-base}landingpage/container-top.png") top center no-repeat;
+}
+#js-maincol-fl {
+	padding:30px 30px 0 30px;
+	overflow:hidden;
+
+	#content-block {
+		background:none;
+		padding:0;
+	}
+
+	#js-main-container {
+		float: left;
+		width:672px;
+	}
+
+	.js-main-container-inner {
+		padding-right:40px;
+	}
+
+	h2.page-heading {
+		margin:0 0 20px 0;
+		color:$text-blue;
+		font-size: $font-size-header;
+		font-weight: bold;
+	}
+}
+
+#user-block1, .user-block2 {
+	float:left;
+}
+
+#user-block1 {
+	#block-intro-text {
+		float:left;
+		width:702px;
+		font-size: $font-size-header;
+	}
+
+	a#readon {
+		font-size: $font-size-larger;
+	}
+}
+
+#js-rightcol, #js-rightcol2 {
+	float:right;
+	width:230px;
+
+	.jsmodule {
+		float: left;
+		width: 208px;
+		background:$pale-blue;
+		border:1px solid $blue-grey;
+		@include one-border-radius(12px);
+		margin-bottom:10px;
+		padding: 0 10px 10px 10px;
+
+
+		input {
+			border: none;
+			@include height(36px);
+			width:90%;
+			outline: none;
+			padding-left: 16px;
+			font-size: $font-size-larger;
+		}
+
+		input.signup {
+		    border: medium none;
+
+		    cursor: pointer;
+		    display: inline-block;
+
+    		overflow: hidden;
+    		padding: 0 31px 0 11px;
+    		width: 111px;
+    		margin-bottom: 10px;
+		}
+		input.donate {
+		    cursor: pointer;
+		    display: inline-block;
+    		overflow: hidden;
+    		padding: 0 31px 0 11px;
+            width: 50%;
+
+		}
+		.donate_amount {
+		    text-align: center;
+		}
+
+		div {
+	        padding:0px;
+	        margin:0px;
+		}
+	}
+
+	div.button {
+		padding-top:10px;
+		text-align: center;
+		color: #FFF;
+	}
+	#donatesubmit {
+	    font-size: $font-size-larger;
+	}
+	label {
+		width:100%;
+		display:block;
+		clear:both;
+		padding:10px 0 5px 0;
+	}
+}
+
+
+.js-rightcol-padd {
+    margin:0px;
+}
+
+h3.heading {
+	color:$text-blue;
+	font-weight:bold;
+}
+
+ul.ungluingwhat {
+	list-style: none;
+	padding:0;
+	margin:0 -10px;
+
+	li {
+		margin-bottom:3px;
+		background:#fff;
+		padding: 10px;
+		display:block;
+		overflow:hidden;
+
+		> span {
+			float: left;
+		}
+	}
+
+	.user-avatar {
+		width:43px;
+
+		img {
+			@include one-border-radius(5px);
+		}
+	}
+
+	.user-book-info {
+		margin-left: 5px;
+		width: 160px;
+		word-wrap: break-word;
+		font-size: $font-size-default;
+		line-height: $font-size-default*1.3;
+		a {
+		    font-weight: normal;
+		}
+	}
+}
+
+div.typo2 {
+	background:$pale-blue;
+	@include one-border-radius(12px);
+	padding:10px;
+	font-style:italic;
+}
+
+div.signup_btn {
+	display:block;
+	overflow:hidden;
+
+	a {
+		background: url("#{$image-base}bg.png") no-repeat scroll right top transparent;
+		color: #fff;
+    	display: block;
+    	font-size: $font-size-default;
+    	font-weight: bold;
+    	@include height(36px);
+    	letter-spacing: 1px;
+    	text-decoration: none;
+    	text-transform: capitalize;
+		float:left;
+
+		span {
+			background: url("#{$image-base}bg.png") no-repeat scroll -770px -36px transparent;
+    	display: block;
+    	margin-right: 29px;
+    	padding: 0 5px 0 15px;
+		}
+	}
+}
+
+.have-content-right-module {
+	.item-content {
+		float:left;
+		width:364px;
+		font-size: $font-size-larger;
+		height: 132px;
+		border-bottom:7px solid $bright-blue;
+
+		p {
+			margin-bottom:20px;
+			line-height:135%;
+		}
+
+		h2.page-heading {
+			padding-right:97px;
+			line-height:43px;
+			padding-bottom:4px;
+			padding-top: 5px;
+		}
+	}
+
+	.content-right-module {
+		width:268px;
+		float:right;
+
+		h3 {
+			color:$bright-blue;
+			text-transform:uppercase;
+			font-size:24px;
+			font-weight:normal;
+			padding:0;
+			margin:0 0 16px 0;
+		}
+	}
+}
+
+h2.page-heading {
+	color:#3c4e52;
+	font-size:28px !important;
+	font-style:italic;
+	font-weight:normal !important;
+}
+
+#js-maincontainer-faq {
+	clear: both;
+	overflow:hidden;
+	margin:15px 0;
+	width:100%;
+}
+
+.js-maincontainer-faq-inner {
+	float:right;
+	color:$text-blue;
+	font-size: $font-size-larger;
+	padding-right:60px;
+
+	a {
+		font-weight:normal;
+		color:$text-blue;
+		text-decoration:underline;
+	}
+}
+
+h3.module-title {
+	padding: 10px 0;
+	font-size: $font-size-header;
+	font-weight: normal;
+	margin: 0;
+}
+
+.landingheader {
+	border-bottom: solid 5px $medium-blue;
+	float: left;
+	height:134px;
+}
+
+h3.featured_books {
+    clear: both;
+    font-weight: normal;
+    background: $pale-blue;
+    @include border-radius(10px, 10px, 0, 0);
+    padding: 10px;
+    -webkit-margin-before: 0;
+}
+
+a.more_featured_books {
+    float: right;
+    width: 57px;
+    height: 305px;
+    margin: 5px 0;
+    border: 5px solid white;
+    line-height: 305px;
+    text-align: center;
+    &:hover {
+        cursor: pointer;
+        border-color: $pale-blue;
+        color: $green
+    }
+    &.short {
+        height: 85px;
+        line-height: 85px;
+    }
+}
+
+.spacer {
+    height: 15px;
+    width: 100%;
+    clear: both;
+}
+
+ul#as_seen_on {
+    margin: 15px 0;
+    position: relative;
+    height: 80px;
+    padding:0px;
+    li {
+        float: left;
+        list-style-type: none;
+        padding: 10px;
+        line-height: 80px;
+
+        &:hover {
+            background: $bright-blue;
+        }
+
+        img {
+            vertical-align: middle;
+            max-width: 131px;
+        }
+    }
+}
+
+/* via http://nicolasgallagher.com/pure-css-speech-bubbles/demo/ */
+.speech_bubble {
+	position:relative;
+	margin:1em 0;
+	border:5px solid $medium-blue;
+	color:$text-blue;
+	@include one-border-radius(10px);
+	background: #fff;
+	font-size: $font-size-header;
+	padding: 1.5em;
+	&:before {
+        content: "";
+	    position: absolute;
+        top:-20px; /* value = - border-top-width - border-bottom-width */
+        bottom:auto;
+        left:auto;
+        right:60px; /* controls horizontal position */
+        border-width:0 20px 20px;
+        border-style: solid;
+        border-color: $medium-blue transparent;
+        /* reduce the damage in FF3.0 */
+        display:block;
+        width:0;
+
+    }
+
+	&:after {
+        content: "";
+	    position: absolute;
+        top:-13px; /* value = - border-top-width - border-bottom-width */
+        bottom:auto;
+        left:auto;
+        right:67px; /* value = (:before right) + (:before border-right) - (:after border-right) */
+        border-width:0 13px 13px;
+        border-style: solid;
+        border-color: #fff transparent;
+        /* reduce the damage in FF3.0 */
+        display:block;
+        width:0;
+    }
+
+    span {
+        padding-left: 1em;
+        &:before {
+            position: absolute;
+            top: .75em;
+            left: .75em;
+            font-size: $font-size-header*2;
+            content:"\201C";
+        }
+
+        &:after {
+            position: absolute;
+            top: .75em;
+            font-size: $font-size-header*2;
+            content:"\201D";
+        }
+    }
+}
+
+#footer {
+	clear: both;
+	margin-top:30px;
+}

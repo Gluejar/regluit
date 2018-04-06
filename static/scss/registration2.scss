@@ -1,0 +1,124 @@
+@import "variables.scss";
+
+#login_centerer {
+    padding:10px;
+    width: 960px;
+}
+
+#registration {
+	width: 960px;
+	padding: 10px;
+	margin: 0 auto;
+	padding: 10px 0;
+	font-size: $font-size-default;
+	line-height: $font-size-default*1.5;
+
+	.helptext {
+	    font-style: italic;
+
+	    &:before {
+	        white-space: pre;
+	        content: "\A";
+	    }
+	}
+}
+
+.login_box {
+	border: solid 3px $blue-grey;
+	@include one-border-radius(5px);
+	margin: 10px auto;
+	padding: 9px;
+	width: 45%;
+
+	.google_signup {
+		padding: 21px;
+	}
+
+	input[type="text"], input[type="password"] {
+	    width: 90%;
+	}
+}
+
+#login {
+	border: solid 3px $blue-grey;
+	@include one-border-radius(5px);
+	margin: 10px auto;
+	float: none;
+	padding: 10px;
+	width: 50%;
+
+
+	input[type="text"], input[type="password"] {
+	    width: 90%;
+	}
+}
+
+.actionbutton {
+	@include actionbuttons;
+	float: left;
+}
+
+#welcomesearch {
+	label {
+		display: block;
+		margin: 0 auto;
+		font-size: $font-size-header;
+		padding-bottom: 10px;
+	}
+
+	p {
+		margin-bottom: 5px;
+	}
+
+	form {
+		margin: 0 auto;
+		width:210px;
+		background:url("#{$image-base}landingpage/search-box-two.png") 0 0 no-repeat;
+		height:36px;
+		display:block;
+		overflow:hidden;
+	}
+
+	input {
+		&.inputbox {
+			border:none;
+			color:#66942e;
+			@include height(26px);
+			font-size: $font-size-default;
+			float:left;
+			padding:0;
+			margin:5px 0 5px 20px;
+			width: 149px;
+    	    outline: none;
+
+    	    &:focus {
+    	    	border: none;
+    	    }
+		}
+
+		&.greenbutton[type="submit"] {
+			background:url("#{$image-base}landingpage/search-button-two.png") 0 0 no-repeat;
+			width:40px;
+			height:40px;
+			padding:0;
+			margin:0;
+			border:none;
+			display:block;
+			float: right;
+			text-indent:-10000px;
+			font-size:0;
+			@include one-border-radius(0);
+		}
+	}
+}
+
+.welcomealternatives {
+	border-top: 1px solid $blue-grey;
+	margin-top: 10px;
+	padding-top: 5px;
+}
+
+label:before {
+    content: "\A";
+    white-space: pre;
+}

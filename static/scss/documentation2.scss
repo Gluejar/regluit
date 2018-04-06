@@ -1,0 +1,290 @@
+// Styles basedocumentation.html and its descendants.
+@import "variables.scss";
+@import "learnmore2.scss";
+
+body {
+	line-height: $font-size-default*1.5;
+}
+
+/* Containers */
+.have-right #js-main-container {
+	float: left;
+}
+
+.js-main-container-inner {
+	padding-left:15px;
+}
+
+.have-right #js-rightcol {
+	margin-top:50px;
+	background:$pale-blue;
+	border:1px solid $blue-grey;
+	@include one-border-radius(12px);
+
+	.jsmodule {
+		border-bottom:1px solid #3c4e52;
+		width:235px;
+
+		&.last {
+			border-bottom:none;
+			padding-bottom:10px;
+		}
+	}
+}
+
+.js-rightcol-padd {
+	padding:10px;
+}
+
+
+/* Elements */
+.doc h2 {
+	margin:20px 0;
+	color:$text-blue;
+	font-size: $font-size-larger;
+	font-weight: bold;
+}
+
+.doc h3 {
+	color:$text-blue;
+	font-weight:bold;
+}
+
+.doc ul {
+    list-style-type: none;
+	padding:0;
+	margin:0;
+
+	&.errorlist li {
+		background: none;
+		margin-bottom: 0;
+	}
+
+	li {
+	    margin-left: 7px;
+	}
+
+	&.terms {
+		list-style: inherit;
+		list-style-position: inside;
+		padding-left: 1em;
+		text-indent: -1em;
+
+		li {
+			@include one-border-radius(auto);
+			background: inherit;
+		}
+	}
+
+	&.bullets {
+        list-style-type: disc;
+        margin-left: 9px;
+	}
+}
+
+.doc div.inset {
+	background:$pale-blue;
+	@include one-border-radius(12px);
+	padding:10px;
+	font-style:italic;
+}
+
+dt {
+	font-style: italic;
+	font-size: $font-size-larger;
+	margin-bottom: 7px;
+	border-top: solid $pale-blue 2px;
+	border-bottom: solid $pale-blue 2px;
+	padding: 7px 0;
+}
+
+dd {
+	margin: 0 0 0 7px;
+	padding-bottom: 7px;
+
+	&.margin {
+	    margin-left: 7px;
+	}
+}
+
+.doc ol li {
+	margin-bottom: 7px;
+}
+
+.collapse ul {
+	display: none;
+}
+
+.faq, .answer {
+	text-transform: none !important;
+	a {
+		color: $medium-blue;
+	}
+}
+
+.faq {
+	cursor: pointer;
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+/* items on press page */
+.press_spacer {
+	clear:both;
+	height:0px;
+}
+
+.presstoc {
+	div {
+		float: left;
+		padding-right: 15px;
+		margin-bottom: 7px;
+
+		&.pressemail {
+			border: solid 2px $text-blue;
+			padding: 5px;
+			@include one-border-radius(7px);
+			max-width: 678px;
+			margin-top: 7px;
+		}
+	}
+	overflow: auto;
+	clear: both;
+	padding-bottom: 10px;
+}
+
+.pressarticles div {
+	margin-bottom: 10px;
+}
+
+.pressvideos {
+	> div {
+		margin-bottom: 15px;
+		padding-bottom: 7px;
+		border-bottom: solid 1px $text-blue;
+		float: left;
+	}
+
+	iframe, div.mediaborder {
+		@include mediaborder-base;
+	}
+}
+
+.pressimages {
+	.outer {
+		clear: both;
+
+		div {
+			float: left;
+			width: 25%;
+			padding-bottom: 10px;
+
+			&.text {
+				width: 75%;
+			}
+
+			p {
+				margin: 0 auto;
+				padding-left: 10px;
+				padding-right: 10px;
+			}
+		}
+	}
+	clear: both;
+
+	.screenshot {
+		width: 150px;
+		@include mediaborder-base;
+	}
+}
+
+/* Miscellaneous */
+a.manage {
+	background: $call-to-action;
+	color: white;
+	font-weight: bold;
+	padding: 0.5em 1em;
+	cursor: pointer;
+	@include one-border-radius(5px);
+	border: 1px solid $blue-grey;
+
+	&:hover {
+		text-decoration: none;
+	}
+}
+
+.rh_help {
+	cursor: pointer;
+	color: $bright-blue;
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+
+.rh_answer {
+	display: none;
+	padding-left: 10px;
+	margin-bottom: 7px;
+	border: solid 2px $blue-grey;
+	@include one-border-radius(5px);
+	text-indent: 0 !important;
+}
+
+.work_campaigns {
+	border: 1px solid $blue-grey;
+	margin: 10px auto;
+
+	div {
+		float: left;
+
+		&.campaign_info {
+			width: 60%;
+		margin: 5px;
+		}
+	}
+}
+
+h2.thank-you {
+	font-size: 34px;
+	color: $call-to-action;
+	line-height: 40px;
+}
+
+.pledge_complete, .pledge_complete a {
+	font-size: $font-size-larger;
+	line-height: 18px;
+	margin-bottom: 15px;
+}
+
+#js-slide .jsmodule.pledge  {
+	width: 960px !important;
+}
+
+ul.social.pledge {
+	li {
+		float: left;
+		padding-right: 30px !important;
+	}
+
+	margin-bottom: 100px;
+}
+
+#widgetcode {
+	float: right;
+}
+
+div.pledge-container {
+	width: 100%;
+}
+
+.yikes {
+	color: $alert;
+	font-weight: bold;
+}
+
+.call-to-action {
+    color: $call-to-action;
+}

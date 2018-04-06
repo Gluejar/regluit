@@ -30,6 +30,7 @@ from regluit.core import mobi
 import regluit.core.cc as cc
 from regluit.core.epub import test_epub
 from regluit.core.links import id_url
+from regluit.core.validation import valid_subject
 
 from regluit.core.parameters import (
     AGE_LEVEL_CHOICES,
@@ -81,11 +82,11 @@ class Identifier(models.Model):
                 identifier = Identifier.objects.create(type=type, value=value, work=work)
             else:
                 identifier = Identifier.objects.create(type=type, value=value, work=work, edition=edition)
-        if identifier.work.id != work.id:
+        if identifier.work_id != work.id:
             identifier.work = work
             identifier.save()
         if identifier.edition and edition:
-            if identifier.edition.id != edition.id:
+            if identifier.edition_id != edition.id:
                 identifier.edition = edition
                 identifier.save()
             others = Identifier.objects.filter(type=type, work=work, edition=edition).exclude(value=value)
@@ -147,6 +148,14 @@ class Work(models.Model):
     @property
     def doab(self):
         return id_for(self, 'doab')
+
+    @property
+    def doi(self):
+        return self.id_for('doi')
+
+    @property
+    def http_id(self):
+        return self.id_for('http')
 
     @property
     def googlebooks_id(self):
@@ -759,7 +768,42 @@ class Subject(models.Model):
 
     class Meta:
         ordering = ['name']
+    
+    @classmethod
+    def set_by_name(cls, subject, work=None, authority=None):
+        ''' use this method whenever you would be creating a new subject!'''
+        subject = subject.strip()
+        
+        # make sure it's not a ; delineated list
+        subjects = subject.split(';')
+        for additional_subject in subjects[1:]:
+            cls.set_by_name(additional_subject, work, authority)
+        subject = subjects[0]
+        # make sure there's no heading
+        headingmatch = re.match(r'^!(.+):(.+)', subject)
+        if headingmatch:
+            subject = headingmatch.group(2).strip()
+            authority = headingmatch.group(1).strip()
+        elif subject.startswith('nyt:'):
+            subject = subject[4:].split('=')[0].replace('_', ' ').strip().capitalize()
+            subject = 'NYT Bestseller - {}'.format(subject)
+            authority = 'nyt'
+        elif subject.startswith('award:'):
+            subject = subject[6:].split('=')[0].replace('_', ' ').strip().capitalize()
+            subject = 'Award Winner - {}'.format(subject)
+            authority = 'award'
 
+        if valid_subject(subject):
+            (subject_obj, created) = cls.objects.get_or_create(name=subject)
+            if not subject_obj.authority and authority:
+                subject_obj.authority = authority
+                subject_obj.save()
+        
+            subject_obj.works.add(work)
+            return subject_obj   
+        else:
+            return None
+    
     def __unicode__(self):
         return self.name
 
@@ -851,6 +895,8 @@ class Edition(models.Model):
         return regluit.core.isbn.convert_13_to_10(self.isbn_13)
 
     def id_for(self, type):
+        if type in WORK_IDENTIFIERS:
+            return self.work.id_for(type)
         return id_for(self, type)
 
     @property
@@ -870,16 +916,8 @@ class Edition(models.Model):
         return self.id_for('oclc')
 
     @property
-    def doi(self):
-        return self.id_for('doi')
-
-    @property
     def goodreads_id(self):
         return self.id_for('gdrd')
-
-    @property
-    def http_id(self):
-        return self.id_for('http')
 
     @staticmethod
     def get_by_isbn(isbn):
@@ -925,7 +963,7 @@ class Edition(models.Model):
         return self.ebooks.filter(active=True)
 
     def download_via_url(self):
-        return settings.BASE_URL_SECURE + reverse('download', args=[self.work.id])
+        return settings.BASE_URL_SECURE + reverse('download', args=[self.work_id])
 
     def authnames(self):
         return [auth.last_name_first for auth in self.authors.all()]
@@ -1034,13 +1072,24 @@ class EbookFile(models.Model):
     def make_mobi(self):
         if not self.format == 'epub' or not settings.MOBIGEN_URL:
             return False
-        new_mobi_ebf = EbookFile.objects.create(edition=self.edition, format='mobi', asking=self.asking)
-        new_mobi_ebf.file.save(path_for_file('ebf', None), ContentFile(mobi.convert_to_mobi(self.file.url)))
+        try:
+            mobi_cf = ContentFile(mobi.convert_to_mobi(self.file.url))
+        except:
+            return False
+        new_mobi_ebf = EbookFile.objects.create(
+            edition=self.edition,
+            format='mobi',
+            asking=self.asking,
+            source=self.file.url
+        )
+            
+        new_mobi_ebf.file.save(path_for_file('ebf', None), mobi_cf)
         new_mobi_ebf.save()
         if self.ebook:
             new_ebook = Ebook.objects.create(
                 edition=self.edition,
                 format='mobi',
+                provider='Unglue.it',
                 url=new_mobi_ebf.file.url,
                 rights=self.ebook.rights,
                 version_label=self.ebook.version_label,

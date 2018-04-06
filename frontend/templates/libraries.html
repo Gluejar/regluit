@@ -1,9 +1,11 @@
 {% extends 'basedocumentation.html' %}
 
+{% load sass_tags %}
+
 {% block title %} &#x2665; Libraries{% endblock %}
 {% block extra_css %}
-    <link type="text/css" rel="stylesheet" href="/static/css/campaign2.css" />
-    <link type="text/css" rel="stylesheet" href="/static/css/libraries.css" />
+    <link type="text/css" rel="stylesheet" href="{% sass_src 'scss/campaign2.scss' %}" />
+    <link type="text/css" rel="stylesheet" href="{% sass_src 'scss/libraries.scss' %}" />
 {% endblock %}
 
 {% block extra_js %}
@@ -60,7 +62,7 @@ The library license gives download access to one library member at a time for 14
 <dt>Support <a href="{% url 'campaign_list' 'ending' %}">our active campaigns</a>.</dt>
 <dd>Ultimately ebooks can't be unglued unless authors and publishers are paid for their work.  Many of our staunchest supporters are librarians.  There are also several libraries which have supported campaigns, including Leddy Library (University of Windsor, Ontario); the University of Alberta library ; and the Z. Smith Reynolds library (Wake Forest University).</dd>
 <dt>Give feedback and ask questions.</dt>
-<dd>Want to know more?  Need help?  Have ideas for how we could improve the site or make it more library-friendly?  Contact us at: <a href="mailto:libraries@gluejar.com">libraries@gluejar.com</a>.</dd>
+<dd>Want to know more?  Need help?  Have ideas for how we could improve the site or make it more library-friendly?  Contact us at: <a href="mailto:info@ebookfoundation.org">info@ebookfoundation.org</a>.</dd>
 </dl>
 </div>
 {% endblock %}

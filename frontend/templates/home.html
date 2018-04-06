@@ -1,12 +1,21 @@
 {% extends "base.html" %}
 
 {% load truncatechars %}
+{% load sass_tags %}
 {% block title %}&#151; Support Free eBooks{% endblock %}
 
+{% block extra_meta %}
+<meta property="og:title" content="Unglue.it - A Community Supporting Free eBooks" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://unglue.it" />
+<meta property="og:image" content="https://unglue.it/static/images/logo.png" />
+{% endblock %}
+
+
 {% block extra_css %}
-<link type="text/css" rel="stylesheet" href="/static/css/landingpage4.css"  />
-<link type="text/css" rel="stylesheet" href="/static/css/searchandbrowse2.css"  />
-<link type="text/css" rel="stylesheet" href="/static/css/book_panel2.css"  />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/landingpage4.scss' %}"  />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/searchandbrowse2.scss' %}"  />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/book_panel2.scss' %}"  />
 {% endblock %}
 {% block extra_js %}
 
@@ -44,7 +53,7 @@ function put_un_in_cookie2(){
                 <h3 class="featured_books">Today's Featured Free eBook</h3>
                     {% with featured as work %}
                         <div class="book-detail">
-                            <div id="book-detail-img" style="float:left;padding-right:10px">
+                            <div id="book-detail-img" class="book-cover" style="float:left;padding-right:10px">
                             <a href="{% url 'work' featured.id %}">
                                 {% if work.googlebooks_id %}
                                     <img src="{{ work.cover_image_thumbnail }}" alt="Find {{ work.title }} at Google Books" title="Find {{ work.title }} at Google Books" width="131" height="192" />
@@ -211,7 +220,7 @@ function put_un_in_cookie2(){
                 <div class="jsmodule">
                 	<h3 class="module-title">News</h3>
                     <div class="jsmod-content">
-                     Unglue.it is now <a href="https://blog.unglue.it/2017/01/19/unglue-it-website-is-now-open-source/"> Open Source</a>
+                     <a href="https://blog.unglue.it/2018/01/24/unglue-it-has-resumed-crowdfunding/">Unglue.it has resumed crowdfunding</a>
                     </div>
                 </div>
                 <div class="jsmodule">
@@ -238,7 +247,7 @@ function put_un_in_cookie2(){
                                             {% elif object.campaign.type == 3 %}
                                                 supported 
                                             {% endif %}<br />
-                                            <a class="user-book-name" href="{% url 'work' object.campaign.work.id %}">{{ object.campaign.work.title }}</a>
+                                            <a class="user-book-name" href="{% url 'work' object.campaign.work_id %}">{{ object.campaign.work.title }}</a>
                                         </span>
                                         {% else %}
                                         <span class="user-avatar">
@@ -247,7 +256,7 @@ function put_un_in_cookie2(){
                                         <span class="user-book-info">
                                             Anonymous User<br />
                                             supported <br />
-                                            <a class="user-book-name" href="{% url 'work' object.campaign.work.id %}">{{ object.campaign.work.title }}</a>
+                                            <a class="user-book-name" href="{% url 'work' object.campaign.work_id %}">{{ object.campaign.work.title }}</a>
                                         </span>
                                         {% endif %}
                                     {% elif event.2 == "comment" %}
@@ -266,7 +275,7 @@ function put_un_in_cookie2(){
                                         <span class="user-book-info">
                                             <a href="{% url 'supporter' object.wishlist.user.username %}">{{ object.wishlist.user.username }}</a><br />
                                             faved<br />
-                                            <a class="user-book-name" href="{% url 'work' object.work.id %}">{{ object.work.title }}</a>
+                                            <a class="user-book-name" href="{% url 'work' object.work_id %}">{{ object.work.title }}</a>
                                         </span>                                    
                                     {% endif %}
                                 {% endwith %}
@@ -286,12 +295,12 @@ function put_un_in_cookie2(){
     
             <h3 class="featured_books">As seen on</h3>
             <ul id="as_seen_on">
-                <li><a href="http://boingboing.net/2012/06/28/release-a-deadly-monster-a-dr.html"><img src="{{ STATIC_URL }}images/press_logos/boingboing_logo.png"></a></li>
-                <li><a href="http://www.zeit.de/digital/internet/2012-07/unglue-ebook-creative-commons"><img src="{{ STATIC_URL }}images/press_logos/die_zeit_logo.png"></a></li>
-                <li><a href="http://www.huffingtonpost.com/2012/05/21/unglueit-free-ebooks-crowdfunding_n_1532644.html"><img src="{{ STATIC_URL }}images/press_logos/huffington_post_logo.png"></a></li>
-                <li><a href="http://techcrunch.com/2014/05/06/unglue-it-sets-books-free-after-authors-get-paid/"><img src="{{ STATIC_URL }}images/press_logos/techcrunch_logo.png"></a></li>
-                <li><a href="http://www.thedigitalshift.com/2014/02/ebooks/buy-unglue-ebook-crowdfunding-model-goes-beta/"><img src="{{ STATIC_URL }}images/press_logos/library_journal_logo.png"></a></li>
-                <li><a href="http://www.networkworld.com/community/node/85329"><img src="{{ STATIC_URL }}images/press_logos/networkworld_logo.png"></a></li>
+                <li><a href="http://boingboing.net/2012/06/28/release-a-deadly-monster-a-dr.html"><img alt="boingboing" src="{{ STATIC_URL }}images/press_logos/boingboing_logo.png"></a></li>
+                <li><a href="http://www.zeit.de/digital/internet/2012-07/unglue-ebook-creative-commons"><img alt="die zeit" src="{{ STATIC_URL }}images/press_logos/die_zeit_logo.png"></a></li>
+                <li><a href="http://www.huffingtonpost.com/2012/05/21/unglueit-free-ebooks-crowdfunding_n_1532644.html"><img alt="huffington post" src="{{ STATIC_URL }}images/press_logos/huffington_post_logo.png"></a></li>
+                <li><a href="http://techcrunch.com/2014/05/06/unglue-it-sets-books-free-after-authors-get-paid/"><img alt="techcrunch" src="{{ STATIC_URL }}images/press_logos/techcrunch_logo.png"></a></li>
+                <li><a href="http://www.thedigitalshift.com/2014/02/ebooks/buy-unglue-ebook-crowdfunding-model-goes-beta/"><img alt="library journal" src="{{ STATIC_URL }}images/press_logos/library_journal_logo.png"></a></li>
+                <li><a href="http://www.networkworld.com/community/node/85329"><img alt="networkworld" src="{{ STATIC_URL }}images/press_logos/networkworld_logo.png"></a></li>
             </ul>
             <div class="speech_bubble"><span>For readers it’s a gold mine of great books they can have a say in bringing to market.</span></div>
     

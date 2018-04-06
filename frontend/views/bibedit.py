@@ -17,27 +17,33 @@ from regluit.core.bookloader import (
     add_by_googlebooks_id,
     add_by_isbn,
     add_by_oclc,
-    add_by_webpage,
 )
 from regluit.core.parameters import WORK_IDENTIFIERS
 
+from regluit.core.loaders import add_by_webpage
 from regluit.core.loaders.utils import ids_from_urls
 from regluit.frontend.forms import EditionForm, IdentifierForm
+
+from .rh_views import user_is_rh
 
 
 def user_can_edit_work(user, work):
     '''
     Check if a user is allowed to edit the work
     '''
-    if user.is_staff :
+    if user.is_anonymous():
+        return False
+    elif user.is_staff :
         return True
     elif work and work.last_campaign():
         return user in work.last_campaign().managers.all()
-    elif user.rights_holder.count() and (work == None or not work.last_campaign()):
+    elif user_is_rh(user) and (work == None or not work.last_campaign()):
         # allow rights holders to edit unless there is a campaign
         return True
+    elif work and work.claim.all():
+        return True if work.claim.filter(user=user) else False
     else:
-        return False
+        return user.profile in work.contributors.all()
 
 def safe_get_work(work_id):
     """
@@ -68,6 +74,11 @@ def get_edition(edition_id):
     except models.Edition.DoesNotExist:
         raise Http404 (duplicate-code)
 
+def user_edition(edition, user):
+    if user and user.is_authenticated() and edition:
+        user.profile.works.add(edition.work)
+    return edition
+
 def get_edition_for_id(id_type, id_value, user=None):
     ''' the identifier is assumed to not be in database '''
     identifiers = {id_type: id_value}
@@ -87,17 +98,18 @@ def get_edition_for_id(id_type, id_value, user=None):
     if identifiers.has_key('goog'):
         edition = add_by_googlebooks_id(identifiers['goog'])
         if edition:
-            return edition
+            
+            return user_edition(edition, user)
 
     if identifiers.has_key('isbn'):
         edition = add_by_isbn(identifiers['isbn'])
         if edition:
-            return edition
+            return user_edition(edition, user)
     
     if identifiers.has_key('oclc'):
         edition = add_by_oclc(identifiers['oclc'])
         if edition:
-            return edition
+            return user_edition(edition, user)
     
     if identifiers.has_key('glue'):
         try:
@@ -108,7 +120,7 @@ def get_edition_for_id(id_type, id_value, user=None):
     
     if identifiers.has_key('http'):
         edition = add_by_webpage(identifiers['http'], user=user)
-        return edition
+        return user_edition(edition, user)
 
     
     # return a dummy edition and identifier
@@ -126,7 +138,7 @@ def get_edition_for_id(id_type, id_value, user=None):
                 models.Identifier.objects.create(type=key, value=id_value, work=work, edition=None) 
             else:
                 models.Identifier.objects.create(type=key, value=id_value, work=work, edition=edition)
-    return edition
+    return user_edition(edition, user)
 
 @login_required
 def new_edition(request, by=None):
@@ -138,7 +150,7 @@ def new_edition(request, by=None):
         form = IdentifierForm(data=request.POST)
         if form.is_valid():
             if form.cleaned_data.get('make_new', False):
-                edition = get_edition_for_id('glue', 'new')
+                edition = get_edition_for_id('glue', 'new', user=request.user)
             else:
                 id_type = form.cleaned_data['id_type']
                 id_value = form.cleaned_data['id_value']
@@ -153,7 +165,7 @@ def new_edition(request, by=None):
             
             return HttpResponseRedirect(
                 reverse('new_edition', kwargs={
-                    'work_id': edition.work.id,
+                    'work_id': edition.work_id,
                     'edition_id': edition.id
                 })
             )
@@ -208,6 +220,7 @@ def edit_edition(request, work_id, edition_id, by=None):
         'title': title,
     } 
     if request.method == 'POST':
+        keep_editing = request.POST.has_key('add_author_submit')
         form = None
         edition.new_authors = zip(
             request.POST.getlist('new_author'),
@@ -219,16 +232,24 @@ def edit_edition(request, work_id, edition_id, by=None):
                 if request.POST.has_key('delete_author_%s' % author.id):
                     edition.remove_author(author)
                     form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
+                    keep_editing = True
                     break
             work_rels = models.WorkRelation.objects.filter(Q(to_work=work) | Q(from_work=work))
             for work_rel in work_rels:
                 if request.POST.has_key('delete_work_rel_%s' % work_rel.id):
                     work_rel.delete()
                     form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
+                    keep_editing = True
                     break
             activate_all = request.POST.has_key('activate_all_ebooks')
             deactivate_all = request.POST.has_key('deactivate_all_ebooks')
             ebookchange = False
+            if request.POST.has_key('set_ebook_rights') and request.POST.has_key('set_rights'):
+                rights = request.POST['set_rights']
+                for ebook in work.ebooks_all():
+                    ebook.rights = rights
+                    ebook.save()
+                    ebookchange = True
             for ebook in work.ebooks_all():
                 if request.POST.has_key('activate_ebook_%s' % ebook.id) or activate_all:
                     ebook.activate()
@@ -237,18 +258,16 @@ def edit_edition(request, work_id, edition_id, by=None):
                     ebook.deactivate()
                     ebookchange = True
             if ebookchange:
+                keep_editing = True
                 form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
-        if request.POST.has_key('add_author_submit') and admin:
+        
+        if request.POST.get('add_author', None) and admin:
             new_author_name = request.POST['add_author'].strip()
             new_author_relation =  request.POST['add_author_relation']
-            try:
-                author = models.Author.objects.get(name=new_author_name)
-            except models.Author.DoesNotExist:
-                author = models.Author.objects.create(name=new_author_name)
-            edition.new_authors.append((new_author_name, new_author_relation))
-            form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
-        elif not form and admin:
-            form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
+            if (new_author_name, new_author_relation) not in edition.new_authors:
+                edition.new_authors.append((new_author_name, new_author_relation))
+        form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
+        if not keep_editing and admin:
             if form.is_valid():
                 form.save()
                 if not work:
@@ -267,7 +286,13 @@ def edit_edition(request, work_id, edition_id, by=None):
                     work.publication_range = None  # will reset on next access
                     work.language = form.cleaned_data['language']
                     work.age_level = form.cleaned_data['age_level']
-                    work.save()
+                    work.save(update_fields=[
+                        'title',
+                        'description',
+                        'publication_range',
+                        'language',
+                        'age_level'
+                    ])
 
                 id_type = form.cleaned_data['id_type']
                 id_val = form.cleaned_data['id_value']
@@ -303,7 +328,7 @@ def edit_edition(request, work_id, edition_id, by=None):
                         bisacsh = bisacsh.parent
                 for subject_name in edition.new_subjects:
                     add_subject(subject_name, work)
-                work_url = reverse('work', kwargs={'work_id': edition.work.id})
+                work_url = reverse('work', kwargs={'work_id': edition.work_id})
                 cover_file = form.cleaned_data.get("coverfile", None)
                 if cover_file:
                     # save it

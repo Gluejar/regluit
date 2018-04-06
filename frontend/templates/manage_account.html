@@ -1,9 +1,10 @@
 {% extends 'basedocumentation.html' %}
+{% load sass_tags %}
 
 {% block title %}Your Unglue.it Account{% endblock %}
 {% block extra_extra_head %}
 {{ block.super }}
-<link type="text/css" rel="stylesheet" href="/static/css/pledge.css"  />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/pledge.scss' %}" />
 
 {% include "stripe_stuff.html" %}
 <script>
@@ -92,8 +93,8 @@ You can complete your last transaction by <a href="{% url 'fund' user.profile.la
 <h2 style="margin-top:8em">Your Pledges</h2>
 <dl>
 {% for transaction in request.user.profile.pledges %}
-    <dt><i><a href="{% url 'work' transaction.campaign.work.id %}">{{ transaction.campaign.work.title }}</a></i> 
-    (<a href="{% url 'pledge_modify' transaction.campaign.work.id %}">modify pledge</a>)</dt>
+    <dt><i><a href="{% url 'work' transaction.campaign.work_id %}">{{ transaction.campaign.work.title }}</a></i> 
+    (<a href="{% url 'pledge_modify' transaction.campaign.work_id %}">modify pledge</a>)</dt>
     <dd><div class="modify_notification">
 	{% include "trans_summary.html" %}
     </div></dd>
@@ -104,7 +105,7 @@ You can complete your last transaction by <a href="{% url 'fund' user.profile.la
 
 <h2> Other Account Management Tools </h2>
 <ul>
-<li>Want to <a href="{% url 'auth_password_change' %}">change your password</a>?</li>
+<li>Want to <a href="{% url 'libraryauth_password_change' %}">change your password</a>?</li>
 <li>... or <a href="{% url 'notification_notice_settings' %}">manage your contact preferences</a>?</li>
 <li>... or <a href="{% url 'email_change' %}">change your email address</a>?</li>
 <li>... or <a href="{% url 'edit_user' %}">change your username</a>?</li>

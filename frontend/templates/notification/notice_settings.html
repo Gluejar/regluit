@@ -1,12 +1,13 @@
 {% extends 'notification/base.html' %}
 
-
 {% load i18n %}
+{% load sass_tags %}
 {% load truncatechars %}
+
 {% block title %}{% trans "Notification Settings" %}{% endblock %}
 
 {% block extra_css %}
-<link type="text/css" rel="stylesheet" href="/static/css/notices.css" />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/notices.scss' %}" />
 {% endblock %}
 
 {% block extra_js %}

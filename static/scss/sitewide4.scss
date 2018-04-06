@@ -1,0 +1,1040 @@
+/* For sitewide elements of unglue.it. */
+
+@import "variables.scss";
+@import "mixins.scss";
+@import "download.scss";
+@import "buttons.scss";
+@import "bootstrap-social.scss";
+@import "font-awesome.min.css";
+
+@mixin preview()
+{
+	border: solid 3px $alert;
+	@include one-border-radius(7px);
+    clear:both;
+    padding: 5px 10px;
+    font-size: $font-size-default;
+    width: 90%;
+
+    a {
+    	color: $call-to-action;
+    }
+}
+
+.launch_top {
+	@include preview;
+	border-color: $green;
+    margin:10px auto 0 auto;
+    font-size: $font-size-larger;
+    line-height: $font-size-larger*1.5;
+
+    &.pale {
+        border-color: $blue-grey;
+        font-size: $font-size-default;
+    }
+
+    &.alert {
+        border-color: $alert;
+        font-size: $font-size-default;
+    }
+}
+
+.preview_content {
+	@include preview;
+	width: 80%;
+	margin: 10px auto;
+}
+
+/* Local variables */
+@mixin utilityheaders()
+{
+    text-transform:uppercase;
+    color:$text-blue;
+    font-size: $font-size-larger;
+    display:block;
+}
+
+@mixin utilitylinks($topbottom, $leftright, $fontsize)
+{
+    padding:$topbottom 0 $topbottom $leftright;
+    a {
+        color:$medium-blue;
+        font-size: $fontsize;
+    }
+}
+
+/* Page-wide elements */
+html, body {
+    /* Necessary to make footer stretch to bottom of page */
+    height:100%;
+}
+
+body{
+    background:url($background-body) 0 0 repeat-x;
+    padding:0 0 20px 0;
+    margin:0;
+    font-size: $font-size-default;
+    line-height: $font-size-default*1.3;
+
+    font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Arial, Helvetica, sans-serif;
+    color:$text-blue;
+}
+
+#feedback {
+	/* remove after alpha? */
+	position: fixed;
+	bottom: 10%;
+	right: 0;
+	z-index:500;
+
+	p {
+		/* see http://scottgale.com/blog/css-vertical-text/2010/03/01/ */
+		a {
+			color:white;
+			font-size:24px;
+			font-weight:normal;
+
+			&:hover {
+				color: $text-blue;
+			}
+		}
+		-webkit-transform:rotate(90deg);
+		-moz-transform:rotate(90deg);
+		-o-transform: rotate(90deg);
+		transform: rotate(90deg);
+		filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
+		white-space:nowrap;
+		display:block;
+		bottom:0;
+		width:160px;
+		height:32px;
+		@include border-radius(0, 0, 10px, 10px);
+		background: $call-to-action;
+		margin-bottom: 0;
+		text-align: center;
+		margin-right: -67px;
+		line-height: normal;
+	}
+}
+
+a {
+    font-weight:bold;
+    font-size: inherit;
+
+    text-decoration:none;
+    cursor:pointer;
+    color: $medium-blue;
+
+    &:hover {
+    	text-decoration: underline;
+    }
+}
+
+h1 {
+	font-size: $font-size-larger*1.5;
+}
+
+h2 {
+	font-size: $font-size-larger*1.25;
+}
+
+h3 {
+	font-size: $font-size-larger*1.17;
+}
+
+h4 {
+	font-size: $font-size-larger;
+}
+
+img {
+    border:none;
+}
+
+img.user-avatar {
+	float:left;
+	margin-right:10px;
+	@include one-border-radius(7px);
+}
+
+input, textarea, a.fakeinput {
+	border: 2px solid $blue-grey;
+	@include one-border-radius(5px);
+
+	&:focus {
+		border: 2px solid $call-to-action;
+		outline: none;
+	}
+}
+
+a.fakeinput:hover {
+	text-decoration: none;
+}
+
+.js-search input {
+	@include one-border-radius(0);
+}
+
+h2 {
+    &.content-heading {
+        padding:15px;
+        margin:0;
+        font-size: $font-size-header;
+        font-weight:normal;
+        color:$text-blue;
+        float:left;
+        width:50%;
+
+        span {
+            font-style:italic;
+        }
+    }
+}
+
+h3 {
+    &.jsmod-title {
+    	@include border-radius(8px, 8px, 0, 0);
+    	background: $pale-blue;
+        padding:0;
+        margin:0;
+        height:2.3em;
+
+        span {
+            font-size: $font-size-header;
+            font-style: italic;
+            color:$text-blue;
+            padding:0.7em 2em 0.5em 2em;
+            display:block;
+        }
+    }
+}
+
+input[type="submit"], a.fakeinput {
+	background: $call-to-action;
+	color: white;
+	font-weight: bold;
+	padding: 0.5em 1em;
+	cursor: pointer;
+}
+
+
+.loader-gif[disabled="disabled"], .loader-gif.show-loading {
+    background: url('/static/images/loading.gif') center no-repeat !important;
+}
+
+.js-page-wrap {
+    position: relative;
+    min-height: 100%;
+}
+
+.js-main {
+    width:960px;
+    margin:0 auto;
+    clear:both;
+    padding:0;
+}
+
+.bigger {
+    font-size: $font-size-larger;
+}
+
+ul.menu{
+    list-style:none;
+    padding:0;
+    margin:0;
+}
+
+.errorlist {
+	@include errors;
+}
+
+.errorlist + input {
+	border: 2px solid $alert !important;
+
+	&:focus {
+		border: 1px solid $call-to-action !important;
+	}
+}
+
+.errorlist + textarea {
+	border: 2px solid $alert !important;
+
+	&:focus {
+		border: 2px solid $call-to-action !important;
+	}
+}
+
+/* less in-your-face errors */
+.p_form .errorlist {
+	@include one-border-radius(16px);
+	border: none;
+	color:$alert;
+	clear: none;
+	width: 100%;
+	height: auto;
+	line-height: 16px;
+	padding: 0;
+	font-weight: normal;
+	text-align: left;
+	display: inline;
+    li {
+        display: inline;
+    }
+}
+
+/* add class clearfix to floats to make them self-clear */
+.clearfix:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+}
+
+/* Header section */
+#js-header {
+    height:90px;
+}
+
+.js-logo {
+    float:left;
+    padding-top:10px;
+
+    a {
+        img { border: none;}
+    }
+}
+
+.js-topmenu {
+    float:right;
+    margin-top:25px;
+    font-size: $font-size-larger;
+
+    &#authenticated {
+        @include one-border-radius(5px);
+        height: 36px;
+    }
+
+    &#authenticated:hover, &#authenticated.highlight {
+        background: $blue-grey;
+        cursor: pointer;
+        position: relative;
+    }
+
+    ul {
+        &#user_menu {
+            white-space:nowrap;
+            display: none;
+            z-index: 100;
+            position: absolute;
+            top: 36px;
+            left: 0;
+            padding: 0;
+            overflow: visible;
+            margin: 0;
+
+            li {
+                border-top: 1px solid white;
+                list-style-type: none;
+                float: none;
+                background: $blue-grey;
+                padding: 7px 10px;
+
+                &:hover {
+                    background: $call-to-action;
+                    a {
+                        color: white;
+                    }
+
+                    #i_haz_notifications {
+                        border-color: white;
+                        background-color: white;
+                        color: $text-blue;
+                    }
+                }
+
+                a {
+                    height: auto;
+                    line-height: $font-size-larger*1.75;
+                }
+
+                span {
+                    margin-right: 10px;
+                }
+            }
+        }
+
+        li {
+            float:left;
+            position: relative;
+            z-index: 50;
+
+            .notbutton{
+                color:$text-blue;
+                line-height: 36px;
+            }
+
+            a {
+                @include header-text;
+            }
+
+            span#welcome {
+                @include header-text;
+                padding: 0 10px;
+            }
+
+            img {
+                padding: 0;
+                margin: 0;
+            }
+
+            &.last {
+                padding-left: 20px;
+
+                a {
+
+                    span {
+                        @include border-radius(32px, 0, 0, 32px);
+                        background-color: $call-to-action;
+                        margin-right:29px;
+                        display:block;
+                        padding:0 5px 0 15px;
+                        color: white;
+                    }
+                }
+            }
+        }
+
+        .unseen_count {
+            border: solid 2px;
+            @include one-border-radius(700px);
+            padding: 3px;
+            line-height: 16px;
+            width: 16px;
+            cursor: pointer;
+            text-align: center;
+
+            &#i_haz_notifications {
+                background-color: $call-to-action;
+                color: white;
+                border-color: white;
+            }
+
+            &#no_notifications_for_you {
+                border-color: $pale-blue;
+                background-color: $pale-blue;
+                color: $text-blue;
+            }
+        }
+    }
+}
+.btn-signup {
+  @include button-variant(#fff, $call-to-action,  $btn-default-border);
+}
+.btn-readon {
+  @include button-variant(#fff, $bright-blue, $btn-default-border);
+}
+
+#i_haz_notifications_badge {
+    @include one-border-radius(700px);
+    font-size: $font-size-default;
+    border: solid 2px white;
+    margin-left: -7px;
+    margin-top: -10px;
+    padding: 3px;
+    background: $call-to-action;
+    color: white;
+    position: absolute;
+    line-height: normal;
+}
+
+form.login, #login form {
+    label {
+        display: block;
+        line-height: 20px;
+        font-size: $font-size-larger;
+    }
+
+    input {
+        width: 90%;
+        @include one-border-radius(5px);
+        border: 1px solid $blue-grey;
+        @include height(18px);
+        margin-bottom: 6px;
+
+        &[type=submit] {
+            text-decoration: capitalize;
+            @include actionbuttons;
+        }
+
+        &:focus {
+            border: solid 1px $call-to-action;
+        }
+    }
+
+	input[type="text"], input[type="password"] {
+    	@include height($font-size-default*1.75);
+        margin-bottom: $font-size-default;
+        border-width: 2px;
+	}
+
+	input[type="submit"] {
+	    font-size: $font-size-larger;
+	}
+
+
+    span.helptext {
+        display: block;
+        margin-top: -11px;
+        font-style: italic;
+        font-size: $font-size-default;
+    }
+}
+
+#lightbox_content a.btn {
+    color: #FFF;
+}
+
+.js-search {
+    float:left;
+    padding-top:25px;
+    margin-left: 81px;
+
+    input {
+        float: left;
+    }
+
+
+    .inputbox {
+        padding:0 0 0 15px;
+        margin:0;
+        border-top: solid 4px $bright-blue;
+        border-left: solid 4px $bright-blue;
+        border-bottom: solid 4px $bright-blue;
+        border-right: none;
+        @include border-radius(50px, 0, 0, 50px);
+        outline: none;
+        // background:url($background-header) -645px -180px;
+        @include height(28px);
+        width:156px;
+        float: left;
+        color:$medium-blue;
+    }
+
+    .button {
+        background:url("#{$image-base}blue-search-button.png") no-repeat;
+        padding:0;
+        margin:0;
+        width:40px;
+        height:36px;
+        display:block;
+        border:none;
+        text-indent:-10000px;
+    	cursor:pointer;
+    }
+}
+
+.js-search-inner {
+    float:right;
+}
+
+#locationhash {
+	/* used solely to contain template variables for tabs.js; should not display */
+	display: none;
+}
+
+/* Learn More menu */
+#block-intro-text {
+	padding-right: 10px;
+
+	span.def {
+	    font-style: italic;
+	}
+}
+
+a#readon {
+    color:#fff;
+    text-transform:capitalize;
+    display:block;
+    float:right;
+    font-size: $font-size-default;
+
+    font-weight:bold;
+
+}
+
+.spread_the_word {
+	height: 24px;
+	width: 24px;
+	position: top;
+	margin-left:5px;
+}
+
+/* Explore column */
+#js-leftcol {
+    float:left;
+    width:235px;
+    margin-bottom: 20px;
+
+    a {
+        font-weight:normal;
+
+        &:hover{
+            text-decoration:underline;
+        }
+    }
+
+    .jsmod-content {
+        border: solid 1px $pale-blue;
+        @include border-radius(0, 0, 10px, 10px);
+    }
+
+    ul {
+        &.level1 > li > a, &.level1 > li > span {
+            border-bottom:1px solid $pale-blue;
+            border-top:1px solid $pale-blue;
+            @include utilityheaders;
+            padding:10px;
+        }
+
+        &.level2 li {
+            @include utilitylinks(5px, 20px, $font-size-larger);
+
+            img {
+            	vertical-align: middle;
+            	@include one-border-radius(5px);
+            }
+
+            .ungluer-name {
+				@include height(30px);
+			}
+            &.first {
+                font-size: $font-size-larger;
+                color:$text-blue;
+                padding-left:10px;
+            }
+        }
+        &.level3 li {
+            @include utilitylinks(0px, 20px, $font-size-default);
+            a img.thumbnail {
+                margin-right: 2px;
+                height: 50px;
+                width: 32px;
+            }
+            a span.thumbnail-caption {
+                font-size: $font-size-small;
+                display: inline-block;
+                width: 154px;
+                overflow-y: scroll;
+            }
+        }
+    }
+}
+
+/* Main content area: top */
+#js-topsection {
+    padding:15px 0 0 0;
+    overflow:hidden;
+}
+
+.js-topnews {
+    float:left;
+    width:100%;
+}
+
+.js-topnews1 {
+    background:url("#{$image-base}header/header-m.png") 0 0 repeat-y;
+}
+.js-topnews2 {
+    background:url("#{$image-base}header/header-t.png") 0 0 no-repeat;
+}
+.js-topnews3 {
+    background:url("#{$image-base}header/header-b.png") 0 100% no-repeat;
+    display:block;
+    overflow:hidden;
+    padding:10px;
+}
+
+/* Main content area: main*/
+
+#main-container {
+    margin: 15px 0 0 0;
+}
+
+#js-maincol-fr {
+    float:right;
+    width:725px;
+}
+
+div#content-block {
+    overflow:hidden;
+    background:url($background-header) 100% -223px no-repeat;
+    padding:0 0 0 7px;
+    margin-bottom: 20px;
+
+    &.jsmodule {
+    	background: none;
+    }
+}
+
+.content-block-heading a.block-link {
+    float:right;
+    padding:15px;
+    font-size: $font-size-default;
+    color:$text-blue;
+    text-decoration:underline;
+    font-weight:normal;
+}
+
+div#content-block-content, div#content-block-content-1 {
+    width:100%;
+    overflow:hidden;
+    padding-left: 10px;
+
+    .cols3 .column {
+        width:33.33%;
+        float:left;
+    }
+}
+
+/* Footer */
+#footer {
+    background-color: $pale-blue;
+    clear: both;
+    @include utilityheaders;
+    padding: 15px 0px 45px 0px;
+    margin-top: 15px;
+    overflow: hidden;
+
+    .column {
+        float:left;
+        width: 25%;
+        padding-top:5px;
+
+        ul {
+            padding-top:5px;
+            margin-left:0;
+            padding-left:0;
+        }
+
+        li {
+            @include utilitylinks(5px, 0, $font-size-larger);
+            text-transform: none;
+            list-style: none;
+            margin-left: 0;
+        }
+    }
+}
+
+.pagination {
+    width: 100%;
+    text-align: center;
+    margin-top: 20px;
+    clear: both;
+    border-top: solid $text-blue thin;
+    padding-top:7px;
+
+    .endless_page_link {
+      font-size: $font-size-default;
+      border: thin $text-blue solid;
+      font-weight: normal;
+      margin: 5px;
+      padding:1px;
+    }
+    .endless_page_current {
+      font-size: $font-size-default;
+      border: thin $text-blue solid;
+      font-weight: normal;
+      margin: 5px;
+      padding:1px;
+      background-color:$pale-blue;
+    }
+}
+
+a.nounderline {
+	text-decoration: none;
+}
+
+/* Without this the slideshow resizes to the wrong height when you click the controls */
+.slides_control {
+	height: 325px !important;
+}
+
+#about_expandable {
+	display: none;
+	@include one-border-radius(5px);
+	border: solid 5px $blue-grey;
+	background: white;
+	z-index: 500;
+	top: 25%;
+	padding: 9px;
+	max-width: 90%;
+
+	.collapser_x {
+		margin-top: -27px;
+		margin-right: -27px;
+	}
+}
+
+#lightbox_content {
+	p, li {
+		padding: 9px 0;
+		font-size: $font-size-larger;
+		line-height: 20px;
+
+		a {
+			font-size: $font-size-larger;
+			line-height: 20px;
+		}
+
+		b {
+			color: $call-to-action;
+		}
+
+		&.last {
+			border-bottom: solid 2px $blue-grey;
+			margin-bottom: 5px;
+		}
+	}
+
+	.right_border {
+		border-right: solid 1px $blue-grey;
+		float: left;
+		padding: 9px;
+	}
+
+	.signuptoday {
+		float: right;
+		margin-top: 0;
+		clear: none;
+	}
+
+	h2 + form, h3 + form, h4 + form {
+	    margin-top: 15px;
+	}
+
+	h2, h3, h4 {
+	    margin-bottom: 10px;
+	}
+}
+
+// need to style /about/X pages such that they will not conflict with lightboxed About from header
+.nonlightbox .about_page {
+    @include one-border-radius(5px);
+	border: solid 5px $blue-grey;
+	width: 75%;
+	margin: 10px auto auto auto;
+	padding: 9px;
+}
+
+.collapser_x {
+	float: right;
+	@include height(24px);
+	width: 24px;
+	@include one-border-radius(24px);
+	-moz-box-shadow: -1px 1px $text-blue;
+	-webkit-box-shadow: -1px 1px $text-blue;
+	box-shadow: -1px 1px $text-blue;
+	border: solid 3px white;
+	text-align: center;
+	color: white;
+	background: $text-blue;
+	font-size: 17px;
+	z-index:5000;
+	margin-top: -12px;
+	margin-right:-22px;
+}
+
+.signuptoday {
+    a {
+        padding-right: 17px;
+    	color: white;
+
+        &:hover {
+        	text-decoration: none;
+        }
+    }
+
+    padding:0 15px;
+    @include height(36px);
+    float: left;
+    clear: both;
+    margin: 10px auto;
+    cursor: pointer;
+    font-style: normal;
+}
+
+.central {
+    width: 480px;
+    margin: 0 auto;
+}
+
+li.checked {
+    list-style-type:none;
+    background:transparent url(/static/images/checkmark_small.png) no-repeat 0 0;
+    margin-left: -20px;
+    padding-left: 20px;
+}
+
+.btn_support {
+    margin: 10px;
+    width: 215px;
+
+    a, form input, > span {
+        font-size: $font-size-shout;
+        border: 4px solid $blue-grey;
+        @include one-border-radius(10px);
+        display: block;
+        text-align: center;
+        padding-top: $font-size-header*.75;
+        padding-bottom: $font-size-header*.75;
+        background-color: $call-to-action;
+        color: white !important;
+
+        span {
+            color: white !important;
+            font-weight: bold;
+            padding-left: 0;
+            margin-left: 0 !important;
+            background: none;
+        }
+    }
+
+    &.create-account span {
+        padding: 0;
+        margin: 0;
+        background: none;
+    }
+
+    a:hover, form input:hover {
+        background-color: darken($call-to-action, 7%);
+        text-decoration: none;
+    }
+
+    a {
+        width: 207px;
+    }
+
+    form input {
+        width: 215px;
+    }
+
+    &.modify a, &.modify form input {
+        background-color: $medium-blue-grey;
+
+        &:hover {
+            background-color: darken($medium-blue-grey, 7%);
+        }
+    }
+}
+
+/* download page */
+.instructions {
+    h4 {
+        border-top: solid $blue-grey 1px;
+        border-bottom: solid $blue-grey 1px;
+        padding: 0.5em 0;
+    }
+
+    > div {
+        padding-left: 1%;
+        padding-right: 1%;
+        font-size: $font-size-larger;
+        line-height: $font-size-larger*1.5;
+        width: 98%;
+
+        &.active {
+            float: left;
+        }
+    }
+}
+
+.one_click {
+    float: left;
+    & > div {
+        float: left;
+
+        #kindle a, .kindle a , #marvin a, .marvin a, #mac_ibooks a, .mac_ibooks a{
+            font-size: $font-size-larger;
+            padding: 9px 0;
+        }
+
+        div {
+            margin: 0 10px 0 0;
+        }
+    }
+}
+
+.ebook_download_container {
+    clear: left;
+}
+
+.other_instructions_paragraph {
+    display: none;
+}
+
+#iOS_app_div, #ios_div {
+    /* JS overrides display: none on instructions if it's enabled
+       if JS isn't enabled, they are not on an iOS device, so no need to
+       clutter up the download instructions with this
+    */
+    display: none;
+}
+
+.yes_js {
+    display: none;
+}
+
+.std_form,  .std_form input, .std_form select {
+    line-height: 30px;
+    font-size: 15px;
+}
+
+.contrib_amount {
+	padding: 10px;
+	font-size: $font-size-header;
+	text-align: center;
+
+}
+#id_preapproval_amount {
+	width: 50%;
+	line-height: 30px;
+	font-size: $font-size-larger;
+}
+#askblock {
+    float:right;
+    min-width:260px;
+    background: $pale-blue;
+    padding: 10px;
+    width:30%
+}
+.rh_ask {
+	font-size: $font-size-larger;
+	width:65%;
+}
+#contribsubmit {
+	text-align: center;
+	font-size: $font-size-header;
+	margin: 0 0 10px;
+	cursor: pointer;
+}
+#anoncontribbox {
+    padding-bottom: 10px;
+}
+.faq_tldr{
+    font-style: italic;
+    font-size: $font-size-header;
+    text-align: center;
+    line-height: $font-size-header * 1.3;
+    color: $medium-blue;
+    margin-left: 2em;
+}
+
+.deletebutton, input[type='submit'].deletebutton {
+    height: 20px;
+    padding: .2em .6em;
+    background-color: lightgray;
+    margin-left: 1em;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+}
