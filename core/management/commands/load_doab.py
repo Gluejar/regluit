@@ -10,7 +10,7 @@ class Command(BaseCommand):
         from_year = int(from_year) if from_year else None
         limit = int(limit) if limit else None
         if limit:
-            doab.load_doab_oai(from_year=from_year, max=limit)
+            doab.load_doab_oai(from_year=from_year, limit=limit)
         else:
             if from_year:
                 doab.load_doab_oai(from_year=from_year)
