@@ -333,6 +333,7 @@ def loaded_book_ok(book, work, edition):
 ID_URLPATTERNS = {
     'goog': re.compile(r'[\./]google\.com/books\?.*id=([a-zA-Z0-9\-_]{12})'),
     'olwk': re.compile(r'[\./]openlibrary\.org(/works/OL\d{1,8}W)'),
+    'doab': re.compile(r'[\./]doabooks\.org/doab\?.*rid:(\d{1,8}).*'),
     'gdrd': re.compile(r'[\./]goodreads\.com/book/show/(\d{1,8})'),
     'ltwk': re.compile(r'[\./]librarything\.com/work/(\d{1,8})'),
     'oclc': re.compile(r'\.worldcat\.org/.*oclc/(\d{8,12})'),

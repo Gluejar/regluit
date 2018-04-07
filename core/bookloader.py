@@ -826,8 +826,6 @@ def edition_for_etype(etype, metadata, default=None):
         for key in metadata.edition_identifiers.keys():
             return edition_for_ident(key, metadata.identifiers[key])
 
-MATCH_LICENSE = re.compile(r'creativecommons.org/licenses/([^/]+)/')
-
 def load_ebookfile(url, etype):
     '''
     return a ContentFile if a new ebook has been loaded
@@ -960,8 +958,7 @@ class BasePandataLoader(object):
                     if contentfile:
                         contentfile_name = '/loaded/ebook_{}.{}'.format(edition.id, key)
                         path = default_storage.save(contentfile_name, contentfile)
-                        lic = MATCH_LICENSE.search(metadata.rights_url)
-                        license = 'CC {}'.format(lic.group(1).upper()) if lic else ''
+                        license = cc.license_from_cc_url(metadata.rights_url)
                         ebf = models.EbookFile.objects.create(
                             format=key,
                             edition=edition,
