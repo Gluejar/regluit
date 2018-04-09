@@ -501,8 +501,12 @@ def thingisbn(isbn):
     logger.info("looking up %s at ThingISBN", isbn)
     url = "https://www.librarything.com/api/thingISBN/%s" % isbn
     xml = requests.get(url, headers={"User-Agent": settings.USER_AGENT}).content
-    doc = ElementTree.fromstring(xml)
-    return [e.text for e in doc.findall('isbn')]
+    try:
+        doc = ElementTree.fromstring(xml)
+        return [e.text for e in doc.findall('isbn')]
+    except SyntaxError:
+        # LibraryThing down
+        return []
 
 
 def merge_works(w1, w2, user=None):
