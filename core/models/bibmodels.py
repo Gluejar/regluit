@@ -1083,7 +1083,7 @@ class EbookFile(models.Model):
             source=self.file.url
         )
             
-        new_mobi_ebf.file.save(path_for_file('ebf', None), mobi_cf)
+        new_mobi_ebf.file.save(path_for_file(new_mobi_ebf, None), mobi_cf)
         new_mobi_ebf.save()
         if self.ebook:
             new_ebook = Ebook.objects.create(
