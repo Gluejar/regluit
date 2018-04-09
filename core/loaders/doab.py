@@ -20,9 +20,10 @@ from regluit.core import bookloader, cc
 from regluit.core import models, tasks
 from regluit.core.bookloader import merge_works
 from regluit.core.isbn import ISBN
+from regluit.core.loaders.utils import type_for_url
 from regluit.core.validation import valid_subject
 
-from .doab_utils import doab_lang_to_iso_639_1, type_for_url, url_to_provider
+from .doab_utils import doab_lang_to_iso_639_1, online_to_download, url_to_provider
 
 logger = logging.getLogger(__name__)
 
@@ -198,7 +199,7 @@ def load_doab_edition(title, doab_id, url, format, rights,
         return ebook.edition
 
     # remaining case --> no ebook, load record, create ebook if there is one.
-    assert ebooks
+    assert not ebooks
 
 
     # we need to find the right Edition/Work to tie Ebook to...
@@ -257,7 +258,7 @@ def load_doab_edition(title, doab_id, url, format, rights,
     work.selected_edition = edition
     work.save()
 
-    if format in ('pdf', 'epub', 'mobi', 'online'):
+    if format in ('pdf', 'epub', 'mobi', 'html', 'online'):
         ebook = models.Ebook()
         ebook.format = format
         ebook.provider = provider
@@ -390,19 +391,21 @@ def add_by_doab(doab_id, record=None):
                 continue
             else:
                 url = ident
-        format = type_for_url(url)
-        del metadata['format']
-        edition = load_doab_edition(
-            unlist(metadata.pop('title')),
-            doab_id,
-            url,
-            format,
-            cc.license_from_cc_url(unlist(metadata.pop('rights'))),
-            doab_lang_to_iso_639_1(unlist(metadata.pop('language'))),
-            isbns,
-            url_to_provider(url) if url else None,
-            **metadata
-        )
+        urls = online_to_download(url)
+        for dl_url in urls:
+            format = type_for_url(dl_url)
+            del metadata['format']
+            edition = load_doab_edition(
+                unlist(metadata.pop('title')),
+                doab_id,
+                dl_url,
+                format,
+                cc.license_from_cc_url(unlist(metadata.pop('rights'))),
+                doab_lang_to_iso_639_1(unlist(metadata.pop('language'))),
+                isbns,
+                url_to_provider(dl_url) if dl_url else None,
+                **metadata
+            )
         return edition
     except IdDoesNotExistError:
         return None

@@ -1,15 +1,22 @@
 import csv
-import re
-import requests
 import logging
+import re
 import sys
 import unicodedata
+import urlparse
 
-from regluit.core.models import Work, Edition, Author, PublisherName, Identifier, Subject
-from regluit.core.isbn import ISBN
-from regluit.core.bookloader import add_by_isbn_from_google, merge_works
+import requests
+
+from django.conf import settings
+from django.core.files.base import ContentFile
+
 from regluit.api.crosswalks import inv_relator_contrib
 from regluit.bisac.models import BisacHeading
+from regluit.core.bookloader import add_by_isbn_from_google, merge_works
+from regluit.core.isbn import ISBN
+from regluit.core.models import (
+    Author, Ebook, EbookFile, Edition, Identifier, path_for_file, PublisherName, Subject, Work,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -350,4 +357,107 @@ def ids_from_urls(url):
             ids[ident] = id_match.group(1)
     return ids
         
-    
+DROPBOX_DL = re.compile(r'"(https://dl.dropboxusercontent.com/content_link/[^"]+)"')
+
+def dl_online(ebook):
+    if ebook.format != 'online':
+        return
+        
+    if ebook.url.find(u'dropbox.com/s/') >= 0:
+        response = requests.get(ebook.url, headers={"User-Agent": settings.USER_AGENT})
+        if response.status_code == 200:
+            match_dl = DROPBOX_DL.search(response.content)
+            if match_dl:
+                make_dl_ebook(match_dl.group(1), ebook)
+    elif ebook.url.find(u'jbe-platform.com/content/books/') >= 0:
+        doc = get_soup(ebook.url)
+        if doc:
+            obj = doc.select_one('div.fulltexticoncontainer-PDF a')
+            if obj:
+                dl_url = urlparse.urljoin(ebook.url, obj['href'])
+                make_dl_ebook(dl_url, ebook)
+                
+def make_dl_ebook(url, ebook):
+    if EbookFile.objects.filter(source=ebook.url):
+        return EbookFile.objects.filter(source=ebook.url)[0]
+    response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
+    if response.status_code == 200:
+        filesize = int(response.headers.get("Content-Length", 0))
+        filesize = filesize if filesize else None
+        format = type_for_url(url, content_type=response.headers.get('content-type'))
+        if format != 'online':
+            new_ebf = EbookFile.objects.create(
+                edition=ebook.edition,
+                format=format,
+                source=ebook.url
+            )
+            new_ebf.file.save(path_for_file(new_ebf, None), ContentFile(response.content))
+            new_ebf.save()
+            new_ebook = Ebook.objects.create(
+                edition=ebook.edition,
+                format=format,
+                provider='Unglue.it',
+                url=new_ebf.file.url,
+                rights=ebook.rights,
+                version_label=ebook.version_label,
+                version_iter=ebook.version_iter,
+            )
+            new_ebf.ebook = new_ebook
+            new_ebf.save()
+            return new_ebf
+
+def type_for_url(url, content_type=None):
+    if not url:
+        return ''
+    if url.find('books.openedition.org') >= 0:
+        return ('online')
+    ct = content_type if content_type else contenttyper.calc_type(url)
+    if re.search("pdf", ct):
+        return "pdf"
+    elif re.search("octet-stream", ct) and re.search("pdf", url, flags=re.I):
+        return "pdf"
+    elif re.search("octet-stream", ct) and re.search("epub", url, flags=re.I):
+        return "epub"
+    elif re.search("text/plain", ct):
+        return "text"
+    elif re.search("text/html", ct):
+        if url.find('oapen.org/view') >= 0:
+            return "html"
+        return "online"
+    elif re.search("epub", ct):
+        return "epub"
+    elif re.search("mobi", ct):
+        return "mobi"
+    return "other"
+   
+class ContentTyper(object):
+    """ """
+    def __init__(self):
+        self.last_call = dict()
+
+    def content_type(self, url):
+        try:
+            r = requests.head(url)
+            return r.headers.get('content-type')
+        except:
+            return None
+
+    def calc_type(self, url):
+        delay = 1
+        # is there a delay associated with the url
+        netloc = urlparse.urlparse(url).netloc
+
+        # wait if necessary
+        last_call = self.last_call.get(netloc)
+        if last_call is not None:
+            now = time.time()
+            min_time_next_call = last_call + delay
+            if min_time_next_call > now:
+                time.sleep(min_time_next_call-now)
+
+        self.last_call[netloc] = time.time()
+
+        # compute the content-type
+        return self.content_type(url)
+
+contenttyper = ContentTyper()

@@ -7,6 +7,7 @@ import re
 import time
 import urlparse
 
+from bs4 import BeautifulSoup
 import requests
 
 # utility functions for converting lists of individual items into individual items
@@ -64,55 +65,6 @@ def doab_lang_to_iso_639_1(lang):
         return "xx"
     return LANG_MAP.get(lang, 'xx')
 
-class ContentTyper(object):
-    """ """
-    def __init__(self):
-        self.last_call = dict()
-
-    def content_type(self, url):
-        try:
-            r = requests.head(url)
-            return r.headers.get('content-type')
-        except:
-            return None
-
-    def calc_type(self, url):
-        delay = 1
-        # is there a delay associated with the url
-        netloc = urlparse.urlparse(url).netloc
-
-        # wait if necessary
-        last_call = self.last_call.get(netloc)
-        if last_call is not None:
-            now = time.time()
-            min_time_next_call = last_call + delay
-            if min_time_next_call > now:
-                time.sleep(min_time_next_call-now)
-
-        self.last_call[netloc] = time.time()
-
-        # compute the content-type
-        return self.content_type(url)
-
-contenttyper = ContentTyper()
-
-def type_for_url(url):
-    if not url:
-        return ''
-    if url.find('books.openedition.org') >= 0:
-        return ('online')
-    ct = contenttyper.calc_type(url)
-    if re.search("pdf", ct):
-        return "pdf"
-    elif re.search("text/plain", ct):
-        return "text"
-    elif re.search("text/html", ct):
-        return "html"
-    elif re.search("epub", ct):
-        return "epub"
-    elif re.search("mobi", ct):
-        return "mobi"
-    return "other"
 
 DOMAIN_TO_PROVIDER = dict([
     [u'www.doabooks.org', u'Directory of Open Access Books'],
@@ -158,3 +110,37 @@ DOMAIN_TO_PROVIDER = dict([
 def url_to_provider(url):
     netloc = urlparse.urlparse(url).netloc
     return DOMAIN_TO_PROVIDER.get(netloc, netloc)
+
+def get_soup(url):
+    response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
+    if response.status_code == 200:
+        return BeautifulSoup(response.content, 'lxml')
+    return None
+
+FRONTIERSIN = re.compile(r'frontiersin.org/books/[^/]+/(\d+)')
+
+def online_to_download(url):
+    urls = []
+    if url.find(u'mdpi.com/books/pdfview') >= 0:
+        doc = get_soup(url)
+        if doc:
+            obj = doc.find('object', type='application/pdf')
+            if obj:
+                urls.append(obj['data'].split('#')[0])
+    elif url.find(u'books.scielo.org/') >= 0:
+        doc = get_soup(url)
+        if doc:
+            obj = doc.find('a', class_='pdf_file')
+            if obj:
+                urls.append(urlparse.urljoin(url, obj['href']))
+            obj = doc.find('a', class_='epub_file')
+            if obj:
+                urls.append(urlparse.urljoin(url, obj['href']))
+    elif FRONTIERSIN.search(url):
+        booknum = FRONTIERSIN.search(url).group(1)
+        urls.append(u'https://www.frontiersin.org/GetFile.aspx?ebook={1001}&fileformat=EPUB'.format(booknum))
+        urls.append(u'https://www.frontiersin.org/GetFile.aspx?ebook={1001}&fileformat=PDF'.format(booknum))
+    else:
+        urls.append(url)
+    return urls
+
