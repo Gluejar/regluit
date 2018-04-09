@@ -385,7 +385,7 @@ def add_by_doab(doab_id, record=None):
                     continue
                 isbn.validate()
                 isbns.append(isbn.to_string())
-            elif ident.find('doabooks.org') > 0:
+            elif ident.find('doabooks.org') >= 0:
                 # should already know the doab_id
                 continue
             else:

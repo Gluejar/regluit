@@ -99,7 +99,7 @@ contenttyper = ContentTyper()
 def type_for_url(url):
     if not url:
         return ''
-    if url.find('books.openedition.org'):
+    if url.find('books.openedition.org') >= 0:
         return ('online')
     ct = contenttyper.calc_type(url)
     if re.search("pdf", ct):

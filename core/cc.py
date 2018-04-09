@@ -171,7 +171,7 @@ def license_from_cc_url(rights_url):
     lic = MATCH_LICENSE.search(rights_url)
     if lic:
         return 'CC {}'.format(lic.group(1).upper())
-    if rights_url.find('openedition.org'):
+    if rights_url.find('openedition.org') >= 0:
         return 'OPENEDITION'
     return ''
 
