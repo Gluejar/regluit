@@ -4,11 +4,11 @@ doab_utils.py
 """
 
 import re
-import time
 import urlparse
 
-from bs4 import BeautifulSoup
 import requests
+
+frm .utils import get_soup
 
 # utility functions for converting lists of individual items into individual items
 
@@ -110,12 +110,6 @@ DOMAIN_TO_PROVIDER = dict([
 def url_to_provider(url):
     netloc = urlparse.urlparse(url).netloc
     return DOMAIN_TO_PROVIDER.get(netloc, netloc)
-
-def get_soup(url):
-    response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
-    if response.status_code == 200:
-        return BeautifulSoup(response.content, 'lxml')
-    return None
 
 FRONTIERSIN = re.compile(r'frontiersin.org/books/[^/]+/(\d+)')
 

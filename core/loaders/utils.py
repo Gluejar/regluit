@@ -2,9 +2,11 @@ import csv
 import logging
 import re
 import sys
+import time
 import unicodedata
 import urlparse
 
+from bs4 import BeautifulSoup
 import requests
 
 from django.conf import settings
@@ -40,6 +42,12 @@ def utf8_general_ci_norm(s):
 
     s1 = unicodedata.normalize('NFD', s)
     return ''.join(c for c in s1 if not unicodedata.combining(c)).upper()
+
+def get_soup(url):
+    response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
+    if response.status_code == 200:
+        return BeautifulSoup(response.content, 'lxml')
+    return None
 
 def get_authors(book):
     authors=[]
@@ -368,14 +376,14 @@ def dl_online(ebook):
         if response.status_code == 200:
             match_dl = DROPBOX_DL.search(response.content)
             if match_dl:
-                make_dl_ebook(match_dl.group(1), ebook)
+                return make_dl_ebook(match_dl.group(1), ebook)
     elif ebook.url.find(u'jbe-platform.com/content/books/') >= 0:
         doc = get_soup(ebook.url)
         if doc:
             obj = doc.select_one('div.fulltexticoncontainer-PDF a')
             if obj:
                 dl_url = urlparse.urljoin(ebook.url, obj['href'])
-                make_dl_ebook(dl_url, ebook)
+                return make_dl_ebook(dl_url, ebook)
                 
 def make_dl_ebook(url, ebook):
     if EbookFile.objects.filter(source=ebook.url):
@@ -389,7 +397,7 @@ def make_dl_ebook(url, ebook):
             new_ebf = EbookFile.objects.create(
                 edition=ebook.edition,
                 format=format,
-                source=ebook.url
+                source=ebook.url,
             )
             new_ebf.file.save(path_for_file(new_ebf, None), ContentFile(response.content))
             new_ebf.save()
@@ -399,6 +407,7 @@ def make_dl_ebook(url, ebook):
                 provider='Unglue.it',
                 url=new_ebf.file.url,
                 rights=ebook.rights,
+                filesize=filesize,
                 version_label=ebook.version_label,
                 version_iter=ebook.version_iter,
             )
