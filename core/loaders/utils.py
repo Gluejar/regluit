@@ -346,15 +346,15 @@ def loaded_book_ok(book, work, edition):
     return True
 
 ID_URLPATTERNS = {
-    'goog': re.compile(r'[\./]google\.com/books\?.*id=([a-zA-Z0-9\-_]{12})'),
-    'olwk': re.compile(r'[\./]openlibrary\.org(/works/OL\d{1,8}W)'),
-    'doab': re.compile(r'[\./]doabooks\.org/doab\?.*rid:(\d{1,8}).*'),
-    'gdrd': re.compile(r'[\./]goodreads\.com/book/show/(\d{1,8})'),
-    'ltwk': re.compile(r'[\./]librarything\.com/work/(\d{1,8})'),
-    'oclc': re.compile(r'\.worldcat\.org/.*oclc/(\d{8,12})'),
-    'doi': re.compile(r'[\./]doi\.org/(10\.\d+/\S+)'),
-    'gtbg': re.compile(r'[\./]gutenberg\.org/ebooks/(\d{1,6})'),
-    'glue': re.compile(r'[\./]unglue\.it/work/(\d{1,7})'),
+    'goog': re.compile(r'[\./]google\.com/books\?.*id=(?P<id>[a-zA-Z0-9\-_]{12})'),
+    'olwk': re.compile(r'[\./]openlibrary\.org(?P<id>/works/OL\d{1,8}W)'),
+    'doab': re.compile(r'([\./]doabooks\.org/doab\?.*rid:|=oai:doab-books:)(?P<id>\d{1,8})'),
+    'gdrd': re.compile(r'[\./]goodreads\.com/book/show/(?P<id>\d{1,8})'),
+    'ltwk': re.compile(r'[\./]librarything\.com/work/(?P<id>\d{1,8})'),
+    'oclc': re.compile(r'\.worldcat\.org/.*oclc/(?P<id>\d{8,12})'),
+    'doi': re.compile(r'[\./]doi\.org/(?P<id>10\.\d+/\S+)'),
+    'gtbg': re.compile(r'[\./]gutenberg\.org/ebooks/(?P<id>\d{1,6})'),
+    'glue': re.compile(r'[\./]unglue\.it/work/(?P<id>\d{1,7})'),
 }
 
 def ids_from_urls(url):
@@ -362,7 +362,7 @@ def ids_from_urls(url):
     for ident in ID_URLPATTERNS.keys():
         id_match = ID_URLPATTERNS[ident].search(url)
         if id_match:
-            ids[ident] = id_match.group(1)
+            ids[ident] = id_match.group('id')
     return ids
         
 DROPBOX_DL = re.compile(r'"(https://dl.dropboxusercontent.com/content_link/[^"]+)"')
