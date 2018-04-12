@@ -8,7 +8,7 @@ import urlparse
 
 import requests
 
-frm .utils import get_soup
+from .utils import get_soup
 
 # utility functions for converting lists of individual items into individual items
 
@@ -27,6 +27,7 @@ frm .utils import get_soup
 LANG_MAP = dict([
     ('English', 'en'),
     ('German', 'de'),
+    ('ger', 'de'),
     ('de', 'de'),
     ('fr', 'fr'),
     ('Italian', 'it'),

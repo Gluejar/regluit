@@ -23,6 +23,7 @@ from regluit.core.isbn import ISBN
 from regluit.core.loaders.utils import type_for_url
 from regluit.core.validation import valid_subject
 
+from . import scrape_language
 from .doab_utils import doab_lang_to_iso_639_1, online_to_download, url_to_provider
 
 logger = logging.getLogger(__name__)
@@ -158,7 +159,8 @@ def load_doab_edition(title, doab_id, url, format, rights,
     logger.info('load doab {} {} {} {} {}'.format(doab_id, format, rights, language, provider))
     if language and isinstance(language, list):
         language = language[0]
-
+    if language == 'xx' and format == 'online':
+        language = scrape_language(url)
     # check to see whether the Edition hasn't already been loaded first
     # search by url
     ebooks = models.Ebook.objects.filter(url=url)
@@ -391,6 +393,7 @@ def add_by_doab(doab_id, record=None):
                 continue
             else:
                 url = ident
+        language = doab_lang_to_iso_639_1(unlist(metadata.pop('language')))
         urls = online_to_download(url)
         for dl_url in urls:
             format = type_for_url(dl_url)
@@ -401,7 +404,7 @@ def add_by_doab(doab_id, record=None):
                 dl_url,
                 format,
                 cc.license_from_cc_url(unlist(metadata.pop('rights'))),
-                doab_lang_to_iso_639_1(unlist(metadata.pop('language'))),
+                language,
                 isbns,
                 url_to_provider(dl_url) if dl_url else None,
                 **metadata
