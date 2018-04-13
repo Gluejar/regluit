@@ -116,7 +116,7 @@ FRONTIERSIN = re.compile(r'frontiersin.org/books/[^/]+/(\d+)')
 
 def online_to_download(url):
     urls = []
-    if url.find(u'mdpi.com/books/pdfview') >= 0:
+    if url.find(u'mdpi.com/books/pdfview/book/') >= 0:
         doc = get_soup(url)
         if doc:
             obj = doc.find('object', type='application/pdf')
@@ -133,8 +133,8 @@ def online_to_download(url):
                 urls.append(urlparse.urljoin(url, obj['href']))
     elif FRONTIERSIN.search(url):
         booknum = FRONTIERSIN.search(url).group(1)
-        urls.append(u'https://www.frontiersin.org/GetFile.aspx?ebook={1001}&fileformat=EPUB'.format(booknum))
-        urls.append(u'https://www.frontiersin.org/GetFile.aspx?ebook={1001}&fileformat=PDF'.format(booknum))
+        urls.append(u'https://www.frontiersin.org/GetFile.aspx?ebook={}&fileformat=EPUB'.format(booknum))
+        urls.append(u'https://www.frontiersin.org/GetFile.aspx?ebook={}&fileformat=PDF'.format(booknum))
     else:
         urls.append(url)
     return urls
