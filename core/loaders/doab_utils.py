@@ -8,63 +8,40 @@ import urlparse
 
 import requests
 
+from regluit.utils.lang import get_language_code
 from .utils import get_soup
 
 # utility functions for converting lists of individual items into individual items
 
 # let's do a mapping of the DOAB languages into the language codes used 
-# by Google Books API and unglue.it
-# https://en.wikipedia.org/wiki/ISO_639-1 (2 letter)
-# http://stackoverflow.com/questions/1665667/python-list-filtering-and-transformation
-
-# from looking at the DOAB languages that don't map obviously to ISO 639.1, I looked 
-# at a few example. the pattern I discern and conjecture as holding for the remainder 
-# is that ^ means a separator for languages in
-# works with multiple languages.  I will map to the first language.
-
+# mostly, we just handle mispellings
 # also null -> xx
 
-LANG_MAP = dict([
-    ('English', 'en'),
-    ('German', 'de'),
-    ('ger', 'de'),
-    ('de', 'de'),
-    ('fr', 'fr'),
-    ('Italian', 'it'),
-    ('Dutch', 'nt'),
-    ('english', 'en'),
-    ('en', 'en'),
-    ('French', 'fr'),
-    ('En', 'en'),
-    ('italian', 'it'),
-    ('de^it^rm', 'de'),  # de /it/rm http://www.doabooks.org/doab?func=search&template=&query=Sprachatlas+des+Dolomitenladinischen+und+angrenzender+Gebiete
-    ('de^English', 'de'), # eg., http://www.doabooks.org/doab?func=search&template=&query=Robert+Neumann%3A+Mit+eigener+Feder
-    ('german', 'de'),
-    ('Czech', 'cs'),
-    ('Deutsch', 'de'),
-    ('Italian / English', 'it'), # http://www.doabooks.org/doab?func=search&template=&query=JLIS
-    ('English; French', 'en'),
-    ('Englilsh ; Cree', 'en'),
-    ('English; French; Cree; Michif; Chinese; Ukrainian', 'en'),
-    ('Englisch', 'en'),
-    ('Spanish', 'es'),
-    ('English;', 'en'),
-    ('de^la', 'de'),
-    ('de^English^fr^es', 'de'),
-    ('English; Italian', 'en'),
-    ('Espanol', 'es'),
-    ('Welsh', 'cy'),
-    ('English; Czech', 'en'),
-    ('Englilsh', 'en'),
-    ('German;', 'de'),
-    ('German; English', 'de'),
-    ('Russian;', 'ru')
+EXTRA_LANG_MAP = dict([
+    (u'deutsch', 'de'),
+    (u'eng', 'en'),
+    (u'englilsh', 'en'),
+    (u'englilsh', 'en'),
+    (u'englisch', 'en'),
+    (u'espanol', 'es'),
+    (u'ger', 'de'),
+    (u'norwegian', 'no'),
+    (u'por', 'pt'),
+    (u'portugese', 'pt'),
+    (u'spa', 'es'),
 ])
 
+sep = re.compile(r'[ \-;^,/]+')
 def doab_lang_to_iso_639_1(lang):
     if lang is None or not lang:
         return "xx"
-    return LANG_MAP.get(lang, 'xx')
+    else:
+        lang = sep.split(lang)[0]
+        code = get_language_code(lang)
+        if code:
+            return code
+        else:
+            return EXTRA_LANG_MAP.get(lang.lower(), 'xx')
 
 
 DOMAIN_TO_PROVIDER = dict([
