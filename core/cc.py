@@ -168,6 +168,8 @@ def match_license(license_string):
 
 MATCH_LICENSE = re.compile(r'creativecommons.org/licenses/([^/]+)/')
 def license_from_cc_url(rights_url):
+    if not rights_url:
+        return None
     lic = MATCH_LICENSE.search(rights_url)
     if lic:
         return 'CC {}'.format(lic.group(1).upper())

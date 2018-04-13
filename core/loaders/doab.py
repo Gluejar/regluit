@@ -381,7 +381,7 @@ def add_by_doab(doab_id, record=None):
         metadata = record[1].getMap()
         isbns = []
         url = None
-        for ident in metadata.pop('identifier'):
+        for ident in metadata.pop('identifier', []):
             if ident.startswith('ISBN: '):
                 isbn = ISBN(ident[6:])
                 if isbn.error:
@@ -393,17 +393,19 @@ def add_by_doab(doab_id, record=None):
                 continue
             else:
                 url = ident
-        language = doab_lang_to_iso_639_1(unlist(metadata.pop('language')))
+        language = doab_lang_to_iso_639_1(unlist(metadata.pop('language', None)))
         urls = online_to_download(url)
+        edition = None
         for dl_url in urls:
             format = type_for_url(dl_url)
-            del metadata['format']
+            if 'format' in metadata:
+                del metadata['format']
             edition = load_doab_edition(
-                unlist(metadata.pop('title')),
+                unlist(metadata.pop('title', None)),
                 doab_id,
                 dl_url,
                 format,
-                cc.license_from_cc_url(unlist(metadata.pop('rights'))),
+                cc.license_from_cc_url(unlist(metadata.pop('rights', None))),
                 language,
                 isbns,
                 url_to_provider(dl_url) if dl_url else None,
