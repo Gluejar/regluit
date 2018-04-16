@@ -18,6 +18,7 @@ from .utils import get_soup
 # also null -> xx
 
 EXTRA_LANG_MAP = dict([
+    (u'chinese', 'de'),
     (u'deutsch', 'de'),
     (u'eng', 'en'),
     (u'englilsh', 'en'),
@@ -25,10 +26,17 @@ EXTRA_LANG_MAP = dict([
     (u'englisch', 'en'),
     (u'espanol', 'es'),
     (u'ger', 'de'),
+    (u'fra', 'fr'),
+    (u'fre', 'fr'),
+    (u'francese', 'fr'),
+    (u'ita', 'it'),
+    (u'italiano', 'it'),
     (u'norwegian', 'no'),
     (u'por', 'pt'),
     (u'portugese', 'pt'),
+    (u'slovene', 'sl'),
     (u'spa', 'es'),
+    (u'spagnolo', 'es'),
 ])
 
 sep = re.compile(r'[ \-;^,/]+')
