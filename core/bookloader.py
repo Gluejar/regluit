@@ -49,7 +49,7 @@ def add_by_oclc(isbn, work=None):
 
 def add_by_oclc_from_google(oclc):
     if oclc:
-        logger.info("adding book by oclc %s", oclc)
+        logger.info(u"adding book by oclc %s", oclc)
     else:
         return None
     try:
@@ -59,10 +59,10 @@ def add_by_oclc_from_google(oclc):
         try:
             results = _get_json(url, {"q": '"OCLC%s"' % oclc})
         except LookupFailure, e:
-            logger.exception("lookup failure for %s", oclc)
+            logger.exception(u"lookup failure for %s", oclc)
             return None
         if not results.has_key('items') or not results['items']:
-            logger.warn("no google hits for %s", oclc)
+            logger.warn(u"no google hits for %s", oclc)
             return None
 
         try:
@@ -70,16 +70,16 @@ def add_by_oclc_from_google(oclc):
             models.Identifier(type='oclc', value=oclc, edition=e, work=e.work).save()
             return e
         except LookupFailure, e:
-            logger.exception("failed to add edition for %s", oclc)
+            logger.exception(u"failed to add edition for %s", oclc)
         except IntegrityError, e:
-            logger.exception("google books data for %s didn't fit our db", oclc)
+            logger.exception(u"google books data for %s didn't fit our db", oclc)
         return None
 
 def valid_isbn(isbn):
     try:
         return identifier_cleaner('isbn')(isbn)
     except:
-        logger.exception("invalid isbn: %s", isbn)
+        logger.exception(u"invalid isbn: %s", isbn)
         return None
 
 def add_by_isbn(isbn, work=None, language='xx', title=''):
@@ -88,13 +88,13 @@ def add_by_isbn(isbn, work=None, language='xx', title=''):
     try:
         e = add_by_isbn_from_google(isbn, work=work)
     except LookupFailure:
-        logger.exception("failed google lookup for %s", isbn)
+        logger.exception(u"failed google lookup for %s", isbn)
         # try again some other time
         return None
     if e:
         return e
 
-    logger.info("null came back from add_by_isbn_from_google: %s", isbn)
+    logger.info(u"null came back from add_by_isbn_from_google: %s", isbn)
 
     # if there's a a title, we want to create stub editions and
     # works, even if google doesn't know about it # but if it's not valid,
@@ -129,10 +129,10 @@ def get_google_isbn_results(isbn):
     try:
         results = _get_json(url, {"q": "isbn:%s" % isbn})
     except LookupFailure:
-        logger.exception("lookup failure for %s", isbn)
+        logger.exception(u"lookup failure for %s", isbn)
         return None
     if not results.has_key('items') or not results['items']:
-        logger.warn("no google hits for %s", isbn)
+        logger.warn(u"no google hits for %s", isbn)
         return None
     return results
 
@@ -201,7 +201,7 @@ def update_edition(edition):
     # if the language of the edition no longer matches that of the parent work,
     # attach edition to the
     if edition.work.language != language:
-        logger.info("reconnecting %s since it is %s instead of %s",
+        logger.info(u"reconnecting %s since it is %s instead of %s",
             googlebooks_id, language, edition.work.language)
         old_work = edition.work
 
@@ -210,7 +210,7 @@ def update_edition(edition):
         edition.work = new_work
         edition.save()
         for identifier in edition.identifiers.all():
-            logger.info("moving identifier %s", identifier.value)
+            logger.info(u"moving identifier %s", identifier.value)
             identifier.work = new_work
             identifier.save()
         if old_work and old_work.editions.count() == 0:
@@ -256,7 +256,7 @@ def add_by_isbn_from_google(isbn, work=None):
         edition.new = False
         return edition
 
-    logger.info("adding new book by isbn %s", isbn)
+    logger.info(u"adding new book by isbn %s", isbn)
     results = get_google_isbn_results(isbn)
     if results:
         try:
@@ -267,9 +267,9 @@ def add_by_isbn_from_google(isbn, work=None):
                 isbn=isbn
             )
         except LookupFailure, e:
-            logger.exception("failed to add edition for %s", isbn)
+            logger.exception(u"failed to add edition for %s", isbn)
         except IntegrityError, e:
-            logger.exception("google books data for %s didn't fit our db", isbn)
+            logger.exception(u"google books data for %s didn't fit our db", isbn)
         return None
     return None
 
@@ -320,7 +320,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
     if results:
         item = results
     else:
-        logger.info("loading metadata from google for %s", googlebooks_id)
+        logger.info(u"loading metadata from google for %s", googlebooks_id)
         url = "https://www.googleapis.com/books/v1/volumes/%s" % googlebooks_id
         item = _get_json(url)
     d = item['volumeInfo']
@@ -343,7 +343,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
     if len(language) > 5:
         language = language[0:5]
     if work and work.language != language:
-        logger.info("not connecting %s since it is %s instead of %s",
+        logger.info(u"not connecting %s since it is %s instead of %s",
                     googlebooks_id, language, work.language)
         work = None
     # isbn = None
@@ -371,7 +371,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
     try:
         e = models.Identifier.objects.get(type='goog', value=googlebooks_id).edition
         e.new = False
-        logger.warning(" whoa nellie, somebody else created an edition while we were working.")
+        logger.warning(u" whoa nellie, somebody else created an edition while we were working.")
         if work.new:
             work.delete()
         return e
@@ -404,19 +404,19 @@ def relate_isbn(isbn, cluster_size=1):
     """add a book by isbn and then see if there's an existing work to add it to so as to make a
     cluster bigger than cluster_size.
     """
-    logger.info("finding a related work for %s", isbn)
+    logger.info(u"finding a related work for %s", isbn)
 
     edition = add_by_isbn(isbn)
     if edition is None:
         return None
     if edition.work is None:
-        logger.info("didn't add related to null work")
+        logger.info(u"didn't add related to null work")
         return None
     if edition.work.editions.count() > cluster_size:
         return edition.work
     for other_isbn in thingisbn(isbn):
         # 979's come back as 13
-        logger.debug("other_isbn: %s", other_isbn)
+        logger.debug(u"other_isbn: %s", other_isbn)
         if len(other_isbn) == 10:
             other_isbn = regluit.core.isbn.convert_10_to_13(other_isbn)
         related_edition = add_by_isbn(other_isbn, work=edition.work)
@@ -427,7 +427,7 @@ def relate_isbn(isbn, cluster_size=1):
                     related_edition.work = edition.work
                     related_edition.save()
                 elif related_edition.work_id != edition.work_id:
-                    logger.debug("merge_works path 1 %s %s", edition.work_id, related_edition.work_id)
+                    logger.debug(u"merge_works path 1 %s %s", edition.work_id, related_edition.work_id)
                     merge_works(related_edition.work, edition.work)
                 if related_edition.work.editions.count() > cluster_size:
                     return related_edition.work
@@ -438,7 +438,7 @@ def add_related(isbn):
     The initial seed ISBN will be added if it's not already there.
     """
     # make sure the seed edition is there
-    logger.info("adding related editions for %s", isbn)
+    logger.info(u"adding related editions for %s", isbn)
 
     new_editions = []
 
@@ -446,14 +446,14 @@ def add_related(isbn):
     if edition is None:
         return new_editions
     if edition.work is None:
-        logger.warning("didn't add related to null work")
+        logger.warning(u"didn't add related to null work")
         return new_editions
     # this is the work everything will hang off
     work = edition.work
     other_editions = {}
     for other_isbn in thingisbn(isbn):
         # 979's come back as 13
-        logger.debug("other_isbn: %s", other_isbn)
+        logger.debug(u"other_isbn: %s", other_isbn)
         if len(other_isbn) == 10:
             other_isbn = regluit.core.isbn.convert_10_to_13(other_isbn)
         related_edition = add_by_isbn(other_isbn, work=work)
@@ -466,7 +466,7 @@ def add_related(isbn):
                     related_edition.work = work
                     related_edition.save()
                 elif related_edition.work_id != work.id:
-                    logger.debug("merge_works path 1 %s %s", work.id, related_edition.work_id)
+                    logger.debug(u"merge_works path 1 %s %s", work.id, related_edition.work_id)
                     work = merge_works(work, related_edition.work)
             else:
                 if other_editions.has_key(related_language):
@@ -476,14 +476,14 @@ def add_related(isbn):
 
     # group the other language editions together
     for lang_group in other_editions.itervalues():
-        logger.debug("lang_group (ed, work): %s", [(ed.id, ed.work_id) for ed in lang_group])
+        logger.debug(u"lang_group (ed, work): %s", [(ed.id, ed.work_id) for ed in lang_group])
         if len(lang_group) > 1:
             lang_edition = lang_group[0]
-            logger.debug("lang_edition.id: %s", lang_edition.id)
+            logger.debug(u"lang_edition.id: %s", lang_edition.id)
             # compute the distinct set of works to merge into lang_edition.work
             works_to_merge = set([ed.work for ed in lang_group[1:]]) - set([lang_edition.work])
             for w in works_to_merge:
-                logger.debug("merge_works path 2 %s %s", lang_edition.work_id, w.id)
+                logger.debug(u"merge_works path 2 %s %s", lang_edition.work_id, w.id)
                 merged_work = merge_works(lang_edition.work, w)
         models.WorkRelation.objects.get_or_create(
             to_work=lang_group[0].work,
@@ -498,17 +498,21 @@ def thingisbn(isbn):
     Library Thing. (takes isbn_10 or isbn_13, returns isbn_10, except for 979 isbns,
     which come back as isbn_13')
     """
-    logger.info("looking up %s at ThingISBN", isbn)
+    logger.info(u"looking up %s at ThingISBN", isbn)
     url = "https://www.librarything.com/api/thingISBN/%s" % isbn
     xml = requests.get(url, headers={"User-Agent": settings.USER_AGENT}).content
-    doc = ElementTree.fromstring(xml)
-    return [e.text for e in doc.findall('isbn')]
+    try:
+        doc = ElementTree.fromstring(xml)
+        return [e.text for e in doc.findall('isbn')]
+    except SyntaxError:
+        # LibraryThing down
+        return []
 
 
 def merge_works(w1, w2, user=None):
     """will merge the second work (w2) into the first (w1)
     """
-    logger.info("merging work %s into %s", w2.id, w1.id)
+    logger.info(u"merging work %s into %s", w2.id, w1.id)
     # don't merge if the works are the same or at least one of the works has no id
     #(for example, when w2 has already been deleted)
     if w1 is None or w2 is None or w1.id == w2.id or w1.id is None or w2.id is None:
@@ -583,7 +587,7 @@ def detach_edition(e):
     will detach edition from its work, creating a new stub work. if remerge=true, will see if
     there's another work to attach to
     """
-    logger.info("splitting edition %s from %s", e, e.work)
+    logger.info(u"splitting edition %s from %s", e, e.work)
     w = models.Work(title=e.title, language=e.work.language)
     w.save()
 
@@ -618,7 +622,7 @@ def add_openlibrary(work, hard_refresh=False):
     work.save()
 
     # find the first ISBN match in OpenLibrary
-    logger.info("looking up openlibrary data for work %s", work.id)
+    logger.info(u"looking up openlibrary data for work %s", work.id)
 
     e = None # openlibrary edition json
     w = None # openlibrary work json
@@ -633,7 +637,7 @@ def add_openlibrary(work, hard_refresh=False):
         try:
             e = _get_json(url, params, type='ol')
         except LookupFailure:
-            logger.exception("OL lookup failed for  %s", isbn_key)
+            logger.exception(u"OL lookup failed for  %s", isbn_key)
             e = {}
         if e.has_key(isbn_key):
             if e[isbn_key].has_key('details'):
@@ -673,7 +677,7 @@ def add_openlibrary(work, hard_refresh=False):
                         )
                 if e[isbn_key]['details'].has_key('works'):
                     work_key = e[isbn_key]['details']['works'].pop(0)['key']
-                    logger.info("got openlibrary work %s for isbn %s", work_key, isbn_key)
+                    logger.info(u"got openlibrary work %s for isbn %s", work_key, isbn_key)
                     models.Identifier.get_or_add(type='olwk', value=work_key, work=work)
                     try:
                         w = _get_json("https://openlibrary.org" + work_key, type='ol')
@@ -691,14 +695,14 @@ def add_openlibrary(work, hard_refresh=False):
                         if w.has_key('subjects') and len(w['subjects']) > len(subjects):
                             subjects = w['subjects']
                     except LookupFailure:
-                        logger.exception("OL lookup failed for  %s", work_key)
+                        logger.exception(u"OL lookup failed for  %s", work_key)
     if not subjects:
-        logger.warn("unable to find work %s at openlibrary", work.id)
+        logger.warn(u"unable to find work %s at openlibrary", work.id)
         return
 
     # add the subjects to the Work
     for s in subjects:
-        logger.info("adding subject %s to work %s", s, work.id)
+        logger.info(u"adding subject %s to work %s", s, work.id)
         subject = models.Subject.set_by_name(s, work=work)
 
     work.save()
@@ -716,9 +720,9 @@ def _get_json(url, params={}, type='gb'):
     if response.status_code == 200:
         return json.loads(response.content)
     else:
-        logger.error("unexpected HTTP response: %s", response)
+        logger.error(u"unexpected HTTP response: %s", response)
         if response.content:
-            logger.error("response content: %s", response.content)
+            logger.error(u"response content: %s", response.content)
         raise LookupFailure("GET failed: url=%s and params=%s" % (url, params))
 
 
@@ -766,7 +770,7 @@ def load_gutenberg_edition(title, gutenberg_etext_id, ol_work_id, seed_isbn, url
         ebook = models.Ebook()
 
     if len(ebooks) > 1:
-        logger.warning("There is more than one Ebook matching url {0}".format(url))
+        logger.warning(u"There is more than one Ebook matching url {0}".format(url))
 
 
     ebook.format = format
@@ -825,8 +829,6 @@ def edition_for_etype(etype, metadata, default=None):
             return edition_for_ident(key, metadata.identifiers[key])
         for key in metadata.edition_identifiers.keys():
             return edition_for_ident(key, metadata.identifiers[key])
-
-MATCH_LICENSE = re.compile(r'creativecommons.org/licenses/([^/]+)/')
 
 def load_ebookfile(url, etype):
     '''
@@ -960,8 +962,7 @@ class BasePandataLoader(object):
                     if contentfile:
                         contentfile_name = '/loaded/ebook_{}.{}'.format(edition.id, key)
                         path = default_storage.save(contentfile_name, contentfile)
-                        lic = MATCH_LICENSE.search(metadata.rights_url)
-                        license = 'CC {}'.format(lic.group(1).upper()) if lic else ''
+                        license = cc.license_from_cc_url(metadata.rights_url)
                         ebf = models.EbookFile.objects.create(
                             format=key,
                             edition=edition,
