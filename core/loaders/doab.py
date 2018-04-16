@@ -342,30 +342,6 @@ def creator_list(creators):
         auths.append(creator(auth))
     return auths
 
-def load_doab_auths(fname, limit=None):
-    doab_auths = json.load(open(fname))
-    recnum = 0
-    failed = 0
-    for [isbnraw, authlist] in doab_auths:
-        isbn = ISBN(isbnraw).to_string()
-        try:
-            work = models.Identifier.objects.get(type='isbn', value=isbn).work
-        except models.Identifier.DoesNotExist:
-            print 'isbn = {} not found'.format(isbnraw)
-            failed += 1
-        if work.preferred_edition.authors.all().count() < len(authlist):
-            work.preferred_edition.authors.clear()
-            if authlist is None:
-                print "null authlist; isbn={}".format(isbn)
-                continue
-            for [rel, auth] in authlist:
-                work.preferred_edition.add_author(auth, rel)
-        recnum += 1
-        if limit and recnum > limit:
-            break
-    logger.info("Number of records processed: " + str(recnum))
-    logger.info("Number of missing isbns: " + str(failed))
-
 DOAB_OAIURL = 'https://www.doabooks.org/oai'
 DOAB_PATT = re.compile(r'[\./]doabooks\.org/doab\?.*rid:(\d{1,8}).*')
 mdregistry = MetadataRegistry()
