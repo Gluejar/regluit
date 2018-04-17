@@ -1,42 +1,54 @@
 #!/usr/bin/env python
 # encoding: utf-8
-import logging
+import datetime
 import json
+import logging
 import re
-
-from itertools import islice
 
 import requests
 
-from django.db.models import (Q, F)
+from django.db.models import Q
 
-from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 
-import regluit
+from oaipmh.client import Client
+from oaipmh.error import IdDoesNotExistError
+from oaipmh.metadata import MetadataRegistry, oai_dc_reader
+
+from regluit.core import bookloader, cc
 from regluit.core import models, tasks
-from regluit.core import bookloader
-from regluit.core.bookloader import add_by_isbn, merge_works
+from regluit.core.bookloader import merge_works
 from regluit.core.isbn import ISBN
+from regluit.core.loaders.utils import type_for_url
 from regluit.core.validation import valid_subject
+
+from . import scrape_language
+from .doab_utils import doab_lang_to_iso_639_1, online_to_download, url_to_provider
 
 logger = logging.getLogger(__name__)
 
-springercover = re.compile(r'ftp.+springer\.de.+(\d{13}\.jpg)$', flags=re.U)
+def unlist(alist):
+    if not alist:
+        return None
+    return alist[0]
 
+
+SPRINGER_COVER = re.compile(r'ftp.+springer\.de.+(\d{13}\.jpg)$', flags=re.U)
+SPRINGER_IMAGE = u'https://images.springer.com/sgw/books/medium/{}.jpg'
 def store_doab_cover(doab_id, redo=False):
-    
+
     """
     returns tuple: 1) cover URL, 2) whether newly created (boolean)
     """
-    
-    cover_file_name= '/doab/%s/cover' % (doab_id)
-    
+
+    cover_file_name = '/doab/%s/cover' % (doab_id)
+
     # if we don't want to redo and the cover exists, return the URL of the cover
-    
+
     if not redo and default_storage.exists(cover_file_name):
         return (default_storage.url(cover_file_name), False)
-        
+
     # download cover image to cover_file
     url = "http://www.doabooks.org/doab?func=cover&rid={0}".format(doab_id)
     try:
@@ -44,16 +56,16 @@ def store_doab_cover(doab_id, redo=False):
         if r.status_code == 302:
             redirurl = r.headers['Location']
             if redirurl.startswith(u'ftp'):
-                springerftp = springercover.match(redirurl)
+                springerftp = SPRINGER_COVER.match(redirurl)
                 if springerftp:
-                    redirurl = u'https://images.springer.com/sgw/books/medium/{}.jpg'.format(springerftp.groups(1))
+                    redirurl = SPRINGER_IMAGE.format(springerftp.groups(1))
                     r = requests.get(redirurl)
         else:
-            r = requests.get(url)    
+            r = requests.get(url)
         cover_file = ContentFile(r.content)
         cover_file.content_type = r.headers.get('content-type', '')
 
-        path = default_storage.save(cover_file_name, cover_file)    
+        default_storage.save(cover_file_name, cover_file)
         return (default_storage.url(cover_file_name), True)
     except Exception, e:
         # if there is a problem, return None for cover URL
@@ -74,52 +86,51 @@ def update_cover_doab(doab_id, edition, store_cover=True):
         edition.cover_image = cover_url
         edition.save()
         return cover_url
-    else:
-        return None
-    
+    return None
+
 def attach_more_doab_metadata(edition, description, subjects,
                               publication_date, publisher_name=None, language=None, authors=u''):
-    
+
     """
     for given edition, attach description, subjects, publication date to
     corresponding Edition and Work
     """
-    # if edition doesn't have a publication date, update it    
+    # if edition doesn't have a publication date, update it
     if not edition.publication_date:
         edition.publication_date = publication_date
-    
+
     # if edition.publisher_name is empty, set it
     if not edition.publisher_name:
         edition.set_publisher(publisher_name)
-        
+
     edition.save()
-        
+
     # attach description to work if it's not empty
     work = edition.work
     if not work.description:
         work.description = description
-        
+
     # update subjects
     for s in subjects:
         if valid_subject(s):
             models.Subject.set_by_name(s, work=work)
-    
+
     # set reading level of work if it's empty; doab is for adults.
     if not work.age_level:
         work.age_level = '18-'
-        
-    if language:
+
+    if language and language != 'xx':
         work.language = language
     work.save()
-    
+
     if authors and authors == authors: # test for authors != NaN
         authlist = creator_list(authors)
         if edition.authors.all().count() < len(authlist):
             edition.authors.clear()
             if authlist is not None:
-                for [rel,auth] in authlist:
+                for [rel, auth] in authlist:
                     edition.add_author(auth, rel)
-               
+
     return edition
 
 def add_all_isbns(isbns, work, language=None, title=None):
@@ -128,69 +139,73 @@ def add_all_isbns(isbns, work, language=None, title=None):
         first_edition = None
         edition = bookloader.add_by_isbn(isbn, work, language=language, title=title)
         if edition:
-            first_edition = first_edition if first_edition else edition 
-            if work and (edition.work_id != work.id): 
+            first_edition = first_edition if first_edition else edition
+            if work and (edition.work_id != work.id):
                 if work.created < edition.work.created:
                     work = merge_works(work, edition.work)
                 else:
                     work = merge_works(edition.work, work)
             else:
                 work = edition.work
-    return first_edition 
+    return first_edition
 
 def load_doab_edition(title, doab_id, url, format, rights,
                       language, isbns,
                       provider, **kwargs):
-    
+
     """
     load a record from doabooks.org represented by input parameters and return an ebook
     """
+    logger.info('load doab {} {} {} {} {}'.format(doab_id, format, rights, language, provider))
     if language and isinstance(language, list):
         language = language[0]
-        
+    if language == 'xx' and format == 'online':
+        language = scrape_language(url)
     # check to see whether the Edition hasn't already been loaded first
     # search by url
     ebooks = models.Ebook.objects.filter(url=url)
-       
+
     # 1 match
     # > 1 matches
     # 0 match
 
     # simplest case -- if match (1 or more), we could check whether any
     # ebook.edition.work has a doab id matching given doab_id
-    
+
     # put a migration to force Ebook.url to be unique id
-    
+
     # if yes, then return one of the Edition(s) whose work is doab_id
-    # if no, then 
+    # if no, then
     ebook = None
     if len(ebooks) > 1:
-        raise Exception("There is more than one Ebook matching url {0}".format(url))    
-    elif len(ebooks) == 1:  
+        raise Exception("There is more than one Ebook matching url {0}".format(url))
+    elif len(ebooks) == 1:
         ebook = ebooks[0]
-        doab_identifer = models.Identifier.get_or_add(type='doab',value=doab_id, 
-                                               work=ebook.edition.work)
-        # update the cover id 
+        doab_identifer = models.Identifier.get_or_add(type='doab', value=doab_id,
+                                                      work=ebook.edition.work)
+        # update the cover id
         cover_url = update_cover_doab(doab_id, ebook.edition)
-        
+
         # attach more metadata
-        attach_more_doab_metadata(ebook.edition, 
-                                  description=kwargs.get('description'),
-                                  subjects=kwargs.get('subject'),
-                                  publication_date=kwargs.get('date'),
-                                  publisher_name=kwargs.get('publisher'),
-                                  language=language,
-                                  authors=kwargs.get('authors'),)
+        attach_more_doab_metadata(
+            ebook.edition,
+            description=unlist(kwargs.get('description')),
+            subjects=kwargs.get('subject'),
+            publication_date=unlist(kwargs.get('date')),
+            publisher_name=unlist(kwargs.get('publisher')),
+            language=language,
+            authors=kwargs.get('creator'),
+        )
         # make sure all isbns are added
-        add_all_isbns(isbns, None, language=language, title=title)
-        return ebook
-    
+        add_all_isbns(isbns, ebook.edition.work, language=language, title=title)
+        return ebook.edition
+
     # remaining case --> no ebook, load record, create ebook if there is one.
-    assert len(ebooks) == 0
-            
+    assert not ebooks
+
 
     # we need to find the right Edition/Work to tie Ebook to...
-        
+
     # look for the Edition with which to associate ebook.
     # loop through the isbns to see whether we get one that is not None
     work = None
@@ -206,16 +221,16 @@ def load_doab_edition(title, doab_id, url, format, rights,
             edition = ident.work.preferred_edition
             work = edition.work
             break
-    
+
     if edition is not None:
         # if this is a new edition, then add related editions asynchronously
-        if getattr(edition,'new', False):
+        if getattr(edition, 'new', False):
             tasks.populate_edition.delay(edition.isbn_13)
         doab_identifer = models.Identifier.get_or_add(type='doab', value=doab_id,
-                                work=edition.work)
+                                                      work=edition.work)
 
-    # we need to create Edition(s) de novo    
-    else: 
+    # we need to create Edition(s) de novo
+    else:
         # if there is a Work with doab_id already, attach any new Edition(s)
         try:
             work = models.Identifier.objects.get(type='doab', value=doab_id).work
@@ -226,11 +241,11 @@ def load_doab_edition(title, doab_id, url, format, rights,
                 work = models.Work(language='xx', title=title, age_level='18-')
             work.save()
             doab_identifer = models.Identifier.get_or_add(type='doab', value=doab_id,
-                                               work=work)
-            
+                                                          work=work)
+
         # if work has any ebooks already, attach the ebook to the corresponding edition
         # otherwise pick the first one
-        # pick the first edition as the one to tie ebook to 
+        # pick the first edition as the one to tie ebook to
         editions_with_ebooks = models.Edition.objects.filter(Q(work__id=work.id) & \
                                                       Q(ebooks__isnull=False)).distinct()
         if editions_with_ebooks:
@@ -240,73 +255,41 @@ def load_doab_edition(title, doab_id, url, format, rights,
         else:
             edition = models.Edition(work=work, title=title)
             edition.save()
-        
+
     # make the edition the selected_edition of the work
     work.selected_edition = edition
     work.save()
-    
-    if format in ('pdf', 'epub', 'mobi'):
+
+    if format in ('pdf', 'epub', 'mobi', 'html', 'online'):
         ebook = models.Ebook()
         ebook.format = format
         ebook.provider = provider
-        ebook.url =  url
+        ebook.url = url
         ebook.rights = rights
         # tie the edition to ebook
         ebook.edition = edition
+        if format == "online":
+            ebook.active = False
         ebook.save()
-    
+
     # update the cover id (could be done separately)
     cover_url = update_cover_doab(doab_id, edition)
-    
+
     # attach more metadata
-    attach_more_doab_metadata(edition, 
-                              description=kwargs.get('description'),
-                              subjects=kwargs.get('subject'),
-                              publication_date=kwargs.get('date'),
-                              publisher_name=kwargs.get('publisher'),
-                              authors=kwargs.get('authors'),)    
-    return ebook
+    attach_more_doab_metadata(
+        edition,
+        description=unlist(kwargs.get('description')),
+        subjects=kwargs.get('subject'),
+        publication_date=unlist(kwargs.get('date')),
+        publisher_name=unlist(kwargs.get('publisher')),
+        authors=kwargs.get('creator'),
+    )
+    return edition
 
-
-def load_doab_records(fname, limit=None):
-    
-    success_count = 0
-    ebook_count = 0
-    
-    records = json.load(open(fname))
-
-    for (i, book) in enumerate(islice(records,limit)):
-        d = dict(book)
-        d['isbns'] = split_isbns(d['isbns_raw']) # use stricter isbn string parsing.
-        try:
-            ebook = load_doab_edition(**d)
-            success_count += 1 
-            if ebook:
-                ebook_count +=1
-        except Exception, e:
-            logger.error(e)
-            logger.error(book)
-            
-    logger.info("Number of records processed: " + str(success_count))
-    logger.info("Number of ebooks processed: " + str(ebook_count))
-
-"""
+#
 #tools to parse the author lists in doab.csv
-from pandas import DataFrame
-url = "http://www.doabooks.org/doab?func=csv"
-df_csv = DataFrame.from_csv(url)
+#
 
-out=[]
-for val in df_csv.values:
-    isbn = split_isbns(val[0])
-    if isbn:
-        auths = []
-        if val[2] == val[2] and val[-2] == val[-2]: # test for NaN auths and licenses
-            auths = creator_list(val[2])
-            out.append(( isbn[0], auths))
-open("/Users/eric/doab_auths.json","w+").write(json.dumps(out,indent=2, separators=(',', ': ')))
-"""
-    
 au = re.compile(r'\(Authors?\)', flags=re.U)
 ed = re.compile(r'\([^\)]*(dir.|[Eeé]ds?.|org.|coord.|Editor|a cura di|archivist)[^\)]*\)', flags=re.U)
 tr = re.compile(r'\([^\)]*([Tt]rans.|tr.|translated by)[^\)]*\)', flags=re.U)
@@ -326,14 +309,14 @@ def fnf(auth):
     if len(parts) == 1:
         return  parts[0].strip()
     elif len(parts) == 2:
-        return u'{} {}'.format(parts[1].strip(),parts[0].strip())
+        return u'{} {}'.format(parts[1].strip(), parts[0].strip())
     else:
-        if parts[1].strip() in ('der','van', 'von', 'de', 'ter'):
-            return u'{} {} {}'.format(parts[2].strip(),parts[1].strip(),parts[0].strip())
+        if parts[1].strip() in ('der', 'van', 'von', 'de', 'ter'):
+            return u'{} {} {}'.format(parts[2].strip(), parts[1].strip(), parts[0].strip())
         #print auth
         #print re.search(namelist,auth).group(0)
-        return u'{} {}, {}'.format(parts[2].strip(),parts[0].strip(),parts[1].strip())
-    
+        return u'{} {}, {}'.format(parts[2].strip(), parts[0].strip(), parts[1].strip())
+
 
 def creator(auth, editor=False):
     auth = auth.strip()
@@ -349,68 +332,88 @@ def creator(auth, editor=False):
         return [u'dsr', fnf(ds.sub(u'', auth))]
     if re.search(cm, auth):
         return [u'com', fnf(cm.sub(u'', auth))]
-    
+
     auth = au.sub('', auth)
     return ['aut', fnf(auth)]
 
-def split_auths(auths):
-    if ';' in auths or '/' in auths:
-        return namesep2.split(auths)
-    else:
-        nl = namelist.match(auths.strip())
-        if nl:
-            if nl.group(3).endswith(' de') \
-                or ' de ' in nl.group(3) \
-                or nl.group(3).endswith(' da') \
-                or nl.group(1).endswith(' Jr.') \
-                or ' e ' in nl.group(1):
-                return [auths]
-            else:
-                return namesep.split(auths)
-        else :
-            return [auths]
-
-def split_isbns(isbns):
-    result = []
-    for isbn in isbnsep.split(isbns):
-        isbn = ISBN(isbn)
-        if isbn.valid:
-            result.append(isbn.to_string())
-    return result
-
 def creator_list(creators):
     auths = []
-    if re.search(edlist, creators):
-        for auth in split_auths(edlist.sub(u'', creators)):
-            if auth:
-                auths.append(creator(auth, editor=True))
-    else:
-        for auth in split_auths(unicode(creators)):
-            if auth:
-                auths.append(creator(auth))
+    for auth in creators:
+        auths.append(creator(auth))
     return auths
 
-def load_doab_auths(fname, limit=None):
-    doab_auths = json.load(open(fname))
-    recnum = 0
-    failed = 0
-    for [isbnraw, authlist] in doab_auths:
-        isbn = ISBN(isbnraw).to_string()
-        try:
-            work = models.Identifier.objects.get(type='isbn',value=isbn).work
-        except models.Identifier.DoesNotExist:
-            print 'isbn = {} not found'.format(isbnraw)
-            failed += 1
-        if work.preferred_edition.authors.all().count() < len(authlist):
-            work.preferred_edition.authors.clear()
-            if authlist is None:
-                print "null authlist; isbn={}".format(isbn)
+DOAB_OAIURL = 'https://www.doabooks.org/oai'
+DOAB_PATT = re.compile(r'[\./]doabooks\.org/doab\?.*rid:(\d{1,8}).*')
+mdregistry = MetadataRegistry()
+mdregistry.registerReader('oai_dc', oai_dc_reader)
+doab_client = Client(DOAB_OAIURL, mdregistry)
+
+def add_by_doab(doab_id, record=None):
+    try:
+        record = record if record else doab_client.getRecord(
+            metadataPrefix='oai_dc',
+            identifier='oai:doab-books:{}'.format(doab_id)
+        )
+        metadata = record[1].getMap()
+        isbns = []
+        url = None
+        for ident in metadata.pop('identifier', []):
+            if ident.startswith('ISBN: '):
+                isbn = ISBN(ident[6:])
+                if isbn.error:
+                    continue
+                isbn.validate()
+                isbns.append(isbn.to_string())
+            elif ident.find('doabooks.org') >= 0:
+                # should already know the doab_id
                 continue
-            for [rel,auth] in authlist:
-                work.preferred_edition.add_author(auth, rel)
-        recnum +=1
-        if limit and recnum > limit:
-            break          
-    logger.info("Number of records processed: " + str(recnum))
-    logger.info("Number of missing isbns: " + str(failed))
-        
+            else:
+                url = ident
+        language = doab_lang_to_iso_639_1(unlist(metadata.pop('language', None)))
+        urls = online_to_download(url)
+        edition = None
+        for dl_url in urls:
+            format = type_for_url(dl_url)
+            if 'format' in metadata:
+                del metadata['format']
+            edition = load_doab_edition(
+                unlist(metadata.pop('title', None)),
+                doab_id,
+                dl_url,
+                format,
+                cc.license_from_cc_url(unlist(metadata.pop('rights', None))),
+                language,
+                isbns,
+                url_to_provider(dl_url) if dl_url else None,
+                **metadata
+            )
+        return edition
+    except IdDoesNotExistError:
+        return None
+
+
+def getdoab(url):
+    id_match = DOAB_PATT.search(url)
+    if id_match:
+        return id_match.group(1)
+    return False
+
+def load_doab_oai(from_year=2000, limit=100000):
+    '''
+    use oai feed to get oai updates
+    '''
+    from_ = datetime.datetime(year=from_year, month=1, day=1)
+    doab_ids = []
+    for record in doab_client.listRecords(metadataPrefix='oai_dc', from_=from_):
+        if not record[1]:
+            continue
+        idents = record[1].getMap()['identifier']
+        if idents:
+            for ident in idents:
+                doab = getdoab(ident)
+                if doab:
+                    doab_ids.append(doab)
+                    e = add_by_doab(doab, record=record)
+                    logger.info(u'updated:\t{}\t{}'.format(doab, e.title))
+        if len(doab_ids) > limit:
+            break

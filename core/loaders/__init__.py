@@ -52,3 +52,9 @@ def add_by_webpage(url, work=None, user=None):
         
 def add_by_sitemap(url, maxnum=None):
     return add_from_bookdatas(scrape_sitemap(url, maxnum=maxnum))
+    
+def scrape_language(url):
+    scraper = get_scraper(url)
+    return scraper.metadata.get('language')
+
+

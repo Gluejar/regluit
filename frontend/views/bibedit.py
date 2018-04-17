@@ -21,6 +21,7 @@ from regluit.core.bookloader import (
 from regluit.core.parameters import WORK_IDENTIFIERS
 
 from regluit.core.loaders import add_by_webpage
+from regluit.core.loaders.doab import add_by_doab
 from regluit.core.loaders.utils import ids_from_urls
 from regluit.frontend.forms import EditionForm, IdentifierForm
 
@@ -103,6 +104,11 @@ def get_edition_for_id(id_type, id_value, user=None):
 
     if identifiers.has_key('isbn'):
         edition = add_by_isbn(identifiers['isbn'])
+        if edition:
+            return user_edition(edition, user)
+    
+    if identifiers.has_key('doab'):
+        edition = add_by_doab(identifiers['doab'])
         if edition:
             return user_edition(edition, user)
     
