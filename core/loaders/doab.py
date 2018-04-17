@@ -60,6 +60,8 @@ def store_doab_cover(doab_id, redo=False):
                 if springerftp:
                     redirurl = SPRINGER_IMAGE.format(springerftp.groups(1))
                     r = requests.get(redirurl)
+            else:
+                r = requests.get(url)
         else:
             r = requests.get(url)
         cover_file = ContentFile(r.content)
@@ -78,7 +80,7 @@ def update_cover_doab(doab_id, edition, store_cover=True):
     if store_cover is True, use the cover from our own storage
     """
     if store_cover:
-        (cover_url, new_cover) = store_doab_cover(doab_id)
+        (cover_url, new_cover) = store_doab_cover(doab_id, redo=True)
     else:
         cover_url = "http://www.doabooks.org/doab?func=cover&rid={0}".format(doab_id)
 
