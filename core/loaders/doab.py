@@ -416,6 +416,7 @@ def load_doab_oai(from_year=2000, limit=100000):
                 if doab:
                     doab_ids.append(doab)
                     e = add_by_doab(doab, record=record)
-                    logger.info(u'updated:\t{}\t{}'.format(doab, e.title))
+                    title = e.title if e else None
+                    logger.info(u'updated:\t{}\t{}'.format(doab, title))
         if len(doab_ids) > limit:
             break
