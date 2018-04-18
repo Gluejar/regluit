@@ -447,9 +447,9 @@ class ContentTyper(object):
     def content_type(self, url):
         try:
             r = requests.head(url)
-            return r.headers.get('content-type')
+            return r.headers.get('content-type', '')
         except:
-            return None
+            return ''
 
     def calc_type(self, url):
         delay = 1
