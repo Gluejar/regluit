@@ -19,7 +19,7 @@ ID_VALIDATION = {
     'http': (re.compile(r"(https?|ftp)://(-\.)?([^\s/?\.#]+\.?)+(/[^\s]*)?$",
                         flags=re.IGNORECASE|re.S),
              "The Web Address must be a valid http(s) URL."),
-    'isbn':  (r'^([\dxX\-–— ]+|delete)$',
+    'isbn':  (u'^([\\dxX \\-–—‐,;]+|delete)$', #includes unicode hyphen, endash and emdash
               "The ISBN must be a valid ISBN-13."),
     'doab': (r'^(\d{1,6}|delete)$',
              "The value must be 1-6 digits."),
@@ -44,8 +44,6 @@ ID_VALIDATION = {
 }
 
 def isbn_cleaner(value):
-    if value == 'delete':
-        return value
     if not value:
         raise ValidationError('no identifier value found')
     elif value == 'delete':
