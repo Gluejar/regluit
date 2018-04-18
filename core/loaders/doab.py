@@ -21,7 +21,7 @@ from regluit.core import models, tasks
 from regluit.core.bookloader import merge_works
 from regluit.core.isbn import ISBN
 from regluit.core.loaders.utils import type_for_url
-from regluit.core.validation import valid_subject
+from regluit.core.validation import identifier_cleaner, valid_subject
 
 from . import scrape_language
 from .doab_utils import doab_lang_to_iso_639_1, online_to_download, url_to_provider
@@ -74,13 +74,13 @@ def store_doab_cover(doab_id, redo=False):
         logger.warning('Failed to make cover image for doab_id={}: {}'.format(doab_id, e))
         return (None, False)
 
-def update_cover_doab(doab_id, edition, store_cover=True):
+def update_cover_doab(doab_id, edition, store_cover=True, redo=True):
     """
     update the cover url for work with doab_id
     if store_cover is True, use the cover from our own storage
     """
     if store_cover:
-        (cover_url, new_cover) = store_doab_cover(doab_id, redo=True)
+        (cover_url, new_cover) = store_doab_cover(doab_id, redo=redo)
     else:
         cover_url = "http://www.doabooks.org/doab?func=cover&rid={0}".format(doab_id)
 
@@ -186,7 +186,7 @@ def load_doab_edition(title, doab_id, url, format, rights,
         doab_identifer = models.Identifier.get_or_add(type='doab', value=doab_id,
                                                       work=ebook.edition.work)
         # update the cover id
-        cover_url = update_cover_doab(doab_id, ebook.edition)
+        cover_url = update_cover_doab(doab_id, ebook.edition, redo=False)
 
         # attach more metadata
         attach_more_doab_metadata(
@@ -275,7 +275,7 @@ def load_doab_edition(title, doab_id, url, format, rights,
         ebook.save()
 
     # update the cover id (could be done separately)
-    cover_url = update_cover_doab(doab_id, edition)
+    cover_url = update_cover_doab(doab_id, edition, redo=False)
 
     # attach more metadata
     attach_more_doab_metadata(
@@ -349,6 +349,8 @@ DOAB_PATT = re.compile(r'[\./]doabooks\.org/doab\?.*rid:(\d{1,8}).*')
 mdregistry = MetadataRegistry()
 mdregistry.registerReader('oai_dc', oai_dc_reader)
 doab_client = Client(DOAB_OAIURL, mdregistry)
+isbn_cleaner = identifier_cleaner('isbn', quiet=True)
+ISBNSEP = re.compile(r'[/]+')
 
 def add_by_doab(doab_id, record=None):
     try:
@@ -361,11 +363,11 @@ def add_by_doab(doab_id, record=None):
         url = None
         for ident in metadata.pop('identifier', []):
             if ident.startswith('ISBN: '):
-                isbn = ISBN(ident[6:])
-                if isbn.error:
-                    continue
-                isbn.validate()
-                isbns.append(isbn.to_string())
+                isbn_strings = ISBNSEP.split(ident[6:].strip())
+                for isbn_string in isbn_strings:
+                    isbn = isbn_cleaner(isbn_string)
+                    if isbn:
+                        isbns.append(isbn)
             elif ident.find('doabooks.org') >= 0:
                 # should already know the doab_id
                 continue
