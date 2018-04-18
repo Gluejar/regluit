@@ -131,7 +131,7 @@ def valid_xml_char_ordinal(c):
 
 def valid_subject(subject_name):
     if len(subject_name) > 200:
-        return false
+        return False
     num_commas = 0
     for c in subject_name:
         if not valid_xml_char_ordinal(c):

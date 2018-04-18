@@ -185,6 +185,10 @@ def load_doab_edition(title, doab_id, url, format, rights,
         ebook = ebooks[0]
         doab_identifer = models.Identifier.get_or_add(type='doab', value=doab_id,
                                                       work=ebook.edition.work)
+        if not ebook.rights:
+            ebook.rights = rights
+            ebook.save()
+        
         # update the cover id
         cover_url = update_cover_doab(doab_id, ebook.edition, redo=False)
 
@@ -262,7 +266,7 @@ def load_doab_edition(title, doab_id, url, format, rights,
     work.selected_edition = edition
     work.save()
 
-    if format in ('pdf', 'epub', 'mobi', 'html', 'online'):
+    if format in ('pdf', 'epub', 'mobi', 'html', 'online') and rights:
         ebook = models.Ebook()
         ebook.format = format
         ebook.provider = provider
@@ -376,16 +380,18 @@ def add_by_doab(doab_id, record=None):
         language = doab_lang_to_iso_639_1(unlist(metadata.pop('language', None)))
         urls = online_to_download(url)
         edition = None
+        title = unlist(metadata.pop('title', None))
+        license = cc.license_from_cc_url(unlist(metadata.pop('rights', None)))
         for dl_url in urls:
             format = type_for_url(dl_url)
             if 'format' in metadata:
                 del metadata['format']
             edition = load_doab_edition(
-                unlist(metadata.pop('title', None)),
+                title,
                 doab_id,
                 dl_url,
                 format,
-                cc.license_from_cc_url(unlist(metadata.pop('rights', None))),
+                license,
                 language,
                 isbns,
                 url_to_provider(dl_url) if dl_url else None,
@@ -410,7 +416,7 @@ def load_doab_oai(from_year=None, limit=100000):
         from_ = datetime.datetime(year=from_year, month=1, day=1)
     else: 
         # last 45 days
-        from_ = datetime.date.today() - datetime.timedelta(days=45)
+        from_ = datetime.datetime.now() - datetime.timedelta(days=45)
     doab_ids = []
     for record in doab_client.listRecords(metadataPrefix='oai_dc', from_=from_):
         if not record[1]:
