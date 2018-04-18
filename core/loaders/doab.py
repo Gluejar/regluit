@@ -402,11 +402,15 @@ def getdoab(url):
         return id_match.group(1)
     return False
 
-def load_doab_oai(from_year=2000, limit=100000):
+def load_doab_oai(from_year=None, limit=100000):
     '''
     use oai feed to get oai updates
     '''
-    from_ = datetime.datetime(year=from_year, month=1, day=1)
+    if from_year:
+        from_ = datetime.datetime(year=from_year, month=1, day=1)
+    else: 
+        # last 45 days
+        from_ = datetime.date.today() - datetime.timedelta(days=45)
     doab_ids = []
     for record in doab_client.listRecords(metadataPrefix='oai_dc', from_=from_):
         if not record[1]:
