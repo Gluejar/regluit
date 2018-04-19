@@ -56,7 +56,7 @@ DOMAIN_TO_PROVIDER = dict([
     [u'antropologie.zcu.cz', u'AntropoWeb'],
     [u'books.mdpi.com', u'MDPI Books'],
     [u'books.openedition.org', u'OpenEdition Books'],
-    [u'books.scielo.org', u'SciELO'},
+    [u'books.scielo.org', u'SciELO'],
     [u'ccdigitalpress.org', u'Computers and Composition Digital Press'],
     [u'digitalcommons.usu.edu', u'DigitalCommons, Utah State University'],
     [u'dl.dropboxusercontent.com', u'Dropbox'],

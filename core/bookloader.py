@@ -92,6 +92,10 @@ def add_by_isbn(isbn, work=None, language='xx', title=''):
         # try again some other time
         return None
     if e:
+        if e.work.language == 'xx' and language != 'xx':
+            e.work.language == language
+            e.work.save()
+            logger.info('changed language for {} to {}'.format(isbn, language))
         return e
 
     logger.info(u"null came back from add_by_isbn_from_google: %s", isbn)
