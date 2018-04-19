@@ -45,10 +45,10 @@ def convert_10_to_13(isbn):
     except:
         return None
 
-ISBN_REGEX = re.compile(r'^(\d{9}|\d{12})(\d|X)$')
-DASH_REGEX = re.compile(r'[ \-–—]+')
+ISBN_REGEX = re.compile(r'^(\d{9}[\dX]|\d{13})$')
+DASH_REGEX = re.compile(u'[ \\-–—‐,;]+')  #includes unicode hyphen, endash and emdash
 def strip(s):
-    """Strips away any - or spaces.  If the remaining string is of length 10 or 13
+    """Strips away any - or spaces and some punctuation.  If the remaining string is of length 10 or 13
     with digits only in anything but the last
     check digit (which may be X), then return '' -- otherwise return the remaining string
     """

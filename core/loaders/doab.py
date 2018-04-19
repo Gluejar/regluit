@@ -21,7 +21,7 @@ from regluit.core import models, tasks
 from regluit.core.bookloader import merge_works
 from regluit.core.isbn import ISBN
 from regluit.core.loaders.utils import type_for_url
-from regluit.core.validation import valid_subject
+from regluit.core.validation import identifier_cleaner, valid_subject
 
 from . import scrape_language
 from .doab_utils import doab_lang_to_iso_639_1, online_to_download, url_to_provider
@@ -60,6 +60,8 @@ def store_doab_cover(doab_id, redo=False):
                 if springerftp:
                     redirurl = SPRINGER_IMAGE.format(springerftp.groups(1))
                     r = requests.get(redirurl)
+            else:
+                r = requests.get(url)
         else:
             r = requests.get(url)
         cover_file = ContentFile(r.content)
@@ -72,13 +74,13 @@ def store_doab_cover(doab_id, redo=False):
         logger.warning('Failed to make cover image for doab_id={}: {}'.format(doab_id, e))
         return (None, False)
 
-def update_cover_doab(doab_id, edition, store_cover=True):
+def update_cover_doab(doab_id, edition, store_cover=True, redo=True):
     """
     update the cover url for work with doab_id
     if store_cover is True, use the cover from our own storage
     """
     if store_cover:
-        (cover_url, new_cover) = store_doab_cover(doab_id)
+        (cover_url, new_cover) = store_doab_cover(doab_id, redo=redo)
     else:
         cover_url = "http://www.doabooks.org/doab?func=cover&rid={0}".format(doab_id)
 
@@ -183,8 +185,12 @@ def load_doab_edition(title, doab_id, url, format, rights,
         ebook = ebooks[0]
         doab_identifer = models.Identifier.get_or_add(type='doab', value=doab_id,
                                                       work=ebook.edition.work)
+        if not ebook.rights:
+            ebook.rights = rights
+            ebook.save()
+        
         # update the cover id
-        cover_url = update_cover_doab(doab_id, ebook.edition)
+        cover_url = update_cover_doab(doab_id, ebook.edition, redo=False)
 
         # attach more metadata
         attach_more_doab_metadata(
@@ -260,7 +266,7 @@ def load_doab_edition(title, doab_id, url, format, rights,
     work.selected_edition = edition
     work.save()
 
-    if format in ('pdf', 'epub', 'mobi', 'html', 'online'):
+    if format in ('pdf', 'epub', 'mobi', 'html', 'online') and rights:
         ebook = models.Ebook()
         ebook.format = format
         ebook.provider = provider
@@ -273,7 +279,7 @@ def load_doab_edition(title, doab_id, url, format, rights,
         ebook.save()
 
     # update the cover id (could be done separately)
-    cover_url = update_cover_doab(doab_id, edition)
+    cover_url = update_cover_doab(doab_id, edition, redo=False)
 
     # attach more metadata
     attach_more_doab_metadata(
@@ -347,6 +353,8 @@ DOAB_PATT = re.compile(r'[\./]doabooks\.org/doab\?.*rid:(\d{1,8}).*')
 mdregistry = MetadataRegistry()
 mdregistry.registerReader('oai_dc', oai_dc_reader)
 doab_client = Client(DOAB_OAIURL, mdregistry)
+isbn_cleaner = identifier_cleaner('isbn', quiet=True)
+ISBNSEP = re.compile(r'[/]+')
 
 def add_by_doab(doab_id, record=None):
     try:
@@ -359,11 +367,11 @@ def add_by_doab(doab_id, record=None):
         url = None
         for ident in metadata.pop('identifier', []):
             if ident.startswith('ISBN: '):
-                isbn = ISBN(ident[6:])
-                if isbn.error:
-                    continue
-                isbn.validate()
-                isbns.append(isbn.to_string())
+                isbn_strings = ISBNSEP.split(ident[6:].strip())
+                for isbn_string in isbn_strings:
+                    isbn = isbn_cleaner(isbn_string)
+                    if isbn:
+                        isbns.append(isbn)
             elif ident.find('doabooks.org') >= 0:
                 # should already know the doab_id
                 continue
@@ -372,16 +380,18 @@ def add_by_doab(doab_id, record=None):
         language = doab_lang_to_iso_639_1(unlist(metadata.pop('language', None)))
         urls = online_to_download(url)
         edition = None
+        title = unlist(metadata.pop('title', None))
+        license = cc.license_from_cc_url(unlist(metadata.pop('rights', None)))
         for dl_url in urls:
             format = type_for_url(dl_url)
             if 'format' in metadata:
                 del metadata['format']
             edition = load_doab_edition(
-                unlist(metadata.pop('title', None)),
+                title,
                 doab_id,
                 dl_url,
                 format,
-                cc.license_from_cc_url(unlist(metadata.pop('rights', None))),
+                license,
                 language,
                 isbns,
                 url_to_provider(dl_url) if dl_url else None,
@@ -398,11 +408,15 @@ def getdoab(url):
         return id_match.group(1)
     return False
 
-def load_doab_oai(from_year=2000, limit=100000):
+def load_doab_oai(from_year=None, limit=100000):
     '''
     use oai feed to get oai updates
     '''
-    from_ = datetime.datetime(year=from_year, month=1, day=1)
+    if from_year:
+        from_ = datetime.datetime(year=from_year, month=1, day=1)
+    else: 
+        # last 45 days
+        from_ = datetime.datetime.now() - datetime.timedelta(days=45)
     doab_ids = []
     for record in doab_client.listRecords(metadataPrefix='oai_dc', from_=from_):
         if not record[1]:
@@ -414,6 +428,7 @@ def load_doab_oai(from_year=2000, limit=100000):
                 if doab:
                     doab_ids.append(doab)
                     e = add_by_doab(doab, record=record)
-                    logger.info(u'updated:\t{}\t{}'.format(doab, e.title))
+                    title = e.title if e else None
+                    logger.info(u'updated:\t{}\t{}'.format(doab, title))
         if len(doab_ids) > limit:
             break
