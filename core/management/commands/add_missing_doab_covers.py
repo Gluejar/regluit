@@ -18,5 +18,5 @@ class Command(BaseCommand):
                 num += 1
                 if num % 10 == 0:
                     print('{} doab covers updated'.format(num))
-                    break
+                    #break
         print('Done: {} doab covers updated'.format(num))
