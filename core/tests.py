@@ -839,7 +839,7 @@ class ISBNTest(TestCase):
         milosz_10 = '006019667X'
         milosz_13 = '9780060196677'
         python_10 = '0-672-32978-6'
-        funky = '0–672—329 78-6' # endash, mdash, space
+        funky = u'0–672—329 78-6' # endash, mdash, space
         python_10_wrong = '0-672-32978-7'
         python_13 = '978-0-672-32978-4'
 
