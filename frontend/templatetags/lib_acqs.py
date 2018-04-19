@@ -1,4 +1,4 @@
-from regluit.utils.localdatetime import now
+from django.utils.timezone import now
 from django import template
 register = template.Library()
 

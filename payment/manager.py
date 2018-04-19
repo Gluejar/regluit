@@ -18,6 +18,7 @@ django imports
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from django.utils.timezone import now
 
 """
 regluit imports
@@ -26,7 +27,6 @@ from regluit.payment import credit
 from regluit.payment.models import Transaction, Receiver, PaymentResponse, Account
 from regluit.payment.parameters import *
 from regluit.payment.signals import transaction_charged, pledge_modified, pledge_created
-from regluit.utils.localdatetime import now
 
 logger = logging.getLogger(__name__)
 
