@@ -420,6 +420,8 @@ def type_for_url(url, content_type=None):
         return ''
     if url.find('books.openedition.org') >= 0:
         return ('online')
+    if Ebook.objects.filter(url=url):
+        return Ebook.objects.filter(url=url)[0].format
     ct = content_type if content_type else contenttyper.calc_type(url)
     if re.search("pdf", ct):
         return "pdf"
@@ -447,9 +449,9 @@ class ContentTyper(object):
     def content_type(self, url):
         try:
             r = requests.head(url)
-            return r.headers.get('content-type')
+            return r.headers.get('content-type', '')
         except:
-            return None
+            return ''
 
     def calc_type(self, url):
         delay = 1

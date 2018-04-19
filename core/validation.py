@@ -19,7 +19,7 @@ ID_VALIDATION = {
     'http': (re.compile(r"(https?|ftp)://(-\.)?([^\s/?\.#]+\.?)+(/[^\s]*)?$",
                         flags=re.IGNORECASE|re.S),
              "The Web Address must be a valid http(s) URL."),
-    'isbn':  (r'^([\dxX\-–— ]+|delete)$',
+    'isbn':  (u'^([\\dxX \\-–—‐,;]+|delete)$', #includes unicode hyphen, endash and emdash
               "The ISBN must be a valid ISBN-13."),
     'doab': (r'^(\d{1,6}|delete)$',
              "The value must be 1-6 digits."),
@@ -44,8 +44,6 @@ ID_VALIDATION = {
 }
 
 def isbn_cleaner(value):
-    if value == 'delete':
-        return value
     if not value:
         raise ValidationError('no identifier value found')
     elif value == 'delete':
@@ -132,6 +130,8 @@ def valid_xml_char_ordinal(c):
         )
 
 def valid_subject(subject_name):
+    if len(subject_name) > 200:
+        return False
     num_commas = 0
     for c in subject_name:
         if not valid_xml_char_ordinal(c):
@@ -140,6 +140,10 @@ def valid_subject(subject_name):
             num_commas += 1
             if num_commas > 2:
                 return False
+    if len(subject_name.split('--')) > 6:
+        return False
+    if len(subject_name.split('. ')) > 4:
+        return False
     return True
 
 reverse_name_comma = re.compile(r',(?! *Jr[\., ])')
