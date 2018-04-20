@@ -5,10 +5,9 @@ from urllib import quote
 from functools import partial
 from xml.etree import ElementTree
 
+from django.apps import apps
 
 from . exceptions import BooXtreamError
-from . models import Boox
-
 
 class BooXtream(object):
     """ ``apikey``
@@ -46,7 +45,9 @@ class BooXtream(object):
         Will raise ``BooXtreamError`` if BooXtream returns an exception
         code.
         """
-        url = self.endpoint + 'booxtream.xml' 
+        Boox = apps.get_model('booxtream', 'Boox')
+
+        url = self.endpoint + 'booxtream.xml'
         kwargs['epub'] =  '1' if epub else '0'
         kwargs['kf8mobi'] = '1' if kf8mobi else '0'
         if epubfile:
