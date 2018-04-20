@@ -6,12 +6,15 @@ external library imports
 """
 import logging
 import json
-import re
-import stripe
 
 from datetime import datetime, timedelta
 from itertools import islice
 from pytz import utc
+import re
+import unittest
+from unittest import TestCase  
+  
+import stripe
 
 """
 django imports
@@ -73,12 +76,6 @@ def grouper(iterable, page_size):
 class StripelibError(baseprocessor.ProcessorError):
     pass
 
-try:
-    import unittest
-    from unittest import TestCase    
-except:
-    from django.test import TestCase
-    from django.utils import unittest
 
 # if customer.id doesn't exist, create one and then charge the customer
 # we probably should ask our users whether they are ok with our creating a customer id account -- or ask for credit

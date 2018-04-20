@@ -5,6 +5,7 @@ import logging
 import os
 import time
 import traceback
+import unittest
 
 from datetime import timedelta
 from decimal import Decimal as D
@@ -19,7 +20,6 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.test import TestCase
-from django.utils import unittest
 
 """
 regluit imports
