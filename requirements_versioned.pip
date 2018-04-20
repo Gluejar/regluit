@@ -22,7 +22,7 @@ django-ckeditor==4.5.1
 git+git://github.com/eshellman/django-email-change.git@1e71dd320504d56b1fc7d447ce4cffb550cedce7
 django-compat==1.0.10
 django-contrib-comments==1.7.1
-django-endless-pagination==2.0
+django-el-pagination==3.2.4
 django-extensions==1.6.1
 django-jsonfield==1.0.0
 #django-kombu==0.9.4
