@@ -13,7 +13,7 @@ django imports
 """
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.sites.models import RequestSite
+from django.contrib.sites.requests import RequestSite
 from django.core.urlresolvers import reverse
 from django.http import (
     HttpResponse,
