@@ -421,6 +421,9 @@ def load_doab_oai(from_year=None, limit=100000):
     for record in doab_client.listRecords(metadataPrefix='oai_dc', from_=from_):
         if not record[1]:
             continue
+        item_type = unlist(record[1].getMap().get('type', None))
+        if item_type != 'book':
+            continue
         idents = record[1].getMap()['identifier']
         if idents:
             for ident in idents:
