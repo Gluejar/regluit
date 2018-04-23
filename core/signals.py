@@ -22,6 +22,7 @@ from django.db.utils import DatabaseError
 from django.dispatch import Signal
 from django.utils.translation import ugettext_noop as _
 from django.template.loader import render_to_string
+from django.utils.timezone import now
 
 from notification import models as notification
 
@@ -29,9 +30,9 @@ from notification import models as notification
 regluit imports
 """
 from regluit.payment.signals import transaction_charged, transaction_failed, pledge_modified, pledge_created
-from regluit.utils.localdatetime import now, date_today
 from regluit.core.parameters import REWARDS, BUY2UNGLUE, THANKS, LIBRARY, RESERVE, THANKED
 from regluit.libraryauth.models import Library, LibraryUser
+from regluit.utils.localdatetime import date_today
 
 logger = logging.getLogger(__name__)
 

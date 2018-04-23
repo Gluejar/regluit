@@ -18,6 +18,7 @@ from django.db.models import Q
 from django.contrib.sites.models import Site
 from django.db.models.signals import post_save, post_delete
 from django.utils.http import urlquote
+from django.utils.timezone import now
 
 ## django module imports
 
@@ -42,7 +43,7 @@ from regluit.payment.parameters import (
 )
 
 from regluit.payment.signals import credit_balance_added, pledge_created
-from regluit.utils.localdatetime import now, date_today
+from regluit.utils.localdatetime import date_today
 
 logger = logging.getLogger(__name__)
 

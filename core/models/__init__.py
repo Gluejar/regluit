@@ -26,6 +26,7 @@ from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models import F, Q
 from django.db.models.signals import post_save
+from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
 #regluit imports
@@ -46,7 +47,7 @@ from regluit.payment.parameters import (
     TRANSACTION_STATUS_INCOMPLETE
 )
 from regluit.utils import crypto
-from regluit.utils.localdatetime import now, date_today
+from regluit.utils.localdatetime import date_today
 
 from regluit.core.parameters import (
     REWARDS,
