@@ -19,6 +19,7 @@ django imports
 from django.conf import settings
 from django.core.mail import send_mail
 from django.http import HttpResponse
+from django.utils.timezone import now
 
 """
 regluit imports
@@ -35,7 +36,6 @@ from regluit.payment.parameters import (
     TRANSACTION_STATUS_CANCELED
 )
 from regluit.payment.signals import transaction_charged, transaction_failed
-from regluit.utils.localdatetime import now, zuluformat
 
 # as of 2013.07.15
 # ['charge.disputed', 'coupon.updated'] are legacy events -- don't know whether to

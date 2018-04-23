@@ -23,6 +23,7 @@ from django_comments.models import Comment
 from github3 import (login, GitHub)
 from github3.repos.release import Release
 
+from django.utils.timezone import now
 from gitenberg.metadata.pandata import Pandata
 
 # regluit imports
@@ -31,7 +32,6 @@ import regluit
 import regluit.core.isbn
 from regluit.core.validation import test_file
 from regluit.marc.models import inverse_marc_rels
-from regluit.utils.localdatetime import now
 
 from . import cc
 from . import models

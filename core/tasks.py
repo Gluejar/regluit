@@ -13,6 +13,7 @@ django imports
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
+from django.utils.timezone import now
 from notification.engine import send_all
 from notification import models as notification
 
@@ -29,8 +30,7 @@ from regluit.core import (
 from regluit.core.models import Campaign, Acq, Gift
 from regluit.core.signals import deadline_impending
 from regluit.core.parameters import RESERVE, REWARDS, THANKS
-
-from regluit.utils.localdatetime import now, date_today
+from regluit.utils.localdatetime import date_today
 
 logger = logging.getLogger(__name__)
 

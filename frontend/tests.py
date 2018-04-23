@@ -13,6 +13,7 @@ from django.core import mail
 from django.core.urlresolvers import reverse
 from django.test import TestCase
 from django.test.client import Client
+from django.utils.timezone import now
 
 from notification.models import Notice
 
@@ -21,7 +22,6 @@ from regluit.core.models import Work, Campaign, RightsHolder, Claim, Subject
 from regluit.payment.models import Transaction
 from regluit.payment.manager import PaymentManager
 from regluit.payment.stripelib import StripeClient, TEST_CARDS, ERROR_TESTING, card
-from regluit.utils.localdatetime import now
 
 class WishlistTests(TestCase):
     fixtures = ['initial_data.json', 'neuromancer.json']
