@@ -1,12 +1,12 @@
 {% extends 'notification/base.html' %}
-
+{% load sass_tags %}
 
 {% load i18n %}
 
 {% block title %}{% trans "Notices" %}{% endblock %}
 
 {% block extra_css %}
-<link type="text/css" rel="stylesheet" href="/static/css/notices.css" />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/notices.scss' %}" />
 {% endblock %}
 
 {% block doccontent %}
@@ -23,24 +23,28 @@
     <div class="notices_menu">
 	    <a href="{% url 'notification_mark_all_seen' %}">{% trans "Mark all notices seen" %}</a>
 	</div>
+{% elif notice.unseen or request.GET.mode != 'seen' %}
+    <div class="notices_menu">
+	    <a href="{% url 'notification_notices' %}?mode=seen">{% trans "Show seen notices" %}</a>
+	</div>
+{% else %}
+    <div class="notices_menu">
+	    <a href="{% url 'notification_notices' %}">{% trans "Show only unseen notices" %}</a>
+	</div>
 {% endif %}
 <div class="comments"></div>        
 <br />
 
-{% if unseen_count > 0 %}
+{% if unseen_count > 0 or request.GET.mode == 'seen' %}
     {% for notice in notices %}
-        {% if notice.unseen %}
-        	{% comment %}
-        	Note: do not call is_unseen because it will mark the notification as seen,
-        	and we're leaving that up to the user.
-        	{% endcomment %}
+        {% if notice.unseen or request.GET.mode == 'seen' %}
             <div class="notice">
                 {{ notice.message|safe }}
             </div>
         {% endif %}
     {% endfor %}        
 {% else %}
-    <p>{% trans "You have no unseen notices." %}</p>
+    <p>You have no {% if unseen_count == 0 %}unseen {% endif %} notices.</p>
 {% endif %}
     
 {% endblock %}

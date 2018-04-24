@@ -27,7 +27,7 @@
 		margin: auto 5px auto 0;
 		font-size: $font-size-larger;
 	}
-	
+
 	img {
 		vertical-align: middle;
 	}
@@ -40,7 +40,7 @@
 		width: 50px;
 		margin-right: 5px;
 	}
-	
+
 	font-size: $font-size-larger;
 }
 
@@ -51,14 +51,14 @@
 	padding-bottom: 15px;
 	margin-bottom: 5px;
 	width: 74%;
-	
+
 	h3 {
 		margin-top: 5px;
 	}
 }
 
 #lightbox_content .one_click {
-	border: solid 2px $call-to-action;	
+	border: solid 2px $call-to-action;
 }
 
 #lightbox_content .ebook_download_container {
@@ -75,8 +75,8 @@
 }
 
 #lightbox_content ul {
-	padding-left: 50px; 
-	
+	padding-left: 50px;
+
 	li {
 		margin-bottom: 4px;
 	}
@@ -95,15 +95,15 @@
     padding: 0.5% !important;
     width: 23% !important;
     min-width: 105px;
-    
+
     ul {
         padding: 0.5% !important;
     }
-    
+
     .jsmod-title {
         @include one-border-radius(10px);
         height: auto;
-        
+
         span {
             padding: 5% !important;
             color: white !important;
@@ -117,7 +117,7 @@
 	border:1px solid $blue-grey;
 	@include one-border-radius(10px);
 	padding:10px;
-	
+
 	textarea {
 	    max-width: 90%;
 	}
@@ -125,7 +125,7 @@
 
 .btn_support.kindle{
     height: 40px;
-    
+
     a {
         width: auto;
         font-size: $font-size-larger;

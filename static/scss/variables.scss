@@ -151,29 +151,29 @@ $cursor-disabled:                not-allowed;
 @mixin supporter-color-span($hex, $color)
 {
 	$url: "#{$image-base}header-button-#{$color}.png";
-	background:$hex url($url) left bottom repeat-x;	
+	background:$hex url($url) left bottom repeat-x;
 }
 
 @mixin roundedspan
 {
 	border:1px solid #d4d4d4;
 	@include one-border-radius(7px);
-	padding:1px; 
-	color:#fff; 
+	padding:1px;
+	color:#fff;
 	margin:0 8px 0 0;
 	display:inline-block;
-	
-	> span { 
-		padding:7px 7px; 
-		min-width:15px; 
+
+	> span {
+		padding:7px 7px;
+		min-width:15px;
 		@include one-border-radius(5px);
-		text-align:center; 
+		text-align:center;
 		display:inline-block;
-		
+
 		.hovertext {
 			display: none;
 		}
-			
+
 		&:hover .hovertext {
 			display: inline;
 		}
@@ -182,8 +182,8 @@ $cursor-disabled:                not-allowed;
 
 @mixin height($x)
 {
-	height:$x; 
-	line-height:$x; 
+	height:$x;
+	line-height:$x;
 }
 
 @mixin mediaborder-base()
@@ -217,8 +217,8 @@ $cursor-disabled:                not-allowed;
 	padding: 7px 0;
 	font-weight: bold;
 	font-size: 13px;
-	text-align: center;	
-	
+	text-align: center;
+
 	li {
 		list-style: none;
 		border: none;
@@ -227,11 +227,11 @@ $cursor-disabled:                not-allowed;
 
 @mixin clickyarrows()
 {
-	text-indent:-10000px; 
+	text-indent:-10000px;
 	font-size:0;
-	width:15px; 
-	height:22px; 
-	display:block; 
-	position:absolute; 
+	width:15px;
+	height:22px;
+	display:block;
+	position:absolute;
 	top:45%;
 }
