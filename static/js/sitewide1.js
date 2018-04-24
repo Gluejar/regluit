@@ -99,4 +99,10 @@ $j(document).ready(function() {
         new Foundation.DropdownMenu($j(element), {});
     });
 
+    $j('[data-accordion]').each(function (index, element) {
+    // document.querySelectorAll('[data-accordion]').forEach(element => {
+        console.log(element);
+        new Foundation.Accordion($j(element), {'data-multi-expand': true});
+    });
+
 });

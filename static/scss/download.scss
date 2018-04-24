@@ -95,15 +95,15 @@
     padding: 0.5% !important;
     width: 23% !important;
     min-width: 105px;
-    
+
     ul {
         padding: 0.5% !important;
     }
-    
+
     .jsmod-title {
         @include one-border-radius(10px);
         height: auto;
-        
+
         span {
             padding: 5% !important;
             color: white !important;
@@ -117,7 +117,7 @@
 	border:1px solid $blue-grey;
 	@include one-border-radius(10px);
 	padding:10px;
-	
+
 	textarea {
 	    max-width: 90%;
 	}
@@ -125,9 +125,38 @@
 
 .btn_support.kindle{
     height: 40px;
-    
+
     a {
         width: auto;
         font-size: $font-size-larger;
     }
+}
+
+
+//
+
+.download_option {
+
+    display: flex;
+    justify-content: space-between;
+
+    padding: 9px 0px;
+
+    & > * {
+        padding: 5px;
+    }
+
+    i {
+        vertical-align: middle;
+    }
+}
+
+.ebook_download {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex_ul {
+    display: flex;
+    flex-direction: column;
 }
