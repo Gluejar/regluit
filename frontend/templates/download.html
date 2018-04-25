@@ -33,6 +33,7 @@
         {% if work.last_campaign.ask_money %}
         <div class="rh_ask">
             {{ work.last_campaign.description|safe }}
+            <div class="clearfix"></div>
         </div>
         <div id="askblock">
             <div>Say thank you for making <a href="{% url 'work' work.id %}">{{ work.title }}</a> free.</div>
@@ -51,7 +52,7 @@
                 </div>
                 <div id="anoncontribbox">
                     {{ form.anonymous.errors }}{{ form.anonymous }}
-                    <i class="">{{ form.anonymous.label_tag }}</i>
+                    <i class="inline-block">{{ form.anonymous.label_tag }}</i>
                 </div>
                 {% if request.user.credit.available > 0 %}
                 <div > You have an available  credit of ${{ request.user.credit.available|intcomma }} which will be applied to your contribution.</div>
@@ -61,6 +62,7 @@
         {% else %}
         <div class="rh_ask">
             {{ work.last_campaign.description|safe }}
+            <div class="clearfix"></div>
         </div>
         {% endif %}
         {% endif %}
