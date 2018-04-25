@@ -1,9 +1,10 @@
+import os
 from django.core.management.base import BaseCommand
 
 from regluit.core.loaders import add_by_sitemap
 
 class Command(BaseCommand):
-    help = "load books based on a website sitemap"
+    help = "load books based on a website sitemap; use url=all to load from sitemap list"
 
     def add_arguments(self, parser):
         # Positional arguments
@@ -20,5 +21,20 @@ class Command(BaseCommand):
         )
 
     def handle(self, url, max=None, **options):
-        books = add_by_sitemap(url, maxnum=max)        
+        if url == 'all':
+            file_name = "../../../bookdata/sitemaps.txt"
+            command_dir =  os.path.dirname(os.path.realpath(__file__))
+            file_path = os.path.join(command_dir, file_name)
+            with open(file_path) as f:
+                content = f.readlines()
+            books = []
+            for sitemap in content:
+                added = add_by_sitemap(sitemap.strip(), maxnum=max)
+                max = max - len(added)
+                books =  books + added
+                if max < 0:
+                    break
+        else:
+            books = add_by_sitemap(url, maxnum=max)  
+              
         print "loaded {} books".format(len(books))

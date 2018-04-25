@@ -26,7 +26,7 @@
     margin:10px auto 0 auto;
     font-size: $font-size-larger;
     line-height: $font-size-larger*1.5;
-    
+
     &.pale {
         border-color: $blue-grey;
         font-size: $font-size-default;
@@ -50,7 +50,7 @@
     text-transform:uppercase;
     color:$text-blue;
     font-size: $font-size-larger;
-    display:block; 
+    display:block;
 }
 
 @mixin utilitylinks($topbottom, $leftright, $fontsize)
@@ -85,7 +85,7 @@ body{
 	bottom: 10%;
 	right: 0;
 	z-index:500;
-	
+
 	p {
 		/* see http://scottgale.com/blog/css-vertical-text/2010/03/01/ */
 		a {
@@ -119,11 +119,11 @@ body{
 a {
     font-weight:bold;
     font-size: inherit;
- 
+
     text-decoration:none;
     cursor:pointer;
     color: $medium-blue;
-    
+
     &:hover {
     	text-decoration: underline;
     }
@@ -149,8 +149,8 @@ img {
     border:none;
 }
 
-img.user-avatar { 
-	float:left; 
+img.user-avatar {
+	float:left;
 	margin-right:10px;
 	@include one-border-radius(7px);
 }
@@ -158,7 +158,7 @@ img.user-avatar {
 input, textarea, a.fakeinput {
 	border: 2px solid $blue-grey;
 	@include one-border-radius(5px);
-	
+
 	&:focus {
 		border: 2px solid $call-to-action;
 		outline: none;
@@ -182,7 +182,7 @@ h2 {
         color:$text-blue;
         float:left;
         width:50%;
-        
+
         span {
             font-style:italic;
         }
@@ -196,7 +196,7 @@ h3 {
         padding:0;
         margin:0;
         height:2.3em;
-        
+
         span {
             font-size: $font-size-header;
             font-style: italic;
@@ -212,7 +212,7 @@ input[type="submit"], a.fakeinput {
 	color: white;
 	font-weight: bold;
 	padding: 0.5em 1em;
-	cursor: pointer;	
+	cursor: pointer;
 }
 
 
@@ -248,7 +248,7 @@ ul.menu{
 
 .errorlist + input {
 	border: 2px solid $alert !important;
-	
+
 	&:focus {
 		border: 1px solid $call-to-action !important;
 	}
@@ -256,7 +256,7 @@ ul.menu{
 
 .errorlist + textarea {
 	border: 2px solid $alert !important;
-	
+
 	&:focus {
 		border: 2px solid $call-to-action !important;
 	}
@@ -273,7 +273,7 @@ ul.menu{
 	line-height: 16px;
 	padding: 0;
 	font-weight: normal;
-	text-align: left;	
+	text-align: left;
 	display: inline;
     li {
         display: inline;
@@ -297,7 +297,7 @@ ul.menu{
 .js-logo {
     float:left;
     padding-top:10px;
-    
+
     a {
         img { border: none;}
     }
@@ -312,13 +312,13 @@ ul.menu{
         @include one-border-radius(5px);
         height: 36px;
     }
-    
+
     &#authenticated:hover, &#authenticated.highlight {
         background: $blue-grey;
         cursor: pointer;
         position: relative;
     }
-    
+
     ul {
         &#user_menu {
             white-space:nowrap;
@@ -330,14 +330,14 @@ ul.menu{
             padding: 0;
             overflow: visible;
             margin: 0;
-            
+
             li {
                 border-top: 1px solid white;
                 list-style-type: none;
                 float: none;
                 background: $blue-grey;
                 padding: 7px 10px;
-                
+
                 &:hover {
                     background: $call-to-action;
                     a {
@@ -350,12 +350,12 @@ ul.menu{
                         color: $text-blue;
                     }
                 }
-                
+
                 a {
                     height: auto;
                     line-height: $font-size-larger*1.75;
                 }
-                
+
                 span {
                     margin-right: 10px;
                 }
@@ -366,31 +366,31 @@ ul.menu{
             float:left;
             position: relative;
             z-index: 50;
-            
+
             .notbutton{
-                color:$text-blue; 
+                color:$text-blue;
                 line-height: 36px;
             }
-                
+
             a {
                 @include header-text;
             }
-            
+
             span#welcome {
                 @include header-text;
                 padding: 0 10px;
             }
-            
+
             img {
                 padding: 0;
                 margin: 0;
             }
-            
+
             &.last {
                 padding-left: 20px;
-                
+
                 a {
-                    
+
                     span {
                         @include border-radius(32px, 0, 0, 32px);
                         background-color: $call-to-action;
@@ -402,8 +402,8 @@ ul.menu{
                 }
             }
         }
-        
-        .unseen_count {	
+
+        .unseen_count {
             border: solid 2px;
             @include one-border-radius(700px);
             padding: 3px;
@@ -411,13 +411,13 @@ ul.menu{
             width: 16px;
             cursor: pointer;
             text-align: center;
-            
+
             &#i_haz_notifications {
                 background-color: $call-to-action;
                 color: white;
                 border-color: white;
             }
-            
+
             &#no_notifications_for_you {
                 border-color: $pale-blue;
                 background-color: $pale-blue;
@@ -452,19 +452,19 @@ form.login, #login form {
         line-height: 20px;
         font-size: $font-size-larger;
     }
-    
+
     input {
         width: 90%;
         @include one-border-radius(5px);
         border: 1px solid $blue-grey;
         @include height(18px);
         margin-bottom: 6px;
-                    
+
         &[type=submit] {
             text-decoration: capitalize;
             @include actionbuttons;
         }
-        
+
         &:focus {
             border: solid 1px $call-to-action;
         }
@@ -475,12 +475,12 @@ form.login, #login form {
         margin-bottom: $font-size-default;
         border-width: 2px;
 	}
-	
+
 	input[type="submit"] {
 	    font-size: $font-size-larger;
 	}
-	
-    
+
+
     span.helptext {
         display: block;
         margin-top: -11px;
@@ -497,12 +497,12 @@ form.login, #login form {
     float:left;
     padding-top:25px;
     margin-left: 81px;
-    
+
     input {
         float: left;
     }
-    
-    
+
+
     .inputbox {
         padding:0 0 0 15px;
         margin:0;
@@ -518,7 +518,7 @@ form.login, #login form {
         float: left;
         color:$medium-blue;
     }
-    
+
     .button {
         background:url("#{$image-base}blue-search-button.png") no-repeat;
         padding:0;
@@ -532,7 +532,7 @@ form.login, #login form {
     }
 }
 
-.js-search-inner { 
+.js-search-inner {
     float:right;
 }
 
@@ -558,7 +558,7 @@ a#readon {
     font-size: $font-size-default;
 
     font-weight:bold;
-    
+
 }
 
 .spread_the_word {
@@ -573,15 +573,15 @@ a#readon {
     float:left;
     width:235px;
     margin-bottom: 20px;
-    
+
     a {
         font-weight:normal;
-        
+
         &:hover{
             text-decoration:underline;
-        }        
+        }
     }
-    
+
     .jsmod-content {
         border: solid 1px $pale-blue;
         @include border-radius(0, 0, 10px, 10px);
@@ -590,19 +590,19 @@ a#readon {
     ul {
         &.level1 > li > a, &.level1 > li > span {
             border-bottom:1px solid $pale-blue;
-            border-top:1px solid $pale-blue; 
+            border-top:1px solid $pale-blue;
             @include utilityheaders;
             padding:10px;
         }
 
         &.level2 li {
             @include utilitylinks(5px, 20px, $font-size-larger);
-            
+
             img {
             	vertical-align: middle;
             	@include one-border-radius(5px);
             }
-            
+
             .ungluer-name {
 				@include height(30px);
 			}
@@ -620,7 +620,7 @@ a#readon {
                 width: 32px;
             }
             a span.thumbnail-caption {
-                font-size: $font-size-small; 
+                font-size: $font-size-small;
                 display: inline-block;
                 width: 154px;
                 overflow-y: scroll;
@@ -669,7 +669,7 @@ div#content-block {
     background:url($background-header) 100% -223px no-repeat;
     padding:0 0 0 7px;
     margin-bottom: 20px;
-    
+
     &.jsmodule {
     	background: none;
     }
@@ -688,7 +688,7 @@ div#content-block-content, div#content-block-content-1 {
     width:100%;
     overflow:hidden;
     padding-left: 10px;
-    
+
     .cols3 .column {
         width:33.33%;
         float:left;
@@ -703,18 +703,18 @@ div#content-block-content, div#content-block-content-1 {
     padding: 15px 0px 45px 0px;
     margin-top: 15px;
     overflow: hidden;
-    
+
     .column {
         float:left;
         width: 25%;
         padding-top:5px;
-        
+
         ul {
             padding-top:5px;
             margin-left:0;
             padding-left:0;
         }
-        
+
         li {
             @include utilitylinks(5px, 0, $font-size-larger);
             text-transform: none;
@@ -767,7 +767,7 @@ a.nounderline {
 	top: 25%;
 	padding: 9px;
 	max-width: 90%;
-	
+
 	.collapser_x {
 		margin-top: -27px;
 		margin-right: -27px;
@@ -779,38 +779,38 @@ a.nounderline {
 		padding: 9px 0;
 		font-size: $font-size-larger;
 		line-height: 20px;
-		
+
 		a {
 			font-size: $font-size-larger;
 			line-height: 20px;
 		}
-		
+
 		b {
 			color: $call-to-action;
 		}
-		
+
 		&.last {
 			border-bottom: solid 2px $blue-grey;
 			margin-bottom: 5px;
 		}
 	}
-	
+
 	.right_border {
 		border-right: solid 1px $blue-grey;
 		float: left;
 		padding: 9px;
 	}
-	
+
 	.signuptoday {
 		float: right;
 		margin-top: 0;
 		clear: none;
 	}
-	
+
 	h2 + form, h3 + form, h4 + form {
 	    margin-top: 15px;
 	}
-	
+
 	h2, h3, h4 {
 	    margin-bottom: 10px;
 	}
@@ -829,7 +829,7 @@ a.nounderline {
 	float: right;
 	@include height(24px);
 	width: 24px;
-	@include one-border-radius(24px); 
+	@include one-border-radius(24px);
 	-moz-box-shadow: -1px 1px $text-blue;
 	-webkit-box-shadow: -1px 1px $text-blue;
 	box-shadow: -1px 1px $text-blue;
@@ -847,12 +847,12 @@ a.nounderline {
     a {
         padding-right: 17px;
     	color: white;
-        
+
         &:hover {
         	text-decoration: none;
         }
     }
-                    
+
     padding:0 15px;
     @include height(36px);
     float: left;
@@ -877,7 +877,7 @@ li.checked {
 .btn_support {
     margin: 10px;
     width: 215px;
-    
+
     a, form input, > span {
         font-size: $font-size-shout;
         border: 4px solid $blue-grey;
@@ -897,33 +897,33 @@ li.checked {
             background: none;
         }
     }
-    
+
     &.create-account span {
         padding: 0;
         margin: 0;
         background: none;
     }
-    
+
     a:hover, form input:hover {
         background-color: darken($call-to-action, 7%);
         text-decoration: none;
     }
-    
+
     a {
         width: 207px;
     }
-    
+
     form input {
         width: 215px;
     }
-    
+
     &.modify a, &.modify form input {
         background-color: $medium-blue-grey;
-        
+
         &:hover {
             background-color: darken($medium-blue-grey, 7%);
         }
-    }    
+    }
 }
 
 /* download page */
@@ -933,20 +933,19 @@ li.checked {
         border-bottom: solid $blue-grey 1px;
         padding: 0.5em 0;
     }
-    
+
     > div {
         padding-left: 1%;
         padding-right: 1%;
         font-size: $font-size-larger;
         line-height: $font-size-larger*1.5;
         width: 98%;
-        
+
         &.active {
             float: left;
         }
-    }    
+    }
 }
-
 
 .ebook_download_container {
     clear: left;

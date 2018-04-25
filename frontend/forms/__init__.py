@@ -387,7 +387,7 @@ class CampaignPledgeForm(forms.Form):
     preapproval_amount = forms.DecimalField(
         required = False,
         min_value=D('1.00'),
-        max_value=D('2000.00'),
+        max_value=D('5000.00'),
         decimal_places=2,
         label="Support Amount",
     )

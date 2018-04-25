@@ -13,24 +13,24 @@
 {% endblock %}
 
 {% block doccontent %}
-<h2>gift Credits</h2>
+<h2>Unglue.it Credits</h2>
 <p>
-You have a balance of {{ user.credit.balance }} gift credits. <br />
-You have pledged {{ user.credit.pledged }} gift credits to ungluing campaigns.<br />
-You have {{ user.credit.available }} gift credits available to pledge or transfer.<br />
+You have a balance of {{ user.credit.balance }} Unglue.it credits. <br />
+You have pledged {{ user.credit.pledged }} Unglue.it credits to ungluing campaigns.<br />
+You have {{ user.credit.available }} Unglue.it credits available to pledge or transfer.<br />
 </p>
 <div class="clearfix">
-<h2>Gift Credit Transfers</h2>
+<h2>Unglue.it Credit Transfers</h2>
 {% if transfer_message %}
 <p>{{ transfer_message }}
 {% if transfer_amount %}
 <br /> Recipient: <a href="{% url 'supporter' recipient %}">{{ recipient }}</a>
-<br /> Amount: {{ transfer_amount }} gift credits
+<br /> Amount: {{ transfer_amount }} Unglue.it credits
 {% endif %}
 </p>
 {% endif %}
 <p>
-You may transfer up to {{ user.credit.available }} gift credits to another Unglue.it user.<br />
+You may transfer up to {{ user.credit.available }} Unglue.it credits to another Unglue.it user.<br />
 </p>
 <form action="#" method="POST">
 	{% csrf_token %}

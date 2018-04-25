@@ -179,11 +179,22 @@
             </div>
         </div>
         <div class="bookSidebar">
+            {% if has_online_book %}
+            <div class="bookRead">
+                <a href="{% url 'read' work_id %}">
+                    <button class="button expanded success">Read</button>
+                </a>
+            </div>
+            {% endif %}
             <div class="bookDownload">
-                <button class="button expanded success">Download</button>
+                <a href="{% url 'download' work_id %}">
+                    <button class="button expanded success">Download</button>
+                </a>
             </div>
             <div class="bookDonate">
-                <button class="button expanded success">Donate</button>
+                <a href="{% url 'download' work_id %}">
+                    <button class="button expanded success">Donate</button>
+                </a>
             </div>
             <div class="book-sidebar-item">
                 <div class="btn_wishlist" id="wishlist_actions">

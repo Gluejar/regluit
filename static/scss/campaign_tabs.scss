@@ -1,6 +1,6 @@
 /* Campaign and manage_campaign use same tab styling, so it's factored out here */
 
-#tabs{ 
+#tabs{
 	border-bottom: 4px solid $medium-blue;
     clear: both;
     float: left;
@@ -30,7 +30,7 @@ ul.tabs {
 	margin:0;
 	list-style:none;
 	width: 100%;
-	
+
 	li {
 		float: left;
 		height: 46px;
@@ -40,12 +40,12 @@ ul.tabs {
 		background: none;
 		margin: 0;
 		padding: 0 2px 0 0;
-		
+
 		&.tabs4 {
 			padding-right:0px;
 		}
-		
-		a { 
+
+		a {
 			height: 41px;
 			line-height: 18px;
 			display:block;
@@ -56,16 +56,16 @@ ul.tabs {
 			background:$blue-grey;
 			color:$text-blue;
 			padding-top: 5px;
-			
+
 			&:hover {
 				text-decoration: none;
 			}
-			
+
 			div {
 				padding-top: 8px;
 			}
 		}
-		
+
 		a:hover, &.active a {
 			background:$medium-blue;
 			color:#fff;

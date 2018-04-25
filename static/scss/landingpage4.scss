@@ -9,62 +9,62 @@
 	width:968px;
 	background:#fff url("#{$image-base}landingpage/container-top.png") top center no-repeat;
 }
-#js-maincol-fl { 
+#js-maincol-fl {
 	padding:30px 30px 0 30px;
 	overflow:hidden;
 
 	#content-block {
-		background:none; 
+		background:none;
 		padding:0;
 	}
-	
-	#js-main-container { 
-		float: left; 
+
+	#js-main-container {
+		float: left;
 		width:672px;
 	}
-	
-	.js-main-container-inner { 
+
+	.js-main-container-inner {
 		padding-right:40px;
 	}
-	
-	h2.page-heading { 
-		margin:0 0 20px 0; 
-		color:$text-blue; 
-		font-size: $font-size-header; 
+
+	h2.page-heading {
+		margin:0 0 20px 0;
+		color:$text-blue;
+		font-size: $font-size-header;
 		font-weight: bold;
 	}
 }
 
-#user-block1, .user-block2 { 
+#user-block1, .user-block2 {
 	float:left;
 }
 
-#user-block1 { 
-	#block-intro-text { 
-		float:left; 
-		width:702px; 
+#user-block1 {
+	#block-intro-text {
+		float:left;
+		width:702px;
 		font-size: $font-size-header;
 	}
-	
-	a#readon { 
+
+	a#readon {
 		font-size: $font-size-larger;
 	}
 }
 
-#js-rightcol, #js-rightcol2 {  
+#js-rightcol, #js-rightcol2 {
 	float:right;
 	width:230px;
-	
-	.jsmodule { 
+
+	.jsmodule {
 		float: left;
 		width: 208px;
-		background:$pale-blue; 
-		border:1px solid $blue-grey; 
-		@include one-border-radius(12px); 
-		margin-bottom:10px; 
+		background:$pale-blue;
+		border:1px solid $blue-grey;
+		@include one-border-radius(12px);
+		margin-bottom:10px;
 		padding: 0 10px 10px 10px;
-		
-		
+
+
 		input {
 			border: none;
 			@include height(36px);
@@ -73,45 +73,45 @@
 			padding-left: 16px;
 			font-size: $font-size-larger;
 		}
-		
-		input.signup { 
+
+		input.signup {
 		    border: medium none;
-		    
+
 		    cursor: pointer;
 		    display: inline-block;
-			
+
     		overflow: hidden;
     		padding: 0 31px 0 11px;
     		width: 111px;
     		margin-bottom: 10px;
 		}
-		input.donate { 
+		input.donate {
 		    cursor: pointer;
 		    display: inline-block;
     		overflow: hidden;
     		padding: 0 31px 0 11px;
             width: 50%;
-            
+
 		}
 		.donate_amount {
 		    text-align: center;
 		}
-		
+
 		div {
 	        padding:0px;
 	        margin:0px;
 		}
 	}
-	
-	div.button { 
-		padding-top:10px;	
-		text-align: center;	
+
+	div.button {
+		padding-top:10px;
+		text-align: center;
 		color: #FFF;
 	}
 	#donatesubmit {
 	    font-size: $font-size-larger;
 	}
-	label { 
+	label {
 		width:100%;
 		display:block;
 		clear:both;
@@ -120,41 +120,41 @@
 }
 
 
-.js-rightcol-padd { 
+.js-rightcol-padd {
     margin:0px;
 }
 
 h3.heading {
-	color:$text-blue; 
+	color:$text-blue;
 	font-weight:bold;
 }
 
-ul.ungluingwhat { 
-	list-style: none; 
-	padding:0; 
+ul.ungluingwhat {
+	list-style: none;
+	padding:0;
 	margin:0 -10px;
-	
-	li { 
-		margin-bottom:3px; 
-		background:#fff; 
-		padding: 10px; 
-		display:block; 
+
+	li {
+		margin-bottom:3px;
+		background:#fff;
+		padding: 10px;
+		display:block;
 		overflow:hidden;
-		
-		> span { 
+
+		> span {
 			float: left;
 		}
 	}
-	
-	.user-avatar { 
+
+	.user-avatar {
 		width:43px;
-		
+
 		img {
 			@include one-border-radius(5px);
 		}
 	}
-	
-	.user-book-info { 
+
+	.user-book-info {
 		margin-left: 5px;
 		width: 160px;
 		word-wrap: break-word;
@@ -166,17 +166,17 @@ ul.ungluingwhat {
 	}
 }
 
-div.typo2 { 
-	background:$pale-blue; 
-	@include one-border-radius(12px); 
-	padding:10px; 
+div.typo2 {
+	background:$pale-blue;
+	@include one-border-radius(12px);
+	padding:10px;
 	font-style:italic;
 }
 
-div.signup_btn { 
+div.signup_btn {
 	display:block;
 	overflow:hidden;
-	
+
 	a {
 		background: url("#{$image-base}bg.png") no-repeat scroll right top transparent;
 		color: #fff;
@@ -188,7 +188,7 @@ div.signup_btn {
     	text-decoration: none;
     	text-transform: capitalize;
 		float:left;
-		
+
 		span {
 			background: url("#{$image-base}bg.png") no-repeat scroll -770px -36px transparent;
     	display: block;
@@ -199,64 +199,64 @@ div.signup_btn {
 }
 
 .have-content-right-module {
-	.item-content { 
-		float:left; 
-		width:364px; 
+	.item-content {
+		float:left;
+		width:364px;
 		font-size: $font-size-larger;
 		height: 132px;
-		border-bottom:7px solid $bright-blue; 
-		
-		p { 
-			margin-bottom:20px; 
+		border-bottom:7px solid $bright-blue;
+
+		p {
+			margin-bottom:20px;
 			line-height:135%;
 		}
-		
-		h2.page-heading { 
+
+		h2.page-heading {
 			padding-right:97px;
 			line-height:43px;
 			padding-bottom:4px;
 			padding-top: 5px;
 		}
 	}
-	
+
 	.content-right-module {
 		width:268px;
 		float:right;
-		
+
 		h3 {
 			color:$bright-blue;
-			text-transform:uppercase; 
-			font-size:24px; 
-			font-weight:normal; 
-			padding:0; 
+			text-transform:uppercase;
+			font-size:24px;
+			font-weight:normal;
+			padding:0;
 			margin:0 0 16px 0;
 		}
 	}
 }
 
-h2.page-heading { 
+h2.page-heading {
 	color:#3c4e52;
 	font-size:28px !important;
 	font-style:italic;
 	font-weight:normal !important;
 }
 
-#js-maincontainer-faq { 
-	clear: both; 
-	overflow:hidden; 
-	margin:15px 0; 
+#js-maincontainer-faq {
+	clear: both;
+	overflow:hidden;
+	margin:15px 0;
 	width:100%;
 }
 
-.js-maincontainer-faq-inner { 
-	float:right; 
-	color:$text-blue; 
-	font-size: $font-size-larger; 
+.js-maincontainer-faq-inner {
+	float:right;
+	color:$text-blue;
+	font-size: $font-size-larger;
 	padding-right:60px;
-	
-	a { 
+
+	a {
 		font-weight:normal;
-		color:$text-blue; 
+		color:$text-blue;
 		text-decoration:underline;
 	}
 }
@@ -290,7 +290,7 @@ a.more_featured_books {
     margin: 5px 0;
     border: 5px solid white;
     line-height: 305px;
-    text-align: center;    
+    text-align: center;
     &:hover {
         cursor: pointer;
         border-color: $pale-blue;
@@ -318,11 +318,11 @@ ul#as_seen_on {
         list-style-type: none;
         padding: 10px;
         line-height: 80px;
-        
+
         &:hover {
             background: $bright-blue;
         }
-        
+
         img {
             vertical-align: middle;
             max-width: 131px;
@@ -351,11 +351,11 @@ ul#as_seen_on {
         border-style: solid;
         border-color: $medium-blue transparent;
         /* reduce the damage in FF3.0 */
-        display:block; 
+        display:block;
         width:0;
-        
+
     }
-	
+
 	&:after {
         content: "";
 	    position: absolute;
@@ -367,10 +367,10 @@ ul#as_seen_on {
         border-style: solid;
         border-color: #fff transparent;
         /* reduce the damage in FF3.0 */
-        display:block; 
+        display:block;
         width:0;
     }
-    
+
     span {
         padding-left: 1em;
         &:before {
@@ -380,7 +380,7 @@ ul#as_seen_on {
             font-size: $font-size-header*2;
             content:"\201C";
         }
-        
+
         &:after {
             position: absolute;
             top: .75em;

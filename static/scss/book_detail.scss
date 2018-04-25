@@ -72,6 +72,10 @@
 		}
 	}
 
+	.btn_wishlist span {
+		text-align: right;
+	}
+
 	.find-book label {
         float:left;
         line-height:31px;
@@ -125,8 +129,9 @@
         background: -o-linear-gradient(left, $greener-than-alert, $call-to-action);
         background: linear-gradient(left, $greener-than-alert, $call-to-action);
 
-        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='@alert', endColorstr='$call-to-action'); /* IE6 & IE7 */
-        -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='@alert', endColorstr='$call-to-action')"; /* IE8+ */
+
+        filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$alert', endColorstr='$call-to-action'); /* IE6 & IE7 */
+        -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='$alert', endColorstr='$call-to-action')"; /* IE8+ */
 
 	    &.successful {
 	        border-color: $bright-blue;

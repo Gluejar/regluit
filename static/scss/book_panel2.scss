@@ -43,7 +43,7 @@
     background:#FFF;
     margin:0px;
     @include one-border-radius(4px);
-    border: 1px solid #81bb38;    
+    border: 1px solid #81bb38;
 }
 
 .buyit {
@@ -56,7 +56,7 @@
     @include greenpanelactionitems(10px, $lineheight);
     padding:0px 0px 0px $padding;
     color:$dark-green;
-    	
+
     &:hover {
 		text-decoration:none;
 	}
@@ -69,12 +69,12 @@
     padding:0px;
     margin:0 0 0 0;
     @include greenpanelactionborders;
-    
+
     a, span {
     	@include greenpanelactionitems(left, 30px);
 		padding:0 $right 0 21px;
     	color:#FFF;
-    	
+
    		&:hover { @include panelhoverlink;}
 	}
 }
@@ -112,7 +112,7 @@ $charset: "utf-8";
     color: $text-blue;
     border: 5px solid $pale-blue;
     position: relative;
-    
+
     &:hover {
     	color: $text-blue;
 	}
@@ -121,7 +121,7 @@ $charset: "utf-8";
 	    padding:5px 0px;
     	margin:0px;
 	}
-	
+
 	.pledge.side1 {
 	    display: none;
 	}
@@ -138,8 +138,8 @@ $charset: "utf-8";
     line-height:16px;
     max-height:32px;
     color: $text-blue;
-    overflow: hidden;    
-    
+    overflow: hidden;
+
     a {
     	color: $medium-blue;
     }
@@ -153,11 +153,11 @@ $charset: "utf-8";
 	position: absolute;
 	bottom: -3px;
 	width: 140px;
-	
+
 	.booklist-status-img {
 		float: left;
 	}
-	
+
 	.booklist-status-label {
 		position: absolute;
 		color: $green;
@@ -167,11 +167,11 @@ $charset: "utf-8";
 		font-size: 17px;
 		margin-bottom: 3px;
 	}
-	
+
     .panelnope {
     	display: none;
     }
-    
+
     .rounded {
     	margin-bottom: 7px;
     }
@@ -181,7 +181,7 @@ span.rounded {
 	@include roundedspan;
 }
 
-span.grey { 
+span.grey {
 	@include supporter-color-span(#bacfd6, "grey");
 }
 
@@ -220,17 +220,17 @@ div.panelview.side2  {
 	height: 135px;
 }
 .greenpanel2 .button_text {
-    height: 30px; 
+    height: 30px;
     line-height: 30px
 }
 .greenpanel2 .bottom_button {
-    position: absolute; 
-    bottom: 0px; 
+    position: absolute;
+    bottom: 0px;
     height: 26px;
 }
 .greenpanel2 .add_button {
-    position: absolute; 
-    bottom: 60px; 
+    position: absolute;
+    bottom: 60px;
     height: 26px;
 }
 
@@ -240,7 +240,7 @@ div.panelview.side2  {
     margin: 0px auto 10px auto;
     padding: 5px 0 10px 0;
     height:58px;
-    
+
     p{
         margin:0;
     }
@@ -256,24 +256,24 @@ div.panelview.side2  {
 
 		&:hover { @include panelhoverlink; }
 	}
-	
+
 	&.pledge {
 		span {
 			@include readit_inner(25px, 35px);
 			background: none;
-			
+
 			&:hover { @include panelhoverlink; }
 		}
-		
+
 		background-image: url("#{$image-base}icons/pledgearrow-green.png");
 		background-repeat: no-repeat;
-		background-position: 90% center;		
-	}	
+		background-position: 90% center;
+	}
 }
 
 .read_itbutton_fail {
 	@include readit;
-	
+
 	span {
 		@include readit_inner(15px, 35px);
 		background: none;
@@ -287,7 +287,7 @@ div.panelview.side2  {
 
 .Unglue_itbutton{
 	@include readit;
-	
+
 	a {
     	background-image: url("#{$image-base}book-panel/unglue_icon.png");
     	@include readit_inner(25px, 40px);
@@ -320,10 +320,10 @@ div.panelview.side2  {
 	 a {
     	color:#FFF;
     	text-decoration:none;
-    	
+
     	&:hover { @include panelhoverlink;}
 	}
-	
+
 	p {
 		/* necessary to ensure title/author don't overflow onto icons */
     	line-height:16px;
@@ -337,7 +337,7 @@ div.panelview.side2  {
 	@include banners(0);
 	background: url("#{$image-base}book-panel/more_icon.png") no-repeat left center;
 	cursor: pointer;
-	
+
 	> div {
 		@include height(30px);
 		padding-bottom:8px;
@@ -390,7 +390,7 @@ div.panelview.side2  {
     padding:0px;
     margin:0px;
     float:left;
-    
+
 }
 .right_add{
     padding:10px;
@@ -403,11 +403,11 @@ div.panelview.side2  {
     margin:0px;
     padding:0px;
     left:0px;
-    
-    img { 
+
+    img {
         z-index: 100;
         width: 120px;
-        height: 182px; 
+        height: 182px;
     }
 
 	span {
@@ -418,5 +418,5 @@ div.panelview.side2  {
         z-index: 1000;
         height:auto;
     }
-   
+
 }
