@@ -3,7 +3,7 @@ Fabric==1.6.0
 MySQL-python==1.2.5
 Pillow==3.4.2
 PyJWT==1.4.1
-PyPDF2==1.23
+PyPDF2==1.26
 PyGithub==1.15.0
 PyYAML==3.11
 amqp==1.4.9
@@ -41,7 +41,7 @@ fef-questionnaire==4.0.1
 git+https://github.com/gitenberg-dev/gitberg-build
 #git+ssh://git@github.com/gitenberg-dev/metadata.git@0.1.11
 github3.py==0.9.5
-html5lib==1.0b3
+html5lib==1.0.1
 httplib2==0.7.5
 isodate==0.5.1
 kombu==3.0.35
@@ -68,7 +68,7 @@ pytz==2016.6.1
 rdflib==4.2.0
 rdflib-jsonld==0.3
 redis==2.10.3
-reportlab==3.1.8
+reportlab==3.4.0
 requests==2.10.0
 requests-mock==1.2.0
 requests-oauthlib==0.6.2
@@ -82,7 +82,8 @@ virtualenv==1.4.9
 # virtualenv-clone==0.2.4 not sure why I have this in my env
 #virtualenvwrapper==3.6
 wsgiref==0.1.2
-xhtml2pdf==0.0.6
+xhtml2pdf==0.2.2
+webencodings==0.5.1
 #for urllib3 secure
 cffi==1.7.0
 cryptography==1.4
