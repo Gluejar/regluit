@@ -193,7 +193,7 @@ class BookLoaderTests(TestCase):
         self.assertEqual(models.Work.objects.all().count(), before)
 
     def test_missing_isbn(self):
-        e = bookloader.add_by_isbn_from_google('0139391401')
+        e = bookloader.add_by_isbn_from_google('9781938616990') #unassigned in gluejar block
         self.assertEqual(e, None)
 
     def test_thingisbn_mock(self):
