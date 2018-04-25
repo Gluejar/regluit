@@ -26,6 +26,7 @@ from django.http import Http404
 from django.test import TestCase
 from django.test.client import Client
 from django.test.utils import override_settings
+from django.utils.timezone import now
 
 from django_comments.models import Comment
 
@@ -65,8 +66,8 @@ from regluit.core.validation import valid_subject
 from regluit.frontend.views import safe_get_work
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
-from regluit.utils.localdatetime import now, date_today
 from regluit.pyepub import EPUB
+from regluit.utils.localdatetime import date_today
 from .epub import test_epub
 from .pdf import test_pdf
 
@@ -998,58 +999,6 @@ class DownloadPageTest(TestCase):
         self.assertTrue(eb2.edition.work.is_free)
         eb2.delete()
         self.assertFalse(eb2.edition.work.is_free)
-
-
-class LocaldatetimeTest(TestCase):
-    @override_settings(LOCALDATETIME_NOW=None)
-    def test_LOCALDATETIME_NOW_none(self):
-
-        try:
-            localdatetime.now
-        except NameError:
-            from regluit.utils import localdatetime
-        else:
-            reload(localdatetime)
-
-        self.assertAlmostEqual(
-            mktime(datetime.now().timetuple()),
-            mktime(localdatetime.now().timetuple()),
-            1.0
-        )
-
-    @override_settings(LOCALDATETIME_NOW=lambda: datetime.now() + timedelta(365))
-    def test_LOCALDATETIME_NOW_year_ahead(self):
-
-        try:
-            localdatetime.now
-        except NameError:
-            from regluit.utils import localdatetime
-        else:
-            reload(localdatetime)
-
-        self.assertAlmostEqual(
-            mktime((datetime.now() + timedelta(365)).timetuple()),
-            mktime(localdatetime.now().timetuple()),
-            1.0
-        )
-
-    def test_no_time_override(self):
-
-        from regluit.utils import localdatetime
-        self.assertAlmostEqual(
-            mktime(datetime.now().timetuple()),
-            mktime(localdatetime.now().timetuple()),
-            1.0
-        )
-
-    def tearDown(self):
-        # restore localdatetime.now() to what's in the settings file
-        try:
-            localdatetime.now
-        except NameError:
-            from regluit.utils import localdatetime
-        else:
-            reload(localdatetime)
 
 class MailingListTests(TestCase):
     #mostly to check that MailChimp account is setp correctly

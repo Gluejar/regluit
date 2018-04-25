@@ -24,6 +24,7 @@ from django.http import (
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.test.utils import setup_test_environment
+from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic.edit import FormView
 from django.views.generic.base import TemplateView
@@ -38,7 +39,6 @@ from regluit.payment.models import Transaction
 from regluit.payment.parameters import *
 from regluit.payment.stripelib import STRIPE_PK
 from regluit.payment.tests import PledgeTest, AuthorizeTest
-from regluit.utils.localdatetime import now
 
 logger = logging.getLogger(__name__)
 

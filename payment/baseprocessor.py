@@ -10,12 +10,12 @@ from datetime import timedelta
 django imports
 """
 from django.http import  HttpResponseForbidden
+from django.utils.timezone import now
 
 """
 regluit imports
 """
 from regluit.payment.models import PaymentResponse
-from regluit.utils.localdatetime import now, zuluformat
 
 class ProcessorError(Exception):
     """An abstraction around payment processor exceptions"""

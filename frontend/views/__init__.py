@@ -45,6 +45,7 @@ from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
 from django.utils.http import urlencode
 from django.utils.translation import ugettext_lazy as _
+from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from django.views.generic.edit import FormView
@@ -123,11 +124,11 @@ from regluit.payment.parameters import (
     COMPANY_TITLE
 )
 
-from regluit.utils.localdatetime import now, date_today
 from regluit.libraryauth.forms import UserNamePass
 from regluit.libraryauth.views import Authenticator, superlogin, login_user
 from regluit.libraryauth.models import Library
 from regluit.marc.views import qs_marc_records
+from regluit.utils.localdatetime import date_today
 from questionnaire.models import Landing, Questionnaire
 from questionnaire.views import export_summary as answer_summary, export_csv as export_answers
 

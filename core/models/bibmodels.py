@@ -20,10 +20,10 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import F
 from django.db.models.signals import post_save, pre_delete
+from django.utils.timezone import now
 
 import regluit
 from regluit.marc.models import MARCRecord as NewMARC
-from regluit.utils.localdatetime import now
 from questionnaire.models import Landing
 
 from regluit.core import mobi
