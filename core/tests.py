@@ -5,9 +5,10 @@ import os
 from datetime import datetime, timedelta
 from decimal import Decimal as D
 from math import factorial
-from time import sleep, mktime
+import unittest
 from urlparse import parse_qs, urlparse
 from tempfile import NamedTemporaryFile
+from time import sleep, mktime
 
 from celery.task.sets import TaskSet
 import requests
@@ -25,7 +26,6 @@ from django.http import Http404
 from django.test import TestCase
 from django.test.client import Client
 from django.test.utils import override_settings
-from django.utils import unittest
 from django.utils.timezone import now
 
 from django_comments.models import Comment
@@ -163,7 +163,7 @@ class BookLoaderTests(TestCase):
         if not (mocking or settings.TEST_INTEGRATION):
             return
         edition = bookloader.add_by_isbn('9787104030126')
-        self.assertEqual(edition.work.language, 'zh-CN')
+        self.assertEqual(edition.work.language, u'zh-CN')
 
     def test_update_edition_mock(self):
         with requests_mock.Mocker(real_http=True) as m:

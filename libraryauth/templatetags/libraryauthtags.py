@@ -1,6 +1,6 @@
 import unicodedata
 
-from django.template.base import Library
+from django.template import Library
 from .. import models
 
 register = Library()
