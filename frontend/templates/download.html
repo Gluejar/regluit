@@ -38,7 +38,7 @@
             {{ work.last_campaign.description|safe }}
             <div class="clearfix"></div>
         </div>
-        <div id="askblock">
+        <div id="askblock" class="card">
             <div>Say thank you for making <a href="{% url 'work' work.id %}">{{ work.title }}</a> free.</div>
             <form class="askform" method="POST" action="{% url 'thank' work.id %}#">
                 {% csrf_token %}
@@ -120,7 +120,7 @@
                 {% endif %}
                 <div class="ebook_download">
                     {% for ebook in other_ebooks %}
-                    <div class="download_option">
+                    <div class="download_option flexible card">
                         <span class="ebook_format_label h4">{{ebook.format}}: </span>
                         <a href="{% url 'download_ebook' ebook.id %}">
                             <i class="fa fa-download fa-2x" title="Download {{ebook.format}}"></i>
@@ -149,7 +149,7 @@
                 {% endif %}
                 {% endif %}
                 {% else %}
-                <div class="border">
+                <div class="card">
                     <p id="content-block">There are no freely available downloads of <I>{{ work.title }}</I> right now.  {% if not work in request.user.wishlist.works.all %}Would you like there to be? <a class="add-wishlist"><span class="work_id" id="w{{ work.id }}">Add this book to your wishlist.</span></a>{% else %}Ask your friends to add it to their favorites!{% endif %}</p>
 
                     <p>If you know of a Creative-Commons-licensed or US public domain edition of this book, you can add it through the <a href="{% url 'work' work.id %}?tab=4">More... tab of the book page</a>.</p>
@@ -416,11 +416,7 @@
                 </div>
             </li>
         </ul>
-        <div class="border">
-            <div class="instructions">
-            </div>
-
-            <br />
+        <div class="download_footer card">
             <h4>Need more help?</h4>
             <p><a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">Ask us a question!</a></p>
 

@@ -3,11 +3,6 @@
 @import 'settings';
 @import 'foundation';
 
-.download_container {
-	width: 75%;
-	margin: auto;
-}
-
 #lightbox_content a {
 	color: $medium-blue;
 }
@@ -137,9 +132,11 @@
 
 //
 
-.download_option {
+.download_option.flexible {
 
     display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
 
@@ -168,15 +165,45 @@
     max-width: 400px;
 }
 
+.download_footer {
+    padding: 15px;
+}
+
+.download_container {
+    margin: 0px 10px;
+}
 
 @supports (grid-template-rows: auto) {
     @include breakpoint (medium) {
-        .ebook_download {
-            flex-direction: row;
+        .download_container {
+	          width: 75%;
+	          margin: auto;
         }
 
-        .download_option {
+        #download_content {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+
+            .rh_ask, #askblock {
+                padding: 15px;
+                flex: 1 0 50%;
+            }
+
+        }
+
+        .ebook_download {
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+        .download_option.flexible {
             flex: 1 0 40%;
+            flex-direction: column;;
+
+            i {
+                padding: 10px;
+            }
         }
     }
 }
