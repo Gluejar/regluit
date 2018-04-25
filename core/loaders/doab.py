@@ -229,9 +229,9 @@ def load_doab_edition(title, doab_id, url, format, rights,
             break
 
     if edition is not None:
-        # if this is a new edition, then add related editions asynchronously
+        # if this is a new edition, then add related editions SYNCHRONOUSLY
         if getattr(edition, 'new', False):
-            tasks.populate_edition.delay(edition.isbn_13)
+            tasks.populate_edition(edition.isbn_13)
         doab_identifer = models.Identifier.get_or_add(type='doab', value=doab_id,
                                                       work=edition.work)
 
