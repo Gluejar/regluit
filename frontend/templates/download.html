@@ -91,14 +91,14 @@
 
         {% else %}
         <div class="download-body">
-            <h1>Downloads for <I><a href="{% url 'work' work.id %}">{{ work.title }}</a></i></h1>
+            <h1 class="h2">Downloads for <I><a href="{% url 'work' work.id %}">{{ work.title }}</a></i></h1>
             <div class="ebook_download_container">
                 {% if testmode %}
                 <i>Download links for uploaded files will appear here when campaign is launched.</i>
                 {% endif %}
                 {% if unglued_ebooks or other_ebooks or acq %}
                 {% if unglued_ebooks %}
-                <h3>Download the unglued edition</h3>
+                <h2 class="h4">Download the unglued edition</h2>
                 <div class="ebook_download">
                     {% for ebook in unglued_ebooks %}
                     <a href="{% url 'download_ebook' ebook.id %}">
@@ -114,9 +114,9 @@
                 {% endif %}
                 {% if other_ebooks %}
                 {% if unglued_ebook %}
-                <h3>Download other freely available editions</h4>
+                <h2 class="h4">Download other freely available editions</h2>
                 {% else %}
-                <h3>Download freely available editions</h4>
+                <h2 class="h4">Download freely available editions</h2>
                 {% endif %}
                 <div class="ebook_download">
                     {% for ebook in other_ebooks %}
@@ -136,7 +136,7 @@
                 {% endif %}
                 {% if acq %}
                 {% if work.last_campaign.type == 2 %}
-                <h3>Download your ebook{% if acq.lib_acq %}{% if acq.on_reserve %}, on reserve for you at{% else %}, on loan to you at{% endif %} {{ acq.lib_acq.user.library }}{% endif %}</h3>
+                <h2 class="h4">Download your ebook{% if acq.lib_acq %}{% if acq.on_reserve %}, on reserve for you at{% else %}, on loan to you at{% endif %} {{ acq.lib_acq.user.library }}{% endif %}</h2>
                 <div class="ebook_download">
                     <a href="{{ formats.epub }}"><img src="/static/images/epub32.png" height="32" alt="epub" title="epub" /></a>
                     <a href="{{ formats.epub }}">EPUB</a> (for iBooks, Nook, Kobo)
@@ -158,7 +158,7 @@
             {% endif %}
             {% if xfer_url or can_kindle %}
             <div class="one_click clearfix">
-                <h3>One-click options</h3>
+                <h2 class="h4">One-click options</h2>
                 {% if mac_ibooks and xfer_url %}
                 <div id="mac_ibooks" title="{{ work.id }}" >
                     <div class="btn_support mac_ibooks"><a href="{{ xfer_url }}">Load to iBooks</a></div>
@@ -198,7 +198,7 @@
             <div class="clearfix"></div>
         </div>
         {% if unglued_ebooks or other_ebooks or acq %}
-        <h3>Need Instructions?</h3>
+        <h2 class="h4">Need Instructions?</h2>
         <ul class="accordion flex_ul" data-accordion data-allow-all-closed="true" data-multi-expand="true">
             <li class="accordion-item {% if iOS_app %}is-active{% endif %}" data-accordion-item style="order: {% if iOS_app %} 0 {% else %} 1 {% endif %}">
                 <a href="#" class="accordion-title">iOS App</a>
