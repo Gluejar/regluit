@@ -121,7 +121,7 @@
                 <div class="ebook_download">
                     {% for ebook in other_ebooks %}
                     <div class="download_option flexible card">
-                        <span class="ebook_format_label h4">{{ebook.format}}: </span>
+                        <span class="ebook_format_label h4">{{ebook.format}}:<img class="hide-for-small-only" src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }} at {{ebook.provider}}" title="{{ ebook.format }} at {{ebook.provider}}" /></span>
                         <a href="{% url 'download_ebook' ebook.id %}">
                             <i class="fa fa-download fa-2x" title="Download {{ebook.format}}"></i>
                         </a>
@@ -129,6 +129,7 @@
                         <span class="dropbox_download_option" >
                             <a class="dropbox-saver" href="{{ ebook.download_url }}" data-filename="unglueit-{{ work.id }}.{{ ebook.format }}"></a>
                         </span>
+                        <img src="{{ ebook.rights_badge }}" class="hide-for-small-only" alt="{{ ebook.rights}}" title="{{ ebook.rights}}" />
                         {% endif %}
                     </div>
                     {% endfor %}

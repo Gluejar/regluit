@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 {% load truncatechars %}{% load sass_tags %}
 
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -58,7 +58,7 @@
         </div>
         <div id="header-search-bar">
             <form action="{% url 'search' %}" method="get">
-                <input type="text" placeholder="Search" id="nowatermark" size="25" onfocus="imgfocus()" onblur="imgblur(15)" class="inputbox" name="q" value="{{ q }}"></input>
+                <input role="search" type="text" placeholder="Search" id="nowatermark" size="25" onfocus="imgfocus()" onblur="imgblur(15)" class="inputbox" name="q" value="{{ q }}"></input>
                 <i class="fa fa-search"></i>
             </form>
         </div>
