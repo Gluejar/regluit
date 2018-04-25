@@ -1,5 +1,7 @@
 @import "variables.scss";
 @import "social_share.scss";
+@import 'settings';
+@import 'foundation';
 
 .download_container {
 	width: 75%;
@@ -139,6 +141,7 @@
 
     display: flex;
     justify-content: space-between;
+    align-items: center;
 
     padding: 9px 0px;
 
@@ -159,4 +162,17 @@
 .flex_ul {
     display: flex;
     flex-direction: column;
+}
+
+
+@supports (grid-template-rows: auto) {
+    @include breakpoint (medium) {
+        .ebook_download {
+            flex-direction: row;
+        }
+
+        .download_option {
+            flex: 1 0 40%;
+        }
+    }
 }

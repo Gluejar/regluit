@@ -21,6 +21,9 @@
 </script>
 {% endblock %}
 
+{% block extra_css %}
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/download.scss' %}"  />
+{% endblock %}
 {% block avatar %}
 <img class="user-avatar" src="/static/images/header/avatar.png" height=36 width="36" alt="private" title="private" />
 {% endblock %}
