@@ -122,7 +122,9 @@
                     {% for ebook in other_ebooks %}
                     <div class="download_option">
                         <span class="ebook_format_label h4">{{ebook.format}}: </span>
-                        <a href="{% url 'download_ebook' ebook.id %}"><i class="fa fa-download fa-2x"></i></a>
+                        <a href="{% url 'download_ebook' ebook.id %}">
+                            <i class="fa fa-download fa-2x" title="Download {{ebook.format}}"></i>
+                        </a>
                         {% if ebook.is_direct %}
                         <span class="dropbox_download_option" >
                             <a class="dropbox-saver" href="{{ ebook.download_url }}" data-filename="unglueit-{{ work.id }}.{{ ebook.format }}"></a>
@@ -166,24 +168,24 @@
                 <div id="kindle_div">
                     {% if request.user.is_authenticated and request.user.profile.kindle_email %}
                     <div class="yes_js">
-                        <div id="kindle" class="btn_support authenticated" title="{{ work.id }}" >
-                            <a>Send to Kindle</a>
+                        <div id="kindle" class="authenticated" title="{{ work.id }}" >
+                            <a class="button success" >Send to Kindle</a>
                         </div>
                     </div>
                     <div class="no_js">
-                        <form method="POST" class="btn_support" action="{% url 'send_to_kindle' work.id 0 %}">
-                            <input type="submit" value="Send to Kindle">
+                        <form method="POST" action="{% url 'send_to_kindle' work.id 0 %}">
+                            <input class="button success" type="submit" value="Send to Kindle">
                         </form>
                     </div>
                     {% else %}
-                    <a class="button secondary expanded" href="{% url 'kindle_config_download' work.id %}">Set up Send to Kindle </a>
+                    <a class="button secondary" href="{% url 'kindle_config_download' work.id %}">Set up Send to Kindle </a>
                     {% endif %}
                 </div>
                 {% endif %}
                 {% if xfer_url %}
                 {% if iOS %}
                 <div id="marvin" title="{{ work.id }}" >
-                    <div class="btn_support marvin"><a href="marvinhttp://{{ xfer_url|urlencode }}">Load to Marvin</a></div>
+                    <a class="button success" href="marvinhttp://{{ xfer_url|urlencode }}">Load to Marvin</a>
                 </div>
                 {% endif %}
 

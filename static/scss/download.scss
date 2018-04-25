@@ -164,6 +164,10 @@
     flex-direction: column;
 }
 
+.askform {
+    max-width: 400px;
+}
+
 
 @supports (grid-template-rows: auto) {
     @include breakpoint (medium) {
