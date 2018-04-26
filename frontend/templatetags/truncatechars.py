@@ -7,7 +7,7 @@ then {{ myvariable|truncatechars:num }}
 import unicodedata
 
 from django import template
-from django.template.base import Library
+from django.template import Library
 from django.template.defaultfilters import stringfilter
 from django.utils.encoding import force_unicode
 from django.utils.functional import allow_lazy, SimpleLazyObject

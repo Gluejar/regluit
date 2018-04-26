@@ -101,7 +101,7 @@ def create_notice_types( **kwargs):
     notification.create_notice_type("purchase_notgot_gift", _("Your gift wasn't received."), _("The ebook you sent as a gift has not yet been redeemed."))
     notification.create_notice_type("donation", _("Your donation was processed."), _("Thank you, your generous donation has been processed."))
     
-signals.post_syncdb.connect(create_notice_types, sender=notification)
+signals.post_migrate.connect(create_notice_types, sender=notification)
 
 # define the notifications and tie them to corresponding signals
 
