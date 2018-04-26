@@ -35,7 +35,8 @@ django-selectable==0.9.0
 django-smtp-ssl==1.0
 django-storages==1.4.1
 django-tastypie==0.13.3
-#django-transmeta==0.7.3 git+git://github.com/resulto/django-transmeta.git@ad4d7278ba330dcf8c8446f8ae9b2c769ae8684e
+#django-transmeta==0.7.3 
+git+git://github.com/resulto/django-transmeta.git@ad4d7278ba330dcf8c8446f8ae9b2c769ae8684e
 fef-questionnaire==4.0.1
 #gitenberg.metadata==0.1.6
 git+https://github.com/gitenberg-dev/gitberg-build
