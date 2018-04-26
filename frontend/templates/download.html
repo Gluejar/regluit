@@ -121,8 +121,16 @@
                 <div class="ebook_download">
                     {% for ebook in other_ebooks %}
                     <div class="download_option flexible card">
-                        <span class="ebook_format_label h4">{{ebook.format}}:<img class="hide-for-small-only" src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }} at {{ebook.provider}}" title="{{ ebook.format }} at {{ebook.provider}}" /></span>
-                        <a href="{% url 'download_ebook' ebook.id %}">
+                        <a href="{% url 'download_ebook' ebook.id %}" class="download-label h4">
+                            <span class="hide-for-medium" >
+                                {{ebook.format}}:
+                            </span>
+                            <img class="hide-for-small-only" src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }} at {{ebook.provider}}" title="{{ ebook.format }} at {{ebook.provider}}" />
+                            <span class="hide-for-small-only" >
+                                {{ ebook.format }} {% if ebook.version_label %}  ({{ ebook.version_label }}) {% endif %} at {{ ebook.provider }}
+                            </span>
+                        </a>
+                        <a href="{% url 'download_ebook' ebook.id %}" class="hide-for-medium">
                             <i class="fa fa-download fa-2x" title="Download {{ebook.format}}"></i>
                         </a>
                         {% if ebook.is_direct %}
@@ -422,10 +430,14 @@
             <p><a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">Ask us a question!</a></p>
 
             <div>
-                <a href="http://www.defectivebydesign.org/drm-free"><img src="/static/images/DRM-free150.png" alt="DefectiveByDesign.org" border="0" align="middle" /></a> All downloads from Unglue.it are DRM free. Hooray!
+                <a href="https://www.defectivebydesign.org/drm-free">
+                    <img src="/static/images/DRM-free150.png" alt="DefectiveByDesign.org" border="0" align="middle" />
+                </a>
+                <span>
+                    All downloads from Unglue.it are DRM free. Hooray!
+                </span>
             </div>
         </div>
-        {% else %}
         {% endif %}
         {% endif %}
     </div>
