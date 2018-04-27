@@ -26,38 +26,54 @@ class HathitrustScraper(BaseScraper):
             for record in records:
                 self.record = record
                 return
-            self.record = {}
-
+            self.record = None # probably a hdl not pointing at Hathitrust
+        self.record = None
 
     def get_downloads(self):
-        dl_a = self.doc.select_one('#fullPdfLink')
-        value = dl_a['href'] if dl_a else None
-        if value:
-            self.set(
-                'download_url_{}'.format('pdf'),
-                'https://babel.hathitrust.org{}'.format(value)
-            )
+        if self.record:
+            dl_a = self.doc.select_one('#fullPdfLink')
+            value = dl_a['href'] if dl_a else None
+            if value:
+                self.set(
+                    'download_url_{}'.format('pdf'),
+                    'https://babel.hathitrust.org{}'.format(value)
+                )
+        return super(HathitrustScraper, self).get_downloads()
 
     def get_isbns(self):
-        isbn = self.record.get('issn', [])
-        value = identifier_cleaner('isbn', quiet=True)(isbn)
-        return {'print': value} if value else {}
+        if self.record:
+            isbn = self.record.get('issn', [])
+            value = identifier_cleaner('isbn', quiet=True)(isbn)
+            return {'print': value} if value else {}
+        return super(HathitrustScraper, self).get_isbns()
 
     def get_title(self):
-        self.set('title', self.record.get('title', ''))
+        if self.record:
+            self.set('title', self.record.get('title', ''))
+        return super(HathitrustScraper, self).get_title()
 
     def get_keywords(self):
-        self.set('subjects', self.record.get('keywords', []))
+        if self.record:
+            self.set('subjects', self.record.get('keywords', []))
+        return super(HathitrustScraper, self).get_keywords()
 
     def get_publisher(self):
-        self.set('publisher', self.record.get('publisher', ''))
+        if self.record:
+            self.set('publisher', self.record.get('publisher', ''))
+        return super(HathitrustScraper, self).get_publisher()
 
     def get_pubdate(self):
-        self.set('publication_date', self.record.get('year', ''))
+        if self.record:
+            self.set('publication_date', self.record.get('year', ''))
+        return super(HathitrustScraper, self).get_pubdate()
 
     def get_description(self):
-        notes = self.record.get('notes', [])
-        self.set('description', '\r'.join(notes))
+        if self.record:
+            notes = self.record.get('notes', [])
+            self.set('description', '\r'.join(notes))
+        return super(HathitrustScraper, self).get_description()
 
     def get_genre(self):
-        self.set('genre', self.record.get('type_of_reference', '').lower())
+        if self.record:
+            self.set('genre', self.record.get('type_of_reference', '').lower())
+        return super(HathitrustScraper, self).get_genre()
