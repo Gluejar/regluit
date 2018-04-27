@@ -138,7 +138,6 @@ def attach_more_doab_metadata(edition, description, subjects,
 def add_all_isbns(isbns, work, language=None, title=None):
     first_edition = None
     for isbn in isbns:
-        first_edition = None
         edition = bookloader.add_by_isbn(isbn, work, language=language, title=title)
         if edition:
             first_edition = first_edition if first_edition else edition
@@ -149,7 +148,7 @@ def add_all_isbns(isbns, work, language=None, title=None):
                     work = merge_works(edition.work, work)
             else:
                 work = edition.work
-    return first_edition
+    return work, first_edition
 
 def load_doab_edition(title, doab_id, url, format, rights,
                       language, isbns,
@@ -214,12 +213,8 @@ def load_doab_edition(title, doab_id, url, format, rights,
 
     # look for the Edition with which to associate ebook.
     # loop through the isbns to see whether we get one that is not None
-    work = None
-    edition = add_all_isbns(isbns, None, language=language, title=title)
-    if edition:
-        edition.refresh_from_db()
-        work = edition.work
 
+    work, edition = add_all_isbns(isbns, None, language=language, title=title)
     if doab_id and not work:
         # make sure there's not already a doab_id
         idents = models.Identifier.objects.filter(type='doab', value=doab_id)
@@ -232,6 +227,7 @@ def load_doab_edition(title, doab_id, url, format, rights,
         # if this is a new edition, then add related editions SYNCHRONOUSLY
         if getattr(edition, 'new', False):
             tasks.populate_edition(edition.isbn_13)
+        edition.refresh_from_db()
         doab_identifer = models.Identifier.get_or_add(type='doab', value=doab_id,
                                                       work=edition.work)
 
