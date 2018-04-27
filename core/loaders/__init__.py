@@ -16,10 +16,10 @@ from .smashwords import SmashwordsScraper
 def get_scraper(url):
     scrapers = [
         PressbooksScraper,
-        HathitrustScraper,
         SpringerScraper,
         UbiquityScraper,
         SmashwordsScraper,
+        HathitrustScraper,
         BaseScraper,
     ]
     for scraper in scrapers:
