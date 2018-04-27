@@ -1,4 +1,4 @@
-from django.conf.urls import patterns, url, include
+from django.conf.urls import url, include
 from django.contrib.auth.decorators import login_required
 from django.contrib.sitemaps.views import index, sitemap
 from django.views.decorators.cache import never_cache
