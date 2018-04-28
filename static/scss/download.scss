@@ -106,12 +106,13 @@
     min-width: 122px;
 }
 
-@include breakpoint (small down) {
-    .download_option > * {
-        flex: 1 1 0;
-        display: flex;
-        justify-content: center;
-    }
+.download_option > * {
+    flex: 1;
+}
+
+.download-centered {
+    display: flex;
+    justify-content: center;
 }
 
 @include breakpoint (medium) {
@@ -130,25 +131,6 @@
             flex: 1 0 50%;
         }
 
-    }
-
-    .ebook_download {
-        flex-direction: row;
-        flex-wrap: wrap;
-    }
-
-    .download_option.flexible {
-        flex: 1 0 40%;
-        flex-direction: column;
-
-        & > * {
-            margin: 0px;
-            padding: 6px 0px;
-        }
-
-        i {
-            padding: 10px;
-        }
     }
 
     .download-label {

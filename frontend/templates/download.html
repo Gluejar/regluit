@@ -130,14 +130,16 @@
                                 {{ ebook.format }} {% if ebook.version_label %}  ({{ ebook.version_label }}) {% endif %} at {{ ebook.provider }}
                             </span>
                         </a>
-                        <a href="{% url 'download_ebook' ebook.id %}" class="hide-for-medium">
+                        <a href="{% url 'download_ebook' ebook.id %}" class="download-centered hide-for-medium">
                             <i class="fa fa-download fa-2x" title="Download {{ebook.format}}"></i>
                         </a>
                         {% if ebook.is_direct %}
-                        <span class="dropbox_download_option" >
-                            <a class="dropbox-saver" href="{{ ebook.download_url }}" data-filename="unglueit-{{ work.id }}.{{ ebook.format }}"></a>
+                        <span class="dropbox_download_option download-centered" >
+                            <a class="dropbox-saver download-centered" href="{{ ebook.download_url }}" data-filename="unglueit-{{ work.id }}.{{ ebook.format }}"></a>
                         </span>
-                        <img src="{{ ebook.rights_badge }}" class="hide-for-small-only" alt="{{ ebook.rights}}" title="{{ ebook.rights}}" />
+                        <span class="download-centered hide-for-small-only">
+                            <img src="{{ ebook.rights_badge }}" class="" alt="{{ ebook.rights}}" title="{{ ebook.rights}}" />
+                        </span>
                         {% endif %}
                     </div>
                     {% endfor %}
@@ -241,18 +243,18 @@
                     <p>
                         You may already have an app which reads ebooks.  Download the <a href="{{ formats.epub }}">epub file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
                     </p>
-                    <p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpg" alt="iBooks Logo" />iBooks</p>
+                    <p class="logo"><img src="/static/images/ibooks_logo.jpg" alt="iBooks Logo" />iBooks</p>
                     <ul>
                         <li><a href="https://itunes.apple.com/us/app/ibooks/id364709193?mt=8">Download the free iBooks app</a> from the App Store.</li>
                         <li>Download the <a href="{{ formats.epub }}">epub file</a>.</li>
                         <li>You will be given the option of opening the file in iBooks.</li>
                     </ul>
-                    <p class="ebook_download logo"><img src="/static/images/marvin_logo.jpg" alt="Marvin Logo" />Marvin is a great way to read ebooks. </p>
+                    <p class="logo"><img src="/static/images/marvin_logo.jpg" alt="Marvin Logo" />Marvin is a great way to read ebooks. </p>
                     <ul>
                         <li><a href="https://itunes.apple.com/us/app/marvin-ebook-reader-for-epub/id667361209?ls=1&mt=8">Install Marvin</a> from the App Store.</li>
                         <li>Click the "Load to Marvin" button above.</li>
                     </ul>
-                    <p class="ebook_download logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />So is Aldiko.</p>
+                    <p class="logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />So is Aldiko.</p>
 
                     <ul>
                         <li><a href="http://www.aldiko.com/">Download the free Aldiko app.</a></li>
@@ -264,7 +266,7 @@
                     <p>
                         You may already have an app which reads ebooks.  Download the <a href="{{ formats.pdf }}">pdf file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
                     </p>
-                    <p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpg" alt="iBooks Logo" />iBooks</p>
+                    <p class="logo"><img src="/static/images/ibooks_logo.jpg" alt="iBooks Logo" />iBooks</p>
                     <ul>
                         <li><a href="https://itunes.apple.com/us/app/ibooks/id364709193?mt=8">Download the free iBooks app</a> from the App Store.</li>
                         <li>Download the <a href="{{ formats.pdf }}">pdf file</a>.</li>
@@ -296,7 +298,7 @@
                     <p>
                         You may already have an app which reads ebooks.  Download the <a href="{{ formats.epub }}">epub file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
                     </p>
-                    <p class="ebook_download logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />Aldiko</p>
+                    <p class="logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />Aldiko</p>
 
                     <ul>
                         <li><a href="http://www.aldiko.com/">Download the free Aldiko app.</a></li>
@@ -307,7 +309,7 @@
                     <p>
                         You may already have an app which reads ebooks.  Download the <a href="{{ formats.pdf }}">pdf file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
                     </p>
-                    <p class="ebook_download logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />Aldiko</p>
+                    <p class="logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />Aldiko</p>
 
                     <ul>
                         <li><a href="http://www.aldiko.com/">Download the free Aldiko app.</a></li>
@@ -342,13 +344,13 @@
                     </p>
                     {% elif formats.epub %}
                     {% if mac_ibooks %}
-                    <p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpg" alt="iBooks Logo" />iBooks</p>
+                    <p class="logo"><img src="/static/images/ibooks_logo.jpg" alt="iBooks Logo" />iBooks</p>
                     <ul>
                         <li>The iBooks app is pre-installed with your system software.</li>
                         <li>Download the <a href="{{ formats.epub }}">epub file</a>. You should be offered the choice to open it in iBooks</li>
                     </ul>
                     {% endif %}
-                    <p class="ebook_download logo"><img src="/static/images/calibre_logo.png" alt="Calibre Logo" />Calibre</p>
+                    <p class="logo"><img src="/static/images/calibre_logo.png" alt="Calibre Logo" />Calibre</p>
                     <ul>
                         <li><a href="http://calibre-ebook.com/download">Download the free Calibre app.</a></li>
                         <li>Download the <a href="{{ formats.epub }}">epub file</a>.</li>
@@ -356,7 +358,7 @@
                         <li>You can <a href="http://blog.marvinapp.com/post/53438723356">use a Calibre plugin</a> to manage files on reader apps.
                     </ul>
                     {% elif formats.mobi %}
-                    <p class="ebook_download logo"><img src="/static/images/calibre_logo.png" alt="Calibre Logo" />Calibre</p>
+                    <p class="logo"><img src="/static/images/calibre_logo.png" alt="Calibre Logo" />Calibre</p>
                     <ul>
                         <li><a href="http://calibre-ebook.com/download">Download the free Calibre app.</a></li>
                         <li>Download the <a href="{{ formats.mobi }}">mobi file</a>.</li>
