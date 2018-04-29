@@ -569,67 +569,6 @@ a#readon {
 	margin-left:5px;
 }
 
-/* Explore column */
-#js-leftcol {
-    float:left;
-    width:235px;
-    margin-bottom: 20px;
-
-    a {
-        font-weight:normal;
-
-        &:hover{
-            text-decoration:underline;
-        }
-    }
-
-    .jsmod-content {
-        border: solid 1px $pale-blue;
-        @include border-radius(0, 0, 10px, 10px);
-    }
-
-    ul {
-        &.level1 > li > a, &.level1 > li > span {
-            border-bottom:1px solid $pale-blue;
-            border-top:1px solid $pale-blue;
-            @include utilityheaders;
-            padding:10px;
-        }
-
-        &.level2 li {
-            @include utilitylinks(5px, 20px, $font-size-larger);
-
-            img {
-            	vertical-align: middle;
-            	@include one-border-radius(5px);
-            }
-
-            .ungluer-name {
-				@include height(30px);
-			}
-            &.first {
-                font-size: $font-size-larger;
-                color:$text-blue;
-                padding-left:10px;
-            }
-        }
-        &.level3 li {
-            @include utilitylinks(0px, 20px, $font-size-default);
-            a img.thumbnail {
-                margin-right: 2px;
-                height: 50px;
-                width: 32px;
-            }
-            a span.thumbnail-caption {
-                font-size: $font-size-small;
-                display: inline-block;
-                width: 154px;
-                overflow-y: scroll;
-            }
-        }
-    }
-}
-
 /* Main content area: top */
 #js-topsection {
     padding:15px 0 0 0;
@@ -658,11 +597,6 @@ a#readon {
 
 #main-container {
     margin: 15px 0 0 0;
-}
-
-#js-maincol-fr {
-    float:right;
-    width:725px;
 }
 
 div#content-block {

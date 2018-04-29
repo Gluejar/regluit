@@ -1,0 +1,20 @@
+@import 'variables';
+@import 'settings';
+@import 'foundation';
+
+.faq-container {
+    display: flex;
+
+    ul > * {
+        padding: 0.7rem 1rem;
+    }
+
+    ul {
+        list-style: none;
+    }
+}
+
+.faq-toplevel-nav {
+    display: flex;
+    flex-direction: column;
+}
