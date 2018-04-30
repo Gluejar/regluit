@@ -4,17 +4,29 @@
 
 .faq-container {
     display: flex;
+    flex-direction: column;
 
-    ul > * {
-        padding: 0.7rem 1rem;
-    }
+    margin: 0 auto;
+    max-width: 1024px;
+}
 
-    ul {
-        list-style: none;
-    }
+.faq-menu {
+    min-width: 200px;
 }
 
 .faq-toplevel-nav {
-    display: flex;
-    flex-direction: column;
+    width: fit-content;
+    margin: 0 auto;
+
+    li {
+        width: fit-content;
+    }
+
+}
+
+
+@include breakpoint (medium) {
+    .faq-container {
+        flex-direction: row;
+    }
 }
