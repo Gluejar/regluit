@@ -22,16 +22,16 @@
 <script type="text/javascript" src="{{ jquery_ui_home }}"></script>
 <!-- toggle to panelview state instead of listview default -->
 <script type="text/javascript">
-    
-jQuery(document).ready(function($) { 
+
+jQuery(document).ready(function($) {
     $('.listview').addClass("panelview").removeClass("listview");
-});  
+});
 var $j = jQuery.noConflict();
 function put_un_in_cookie2(){
     $j.cookie('un', $j('#id_username_main').val(), {path: '/', expires: 90 });
     return true;
 }
-</script>    
+</script>
 
 <script type="text/javascript" src="/static/js/definitions.js"></script>
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
@@ -44,7 +44,7 @@ function put_un_in_cookie2(){
 {% block topsection %}
 {% include "learn_more.html" %}
 {% endblock %}
-    
+
 {% block content %}
     <div id="main-container" class="main-container-fl">
     <div class="js-main" id="content-block">
@@ -78,7 +78,7 @@ function put_un_in_cookie2(){
                                         {% endif %}{% if work.relators.count > 2 %}{% for author in work.relators %}{% if not forloop.first %}, <span>{{ author.name }}</span>{% endif %}{% endfor %}
                                         {% endif %}
                                         </div>
-                                        <div class="book-year"> 
+                                        <div class="book-year">
                                             {% if work.last_campaign.publisher %}
                                             <span><a href="{% url 'bypubname_list' work.last_campaign.publisher.name.id %}">{{ work.last_campaign.publisher }}</a></span>
                                             {% endif %}
@@ -102,7 +102,7 @@ function put_un_in_cookie2(){
                         {% endfor %}
                         <a class="more_featured_books" href="{% url 'supporter' request.user %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
                     </div>
-                    
+
         	    {% endif %}
         	    {% if top_pledge %}
                     <div class="spacer"></div>
@@ -164,7 +164,7 @@ function put_un_in_cookie2(){
                     <a class="more_featured_books" href="{% url 'campaign_list' 'unglued' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
                 </div>
                 <div class="spacer"></div>
-        	        	
+
             </div>
             <div id="js-rightcol">
             <div class="js-rightcol-padd">
@@ -206,14 +206,14 @@ function put_un_in_cookie2(){
                 	<h3 class="module-title">Donate!</h3>
                     <div class="jsmod-content">
                                  <div>Please help support Unglue.it by making a tax-deductible donation to the Free Ebook Foundation.</div>
-            <form class="askform" method="POST" action="{% url 'newdonation' %}">                
+            <form class="askform" method="POST" action="{% url 'newdonation' %}">
                     <div class="donate_amount">
                     <label>Amount ($): </label><input id="amount" max="20000.00" min="1.00" name="amount" step="0.01" type="number" value="10.00" class="donate"></div>
                     <div class="button">
                         <input name="pledge" type="submit" value="Donate" id="donatesubmit" class="donate" />
                     </div>
-                    
-            </form> 
+
+            </form>
 
                     </div>
                 </div>
@@ -241,11 +241,11 @@ function put_un_in_cookie2(){
                                         <span class="user-book-info">
                                             <a href="{% url 'supporter' object.user.username %}">{{ object.user.username }}</a><br />
                                             {% if object.campaign.type == 1 %}
-                                                pledged to unglue 
+                                                pledged to unglue
                                             {% elif object.campaign.type == 2 %}
-                                                bought a copy of 
+                                                bought a copy of
                                             {% elif object.campaign.type == 3 %}
-                                                supported 
+                                                supported
                                             {% endif %}<br />
                                             <a class="user-book-name" href="{% url 'work' object.campaign.work_id %}">{{ object.campaign.work.title }}</a>
                                         </span>
@@ -267,7 +267,7 @@ function put_un_in_cookie2(){
                                             <a href="{% url 'supporter' object.user.username %}">{{ object.user.username }}</a><br />
                                             commented on<br />
                                             <a class="user-book-name" href="{% url 'work' object.content_object.id %}?tab=2">{{ object.content_object.title }}</a>
-                                        </span>                                    
+                                        </span>
                                     {% elif event.2 == "wish" %}
                                         <span class="user-avatar">
                                             <a href="{% url 'supporter' object.wishlist.user.username %}"><img src="{{ object.wishlist.user.profile.avatar_url }}" width="43" height="43" title="{{ object.wishlist.user.username }}" alt="Avatar for {{ object.wishlist.user.username }}" /></a>
@@ -276,7 +276,7 @@ function put_un_in_cookie2(){
                                             <a href="{% url 'supporter' object.wishlist.user.username %}">{{ object.wishlist.user.username }}</a><br />
                                             faved<br />
                                             <a class="user-book-name" href="{% url 'work' object.work_id %}">{{ object.work.title }}</a>
-                                        </span>                                    
+                                        </span>
                                     {% endif %}
                                 {% endwith %}
                             </li>
@@ -292,18 +292,6 @@ function put_un_in_cookie2(){
                 </div>
             </div>
             </div>
-    
-            <h3 class="featured_books">As seen on</h3>
-            <ul id="as_seen_on">
-                <li><a href="http://boingboing.net/2012/06/28/release-a-deadly-monster-a-dr.html"><img alt="boingboing" src="{{ STATIC_URL }}images/press_logos/boingboing_logo.png"></a></li>
-                <li><a href="http://www.zeit.de/digital/internet/2012-07/unglue-ebook-creative-commons"><img alt="die zeit" src="{{ STATIC_URL }}images/press_logos/die_zeit_logo.png"></a></li>
-                <li><a href="http://www.huffingtonpost.com/2012/05/21/unglueit-free-ebooks-crowdfunding_n_1532644.html"><img alt="huffington post" src="{{ STATIC_URL }}images/press_logos/huffington_post_logo.png"></a></li>
-                <li><a href="http://techcrunch.com/2014/05/06/unglue-it-sets-books-free-after-authors-get-paid/"><img alt="techcrunch" src="{{ STATIC_URL }}images/press_logos/techcrunch_logo.png"></a></li>
-                <li><a href="http://www.thedigitalshift.com/2014/02/ebooks/buy-unglue-ebook-crowdfunding-model-goes-beta/"><img alt="library journal" src="{{ STATIC_URL }}images/press_logos/library_journal_logo.png"></a></li>
-                <li><a href="http://www.networkworld.com/community/node/85329"><img alt="networkworld" src="{{ STATIC_URL }}images/press_logos/networkworld_logo.png"></a></li>
-            </ul>
-            <div class="speech_bubble"><span>For readers it’s a gold mine of great books they can have a say in bringing to market.</span></div>
-    
         </div>
     </div>
     </div>
