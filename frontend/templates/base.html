@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 {% load truncatechars %}{% load sass_tags %}
 
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="referrer" content="origin" />
     <title>unglue.it {% block title %}{% endblock %}</title>
     <link REL="SHORTCUT ICON" HREF="/static/images/favicon.ico">
@@ -19,7 +20,6 @@
 
     <script type="text/javascript" src="{{ jquery_home }}"></script>
     <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
-    <script type="text/javascript" src="/static/scss/foundation/dist/js/foundation.js"></script>
     <script type="text/javascript" src="/static/js/watermark_init.js"></script>
     <script type="text/javascript" src="/static/js/watermark_change.js"></script>
     <script defer type="text/javascript" src="/static/js/sitewide1.js"></script>
@@ -58,7 +58,7 @@
         </div>
         <div id="header-search-bar">
             <form action="{% url 'search' %}" method="get">
-                <input type="text" placeholder="Search" id="nowatermark" size="25" onfocus="imgfocus()" onblur="imgblur(15)" class="inputbox" name="q" value="{{ q }}"></input>
+                <input role="search" type="text" placeholder="Search" id="nowatermark" size="25" onfocus="imgfocus()" onblur="imgblur(15)" class="inputbox" name="q" value="{{ q }}"></input>
                 <i class="fa fa-search"></i>
             </form>
         </div>
@@ -143,14 +143,6 @@
 {% block content %}{% endblock %}
 
 {% block footer %}
-<div class="footer hide utilityheaders">
-    <ul>
-            <li><a href="{% url 'about' %}">Team</a></li>
-            <li><a href="https://blog.unglue.it">Blog</a></li>
-            <li><a href="{% url 'terms' %}">Terms of Use</a></li>
-            <li><a href="{% url 'faq' %}">General FAQ</a></li>
-    </ul>
-</div>
 <div class="footer utilityheaders">
     <div class="column">
         <span>About Unglue.it</span>
@@ -216,5 +208,6 @@
         </script>
     {% endif %}
 {% endblock %}
+<script type="text/javascript" src="/static/scss/foundation/dist/js/foundation.js"></script>
 </body>
 </html>

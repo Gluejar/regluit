@@ -2,7 +2,6 @@
 
 @import "variables.scss";
 @import "mixins.scss";
-@import "download.scss";
 @import "buttons.scss";
 @import "bootstrap-social.scss";
 @import "font-awesome.min.css";
@@ -876,36 +875,8 @@ li.checked {
     }
 }
 
-.one_click {
-    float: left;
-    & > div {
-        float: left;
-
-        #kindle a, .kindle a , #marvin a, .marvin a, #mac_ibooks a, .mac_ibooks a{
-            font-size: $font-size-larger;
-            padding: 9px 0;
-        }
-
-        div {
-            margin: 0 10px 0 0;
-        }
-    }
-}
-
 .ebook_download_container {
     clear: left;
-}
-
-.other_instructions_paragraph {
-    display: none;
-}
-
-#iOS_app_div, #ios_div {
-    /* JS overrides display: none on instructions if it's enabled
-       if JS isn't enabled, they are not on an iOS device, so no need to
-       clutter up the download instructions with this
-    */
-    display: none;
 }
 
 .yes_js {
@@ -917,33 +888,10 @@ li.checked {
     font-size: 15px;
 }
 
-.contrib_amount {
-	padding: 10px;
-	font-size: $font-size-header;
-	text-align: center;
-
-}
 #id_preapproval_amount {
 	width: 50%;
 	line-height: 30px;
 	font-size: $font-size-larger;
-}
-#askblock {
-    float:right;
-    min-width:260px;
-    background: $pale-blue;
-    padding: 10px;
-    width:30%
-}
-.rh_ask {
-	font-size: $font-size-larger;
-	width:65%;
-}
-#contribsubmit {
-	text-align: center;
-	font-size: $font-size-header;
-	margin: 0 0 10px;
-	cursor: pointer;
 }
 #anoncontribbox {
     padding-bottom: 10px;

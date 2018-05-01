@@ -48,8 +48,9 @@ $j(document).ready(function() {
         new Foundation.DropdownMenu($j(element), {});
     });
 
-    document.querySelectorAll('[data-responsive-menu]').forEach(element => {
-        new Foundation.ResponsiveToggle(element, {});
+    document.querySelectorAll('[data-accordion]').forEach(element => {
+        console.log(element);
+        new Foundation.Accordion($j(element), {'data-multi-expand': true});
     });
 
 });
