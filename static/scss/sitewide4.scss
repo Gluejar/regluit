@@ -216,15 +216,6 @@ h3 {
     }
 }
 
-input[type="submit"], a.fakeinput {
-	background: $call-to-action;
-	color: white;
-	font-weight: bold;
-	padding: 0.5em 1em;
-	cursor: pointer;
-}
-
-
 .loader-gif[disabled="disabled"], .loader-gif.show-loading {
     background: url('/static/images/loading.gif') center no-repeat !important;
 }
@@ -447,53 +438,6 @@ input[type="submit"], a.fakeinput {
     color: white;
     position: absolute;
     line-height: normal;
-}
-
-form.login, #login form {
-    label {
-        display: block;
-        line-height: 20px;
-        font-size: $font-size-larger;
-    }
-
-    input {
-        width: 90%;
-        @include one-border-radius(5px);
-        border: 1px solid $blue-grey;
-        @include height(18px);
-        margin-bottom: 6px;
-
-        &[type=submit] {
-            text-decoration: capitalize;
-            @include actionbuttons;
-        }
-
-        &:focus {
-            border: solid 1px $call-to-action;
-        }
-    }
-
-	input[type="text"], input[type="password"] {
-    	@include height($font-size-default*1.75);
-        margin-bottom: $font-size-default;
-        border-width: 2px;
-	}
-
-	input[type="submit"] {
-	    font-size: $font-size-larger;
-	}
-
-
-    span.helptext {
-        display: block;
-        margin-top: -11px;
-        font-style: italic;
-        font-size: $font-size-default;
-    }
-}
-
-#lightbox_content a.btn {
-    color: #FFF;
 }
 
 .js-search {

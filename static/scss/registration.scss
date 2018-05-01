@@ -18,6 +18,10 @@
 .google-signup {
     display: flex;
     flex-direction: column;
+
+    & > *{
+        margin: 7px 0px;
+    }
 }
 
 .linetext-outer {
