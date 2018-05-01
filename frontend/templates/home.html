@@ -13,8 +13,11 @@
 
 
 {% block extra_css %}
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/home.scss' %}" />
+<!--
 <link type="text/css" rel="stylesheet" href="{% sass_src 'scss/landingpage4.scss' %}"  />
-<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/searchandbrowse2.scss' %}"  />
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/searchandbrowse2.scss' %}"  /> -->
+
 <link type="text/css" rel="stylesheet" href="{% sass_src 'scss/book_panel2.scss' %}"  />
 {% endblock %}
 {% block extra_js %}
@@ -47,7 +50,7 @@ function put_un_in_cookie2(){
 
 {% block content %}
     <div id="main-container" class="main-container-fl">
-    <div class="js-main" id="content-block">
+    <div class="js-main-container" id="content-block">
         <div id="js-maincol-fl">
         	<div id="js-main-container">
                 <h3 class="featured_books">Today's Featured Free eBook</h3>
@@ -189,7 +192,7 @@ function put_un_in_cookie2(){
                             <label>Password (again):</label>
                             <input id="id_password2_main" type="password" class="required" name="password2" size="30" />
                             </div>
-                            <div class="button">
+                            <div class="sidebar_button">
                                 <input type="submit" class="signup" value="Sign Up Now"  onclick="this.disabled=true,this.form.submit();" />
                             </div>
                             <div class="google_signup" style="padding-bottom: 10px;">
@@ -209,7 +212,7 @@ function put_un_in_cookie2(){
             <form class="askform" method="POST" action="{% url 'newdonation' %}">
                     <div class="donate_amount">
                     <label>Amount ($): </label><input id="amount" max="20000.00" min="1.00" name="amount" step="0.01" type="number" value="10.00" class="donate"></div>
-                    <div class="button">
+                    <div class="sidebar_button">
                         <input name="pledge" type="submit" value="Donate" id="donatesubmit" class="donate" />
                     </div>
 
@@ -217,74 +220,7 @@ function put_un_in_cookie2(){
 
                     </div>
                 </div>
-                <div class="jsmodule">
-                	<h3 class="module-title">News</h3>
-                    <div class="jsmod-content">
-                     <a href="https://blog.unglue.it/2018/01/24/unglue-it-has-resumed-crowdfunding/">Unglue.it has resumed crowdfunding</a>
-                    </div>
-                </div>
-                <div class="jsmodule">
-                	<h3 class="module-title">Latest Ungluing</h3>
-                    <div class="jsmod-content">
-						<ul class="ungluingwhat">
-						{% for event in events %}
-                            {% comment %}
-                                events are tuples of date, object, and string representing object type
-                            {% endcomment %}
-                            <li>
-                                {% with event.1 as object %}
-                                    {% if event.2 == "pledge" %}
-                                        {% if object.user%}
-                                        <span class="user-avatar">
-                                            <a href="{% url 'supporter' object.user.username %}"><img src="{{ object.user.profile.avatar_url }}" width="43" height="43" title="{{ object.user.username }}" alt="Avatar for {{ object.user.username }}" /></a>
-                                        </span>
-                                        <span class="user-book-info">
-                                            <a href="{% url 'supporter' object.user.username %}">{{ object.user.username }}</a><br />
-                                            {% if object.campaign.type == 1 %}
-                                                pledged to unglue
-                                            {% elif object.campaign.type == 2 %}
-                                                bought a copy of
-                                            {% elif object.campaign.type == 3 %}
-                                                supported
-                                            {% endif %}<br />
-                                            <a class="user-book-name" href="{% url 'work' object.campaign.work_id %}">{{ object.campaign.work.title }}</a>
-                                        </span>
-                                        {% else %}
-                                        <span class="user-avatar">
-                                            <img src="/static/images/header/anonuser.png" width="43" height="43" title="Anonymous User" alt="Avatar for Anonymous User" />
-                                        </span>
-                                        <span class="user-book-info">
-                                            Anonymous User<br />
-                                            supported <br />
-                                            <a class="user-book-name" href="{% url 'work' object.campaign.work_id %}">{{ object.campaign.work.title }}</a>
-                                        </span>
-                                        {% endif %}
-                                    {% elif event.2 == "comment" %}
-                                        <span class="user-avatar">
-                                            <a href="{% url 'supporter' object.user.username %}"><img src="{{ object.user.profile.avatar_url }}" width="43" height="43" title="{{ object.user.username }}" alt="Avatar for {{ object.user.username }}" /></a>
-                                        </span>
-                                        <span class="user-book-info">
-                                            <a href="{% url 'supporter' object.user.username %}">{{ object.user.username }}</a><br />
-                                            commented on<br />
-                                            <a class="user-book-name" href="{% url 'work' object.content_object.id %}?tab=2">{{ object.content_object.title }}</a>
-                                        </span>
-                                    {% elif event.2 == "wish" %}
-                                        <span class="user-avatar">
-                                            <a href="{% url 'supporter' object.wishlist.user.username %}"><img src="{{ object.wishlist.user.profile.avatar_url }}" width="43" height="43" title="{{ object.wishlist.user.username }}" alt="Avatar for {{ object.wishlist.user.username }}" /></a>
-                                        </span>
-                                        <span class="user-book-info">
-                                            <a href="{% url 'supporter' object.wishlist.user.username %}">{{ object.wishlist.user.username }}</a><br />
-                                            faved<br />
-                                            <a class="user-book-name" href="{% url 'work' object.work_id %}">{{ object.work.title }}</a>
-                                        </span>
-                                    {% endif %}
-                                {% endwith %}
-                            </li>
-                        {% endfor %}
-                        </ul>
-                    </div>
-                </div>
-                <div class="jsmodule">
+                               <div class="jsmodule">
                 <h3 class="module-title">Questions?</h3>
                     <div id="jsmod-content">
                              Read our <a href="/faq/">general FAQ</a> or <a href="/faq/rightsholders/">Author/Publisher FAQ</a>.

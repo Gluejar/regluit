@@ -1,0 +1,91 @@
+@import "variables.scss";
+@import "learnmore2.scss";
+@import "foundation";
+
+.js-main-container {
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 960px; 
+}
+
+#user-block1 {
+	#block-intro-text {
+		float:left;
+		width:702px;
+		font-size: $font-size-header;
+	}
+
+	a#readon {
+		font-size: $font-size-larger;
+	}
+}
+
+
+@include breakpoint(small only) {
+    #js-maincol-fl {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+@include breakpoint(medium up) {
+    #js-maincol-fl {
+        display: flex;
+        #js-main-continer {
+            flex: 1 84%;
+        }
+
+        #js-rightcol {
+            flex: 1 16%;
+        }
+    }
+}
+
+#js-main-container {
+    display: flex;
+    flex-direction: column;
+
+    .book-detail {
+        .book-cover {
+            a {
+            }
+        }
+    }
+    .spacer {
+    }
+
+    .featured_books {
+
+    }
+    div {
+    }
+
+}
+
+#js-rightcol {
+    .js-rightcol-padd {
+        background-color: $pale-blue;
+        padding: 10px;
+    }
+}
+
+.jsmodule {
+    margin-bottom: 14px;
+    .google_signup {
+        a {
+            width: 100%;
+            border-radius: 0px;
+            border: none;
+        }
+    }
+}
+
+.sidebar_button {
+    margin-bottom: 10px;
+    input {
+        width: 100%;
+        padding: 12px;
+        border: none;
+    }
+
+}
