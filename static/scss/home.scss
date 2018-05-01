@@ -5,7 +5,7 @@
 .js-main-container {
         margin-left: auto;
         margin-right: auto;
-        max-width: 960px; 
+        max-width: 960px;
 }
 
 #user-block1 {
@@ -25,6 +25,10 @@
     #js-maincol-fl {
         display: flex;
         flex-direction: column;
+    }
+    #js-topsection {
+        visibility: hidden;
+        height: 0px;
     }
 }
 
@@ -87,5 +91,14 @@
         padding: 12px;
         border: none;
     }
+
+}
+
+.book-description {
+    overflow: auto;
+}
+
+.book-detail {
+    display: flex;
 
 }

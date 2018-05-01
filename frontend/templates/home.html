@@ -71,7 +71,7 @@ function put_un_in_cookie2(){
                             </div>
                             </div>
                             <div class="book-detail-info" style="float:left;">
-                                <div  style="width: 520px;float: left;">
+                                <div  style="float: left;">
                                 <div  class="book-name" style="font-size:larger; margin-bottom:10px"><a href="{% url 'work' featured.id %}">{{ work.title }}</a></div>
                                 <div>
                                     <div class="pubinfo">
@@ -87,7 +87,7 @@ function put_un_in_cookie2(){
                                             {% endif %}
                                             <span>{{ work.publication_date }}</span>
                                         </div>
-                                        <div class="book-description" style="max-height:200px;overflow:scroll"> {{ work.description|safe }}</div>
+                                        <div class="book-description" style="max-height:200px;"> {{ work.description|safe }}</div>
                                     </div>
                                 </div>
                             </div>
