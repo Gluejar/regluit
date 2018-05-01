@@ -31,4 +31,10 @@
     .faq-container {
         flex-direction: row;
     }
+
+    .faq-toplevel-nav {
+        & > li > a, & > li > span {
+            border-bottom:1px solid $pale-blue;
+        }
+    }
 }
