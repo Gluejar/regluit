@@ -1,0 +1,7 @@
+#!/bin/bash
+cd {{ project_path }}
+source {{ virtualenv_name }}/bin/activate
+echo Local setup of Regluit complete!
+echo To start the django development server, run:
+echo ./manage.py runserver {{ django_server_ip }}:{{ django_server_port }}
+echo Then leave this session running and access the site on your host machine at http://127.0.0.1:{{ django_server_port }}

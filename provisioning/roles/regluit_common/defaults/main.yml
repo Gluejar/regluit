@@ -1,0 +1,21 @@
+project_path: "/opt/regluit"
+django_settings_module: "regluit.settings.me"
+virtualenv_name: "venv"
+
+# MySQL
+mysql_db_name: "regluit"
+mysql_db_user: "regluit"
+mysql_db_pass: "password123"
+mysql_db_host: "localhost"
+mysql_db_port: 3306
+
+# Task Broker
+broker_transport: "redis"
+broker_host: "localhost"
+broker_port: 6379
+broker_vhost: "0"
+
+# Common.py defaults
+boxstream_api_key: "012345678901234567890123456789"
+boxstream_api_user: "user"
+dropbox_key: "012345678901234"
