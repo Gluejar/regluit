@@ -28,20 +28,9 @@
         {% block subnav %}{% endblock %}
     </div>
     <div class="faq-main doc">
-        <div class="js-maincol-inner">
-            <div id="content-block">
-                <div id="js-main-container">
-                    <div class="js-main-container-inner">
-
-
-                        {% block doccontent %}
-                        {% endblock %}
-
-                    </div>
-					      </div>
-			      </div>
-		    </div>
-		</div>
+        {% block doccontent %}
+        {% endblock %}
+    </div>
 </div>
 
 {% endblock %}

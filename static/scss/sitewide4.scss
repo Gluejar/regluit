@@ -4,7 +4,16 @@
 @import "mixins.scss";
 @import "buttons.scss";
 @import "bootstrap-social.scss";
-@import "font-awesome.min.css";
+
+/* old */
+
+
+#widgetcode {
+    display: none;
+}
+
+/* endold */
+
 
 @mixin preview()
 {
