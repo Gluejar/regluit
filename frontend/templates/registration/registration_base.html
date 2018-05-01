@@ -34,18 +34,15 @@ $j(document).ready(function() {
 {% block extra_head %}
 	<link href="{% sass_src 'scss/documentation2.scss' %}" rel="stylesheet" type="text/css" />
 {% block extra_extra_head %}
-    <link type="text/css" rel="stylesheet" href="{% sass_src 'scss/registration2.scss' %}" />
+    <link type="text/css" rel="stylesheet" href="{% sass_src 'scss/registration.scss' %}" />
 {% endblock %}
 {% endblock %}
 
 {% block content %}
-<div id="registration">
-<div id="login_centerer">
-<div id="login">
-{% block doccontent %}
-{% endblock %}
+<div class="registration">
+    <div class="registration-content">
+        {% block doccontent %}
+        {% endblock %}
+    </div>
 </div>
-</div>
-</div>
-<div class="spacer"></div>
 {% endblock %}
