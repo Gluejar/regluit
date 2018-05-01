@@ -21,9 +21,11 @@
     li {
         width: fit-content;
     }
-
 }
 
+.long-formula {
+    white-space: pre-wrap;
+}
 
 @include breakpoint (medium) {
     .faq-container {
