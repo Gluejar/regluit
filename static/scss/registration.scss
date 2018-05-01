@@ -1,4 +1,6 @@
-@import "variables.scss";
+@import "variables";
+@import "settings";
+@import "foundation";
 
 .registration {
     display: flex;
@@ -54,19 +56,14 @@
     }
 }
 
-#login {
-    border: solid 3px $blue-grey;
-    @include one-border-radius(5px);
-    margin: 10px auto;
-    float: none;
-    padding: 10px;
-    width: 50%;
-
-
-    input[type="text"], input[type="password"] {
-        width: 90%;
+@include breakpoint(medium) {
+    .login-border {
+        border: solid 3px $blue-grey;
+        @include one-border-radius(5px);
+        padding: 14px;
     }
 }
+
 
 .actionbutton {
     @include actionbuttons;
