@@ -2,6 +2,15 @@
 @import "learnmore2.scss";
 @import "foundation";
 
+.featured_books {
+    margin-top: 18px;
+    font-size: $font-size-header;
+}
+
+.module-title {
+    font-size: $font-size-header;
+}
+
 .js-main-container {
         margin-left: auto;
         margin-right: auto;
