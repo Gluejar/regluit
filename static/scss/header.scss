@@ -1,17 +1,26 @@
+@import "variables";
+@import "settings";
+@import "foundation";
+
 #page-wrapper {
     display: flex;
     flex-direction: column;
     width:100%;
 }
 
+
+
+
 #header {
     width:100%;
     display: flex;
+    flex-flow: wrap;
     align-items: flex-start;
     padding: 10px;
 }
 
 #header-logo {
+    order: 1;
     align-self: flex-start;
 
     img {
@@ -24,7 +33,8 @@
     margin-bottom: auto;
     padding-left: 8px;
     padding-right: 8px;
-    flex: 1 1 auto;
+    flex: 100%;
+    order: 5;
 }
 
 #header-search-bar form  {
@@ -61,6 +71,7 @@
     margin-bottom: auto;
     padding-left: 8px;
     padding-right: 8px;
+    order: 3;
 
     .button {
         margin: 0;
@@ -72,6 +83,7 @@
     margin-top: auto;
     margin-bottom: auto;
     padding-left: 8px;
+    order: 4;
 }
 
 #header-menu i {
@@ -87,4 +99,15 @@
 
 #footer {
     width:100%;
+}
+
+@include breakpoint(medium) {
+    #header {
+        flex-flow: nowrap;
+    }
+
+    #header-search-bar {
+        flex: 1 1 auto;
+        order: 2;
+    }
 }
