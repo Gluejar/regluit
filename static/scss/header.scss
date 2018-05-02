@@ -117,3 +117,9 @@
         order: 2;
     }
 }
+
+@include breakpoint(348px down) {
+    #header-login {
+        display: none;
+    }
+}
