@@ -20,6 +20,7 @@
 }
 
 #header-logo {
+    flex: 1 0 auto;
     order: 1;
     align-self: flex-start;
 
@@ -66,20 +67,25 @@
 }
 
 #header-login {
-    flex: 0 0 auto;
+    flex: 1 1 auto;
+    display: flex;
     margin-top: auto;
     margin-bottom: auto;
     padding-left: 8px;
     padding-right: 8px;
     order: 3;
 
+    white-space: nowrap;
+    align-items: center;
+
     .button {
         margin: 0;
+        margin-left: 10px;
     }
 }
 
 #header-menu {
-    flex: 0 0 auto;
+    flex: 1;
     margin-top: auto;
     margin-bottom: auto;
     padding-left: 8px;
@@ -107,7 +113,7 @@
     }
 
     #header-search-bar {
-        flex: 1 1 auto;
+        // flex: 1 1 auto;
         order: 2;
     }
 }
