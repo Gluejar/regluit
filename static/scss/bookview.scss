@@ -32,6 +32,8 @@
 
     .book-sidebar-item {
         flex: auto;
+        display: flex;
+        justify-content: center;
     }
 
     .book-sidebar-item span {
