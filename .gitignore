@@ -10,6 +10,7 @@ ENV
 build
 deploy/last-update
 logs/*
+cache/*
 celerybeat.pid
 celerybeat-schedule
 .gitignore~
