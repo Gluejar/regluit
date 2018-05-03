@@ -97,7 +97,7 @@ function put_un_in_cookie2(){
                     <div class="spacer"></div>
                     <h3 class="featured_books">Your Recent Faves</h3>
                     <div>
-                        <div>
+                        <div class="book_container">
                             {% for work in faves %}
                                 {% with work.googlebooks_id as googlebooks_id %}
                                     {% include "book_panel.html" %}
@@ -113,7 +113,7 @@ function put_un_in_cookie2(){
                     <div class="spacer"></div>
                     <h3 class="featured_books">Pledge to Make These eBooks Free</h3>
                     <div class="book-list">
-                        <div>
+                        <div class="book_container">
                             {% for campaign in top_pledge %}
                                 {% with campaign.work as work %}
                                 {% with work.googlebooks_id as googlebooks_id %}
@@ -128,7 +128,7 @@ function put_un_in_cookie2(){
                 <div class="spacer"></div>
         	    <h3 class="featured_books">Read These Free Licensed eBooks</h3>
         	    <div class="book-list">
-                    <div>
+                    <div class="book_container">
                         {% for work in cc_books %}
                             {% with work.googlebooks_id as googlebooks_id %}
                                 {% include "book_panel.html" %}
@@ -142,7 +142,7 @@ function put_un_in_cookie2(){
         	    {% if top_b2u %}
                     <h3 class="featured_books">Buy and Read These eBooks to Make Them Free</h3>
                     <div class="book-list">
-                        <div>
+                        <div class="book_container">
                             {% for campaign in top_b2u %}
                                 {% with campaign.work as work %}
                                 {% with work.googlebooks_id as googlebooks_id %}
@@ -158,7 +158,7 @@ function put_un_in_cookie2(){
         	    {% if top_t4u %}
                     <h3 class="featured_books">Read These Free eBooks and Thank the Creators</h3>
                     <div class="book-list">
-                        <div>
+                        <div class="book_container">
                             {% for campaign in top_t4u %}
                                 {% with campaign.work as work %}
                                 {% with work.googlebooks_id as googlebooks_id %}
@@ -173,7 +173,7 @@ function put_un_in_cookie2(){
                 <div class="spacer"></div>
         	    <h3 class="featured_books">Read These Unglued eBooks - You've Made Them Free</h3>
         	    <div class="book-list">
-                    <div>
+                    <div class="book_container">
                         {% for work in unglued_books %}
                             {% with work.googlebooks_id as googlebooks_id %}
                                 {% include "book_panel.html" %}
