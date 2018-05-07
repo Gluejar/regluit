@@ -128,12 +128,13 @@
     display: flex;
     overflow-x: scroll;
     box-sizing: content-box;
+    .thewholebook {
+       border: none;
+    }
+
 }
 
 .book_container::-webkit-scrollbar {
     display: none;
 }
 
-.thewholebook {
-   border: none !important;
-}
