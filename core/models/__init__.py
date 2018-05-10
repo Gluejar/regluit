@@ -45,7 +45,7 @@ from regluit.payment.parameters import (
     TRANSACTION_STATUS_FAILED,
     TRANSACTION_STATUS_INCOMPLETE
 )
-from regluit.utils import encryption as crypto
+from regluit.utils import crypto
 from regluit.utils.localdatetime import now, date_today
 
 from regluit.core.parameters import (
@@ -244,8 +244,8 @@ class Acq(models.Model):
                 return r
             except IOError:
                 logger.error(u'could not open {}'.format(self.url))
-
-
+        
+        
     def ebook(self):
         return self.mock_ebook(self)
 
@@ -364,7 +364,7 @@ class Hold(models.Model):
 
 STATUS_CHOICES = (
     ('INITIALIZED','INITIALIZED'),
-    ('ACTIVE', 'ACTIVE'),
+    ('ACTIVE', 'ACTIVE'), 
     ('SUSPENDED',  'SUSPENDED'),
     ('WITHDRAWN', 'WITHDRAWN'),
     ('SUCCESSFUL', 'SUCCESSFUL'),
@@ -388,7 +388,7 @@ class Campaign(models.Model):
     work = models.ForeignKey("Work", related_name="campaigns", null=False)
     managers = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="campaigns", null=False)
     # status: INITIALIZED, ACTIVE, SUSPENDED, WITHDRAWN, SUCCESSFUL, UNSUCCESSFUL
-    status = models.CharField( max_length=15, null=True, blank=False, default="INITIALIZED",
+    status = models.CharField( max_length=15, null=True, blank=False, default="INITIALIZED", 
         db_index=True, choices=STATUS_CHOICES)
     type = models.PositiveSmallIntegerField(null=False, default=REWARDS,
                                             choices=((REWARDS, 'Pledge-to-unglue campaign'),
@@ -962,7 +962,7 @@ class Campaign(models.Model):
                     new_epub_ebf.save()
                     new_epub_ebf.version = version
                     new_ebfs.append(new_epub_ebf)
-
+                    
                     # now make the mobi file
                     new_mobi_ebf = EbookFile.objects.create(edition=edition, format='mobi', asking=True)
                     new_mobi_ebf.file.save(path_for_file('ebf', None), ContentFile(mobi.convert_to_mobi(new_epub_ebf.file.url)))
@@ -992,7 +992,7 @@ class Campaign(models.Model):
                 old_ebf.ebook.deactivate()
             old_ebf.file.delete()
             old_ebf.delete()
-
+        
         for non_asking in self.work.ebookfiles().filter(asking=False, ebook__active=True):
             non_asking.ebook.deactivate()
 
@@ -1003,7 +1003,7 @@ class Campaign(models.Model):
         format_versions = []
         for ebf in EbookFile.objects.filter(edition__work=self.work).exclude(file='').exclude(ebook=None).order_by('-created'):
             format_version = '{}_{}'.format(ebf.format, ebf.ebook.version_label)
-            if ebf.asking:
+            if ebf.asking: 
                 ebf.ebook.deactivate()
             elif format_version in format_versions:
                 # this ebook file has the wrong "asking"
@@ -1157,7 +1157,7 @@ class UserProfile(models.Model):
     librarything_id = models.CharField(max_length=31, blank=True)
     badges = models.ManyToManyField('Badge', related_name='holders', blank=True)
     kindle_email = models.EmailField(max_length=254, blank=True)
-
+    
     # keep track of work the user adds
     works = models.ManyToManyField('Work', related_name='contributors', blank=True)
 
