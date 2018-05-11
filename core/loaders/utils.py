@@ -369,7 +369,7 @@ DROPBOX_DL = re.compile(r'"(https://dl.dropboxusercontent.com/content_link/[^"]+
 
 def dl_online(ebook):
     if ebook.format != 'online':
-        return
+        return None, False
         
     if ebook.url.find(u'dropbox.com/s/') >= 0:
         response = requests.get(ebook.url, headers={"User-Agent": settings.USER_AGENT})
@@ -387,7 +387,7 @@ def dl_online(ebook):
                 
 def make_dl_ebook(url, ebook):
     if EbookFile.objects.filter(source=ebook.url):
-        return EbookFile.objects.filter(source=ebook.url)[0]
+        return EbookFile.objects.filter(source=ebook.url)[0], False
     response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
     if response.status_code == 200:
         filesize = int(response.headers.get("Content-Length", 0))
@@ -413,7 +413,7 @@ def make_dl_ebook(url, ebook):
             )
             new_ebf.ebook = new_ebook
             new_ebf.save()
-            return new_ebf
+            return new_ebf, True
 
 def type_for_url(url, content_type=None):
     if not url:
