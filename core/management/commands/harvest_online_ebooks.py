@@ -12,8 +12,8 @@ class Command(BaseCommand):
         onlines = Ebook.objects.filter(format='online')
         done = 0
         for online in onlines:
-            new_ebf = dl_online(online)
-            if new_ebf:
+            new_ebf, new = dl_online(online)
+            if new_ebf and new:
                 done += 1
                 if done > limit:
                     break

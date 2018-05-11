@@ -302,11 +302,17 @@ def edit_edition(request, work_id, edition_id, by=None):
 
                 id_type = form.cleaned_data['id_type']
                 id_val = form.cleaned_data['id_value']
-                if id_val == 'delete': 
-                    if edition.identifiers.exclude(type=id_type):
-                        edition.identifiers.filter(type=id_type).delete()
+                if id_val == 'delete':
+                    if id_type in WORK_IDENTIFIERS:
+                        if edition.work.identifiers.exclude(type=id_type):
+                            edition.work.identifiers.filter(type=id_type).delete()
+                        else:
+                            alert = ('Can\'t delete identifier -  must have at least one left.')
                     else:
-                        alert = ('Can\'t delete identifier -  must have at least one left.')
+                        if edition.identifiers.exclude(type=id_type):
+                            edition.identifiers.filter(type=id_type).delete()
+                        else:
+                            alert = ('Can\'t delete identifier -  must have at least one left.')
                 elif id_val:
                     models.Identifier.set(
                         type=id_type,
