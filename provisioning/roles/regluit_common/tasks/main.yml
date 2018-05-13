@@ -1,0 +1,85 @@
+---
+# Need to install python2.7 and pip first so Ansible will function
+# This is due to Ubuntu 16 shipping with Python3 by default
+- name: Install python2.7 and pip
+  become: true
+  raw: bash -c "apt -qqy update && apt install -qqy python2.7-dev python-pip"
+  register: output
+  changed_when: output.stdout != ""
+
+- name: Gathering Facts
+  setup:
+
+- name: Install base regluit dependencies
+  become: true
+  apt:
+    name: "{{ item }}"
+    update_cache: true
+    state: present
+  with_items:
+    - 'git'
+    - 'python-setuptools'
+    - 'python-lxml'
+    - 'build-essential'
+    - 'libssl-dev'
+    - 'libffi-dev'
+    - 'libxml2-dev'
+    - 'libxslt-dev'
+    - 'mysql-server'
+    - 'mysql-client'
+    - 'libmysqlclient-dev'
+    - 'python-mysqldb'
+
+- name: Install virtualenv
+  pip:
+    name: "virtualenv"
+    state: present
+
+- name: Install python packages to virtualenv
+  pip:
+    requirements: "{{ project_path }}/requirements_versioned.pip"
+    state: present
+    virtualenv: "{{ project_path }}/venv"
+
+- name: Add project to PYTHONPATH of virtualenv
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ project_path }}/venv/lib/python2.7/site-packages/{{ item }}"
+  with_items:
+    - 'regluit.pth'
+    - 'opt.pth'
+
+- name: Create keys directory
+  file:
+    path: "{{ project_path}}/settings/keys"
+    state: directory
+
+- name: Copy keys files
+  copy:
+    src: "{{ project_path }}/settings/dummy/__init__.py"
+    dest: "{{ project_path }}/settings/keys/__init__.py"
+    remote_src: yes
+
+- name: Copy django settings template
+  template:
+    src: me.py.j2
+    dest: "{{ project_path }}/settings/me.py"
+
+- name: Copy key templates to keys directory
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ project_path }}/settings/keys/{{ item }}"
+  with_items:
+    - 'common.py'
+    - 'host.py'
+
+- name: MySQL setup
+  become: true
+  import_tasks: mysql.yml
+
+- name: Redis setup
+  become: true
+  import_tasks: redis.yml
+
+# - name: Celery setup
+#   import_tasks: celery.yml

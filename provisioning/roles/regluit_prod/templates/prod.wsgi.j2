@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+
+import os
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "regluit.settings.prod")
+os.environ['CELERY_LOADER'] = 'django'
+
+{% for key in host_keys %}
+os.environ['{{ key|upper }}'] = '{{ host_keys[key] }}'
+{% endfor %}
+
+from django.core.wsgi import get_wsgi_application
+application = get_wsgi_application()

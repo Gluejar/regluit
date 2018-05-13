@@ -1,0 +1,6 @@
+---
+- hosts: regluit-local
+  gather_facts: false
+  roles:
+    - regluit_common
+    - regluit_dev

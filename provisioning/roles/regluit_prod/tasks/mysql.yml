@@ -1,0 +1,48 @@
+---
+- name: Install mysql-server
+  become: yes
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - 'mysql-server'
+
+# - name: Ensure mysql-server is started and enabled
+#   become: yes
+#   service: 
+#     name: mysql-server
+#     state: started
+#     enabled: yes
+
+- name: Create MySQL database
+  become: yes
+  mysql_db:
+    name: "{{ mysql_db_name }}"
+    state: present
+
+- name: Create MySQL user
+  become: yes
+  mysql_user:
+    name: "{{ mysql_db_user }}"
+    password: "{{ mysql_db_pass }}"
+    priv: '*.*:ALL'
+    state: present
+
+- name: Migrate databse
+  django_manage:
+    app_path: "{{ project_path }}"
+    command: "migrate --noinput"
+    virtualenv: "{{ project_path }}/venv"
+    settings: "{{ django_settings_module }}"
+  notify:
+    - restart apache
+
+- name: Import fixtures
+  django_manage:
+    app_path: "{{ project_path }}"
+    command: "loaddata"
+    virtualenv: "{{ project_path }}/venv"
+    settings: "{{ django_settings_module }}"
+    fixtures: "core/fixtures/initial_data.json core/fixtures/bookloader.json"
+  notify:
+    - restart apache

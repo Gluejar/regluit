@@ -1,0 +1,2 @@
+[production]
+regluit-prod ansible_host=ec2-18-206-73-169.compute-1.amazonaws.com ansible_user=ubuntu
