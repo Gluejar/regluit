@@ -50,6 +50,10 @@
             width: 100%;
         }
     }
+
+    .latest-ungluing {
+        display: none;
+    }
 }
 
 @include breakpoint(medium up) {
@@ -138,3 +142,27 @@
     display: none;
 }
 
+.jsmod-content {
+    ul {
+        margin: 0;
+        list-style-type: none;
+        li {
+            display: flex;
+            margin-bottom: 10px;
+            .user-avatar {
+                padding-top: 6px;
+                a img {
+                    max-width: none;
+                    width: 34px;
+                    border-radius: 2px;
+                }
+            }
+            .user-book-info {
+                margin-left: 10px;
+                .user-book-name {
+                    font-weight: normal;
+                }
+            }
+        }
+    }
+}
