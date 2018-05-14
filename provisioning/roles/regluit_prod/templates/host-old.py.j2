@@ -1,0 +1,47 @@
+# host.py
+# copy this file to settings/keys/ and replace the dummy values with real ones
+# or generate it from the ansible vault
+import os
+
+# you can use this to generate a key: http://www.miniwebtool.com/django-secret-key-generator/
+SECRET_KEY = os.environ.get("SECRET_KEY", '{{ secret_key }}')
+
+# you'll need to register a GoogleBooks API key
+# https://code.google.com/apis/console
+GOOGLE_BOOKS_API_KEY = os.environ.get("GOOGLE_BOOKS_API_KEY", "{{ google_books_api_key }}")
+
+# 
+GOODREADS_API_KEY = os.environ.get("GOODREADS_API_KEY",  "{{ goodreads_api_key }}")
+GOODREADS_API_SECRET = os.environ.get("GOODREADS_API_SECRET",  "{{ goodreads_api_secret }}") #43 chars
+
+# Amazon SES
+# create with https://console.aws.amazon.com/ses/home?region=us-east-1#smtp-settings:
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", '{{ email_host_user }}')
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD",  '{{ email_host_password }}')
+
+# twitter auth
+# you'll need to create a new Twitter application to fill in these blanks
+# https://dev.twitter.com/apps/new
+SOCIAL_AUTH_TWITTER_KEY = os.environ.get("SOCIAL_AUTH_TWITTER_KEY",  '{{ social_auth_twitter_key }}')
+SOCIAL_AUTH_TWITTER_SECRET = os.environ.get("SOCIAL_AUTH_TWITTER_SECRET",  '{{ social_auth_twitter_secret }}')
+
+# support@icontact.nl
+BOOXTREAM_API_KEY = os.environ.get("BOOXTREAM_API_KEY", "{{ booxtream_api_key }}") # 30 chars
+BOOXTREAM_API_USER = os.environ.get("BOOXTREAM_API_USER", '{{ booxtream_api_user }}')
+
+# you'll need to create a new Facebook application to fill in these blanks
+# https://developers.facebook.com/apps/
+SOCIAL_AUTH_FACEBOOK_KEY = os.environ.get("SOCIAL_AUTH_FACEBOOK_KEY", '{{ social_auth_facebook_key }}')
+SOCIAL_AUTH_FACEBOOK_SECRET = os.environ.get("SOCIAL_AUTH_FACEBOOK_SECRET",  '{{ social_auth_facebook_secret }}')
+
+# https://console.developers.google.com/apis/credentials/oauthclient/
+# unglue.it (prod) SOCIAL_AUTH_GOOGLE_OAUTH2_KEY #2
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get("_KEY", '{{ social_auth_google_oauth2_key }}')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get("_SECRET", '{{ social_auth_google_oauth2_secret }}')
+
+AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID", '{{ aws_access_key_id }}')
+AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY", '{{ aws_secret_access_key }}') # 40 chars
+
+DATABASE_USER = os.environ.get("DATABASE_USER", '{{ mysql_db_user }}')
+DATABASE_PASSWORD = os.environ.get("DATABASE_PASSWORD", '{{ mysql_db_pass }}')
+DATABASE_HOST = os.environ.get("DATABASE_HOST", '{{ mysql_db_host }}')

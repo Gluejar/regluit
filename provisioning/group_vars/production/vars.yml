@@ -1,0 +1,60 @@
+---
+###         Variables for Regluit Production Server             ###
+### Sensitive vars are references to actual values in vault.yml ###
+### Use ansible-vault view vault.yml to see the secret values   ###
+
+project_path: "/opt/regluit"
+django_settings_module: "regluit.settings.prod"
+virtualenv_name: "venv"
+user_name: "ubuntu"
+server_name: "m.unglue.it"
+
+wsgi_home: "/opt/regluit/venv"
+wsgi_python_path: "/opt/regluit/venv/bin/python"
+
+# Branch to checkout
+repo_version: "newfoundation"
+
+### Variables in settings.prod.py ###
+mysql_db_name: "regluit"
+mysql_db_user: "regluit"
+mysql_db_pass: "password123"
+mysql_db_host: "localhost"
+mysql_db_port: 3306
+email_host: "{{ vault_email_host }}"
+email_port: "{{ vault_email_port }}"
+default_from_email: "notices@gluejar.com"
+broker_transport: "redis"
+broker_host: "127.0.0.1"
+broker_port: 6379
+broker_vhost: "0"
+
+### Variables in common.py ###
+common_keys:
+  booxtream_api_key: "{{ vault_booxtream_api_key }}"
+  booxtream_api_user: "{{ vault_booxtream_api_user }}"
+  dropbox_key: "{{ vault_dropbox_key }}"
+  github_public_token: "{{ vault_github_public_token }}"
+  mailchimp_api_key: "{{ vault_mailchimp_api_key }}"
+  mailchimp_news_id: "{{ vault_mailchimp_news_id }}"
+  mobigen_url:  "{{ vault_mobigen_url }}"
+  mobigen_user_id:  "{{ vault_mobigen_user_id }}"
+  mobigen_password:  "{{ vault_mobigen_password }}"
+
+### Variables in host.py ### 
+host_keys:
+  secret_key: '{{ vault_secret_key }}'
+  google_books_api_key: "{{ vault_google_books_api_key }}"
+  goodreads_api_key:  "{{ vault_goodreads_api_key }}"
+  goodreads_api_secret:  "{{ vault_goodreads_api_secret }}"
+  email_host_user: '{{ vault_email_host_user }}'
+  email_host_password:  '{{ vault_email_host_password }}'
+  social_auth_twitter_key:  '{{ vault_social_auth_twitter_key }}'
+  social_auth_twitter_secret:  '{{ vault_social_auth_twitter_secret }}'
+  social_auth_facebook_key: '{{ vault_social_auth_facebook_key }}'
+  social_auth_facebook_secret:  '{{ vault_social_auth_facebook_secret }}'
+  social_auth_google_oauth2_key: '{{ vault_social_auth_google_oauth2_key }}'
+  social_auth_google_oauth2_secret: '{{ vault_social_auth_google_oauth2_secret }}'
+  aws_access_key_id: '{{ vault_aws_access_key_id }}'
+  aws_secret_access_key: '{{ vault_aws_secret_access_key }}'
+  aws_storage_bucket_name:  '{{ vault_aws_storage_bucket_name }}'
