@@ -54,7 +54,13 @@
     .latest-ungluing {
         display: none;
     }
+
+
+    .book_container::-webkit-scrollbar {
+        display: none;
+    }
 }
+
 
 @include breakpoint(medium up) {
     #js-maincol-fl {
@@ -130,16 +136,12 @@
 
 .book_container {
     display: flex;
-    overflow-x: scroll;
+    overflow-x: auto;
     box-sizing: content-box;
     .thewholebook {
        border: none;
     }
 
-}
-
-.book_container::-webkit-scrollbar {
-    display: none;
 }
 
 .jsmod-content {
