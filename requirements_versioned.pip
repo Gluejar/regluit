@@ -105,6 +105,6 @@ urllib3==1.16
 beautifulsoup4==4.6.0
 RISparser==0.4.2
 # include these 2 for development
-#libsass==0.13.4
-#django-compressor==2.2
-django-sass-processor==0.5.6
+libsass==0.14.5
+django-compressor==2.2
+django-sass-processor==0.7

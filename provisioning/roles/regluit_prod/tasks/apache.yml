@@ -7,6 +7,7 @@
   with_items:
     - 'apache2'
     - 'libapache2-mod-wsgi'
+    - 'cronolog'
 
 - name: Ensure apache is running and enabled
   become: yes
@@ -69,11 +70,27 @@
   notify: 
     - restart apache
 
+- name: Generate css files
+  django_manage:
+    app_path: "{{ project_path }}"
+    command: "compilescss"
+    virtualenv: "{{ project_path }}/venv"
+    settings: "{{ django_settings_module }}"
+  notify:
+    - restart apache
+
 - name: Generate static files
   django_manage:
     app_path: "{{ project_path }}"
     command: "collectstatic"
     virtualenv: "{{ project_path }}/venv"
     settings: "{{ django_settings_module }}"
+  notify:
+    - restart apache
+
+- name: Add unglueit log file to www-data group
+  file: 
+    path: "/var/log/regluit/unglue.it.log"
+    group: www-data
   notify:
     - restart apache
