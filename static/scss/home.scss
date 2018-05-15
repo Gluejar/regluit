@@ -24,7 +24,7 @@
 		font-size: $font-size-header;
 	}
 
-	a#readon {
+	#readon {
 		font-size: $font-size-larger;
 	}
 }
@@ -66,11 +66,11 @@
     #js-maincol-fl {
         display: flex;
         #js-main-container {
-            flex: 1 84%;
+            flex: 1 78%;
         }
 
         #js-rightcol {
-            flex: 1 16%;
+            flex: 1 22%;
         }
     }
 
