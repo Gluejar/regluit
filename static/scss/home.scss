@@ -28,6 +28,18 @@
 		font-size: $font-size-larger;
 	}
 }
+.jsmodule {
+    background-color: $pale-blue;
+    padding: 10px;
+    .google_signup {
+        a {
+            width: 100%;
+            border-radius: 0px;
+            border: none;
+        }
+    }
+}
+
 
 
 @include breakpoint(small only) {
@@ -59,6 +71,10 @@
     .book_container::-webkit-scrollbar {
         display: none;
     }
+
+    .jsmodule {
+        padding-bottom: 24px;
+    }
 }
 
 
@@ -88,6 +104,10 @@
     .more_featured_books_mobile{
         display: none !important;
     }
+
+    .jsmodule {
+        margin-bottom: 20px;
+    }
 }
 
 #js-main-container {
@@ -95,23 +115,6 @@
     flex-direction: column;
 }
 
-#js-rightcol {
-    .js-rightcol-padd {
-        background-color: $pale-blue;
-        padding: 10px;
-    }
-}
-
-.jsmodule {
-    margin-bottom: 32px;
-    .google_signup {
-        a {
-            width: 100%;
-            border-radius: 0px;
-            border: none;
-        }
-    }
-}
 
 .sidebar_button {
     margin-bottom: 10px;
@@ -167,10 +170,6 @@
             }
         }
     }
-}
-
-.jsmod-content.latest-ungluing {
-    margin-bottom: 32px;
 }
 
 .signup {
