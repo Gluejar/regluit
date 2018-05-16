@@ -8,21 +8,19 @@ django_settings_module: "regluit.settings.prod"
 virtualenv_name: "venv"
 user_name: "ubuntu"
 server_name: "m.unglue.it"
-
 wsgi_home: "/opt/regluit/venv"
 wsgi_python_path: "/opt/regluit/venv/bin/python"
-
-# Branch to checkout
-repo_version: "newfoundation"
+git_repo: "https://github.com/EbookFoundation/regluit.git"
+git_branch: "master"
 
 ### Variables in settings.prod.py ###
-mysql_db_name: "regluit"
-mysql_db_user: "regluit"
-mysql_db_pass: "password123"
-mysql_db_host: "localhost"
-mysql_db_port: 3306
+mysql_db_name: "{{ vault_mysql_db_name }}"
+mysql_db_user: "{{ vault_mysql_db_user }}"
+mysql_db_pass: "{{ vault_mysql_db_pass }}"
+mysql_db_host: "{{ vault_mysql_db_host }}"
+mysql_db_port: ""
 email_host: "{{ vault_email_host }}"
-email_port: "{{ vault_email_port }}"
+email_port: 465
 default_from_email: "notices@gluejar.com"
 broker_transport: "redis"
 broker_host: "127.0.0.1"
