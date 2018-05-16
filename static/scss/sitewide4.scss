@@ -459,7 +459,6 @@ h3 {
         border-right: none;
         @include border-radius(50px, 0, 0, 50px);
         outline: none;
-        // background:url($background-header) -645px -180px;
         @include height(28px);
         width:156px;
         float: left;
@@ -547,7 +546,6 @@ a#readon {
 
 div#content-block {
     overflow:hidden;
-    background:url($background-header) 100% -223px no-repeat;
     padding:0 0 0 7px;
     margin-bottom: 20px;
 
