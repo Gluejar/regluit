@@ -1,0 +1,71 @@
+WSGIPythonHome {{ wsgi_home }}
+WSGIPythonPath {{ wsgi_python_path }}
+WSGISocketPrefix {{ project_path }}
+
+
+<VirtualHost *:80>
+
+ServerName {{ server_name }}
+
+ServerAdmin info@ebookfoundation.org
+
+Redirect permanent / https://{{ server_name }}
+
+</VirtualHost>
+
+
+<VirtualHost _default_:443>
+
+ServerName {{ server_name }}:443
+
+ServerAdmin info@ebookfoundation.org
+
+SSLEngine on
+SSLProtocol All -SSLv2 -SSLv3
+
+SSLCertificateFile    /etc/ssl/certs/server.crt
+SSLCertificateKeyFile /etc/ssl/private/server.key
+SSLCertificateChainFile /etc/ssl/certs/STAR_unglue_it.ca-bundle
+
+#SSLCertificateChainFile /etc/ssl/certs/gd_bundle.crt
+
+WSGIDaemonProcess regluit processes=4 threads=4 python-eggs=/tmp/regluit-python-eggs
+WSGIScriptAlias / /opt/regluit/deploy/prod.wsgi
+
+# generated using https://mozilla.github.io/server-side-tls/ssl-config-generator/
+# intermediate mode
+# 2015.03.04   (with Apache v 2.2.22 and OpenSSL 1.0.1 and HSTS enabled)
+
+SSLProtocol             all -SSLv2 -SSLv3
+SSLCipherSuite          ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-DSS-AES128-GCM-SHA256:kEDH+AESGCM:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA:ECDHE-ECDSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-DSS-AES128-SHA256:DHE-RSA-AES256-SHA256:DHE-DSS-AES256-SHA:DHE-RSA-AES256-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:AES:CAMELLIA:DES-CBC3-SHA:!aNULL:!eNULL:!EXPORT:!DES:!RC4:!MD5:!PSK:!aECDH:!EDH-DSS-DES-CBC3-SHA:!EDH-RSA-DES-CBC3-SHA:!KRB5-DES-CBC3-SHA
+SSLHonorCipherOrder     on
+
+# HSTS (mod_headers is required) (15768000 seconds = 6 months)
+Header always add Strict-Transport-Security "max-age=15768000"
+
+<Directory /opt/regluit/deploy>
+  <Files prod.wsgi>
+    Require all granted
+  </Files>
+</Directory>
+
+<Directory /opt/regluit/static>
+  Options Indexes FollowSymLinks
+  AllowOverride None
+
+  Require all granted
+</Directory>
+
+Alias /static /var/www/static
+
+BrowserMatch "MSIE [2-6]" \
+	nokeepalive ssl-unclean-shutdown \
+	downgrade-1.0 force-response-1.0
+# MSIE 7 and newer should be able to use keepalive
+BrowserMatch "MSIE [17-9]" ssl-unclean-shutdown
+
+ErrorLog "|/usr/bin/cronolog /var/log/apache2/%Y%m%d_error.log"
+LogLevel warn
+CustomLog "|/usr/bin/cronolog /var/log/apache2/%Y%m%d_access.log" combined
+
+</VirtualHost>

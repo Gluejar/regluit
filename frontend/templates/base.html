@@ -1,22 +1,28 @@
 <!DOCTYPE html>
 {% load truncatechars %}{% load sass_tags %}
 
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="referrer" content="origin" />
     <title>unglue.it {% block title %}{% endblock %}</title>
+    <link REL="SHORTCUT ICON" HREF="/static/images/favicon.ico">
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:site" content="@unglueit" />
     {% block extra_meta %}{% endblock %}
     <link type="text/css" rel="stylesheet" href="{% sass_src 'scss/sitewide4.scss' %}" />
-	<link REL="SHORTCUT ICON" HREF="/static/images/favicon.ico">
     {% block extra_css %}{% endblock %}
-	<script type="text/javascript" src="{{ jquery_home }}"></script>
+
+    <link href="{% sass_src 'scss/global.scss' %}" rel="stylesheet" type="text/css" />
+    <link href="{% sass_src 'scss/header.scss' %}" rel="stylesheet" type="text/css" />
+    <link type="text/css" rel="stylesheet" href="/static/css/font-awesome.min.css" />
+
+    <script type="text/javascript" src="{{ jquery_home }}"></script>
     <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
-	<script type="text/javascript" src="/static/js/sitewide1.js"></script>
-	<script type="text/javascript" src="/static/js/watermark_init.js"></script>
-	<script type="text/javascript" src="/static/js/watermark_change.js"></script>
+    <script type="text/javascript" src="/static/js/watermark_init.js"></script>
+    <script type="text/javascript" src="/static/js/watermark_change.js"></script>
+    <script defer type="text/javascript" src="/static/js/sitewide1.js"></script>
     {% block extra_js %}
     {% endblock %}
 	{% if show_langs %}
@@ -45,26 +51,18 @@
 	</div>
 </div>
 
-<div id="js-page-wrap">
-    <div id="js-header">
-        <div class="js-main">
-            <div class="js-logo">
-                <a href="{% url 'landing' %}"><img src="/static/images/logo.png" alt="unglue.it" title="unglue.it"  /></a>
-            </div>
-            {% block search_box %}
-            {% if not suppress_search_box %}
-            <div class="js-search">
-            <div class="js-search-inner">
-                <form action="{% url 'search' %}" method="get">
-                	<div class="inputalign">
-                    <input type="text" id="nowatermark" size="25" onfocus="imgfocus()" onblur="imgblur(15)" class="inputbox" name="q" value="{{ q }}">
-                    <input type="submit" class="button">
-					</div>
-                </form>
-            </div>
-            </div>
-            {% endif %}
-            {% endblock %}
+<div id="page-wrapper">
+    <div id="header">
+        <div id="header-logo">
+            <a href="{% url 'landing' %}"><img src="/static/images/logo.png" alt="unglue.it" title="unglue.it"/></a>
+        </div>
+        <div id="header-search-bar">
+            <form action="{% url 'search' %}" method="get">
+                <input role="search" type="text" placeholder="Search" id="nowatermark" size="25" onfocus="imgfocus()" onblur="imgblur(15)" class="inputbox" name="q" value="{{ q }}"></input>
+                <i class="fa fa-search"></i>
+            </form>
+        </div>
+        <div id="header-login">
             {% block signin %}
             {% if user.is_authenticated %}
                 <div class="js-topmenu" id="authenticated">
@@ -99,30 +97,53 @@
                         </ul>
                 </div>
             {% else %}
-                <div class="js-topmenu">
-                    <ul class="menu">
-                        <li><a class="notbutton hijax" href="{% url 'superlogin' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}"><span>Sign In</span></a></li>
-                       {% if not suppress_search_box %}
-                            {% if request.get_full_path != "/accounts/register/" %}
-                                <li  class="last"><a class="btn btn-signup" href="{% url 'registration_register' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Sign Up <i class="fa fa-chevron-right"></i></a></li>
-                            {% endif %}
-                        {% endif %}
-                    </ul>
-                </div>
+                <a class="notbutton hijax" href="{% url 'superlogin' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}"><span>Log In</span></a>
+                <a class="button success" href="{% url 'registration_register' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Sign Up</a>
             {% endif %}
             {% endblock %}
+        </div>
+        <div id="header-menu">
+            <label for="menu-drilldown-box" toggle-header-menu>
+                <i class="fa fa-bars"></i>
+            </label>
+            <div id="top-menu" style="visibility: hidden;">
+                <ul class="vertical menu drilldown" data-drilldown >
+                    <label for="menu-drilldown-box">
+                        <li toggle-header-menu><a href="#">Back</a></li>
+                    </label>
+                    <li>
+                        <a href="#">Account</a>
+                        <ul class="menu vertical nested">
+                            <li><a href="#">Pledges</a></li>
+                            <li><a href="#">Notices</a></li>
+                            <li><a href="#">Profile Settings</a></li>
+                            <li><a href="#">Sign out</a></li>
+                        </ul>
+                    </li>
+                    <li>
+                        <a href="#">About Unglue.it</a>
+                        <ul class="menu vertical nested">
+                            <li><a href="{% url 'about' %}">Concept</a></li>
+                            <li><a href="https://blog.unglue.it/">Blog</a></li>
+                            <li><a href="{% url 'press' %}">Press</a></li>
+                            <li><a href="http://eepurl.com/fKLfI">Newsletter</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="{% url 'faq' %}">FAQ</a></li>
+                    <li><a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">Help</a></li>
+                </ul>
+            </div>
         </div>
     </div>
 
 {% block news %}
 {% endblock %}
 
-    {% block topsection %}{% endblock %}
-    {% block content %}{% endblock %}
-</div>
+{% block topsection %}{% endblock %}
+{% block content %}{% endblock %}
+
 {% block footer %}
-<div id="footer">
-  <div class="js-main">
+<div class="footer utilityheaders">
     <div class="column">
         <span>About Unglue.it</span>
         <ul>
@@ -132,7 +153,7 @@
             <li><a href="http://eepurl.com/fKLfI">Newsletter</a></li>
         </ul>
     </div>
-    <div class="column">
+    <div class="column show-for-medium">
         <span>Your account</span>
         <ul>
             {% if user.is_authenticated %}
@@ -160,33 +181,33 @@
             <li><a href="{% url 'libraries' %}">Unglue.it for Libraries</a>
         </ul>
     </div>
-    <div class="column">
+    <div class="column show-for-medium">
         <span>Contact</span>
         <ul>
             <li> <a href="mailto:info@ebookfoundation.org"><i class="fa fa-envelope fa-2x"></i></a> <a href="https://twitter.com/unglueit"><i class="fa fa-twitter fa-2x"></i></a> <a href="https://facebook/com/unglueit"><i class="fa fa-facebook fa-2x"></i></a></li>
         </ul>
     </div>
-  </div>
 </div>
 {% endblock %}
+</div>
+
 {% block counter %}
     {% if show_google_analytics %}
         <script type="text/javascript">
-        
+
           var _gaq = _gaq || [];
           _gaq.push(['_setAccount', 'UA-28369982-1']);
           _gaq.push(['_trackPageview']);
-        
+
           (function() {
             var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
             ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
             var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
           })();
-        
+
         </script>
     {% endif %}
 {% endblock %}
+<script type="text/javascript" src="/static/scss/foundation/dist/js/foundation.js"></script>
 </body>
 </html>
-
-

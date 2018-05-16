@@ -6,11 +6,14 @@ settings/keys/*
 *.dot
 reports
 ENV
+venv
 .DS_Store
 build
 deploy/last-update
 logs/*
+cache/*
 celerybeat.pid
 celerybeat-schedule
 .gitignore~
-static/scss/*.css.map
+static/scss/**/*.css.map
+*.retry

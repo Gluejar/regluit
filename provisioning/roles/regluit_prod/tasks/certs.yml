@@ -1,0 +1,39 @@
+---
+- name: Copy server key
+  become: yes
+  copy: 
+    src: certs/server.key
+    dest: /etc/ssl/private/server.key
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: 0600
+  notify: 
+    - restart apache
+  tags:
+    - certs
+
+- name: Copy STAR_unglue_it.crt 
+  become: yes
+  copy: 
+    src: certs/STAR_unglue_it.crt
+    dest: /etc/ssl/certs/server.crt
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: 0644
+  notify: 
+    - restart apache
+  tags:
+    - certs
+
+- name: Copy STAR_unglue_it.ca-bundle 
+  become: yes
+  copy: 
+    src: certs/STAR_unglue_it.ca-bundle
+    dest: /etc/ssl/certs/STAR_unglue_it.ca-bundle
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: 0600
+  notify: 
+    - restart apache
+  tags: 
+    - certs

@@ -297,6 +297,18 @@ def stub(request):
 def acks(request, work):
     return render(request, 'front_matter.html', {'campaign': work.last_campaign()})
 
+def read(request, work_id):
+    work = safe_get_work(work_id)
+    try:
+        ebook_id = work.first_epub().id
+        url = get_object_or_404(models.Ebook, id=ebook_id).url
+    except (ValueError, AttributeError):
+        raise Http404
+    return render(request, 'read.html', {
+        'work': work,
+        'url': url,
+    })
+
 def work(request, work_id, action='display'):
     work = safe_get_work(work_id)
     alert = ''
@@ -410,7 +422,8 @@ def work(request, work_id, action='display'):
         'cover_width': cover_width_number,
         'action': action,
         'formset': formset,
-        'kwform': SubjectSelectForm()
+        'kwform': SubjectSelectForm(),
+        'has_online_book': work.first_epub() != None,
     })
 
 def edition_uploads(request, edition_id):

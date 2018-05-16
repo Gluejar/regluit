@@ -1,0 +1,96 @@
+---
+- name: Install apache
+  become: yes
+  apt:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - 'apache2'
+    - 'libapache2-mod-wsgi'
+    - 'cronolog'
+
+- name: Ensure apache is running and enabled
+  become: yes
+  service: 
+    name: apache2
+    state: started
+    enabled: yes
+
+- name: Create apache config
+  become: yes
+  template:
+    src: apache.conf.j2
+    dest: "/etc/apache2/sites-available/prod.conf"
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: 0664
+  notify: 
+    - restart apache
+
+- name: Create static directory
+  become: yes
+  file: 
+    path: "/var/www/static"
+    state: directory
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: 0755
+
+- name: Create WSGI Script
+  template:
+    src: prod.wsgi.j2
+    dest: "{{ project_path }}/deploy/prod.wsgi"
+    owner: "{{ user_name }}"
+    group: "{{ user_name }}"
+    mode: 0664
+
+- name: Remove apache2 logrotate file
+  become: yes
+  file:
+    path: /etc/logrotate.d/apache2
+    state: absent
+  notify: 
+    - restart apache
+
+- name: Disable default site
+  become: yes
+  command: a2dissite 000-default
+  notify:
+    - restart apache
+
+- name: Enable prod site
+  become: yes
+  command: a2ensite prod
+  notify:
+    - restart apache
+
+- name: Enable SSL rewrite headers
+  become: yes
+  command: a2enmod ssl rewrite headers
+  notify: 
+    - restart apache
+
+- name: Generate static files
+  django_manage:
+    app_path: "{{ project_path }}"
+    command: "collectstatic"
+    virtualenv: "{{ project_path }}/venv"
+    settings: "{{ django_settings_module }}"
+  notify:
+    - restart apache
+
+- name: Migrate databse
+  django_manage:
+    app_path: "{{ project_path }}"
+    command: "migrate --noinput"
+    virtualenv: "{{ project_path }}/venv"
+    settings: "{{ django_settings_module }}"
+  notify:
+    - restart apache
+
+- name: Add unglueit log file to www-data group
+  file: 
+    path: "/var/log/regluit/unglue.it.log"
+    group: www-data
+  notify:
+    - restart apache
