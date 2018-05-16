@@ -70,19 +70,19 @@
   notify: 
     - restart apache
 
-- name: Generate css files
+- name: Generate static files
   django_manage:
     app_path: "{{ project_path }}"
-    command: "compilescss"
+    command: "collectstatic"
     virtualenv: "{{ project_path }}/venv"
     settings: "{{ django_settings_module }}"
   notify:
     - restart apache
 
-- name: Generate static files
+- name: Migrate databse
   django_manage:
     app_path: "{{ project_path }}"
-    command: "collectstatic"
+    command: "migrate --noinput"
     virtualenv: "{{ project_path }}/venv"
     settings: "{{ django_settings_module }}"
   notify:

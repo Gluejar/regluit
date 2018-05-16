@@ -34,9 +34,9 @@
   git:
     accept_hostkey: yes
     force: yes
-    repo: "https://github.com/EbookFoundation/regluit.git"
+    repo: "{{ git_repo }}"
     dest: "{{ project_path }}"
-    version: "{{ repo_version }}"
+    version: "{{ git_branch }}"
 
 - name: Install python packages to virtualenv
   pip:
@@ -101,8 +101,8 @@
 - name: Run redis tasks
   import_tasks: redis.yml
 
-- name: Run mysql tasks
-  import_tasks: mysql.yml
+# - name: Run mysql tasks
+#   import_tasks: mysql.yml
 
 - name: Run cert tasks
   import_tasks: certs.yml
