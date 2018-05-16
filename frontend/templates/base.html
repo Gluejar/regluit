@@ -64,7 +64,7 @@
         </div>
         <div id="header-login">
             {% block signin %}
-            {% if True or user.is_authenticated %}
+            {% if user.is_authenticated %}
             <img class="user-avatar" src="{{ user.profile.avatar_url }}" height=36 width="36" alt="Avatar for {{ user.username }}" title="{{ user.username }}" />
             {% else %}
                 <a class="notbutton hijax" href="{% url 'superlogin' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}"><span>Log In</span></a>
