@@ -65,7 +65,9 @@
         <div id="header-login">
             {% block signin %}
             {% if user.is_authenticated %}
-            <img class="user-avatar" src="{{ user.profile.avatar_url }}" height=36 width="36" alt="Avatar for {{ user.username }}" title="{{ user.username }}" />
+            <a href="{% url 'supporter' user %}">
+                <img class="user-avatar" src="{{ user.profile.avatar_url }}" height=36 width="36" alt="Avatar for {{ user.username }}" title="{{ user.username }}" />
+            </a>
             {% else %}
                 <a class="notbutton hijax" href="{% url 'superlogin' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}"><span>Log In</span></a>
                 <a class="button success" href="{% url 'registration_register' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Sign Up</a>
@@ -94,8 +96,7 @@
                                     {% endif %}
                                 </a>
                             </li>
-                            <li><a href="{% url 'supporter' user %}">My Faves</a></li>
-                            <li><a href="{% url 'manage_account' %}">Profile Settings</a></li>
+                            <li><a href="{% url 'supporter' user %}">Profile Settings</a></li>
                             {% if user.rights_holder.all %}
                             <li><a class="notbutton" href="{% url 'rightsholders' %}">Rights Holder Tools</a></li>
                             {% endif %}
