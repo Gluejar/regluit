@@ -65,7 +65,7 @@
         <div id="header-login">
             {% block signin %}
             {% if user.is_authenticated %}
-            <a href="{% url 'supporter' user %}">
+            <a href="{% url 'supporter' user %}#edit">
                 <img class="user-avatar" src="{{ user.profile.avatar_url }}" height=36 width="36" alt="Avatar for {{ user.username }}" title="{{ user.username }}" />
             </a>
             {% else %}
@@ -83,7 +83,7 @@
                     <label for="menu-drilldown-box">
                         <li toggle-header-menu><a href="#">Back</a></li>
                     </label>
-                    {% if user.is_authenticated %}
+                    {% if True or user.is_authenticated %}
                     <li>
                         <a href="#">Account</a>
                         <ul class="menu vertical nested">
@@ -96,7 +96,7 @@
                                     {% endif %}
                                 </a>
                             </li>
-                            <li><a href="{% url 'supporter' user %}">Profile Settings</a></li>
+                            <li><a href="{% url 'supporter' user %}#edit">Profile Settings</a></li>
                             {% if user.rights_holder.all %}
                             <li><a class="notbutton" href="{% url 'rightsholders' %}">Rights Holder Tools</a></li>
                             {% endif %}
