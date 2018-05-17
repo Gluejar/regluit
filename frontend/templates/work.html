@@ -200,7 +200,7 @@
                 <div class="btn_wishlist" id="wishlist_actions">
                     {% if request.user.is_anonymous %}
                         <div class="create-account">
-                            <span title="{% url 'work' work_id %}">Login to Fave</span>
+                            <span title="{% url 'work' work_id %}"><a href="{% url 'superlogin' %}?next={{ request.get_full_path|urlencode }}">Login to Fave</a></span>
                         </div>
                     {% elif request.user.id in work.last_campaign.supporters %}
                         <div class="add-wishlist">
