@@ -229,7 +229,7 @@
         </div>
     {% elif request.user.is_anonymous %}
         <div class="listview panelfront side1 create-account">
-            <span title="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">Login to Fave</span>
+            <span class="hide-for-small-only" title="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">Login to Fave</span>
         </div>
     {% elif work in wishlist %}
         {% if supporter == request.user %}
@@ -260,7 +260,7 @@
         </div>
     {% endif %}
     
-    <div class="listview panelfront side1 booklist-status">
+    <div class="listview panelfront side1 booklist-status hide-for-small-only">
 		{% if status == "ACTIVE" %}
 		    {% if work.last_campaign.type == 1 %}
 		        <div class="booklist-status-label">{{ work.percent_of_goal }}%</div>
@@ -299,7 +299,7 @@
 		    {% endif %}
 		{% endif %}
     </div>
-    <div class="listview panelfront side1 icons">
+    <div class="listview panelfront side1 icons hide-for-small-only">
     	{% comment %}
     		For status icons, we should display...
     			If there is an ebook: options to get it
