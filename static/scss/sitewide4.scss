@@ -397,29 +397,9 @@ h3 {
             }
         }
 
-        .unseen_count {
-            border: solid 2px;
-            @include one-border-radius(700px);
-            padding: 3px;
-            line-height: 16px;
-            width: 16px;
-            cursor: pointer;
-            text-align: center;
-
-            &#i_haz_notifications {
-                background-color: $call-to-action;
-                color: white;
-                border-color: white;
-            }
-
-            &#no_notifications_for_you {
-                border-color: $pale-blue;
-                background-color: $pale-blue;
-                color: $text-blue;
-            }
-        }
     }
 }
+
 .btn-signup {
   @include button-variant(#fff, $call-to-action,  $btn-default-border);
 }
@@ -427,12 +407,40 @@ h3 {
   @include button-variant(#fff, $bright-blue, $btn-default-border);
 }
 
-#i_haz_notifications_badge {
+.unseen_count {
+    border: solid 2px;
+    @include one-border-radius(700px);
+    padding: 3px;
+    line-height: 16px;
+    cursor: pointer;
+    text-align: center;
+
+    &#i_haz_notifications {
+        background-color: $call-to-action;
+        color: white;
+        border-color: white;
+    }
+
+    &#no_notifications_for_you {
+        border-color: $pale-blue;
+        background-color: $pale-blue;
+        color: $text-blue;
+    }
+}
+
+.notifications-badge-holder {
+    position: relative;
+}
+
+.notifications-badge {
     @include one-border-radius(700px);
     font-size: $font-size-default;
     border: solid 2px white;
-    margin-left: -7px;
+    position: absolute;
+    top: 0;
+    right: 0;
     margin-top: -10px;
+    margin-right: -10px;
     padding: 3px;
     background: $call-to-action;
     color: white;
