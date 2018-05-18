@@ -39,6 +39,10 @@
     .book-sidebar-item span {
         display: none;
     }
+    
+    .book-sidebar-explore {
+        display: none;
+    }
 
     .bookRead {
         flex: 100%;
@@ -136,4 +140,44 @@
 
 .description-more-content {
     padding-top: 20px;
+}
+
+.book-sidebar-explore {
+    width: 150px;
+    .jsmodule {
+        margin: 0;
+        padding: 0;
+        
+        h3 {
+            background-color: $pale-blue;
+            border-radius: 0;
+            height: auto;
+            span {
+                text-align: center;
+                padding: 4px;
+            }
+            margin-bottom: 4px;
+        }
+           
+        .menu {
+           
+            li {
+                > span {
+                    display: none;
+                }
+                a {
+                    padding: 0;
+                    padding-bottom: 4px;
+                }
+                a:hover {
+                    text-decoration: underline;
+                }
+            }
+
+           .level3 {
+                padding-left: 10px;
+            }
+        }
+    }
+
 }
