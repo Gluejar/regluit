@@ -412,7 +412,6 @@ h3 {
     @include one-border-radius(700px);
     padding: 3px;
     line-height: 16px;
-    width: 16px;
     cursor: pointer;
     text-align: center;
 
@@ -429,12 +428,19 @@ h3 {
     }
 }
 
+.notifications-badge-holder {
+    position: relative;
+}
+
 .notifications-badge {
     @include one-border-radius(700px);
     font-size: $font-size-default;
     border: solid 2px white;
-    margin-left: -7px;
+    position: absolute;
+    top: 0;
+    right: 0;
     margin-top: -10px;
+    margin-right: -10px;
     padding: 3px;
     background: $call-to-action;
     color: white;
