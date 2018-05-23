@@ -29,12 +29,11 @@ TIME_ZONE = 'America/New_York'
 # settings for outbout email
 # if you have a gmail account you can use your email address and password
 
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'me@gmail.com'
-EMAIL_HOST_PASSWORD = 'my-password'
-EMAIL_PORT = 587
-DEFAULT_FROM_EMAIL = 'info@ebookfoundation.org'
+EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend'
+MAIL_USE_TLS = True 
+EMAIL_HOST = 'email-smtp.us-east-1.amazonaws.com'
+EMAIL_PORT = 465
+DEFAULT_FROM_EMAIL = 'notices@gluejar.com'
 
 
 # formerly of settings/common.py to surface old vars
