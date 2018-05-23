@@ -1,0 +1,19 @@
+language: python
+
+python:
+  - '2.7'
+
+services:
+  - redis-server
+  - mysql
+
+env:
+  - DJANGO_SETTINGS_MODULE=regluit.settings.travis
+
+before_install:
+  - sudo mkdir /var/log/django
+  - sudo chmod 777 /var/log/django
+
+install: pip install -r requirements_versioned.pip
+
+script: python manage.py test
