@@ -40,7 +40,7 @@ urlpatterns = [
     url(r"^onix/(?P<facet>.*)/$", OnixView.as_view(), name="onix"),
     url(r"^onix/$", OnixView.as_view(), name="onix_all"),
     url(r'^id/work/(?P<work_id>\w+)/$', negotiate_content, name="work_identifier"),
-    url(r'^loader/yaml$',load_yaml, name="load_yaml"),
-    url(r'^travisci/webhook$',travisci_webhook, name="travisci_webhook"),
+    url(r'^loader/yaml$', load_yaml, name="load_yaml"),
+    url(r'^travisci/webhook$', travisci_webhook, name="travisci_webhook"),
     url(r'^', include(v1_api.urls)),
 ]

@@ -22,6 +22,7 @@ from django.db.utils import DatabaseError
 from django.dispatch import Signal
 from django.utils.translation import ugettext_noop as _
 from django.template.loader import render_to_string
+from django.utils.timezone import now
 
 from notification import models as notification
 
@@ -29,9 +30,9 @@ from notification import models as notification
 regluit imports
 """
 from regluit.payment.signals import transaction_charged, transaction_failed, pledge_modified, pledge_created
-from regluit.utils.localdatetime import now, date_today
 from regluit.core.parameters import REWARDS, BUY2UNGLUE, THANKS, LIBRARY, RESERVE, THANKED
 from regluit.libraryauth.models import Library, LibraryUser
+from regluit.utils.localdatetime import date_today
 
 logger = logging.getLogger(__name__)
 
@@ -100,7 +101,7 @@ def create_notice_types( **kwargs):
     notification.create_notice_type("purchase_notgot_gift", _("Your gift wasn't received."), _("The ebook you sent as a gift has not yet been redeemed."))
     notification.create_notice_type("donation", _("Your donation was processed."), _("Thank you, your generous donation has been processed."))
     
-signals.post_syncdb.connect(create_notice_types, sender=notification)
+signals.post_migrate.connect(create_notice_types, sender=notification)
 
 # define the notifications and tie them to corresponding signals
 

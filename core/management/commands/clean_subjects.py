@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 
 from regluit.core.models import Subject
+from regluit.core.validation import valid_subject
 
 
 
@@ -27,3 +28,8 @@ class Command(BaseCommand):
             for work in subject.works.all():
                 Subject.set_by_name(subject.name, work=work)
             subject.delete()
+
+       period_subjects = Subject.objects.filter(name__contains=".")
+       for subject in period_subjects:
+            if not valid_subject(subject.name):
+                subject.delete()

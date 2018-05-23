@@ -1,8 +1,11 @@
 # coding=utf-8
-# mostly constants related to Creative Commons
+''' mostly constants related to Creative Commons
 # let's be DRY with these parameters
 
 ## need to add versioned CC  entries
+'''
+
+import re
 
 INFO_CC = (
     ('CC BY-NC-ND', 'by-nc-nd', 'Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported (CC BY-NC-ND 3.0)', 'https://creativecommons.org/licenses/by-nc-nd/3.0/', 'Creative Commons Attribution-NonCommercial-NoDerivs'),     
@@ -162,3 +165,15 @@ def match_license(license_string):
     except ValueError:
         pass
     return RIGHTS_ALIAS.get(license_string, None)
+
+MATCH_LICENSE = re.compile(r'creativecommons.org/licenses/([^/]+)/')
+def license_from_cc_url(rights_url):
+    if not rights_url:
+        return None
+    lic = MATCH_LICENSE.search(rights_url)
+    if lic:
+        return 'CC {}'.format(lic.group(1).upper())
+    if rights_url.find('openedition.org') >= 0:
+        return 'OPENEDITION'
+    return ''
+

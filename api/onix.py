@@ -25,7 +25,7 @@ def onix_feed(facet, max=None):
         editions = facet.facet_object.filter_model("Edition",editions).distinct()
         for edition in editions:
             edition_prod = product(edition, facet.facet_object)
-            if edition_prod:
+            if edition_prod is not None:
                 feed.append(edition_prod)    
     return etree.tostring(feed, pretty_print=True)
     
@@ -34,7 +34,7 @@ def onix_feed_for_work(work):
     feed.append(header(work))
     for edition in models.Edition.objects.filter(work=work,ebooks__isnull=False).distinct():
         edition_prod = product(edition)
-        if edition_prod:
+        if edition_prod is not None:
             feed.append(product(edition))
     return etree.tostring(feed, pretty_print=True)
     
