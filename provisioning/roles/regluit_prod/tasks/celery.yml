@@ -1,0 +1,67 @@
+---
+- name: Create celery user
+  become: yes
+  user: 
+    create_home: no
+    name: "celery"
+  tags: 
+    - celery
+
+- name: Add current user to celery and www-data groups
+  become: yes
+  user: 
+    name: "{{ user_name }}"
+    groups: 
+      - celery
+      - www-data
+    append: yes
+  tags:
+    - celery
+
+- name: Create directories for celery
+  become: yes
+  file: 
+    path: "{{ item }}"
+    state: directory
+    owner: celery
+    group: celery
+    mode: 0775
+  with_items:
+    - '/var/log/celery'
+    - '/var/run/celery'
+  tags: 
+    - celery
+
+- name: Copy celery init.d scripts
+  become: yes
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/init.d/{{ item }}"
+    mode: 0755
+  with_items:
+    - 'celeryd'
+    - 'celerybeat'
+  tags: 
+    - celery
+
+- name: Copy celery config files
+  become: yes
+  template:
+    src: "celery/{{ item }}.j2"
+    dest: "/etc/default/{{ item }}"
+    mode: 0644
+  with_items:
+    - 'celeryd'
+    - 'celerybeat'
+  tags: 
+    - celery
+
+- name: Start celeryd
+  django_manage:
+    app_path: "{{ project_path }}"
+    command: "celeryd_multi restart w1"
+    virtualenv: "{{ project_path }}/venv"
+    settings: "{{ django_settings_module }}"
+
+- name: Start celerybeat
+  command: /etc/init.d/celerybeat start

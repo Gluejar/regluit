@@ -87,12 +87,12 @@ xhtml2pdf==0.2.2
 webencodings==0.5.1
 #for urllib3 secure
 cffi==1.7.0
-cryptography==1.4
+cryptography==2.1.4
 enum34==1.1.6
 idna==2.1
 ipaddress==1.0.16
 ndg-httpsclient==0.4.2
-pyOpenSSL==16.0.0
+pyOpenSSL==16.2.0
 pyasn1==0.1.9
 pycparser==2.14
 setuptools==25.0.0
@@ -100,6 +100,6 @@ urllib3==1.16
 beautifulsoup4==4.6.0
 RISparser==0.4.2
 # include these 2 for development
-#libsass==0.13.4
-#django-compressor==2.2
-django-sass-processor==0.5.6
+libsass==0.14.5
+django-compressor==2.2
+django-sass-processor==0.7

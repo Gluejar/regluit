@@ -1,0 +1,37 @@
+---
+# Tasks for Celeryd and Celerybeat processes
+- name: Create /var/log/celery
+  become: true
+  file:
+    path: "/var/log/celery"
+    state: directory
+    #owner: celery
+    #group: celery
+    mode: 0775
+
+- name: Create /var/run/celery
+  become: true
+  file:
+    path: "/var/run/celery"
+    state: directory
+    #owner: celery
+    #group: celery
+    mode: 0775
+
+- name: Copy celery init.d scripts
+  become: true
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/init.d/{{ item }}"
+  with_items:
+    - 'celeryd'
+    - 'celerybeat'
+
+- name: Copy celery config files
+  become: true
+  template:
+    src: "celery/{{ item }}.j2"
+    dest: "/etc/default/{{ item }}"
+  with_items:
+    - 'celeryd'
+    - 'celerybeat'

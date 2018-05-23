@@ -1,0 +1,120 @@
+---
+- name: Install prod dependencies
+  become: true
+  apt:
+    name: "{{ item }}"
+    update_cache: true
+    state: present
+  with_items:
+    - 'git'
+    - 'python-setuptools'
+    - 'python-lxml'
+    - 'python-dev'
+    - 'python-virtualenv'
+    - 'build-essential'
+    - 'libssl-dev'
+    - 'libffi-dev'
+    - 'libxml2-dev'
+    - 'libxslt-dev'
+    - 'mysql-client'
+    - 'libmysqlclient-dev'
+    - 'python-mysqldb'
+    - 'postfix'
+    - 'libjpeg-dev'
+
+- name: Create project directory
+  become: true
+  file: 
+    path: "{{ project_path }}"
+    state: directory
+    owner: "{{ user_name }}"
+    mode: 0755
+  
+- name: Checkout regluit repo
+  git:
+    accept_hostkey: yes
+    force: yes
+    repo: "{{ git_repo }}"
+    dest: "{{ project_path }}"
+    version: "{{ git_branch }}"
+
+- name: Install python packages to virtualenv
+  pip:
+    requirements: "{{ project_path }}/requirements_versioned.pip"
+    state: present
+    virtualenv: "{{ project_path }}/venv"
+
+- name: Add project to PYTHONPATH of virtualenv
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ project_path }}/venv/lib/python2.7/site-packages/{{ item }}"
+  with_items:
+    - 'regluit.pth'
+    - 'opt.pth'
+
+- name: Create keys directory
+  file:
+    path: "{{ project_path}}/settings/keys"
+    state: directory
+    owner: "{{ user_name }}"
+    mode: 0755
+
+- name: Copy keys files
+  copy:
+    src: "{{ project_path }}/settings/dummy/__init__.py"
+    dest: "{{ project_path }}/settings/keys/__init__.py"
+    remote_src: yes
+
+- name: Copy django settings template
+  template:
+    src: prod.py.j2
+    dest: "{{ project_path }}/settings/prod.py"
+
+- name: Copy key templates to keys directory
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ project_path }}/settings/keys/{{ item }}"
+  with_items:
+    - 'common.py'
+    - 'host.py'
+
+- name: Create django log directory
+  become: yes
+  file: 
+    path: "/var/log/regluit"
+    state: directory
+    owner: "{{ user_name }}"
+    group: "www-data"
+    mode: 0775
+
+- name: Open ports on firewall
+  become: yes
+  ufw:
+    rule: allow
+    port: "{{ item }}"
+    proto: tcp
+  with_items:
+    - 22
+    - 80
+    - 443
+
+- name: Run redis tasks
+  import_tasks: redis.yml
+
+# - name: Run mysql tasks
+#   import_tasks: mysql.yml
+
+- name: Run cert tasks
+  import_tasks: certs.yml
+
+- name: Run apache tasks
+  import_tasks: apache.yml
+
+- name: Run celery tasks
+  import_tasks: celery.yml
+
+
+
+
+
+

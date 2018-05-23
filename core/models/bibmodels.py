@@ -106,10 +106,10 @@ class Identifier(models.Model):
 
     def __unicode__(self):
         return u'{0}:{1}'.format(self.type, self.value)
-        
+
     def label(self):
         return ID_CHOICES_MAP.get(self.type, self.type)
-        
+
     def url(self):
         return id_url(self.type, self.value)
 
@@ -127,7 +127,7 @@ class Work(models.Model):
     is_free = models.BooleanField(default=False)
     landings = GenericRelation(Landing, related_query_name='works')
     related = models.ManyToManyField('self', symmetrical=False, blank=True, through='WorkRelation', related_name='reverse_related')
-    age_level = models.CharField(max_length=5, choices=AGE_LEVEL_CHOICES, default='', blank=True) 
+    age_level = models.CharField(max_length=5, choices=AGE_LEVEL_CHOICES, default='', blank=True)
 
     class Meta:
         ordering = ['title']
@@ -137,7 +137,7 @@ class Work(models.Model):
     def __init__(self, *args, **kwargs):
         self._last_campaign = None
         super(Work, self).__init__(*args, **kwargs)
-    
+
     def id_for(self, type):
         return id_for(self, type)
 
@@ -205,7 +205,7 @@ class Work(models.Model):
     @property
     def openlibrary_url(self):
         return id_url('olwk', self.openlibrary_id)
-        
+
     def cover_filetype(self):
         if self.uses_google_cover():
             return 'jpeg'
@@ -403,14 +403,14 @@ class Work(models.Model):
 
     def pdffiles(self):
         return EbookFile.objects.filter(edition__work=self, format='pdf').exclude(file='').order_by('-created')
-    
+
     def versions(self):
         version_labels = []
         for ebook in self.ebooks_all():
             if ebook.version_label and not ebook.version_label in version_labels:
                 version_labels.append(ebook.version_label)
         return version_labels
-    
+
     def formats(self):
         fmts = []
         for fmt in ['pdf', 'epub', 'mobi', 'html']:
@@ -422,7 +422,7 @@ class Work(models.Model):
     def remove_old_ebooks(self):
         # this method is triggered after an file upload or new ebook saved
         old = Ebook.objects.filter(edition__work=self, active=True).order_by('-version_iter', '-created')
-        
+
         # keep highest version ebook for each format and version label
         done_format_versions = []
         for eb in old:
@@ -431,7 +431,7 @@ class Work(models.Model):
                 eb.deactivate()
             else:
                 done_format_versions.append(format_version)
-        
+
         # check for failed uploads.
         null_files = EbookFile.objects.filter(edition__work=self, file='')
         for ebf in null_files:
@@ -768,12 +768,12 @@ class Subject(models.Model):
 
     class Meta:
         ordering = ['name']
-    
+
     @classmethod
     def set_by_name(cls, subject, work=None, authority=None):
         ''' use this method whenever you would be creating a new subject!'''
         subject = subject.strip()
-        
+
         # make sure it's not a ; delineated list
         subjects = subject.split(';')
         for additional_subject in subjects[1:]:
@@ -798,12 +798,12 @@ class Subject(models.Model):
             if not subject_obj.authority and authority:
                 subject_obj.authority = authority
                 subject_obj.save()
-        
+
             subject_obj.works.add(work)
-            return subject_obj   
+            return subject_obj
         else:
             return None
-    
+
     def __unicode__(self):
         return self.name
 
@@ -1082,7 +1082,6 @@ class EbookFile(models.Model):
             asking=self.asking,
             source=self.file.url
         )
-            
         new_mobi_ebf.file.save(path_for_file(new_mobi_ebf, None), mobi_cf)
         new_mobi_ebf.save()
         if self.ebook:
@@ -1180,7 +1179,7 @@ class Ebook(models.Model):
             return '.{}'.format(self.version_iter)
         else:
             return '().{}'.format(self.version_label, self.version_iter)
-    
+
     def set_version(self, version):
         #set both version_label and version_iter with one string with format "version.iter"
         version_pattern = r'(.*)\.(\d+)$'
@@ -1190,11 +1189,11 @@ class Ebook(models.Model):
         else:
             self.version_label = version
         self.save()
-        
+
     def set_next_iter(self):
         # set the version iter to the next unused iter for that version
         for ebook in Ebook.objects.filter(
-                    edition=self.edition, 
+                    edition=self.edition,
                     version_label=self.version_label,
                     format=self.format,
                     provider=self.provider
@@ -1203,7 +1202,7 @@ class Ebook(models.Model):
              break
         self.version_iter = iter + 1
         self.save()
-          
+
     @property
     def rights_badge(self):
         if self.rights is None:

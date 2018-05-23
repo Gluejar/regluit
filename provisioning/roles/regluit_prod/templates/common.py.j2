@@ -1,0 +1,5 @@
+import os
+
+{% for key in common_keys %}
+{{ key|upper }} = os.environ.get('{{ key|upper }}', '{{ common_keys[key] }}')
+{% endfor %}
