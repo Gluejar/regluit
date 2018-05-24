@@ -8,8 +8,9 @@ services:
   - mysql
 
 env:
-  - DJANGO_SETTINGS_MODULE=regluit.settings.travis
-  - PYTHONPATH=~
+  global:
+    - DJANGO_SETTINGS_MODULE=regluit.settings.travis
+    - PYTHONPATH=~
 
 
 before_install:
