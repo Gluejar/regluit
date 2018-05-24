@@ -10,10 +10,10 @@ services:
 env:
   global:
     - DJANGO_SETTINGS_MODULE=regluit.settings.travis
-    - PYTHONPATH=~
-
+    - PYTHONPATH=..
 
 before_install:
+  - pwd
   - sudo mkdir /var/log/django
   - sudo chmod 777 /var/log/django
 
