@@ -18,7 +18,7 @@ before_install:
 install: 
   - pip install -r requirements_versioned.pip
 
-after_install:
+before_script:
   - add2virtualenv ..
 
 script: django-admin test
