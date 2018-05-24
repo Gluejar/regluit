@@ -10,12 +10,12 @@ services:
 env:
   global:
     - DJANGO_SETTINGS_MODULE=regluit.settings.travis
-    - PYTHONPATH=..
+    - PYTHONPATH=/home/travis/build/EbookFoundation/
 
 before_install:
-  - pwd
   - sudo mkdir /var/log/django
   - sudo chmod 777 /var/log/django
+  - openssl aes-256-cbc -K $encrypted_91a88dd90c97_key -iv $encrypted_91a88dd90c97_iv -in ~/regluit/test/common.py.enc -out ~/regluit/settings/keys/common.py -d
 
 install: 
   - pip install -r requirements_versioned.pip
