@@ -9,6 +9,7 @@ services:
 
 env:
   - DJANGO_SETTINGS_MODULE=regluit.settings.travis
+  - PYTHONPATH=~
 
 
 before_install:
@@ -17,8 +18,5 @@ before_install:
 
 install: 
   - pip install -r requirements_versioned.pip
-
-before_script:
-  - add2virtualenv ..
 
 script: django-admin test
