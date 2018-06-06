@@ -966,7 +966,12 @@ class Campaign(models.Model):
                     
                     # now make the mobi file
                     new_mobi_ebf = EbookFile.objects.create(edition=edition, format='mobi', asking=True)
-                    new_mobi_ebf.file.save(path_for_file('ebf', None), ContentFile(mobi.convert_to_mobi(new_epub_ebf.file.url)))
+                    try:
+                        new_mobi_file = ContentFile(mobi.convert_to_mobi(new_epub_ebf.file.url))
+                    except Exception as e:
+                        logger.error("error making mobi  for %s" % (new_epub_ebf.file.url))
+                        raise e
+                    new_mobi_ebf.file.save(path_for_file('ebf', None), new_mobi_file)
                     new_mobi_ebf.save()
                     new_mobi_ebf.version = version
                     new_ebfs.append(new_mobi_ebf)
