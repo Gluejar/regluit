@@ -6,12 +6,15 @@ external library imports
 """
 import logging
 import json
-import re
-import stripe
 
 from datetime import datetime, timedelta
 from itertools import islice
 from pytz import utc
+import re
+import unittest
+from unittest import TestCase  
+  
+import stripe
 
 """
 django imports
@@ -19,6 +22,7 @@ django imports
 from django.conf import settings
 from django.core.mail import send_mail
 from django.http import HttpResponse
+from django.utils.timezone import now
 
 """
 regluit imports
@@ -35,7 +39,6 @@ from regluit.payment.parameters import (
     TRANSACTION_STATUS_CANCELED
 )
 from regluit.payment.signals import transaction_charged, transaction_failed
-from regluit.utils.localdatetime import now, zuluformat
 
 # as of 2013.07.15
 # ['charge.disputed', 'coupon.updated'] are legacy events -- don't know whether to
@@ -73,12 +76,6 @@ def grouper(iterable, page_size):
 class StripelibError(baseprocessor.ProcessorError):
     pass
 
-try:
-    import unittest
-    from unittest import TestCase    
-except:
-    from django.test import TestCase
-    from django.utils import unittest
 
 # if customer.id doesn't exist, create one and then charge the customer
 # we probably should ask our users whether they are ok with our creating a customer id account -- or ask for credit

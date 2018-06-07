@@ -1,5 +1,6 @@
-from regluit.utils.localdatetime import now
 from django import template
+from django.utils.timezone import now
+
 from regluit.core.models import Acq
 register = template.Library()
 

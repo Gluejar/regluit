@@ -13,11 +13,11 @@ from django.conf import settings
 from django.forms.extras.widgets import SelectDateWidget
 from django.forms.widgets import RadioSelect
 from django.utils.translation import ugettext_lazy as _
+from django.utils.timezone import now
 
 from regluit.core.lookups import OwnerLookup
 from regluit.core.models import Campaign, Edition, Claim, RightsHolder, WasWork
 from regluit.core.parameters import *
-from regluit.utils.localdatetime import now
 
 class RightsHolderForm(forms.ModelForm):
     email = forms.EmailField(

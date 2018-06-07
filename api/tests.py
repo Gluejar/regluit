@@ -10,6 +10,7 @@ django imports
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.client import Client
+from django.utils.timezone import now
 
 """
 regluit imports
@@ -17,7 +18,6 @@ regluit imports
 import regluit.core.isbn
 
 from regluit.core import models
-from regluit.utils.localdatetime import now
 from regluit.api import models as apimodels
 
 class ApiTests(TestCase):

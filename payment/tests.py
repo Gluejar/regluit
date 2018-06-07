@@ -5,6 +5,7 @@ import logging
 import os
 import time
 import traceback
+import unittest
 
 from datetime import timedelta
 from decimal import Decimal as D
@@ -19,7 +20,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.test import TestCase
-from django.utils import unittest
+from django.utils.timezone import now
 
 """
 regluit imports
@@ -29,7 +30,6 @@ from regluit.core.signals import handle_transaction_charged
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction, Account
 from regluit.payment.parameters import *
-from regluit.utils.localdatetime import now
 
 def setup_selenium():
     # Set the display window for our xvfb

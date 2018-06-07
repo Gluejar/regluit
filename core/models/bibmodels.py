@@ -20,10 +20,10 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import F
 from django.db.models.signals import post_save, pre_delete
+from django.utils.timezone import now
 
 import regluit
 from regluit.marc.models import MARCRecord as NewMARC
-from regluit.utils.localdatetime import now
 from questionnaire.models import Landing
 
 from regluit.core import mobi
@@ -1082,8 +1082,7 @@ class EbookFile(models.Model):
             asking=self.asking,
             source=self.file.url
         )
-
-        new_mobi_ebf.file.save(path_for_file('ebf', None), mobi_cf)
+        new_mobi_ebf.file.save(path_for_file(new_mobi_ebf, None), mobi_cf)
         new_mobi_ebf.save()
         if self.ebook:
             new_ebook = Ebook.objects.create(
