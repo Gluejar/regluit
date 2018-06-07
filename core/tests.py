@@ -1157,6 +1157,29 @@ class EbookFileTests(TestCase):
         self.assertTrue(c.work.ebookfiles().filter(asking=True, ebook__active=True).count() == 0)
         self.assertTrue(c.work.ebookfiles().filter(asking=False, ebook__active=True).count() > 0)
 
+    def test_bad_ebookfile(self):
+        w = Work.objects.create(title="Work 3")
+        e = Edition.objects.create(title=w.title, work=w)
+
+        temp = NamedTemporaryFile(delete=False)
+        test_file_content = "bad text file"
+        temp.write(test_file_content)
+        temp.close()
+
+        try:
+            # put the bad file into Django storage
+            temp_file = open(temp.name)
+            dj_file = DjangoFile(temp_file)
+            ebf = EbookFile(format='epub', edition=e, file=dj_file)
+            ebf.save()
+            temp_file.close()
+            ebf.make_mobi()
+        finally:
+            # make sure we get rid of temp file
+            os.remove(temp.name)
+        self.assertTrue(ebf.mobied < 0)
+
+
 class MobigenTests(TestCase):
     def test_convert_to_mobi(self):
         """
