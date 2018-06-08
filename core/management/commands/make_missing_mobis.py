@@ -21,7 +21,7 @@ class Command(BaseCommand):
             if not work.ebooks().filter(format="mobi"):
                 for ebook in work.ebooks().filter(format="epub"):
                     ebf = ebook.get_archive_ebf()
-                    if ebf:
+                    if ebf and ebf.mobied >= 0:
                         try:
                             print u'making mobi for {}'.format(work.title)
                             if ebf.make_mobi():
