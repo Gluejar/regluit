@@ -23,13 +23,15 @@ class TestBooXtream(unittest.TestCase):
         return manager
 
     def test_booxtream_errors(self):
+        if settings.LOCAL_TEST:
+            return
         from .exceptions import BooXtreamError
         inst = self._makeOne()
         if not settings.BOOXTREAM_API_KEY:
             return
         with self.assertRaises(BooXtreamError) as cm:
             inst.platform()
-        self.assertIn( 'expirydays not set',str(cm.exception))
+        self.assertIn('expirydays not set', str(cm.exception))
         params={
             'customername': 'Jane Test',
             'languagecode':'1043',

@@ -64,9 +64,9 @@ class BooXtream(object):
             boox = Boox.objects.create(
                 download_link_epub='https://github.com/eshellman/42_ebook/blob/master/download/42.epub?raw=true&extra=download.booxtream.com/',
                 download_link_mobi='https://github.com/eshellman/42_ebook/blob/master/download/42.mobi?raw=true',
-                referenceid= kwargs.get('referenceid'),
-                downloads_remaining= kwargs.get('downloadlimit'),
-                expirydays=kwargs.get('expirydays'),
+                referenceid= kwargs.get('referenceid', '42'),
+                downloads_remaining= kwargs.get('downloadlimit', 10),
+                expirydays=kwargs.get('expirydays', 30),
             )
             return boox
 
