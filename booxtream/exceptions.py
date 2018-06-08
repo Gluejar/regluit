@@ -7,7 +7,7 @@ class BooXtreamError(Exception):
         self.errors = errors
 
     def __str__(self):
-        errormsg='BooXtream errors:'
+        errormsg = 'BooXtream errors:'
         for error in self.errors:
-            errormsg += 'Error %s: %s\n'% (error.find('Code').text,error.find('Msg').text)
+            errormsg += 'Error %s: %s\n'% (error.find('Code').text, error.find('Msg').text)
         return errormsg
