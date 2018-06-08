@@ -1119,7 +1119,8 @@ class EbookFileTests(TestCase):
         #test the ask-appender
         c.add_ask_to_ebfs()
         if settings.AWS_SECRET_ACCESS_KEY:
-            assert test_pdf(c.work.ebookfiles().filter(asking=True)[0].file.url)
+            askingpdfurl = c.work.ebookfiles().filter(asking=True)[0].file.url
+            assert test_pdf(askingpdfurl)
         else:
             assert test_pdf(c.work.ebookfiles().filter(asking=True)[0].file)
 
