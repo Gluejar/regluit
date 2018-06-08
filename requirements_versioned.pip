@@ -9,8 +9,9 @@ PyYAML==3.11
 amqp==1.4.9
 anyjson==0.3.3
 billiard==3.3.0.23
-awscli==1.10.26
-boto==2.42.0
+awscli==1.15.33
+boto==2.48.0
+boto3==1.7.33
 celery==3.1.23
 certifi==2018.4.16
 chardet==3.0.4
@@ -34,7 +35,7 @@ git+git://github.com/eshellman/django-notification.git@a4620e893e2da220994e0189b
 django-registration==2.1.2
 django-selectable==0.9.0
 django-smtp-ssl==1.0
-django-storages==1.4.1
+django-storages==1.5.2
 django-tastypie==0.13.3
 #django-transmeta==0.7.3 
 git+git://github.com/resulto/django-transmeta.git@ad4d7278ba330dcf8c8446f8ae9b2c769ae8684e
