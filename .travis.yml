@@ -1,0 +1,23 @@
+language: python
+
+python:
+  - '2.7'
+
+services:
+  - redis-server
+  - mysql
+
+env:
+  global:
+    - DJANGO_SETTINGS_MODULE=regluit.settings.travis
+    - PYTHONPATH=/home/travis/build/Gluejar/
+
+before_install:
+  - sudo mkdir /var/log/django
+  - sudo chmod 777 /var/log/django
+  - openssl aes-256-cbc -K $encrypted_56eb2b7cc527_key -iv $encrypted_56eb2b7cc527_iv -in ~/build/Gluejar/regluit/test/travis-host.py.enc -out ~/build/Gluejar/regluit/settings/keys/host.py -d
+
+install: 
+  - pip install -r requirements_versioned.pip
+
+script: django-admin test

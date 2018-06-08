@@ -2,7 +2,8 @@
 *.pyc
 *.log
 settings/me.*
-settings/keys/*
+settings/keys/c*
+settings/keys/h*
 *.dot
 reports
 ENV
