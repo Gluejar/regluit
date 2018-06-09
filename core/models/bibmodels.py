@@ -1056,6 +1056,7 @@ class EbookFile(models.Model):
     asking = models.BooleanField(default=False)
     ebook = models.ForeignKey('Ebook', related_name='ebook_files', null=True)
     source = models.URLField(null=True, blank=True)
+    mobied = models.IntegerField(default=0) #-1 indicates a failed conversion attempt
     version = None
     def check_file(self):
         if self.format == 'epub':
@@ -1072,9 +1073,13 @@ class EbookFile(models.Model):
     def make_mobi(self):
         if not self.format == 'epub' or not settings.MOBIGEN_URL:
             return False
+        if self.mobied < 0:
+            return False
         try:
             mobi_cf = ContentFile(mobi.convert_to_mobi(self.file.url))
         except:
+            self.mobied = -1
+            self.save()
             return False
         new_mobi_ebf = EbookFile.objects.create(
             edition=self.edition,
@@ -1096,6 +1101,8 @@ class EbookFile(models.Model):
             )
             new_mobi_ebf.ebook = new_ebook
         new_mobi_ebf.save()
+        self.mobied = 1
+        self.save()
         return True
 
 send_to_kindle_limit = 7492232

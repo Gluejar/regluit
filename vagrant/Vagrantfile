@@ -114,7 +114,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # ansible.inventory_path = '.vagrant/provisioners/ansible/inventory/'
       ansible.raw_arguments  = [
           "--inventory-file=.vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory",
-          "--limit=just,127.0.0.1,jenkins",
+          "--limit=just,127.0.0.1",
           "-e vname=just",
           "-e class=just",
           "-e hostname=just.unglue.it",
@@ -186,7 +186,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # ansible.inventory_path = '.vagrant/provisioners/ansible/inventory/'
       ansible.raw_arguments  = [
           "--inventory-file=.vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory",
-          "--limit=just2,127.0.0.1,jenkins",
+          "--limit=just2,127.0.0.1",
           "-e vname=just2",
           "-e class=just",
           "-e hostname=just2.unglue.it",

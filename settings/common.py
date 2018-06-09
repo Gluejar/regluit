@@ -7,11 +7,6 @@ from os.path import dirname, realpath, join
 import regluit
 from regluit.payment.parameters import PAYMENT_HOST_PAYPAL, PAYMENT_HOST_AMAZON
 
-try:
-    from .keys.common import *
-except ImportError:
-    print 'no real key file found, using dummy'
-    from .dummy.common import *
 
 PROJECT_DIR = dirname(dirname(realpath(__file__)))
 
@@ -482,6 +477,11 @@ QUESTIONNAIRE_SHOW_ITEM_RESULTS = False
 FIREFOX_PATH = ''
 CHROMEDRIVER_PATH = ''
 
+try:
+    from .keys.common import *
+except ImportError:
+    print 'no real key file found, using dummy'
+    from .dummy.common import *
 
 try:
     from .keys.host import *
@@ -492,6 +492,6 @@ except ImportError:
     LOCAL_TEST = True
 
 if AWS_SECRET_ACCESS_KEY:
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 else:
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
