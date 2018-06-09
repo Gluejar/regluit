@@ -1,5 +1,6 @@
 from django import template
-from regluit.utils.localdatetime import now
+from django.utils.timezone import now
+
 from regluit.core.parameters import REWARDS, BUY2UNGLUE
 
 register = template.Library()

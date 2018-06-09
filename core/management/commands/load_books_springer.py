@@ -4,9 +4,9 @@ from regluit.core.loaders.springer import load_springer
 
 class Command(BaseCommand):
     help = "load books from springer open"
-    args = "<pages>"
+    args = "<startpage> <endpage>"
 
 
-    def handle(self, pages, **options):
-        books = load_springer(int(pages))        
+    def handle(self, startpage, endpage=0, **options):        
+        books = load_springer(int(startpage), int(endpage))       
         print "loaded {} books".format(len(books))

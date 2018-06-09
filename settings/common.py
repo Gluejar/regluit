@@ -165,7 +165,7 @@ INSTALLED_APPS = (
     'social.apps.django_app.default',
     'tastypie',
     'djcelery',
-    'endless_pagination',
+    'el_pagination',
     'selectable',
     'regluit.frontend.templatetags',
     'notification',

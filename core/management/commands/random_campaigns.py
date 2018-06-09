@@ -4,9 +4,9 @@ from random import randint, randrange
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from django.utils.timezone import now
 
 from regluit.core.models import Work, Campaign
-from regluit.utils.localdatetime import now
 
 class Command(BaseCommand):
     help = "creates random campaigns for any works that lack one for testing"

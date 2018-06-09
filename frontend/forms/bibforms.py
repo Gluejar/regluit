@@ -149,14 +149,27 @@ class EditionForm(forms.ModelForm):
         id_type = self.cleaned_data['id_type']
         id_value = self.cleaned_data.get('id_value','').strip()
         if id_value:
-            identifier = Identifier.objects.filter(type=id_type, value=id_value)
-            if identifier:
-                err_msg = "{} is a duplicate for work #{}.".format(identifier[0], identifier[0].work_id)
-                self.add_error('id_value', forms.ValidationError(err_msg))
             try:
-                self.cleaned_data['id_value'] = identifier_cleaner(id_type)(id_value)
+                id_value = identifier_cleaner(id_type)(id_value)
+                identifier = Identifier.objects.filter(type=id_type, value=id_value)
+                ident = identifier[0] if identifier else None
+                if not ident or not self.instance:
+                    self.cleaned_data['id_value'] = id_value
+                elif ident.edition_id == self.instance.id:
+                    self.cleaned_data['id_value'] = id_value
+                elif not ident.edition_id and ident.work_id == self.instance.work_id:
+                    self.cleaned_data['id_value'] = id_value
+                else:
+                    if ident.edition_id:
+                        err_msg = "{} is a duplicate for edition #{}.".format(id_value, ident.edition_id)
+                    else:
+                        err_msg = "{} is a duplicate for work #{}.".format(id_value, ident.work_id)
+                    self.add_error('id_value', forms.ValidationError(err_msg))
             except forms.ValidationError, ve:
-                self.add_error('id_value', forms.ValidationError('{}: {}'.format(ve.message, id_value)))
+                self.add_error(
+                    'id_value',
+                    forms.ValidationError('{}: {}'.format(ve.message, id_value))
+                )
         return self.cleaned_data
 
     class Meta:

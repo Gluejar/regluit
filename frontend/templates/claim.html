@@ -4,6 +4,7 @@
 {% block doccontent %}
 
 <h2>Rights Holder Claim Form </h2>
+{% if work %}
 <h3> Rightsholder making claim </h3>
 {{ rights_holder.rights_holder_name }}
 <h3> Work being claimed  </h3>
@@ -41,5 +42,8 @@
         {% include "claim_terms.html" %}
         <input type="submit" name="submit" value="Confirm Claim">
     </form>
+{% endif %}
+{% else %}
+Please find a work to claim.
 {% endif %}
 {% endblock %}
