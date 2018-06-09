@@ -3,7 +3,6 @@
 *.log
 settings/me.*
 settings/keys/*
-settings/keys/
 *.dot
 reports
 ENV
