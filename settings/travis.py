@@ -20,9 +20,7 @@ DATABASES = {
         'PASSWORD': '',
         'HOST': '',
         'PORT': '',
-        'TEST': {
-            'CHARSET': 'utf8',
-        }
+        'TEST_CHARSET': 'utf8',
     }
 }
 
