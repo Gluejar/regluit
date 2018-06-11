@@ -1,2 +1,0 @@
-[production]
-regluit-prod ansible_host=m.unglue.it ansible_user=ubuntu

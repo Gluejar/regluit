@@ -1,5 +1,0 @@
-import os
-
-{% for key in host_keys %}
-{{ key|upper }} = os.environ.get('{{ key|upper }}', '{{ host_keys[key] }}')
-{% endfor %}
