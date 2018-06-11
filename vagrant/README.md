@@ -1,1 +1,0 @@
-See [vangrant_ansible.md](../docs/vagrant_ansible.md) for documentation.
