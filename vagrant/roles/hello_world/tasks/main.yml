@@ -1,6 +1,0 @@
-- name: calculate date
-  shell: date
-  register: date_result
-
-- name: show date_result
-  debug: msg="date_result {{date_result.stdout_lines[0]}}"

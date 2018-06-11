@@ -1,5 +1,0 @@
-import os
-# all the SECRET_KEYS
-{% for key in SECRET_KEYS %}
-{{key}} = os.environ.get('{{key}}', '{{SECRET_KEYS[key]}}')
-{% endfor %}
