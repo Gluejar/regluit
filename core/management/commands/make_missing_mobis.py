@@ -1,22 +1,27 @@
 from django.core.management.base import BaseCommand
-from regluit.core.models import Work
+from regluit.core.models import Work, EbookFile
 
 
 class Command(BaseCommand):
     help = "generate mobi ebooks where needed and possible."
-    args = "<max>"
-    
+
+    def add_arguments(self, parser):
+        parser.add_argument('max', nargs='?', type=int, default=1, help="maximum mobis to make")    
+        parser.add_argument('--reset', '-r', action='store_true', help="reset failed mobi conversions")    
+        
+        
     def handle(self, max=None, **options):
-        if max:
-            try:
-                max = int(max)
-            except ValueError:
-                max = 1
-        else:
-            max = 1
+        maxbad = 10
+        if options['reset']:
+            bads = EbookFile.objects.filter(mobied__lt=0)
+            for bad in bads:
+                bad.mobied = 0
+                bad.save()
+        
         epubs = Work.objects.filter(editions__ebooks__format='epub').distinct().order_by('-id')
 
         i = 0
+        n_bad = 0
         for work in epubs:
             if not work.ebooks().filter(format="mobi"):
                 for ebook in work.ebooks().filter(format="epub"):
@@ -26,11 +31,14 @@ class Command(BaseCommand):
                             print u'making mobi for {}'.format(work.title)
                             if ebf.make_mobi():
                                 print 'made mobi'
-                                i = i + 1
+                                i += 1
                                 break
                             else:
-                                print 'failed to make mobi'
+                                self.stdout.write('failed to make mobi')
+                                n_bad += 1
+                                
                         except:
-                            print 'failed to make mobi'
-            if i >= max:
+                            self.stdout.write('failed to make mobi')
+                            n_bad += 1
+            if i >= max or n_bad >= maxbad:
                 break
