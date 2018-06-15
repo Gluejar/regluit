@@ -393,6 +393,20 @@ def add_by_doab(doab_id, record=None):
                 url_to_provider(dl_url) if dl_url else None,
                 **metadata
             )
+        else:
+            if 'format' in metadata:
+                del metadata['format']
+            edition = load_doab_edition(
+                title,
+                doab_id,
+                '',
+                '',
+                license,
+                language,
+                isbns,
+                None,
+                **metadata
+            )
         return edition
     except IdDoesNotExistError:
         return None
