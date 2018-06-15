@@ -425,8 +425,8 @@ def load_doab_oai(from_year=None, limit=100000):
     if from_year:
         from_ = datetime.datetime(year=from_year, month=1, day=1)
     else: 
-        # last 45 days
-        from_ = datetime.datetime.now() - datetime.timedelta(days=45)
+        # last 15 days
+        from_ = datetime.datetime.now() - datetime.timedelta(days=15)
     doab_ids = []
     for record in doab_client.listRecords(metadataPrefix='oai_dc', from_=from_):
         if not record[1]:
