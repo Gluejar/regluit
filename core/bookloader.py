@@ -521,6 +521,20 @@ def merge_works(w1, w2, user=None):
     #(for example, when w2 has already been deleted)
     if w1 is None or w2 is None or w1.id == w2.id or w1.id is None or w2.id is None:
         return w1
+
+    #don't merge if the works are related.
+    if w2 in w1.works_related_to.all() or w1 in w2.works_related_to.all():
+        return w1
+    
+    # check if one of the works is a series with parts (that have their own isbn)
+    if w1.works_related_from.filter(relation='part'):
+        models.WorkRelation.objects.get_or_create(to_work=w2, from_work=w1, relation='part')
+        return w1
+    if w2.works_related_from.filter(relation='part'):
+        models.WorkRelation.objects.get_or_create(to_work=w1, from_work=w2, relation='part')
+        return w1
+        
+        
     if w2.selected_edition is not None and w1.selected_edition is None:
         #the merge should be reversed
         temp = w1
