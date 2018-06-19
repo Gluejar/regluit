@@ -58,7 +58,7 @@ oauth2==1.5.211
 oauthlib==1.1.2
 pandas==0.19.1
 paramiko==1.14.1
-postmonkey==1.0b
+mailchimp3==3.0.4
 pycrypto==2.6
 pymarc==3.0.2
 pyoai==2.5.0

@@ -13,7 +13,8 @@ from tempfile import SpooledTemporaryFile
 import requests
 from ckeditor.fields import RichTextField
 from notification import models as notification
-from postmonkey import PostMonkey, MailChimpException
+#from postmonkey import PostMonkey, MailChimpException
+from mailchimp3 import MailChimp
 
 #django imports
 from django.apps import apps
@@ -95,7 +96,7 @@ from .bibmodels import (
 )
 
 from .rh_models import Claim, RightsHolder
-pm = PostMonkey(settings.MAILCHIMP_API_KEY)
+pm = MailChimp(mc_api=settings.MAILCHIMP_API_KEY)
 
 logger = logging.getLogger(__name__)
 
