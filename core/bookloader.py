@@ -273,7 +273,7 @@ def add_by_isbn_from_google(isbn, work=None):
 
     logger.info(u"adding new book by isbn %s", isbn)
     results = get_google_isbn_results(isbn)
-    if results and items in results:
+    if results and 'items' in results:
         item = get_isbn_item(results['items'], isbn)
         if not item:
             logger.exception(u"no items for %s", isbn)
