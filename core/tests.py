@@ -298,7 +298,13 @@ class BookLoaderTests(TestCase):
         # first try to merge work 1 into itself -- should not do anything
         bookloader.merge_works(w1, w1)
         self.assertEqual(models.Work.objects.count(), before + 2)
-
+        
+        # first try to merge related works -- should not do anything
+        rel, created = models.WorkRelation.objects.get_or_create(to_work=w1, from_work=w2, relation='part')
+        bookloader.merge_works(w1, w2)
+        self.assertEqual(models.Work.objects.count(), before + 2)
+        rel.delete()
+        
         # merge the second work into the first
         bookloader.merge_works(e1.work, e2.work)
         self.assertEqual(models.Work.objects.count(), before + 1)
