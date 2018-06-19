@@ -141,8 +141,8 @@ class Work(models.Model):
         self._last_campaign = None
         super(Work, self).__init__(*args, **kwargs)
 
-    def delete(self, *args, **kwargs):
-        if kwargs.get('cascade', True):
+    def delete(self, cascade=True, *args, **kwargs):
+        if cascade:
             if self.offers.all() or self.claim.all() or self.campaigns.all() or self.acqs.all() \
                  or self.holds.all() or self.landings.all():
                  return
