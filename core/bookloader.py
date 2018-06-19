@@ -242,6 +242,17 @@ def update_edition(edition):
 
     return edition
 
+def get_isbn_item(items, isbn):
+    # handle case where google sends back several items
+    for item in items:
+        volumeInfo = item.get('volumeInfo', {})
+        industryIdentifiers = volumeInfo.get('industryIdentifiers', [])
+        for ident in industryIdentifiers:
+            if ident['identifier'] == isbn:
+                return item
+    else:
+        return None # no items
+    return item
 
 def add_by_isbn_from_google(isbn, work=None):
     """add a book to the UnglueIt database from google based on ISBN. The work parameter
@@ -263,11 +274,12 @@ def add_by_isbn_from_google(isbn, work=None):
     logger.info(u"adding new book by isbn %s", isbn)
     results = get_google_isbn_results(isbn)
     if results:
+        item = get_isbn_item(results['items'], isbn)
         try:
             return add_by_googlebooks_id(
-                results['items'][0]['id'],
+                item['id'],
                 work=work,
-                results=results['items'][0],
+                results=item,
                 isbn=isbn
             )
         except LookupFailure, e:
