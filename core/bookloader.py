@@ -597,7 +597,7 @@ def merge_works(w1, w2, user=None):
     for work_relation in w2.works_related_from.all():
         work_relation.from_work = w1
         work_relation.save()
-    w2.delete()
+    w2.delete(cascade=False)
     return w1
 
 def detach_edition(e):
