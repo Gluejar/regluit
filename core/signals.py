@@ -212,9 +212,8 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
             from regluit.core.tasks import send_mail_task
             message = render_to_string("notification/purchase_complete/full.txt", context )
             send_mail_task.delay('unglue.it transaction confirmation', message, 'notices@gluejar.com', [transaction.receipt])
-    if transaction.user:
-        from regluit.core.tasks import emit_notifications
-        emit_notifications.delay()
+    from regluit.core.tasks import emit_notifications
+    emit_notifications.delay()
 
 transaction_charged.connect(handle_transaction_charged)
 
