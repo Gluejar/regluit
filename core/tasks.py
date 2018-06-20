@@ -173,7 +173,7 @@ def refresh_acqs():
             
             # notify the user with the hold
             if 'example.org' not in reserve_acq.user.email:
-                notification.send([reserve_acq.user], "library_reserve", {'acq':reserve_acq})
+                notification.send_now([reserve_acq.user], "library_reserve", {'acq':reserve_acq})
             # delete the hold
             hold.delete()
             break
