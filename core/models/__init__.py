@@ -13,8 +13,8 @@ from tempfile import SpooledTemporaryFile
 import requests
 from ckeditor.fields import RichTextField
 from notification import models as notification
-#from postmonkey import PostMonkey, MailChimpException
 from mailchimp3 import MailChimp
+from mailchimp3.mailchimpclient import MailChimpError
 
 #django imports
 from django.apps import apps
@@ -96,7 +96,7 @@ from .bibmodels import (
 )
 
 from .rh_models import Claim, RightsHolder
-pm = MailChimp(mc_api=settings.MAILCHIMP_API_KEY)
+mc_client = MailChimp(mc_api=settings.MAILCHIMP_API_KEY)
 
 logger = logging.getLogger(__name__)
 
@@ -1257,10 +1257,17 @@ class UserProfile(models.Model):
             # use @example.org email addresses for testing!
             return False
         try:
-            return settings.MAILCHIMP_NEWS_ID in pm.listsForEmail(email_address=self.user.email)
-        except MailChimpException, e:
-            if e.code != 215: # don't log case where user is not on a list
+            member = mc_client.lists.members.get(
+                list_id=settings.MAILCHIMP_NEWS_ID,
+                subscriber_hash=self.user.email
+            )
+            if member['status'] == 'subscribed':
+                return 'True'
+        except MailChimpError, e:
+            if e[0]['status'] != 404: # don't log case where user is not on a list
                 logger.error("error getting mailchimp status  %s" % (e))
+        except ValueError, e:
+            logger.error("bad email address  %s" % (self.user.email))
         except Exception, e:
             logger.error("error getting mailchimp status  %s" % (e))
         return False
@@ -1268,7 +1275,7 @@ class UserProfile(models.Model):
     def ml_subscribe(self, **kwargs):
         if "@example.org" in self.user.email:
             # use @example.org email addresses for testing!
-            return True
+            return
         from regluit.core.tasks import ml_subscribe_task
         ml_subscribe_task.delay(self, **kwargs)
 
@@ -1277,7 +1284,14 @@ class UserProfile(models.Model):
             # use @example.org email addresses for testing!
             return True
         try:
-            return pm.listUnsubscribe(id=settings.MAILCHIMP_NEWS_ID, email_address=self.user.email)
+            mc_client.lists.members.delete(
+                list_id=settings.MAILCHIMP_NEWS_ID,
+                subscriber_hash=self.user.email,
+            )
+            return True
+        except MailChimpError, e:
+            if e[0]['status'] != 404: # don't log case where user is not on a list
+                logger.error("error getting mailchimp status  %s" % (e))
         except Exception, e:
             logger.error("error unsubscribing from mailchimp list  %s" % (e))
         return False
