@@ -1010,10 +1010,11 @@ class MailingListTests(TestCase):
     #mostly to check that MailChimp account is setp correctly
 
     def test_mailchimp(self):
-        from postmonkey import PostMonkey
-        pm = PostMonkey(settings.MAILCHIMP_API_KEY)
+        from mailchimp3 import MailChimp
+        mc_client = MailChimp(settings.MAILCHIMP_API_KEY)
         if settings.TEST_INTEGRATION:
-            self.assertEqual(pm.ping(), "Everything's Chimpy!")
+            root = mc_client.root.get()
+            self.assertEqual(root[u'account_id'], u'15472878790f9faa11317e085')
             self.user = User.objects.create_user('chimp_test', 'eric@gluejar.com', 'chimp_test')
             self.assertTrue(self.user.profile.on_ml)
 
