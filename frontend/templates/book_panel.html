@@ -54,7 +54,9 @@
                     {% include "book_panel_addbutton.html" %}
                 </div>		
                 <div class="white_text bottom_button" >
-                {% if purchased %}
+                {% if work.epubfiles %}
+                    <a href="{% url 'read' workid %}" class="hijax"><span class="read_itbutton button_text"><span>Read it Now</span></span></a>
+                {% elif purchased %}
                     <a href="{% url 'download' workid %}" class="hijax"><span class="read_itbutton button_text"><span>Read it Now</span></span></a>
                 {% elif borrowed %}
                     <a href="{% url 'download' workid %}" class="hijax"><span class="read_itbutton button_text"><span>Read it Now</span></span></a>
@@ -227,7 +229,7 @@
         </div>
     {% elif request.user.is_anonymous %}
         <div class="listview panelfront side1 create-account">
-            <span title="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">Login to Fave</span>
+            <span class="hide-for-small-only" title="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">Login to Fave</span>
         </div>
     {% elif work in wishlist %}
         {% if supporter == request.user %}
@@ -258,7 +260,7 @@
         </div>
     {% endif %}
     
-    <div class="listview panelfront side1 booklist-status">
+    <div class="listview panelfront side1 booklist-status hide-for-small-only">
 		{% if status == "ACTIVE" %}
 		    {% if work.last_campaign.type == 1 %}
 		        <div class="booklist-status-label">{{ work.percent_of_goal }}%</div>
@@ -297,8 +299,7 @@
 		    {% endif %}
 		{% endif %}
     </div>
-    <div class="listview panelfront side1 icons">
-    
+    <div class="listview panelfront side1 icons hide-for-small-only">
     	{% comment %}
     		For status icons, we should display...
     			If there is an ebook: options to get it
@@ -307,7 +308,19 @@
     			Otherwise: number of wishes
     	{% endcomment %}
         {% if purchased or borrowed or first_ebook %}
-            <a href="{% url 'download' workid %}" class="hijax" title="Download this work"><div class="read_itbutton"><span>Read it Now</span></div></a>
+            {% if work.epubfiles %}
+                <a href="{% url 'read' workid %}" class="hijax">
+                    <span class="read_itbutton button_text">
+                        <span>Read it Now</span>
+                    </span>
+                </a>
+            {% else %}
+                <a href="{% url 'download' workid %}" class="hijax" title="Download this work">
+                    <div class="read_itbutton">
+                        <span>Read it Now</span>
+                    </div>
+                </a>
+            {% endif %}
         {% elif borrowable %}
             <a href="{% url 'borrow' workid %}?library={{library}}" class="hijax" title="Borrow this work"><div class="read_itbutton"><span>Borrow It</span></div></a>
         {% elif in_library %}

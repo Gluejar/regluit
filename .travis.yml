@@ -10,14 +10,14 @@ services:
 env:
   global:
     - DJANGO_SETTINGS_MODULE=regluit.settings.travis
-    - PYTHONPATH=/home/travis/build/Gluejar/
+    - PYTHONPATH=/home/travis/build/EbookFoundation/
 
 before_install:
   - sudo mkdir /var/log/django
   - sudo chmod 777 /var/log/django
-  - mkdir ~/build/Gluejar/regluit/settings/keys/
-  - cp ~/build/Gluejar/regluit/settings/dummy/__init__.py ~/build/Gluejar/regluit/settings/keys/__init__.py
-  - openssl aes-256-cbc -K $encrypted_56eb2b7cc527_key -iv $encrypted_56eb2b7cc527_iv -in ~/build/Gluejar/regluit/test/travis-host.py.enc -out ~/build/Gluejar/regluit/settings/keys/host.py -d
+  - mkdir ~/build/EbookFoundation/regluit/settings/keys/
+  - cp ~/build/EbookFoundation/regluit/settings/dummy/__init__.py  ~/build/EbookFoundation/regluit/settings/keys/__init__.py
+  - openssl aes-256-cbc -K $encrypted_56eb2b7cc527_key -iv $encrypted_56eb2b7cc527_iv -in ~/build/EbookFoundation/regluit/test/travis-host.py.enc -out ~/build/EbookFoundation/regluit/settings/keys/host.py -d
 
 install: 
   - pip install -r requirements_versioned.pip
