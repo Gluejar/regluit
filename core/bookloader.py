@@ -242,6 +242,17 @@ def update_edition(edition):
 
     return edition
 
+def get_isbn_item(items, isbn):
+    # handle case where google sends back several items
+    for item in items:
+        volumeInfo = item.get('volumeInfo', {})
+        industryIdentifiers = volumeInfo.get('industryIdentifiers', [])
+        for ident in industryIdentifiers:
+            if ident['identifier'] == isbn:
+                return item
+    else:
+        return None # no items
+    return item
 
 def add_by_isbn_from_google(isbn, work=None):
     """add a book to the UnglueIt database from google based on ISBN. The work parameter
@@ -262,12 +273,16 @@ def add_by_isbn_from_google(isbn, work=None):
 
     logger.info(u"adding new book by isbn %s", isbn)
     results = get_google_isbn_results(isbn)
-    if results:
+    if results and 'items' in results:
+        item = get_isbn_item(results['items'], isbn)
+        if not item:
+            logger.exception(u"no items for %s", isbn)
+            return None
         try:
             return add_by_googlebooks_id(
-                results['items'][0]['id'],
+                item['id'],
                 work=work,
-                results=results['items'][0],
+                results=item,
                 isbn=isbn
             )
         except LookupFailure, e:
@@ -521,6 +536,20 @@ def merge_works(w1, w2, user=None):
     #(for example, when w2 has already been deleted)
     if w1 is None or w2 is None or w1.id == w2.id or w1.id is None or w2.id is None:
         return w1
+
+    #don't merge if the works are related.
+    if w2 in w1.works_related_to.all() or w1 in w2.works_related_to.all():
+        return w1
+    
+    # check if one of the works is a series with parts (that have their own isbn)
+    if w1.works_related_from.filter(relation='part'):
+        models.WorkRelation.objects.get_or_create(to_work=w2, from_work=w1, relation='part')
+        return w1
+    if w2.works_related_from.filter(relation='part'):
+        models.WorkRelation.objects.get_or_create(to_work=w1, from_work=w2, relation='part')
+        return w1
+        
+        
     if w2.selected_edition is not None and w1.selected_edition is None:
         #the merge should be reversed
         temp = w1
@@ -583,7 +612,7 @@ def merge_works(w1, w2, user=None):
     for work_relation in w2.works_related_from.all():
         work_relation.from_work = w1
         work_relation.save()
-    w2.delete()
+    w2.delete(cascade=False)
     return w1
 
 def detach_edition(e):

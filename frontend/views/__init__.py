@@ -2889,6 +2889,8 @@ def receive_gift(request, nonce):
                         gift.acq.expire_in(0)
                         gift.use()
                         notification.send([giftee], "purchase_gift", context, True)
+                        from regluit.core.tasks import emit_notifications
+                        emit_notifications.delay()
                         return render(request, 'gift_duplicate.html', context)
                 context['form'] = RegiftForm()
                 return render(request, 'gift_duplicate.html', context)

@@ -103,6 +103,8 @@ FRONTIERSIN = re.compile(r'frontiersin.org/books/[^/]+/(\d+)')
 
 def online_to_download(url):
     urls = []
+    if not url:
+        return urls
     if url.find(u'mdpi.com/books/pdfview/book/') >= 0:
         doc = get_soup(url)
         if doc:

@@ -22,6 +22,8 @@ from django.db.models import F
 from django.db.models.signals import post_save, pre_delete
 from django.utils.timezone import now
 
+from django_comments.models import Comment
+
 import regluit
 from regluit.marc.models import MARCRecord as NewMARC
 from questionnaire.models import Landing
@@ -131,12 +133,38 @@ class Work(models.Model):
 
     class Meta:
         ordering = ['title']
+    
     def __unicode__(self):
         return self.title
 
     def __init__(self, *args, **kwargs):
         self._last_campaign = None
         super(Work, self).__init__(*args, **kwargs)
+
+    def delete(self, cascade=True, *args, **kwargs):
+        if cascade:
+            if self.offers.all() or self.claim.all() or self.campaigns.all() or self.acqs.all() \
+                 or self.holds.all() or self.landings.all():
+                 return
+            for wishlist in self.wishlists.all():
+                wishlist.remove_work(self)
+            for userprofile in self.contributors.all():
+                userprofile.works.remove(self)
+            for identifier in self.identifiers.all():
+                identifier.delete()
+            for comment in Comment.objects.for_model(self):
+                comment.delete()
+            for edition in self.editions.all():
+                for ebook in edition.ebooks.all():
+                    ebook.delete()
+                for ebookfile in edition.ebook_files.all():
+                    ebookfile.delete()
+                edition.delete()
+            for work_relation in self.works_related_to.all():
+                work_relation.delete()
+            for work_relation in self.works_related_from.all():
+                work_relation.delete()
+        super(Work, self).delete(*args, **kwargs)  # Call the "real" save() method.
 
     def id_for(self, type):
         return id_for(self, type)

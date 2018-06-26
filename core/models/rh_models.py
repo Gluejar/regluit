@@ -109,5 +109,7 @@ def notify_rh(sender, created, instance, **kwargs):
         for claim in instance.claim.filter(status='pending'):
             claim.status = 'active'
             claim.save()
+    from regluit.core.tasks import emit_notifications
+    emit_notifications.delay()
 
 post_save.connect(notify_rh, sender=RightsHolder)
