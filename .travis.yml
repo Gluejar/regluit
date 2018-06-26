@@ -23,4 +23,3 @@ install:
   - pip install -r requirements_versioned.pip
 
 script: django-admin test
-
