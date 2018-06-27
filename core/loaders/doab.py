@@ -142,10 +142,11 @@ def add_all_isbns(isbns, work, language=None, title=None):
         if edition:
             first_edition = first_edition if first_edition else edition
             if work and (edition.work_id != work.id):
-                if work.created < edition.work.created:
-                    work = merge_works(work, edition.work)
-                else:
-                    work = merge_works(edition.work, work)
+                if work.doab and edition.work.doab and work.doab != edition.work.doab:
+                    if work.created < edition.work.created:
+                        work = merge_works(work, edition.work)
+                    else:
+                        work = merge_works(edition.work, work)
             else:
                 work = edition.work
     return work, first_edition
@@ -393,6 +394,20 @@ def add_by_doab(doab_id, record=None):
                 url_to_provider(dl_url) if dl_url else None,
                 **metadata
             )
+        else:
+            if 'format' in metadata:
+                del metadata['format']
+            edition = load_doab_edition(
+                title,
+                doab_id,
+                '',
+                '',
+                license,
+                language,
+                isbns,
+                None,
+                **metadata
+            )
         return edition
     except IdDoesNotExistError:
         return None
@@ -411,8 +426,8 @@ def load_doab_oai(from_year=None, limit=100000):
     if from_year:
         from_ = datetime.datetime(year=from_year, month=1, day=1)
     else: 
-        # last 45 days
-        from_ = datetime.datetime.now() - datetime.timedelta(days=45)
+        # last 15 days
+        from_ = datetime.datetime.now() - datetime.timedelta(days=15)
     doab_ids = []
     for record in doab_client.listRecords(metadataPrefix='oai_dc', from_=from_):
         if not record[1]:
