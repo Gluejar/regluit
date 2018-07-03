@@ -17,6 +17,10 @@ from django.utils.timezone import now
 from notification.engine import send_all
 from notification import models as notification
 
+from mailchimp3 import MailChimp
+from mailchimp3.mailchimpclient import MailChimpError
+
+
 """
 regluit imports
 """
@@ -33,6 +37,7 @@ from regluit.core.parameters import RESERVE, REWARDS, THANKS
 from regluit.utils.localdatetime import date_today
 
 logger = logging.getLogger(__name__)
+mc_client = MailChimp(mc_api=settings.MAILCHIMP_API_KEY)
 
 @task 
 def populate_edition(isbn):
@@ -168,7 +173,7 @@ def refresh_acqs():
             
             # notify the user with the hold
             if 'example.org' not in reserve_acq.user.email:
-                notification.send([reserve_acq.user], "library_reserve", {'acq':reserve_acq})
+                notification.send_now([reserve_acq.user], "library_reserve", {'acq':reserve_acq})
             # delete the hold
             hold.delete()
             break
@@ -183,14 +188,17 @@ def convert_to_mobi(input_url, input_format="application/epub+zip"):
 def generate_mobi_ebook_for_edition(edition):
     return mobigen.generate_mobi_ebook_for_edition(edition)
 
-from postmonkey import PostMonkey, MailChimpException
-pm = PostMonkey(settings.MAILCHIMP_API_KEY)
-
 @task
 def ml_subscribe_task(profile, **kwargs):
     try:
         if not profile.on_ml:
-            return pm.listSubscribe(id=settings.MAILCHIMP_NEWS_ID, email_address=profile.user.email, **kwargs)
+            data = {"email_address": profile.user.email, "status_if_new": "pending"}
+            mc_client.lists.members.create_or_update(
+                list_id=settings.MAILCHIMP_NEWS_ID,
+                subscriber_hash=profile.user.email,
+                data=data,
+            )
+            return True
     except Exception, e:
         logger.error("error subscribing to mailchimp list %s" % (e))
         return False

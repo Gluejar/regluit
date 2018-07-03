@@ -298,7 +298,13 @@ class BookLoaderTests(TestCase):
         # first try to merge work 1 into itself -- should not do anything
         bookloader.merge_works(w1, w1)
         self.assertEqual(models.Work.objects.count(), before + 2)
-
+        
+        # first try to merge related works -- should not do anything
+        rel, created = models.WorkRelation.objects.get_or_create(to_work=w1, from_work=w2, relation='part')
+        bookloader.merge_works(w1, w2)
+        self.assertEqual(models.Work.objects.count(), before + 2)
+        rel.delete()
+        
         # merge the second work into the first
         bookloader.merge_works(e1.work, e2.work)
         self.assertEqual(models.Work.objects.count(), before + 1)
@@ -1004,10 +1010,11 @@ class MailingListTests(TestCase):
     #mostly to check that MailChimp account is setp correctly
 
     def test_mailchimp(self):
-        from postmonkey import PostMonkey
-        pm = PostMonkey(settings.MAILCHIMP_API_KEY)
+        from mailchimp3 import MailChimp
+        mc_client = MailChimp(settings.MAILCHIMP_API_KEY)
         if settings.TEST_INTEGRATION:
-            self.assertEqual(pm.ping(), "Everything's Chimpy!")
+            root = mc_client.root.get()
+            self.assertEqual(root[u'account_id'], u'15472878790f9faa11317e085')
             self.user = User.objects.create_user('chimp_test', 'eric@gluejar.com', 'chimp_test')
             self.assertTrue(self.user.profile.on_ml)
 
@@ -1119,7 +1126,8 @@ class EbookFileTests(TestCase):
         #test the ask-appender
         c.add_ask_to_ebfs()
         if settings.AWS_SECRET_ACCESS_KEY:
-            assert test_pdf(c.work.ebookfiles().filter(asking=True)[0].file.url)
+            askingpdfurl = c.work.ebookfiles().filter(asking=True)[0].file.url
+            assert test_pdf(askingpdfurl)
         else:
             assert test_pdf(c.work.ebookfiles().filter(asking=True)[0].file)
 
@@ -1156,6 +1164,29 @@ class EbookFileTests(TestCase):
         c.revert_asks()
         self.assertTrue(c.work.ebookfiles().filter(asking=True, ebook__active=True).count() == 0)
         self.assertTrue(c.work.ebookfiles().filter(asking=False, ebook__active=True).count() > 0)
+
+    def test_bad_ebookfile(self):
+        w = Work.objects.create(title="Work 3")
+        e = Edition.objects.create(title=w.title, work=w)
+
+        temp = NamedTemporaryFile(delete=False)
+        test_file_content = "bad text file"
+        temp.write(test_file_content)
+        temp.close()
+
+        try:
+            # put the bad file into Django storage
+            temp_file = open(temp.name)
+            dj_file = DjangoFile(temp_file)
+            ebf = EbookFile(format='epub', edition=e, file=dj_file)
+            ebf.save()
+            temp_file.close()
+            ebf.make_mobi()
+        finally:
+            # make sure we get rid of temp file
+            os.remove(temp.name)
+        self.assertTrue(ebf.mobied < 0)
+
 
 class MobigenTests(TestCase):
     def test_convert_to_mobi(self):

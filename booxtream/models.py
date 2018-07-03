@@ -6,22 +6,21 @@ class Boox(models.Model):
     """
     keeps a record of a file that's been watermarked
     """
-    download_link_epub =  models.URLField(null=True)
-    download_link_mobi =  models.URLField(null=True)
+    download_link_epub = models.URLField(null=True)
+    download_link_mobi = models.URLField(null=True)
     referenceid = models.CharField(max_length=32)
-    downloads_remaining = models.PositiveSmallIntegerField(default = 0)
+    downloads_remaining = models.PositiveSmallIntegerField(default=0)
     expirydays = models.PositiveSmallIntegerField()
     created = models.DateTimeField(auto_now_add=True)
-    
+
     @property
     def expired(self):
         return self.created+timedelta(days=self.expirydays) < datetime.now()
-        
+
     def download_link(self, format):
         if format == 'epub':
             return self.download_link_epub
         elif  format == 'mobi':
             return self.download_link_mobi
-        else:
-            return None
-        
+        return None
+

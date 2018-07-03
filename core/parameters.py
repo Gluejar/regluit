@@ -20,7 +20,7 @@ TEXT_RELATION_CHOICES = (
     ('translation', 'translation'),
     ('revision', 'revision'),
     ('sequel', 'sequel'),
-    ('compilation', 'compilation')
+    ('part', 'part')
 )
 
 ID_CHOICES = (
@@ -42,7 +42,7 @@ OTHER_ID_CHOICES = (
     ('edid', 'pragmatic edition ID'),
 )
 
-WORK_IDENTIFIERS = ('doi','olwk','glue','ltwk', 'http')
+WORK_IDENTIFIERS = ('doi','olwk','glue','ltwk', 'http', 'doab')
 
 ID_CHOICES_MAP = dict(ID_CHOICES)
 

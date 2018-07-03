@@ -1,5 +1,6 @@
 from datetime import timedelta
 from decimal import Decimal as D
+import logging
 
 from django.conf import settings
 from django.core.urlresolvers import reverse, reverse_lazy
@@ -22,6 +23,8 @@ from regluit.frontend.forms import (
     UserClaimForm,
 )
 from regluit.utils.localdatetime import date_today
+
+logger = logging.getLogger(__name__)
 
 class RHAgree(CreateView):
     template_name = "rh_agree.html"
@@ -74,7 +77,7 @@ class ClaimView(CreateView):
         return UserClaimForm(self.request.user, data=self.request.POST, prefix='claim')
 
     def form_valid(self, form):
-        print form.cleaned_data
+        logger.info(form.cleaned_data)
         work = form.cleaned_data['work']
         rights_holder = form.cleaned_data['rights_holder']
         if not rights_holder.approved:
@@ -88,9 +91,10 @@ class ClaimView(CreateView):
         return HttpResponseRedirect(reverse('rightsholders'))
 
     def get_context_data(self, form):
-        if not form.is_valid():
-            return {'form': form}
-        work = form.cleaned_data['work']
+        try:
+            work = form.cleaned_data['work']
+        except AttributeError:
+            return {}
         rights_holder = form.cleaned_data['rights_holder']
         active_claims = work.claim.exclude(status = 'release')
         return {
