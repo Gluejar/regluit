@@ -124,6 +124,9 @@ def online_to_download(url):
         booknum = FRONTIERSIN.search(url).group(1)
         urls.append(u'https://www.frontiersin.org/GetFile.aspx?ebook={}&fileformat=EPUB'.format(booknum))
         urls.append(u'https://www.frontiersin.org/GetFile.aspx?ebook={}&fileformat=PDF'.format(booknum))
+    elif url.find(u'edp-open.org/books-in-') >= 0:
+        # pages needing multi-scrape
+        return urls
     else:
         urls.append(url)
     return urls
