@@ -65,7 +65,12 @@ def store_doab_cover(doab_id, redo=False):
         else:
             r = requests.get(url)
         cover_file = ContentFile(r.content)
-        cover_file.content_type = r.headers.get('content-type', '')
+        content_type = r.headers.get('content-type', '')
+        if u'text/html' in content_type:
+            logger.warning('Cover return html for doab_id={}: {}'.format(doab_id, e))
+            return (None, False)
+        cover_file.content_type = content_type
+            
 
         default_storage.save(cover_file_name, cover_file)
         return (default_storage.url(cover_file_name), True)
@@ -287,6 +292,12 @@ def load_doab_edition(title, doab_id, url, format, rights,
         publisher_name=unlist(kwargs.get('publisher')),
         authors=kwargs.get('creator'),
     )
+    if rights:
+        for ebook in edition.ebooks.all():
+            if not ebook.rights:
+                ebook.rights = rights
+                ebook.save()
+
     return edition
 
 #
