@@ -866,39 +866,47 @@ class Edition(models.Model):
     def cover_image_large(self):
         #550 pixel high image
         if self.cover_image:
-            im = get_thumbnail(self.cover_image, 'x550', crop='noop', quality=95)
-            if im.exists():
-                return im.url
+            try:
+                im = get_thumbnail(self.cover_image, 'x550', crop='noop', quality=95)
+                if im.exists():
+                    return im.url
+            except IOError:
+                pass
         elif self.googlebooks_id:
             url = "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=0" % self.googlebooks_id
-            im = get_thumbnail(url, 'x550', crop='noop', quality=95)
-            if not im.exists() or im.storage.size(im.name) == 16392: # check for "image not available" image
-                url = "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % self.googlebooks_id
+            try:
                 im = get_thumbnail(url, 'x550', crop='noop', quality=95)
-            if im.exists():
-                return im.url
-            else:
-                return ''
-        else:
-            return ''
+                if not im.exists() or im.storage.size(im.name) == 16392: # check for "image not available" image
+                    url = "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % self.googlebooks_id
+                    im = get_thumbnail(url, 'x550', crop='noop', quality=95)
+                if im.exists():
+                    return im.url
+            except IOError:
+                pass
+        return ''
 
     def cover_image_small(self):
         #80 pixel high image
         if self.cover_image:
-            im = get_thumbnail(self.cover_image, 'x80', crop='noop', quality=95)
-            if im.exists():
-                return im.url
+            try:
+                im = get_thumbnail(self.cover_image, 'x80', crop='noop', quality=95)
+                if im.exists():
+                    return im.url
+            except IOError:
+                pass
         if self.googlebooks_id:
             return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % self.googlebooks_id
-        else:
-            return ''
+        return ''
 
     def cover_image_thumbnail(self):
         #128 pixel wide image
         if self.cover_image:
-            im = get_thumbnail(self.cover_image, '128', crop='noop', quality=95)
-            if im.exists():
-                return im.url
+            try:
+                im = get_thumbnail(self.cover_image, '128', crop='noop', quality=95)
+                if im.exists():
+                    return im.url
+            except IOError:
+                pass
         if self.googlebooks_id:
             return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % self.googlebooks_id
         else:
