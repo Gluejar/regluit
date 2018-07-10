@@ -75,6 +75,8 @@ class EDPMultiScraper(BaseMultiScraper):
                 self.set('download_url_epub', href)
 
     def get_language(self):
+        if 'english' in self.base:
+            self.set('language', 'en')
         self.set('language', 'fr')
 
     def get_title(self):

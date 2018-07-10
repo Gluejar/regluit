@@ -986,6 +986,7 @@ class BasePandataLoader(object):
 
     def load_ebooks(self, metadata, edition, test_mode=False, user=None):
         default_edition = edition
+        license = cc.license_from_cc_url(metadata.rights_url)
         for key in ['epub', 'pdf', 'mobi']:
             url = metadata.metadata.get('download_url_{}'.format(key), None)
             if url:
@@ -995,7 +996,6 @@ class BasePandataLoader(object):
                     if contentfile:
                         contentfile_name = '/loaded/ebook_{}.{}'.format(edition.id, key)
                         path = default_storage.save(contentfile_name, contentfile)
-                        license = cc.license_from_cc_url(metadata.rights_url)
                         ebf = models.EbookFile.objects.create(
                             format=key,
                             edition=edition,
