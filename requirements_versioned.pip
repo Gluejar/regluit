@@ -41,7 +41,7 @@ django-tastypie==0.13.3
 git+git://github.com/resulto/django-transmeta.git@ad4d7278ba330dcf8c8446f8ae9b2c769ae8684e
 fef-questionnaire==4.0.1
 #gitenberg.metadata==0.1.6
-git+https://github.com/gitenberg-dev/gitberg-build
+git+git://github.com/gitenberg-dev/gitberg-build.git@61a5fb0011e1a547b1eac14dd845ce37dbb5f85a
 #git+ssh://git@github.com/gitenberg-dev/metadata.git@0.1.11
 github3.py==0.9.5
 html5lib==1.0.1

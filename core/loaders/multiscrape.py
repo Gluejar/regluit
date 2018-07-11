@@ -26,8 +26,6 @@ class BaseMultiScraper(BaseScraper):
         self.get_all()
         if not self.metadata.get('title', None):
             self.set('title', '!!! missing title !!!')
-        if not self.metadata.get('language', None):
-            self.set('language', 'en')
         self.metadata['identifiers'] = self.identifiers
 
 def multiscrape(url, divider, scraper_class=BaseMultiScraper):
@@ -77,7 +75,8 @@ class EDPMultiScraper(BaseMultiScraper):
     def get_language(self):
         if 'english' in self.base:
             self.set('language', 'en')
-        self.set('language', 'fr')
+        else:
+            self.set('language', 'fr')
 
     def get_title(self):
         value = self.doc.select_one('h2').text
