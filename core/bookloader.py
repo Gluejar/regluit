@@ -909,10 +909,9 @@ class BasePandataLoader(object):
                     if work and id.work and id.work_id is not work.id:
                         # dangerous! merge newer into older
                         if work.id < id.work_id:
-                            merge_works(work, id.work)
+                            work = merge_works(work, id.work)
                         else:
-                            merge_works(id.work, work)
-                            work = id.work
+                            work = merge_works(id.work, work)
                     else:
                         work = id.work
                     if id.edition and not edition:
