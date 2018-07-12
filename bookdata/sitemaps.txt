@@ -7,3 +7,11 @@ https://www.larcommons.net/sitemap.xml
 https://www.uwestminsterpress.co.uk/sitemap.xml
 https://www.stockholmuniversitypress.se/sitemap.xml
 https://www.luminosoa.org/sitemap.xml
+https://iitikship.iiti.ac.in/sitemap.xml
+https://aperio.press/sitemap.xml
+https://press.lse.ac.uk/sitemap.xml
+https://press.sjms.nu/sitemap.xml
+https://trystingtree.library.oregonstate.edu/sitemap.xml
+https://publishing.vt.edu/sitemap.xml
+https://universitypress.whiterose.ac.uk/sitemap.xml
+https://www.winchesteruniversitypress.org/sitemap.xml
