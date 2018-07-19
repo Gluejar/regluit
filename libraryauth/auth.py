@@ -4,11 +4,11 @@ from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.utils.http import urlquote
 
-from social.pipeline.social_auth import associate_by_email
-from social.apps.django_app.default.models import UserSocialAuth
-from social.apps.django_app.middleware import SocialAuthExceptionMiddleware
-from social.exceptions import (AuthAlreadyAssociated,SocialAuthBaseException)
-from social.utils import social_logger
+from social_core.pipeline.social_auth import associate_by_email
+from social_django.models import UserSocialAuth
+from social_django.middleware import SocialAuthExceptionMiddleware
+from social_core.exceptions import (AuthAlreadyAssociated, SocialAuthBaseException)
+from social_core.utils import social_logger
 
 ANONYMOUS_AVATAR = '/static/images/header/avatar.png'
 (NO_AVATAR, GRAVATAR, TWITTER, FACEBOOK, PRIVATETAR) = (0, 1, 2, 3, 4)
