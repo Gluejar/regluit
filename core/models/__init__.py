@@ -1314,7 +1314,7 @@ class UserProfile(models.Model):
 
     @property
     def avatar_url(self):
-        if self.avatar_source is None or self.avatar_source is TWITTER:
+        if self.avatar_source is None or self.avatar_source in (TWITTER, FACEBOOK):
             if self.pic_url:
                 return self.pic_url
             else:
@@ -1323,10 +1323,7 @@ class UserProfile(models.Model):
             return self.unglueitar()
         elif self.avatar_source == GRAVATAR:
             return self.gravatar()
-        elif self.avatar_source == FACEBOOK and self.facebook_id != None:
-            return 'https://graph.facebook.com/v2.3/' + str(self.facebook_id) + '/picture?redirect=true'
-        else:
-            return ANONYMOUS_AVATAR
+        return ANONYMOUS_AVATAR
 
     @property
     def social_auths(self):

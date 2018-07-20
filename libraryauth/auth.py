@@ -8,7 +8,6 @@ from social_core.pipeline.social_auth import associate_by_email
 from social_django.models import UserSocialAuth
 from social_django.middleware import SocialAuthExceptionMiddleware
 from social_core.exceptions import (AuthAlreadyAssociated, SocialAuthBaseException)
-from social_core.utils import social_logger
 
 ANONYMOUS_AVATAR = '/static/images/header/avatar.png'
 (NO_AVATAR, GRAVATAR, TWITTER, FACEBOOK, PRIVATETAR) = (0, 1, 2, 3, 4)
@@ -30,19 +29,18 @@ def selectively_associate_by_email(backend, details, user=None, *args, **kwargs)
         return None
     return associate_by_email(backend, details, user=None, *args, **kwargs)
 
-def facebook_extra_values( user,  extra_data):
+def facebook_extra_values(user, extra_data):
     try:
-        facebook_id = extra_data.get('id')
-        user.profile.facebook_id = facebook_id
+        user.profile.pic_url = extra_data['picture']['data']['url']
         if user.profile.avatar_source is None or user.profile.avatar_source is PRIVATETAR:
             user.profile.avatar_source = FACEBOOK
         user.profile.save()
         return True
-    except Exception,e:
-        logger.error(e)
-        return False
+    except Exception, e:
+        logger.exception(e)
+        return 
 
-def twitter_extra_values( user, extra_data):
+def twitter_extra_values(user, extra_data):
     try:
         twitter_id = extra_data.get('screen_name')
         profile_image_url = extra_data.get('profile_image_url_https')
@@ -57,11 +55,11 @@ def twitter_extra_values( user, extra_data):
         logger.error(e)
         return False
         
-def deliver_extra_data(backend,  user, social, *args, **kwargs):
+def deliver_extra_data(backend, user, social, response, *args, **kwargs):
     if backend.name is 'twitter':
         twitter_extra_values( user, social.extra_data)
     if backend.name is 'facebook':
-        facebook_extra_values( user, social.extra_data)
+        facebook_extra_values( user, response)
 
 # following is needed because of length limitations in a unique constrain for MySQL
 def chop_username(username, *args, **kwargs):
@@ -98,7 +96,7 @@ class SocialAuthExceptionMiddlewareWithoutMessages(SocialAuthExceptionMiddleware
             backend_name = getattr(backend, 'name', 'unknown-backend')
 
             message = self.get_message(request, exception)
-            social_logger.error(message)
+            logger.warning(message)
 
             url = self.get_redirect_uri(request, exception)
             url += ('?' in url and '&' or '?') + \
