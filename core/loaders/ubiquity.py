@@ -8,7 +8,9 @@ from . import BaseScraper
 HAS_EDS = re.compile(r'\(eds?\.\)')
 UBIQUITY_HOSTS = ["ubiquitypress.com", "kriterium.se", "oa.finlit.fi", "humanities-map.net",
     "oa.psupress.org", "larcommons.net", "uwestminsterpress.co.uk", "stockholmuniversitypress.se",
-    "luminosoa.org",
+    "luminosoa.org", "iitikship.iiti.ac.in", "aperio.press", "press.lse.ac.uk", "press.sjms.nu", 
+    "trystingtree.library.oregonstate.edu", "publishing.vt.edu", "universitypress.whiterose.ac.uk",
+    "www.winchesteruniversitypress.org",
 ]
 
 class UbiquityScraper(BaseScraper):

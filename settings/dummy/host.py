@@ -22,6 +22,7 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD",  '012345678901234567
 # twitter auth
 # you'll need to create a new Twitter application to fill in these blanks
 # https://dev.twitter.com/apps/new
+# the field for redirect url must be filled in with https://unglue.it/socialauth/complete/twitter/?
 SOCIAL_AUTH_TWITTER_KEY = os.environ.get("SOCIAL_AUTH_TWITTER_KEY",  '0123456789012345678901234')
 SOCIAL_AUTH_TWITTER_SECRET = os.environ.get("SOCIAL_AUTH_TWITTER_SECRET",  '01234567890123456789012345678901234567890123456789')
 

@@ -51,19 +51,7 @@ class BaseScraper(object):
                 self.doc = BeautifulSoup(response.content, 'lxml')
                 for review in self.doc.find_all(itemtype="http://schema.org/Review"):
                     review.clear()
-                self.setup()
-                self.get_genre()
-                self.get_title()
-                self.get_language()
-                self.get_description()
-                self.get_identifiers()
-                self.get_keywords()
-                self.get_publisher()
-                self.get_pubdate()
-                self.get_authors()
-                self.get_cover()
-                self.get_downloads()
-                self.get_license()
+                self.get_all()
             if not self.metadata.get('title', None):
                 self.set('title', '!!! missing title !!!')
             if not self.metadata.get('language', None):
@@ -140,6 +128,21 @@ class BaseScraper(object):
                 elif el.has_key('content'):
                     value_list.append(el['content'])
         return value_list
+                
+    def get_all(self):
+        self.setup()
+        self.get_genre()
+        self.get_title()
+        self.get_language()
+        self.get_description()
+        self.get_identifiers()
+        self.get_keywords()
+        self.get_publisher()
+        self.get_pubdate()
+        self.get_authors()
+        self.get_cover()
+        self.get_downloads()
+        self.get_license()
 
     def setup(self):
         # use this method to get auxiliary resources based on doc

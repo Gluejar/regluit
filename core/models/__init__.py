@@ -1163,7 +1163,7 @@ class UserProfile(models.Model):
     pic_url = models.URLField(blank=True)
     home_url = models.URLField(blank=True)
     twitter_id = models.CharField(max_length=15, blank=True)
-    facebook_id = models.BigIntegerField(null=True, blank=True)
+    facebook_id = models.CharField(max_length=31, blank=True)
     librarything_id = models.CharField(max_length=31, blank=True)
     badges = models.ManyToManyField('Badge', related_name='holders', blank=True)
     kindle_email = models.EmailField(max_length=254, blank=True)
@@ -1183,8 +1183,7 @@ class UserProfile(models.Model):
         choices=(
             (NO_AVATAR, 'No Avatar, Please'),
             (GRAVATAR, 'Gravatar'),
-            (TWITTER, 'Twitter'),
-            (FACEBOOK, 'Facebook'),
+            (TWITTER, 'Twitter/Facebook'),
             (UNGLUEITAR, 'Unglueitar'),
         )
     )
@@ -1314,7 +1313,7 @@ class UserProfile(models.Model):
 
     @property
     def avatar_url(self):
-        if self.avatar_source is None or self.avatar_source is TWITTER:
+        if self.avatar_source is None or self.avatar_source in (TWITTER, FACEBOOK):
             if self.pic_url:
                 return self.pic_url
             else:
@@ -1323,10 +1322,7 @@ class UserProfile(models.Model):
             return self.unglueitar()
         elif self.avatar_source == GRAVATAR:
             return self.gravatar()
-        elif self.avatar_source == FACEBOOK and self.facebook_id != None:
-            return 'https://graph.facebook.com/v2.3/' + str(self.facebook_id) + '/picture?redirect=true'
-        else:
-            return ANONYMOUS_AVATAR
+        return ANONYMOUS_AVATAR
 
     @property
     def social_auths(self):
