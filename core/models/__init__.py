@@ -1163,7 +1163,7 @@ class UserProfile(models.Model):
     pic_url = models.URLField(blank=True)
     home_url = models.URLField(blank=True)
     twitter_id = models.CharField(max_length=15, blank=True)
-    facebook_id = models.BigIntegerField(null=True, blank=True)
+    facebook_id = models.CharField(max_length=31, blank=True)
     librarything_id = models.CharField(max_length=31, blank=True)
     badges = models.ManyToManyField('Badge', related_name='holders', blank=True)
     kindle_email = models.EmailField(max_length=254, blank=True)
@@ -1183,8 +1183,7 @@ class UserProfile(models.Model):
         choices=(
             (NO_AVATAR, 'No Avatar, Please'),
             (GRAVATAR, 'Gravatar'),
-            (TWITTER, 'Twitter'),
-            (FACEBOOK, 'Facebook'),
+            (TWITTER, 'Twitter/Facebook'),
             (UNGLUEITAR, 'Unglueitar'),
         )
     )

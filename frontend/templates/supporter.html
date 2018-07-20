@@ -197,6 +197,8 @@ function highlightTarget(targetdiv) {
                                     {% else %}
                                     <a href="{% url 'social:begin' backend='facebook' %}?next={% url 'supporter' supporter %}#edit">Connect your Facebook account</a> to Unglue.it                                   
                                     {% endif %} 
+                                    <label>{% if supporter.profile.facebook_id %}Change{% else %}Add{% endif %} your <a href='https://www.facebook.com/help/211813265517027'>Facebook Username</a>:</label>
+                                    {{ profile_form.facebook_id }}{{ profile_form.facebook_id.errors }}
                                 </div>
                                 <div class="check-list" id="connectgr">
                                     {% if user.profile.goodreads_user_id %}

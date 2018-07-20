@@ -1,9 +1,12 @@
 import logging
 
+import requests
 from django.http import HttpResponse
 from django.shortcuts import redirect
 from django.utils.http import urlquote
 
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from social_core.pipeline.social_auth import associate_by_email
 from social_django.models import UserSocialAuth
 from social_django.middleware import SocialAuthExceptionMiddleware
@@ -12,7 +15,26 @@ from social_core.exceptions import (AuthAlreadyAssociated, SocialAuthBaseExcepti
 ANONYMOUS_AVATAR = '/static/images/header/avatar.png'
 (NO_AVATAR, GRAVATAR, TWITTER, FACEBOOK, PRIVATETAR) = (0, 1, 2, 3, 4)
 AVATARS = (NO_AVATAR, GRAVATAR, TWITTER, FACEBOOK, PRIVATETAR)
+
 logger = logging.getLogger(__name__)
+
+def pic_storage_url(user, backend, url):
+    pic_file_name = '/pic/{}/{}'.format(backend, user)
+    # download cover image to cover_file
+    try:
+        r = requests.get(url)
+        pic_file = ContentFile(r.content)
+        content_type = r.headers.get('content-type', '')
+        if u'text' in content_type:
+            logger.warning('Cover return text for pic_url={}'.format(pic_url))
+            return None
+        pic_file.content_type = content_type
+        default_storage.save(pic_file_name, pic_file)
+        return default_storage.url(pic_file_name)
+    except Exception, e:
+        # if there is a problem, return None for cover URL
+        logger.warning('Failed to store cover for username={}'.format(user))
+        return None
 
 
 def selectively_associate_by_email(backend, details, user=None, *args, **kwargs):
@@ -31,7 +53,8 @@ def selectively_associate_by_email(backend, details, user=None, *args, **kwargs)
 
 def facebook_extra_values(user, extra_data):
     try:
-        user.profile.pic_url = extra_data['picture']['data']['url']
+        profile_image_url = extra_data['picture']['data']['url']
+        user.profile.pic_url = pic_storage_url(user, 'facebook', profile_image_url)
         if user.profile.avatar_source is None or user.profile.avatar_source is PRIVATETAR:
             user.profile.avatar_source = FACEBOOK
         user.profile.save()
@@ -46,7 +69,7 @@ def twitter_extra_values(user, extra_data):
         profile_image_url = extra_data.get('profile_image_url_https')
         user.profile.twitter_id = twitter_id
         if user.profile.avatar_source is None or user.profile.avatar_source in (TWITTER, PRIVATETAR):
-            user.profile.pic_url = profile_image_url
+            user.profile.pic_url = pic_storage_url(user, 'twitter', profile_image_url)
         if user.profile.avatar_source is None or user.profile.avatar_source is PRIVATETAR:
             user.profile.avatar_source = TWITTER
         user.profile.save()
