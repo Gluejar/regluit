@@ -2236,7 +2236,7 @@ def goodreads_cb(request):
         profile.save()  # is this needed?
 
     # redirect to the Goodreads display page -- should observe some next later
-    return HttpResponseRedirect(reverse('home'))
+    return HttpResponseRedirect(reverse('supporter', args=[request.user]))
 
 @require_POST
 @login_required

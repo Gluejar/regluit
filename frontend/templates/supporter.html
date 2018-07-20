@@ -186,17 +186,19 @@ function highlightTarget(targetdiv) {
                                 </div>
                                 <div class="check-list">
                                     {% if supporter.profile.twitter_id %}
-                                    <a href="{% url 'social:begin' backend='twitter' %}?next=/">Update your Twitter connection</a> <br /> or disconnect Twitter: {{ profile_form.clear_twitter }}                                 
+                                    <a href="{% url 'social:begin' backend='twitter' %}?next={% url 'supporter' supporter %}#edit">Update your Twitter connection</a> <br /> or disconnect Twitter: {{ profile_form.clear_twitter }}                                 
                                     {% else %}
-                                    <a href="{% url 'social:begin' backend='twitter' %}?next=/">Connect your Twitter account</a> to Unglue.it 
+                                    <a href="{% url 'social:begin' backend='twitter' %}?next={% url 'supporter' supporter %}#edit">Connect your Twitter account</a> to Unglue.it 
                                     {% endif %} 
                                 </div>
                                 <div class="check-list">
                                     {% if supporter.profile.facebook_id %}
-                                    <a href="{% url 'social:begin' backend='facebook' %}?next=/">Update your Facebook connection</a>  <br /> or disconnect Facebook: {{ profile_form.clear_facebook }}
+                                    <a href="{% url 'social:begin' backend='facebook' %}?next={% url 'supporter' supporter %}#edit">Update your Facebook connection</a>  <br /> or disconnect Facebook: {{ profile_form.clear_facebook }}
                                     {% else %}
-                                    <a href="{% url 'social:begin' backend='facebook' %}?next=/">Connect your Facebook account</a> to Unglue.it                                   
+                                    <a href="{% url 'social:begin' backend='facebook' %}?next={% url 'supporter' supporter %}#edit">Connect your Facebook account</a> to Unglue.it                                   
                                     {% endif %} 
+                                    <label>{% if supporter.profile.facebook_id %}Change{% else %}Add{% endif %} your <a href='https://www.facebook.com/help/211813265517027'>Facebook Username</a>:</label>
+                                    {{ profile_form.facebook_id }}{{ profile_form.facebook_id.errors }}
                                 </div>
                                 <div class="check-list" id="connectgr">
                                     {% if user.profile.goodreads_user_id %}

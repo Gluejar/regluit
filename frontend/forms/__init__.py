@@ -188,7 +188,7 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = 'tagline', 'librarything_id', 'home_url', 'clear_facebook', 'clear_twitter', 'clear_goodreads', 'avatar_source'
+        fields = 'tagline', 'librarything_id', 'facebook_id', 'home_url', 'clear_facebook', 'clear_twitter', 'clear_goodreads', 'avatar_source'
         widgets = {
             'tagline': forms.Textarea(attrs={'rows': 5, 'onKeyUp': "counter(this, 140)", 'onBlur': "counter(this, 140)"}),
         }
@@ -198,21 +198,11 @@ class ProfileForm(forms.ModelForm):
         super(ProfileForm, self).__init__(*args, **kwargs)
         choices = []
         for choice in self.fields['avatar_source'].choices :
-            if choice[0] == FACEBOOK and not profile.facebook_id:
-                pass
-            elif choice[0] == TWITTER and not profile.twitter_id:
+            if choice[0] == TWITTER and not profile.pic_url:
                 pass
             else:
                 choices.append(choice)
         self.fields['avatar_source'].choices = choices
-
-    def clean(self):
-        # check that if a social net is cleared, we're not using it a avatar source
-        if self.cleaned_data.get("clear_facebook", False) and self.cleaned_data.get("avatar_source", None) == FACEBOOK:
-            self.cleaned_data["avatar_source"] == UNGLUEITAR
-        if self.cleaned_data.get("clear_twitter", False) and self.cleaned_data.get("avatar_source", None) == TWITTER:
-            self.cleaned_data["avatar_source"] == UNGLUEITAR
-        return self.cleaned_data
 
 def getTransferCreditForm(maximum, data=None, *args, **kwargs ):
     class TransferCreditForm(forms.Form):
