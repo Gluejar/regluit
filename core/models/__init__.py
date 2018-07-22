@@ -391,7 +391,7 @@ class Campaign(models.Model):
     paypal_receiver = models.CharField(max_length=100, blank=True)
     amazon_receiver = models.CharField(max_length=100, blank=True)
     work = models.ForeignKey("Work", related_name="campaigns", null=False)
-    managers = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="campaigns", null=False)
+    managers = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="campaigns")
     # status: INITIALIZED, ACTIVE, SUSPENDED, WITHDRAWN, SUCCESSFUL, UNSUCCESSFUL
     status = models.CharField( max_length=15, null=True, blank=False, default="INITIALIZED", 
         db_index=True, choices=STATUS_CHOICES)
@@ -1034,7 +1034,7 @@ class Campaign(models.Model):
             rights=self.license,
             provider="Unglue.it",
             url=settings.BASE_URL_SECURE + reverse('download_campaign', args=[self.work_id, format]),
-            version='unglued',
+            version_label='unglued',
         )
         old_ebooks = Ebook.objects.exclude(pk=ebook.pk).filter(
             edition=self.work.preferred_edition,

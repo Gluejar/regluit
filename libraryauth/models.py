@@ -178,7 +178,6 @@ class IPAddressFormField(BaseIPAddressField):
                                   code='invalid')
 
 class IPAddressModelField(models.GenericIPAddressField):
-    __metaclass__ = models.SubfieldBase
     empty_strings_allowed = False
 
     def __init__(self, *args, **kwargs):
@@ -210,6 +209,7 @@ class IPAddressModelField(models.GenericIPAddressField):
     def deconstruct(self):
         name, path, args, kwargs = super(models.GenericIPAddressField, self).deconstruct()
         return name, path, args, kwargs
+
 
 class Block(models.Model):
     library = models.ForeignKey(Library, related_name='ip_auths')
