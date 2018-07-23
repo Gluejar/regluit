@@ -204,17 +204,16 @@ SASS_PROCESSOR_INCLUDE_DIRS = [
 ]
 SASS_PROCESSOR_AUTO_INCLUDE = False
 
-# A sample logging configuration. The only tangible logging
-# performed by this configuration is to send an email to
-# the site admins on every HTTP 500 error.
-# See http://docs.djangoproject.com/en/dev/topics/logging for
-# more details on how to customize your logging configuration.
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
     'formatters': {
         'brief': {
             'format': '%(asctime)s %(levelname)s %(name)s[%(funcName)s]: %(message)s',
+        },
+        'django.server': {
+            '()': 'django.utils.log.ServerFormatter',
+            'format': '[%(server_time)s] %(message)s',
         },
     },
     'filters': {
@@ -236,6 +235,11 @@ LOGGING = {
             'backupCount': 5,
             'formatter': 'brief',
         },
+        'django.server': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'django.server',
+        },
     },
     'loggers': {
         'django.request': {
@@ -243,10 +247,15 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'django.server': {
+            'handlers': ['django.server'],
+            'level': 'INFO',
+            'propagate': False,
+        },
         '': {
             'handlers': ['file'],
             'level': 'INFO',
-        }
+        },
     }
 }
 
