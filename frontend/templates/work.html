@@ -25,8 +25,9 @@
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="{% sass_src 'scss/campaign2.scss' %}"  />
 {% if user.is_staff or user in work.last_campaign.managers.all %}
-    <link rel="stylesheet" href="/static/css/ui-lightness/jquery-ui-1.8.16.custom.css" type="text/css" media="screen">
+    <link rel="stylesheet" href="{{ jquery_ui_theme }}" type="text/css" media="screen">
     {{ kwform.media.css }}
+    
 {% endif %}
 {% endblock %}
 

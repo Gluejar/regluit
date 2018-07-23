@@ -3,6 +3,7 @@ def is_preview(request):
     return {
         'jquery_home': settings.JQUERY_HOME,
         'jquery_ui_home': settings.JQUERY_UI_HOME,
+        'jquery_ui_theme': settings.JQUERY_UI_THEME,
         'is_preview': settings.IS_PREVIEW,
         'show_google_analytics': settings.SHOW_GOOGLE_ANALYTICS
     }

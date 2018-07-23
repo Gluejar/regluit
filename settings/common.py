@@ -40,8 +40,9 @@ MEDIA_ROOT = ''
 MEDIA_URL = '/media/'
 
 # set once instead of in all the templates
-JQUERY_HOME = "/static/js/jquery-1.7.1.min.js"
-JQUERY_UI_HOME = "/static/js/jquery-ui-1.8.16.custom.min.js"
+JQUERY_HOME = "/static/js/jquery-1.12.4.min.js"
+JQUERY_UI_HOME = "/static/js/jquery-ui-1.12.1.custom.min.js"
+JQUERY_UI_THEME = "/static/css/ui-lightness/jquery-ui-1.11.4.min.css"
 
 CKEDITOR_UPLOAD_PATH = ''
 CKEDITOR_RESTRICT_BY_USER = True
