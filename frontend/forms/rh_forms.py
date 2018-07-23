@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 from decimal import Decimal as D
 
-from ckeditor.widgets import CKEditorWidget
+from ckeditor_uploader.widgets import CKEditorUploadingWidget
 
 from selectable.forms import (
     AutoCompleteSelectMultipleWidget,
@@ -215,7 +215,7 @@ class ManageCampaignForm(CCDateForm, forms.ModelForm):
             'required': 'You must enter the email we should contact you at for this campaign.'
             },
         )
-    work_description = forms.CharField(required=False , widget=CKEditorWidget())
+    work_description = forms.CharField(required=False , widget=CKEditorUploadingWidget())
 
     class Meta:
         model = Campaign

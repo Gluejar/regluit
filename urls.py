@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.sitemaps.views import index, sitemap
 from django.views.decorators.cache import never_cache
 
-from ckeditor import views as ckedit_views
+from ckeditor_uploader import views as ckedit_views
 
 from regluit.admin import site
 from regluit.core.sitemaps import WorkSitemap, PublisherSitemap

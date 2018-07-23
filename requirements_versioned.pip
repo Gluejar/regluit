@@ -19,7 +19,7 @@ chardet==3.0.4
 # but having distribute in requirements starting to cause problems
 # distribute==0.6.28
 django-celery==3.1.17
-django-ckeditor==4.5.1
+django-ckeditor==5.6.1
 #django-email-change==0.2.3
 git+git://github.com/eshellman/django-email-change.git@87cd33bb7467b6203986d7d5763e2699155cedd4
 django-compat==1.0.15

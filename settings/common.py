@@ -183,6 +183,7 @@ INSTALLED_APPS = (
     'notification',
     'email_change',
     'ckeditor',
+    'ckeditor_uploader',
     'storages', 
     'sorl.thumbnail',
     'mptt',   
