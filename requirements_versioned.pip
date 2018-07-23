@@ -1,5 +1,4 @@
-Django==1.8.14
-#Django==1.10.8
+Django==1.11.14
 Fabric==1.6.0
 MySQL-python==1.2.5
 Pillow==3.4.2
@@ -32,7 +31,7 @@ django-jsonfield==1.0.0
 django-maintenancemode==0.11.2
 django-mptt==0.8.6
 #django-notification==0.2
-git+git://github.com/eshellman/django-notification.git@2768cf4863b152e5f9347660bb0b1d8fd1f972b2
+git+git://github.com/eshellman/django-notification.git@c830ffa29d95e986dda5498a8a74e4a9334283c9
 django-registration==2.1.2
 django-selectable==1.1.0
 django-smtp-ssl==1.0

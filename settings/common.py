@@ -122,6 +122,22 @@ TEMPLATES = [
 
         }
     },
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [join(PROJECT_DIR, "frontend", "templates", "notification"),
+                 ],
+        'APP_DIRS': True,
+        'OPTIONS':{
+            'context_processors':[
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.static',
+                'regluit.context_processors.count_unseen',
+                ],
+            'autoescape' : False,
+        },
+        'NAME': 'text_notification',
+    }
 ]
 
 
