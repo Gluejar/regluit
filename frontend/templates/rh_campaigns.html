@@ -36,7 +36,7 @@
 				{% endwith %}
 			{% endifequal %}
 			</div>
-			{% if campaign.status = 'ACTIVE' or campaign.status = 'INITIALIZED' %}
+			{% if campaign.status == 'ACTIVE' or campaign.status == 'INITIALIZED' %}
 				<div>
 					<a href="{% url 'manage_campaign' campaign.id %}" class="manage">Manage This Campaign</a>
 				</div>
