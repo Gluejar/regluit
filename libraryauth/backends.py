@@ -103,7 +103,7 @@ class cardnum:
             exclude = ()
 class email:  
     def authenticate(self,request, library):
-        if request.user.is_anonymous():
+        if request.user.is_anonymous:
             return False
         email = request.user.email
         for email_pattern in library.email_auths.all():

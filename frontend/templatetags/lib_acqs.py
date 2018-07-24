@@ -10,7 +10,7 @@ def lib_acqs(context):
         lib_user = library.user
     else:
         user = context['request'].user
-        if user.is_anonymous():
+        if user.is_anonymous:
             return ''
         else:
             lib_user = (lib.user for lib in user.profile.libraries)

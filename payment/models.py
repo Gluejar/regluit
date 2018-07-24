@@ -145,7 +145,7 @@ class Transaction(models.Model):
 
     @property
     def needed_amount(self):
-        if self.user is None or self.user.is_anonymous():
+        if self.user is None or self.user.is_anonymous:
             return self.max_amount
         if self.user.credit.available >= self.max_amount:
             return 0
@@ -153,7 +153,7 @@ class Transaction(models.Model):
 
     @property
     def credit_amount(self):
-        if self.user is None or self.user.is_anonymous():
+        if self.user is None or self.user.is_anonymous:
             return 0
         if self.user.credit.available >= self.max_amount:
             return self.max_amount
@@ -233,7 +233,7 @@ class Transaction(models.Model):
     def create(cls, amount=0.00, host=PAYMENT_HOST_NONE, max_amount=0.00, currency='USD',
                status=TRANSACTION_STATUS_NONE, campaign=None, user=None, pledge_extra=None,
                donation=False):
-        if user and user.is_anonymous():
+        if user and user.is_anonymous:
             user = None
         t = cls.objects.create(
             amount=amount,

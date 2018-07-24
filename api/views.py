@@ -152,7 +152,7 @@ class ApiHelpView(TemplateView):
         
         # if user is logged in, pass in the user's API key
         u = auth.get_user(self.request)
-        if u.is_authenticated():
+        if u.is_authenticated:
             api_key = ApiKey.objects.filter(user=u)[0].key
             context['api_key'] = api_key
         

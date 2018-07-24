@@ -10,7 +10,7 @@ def purchased(context):
     try:
         work.id  # sometimes work is a dict
         user = context['request'].user
-        if user.is_anonymous():
+        if user.is_anonymous:
             return ''
         try:
             user_license = work.get_user_license(user)

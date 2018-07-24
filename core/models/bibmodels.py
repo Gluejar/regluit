@@ -612,7 +612,7 @@ class Work(models.Model):
         return self.get_user_license(lib_user)
 
     def borrowable(self, user):
-        if user.is_anonymous():
+        if user.is_anonymous:
             return False
         lib_license = self.get_lib_license(user)
         if lib_license and lib_license.borrowable:
@@ -620,7 +620,7 @@ class Work(models.Model):
         return False
 
     def lib_thanked(self, user):
-        if user.is_anonymous():
+        if user.is_anonymous:
             return False
         lib_license = self.get_lib_license(user)
         if lib_license and lib_license.thanked:
@@ -628,7 +628,7 @@ class Work(models.Model):
         return False
 
     def in_library(self, user):
-        if user.is_anonymous():
+        if user.is_anonymous:
             return False
         lib_license = self.get_lib_license(user)
         if lib_license and lib_license.acqs.count():
@@ -706,7 +706,7 @@ class Work(models.Model):
         if user is None:
             return None
         if hasattr(user, 'is_anonymous'):
-            if user.is_anonymous():
+            if user.is_anonymous:
                 return None
             return self.user_license(self.acqs.filter(user=user))
         else:

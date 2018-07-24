@@ -48,7 +48,7 @@ def join_library(request, library_id):
         )
 
 def superlogin(request, extra_context={}, **kwargs):
-    if request.method == 'POST' and request.user.is_anonymous():
+    if request.method == 'POST' and request.user.is_anonymous:
         username=request.POST.get("username", "")
         try:
             user=models.User.objects.get(username=username)
@@ -89,7 +89,7 @@ class Authenticator:
             return HttpResponseRedirect(success_url)
         
         if self.backend_class().authenticate(self.request, self.library):
-            if self.request.user.is_authenticated():
+            if self.request.user.is_authenticated:
                 self.library.add_user(self.request.user)
                 return HttpResponseRedirect(success_url)
             else:
@@ -258,7 +258,7 @@ class CustomRegistrationView(RegistrationView):
         return super(CustomRegistrationView,self).form_valid(form)
         
 def edit_user(request, redirect_to=None):
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('superlogin'))    
     form=UserData()
     if request.method == 'POST': 

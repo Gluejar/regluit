@@ -10,7 +10,7 @@ def is_preview(request):
 
 def count_unseen(request):
     try:
-        if request.user.is_anonymous():
+        if request.user.is_anonymous:
             count = 0
         else:
             from notification.models import Notice
