@@ -170,6 +170,7 @@ class FreeResource(ModelResource):
             return  models.Ebook.objects.none()
 
     class Meta:
+        queryset = models.Ebook.objects.all()
         authentication = ApiKeyAuthentication()
         fields = [ 'provider', 'rights' ]
         limit = 0

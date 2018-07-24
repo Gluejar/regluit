@@ -36,7 +36,7 @@ django-registration==2.1.2
 django-selectable==1.1.0
 django-smtp-ssl==1.0
 django-storages==1.5.2
-django-tastypie==0.13.3
+django-tastypie==0.14.1
 #django-transmeta==0.7.3 
 git+git://github.com/resulto/django-transmeta.git@ad4d7278ba330dcf8c8446f8ae9b2c769ae8684e
 fef-questionnaire==4.0.1

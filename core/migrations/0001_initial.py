@@ -152,7 +152,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('type', models.CharField(max_length=4)),
                 ('value', models.CharField(max_length=250)),
-                ('edition', models.ForeignKey(related_name='identifiers', to='core.Edition', null=True)),
+                ('edition', ForeignKey(on_delete=models.CASCADE, related_name='identifiers', to='core.Edition', null=True)),
             ],
         ),
         migrations.CreateModel(
@@ -189,7 +189,7 @@ class Migration(migrations.Migration):
                 ('amount', models.DecimalField(max_digits=10, decimal_places=0)),
                 ('description', models.TextField(null=True)),
                 ('limit', models.IntegerField(default=0)),
-                ('campaign', models.ForeignKey(related_name='premiums', to='core.Campaign', null=True)),
+                ('campaign', ForeignKey(on_delete=models.CASCADE, related_name='premiums', to='core.Campaign', null=True)),
             ],
         ),
         migrations.CreateModel(
@@ -220,7 +220,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(unique=True, max_length=255)),
-                ('publisher', models.ForeignKey(related_name='alternate_names', to='core.Publisher', null=True)),
+                ('publisher', ForeignKey(on_delete=models.CASCADE, related_name='alternate_names', to='core.Publisher', null=True)),
             ],
         ),
         migrations.CreateModel(
@@ -235,9 +235,9 @@ class Migration(migrations.Migration):
             name='Relator',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('author', models.ForeignKey(to='core.Author')),
-                ('edition', models.ForeignKey(related_name='relators', to='core.Edition')),
-                ('relation', models.ForeignKey(default=1, to='core.Relation')),
+                ('author', ForeignKey(on_delete=models.CASCADE, to='core.Author')),
+                ('edition', ForeignKey(on_delete=models.CASCADE, related_name='relators', to='core.Edition')),
+                ('relation', ForeignKey(on_delete=models.CASCADE, default=1, to='core.Relation')),
             ],
             options={
                 'db_table': 'core_author_editions',
@@ -251,7 +251,7 @@ class Migration(migrations.Migration):
                 ('email', models.CharField(max_length=100, blank=True)),
                 ('rights_holder_name', models.CharField(max_length=100)),
                 ('can_sell', models.BooleanField(default=False)),
-                ('owner', models.ForeignKey(related_name='rights_holder', to=settings.AUTH_USER_MODEL)),
+                ('owner', ForeignKey(on_delete=models.CASCADE, related_name='rights_holder', to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.CreateModel(
@@ -295,7 +295,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('was', models.IntegerField(unique=True)),
                 ('moved', models.DateTimeField(auto_now_add=True)),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True)),
+                ('user', ForeignKey(on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL, null=True)),
             ],
         ),
         migrations.CreateModel(
@@ -330,7 +330,7 @@ class Migration(migrations.Migration):
                 ('publication_range', models.CharField(max_length=50, null=True)),
                 ('featured', models.DateTimeField(db_index=True, null=True, blank=True)),
                 ('is_free', models.BooleanField(default=False)),
-                ('selected_edition', models.ForeignKey(related_name='selected_works', to='core.Edition', null=True)),
+                ('selected_edition', ForeignKey(on_delete=models.CASCADE, related_name='selected_works', to='core.Edition', null=True)),
             ],
             options={
                 'ordering': ['title'],
@@ -344,17 +344,17 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='wishes',
             name='wishlist',
-            field=models.ForeignKey(to='core.Wishlist'),
+            field=ForeignKey(on_delete=models.CASCADE, to='core.Wishlist'),
         ),
         migrations.AddField(
             model_name='wishes',
             name='work',
-            field=models.ForeignKey(related_name='wishes', to='core.Work'),
+            field=ForeignKey(on_delete=models.CASCADE, related_name='wishes', to='core.Work'),
         ),
         migrations.AddField(
             model_name='waswork',
             name='work',
-            field=models.ForeignKey(to='core.Work'),
+            field=ForeignKey(on_delete=models.CASCADE, to='core.Work'),
         ),
         migrations.AddField(
             model_name='subject',
@@ -364,16 +364,16 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='publisher',
             name='name',
-            field=models.ForeignKey(related_name='key_publisher', to='core.PublisherName'),
+            field=ForeignKey(on_delete=models.CASCADE, related_name='key_publisher', to='core.PublisherName'),
         ),
         migrations.AddField(
             model_name='offer',
             name='work',
-            field=models.ForeignKey(related_name='offers', to='core.Work'),
+            field=ForeignKey(on_delete=models.CASCADE, related_name='offers', to='core.Work'),
         ),
         migrations.AddField(
             model_name='identifier',
             name='work',
-            field=models.ForeignKey(related_name='identifiers', to='core.Work'),
+            field=ForeignKey(on_delete=models.CASCADE, related_name='identifiers', to='core.Work'),
         ),
     ]
