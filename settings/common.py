@@ -141,13 +141,12 @@ TEMPLATES = [
 ]
 
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'maintenancemode.middleware.MaintenanceModeMiddleware',
     'regluit.libraryauth.auth.SocialAuthExceptionMiddlewareWithoutMessages',
     'django.middleware.locale.LocaleMiddleware',
     'questionnaire.request_cache.RequestCacheMiddleware',
@@ -438,13 +437,6 @@ NOTIFICATION_QUEUE_ALL = True
 PAYMENT_PROCESSOR = 'stripelib'
 
 
-# by default, we are not in maintenance mode -- set True in overriding settings files for maintenance mode
-# http://pypi.python.org/pypi/django-maintenancemode/
-MAINTENANCE_MODE = False
-# Sequence of URL path regexes to exclude from the maintenance mode.
-MAINTENANCE_IGNORE_URLS = {}
-
-    
 # we should suppress Google Analytics outside of production
 SHOW_GOOGLE_ANALYTICS = False
 
