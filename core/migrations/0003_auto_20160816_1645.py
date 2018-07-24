@@ -38,17 +38,17 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='workrelation',
             name='from_work',
-            field=models.ForeignKey(related_name='works_related_from', to='core.Work'),
+            field=models.ForeignKey(on_delete=models.CASCADE, related_name='works_related_from', to='core.Work'),
         ),
         migrations.AddField(
             model_name='workrelation',
             name='to_work',
-            field=models.ForeignKey(related_name='works_related_to', to='core.Work'),
+            field=models.ForeignKey(on_delete=models.CASCADE, related_name='works_related_to', to='core.Work'),
         ),
         migrations.AddField(
             model_name='edition',
             name='note',
-            field=models.ForeignKey(to='core.EditionNote', null=True),
+            field=models.ForeignKey(on_delete=models.CASCADE, to='core.EditionNote', null=True),
         ),
         migrations.AddField(
             model_name='work',

@@ -57,7 +57,7 @@ class Target(models.Model):
         
             
 class Deposit(models.Model):
-    target = models.ForeignKey(Target, related_name="deposits")
+    target = models.ForeignKey(Target, on_delete=models.CASCADE, related_name="deposits")
     isbn = models.CharField(max_length=13)
     format = models.CharField(max_length=30)
     updated = models.DateTimeField(auto_now_add=True)

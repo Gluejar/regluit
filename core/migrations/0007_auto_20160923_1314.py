@@ -28,12 +28,12 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='edition',
             name='note',
-            field=models.ForeignKey(blank=True, to='core.EditionNote', null=True),
+            field=models.ForeignKey(on_delete=models.CASCADE, blank=True, to='core.EditionNote', null=True),
         ),
         migrations.AlterField(
             model_name='edition',
             name='publisher_name',
-            field=models.ForeignKey(related_name='editions', blank=True, to='core.PublisherName', null=True),
+            field=models.ForeignKey(on_delete=models.CASCADE, related_name='editions', blank=True, to='core.PublisherName', null=True),
         ),
         migrations.AlterField(
             model_name='userprofile',

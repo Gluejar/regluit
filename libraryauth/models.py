@@ -25,7 +25,7 @@ class Library(models.Model):
         ),default='ip')
     name = models.CharField(max_length=80, default='') 
     approved = models.BooleanField(default=False)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="libraries")
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="libraries")
     credential = None
     
     def __unicode__(self):
@@ -212,7 +212,7 @@ class IPAddressModelField(models.GenericIPAddressField):
 
 
 class Block(models.Model):
-    library = models.ForeignKey(Library, related_name='ip_auths')
+    library = models.ForeignKey(Library, on_delete=models.CASCADE, related_name='ip_auths')
     lower = IPAddressModelField(db_index=True, unique=True)
     upper = IPAddressModelField(db_index=True, blank=True, null=True)
 
@@ -249,7 +249,7 @@ def luhn_checksum(card_number):
     return checksum % 10
      
 class CardPattern(models.Model):
-    library = models.ForeignKey(Library, related_name='cardnum_auths')
+    library = models.ForeignKey(Library, on_delete=models.CASCADE, related_name='cardnum_auths')
     # match pattern ^\d+#+$
     pattern = models.CharField(max_length=20)
     checksum = models.BooleanField(default=True)
@@ -264,13 +264,13 @@ class CardPattern(models.Model):
             return True
 
 class LibraryUser(models.Model):
-    library = models.ForeignKey(Library, related_name='library_users')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='user_libraries')
+    library = models.ForeignKey(Library, on_delete=models.CASCADE, related_name='library_users')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_libraries')
     credential = models.CharField(max_length=30, null=True)
     date_modified = models.DateTimeField(auto_now=True)
 
 class EmailPattern(models.Model):
-    library = models.ForeignKey(Library, related_name='email_auths')
+    library = models.ForeignKey(Library, on_delete=models.CASCADE, related_name='email_auths')
     # email endswith string
     pattern = models.CharField(max_length=20)
 

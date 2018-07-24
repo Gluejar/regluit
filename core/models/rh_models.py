@@ -13,9 +13,9 @@ class Claim(models.Model):
                 (u'release', u'Claim has not been accepted.'),
                )
     created = models.DateTimeField(auto_now_add=True)
-    rights_holder = models.ForeignKey("RightsHolder", related_name="claim", null=False)
-    work = models.ForeignKey("Work", related_name="claim", null=False)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="claim", null=False)
+    rights_holder = models.ForeignKey("RightsHolder", on_delete=models.CASCADE, related_name="claim", null=False)
+    work = models.ForeignKey("Work", on_delete=models.CASCADE, related_name="claim", null=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="claim", null=False)
     status = models.CharField(max_length=7, choices=STATUSES, default='active')
 
     @property
@@ -66,7 +66,7 @@ class RightsHolder(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     email = models.CharField(max_length=100, blank=False, default='')
     rights_holder_name = models.CharField(max_length=100, blank=False)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="rights_holder", null=False)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="rights_holder", null=False)
     approved = models.BooleanField(default=False)
     address =  models.CharField(max_length=400, blank=False, default='')
     mailing =  models.CharField(max_length=400, blank=False, default='')

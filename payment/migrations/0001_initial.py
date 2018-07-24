@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
                 ('date_modified', models.DateTimeField(auto_now=True)),
                 ('date_deactivated', models.DateTimeField(null=True)),
                 ('status', models.CharField(default=b'ACTIVE', max_length=11, choices=[(b'ACTIVE', b'ACTIVE'), (b'DEACTIVATED', b'DEACTIVATED'), (b'EXPIRED', b'EXPIRED'), (b'EXPIRING', b'EXPIRING'), (b'ERROR', b'ERROR')])),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True)),
+                ('user', models.ForeignKey(on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL, null=True)),
             ],
         ),
         migrations.CreateModel(
@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
                 ('balance', models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2)),
                 ('pledged', models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2)),
                 ('last_activity', models.DateTimeField(auto_now=True)),
-                ('user', models.OneToOneField(related_name='credit', to=settings.AUTH_USER_MODEL)),
+                ('user', models.OneToOneField(on_delete=models.CASCADE, related_name='credit', to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.CreateModel(
@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
                 ('timestamp', models.DateTimeField(auto_now=True)),
                 ('action', models.CharField(max_length=16)),
                 ('sent', models.IntegerField(null=True)),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True)),
+                ('user', models.ForeignKey(on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL, null=True)),
             ],
         ),
         migrations.CreateModel(
@@ -116,20 +116,20 @@ class Migration(migrations.Migration):
                 ('date_expired', models.DateTimeField(null=True)),
                 ('extra', jsonfield.fields.JSONField(default={}, null=True)),
                 ('anonymous', models.BooleanField(default=False)),
-                ('campaign', models.ForeignKey(to='core.Campaign', null=True)),
-                ('offer', models.ForeignKey(to='core.Offer', null=True)),
-                ('premium', models.ForeignKey(to='core.Premium', null=True)),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, null=True)),
+                ('campaign', models.ForeignKey(on_delete=models.CASCADE, to='core.Campaign', null=True)),
+                ('offer', models.ForeignKey(on_delete=models.CASCADE, to='core.Offer', null=True)),
+                ('premium', models.ForeignKey(on_delete=models.CASCADE, to='core.Premium', null=True)),
+                ('user', models.ForeignKey(on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL, null=True)),
             ],
         ),
         migrations.AddField(
             model_name='receiver',
             name='transaction',
-            field=models.ForeignKey(to='payment.Transaction'),
+            field=models.ForeignKey(on_delete=models.CASCADE, to='payment.Transaction'),
         ),
         migrations.AddField(
             model_name='paymentresponse',
             name='transaction',
-            field=models.ForeignKey(to='payment.Transaction'),
+            field=models.ForeignKey(on_delete=models.CASCADE, to='payment.Transaction'),
         ),
     ]

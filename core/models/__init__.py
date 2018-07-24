@@ -122,7 +122,7 @@ class Key(models.Model):
 class CeleryTask(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     task_id = models.CharField(max_length=255)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="tasks", null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="tasks", null=True)
     description = models.CharField(max_length=2048, null=True)  # a description of what the task is
     function_name = models.CharField(max_length=1024) # used to reconstitute the AsyncTask with which to get status
     function_args = models.IntegerField(null=True)  # not full generalized here -- takes only a single arg for now.
@@ -157,7 +157,7 @@ class Premium(models.Model):
     TIERS = {"supporter":25, "patron":50, "bibliophile":100} #should load this from fixture
     created = models.DateTimeField(auto_now_add=True)
     type = models.CharField(max_length=2, choices=PREMIUM_TYPES)
-    campaign = models.ForeignKey("Campaign", related_name="premiums", null=True)
+    campaign = models.ForeignKey("Campaign", on_delete=models.CASCADE, related_name="premiums", null=True)
     amount = models.DecimalField(max_digits=10, decimal_places=0, blank=False)
     description = models.TextField(null=True, blank=False)
     limit = models.IntegerField(default=0)
@@ -189,10 +189,10 @@ class CampaignAction(models.Model):
     # anticipated types: activated, withdrawn, suspended, restarted, succeeded, failed, unglued
     type = models.CharField(max_length=15)
     comment = models.TextField(null=True, blank=True)
-    campaign = models.ForeignKey("Campaign", related_name="actions", null=False)
+    campaign = models.ForeignKey("Campaign", on_delete=models.CASCADE, related_name="actions", null=False)
 
 class Offer(models.Model):
-    work = models.ForeignKey("Work", related_name="offers", null=False)
+    work = models.ForeignKey("Work", on_delete=models.CASCADE, related_name="offers", null=False)
     price = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=False)
     license = models.PositiveSmallIntegerField(null=False, default=INDIVIDUAL,
                                                choices=OFFER_CHOICES)
@@ -218,15 +218,15 @@ class Acq(models.Model):
     expires = models.DateTimeField(null=True)
     refreshes = models.DateTimeField(auto_now_add=True)
     refreshed = models.BooleanField(default=True)
-    work = models.ForeignKey("Work", related_name='acqs', null=False)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='acqs')
+    work = models.ForeignKey("Work", on_delete=models.CASCADE, related_name='acqs', null=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='acqs')
     license = models.PositiveSmallIntegerField(null=False, default=INDIVIDUAL,
                                                choices=ACQ_CHOICES)
-    watermarked = models.ForeignKey("booxtream.Boox", null=True)
+    watermarked = models.ForeignKey("booxtream.Boox", on_delete=models.CASCADE, null=True)
     nonce = models.CharField(max_length=32, null=True)
 
     # when the acq is a loan, this points at the library's acq it's derived from
-    lib_acq = models.ForeignKey("self", related_name="loans", null=True)
+    lib_acq = models.ForeignKey("self", on_delete=models.CASCADE, related_name="loans", null=True)
 
     class mock_ebook(object):
         def __init__(self, acq):
@@ -358,9 +358,9 @@ post_save.connect(config_acq, sender=Acq)
 
 class Hold(models.Model):
     created = models.DateTimeField(auto_now_add=True)
-    work = models.ForeignKey("Work", related_name='holds', null=False)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='holds', null=False)
-    library = models.ForeignKey(Library, related_name='holds', null=False)
+    work = models.ForeignKey("Work", on_delete=models.CASCADE, related_name='holds', null=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='holds', null=False)
+    library = models.ForeignKey(Library, on_delete=models.CASCADE, related_name='holds', null=False)
 
     def __unicode__(self):
         return '%s for %s at %s' % (self.work, self.user.username, self.library)
@@ -390,7 +390,7 @@ class Campaign(models.Model):
     activated = models.DateTimeField(null=True, db_index=True,)
     paypal_receiver = models.CharField(max_length=100, blank=True)
     amazon_receiver = models.CharField(max_length=100, blank=True)
-    work = models.ForeignKey("Work", related_name="campaigns", null=False)
+    work = models.ForeignKey("Work", on_delete=models.CASCADE, related_name="campaigns", null=False)
     managers = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="campaigns")
     # status: INITIALIZED, ACTIVE, SUSPENDED, WITHDRAWN, SUCCESSFUL, UNSUCCESSFUL
     status = models.CharField( max_length=15, null=True, blank=False, default="INITIALIZED", 
@@ -400,9 +400,9 @@ class Campaign(models.Model):
                                                      (BUY2UNGLUE, 'Buy-to-unglue campaign'),
                                                      (THANKS, 'Thanks-for-ungluing campaign'),
                                                     ))
-    edition = models.ForeignKey("Edition", related_name="campaigns", null=True)
+    edition = models.ForeignKey("Edition", on_delete=models.CASCADE, related_name="campaigns", null=True)
     email = models.CharField(max_length=100, blank=True)
-    publisher = models.ForeignKey("Publisher", related_name="campaigns", null=True)
+    publisher = models.ForeignKey("Publisher", on_delete=models.CASCADE, related_name="campaigns", null=True)
     do_watermark = models.BooleanField(default=True)
     use_add_ask = models.BooleanField(default=True)
     charitable = models.BooleanField(default=False)
@@ -1084,7 +1084,7 @@ class Campaign(models.Model):
 
 class Wishlist(models.Model):
     created = models.DateTimeField(auto_now_add=True)
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='wishlist')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='wishlist')
     works = models.ManyToManyField('Work', related_name='wishlists', through='Wishes')
 
     def __unicode__(self):
@@ -1118,7 +1118,7 @@ class Wishes(models.Model):
     created = models.DateTimeField(auto_now_add=True, db_index=True,)
     source = models.CharField(max_length=15, blank=True, db_index=True,)
     wishlist = models.ForeignKey('Wishlist')
-    work = models.ForeignKey('Work', related_name='wishes')
+    work = models.ForeignKey('Work', on_delete=models.CASCADE, related_name='wishes')
     class Meta:
         db_table = 'core_wishlist_works'
 
@@ -1148,7 +1148,7 @@ ANONYMOUS_AVATAR = '/static/images/header/avatar.png'
 (NO_AVATAR, GRAVATAR, TWITTER, FACEBOOK, UNGLUEITAR) = AVATARS
 
 class Libpref(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='libpref')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='libpref')
     marc_link_target = models.CharField(
         max_length=6,
         default='UNGLUE',
@@ -1158,7 +1158,7 @@ class Libpref(models.Model):
 
 class UserProfile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='profile')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
     tagline = models.CharField(max_length=140, blank=True)
     pic_url = models.URLField(blank=True)
     home_url = models.URLField(blank=True)
@@ -1354,9 +1354,9 @@ class Press(models.Model):
 
 class Gift(models.Model):
     # the acq will contain the recipient, and the work
-    acq = models.ForeignKey('Acq', related_name='gifts')
+    acq = models.ForeignKey('Acq', on_delete=models.CASCADE, related_name='gifts')
     to = models.CharField(max_length=75, blank=True) # store the email address originally sent to, not necessarily the email of the recipient
-    giver = models.ForeignKey(User, related_name='gifts')
+    giver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='gifts')
     message = models.TextField(max_length=512, default='')
     used = models.DateTimeField(null=True)
 

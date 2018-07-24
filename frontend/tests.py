@@ -220,7 +220,7 @@ class PledgingUiTests(TestCase):
         #self.assertEqual(self.client.session['_auth_user_id'], self.user.pk)  
         
         user = auth.get_user(self.client)
-        assert user.is_authenticated()
+        assert user.is_authenticated
 
 
         # load a Work by putting it on the User's wishlist
