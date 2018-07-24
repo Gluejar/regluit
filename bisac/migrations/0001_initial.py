@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('rght', models.PositiveIntegerField(editable=False, db_index=True)),
                 ('tree_id', models.PositiveIntegerField(editable=False, db_index=True)),
                 ('level', models.PositiveIntegerField(editable=False, db_index=True)),
-                ('parent', mptt.fields.TreeForeignKey(related_name='children', blank=True, to='bisac.BisacHeading', null=True)),
+                ('parent', mptt.fields.TreeForeignKey(on_delete=models.CASCADE, related_name='children', blank=True, to='bisac.BisacHeading', null=True)),
             ],
             options={
                 'abstract': False,

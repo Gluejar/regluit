@@ -10,7 +10,7 @@ from tastypie.exceptions import BadRequest
 from django.conf.urls import url
 from django.contrib import auth
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from regluit.core import models
 import regluit.core.isbn

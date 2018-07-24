@@ -1,5 +1,5 @@
 import unittest
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 from django.contrib.auth.models import User
 
@@ -30,11 +30,11 @@ class TestLibraryAuth(TestCase):
 
         new_user = User.objects.get(username='bob')
 
-        self.failUnless(new_user.check_password('secret'))
+        self.assertTrue(new_user.check_password('secret'))
         self.assertEqual(new_user.email, 'bob@example.com')
 
         # New user must not be active.
-        self.failIf(new_user.is_active)
+        self.assertFalse(new_user.is_active)
         
     def test_bad_registration(self):
         """

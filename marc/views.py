@@ -3,7 +3,7 @@ from xml.sax import SAXParseException
 
 from django.apps import apps
 from django.contrib import messages
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.http import HttpResponseRedirect, HttpResponse, HttpResponseNotFound
 from django.views.generic.edit import FormView
 

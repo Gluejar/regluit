@@ -21,7 +21,7 @@ urlpatterns = [
     url(r'', include('regluit.marc.urls')),
     url(r'^bisac/', include('regluit.bisac.urls')),
     url(r'^selectable/', include('selectable.urls')),
-    url(r'^admin/', include(site.urls)), 
+    url(r'^admin/', site.urls), 
     url(r'^comments/', include('django_comments.urls')),
     url(r"^notification/", include('notification.urls')),
     url(r'^ckeditor/upload/', login_required(ckedit_views.upload), name='ckeditor_upload'),

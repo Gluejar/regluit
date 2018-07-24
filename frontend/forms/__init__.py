@@ -12,8 +12,7 @@ from decimal import Decimal as D
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.forms.widgets import RadioSelect
-from django.forms.extras.widgets import SelectDateWidget
+from django.forms.widgets import RadioSelect, SelectDateWidget
 from django.utils.translation import ugettext_lazy as _
 
 from selectable.forms import (

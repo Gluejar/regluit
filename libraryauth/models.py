@@ -10,14 +10,14 @@ from django.db.models import Q
 from django.db.models.signals import post_save
 from django.forms import GenericIPAddressField as BaseIPAddressField
 from django.utils.translation import ugettext_lazy as _
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 class Library(models.Model):
     '''
     name and other things derive from the User
     '''
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='library')
-    group = models.OneToOneField(Group, related_name='library', null = True)
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='library')
+    group = models.OneToOneField(Group, on_delete=models.CASCADE, related_name='library', null = True)
     backend =  models.CharField(max_length=10, choices=(
             ('ip','IP authentication'),
             ('cardnum', 'Library Card Number check'),

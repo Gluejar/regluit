@@ -29,7 +29,7 @@ from django.core import signing
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.core.mail import EmailMessage
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.core.validators import validate_email
 from django.db.models import Q, Count, Sum
 from django.forms import Select

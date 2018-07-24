@@ -10,8 +10,7 @@ from selectable.forms import (
 
 from django import forms
 from django.conf import settings
-from django.forms.extras.widgets import SelectDateWidget
-from django.forms.widgets import RadioSelect
+from django.forms.widgets import RadioSelect, SelectDateWidget
 from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
 

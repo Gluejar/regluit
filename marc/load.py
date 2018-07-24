@@ -11,7 +11,7 @@ from datetime import datetime
 from StringIO import StringIO
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 import regluit.core.cc as cc
 

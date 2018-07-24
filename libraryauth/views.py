@@ -1,7 +1,7 @@
 import logging
 import random
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.views import login, password_reset, password_change

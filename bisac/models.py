@@ -6,7 +6,7 @@ class BisacHeading(MPTTModel):
     full_label = models.CharField(max_length=100, unique=True)
     label = models.CharField(max_length=60, unique=False)
     notation = models.CharField(max_length=9, unique=False)
-    parent = TreeForeignKey('self', null=True, blank=True, related_name='children', db_index=True)
+    parent = TreeForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='children', db_index=True)
 
     class MPTTMeta:
         order_insertion_by = ['notation']

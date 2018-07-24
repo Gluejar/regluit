@@ -3,7 +3,7 @@ from decimal import Decimal as D
 import logging
 
 from django.conf import settings
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.forms.models import modelformset_factory
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404

@@ -16,7 +16,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.files.base import ContentFile
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.db.models import F
 from django.db.models.signals import post_save, pre_delete
@@ -767,7 +767,7 @@ class Relation(models.Model):
 
 class Relator(models.Model):
     relation = models.ForeignKey('Relation', on_delete=models.CASCADE, default=1) #first relation should have code='aut'
-    author = models.ForeignKey('Author')
+    author = models.ForeignKey('Author', on_delete=models.CASCADE)
     edition = models.ForeignKey('Edition', on_delete=models.CASCADE, related_name='relators')
     class Meta:
         db_table = 'core_author_editions'
@@ -1060,7 +1060,7 @@ class PublisherName(models.Model):
 
 
 class WasWork(models.Model):
-    work = models.ForeignKey('Work')
+    work = models.ForeignKey('Work', on_delete=models.CASCADE)
     was = models.IntegerField(unique=True)
     moved = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)

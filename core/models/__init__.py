@@ -22,7 +22,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.contrib.contenttypes.fields import GenericRelation
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.core.files.base import ContentFile
 from django.db import models
 from django.db.models import F, Q
@@ -442,7 +442,7 @@ class Campaign(models.Model):
             self.activated = None
             self.update_left()
             self.save()
-            self.managers = old_managers
+            self.managers.set(old_managers)
 
             # clone associated premiums
             for premium in new_premiums:
@@ -1117,7 +1117,7 @@ class Wishlist(models.Model):
 class Wishes(models.Model):
     created = models.DateTimeField(auto_now_add=True, db_index=True,)
     source = models.CharField(max_length=15, blank=True, db_index=True,)
-    wishlist = models.ForeignKey('Wishlist')
+    wishlist = models.ForeignKey('Wishlist', on_delete=models.CASCADE)
     work = models.ForeignKey('Work', on_delete=models.CASCADE, related_name='wishes')
     class Meta:
         db_table = 'core_wishlist_works'

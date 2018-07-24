@@ -2,7 +2,7 @@ from itertools import islice
 
 import datetime
 import urlparse
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.http import urlquote
 import json
 import pytz
