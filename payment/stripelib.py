@@ -696,7 +696,7 @@ class Processor(baseprocessor.Processor):
             transaction.save()
         else:
             self.errorMessage = p.errorMessage #pass error message up
-            logger.info("execute_transaction Error: " + p.error_string())
+            logger.info("execute_transaction Error: {}".format(p.error_string()))
                     
       def amount( self ):
           return self.transaction.amount
@@ -746,7 +746,7 @@ class Processor(baseprocessor.Processor):
                     # use PaymentResponse to store error
 
                     r = PaymentResponse.objects.create(api="stripelib.Execute", correlation_id=None,
-                                                       timestamp=now(), info=e.args,
+                                                       timestamp=now(), info=e.args[0],
                                                        status=TRANSACTION_STATUS_ERROR, transaction=transaction)
                     
                     transaction.status = TRANSACTION_STATUS_ERROR	  	

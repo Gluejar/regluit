@@ -486,7 +486,7 @@ class PaymentManager( object ):
         else:
             transaction.error = p.error_string()
             transaction.save()
-            logger.info("execute_transaction Error: " + p.error_string())
+            logger.info("execute_transaction Error: {}".format(p.error_string()))
             return False
     
     def cancel_transaction(self, transaction):
@@ -526,7 +526,7 @@ class PaymentManager( object ):
             else:
                 transaction.error = p.error_string()
                 transaction.save()
-                logger.info("Cancel Transaction " + str(transaction.id) + " Failed with error: " + p.error_string())
+                logger.info("Cancel Transaction {} Failed with error: {}".format(transaction.id, p.error_string()))
                 return False
             
         else:
@@ -665,7 +665,7 @@ class PaymentManager( object ):
         else:
             transaction.error = p.error_string()
             transaction.save()
-            logger.info("Pay Error: " + p.error_string())
+            logger.info("Pay Error: {}".format(p.error_string()))
             return transaction, None
 
 
@@ -958,7 +958,7 @@ class PaymentManager( object ):
         else:
             transaction.error = p.error_string()
             transaction.save()
-            logger.info("Refund Transaction " + str(transaction.id) + " Failed with error: " + p.error_string())
+            logger.info("Refund Transaction {}  Failed with error:  {}".format(str(transaction.id), p.error_string()))
             return False
         
     def make_account(self, user=None, host=None, token=None):
