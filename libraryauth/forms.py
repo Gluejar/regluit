@@ -59,14 +59,6 @@ class RegistrationFormNoDisposableEmail(RegistrationForm):
             raise forms.ValidationError(_("Please supply a permanent email address."))
         return self.cleaned_data['email']
 
-class AuthForm(AuthenticationForm):
-    def __init__(self, request=None, *args, **kwargs):
-        if request and request.method == 'GET':
-            saved_un= request.COOKIES.get('un', None)
-            super(AuthForm, self).__init__(initial={"username":saved_un},*args, **kwargs)
-        else:
-            super(AuthForm, self).__init__(*args, **kwargs)
-            
 class SocialAwarePasswordResetForm(PasswordResetForm):
     def get_users(self, email):
         """

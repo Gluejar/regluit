@@ -7,12 +7,17 @@ class TestLibraryAuth(TestCase):
     fixtures=['initial_data.json']
     def setUp(self):
         pass
-
+     
+    def test_login(self):
+        resp = self.client.get(reverse('superlogin'), data={'next': '/'})
+        self.assertEqual(200, resp.status_code)
+        self.client.cookies['un'] = 'bob'
+        resp = self.client.get(reverse('superlogin'), data={'next': '/'})
+        self.assertEqual(200, resp.status_code)
 
     def test_pages(self):
         resp = self.client.get(reverse('registration_register'))
         self.assertEqual(200, resp.status_code)
-
 
     def test_registration(self):
         """
@@ -56,4 +61,3 @@ class TestLibraryAuth(TestCase):
         self.assertFalse(is_disposable('eric@hellman.net'))
         self.assertTrue(is_disposable('eric@mailnesia.com'))
         
-

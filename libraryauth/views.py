@@ -3,11 +3,11 @@ import random
 from django.conf import settings
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, render
-from django.contrib.auth.forms import SetPasswordForm
-from django.contrib.auth.views import login, password_reset, password_change
 from django.contrib.auth import login as login_to_user
 from django.contrib.auth import load_backend
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import SetPasswordForm
+from django.contrib.auth.views import login, password_reset, password_change, LoginView
 from django.http import HttpResponseRedirect
 from django.views.generic.edit import FormView, CreateView, UpdateView, SingleObjectMixin
 
@@ -15,7 +15,7 @@ from registration.backends.model_activation.views import RegistrationView
 
 from . import backends
 from .models import Library
-from .forms import AuthForm, LibraryForm, NewLibraryForm, RegistrationFormNoDisposableEmail, UserData
+from .forms import LibraryForm, NewLibraryForm, RegistrationFormNoDisposableEmail, UserData
 
 logger = logging.getLogger(__name__)
 
@@ -47,17 +47,33 @@ def join_library(request, library_id):
             reverse('bad_library',args=[library.id]), 
         )
 
+class SuperLoginView(LoginView):
+    def get_initial(self):
+        initial = super(SuperLoginView, self).get_initial()
+        if self.request.method == 'GET':
+            saved_un = self.request.COOKIES.get('un', None)
+            initial["username"] = saved_un
+        return initial
+        
+    def get(self, request, *args, **kwargs):
+        if 'add' in self.request.GET:
+            self.request.session["add_wishlist"] = self.request.GET["add"]
+        return super(SuperLoginView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(SuperLoginView, self).get_context_data(**kwargs)
+        if self.request.method == 'POST' and self.request.user.is_anonymous:
+            username=request.POST.get("username", "")
+            try:
+                user = models.User.objects.get(username=username)
+                context['socials'] = user.profile.social_auths
+            except:
+                pass
+        return context
+
 def superlogin(request, extra_context={}, **kwargs):
-    if request.method == 'POST' and request.user.is_anonymous:
-        username=request.POST.get("username", "")
-        try:
-            user=models.User.objects.get(username=username)
-            extra_context={"socials":user.profile.social_auths}
-        except:
-            pass
-    if request.GET.has_key("add"):
-        request.session["add_wishlist"]=request.GET["add"]
-    return login(request, extra_context=extra_context, authentication_form=AuthForm, **kwargs)
+    return SuperLoginView.as_view(extra_context=extra_context, **kwargs)(request)
+
 
 def social_aware_password_change(request, **kwargs):
     if request.user.has_usable_password():
