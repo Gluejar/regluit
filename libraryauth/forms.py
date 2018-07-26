@@ -1,7 +1,7 @@
 import logging
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import AuthenticationForm, PasswordResetForm
+from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from registration.forms import RegistrationForm
@@ -12,11 +12,11 @@ logger = logging.getLogger(__name__)
 
 class UserData(forms.Form):
     username = forms.RegexField(
-        label=_("New Username"), 
-        max_length=30, 
+        label=_("New Username"),
+        max_length=30,
         regex=r'^[\w.@+-]+$',
-        help_text = _("30 characters or fewer."),
-        error_messages = {
+        help_text=_("30 characters or fewer."),
+        error_messages={
             'invalid': _("This value may contain only letters, numbers and @/./+/-/_ characters.")
         }
     )
@@ -35,11 +35,12 @@ class UserData(forms.Form):
             raise forms.ValidationError(_("Your username is already "+username))
 
 class UserNamePass(UserData):
-    password1 = forms.CharField(label=_("Password"),
-        widget=forms.PasswordInput)
-    password2 = forms.CharField(label=_("Password confirmation"),
+    password1 = forms.CharField(label=_("Password"), widget=forms.PasswordInput)
+    password2 = forms.CharField(
+        label=_("Password confirmation"),
         widget=forms.PasswordInput,
-        help_text = _("Enter the same password as above, for verification."))
+        help_text=_("Enter the same password as above, for verification.")
+    )
     allow_same = True
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1", "")
@@ -73,40 +74,43 @@ class SocialAwarePasswordResetForm(PasswordResetForm):
         if not get_user_model().objects.filter(email__iexact=email, is_active=True).exists():
             raise forms.ValidationError("There aren't ungluers with that email address!")
         return email
-  
+
 
 class NewLibraryForm(forms.ModelForm):
     username = forms.RegexField(
-        label=_("Library Username"), 
-        max_length=30, 
+        label=_("Library Username"),
+        max_length=30,
         regex=r'^[\w.@+-]+$',
-        help_text = _("30 characters or fewer."),
-        error_messages = {
+        help_text=_("30 characters or fewer."),
+        error_messages={
             'invalid': _("This value may contain only letters, numbers and @/./+/-/_ characters.")
         },
-        initial = '',
+        initial='',
     )
     email = forms.EmailField(
-        label=_("notification email address for library"), 
+        label=_("notification email address for library"),
         max_length=100,
         error_messages={'required': 'Please enter an email address for the library.'},
         )
+
     def clean_username(self):
-        username= self.cleaned_data['username']
+        username = self.cleaned_data['username']
         try:
             user = User.objects.get(username=username)
-            raise forms.ValidationError(_("That username is already in use, please choose another."))
+            raise forms.ValidationError(_(
+                "That username is already in use, please choose another."
+            ))
         except User.DoesNotExist:
             self.instance.user = User(username=username)
             return username
-            
-    
+
+
     class Meta:
         model = Library
         fields = 'name', 'backend', 'email', 'username'
         widgets = {'name':forms.TextInput(attrs={'size':'40'})}
 
-class LibraryForm(forms.ModelForm):    
+class LibraryForm(forms.ModelForm):
     class Meta:
         model = Library
-        fields = 'name', 'backend', 
+        fields = 'name', 'backend',

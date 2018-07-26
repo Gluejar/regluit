@@ -1,16 +1,15 @@
 import logging
 
 import requests
-from django.http import HttpResponse
+
 from django.shortcuts import redirect
 from django.utils.http import urlquote
 
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from social_core.pipeline.social_auth import associate_by_email
-from social_django.models import UserSocialAuth
-from social_django.middleware import SocialAuthExceptionMiddleware
 from social_core.exceptions import (AuthAlreadyAssociated, SocialAuthBaseException)
+from social_django.middleware import SocialAuthExceptionMiddleware
 
 ANONYMOUS_AVATAR = '/static/images/header/avatar.png'
 (NO_AVATAR, GRAVATAR, TWITTER, FACEBOOK, PRIVATETAR) = (0, 1, 2, 3, 4)
@@ -26,7 +25,7 @@ def pic_storage_url(user, backend, url):
         pic_file = ContentFile(r.content)
         content_type = r.headers.get('content-type', '')
         if u'text' in content_type:
-            logger.warning('Cover return text for pic_url={}'.format(pic_url))
+            logger.warning('Cover return text for pic_url={}'.format(url))
             return None
         pic_file.content_type = content_type
         default_storage.save(pic_file_name, pic_file)
@@ -43,8 +42,8 @@ def selectively_associate_by_email(backend, details, user=None, *args, **kwargs)
     This pipeline entry is not 100% secure unless you know that the providers
     enabled enforce email verification on their side, otherwise a user can
     attempt to take over another user account by using the same (not validated)
-    email address on some provider.  
-    
+    email address on some provider.
+
     Not using Facebook or Twitter to authenticate a user.
     """
     if backend.name  in ('twitter', 'facebook'):
@@ -61,7 +60,7 @@ def facebook_extra_values(user, extra_data):
         return True
     except Exception, e:
         logger.exception(e)
-        return 
+        return
 
 def twitter_extra_values(user, extra_data):
     try:
@@ -74,19 +73,19 @@ def twitter_extra_values(user, extra_data):
             user.profile.avatar_source = TWITTER
         user.profile.save()
         return True
-    except Exception,e:
+    except Exception, e:
         logger.error(e)
         return False
-        
+
 def deliver_extra_data(backend, user, social, response, *args, **kwargs):
-    if backend.name is 'twitter':
-        twitter_extra_values( user, social.extra_data)
-    if backend.name is 'facebook':
-        facebook_extra_values( user, response)
+    if backend.name == 'twitter':
+        twitter_extra_values(user, social.extra_data)
+    if backend.name == 'facebook':
+        facebook_extra_values(user, response)
 
 # following is needed because of length limitations in a unique constrain for MySQL
 def chop_username(username, *args, **kwargs):
-    if username and len(username)>222:
+    if username and len(username) > 222:
         return {'username':username[0:222]}
 
 def selective_social_user(backend, uid, user=None, *args, **kwargs):
@@ -111,9 +110,9 @@ class SocialAuthExceptionMiddlewareWithoutMessages(SocialAuthExceptionMiddleware
     """
     a modification of SocialAuthExceptionMiddleware to pass backend and message without
     attempting django.messages
-    """ 
+    """
     def process_exception(self, request, exception):
-    
+
         if isinstance(exception, SocialAuthBaseException):
             backend = getattr(request, 'backend', None)
             backend_name = getattr(backend, 'name', 'unknown-backend')

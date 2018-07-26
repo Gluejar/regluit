@@ -1,12 +1,12 @@
-from . import models
-
-from selectable.forms import AutoCompleteSelectWidget,AutoCompleteSelectField
-from selectable.base import ModelLookup
-from selectable.registry import registry
-
 from django import forms
 from django.contrib.admin import ModelAdmin, site
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
+
+from selectable.base import ModelLookup
+from selectable.forms import AutoCompleteSelectWidget, AutoCompleteSelectField
+from selectable.registry import registry
+
+from . import models
 
 class UserLookup(ModelLookup):
     model = User
@@ -16,21 +16,21 @@ registry.register(UserLookup)
 
 class LibraryAdminForm(forms.ModelForm):
     user = AutoCompleteSelectField(
-            UserLookup,
-            widget=AutoCompleteSelectWidget(UserLookup),
-            required=True,
-        )
+        UserLookup,
+        widget=AutoCompleteSelectWidget(UserLookup),
+        required=True,
+    )
     owner = AutoCompleteSelectField(
-            UserLookup,
-            widget=AutoCompleteSelectWidget(UserLookup),
-            required=True,
-        )
+        UserLookup,
+        widget=AutoCompleteSelectWidget(UserLookup),
+        required=True,
+    )
     class Meta(object):
         model = models.Library
-        widgets= {'group':forms.HiddenInput}
+        widgets = {'group':forms.HiddenInput}
         exclude = ('group', )
-        
-        
+
+
 class LibraryAdmin(ModelAdmin):
     list_display = ('user', )
     form = LibraryAdminForm

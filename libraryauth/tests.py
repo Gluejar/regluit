@@ -1,18 +1,19 @@
-import unittest
 from django.urls import reverse
 from django.test import TestCase
 from django.contrib.auth.models import User
 
 class TestLibraryAuth(TestCase):
-    fixtures=['initial_data.json']
+    fixtures = ['initial_data.json']
     def setUp(self):
         pass
-     
+
     def test_login(self):
         resp = self.client.get(reverse('superlogin'), data={'next': '/'})
         self.assertEqual(200, resp.status_code)
         self.client.cookies['un'] = 'bob'
         resp = self.client.get(reverse('superlogin'), data={'next': '/'})
+        self.assertEqual(200, resp.status_code)
+        resp = self.client.post(reverse('superlogin'), data={'username': 'bob'})
         self.assertEqual(200, resp.status_code)
 
     def test_pages(self):
@@ -40,7 +41,7 @@ class TestLibraryAuth(TestCase):
 
         # New user must not be active.
         self.assertFalse(new_user.is_active)
-        
+
     def test_bad_registration(self):
         """
         LibraryAuth Registration rejects.
@@ -52,12 +53,11 @@ class TestLibraryAuth(TestCase):
                                       'password1': 'secret',
                                       'password2': 'secret'})
         self.assertTrue('Please supply a permanent email address' in resp.content)
-        
+
         with self.assertRaises(User.DoesNotExist):
             User.objects.get(username='badbob')
-    
+
     def test_is_disposable(self):
         from .emailcheck import is_disposable
         self.assertFalse(is_disposable('eric@hellman.net'))
         self.assertTrue(is_disposable('eric@mailnesia.com'))
-        
