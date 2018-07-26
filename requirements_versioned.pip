@@ -30,7 +30,7 @@ django-jsonfield==1.0.0
 #django-kombu==0.9.4
 django-mptt==0.8.6
 #django-notification==0.2
-git+git://github.com/eshellman/django-notification.git@0031d2eb66b7b1d5f6bc2355eca8863b616e0fab
+git+git://github.com/eshellman/django-notification.git@92cc14b737d4a10e7e866b2f467ef1f20a89c715
 django-registration==2.4.1
 django-selectable==1.1.0
 django-smtp-ssl==1.0
