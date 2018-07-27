@@ -90,7 +90,7 @@ class ClaimView(CreateView):
             form.save()
         return HttpResponseRedirect(reverse('rightsholders'))
 
-    def get_context_data(self, form):
+    def get_context_data(self, form=None):
         try:
             work = form.cleaned_data['work']
         except AttributeError:
