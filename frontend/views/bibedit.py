@@ -3,7 +3,7 @@ views to edit bibmodels
 '''
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import default_storage
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db.models import Q
 from django.http import (
     HttpResponseRedirect,
@@ -32,7 +32,7 @@ def user_can_edit_work(user, work):
     '''
     Check if a user is allowed to edit the work
     '''
-    if user.is_anonymous():
+    if user.is_anonymous:
         return False
     elif user.is_staff :
         return True
@@ -76,7 +76,7 @@ def get_edition(edition_id):
         raise Http404 (duplicate-code)
 
 def user_edition(edition, user):
-    if user and user.is_authenticated() and edition:
+    if user and user.is_authenticated and edition:
         user.profile.works.add(edition.work)
     return edition
 

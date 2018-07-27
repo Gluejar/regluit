@@ -40,8 +40,9 @@ MEDIA_ROOT = ''
 MEDIA_URL = '/media/'
 
 # set once instead of in all the templates
-JQUERY_HOME = "/static/js/jquery-1.7.1.min.js"
-JQUERY_UI_HOME = "/static/js/jquery-ui-1.8.16.custom.min.js"
+JQUERY_HOME = "/static/js/jquery-1.12.4.min.js"
+JQUERY_UI_HOME = "/static/js/jquery-ui-1.12.1.custom.min.js"
+JQUERY_UI_THEME = "/static/css/ui-lightness/jquery-ui-1.11.4.min.css"
 
 CKEDITOR_UPLOAD_PATH = ''
 CKEDITOR_RESTRICT_BY_USER = True
@@ -124,13 +125,12 @@ TEMPLATES = [
 ]
 
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'maintenancemode.middleware.MaintenanceModeMiddleware',
     'regluit.libraryauth.auth.SocialAuthExceptionMiddlewareWithoutMessages',
     'django.middleware.locale.LocaleMiddleware',
     'questionnaire.request_cache.RequestCacheMiddleware',
@@ -166,6 +166,7 @@ INSTALLED_APPS = (
     'notification',
     'email_change',
     'ckeditor',
+    'ckeditor_uploader',
     'storages', 
     'sorl.thumbnail',
     'mptt',   
@@ -187,17 +188,16 @@ SASS_PROCESSOR_INCLUDE_DIRS = [
 ]
 SASS_PROCESSOR_AUTO_INCLUDE = False
 
-# A sample logging configuration. The only tangible logging
-# performed by this configuration is to send an email to
-# the site admins on every HTTP 500 error.
-# See http://docs.djangoproject.com/en/dev/topics/logging for
-# more details on how to customize your logging configuration.
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
     'formatters': {
         'brief': {
             'format': '%(asctime)s %(levelname)s %(name)s[%(funcName)s]: %(message)s',
+        },
+        'django.server': {
+            '()': 'django.utils.log.ServerFormatter',
+            'format': '[%(server_time)s] %(message)s',
         },
     },
     'filters': {
@@ -219,6 +219,11 @@ LOGGING = {
             'backupCount': 5,
             'formatter': 'brief',
         },
+        'django.server': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'django.server',
+        },
     },
     'loggers': {
         'django.request': {
@@ -226,10 +231,15 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'django.server': {
+            'handlers': ['django.server'],
+            'level': 'INFO',
+            'propagate': False,
+        },
         '': {
             'handlers': ['file'],
             'level': 'INFO',
-        }
+        },
     }
 }
 
@@ -411,13 +421,6 @@ NOTIFICATION_QUEUE_ALL = True
 PAYMENT_PROCESSOR = 'stripelib'
 
 
-# by default, we are not in maintenance mode -- set True in overriding settings files for maintenance mode
-# http://pypi.python.org/pypi/django-maintenancemode/
-MAINTENANCE_MODE = False
-# Sequence of URL path regexes to exclude from the maintenance mode.
-MAINTENANCE_IGNORE_URLS = {}
-
-    
 # we should suppress Google Analytics outside of production
 SHOW_GOOGLE_ANALYTICS = False
 

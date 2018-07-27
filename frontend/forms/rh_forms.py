@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 from decimal import Decimal as D
 
-from ckeditor.widgets import CKEditorWidget
+from ckeditor_uploader.widgets import CKEditorUploadingWidget
 
 from selectable.forms import (
     AutoCompleteSelectMultipleWidget,
@@ -10,8 +10,7 @@ from selectable.forms import (
 
 from django import forms
 from django.conf import settings
-from django.forms.extras.widgets import SelectDateWidget
-from django.forms.widgets import RadioSelect
+from django.forms.widgets import RadioSelect, SelectDateWidget
 from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
 
@@ -215,7 +214,7 @@ class ManageCampaignForm(CCDateForm, forms.ModelForm):
             'required': 'You must enter the email we should contact you at for this campaign.'
             },
         )
-    work_description = forms.CharField(required=False , widget=CKEditorWidget())
+    work_description = forms.CharField(required=False , widget=CKEditorUploadingWidget())
 
     class Meta:
         model = Campaign

@@ -10,7 +10,7 @@ from decimal import Decimal as D
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.core import mail
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 from django.test.client import Client
 from django.utils.timezone import now
@@ -220,7 +220,7 @@ class PledgingUiTests(TestCase):
         #self.assertEqual(self.client.session['_auth_user_id'], self.user.pk)  
         
         user = auth.get_user(self.client)
-        assert user.is_authenticated()
+        assert user.is_authenticated
 
 
         # load a Work by putting it on the User's wishlist

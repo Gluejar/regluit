@@ -29,7 +29,7 @@ from django.core import signing
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.core.mail import EmailMessage
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.core.validators import validate_email
 from django.db.models import Q, Count, Sum
 from django.forms import Select
@@ -171,7 +171,7 @@ def process_kindle_email(request):
     download + login/account creation; add kindle email to profile
     """
     user = request.user
-    if user.is_authenticated() and request.session.has_key('kindle_email'):
+    if user.is_authenticated and request.session.has_key('kindle_email'):
         user.profile.kindle_email = request.session['kindle_email']
         user.profile.save()
         request.session.pop('kindle_email')
@@ -194,7 +194,7 @@ def cover_width(work):
 
 def home(request, landing=False):
     faves = None
-    if request.user.is_authenticated() :
+    if request.user.is_authenticated :
         next = request.GET.get('next', False)
         if next:
             # should happen only for new users
@@ -270,7 +270,7 @@ def home(request, landing=False):
         reverse=True
     )
 
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         events = latest_actions[:12]
     else:
         events = latest_actions[:6]
@@ -326,7 +326,7 @@ def work(request, work_id, action='display'):
         formset = EditionFormSet(instance=work)
 
     # process waiting add request
-    if not request.user.is_anonymous() and request.session.has_key("add_wishlist"):
+    if not request.user.is_anonymous and request.session.has_key("add_wishlist"):
         add_url = request.session["add_wishlist"]
         if add_url == request.path:
             request.user.wishlist.add_work(work, "login", notify=True)
@@ -334,7 +334,7 @@ def work(request, work_id, action='display'):
 
     process_kindle_email(request)
 
-    if request.method == 'POST' and not request.user.is_anonymous():
+    if request.method == 'POST' and not request.user.is_anonymous:
         activetab = '4'
     elif action == 'editions':
         activetab = '4'
@@ -363,7 +363,7 @@ def work(request, work_id, action='display'):
     if action == 'preview':
         work.last_campaign_status = 'ACTIVE'
 
-    if not request.user.is_anonymous():
+    if not request.user.is_anonymous:
         claimform = UserClaimForm(request.user, initial={'work':work.pk, 'user': request.user.id}, prefix = 'claim')
     else:
         claimform = None
@@ -416,7 +416,7 @@ def work(request, work_id, action='display'):
 
 def edition_uploads(request, edition_id):
     context = {}
-    if not request.user.is_authenticated() :
+    if not request.user.is_authenticated:
         return render(request, "admins_only.html")
     edition = get_edition(edition_id)
     campaign_type = edition.work.last_campaign().type
@@ -548,7 +548,7 @@ def googlebooks(request, googlebooks_id):
             if edition.new:
                 # add related editions asynchronously
                 tasks.populate_edition.delay(edition.isbn_13)
-                if request.user.is_authenticated():
+                if request.user.is_authenticated:
                     request.user.profile.works.add(edition.work)
         except bookloader.LookupFailure:
             logger.warning("failed to load googlebooks_id %s" % googlebooks_id)
@@ -558,7 +558,7 @@ def googlebooks(request, googlebooks_id):
     work_url = reverse('work', kwargs={'work_id': edition.work_id})
 
     # process waiting add request
-    if not request.user.is_anonymous() and request.session.has_key("add_wishlist"):
+    if not request.user.is_anonymous and request.session.has_key("add_wishlist"):
         add_url = request.session["add_wishlist"]
         if add_url == request.path:
             request.user.wishlist.add_work(edition.work, "login", notify=True)
@@ -944,7 +944,7 @@ class PledgeView(FormView):
 
     def get_form_kwargs(self):
 
-        assert self.request.user.is_authenticated()
+        assert self.request.user.is_authenticated
         self.work = safe_get_work(self.kwargs["work_id"])
 
         # if there is no campaign or if campaign is not active, we should raise an error
@@ -1087,7 +1087,7 @@ class PurchaseView(PledgeView):
         return context
 
     def get_form_kwargs(self):
-        assert self.request.user.is_authenticated()
+        assert self.request.user.is_authenticated
         self.work = safe_get_work(self.kwargs["work_id"])
 
         # if there is no campaign or if campaign is not active, we should raise an error
@@ -1166,7 +1166,7 @@ class FundView(FormView):
     action = None
 
     def get_form_class(self):
-        if self.request.user.is_anonymous():
+        if self.request.user.is_anonymous:
             return AnonCCForm
         elif self.request.user.profile.account:
             return AccountCCForm
@@ -1202,7 +1202,7 @@ class FundView(FormView):
 
         data.update(
             {'preapproval_amount':self.transaction.needed_amount,
-                'username':self.request.user.username if self.request.user.is_authenticated() else None,
+                'username':self.request.user.username if self.request.user.is_authenticated else None,
                 'work_id':self.transaction.campaign.work_id if self.transaction.campaign else None,
                 'title':self.transaction.campaign.work.title if self.transaction.campaign else COMPANY_TITLE}
             )
@@ -1225,7 +1225,7 @@ class FundView(FormView):
         return_url = "%s?tid=%s" % (reverse('pledge_complete'), self.transaction.id)
 
         if not self.transaction.campaign:
-            if self.request.user.is_authenticated():
+            if self.request.user.is_authenticated:
                 self.transaction.user = self.request.user
             # if there's an email address, put it in the receipt column, so far unused.
             self.transaction.receipt = form.cleaned_data.get("email", None)
@@ -1233,12 +1233,12 @@ class FundView(FormView):
 
         elif self.transaction.campaign.type == THANKS and self.transaction.user == None:
             #anonymous user, just charge the card!
-            if self.request.user.is_authenticated():
+            if self.request.user.is_authenticated:
                 self.transaction.user = self.request.user
             # if there's an email address, put it in the receipt column, so far unused.
             self.transaction.receipt = form.cleaned_data.get("email", None)
             t, url = p.charge(self.transaction, return_url = return_url, token=stripe_token)
-        elif self.request.user.is_anonymous():
+        elif self.request.user.is_anonymous:
             #somehow the user lost their login
             return HttpResponseRedirect(reverse('superlogin'))
         elif self.transaction.user.id != self.request.user.id:
@@ -1333,7 +1333,7 @@ class PledgeRechargeView(TemplateView):
         context = super(PledgeRechargeView, self).get_context_data(**kwargs)
 
         # the following should be true since PledgeView.as_view is wrapped in login_required
-        assert self.request.user.is_authenticated()
+        assert self.request.user.is_authenticated
         user = self.request.user
 
         work = safe_get_work(self.kwargs["work_id"])
@@ -1392,7 +1392,7 @@ class FundCompleteView(TemplateView):
                 return DownloadView.as_view()(request, work=self.transaction.campaign.work)
 
             else:
-                if request.user.is_authenticated():
+                if request.user.is_authenticated:
                     if self.user_is_ok():
                         return self.render_to_response(context)
                     else:
@@ -1482,7 +1482,7 @@ class PledgeCancelView(FormView):
 
         # the following should be true since PledgeCancelView.as_view is wrapped in login_required
 
-        if self.request.user.is_authenticated():
+        if self.request.user.is_authenticated:
             user = self.request.user
         else:
             context["error"] = "You are not logged in."
@@ -1531,7 +1531,7 @@ class PledgeCancelView(FormView):
         campaign_id = self.request.POST.get('campaign_id', self.request.GET.get('campaign_id'))
 
         # this following logic should be extraneous.
-        if self.request.user.is_authenticated():
+        if self.request.user.is_authenticated:
             user = self.request.user
         else:
             return HttpResponse("You need to be logged in.")
@@ -1607,7 +1607,7 @@ def export_surveys(request, qid, work_id):
             label = landing.label
             wid = landing.object_id
         return [wid, subject.ip_address, run.id, completed, label]
-    if not request.user.is_authenticated() :
+    if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('surveys'))
     extra_headings = [u'work id', u'subject ip address', u'run id', u'date completed', u'landing label']
     return export_answers(request, qid,
@@ -1617,7 +1617,7 @@ def export_surveys(request, qid, work_id):
         filecode=work_id)
 
 def surveys_summary(request, qid, work_id):
-    if not request.user.is_authenticated() :
+    if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('surveys'))
     return answer_summary(
         request, 
@@ -1627,7 +1627,7 @@ def surveys_summary(request, qid, work_id):
 
 
 def new_survey(request, work_id):
-    if not request.user.is_authenticated() :
+    if not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('surveys'))
     my_works = works_user_can_admin( request.user)
     if work_id:
@@ -1659,7 +1659,7 @@ def new_survey(request, work_id):
     return render(request, "manage_survey.html", {"work":work, "form":form})
 
 def surveys(request):
-    if not request.user.is_authenticated() :
+    if not request.user.is_authenticated:
         return render(request, "surveys.html")
     works = works_user_can_admin(request.user)
     work_ids = [work.id for work in works]
@@ -1667,7 +1667,7 @@ def surveys(request):
     return render(request, "surveys.html", {"works":works, "surveys":surveys})
 
 def campaign_admin(request):
-    if not request.user.is_authenticated() :
+    if not request.user.is_authenticated:
         return render(request, "admins_only.html")
     if not request.user.is_staff :
         return render(request, "admins_only.html")
@@ -1809,7 +1809,7 @@ def supporter(request, supporter_username, template_name, extra_context={}):
         activetab = "#3"
 
     # following block to support profile admin form in supporter page
-    if request.user.is_authenticated() and request.user.username == supporter_username:
+    if request.user.is_authenticated and request.user.username == supporter_username:
 
         profile_obj = request.user.profile
 
@@ -2166,7 +2166,7 @@ class GoodreadsDisplayView(TemplateView):
         gr_client = GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
 
         user = self.request.user
-        if user.is_authenticated():
+        if user.is_authenticated:
             api_key = ApiKey.objects.filter(user=user)[0].key
             context['api_key'] = api_key
 
@@ -2243,7 +2243,7 @@ def goodreads_cb(request):
 @csrf_exempt
 def goodreads_flush_assoc(request):
     user = request.user
-    if user.is_authenticated():
+    if user.is_authenticated:
         profile = user.profile
         profile.goodreads_user_id = None
         profile.goodreads_user_name = None
@@ -2544,7 +2544,7 @@ def feedback(request, recipient='unglueit@ebookfoundation.org', template='feedba
             context['num2']  = request.POST['num2']
 
     else:
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             context['sender'] = request.user.email
         try:
             context['page'] = request.GET['page']
@@ -2639,7 +2639,7 @@ class DownloadView(PurchaseView):
         self.lib_thanked = self.work.lib_thanked(self.request.user)
         self.data = {
             'preapproval_amount':self.get_preapproval_amount(),
-            'anonymous':True if self.request.user.is_anonymous() else self.request.user.profile.anon_pref,
+            'anonymous':True if self.request.user.is_anonymous else self.request.user.profile.anon_pref,
             }
         if self.request.method  == 'POST':
             self.data.update(self.request.POST.dict())
@@ -2664,7 +2664,7 @@ class DownloadView(PurchaseView):
         for ebook in work.ebooks().all():
             formats[ebook.format] = reverse('download_ebook', args=[ebook.id])
 
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             #add a fave
             request.user.wishlist.add_work(work,'download')
 
@@ -2805,7 +2805,7 @@ def download_ebook(request, ebook_id):
     return HttpResponseRedirect(ebook.url)
 
 def download_purchased(request, work_id):
-    if request.user.is_anonymous():
+    if request.user.is_anonymous:
         HttpResponseRedirect('/accounts/login/download/')
     return DownloadView.as_view()(request, work_id=work_id)
 
@@ -2855,12 +2855,12 @@ def receive_gift(request, nonce):
     # put nonce in session so we know that a user has redeemed a Gift
     request.session['gift_nonce'] = nonce
     if gift.used:
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             #check that user hasn't redeemed the gift themselves
             if (gift.acq.user_id == request.user.id) and not gift.acq.expired:
                 return HttpResponseRedirect(reverse('display_gift', args=[gift.id,'existing']))
         return render(request, 'gift_error.html', context)
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         user_license = work.get_user_license(request.user)
         if user_license and user_license.purchased:
             # check if previously purchased- there would be two user licenses if so.
@@ -3017,7 +3017,7 @@ def send_to_kindle(request, work_id, javascript='0'):
     work = safe_get_work(work_id)
     context = {'work':work}
     acq = None
-    if request.user.is_authenticated():
+    if request.user.is_authenticated:
         all_acqs = request.user.acqs.filter(work=work).order_by('-created')
         for an_acq in all_acqs:
             if not an_acq.expired:
@@ -3058,7 +3058,7 @@ def send_to_kindle(request, work_id, javascript='0'):
         except ValidationError:
             return local_response(request, javascript,  context, 3)
         request.session['kindle_email'] = kindle_email
-    elif request.user.is_authenticated():
+    elif request.user.is_authenticated:
         kindle_email = request.user.profile.kindle_email
     context['kindle_email'] = kindle_email
 
@@ -3096,7 +3096,7 @@ def send_to_kindle(request, work_id, javascript='0'):
         logger.error('Unexpected error: %s', sys.exc_info())
         return local_response(request, javascript,  context, 1)
 
-    if request.POST.has_key('kindle_email') and not request.user.is_authenticated():
+    if request.POST.has_key('kindle_email') and not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('superlogin'))
     return local_response(request, javascript,  context, 2)
 

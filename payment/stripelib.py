@@ -421,7 +421,7 @@ class StripeErrorTest(TestCase):
             self.fail("Attempt to create customer did not throw expected exception.")
         except stripe.CardError as e:
             self.assertEqual(e.code, "card_declined")
-            self.assertEqual(e.message, "Your card was declined")
+            self.assertEqual(e.args[0], "Your card was declined")
             
     def test_charge_bad_cust(self):
         # expect the card to be declined -- and for us to get CardError
@@ -450,7 +450,7 @@ class StripeErrorTest(TestCase):
             self.fail("Attempt to create token with bad cc number did not throw expected exception.")
         except stripe.CardError as e:
             self.assertEqual(e.code, "incorrect_number")
-            self.assertEqual(e.message, "Your card number is incorrect")
+            self.assertEqual(e.args[0], "Your card number is incorrect")
             
     def test_invalid_expiry_month(self):
         """Use an invalid month e.g. 13."""
@@ -464,7 +464,7 @@ class StripeErrorTest(TestCase):
             self.fail("Attempt to create token with invalid expiry month did not throw expected exception.")
         except stripe.CardError as e:
             self.assertEqual(e.code, "invalid_expiry_month")
-            self.assertEqual(e.message, "Your card's expiration month is invalid")
+            self.assertEqual(e.args[0], "Your card's expiration month is invalid")
 
     def test_invalid_expiry_year(self):
         """Use a year in the past e.g. 1970."""
@@ -478,7 +478,7 @@ class StripeErrorTest(TestCase):
             self.fail("Attempt to create token with invalid expiry year did not throw expected exception.")
         except stripe.CardError as e:
             self.assertEqual(e.code, "invalid_expiry_year")
-            self.assertEqual(e.message, "Your card's expiration year is invalid")
+            self.assertEqual(e.args[0], "Your card's expiration year is invalid")
             
     def test_invalid_cvc(self):
         """Use a two digit number e.g. 99."""
@@ -492,7 +492,7 @@ class StripeErrorTest(TestCase):
             self.fail("Attempt to create token with invalid cvc did not throw expected exception.")
         except stripe.CardError as e:
             self.assertEqual(e.code, "invalid_cvc")
-            self.assertEqual(e.message, "Your card's security code is invalid")
+            self.assertEqual(e.args[0], "Your card's security code is invalid")
             
     def test_missing_card(self):
         """There is no card on a customer that is being charged"""
@@ -504,7 +504,7 @@ class StripeErrorTest(TestCase):
             sc.create_charge(10, customer = cust1.id, description="$10 for cust w/ no card")
         except stripe.CardError as e:
             self.assertEqual(e.code, "missing")
-            self.assertEqual(e.message, "Cannot charge a customer that has no active card")
+            self.assertEqual(e.args[0], "Cannot charge a customer that has no active card")
  
 class PledgeScenarioTest(TestCase):
     @classmethod
@@ -578,7 +578,7 @@ class Processor(baseprocessor.Processor):
             else:
                 customer = sc.create_customer(card=token, description='anonymous user', email=email)
         except stripe.StripeError as e:
-            raise StripelibError(e.message, e)
+            raise StripelibError(e.args, e)
             
         account = Account(host = PAYMENT_HOST_STRIPE,
                           account_id = customer.id,
@@ -696,7 +696,7 @@ class Processor(baseprocessor.Processor):
             transaction.save()
         else:
             self.errorMessage = p.errorMessage #pass error message up
-            logger.info("execute_transaction Error: " + p.error_string())
+            logger.info("execute_transaction Error: {}".format(p.error_string()))
                     
       def amount( self ):
           return self.transaction.amount
@@ -746,11 +746,11 @@ class Processor(baseprocessor.Processor):
                     # use PaymentResponse to store error
 
                     r = PaymentResponse.objects.create(api="stripelib.Execute", correlation_id=None,
-                                                       timestamp=now(), info=e.message,
+                                                       timestamp=now(), info=e.args[0],
                                                        status=TRANSACTION_STATUS_ERROR, transaction=transaction)
                     
                     transaction.status = TRANSACTION_STATUS_ERROR	  	
-                    self.errorMessage = e.message # manager puts this on transaction
+                    self.errorMessage = e.args # manager puts this on transaction
                     transaction.save()
 
                     # fire off the fact that transaction failed -- should actually do so only if not a transient error
@@ -759,9 +759,8 @@ class Processor(baseprocessor.Processor):
                         transaction_failed.send(sender=self, transaction=transaction)
                     # otherwise, report exception to us
                     else:
-                        logger.exception("transaction id {0}, exception: {1}".format(transaction.id,  e.message))
+                        logger.exception("transaction id {0}, exception: {1}".format(transaction.id,  e.args))
                     
-                    # raise StripelibError(e.message, e)
                     
                 else:
                     self.charge = charge

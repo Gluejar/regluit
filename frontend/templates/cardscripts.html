@@ -6,6 +6,8 @@ var $j = jQuery.noConflict();
 $j(document).ready(function() {
     // don't let users modify their pledge amount on this page; it's just here for reference
     // if they modified it here we'd have to faff about with validating premiums
+    if($j('#id_work_id').prop('value')!=""){
     $j('#id_preapproval_amount').prop('disabled', true);
+    }
 });
 </script>

@@ -19,8 +19,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('guts', models.TextField()),
                 ('created', models.DateTimeField(auto_now_add=True)),
-                ('edition', models.ForeignKey(related_name='MARCRecords', to='core.Edition', null=True)),
-                ('user', models.ForeignKey(related_name='MARCRecords', to=settings.AUTH_USER_MODEL, null=True)),
+                ('edition', models.ForeignKey(on_delete=models.CASCADE, related_name='MARCRecords', to='core.Edition', null=True)),
+                ('user', models.ForeignKey(on_delete=models.CASCADE, related_name='MARCRecords', to=settings.AUTH_USER_MODEL, null=True)),
             ],
         ),
     ]

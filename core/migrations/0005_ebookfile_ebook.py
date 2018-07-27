@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='ebookfile',
             name='ebook',
-            field=models.ForeignKey(related_name='ebook_files', to='core.Ebook', null=True),
+            field=models.ForeignKey(on_delete=models.CASCADE, related_name='ebook_files', to='core.Ebook', null=True),
         ),
     ]

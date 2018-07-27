@@ -1,6 +1,5 @@
 {% extends 'notification/notice_template.html' %}
 
-{% load truncatechars %}
 
 {% block comments_book %}
 	<a href="{% url 'work' work.id %}"><img src="{{ work.cover_image_small }}" alt="cover image for {{ work.title }}" /></a>

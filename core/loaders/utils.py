@@ -375,6 +375,9 @@ def dl_online(ebook):
     if ebook.format != 'online':
         pass
     elif ebook.url.find(u'dropbox.com/s/') >= 0:
+        if ebook.url.find(u'dl=0') >= 0:
+            dl_url = ebook.url.replace(u'dl=0', u'dl=1')
+            return make_dl_ebook(dl_url, ebook)
         response = requests.get(ebook.url, headers={"User-Agent": settings.USER_AGENT})
         if response.status_code == 200:
             match_dl = DROPBOX_DL.search(response.content)

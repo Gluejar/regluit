@@ -1,5 +1,3 @@
-import unicodedata
-
 from django.template import Library
 from .. import models
 
@@ -11,7 +9,7 @@ def libname(value):
     returns library name  .
     """
     try:
-        vl = long( value )
+        vl = long(value)
         lib = models.Library.objects.get(pk=vl)
         return lib.__unicode__()
     except models.Library.DoesNotExist:

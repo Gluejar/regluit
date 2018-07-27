@@ -19,14 +19,14 @@ def bookpanel(context):
     supported = False
     if campaign and campaign.type == REWARDS:
         if campaign.status == 'ACTIVE':
-            if not user.is_anonymous() and user.transaction_set.filter(campaign__work=work):
+            if not user.is_anonymous and user.transaction_set.filter(campaign__work=work):
                 supported = True
     context['supported'] = supported
 
     show_pledge = False
     if campaign and campaign.type == REWARDS:
         if campaign.status == 'ACTIVE':
-            if user.is_anonymous() or not supported:
+            if user.is_anonymous or not supported:
                 show_pledge = True
     context['show_pledge'] = show_pledge
 
@@ -39,7 +39,7 @@ def bookpanel(context):
 
     show_purchase = False
     if campaign and campaign.type == BUY2UNGLUE:
-        if user.is_anonymous() or not context.get('license_is_active', False):
+        if user.is_anonymous or not context.get('license_is_active', False):
             if campaign.status == 'ACTIVE':
                 if not context.get('borrowable', False):
                     if not library:

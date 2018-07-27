@@ -1,4 +1,4 @@
-Django==1.8.14
+Django==1.11.14
 Fabric==1.6.0
 MySQL-python==1.2.5
 Pillow==3.4.2
@@ -18,28 +18,28 @@ chardet==3.0.4
 # pip installing pillow seems to delete distribute
 # but having distribute in requirements starting to cause problems
 # distribute==0.6.28
-django-celery==3.1.17
-django-ckeditor==4.5.1
+django-celery==3.2.2
+django-ckeditor==5.6.1
 #django-email-change==0.2.3
-git+git://github.com/eshellman/django-email-change.git@57169bdef1c8a41d122e2bab2dcd8564b8fb231d
-django-compat==1.0.10
-django-contrib-comments==1.7.1
+git+git://github.com/eshellman/django-email-change.git@830808b9b9db5f3ca9ec0cb22f8fda5cc2cef12d
+django-compat==1.0.15
+django-contrib-comments==1.8.0
 django-el-pagination==3.2.4
 django-extensions==1.6.1
 django-jsonfield==1.0.0
 #django-kombu==0.9.4
-django-maintenancemode==0.11.2
-django-mptt==0.8.5
+django-mptt==0.8.6
 #django-notification==0.2
-git+git://github.com/eshellman/django-notification.git@a4620e893e2da220994e0189bf5d980bfbdcf0ad
-django-registration==2.1.2
-django-selectable==0.9.0
+git+git://github.com/eshellman/django-notification.git@92cc14b737d4a10e7e866b2f467ef1f20a89c715
+django-registration==2.4.1
+django-selectable==1.1.0
 django-smtp-ssl==1.0
 django-storages==1.5.2
-django-tastypie==0.13.3
+django-tastypie==0.14.1
 #django-transmeta==0.7.3 
 git+git://github.com/resulto/django-transmeta.git@ad4d7278ba330dcf8c8446f8ae9b2c769ae8684e
-fef-questionnaire==4.0.1
+#fef-questionnaire==4.0.1
+git+git://github.com/EbookFoundation/fef-questionnaire.git@8c3b630eb6171fe9242bf0d3b456dc41de958006
 #gitenberg.metadata==0.1.6
 git+git://github.com/gitenberg-dev/gitberg-build.git@61a5fb0011e1a547b1eac14dd845ce37dbb5f85a
 #git+ssh://git@github.com/gitenberg-dev/metadata.git@0.1.11
@@ -47,7 +47,7 @@ github3.py==0.9.5
 html5lib==1.0.1
 httplib2==0.11.3
 isodate==0.5.1
-kombu==3.0.35
+kombu==3.0.37
 lxml==4.2.1
 defusedxml==0.4.1
 mechanize==0.2.5
@@ -94,7 +94,7 @@ cryptography==2.2.2
 enum34==1.1.6
 idna==2.6
 ipaddress==1.0.16
-ndg-httpsclient==0.4.2
+ndg-httpsclient==0.5.1
 pyOpenSSL==18.0.0
 pyasn1==0.1.9
 pycparser==2.14

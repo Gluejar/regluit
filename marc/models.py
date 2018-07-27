@@ -93,9 +93,9 @@ class MARCRecord(models.Model):
     _the_record = None
     
     # note capitalization of related_name
-    edition = models.ForeignKey(EDITION_MODEL, related_name="MARCRecords", null=True)
+    edition = models.ForeignKey(EDITION_MODEL, on_delete=models.CASCADE, related_name="MARCRecords", null=True)
     
-    user =  models.ForeignKey(settings.AUTH_USER_MODEL, related_name="MARCRecords", null=True ) 
+    user =  models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="MARCRecords", null=True ) 
     created =  models.DateTimeField(auto_now_add=True)  
 
 

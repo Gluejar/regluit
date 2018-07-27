@@ -14,15 +14,14 @@ django imports
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.requests import RequestSite
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import (
     HttpResponse,
     HttpRequest,
     HttpResponseRedirect,
     HttpResponseBadRequest
 )
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.shortcuts import render
 from django.test.utils import setup_test_environment
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
@@ -278,7 +277,7 @@ def checkStatus(request):
 # https://raw.github.com/agiliq/merchant/master/example/app/views.py
 
 def _render(request, template, template_vars={}):
-    return render_to_response(template, template_vars, RequestContext(request))
+    return render(request, template, template_vars)
     
 class StripeView(FormView):
     template_name="stripe.html"

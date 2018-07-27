@@ -3,7 +3,7 @@
 #
 from django import forms
 from django.contrib.admin import ModelAdmin, register
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from selectable.forms import (
     AutoCompleteSelectWidget,

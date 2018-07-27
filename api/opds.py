@@ -3,7 +3,7 @@ from itertools import islice
 from lxml import etree
 import datetime
 import urlparse
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.http import urlquote
 
 import pytz

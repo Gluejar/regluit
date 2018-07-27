@@ -1,63 +1,75 @@
-# IP address part of this of this copied from https://github.com/benliles/django-ipauth/blob/master/ipauth/models.py
+# IP address part of this of this copied from
+# https://github.com/benliles/django-ipauth/blob/master/ipauth/models.py
 
 import re
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core import validators
 from django.db import models
-from django.db.models import Q
 from django.db.models.signals import post_save
 from django.forms import GenericIPAddressField as BaseIPAddressField
-from django.utils.translation import ugettext_lazy as _
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 class Library(models.Model):
     '''
     name and other things derive from the User
     '''
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='library')
-    group = models.OneToOneField(Group, related_name='library', null = True)
-    backend =  models.CharField(max_length=10, choices=(
-            ('ip','IP authentication'),
-            ('cardnum', 'Library Card Number check'),
-            ('email', 'e-mail pattern check'),
-        ),default='ip')
-    name = models.CharField(max_length=80, default='') 
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='library',
+    )
+    group = models.OneToOneField(
+        Group,
+        on_delete=models.CASCADE,
+        related_name='library',
+        null=True
+        )
+    backend = models.CharField(max_length=10, choices=(
+        ('ip', 'IP authentication'),
+        ('cardnum', 'Library Card Number check'),
+        ('email', 'e-mail pattern check'),
+    ), default='ip')
+    name = models.CharField(max_length=80, default='')
     approved = models.BooleanField(default=False)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="libraries")
+    owner = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="libraries",
+    )
     credential = None
-    
+
     def __unicode__(self):
         return unicode(self.name)
-        
+
     def add_user(self, user):
         user.groups.add(self.group)
         (library_user, created) = LibraryUser.objects.get_or_create(library=self, user=user)
-        library_user.credential=self.credential
+        library_user.credential = self.credential
         library_user.save()
-    
+
     def has_user(self, user):
         return self.group in user.groups.all() or user == self.user
-        
+
     @property
     def join_template(self):
         if self.approved:
             return 'libraryauth/' + self.backend + '_join.html'
-        else:
-            return 'libraryauth/unapproved.html'
+        return 'libraryauth/unapproved.html'
+
     @property
     def help_template(self):
         return 'libraryauth/' + self.backend + '_help.html'
-        
+
     def get_absolute_url(self):
         return reverse('library', args=[self.user.username])
 
 def add_group(sender, created, instance, **kwargs):
     if created:
-        num=''
+        num = ''
         while created:
-            (group,created)=Group.objects.get_or_create(name=instance.user.username + num)
+            (group, created) = Group.objects.get_or_create(name=instance.user.username + num)
             # make sure not using a group twice!
             if created:
                 created = False
@@ -68,7 +80,7 @@ def add_group(sender, created, instance, **kwargs):
                     created = True
                 except Library.DoesNotExist:
                     pass
-        instance.group=group
+        instance.group = group
         instance.save()
 
 post_save.connect(add_group, sender=Library)
@@ -121,7 +133,7 @@ class IP(object):
     int = property(_get_int, _set_int)
 
     def _get_str(self):
-        if self.int!=None:
+        if self.int != None:
             return long_to_ip(self.int)
         return ''
 
@@ -166,7 +178,7 @@ class IPAddressFormField(BaseIPAddressField):
         return value
 
     def to_python(self, value):
-        if value==0:
+        if value == 0:
             return IP(0)
         if value in validators.EMPTY_VALUES:
             return None
@@ -178,7 +190,6 @@ class IPAddressFormField(BaseIPAddressField):
                                   code='invalid')
 
 class IPAddressModelField(models.GenericIPAddressField):
-    __metaclass__ = models.SubfieldBase
     empty_strings_allowed = False
 
     def __init__(self, *args, **kwargs):
@@ -206,13 +217,14 @@ class IPAddressModelField(models.GenericIPAddressField):
         defaults = {'form_class': IPAddressFormField}
         defaults.update(kwargs)
         return super(models.GenericIPAddressField, self).formfield(**defaults)
-        
+
     def deconstruct(self):
         name, path, args, kwargs = super(models.GenericIPAddressField, self).deconstruct()
         return name, path, args, kwargs
 
+
 class Block(models.Model):
-    library = models.ForeignKey(Library, related_name='ip_auths')
+    library = models.ForeignKey(Library, on_delete=models.CASCADE, related_name='ip_auths')
     lower = IPAddressModelField(db_index=True, unique=True)
     upper = IPAddressModelField(db_index=True, blank=True, null=True)
 
@@ -247,36 +259,35 @@ def luhn_checksum(card_number):
     for d in even_digits:
         checksum += sum(digits_of(d*2))
     return checksum % 10
-     
+
 class CardPattern(models.Model):
-    library = models.ForeignKey(Library, related_name='cardnum_auths')
+    library = models.ForeignKey(Library, on_delete=models.CASCADE, related_name='cardnum_auths')
     # match pattern ^\d+#+$
     pattern = models.CharField(max_length=20)
     checksum = models.BooleanField(default=True)
 
     def is_valid(self, card_number):
-        match_pattern='^' + self.pattern.replace('#','\d',20) + '$'
-        if re.match(match_pattern,card_number) is None:
+        match_pattern = '^' + self.pattern.replace('#', r'\d', 20) + '$'
+        if re.match(match_pattern, card_number) is None:
             return False
         if self.checksum:
             return luhn_checksum(card_number) == 0
-        else:
-            return True
+        return True
 
 class LibraryUser(models.Model):
-    library = models.ForeignKey(Library, related_name='library_users')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='user_libraries')
+    library = models.ForeignKey(Library, on_delete=models.CASCADE, related_name='library_users')
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='user_libraries',
+    )
     credential = models.CharField(max_length=30, null=True)
     date_modified = models.DateTimeField(auto_now=True)
 
 class EmailPattern(models.Model):
-    library = models.ForeignKey(Library, related_name='email_auths')
+    library = models.ForeignKey(Library, on_delete=models.CASCADE, related_name='email_auths')
     # email endswith string
     pattern = models.CharField(max_length=20)
 
     def is_valid(self, email):
-        if email.lower().endswith(self.pattern.lower()):
-            return True
-        else:
-            return False
-
+        return email.lower().endswith(self.pattern.lower())

@@ -44,7 +44,7 @@
 
 			{% with claim.campaign as campaign %}
 			<div class="work_campaigns clearfix">
-				{% if campaign.status = 'ACTIVE' or campaign.status = 'INITIALIZED' %}
+				{% if campaign.status == 'ACTIVE' or campaign.status == 'INITIALIZED' %}
 					<div class="campaign_info">
 						Your {{ campaign.get_type_display }}, "{{ campaign.name }}", is {{ campaign.status }}<br />
 						Created: {{ campaign.created }}<br />

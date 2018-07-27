@@ -2,7 +2,6 @@
 
 {% load i18n %}
 {% load sass_tags %}
-{% load truncatechars %}
 
 {% block title %}{% trans "Notification Settings" %}{% endblock %}
 
@@ -87,7 +86,7 @@ $j(document).ready(function() {
                     <td colspan="2" id="last"><input type="submit" value="{% trans 'Change' %}"></input></td>
                 </tr>
             </table>
-            <h3>Pledge Notifications</h3>
+            <h3>Pledge/Donation Notifications</h3>
             <table class="notice_settings table table-striped" width="90%">
                 <tr>
                     <th>{% trans "Notify me when..." %}</th>
@@ -96,7 +95,7 @@ $j(document).ready(function() {
                     {% endfor %}
                 </tr>
                 {% for row in notice_settings.rows %}
-                  {% if row.notice_type.label|truncatechars:10 == 'pledge_...' %}
+                  {% if row.notice_type.label|truncatechars:10 == 'pledge_...' or row.notice_type.label == 'donation' %}
                     <tr class="{% cycle 'row1' 'row2' %}">
                         <td>
                             <span class="notice_type_description">{% trans row.notice_type.description %}</span>

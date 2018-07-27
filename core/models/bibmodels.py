@@ -16,7 +16,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.files.base import ContentFile
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.db.models import F
 from django.db.models.signals import post_save, pre_delete
@@ -67,8 +67,8 @@ class Identifier(models.Model):
     # olib, ltwk, goog, gdrd, thng, isbn, oclc, olwk, doab, gtbg, glue, doi
     type = models.CharField(max_length=4, null=False)
     value = models.CharField(max_length=250, null=False)
-    work = models.ForeignKey("Work", related_name="identifiers", null=False)
-    edition = models.ForeignKey("Edition", related_name="identifiers", null=True)
+    work = models.ForeignKey("Work", on_delete=models.CASCADE, related_name="identifiers", null=False)
+    edition = models.ForeignKey("Edition", on_delete=models.CASCADE, related_name="identifiers", null=True)
 
     class Meta:
         unique_together = ("type", "value")
@@ -122,7 +122,7 @@ class Work(models.Model):
     openlibrary_lookup = models.DateTimeField(null=True, blank=True)
     num_wishes = models.IntegerField(default=0, db_index=True)
     description = models.TextField(default='', null=True, blank=True)
-    selected_edition = models.ForeignKey("Edition", related_name='selected_works', null=True)
+    selected_edition = models.ForeignKey("Edition", on_delete=models.CASCADE, related_name='selected_works', null=True)
     # repurposed earliest_publication to actually be publication range
     publication_range = models.CharField(max_length=50, null=True, blank=True)
     featured = models.DateTimeField(null=True, blank=True, db_index=True,)
@@ -612,7 +612,7 @@ class Work(models.Model):
         return self.get_user_license(lib_user)
 
     def borrowable(self, user):
-        if user.is_anonymous():
+        if user.is_anonymous:
             return False
         lib_license = self.get_lib_license(user)
         if lib_license and lib_license.borrowable:
@@ -620,7 +620,7 @@ class Work(models.Model):
         return False
 
     def lib_thanked(self, user):
-        if user.is_anonymous():
+        if user.is_anonymous:
             return False
         lib_license = self.get_lib_license(user)
         if lib_license and lib_license.thanked:
@@ -628,7 +628,7 @@ class Work(models.Model):
         return False
 
     def in_library(self, user):
-        if user.is_anonymous():
+        if user.is_anonymous:
             return False
         lib_license = self.get_lib_license(user)
         if lib_license and lib_license.acqs.count():
@@ -706,7 +706,7 @@ class Work(models.Model):
         if user is None:
             return None
         if hasattr(user, 'is_anonymous'):
-            if user.is_anonymous():
+            if user.is_anonymous:
                 return None
             return self.user_license(self.acqs.filter(user=user))
         else:
@@ -732,8 +732,8 @@ class Work(models.Model):
         return record_list
 
 class WorkRelation(models.Model):
-    to_work = models.ForeignKey('Work', related_name='works_related_to')
-    from_work= models.ForeignKey('Work', related_name='works_related_from')
+    to_work = models.ForeignKey('Work', on_delete=models.CASCADE, related_name='works_related_to')
+    from_work= models.ForeignKey('Work', on_delete=models.CASCADE, related_name='works_related_from')
     relation = models.CharField(max_length=15, choices=TEXT_RELATION_CHOICES)
 
 
@@ -766,9 +766,9 @@ class Relation(models.Model):
     name = models.CharField(max_length=30, blank=True,)
 
 class Relator(models.Model):
-    relation = models.ForeignKey('Relation', default=1) #first relation should have code='aut'
-    author = models.ForeignKey('Author')
-    edition = models.ForeignKey('Edition', related_name='relators')
+    relation = models.ForeignKey('Relation', on_delete=models.CASCADE, default=1) #first relation should have code='aut'
+    author = models.ForeignKey('Author', on_delete=models.CASCADE)
+    edition = models.ForeignKey('Edition', on_delete=models.CASCADE, related_name='relators')
     class Meta:
         db_table = 'core_author_editions'
 
@@ -846,12 +846,12 @@ class Subject(models.Model):
 class Edition(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     title = models.CharField(max_length=1000)
-    publisher_name = models.ForeignKey("PublisherName", related_name="editions", null=True, blank=True)
+    publisher_name = models.ForeignKey("PublisherName", on_delete=models.CASCADE, related_name="editions", null=True, blank=True)
     publication_date = models.CharField(max_length=50, null=True, blank=True, db_index=True)
-    work = models.ForeignKey("Work", related_name="editions", null=True)
+    work = models.ForeignKey("Work", on_delete=models.CASCADE, related_name="editions", null=True)
     cover_image = models.URLField(null=True, blank=True)
     unglued = models.BooleanField(default=False)
-    note = models.ForeignKey("EditionNote", null=True, blank=True)
+    note = models.ForeignKey("EditionNote", on_delete=models.CASCADE, null=True, blank=True)
 
     def __unicode__(self):
         if self.isbn_13:
@@ -1034,7 +1034,7 @@ class EditionNote(models.Model):
 
 class Publisher(models.Model):
     created = models.DateTimeField(auto_now_add=True)
-    name = models.ForeignKey('PublisherName', related_name='key_publisher')
+    name = models.ForeignKey('PublisherName', on_delete=models.CASCADE, related_name='key_publisher')
     url = models.URLField(max_length=1024, null=True, blank=True)
     logo_url = models.URLField(max_length=1024, null=True, blank=True)
     description = models.TextField(default='', null=True, blank=True)
@@ -1045,7 +1045,7 @@ class Publisher(models.Model):
 class PublisherName(models.Model):
     name = models.CharField(max_length=255, blank=False, unique=True)
 
-    publisher = models.ForeignKey('Publisher', related_name='alternate_names', null=True)
+    publisher = models.ForeignKey('Publisher', on_delete=models.CASCADE, related_name='alternate_names', null=True)
 
     def __unicode__(self):
         return self.name
@@ -1060,10 +1060,10 @@ class PublisherName(models.Model):
 
 
 class WasWork(models.Model):
-    work = models.ForeignKey('Work')
+    work = models.ForeignKey('Work', on_delete=models.CASCADE)
     was = models.IntegerField(unique=True)
     moved = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 
 def safe_get_work(work_id):
     """
@@ -1087,10 +1087,10 @@ def path_for_file(instance, filename):
 class EbookFile(models.Model):
     file = models.FileField(upload_to=path_for_file)
     format = models.CharField(max_length=25, choices=settings.FORMATS)
-    edition = models.ForeignKey('Edition', related_name='ebook_files')
+    edition = models.ForeignKey('Edition', on_delete=models.CASCADE, related_name='ebook_files')
     created = models.DateTimeField(auto_now_add=True)
     asking = models.BooleanField(default=False)
-    ebook = models.ForeignKey('Ebook', related_name='ebook_files', null=True)
+    ebook = models.ForeignKey('Ebook', on_delete=models.CASCADE, related_name='ebook_files', null=True)
     source = models.URLField(null=True, blank=True)
     mobied = models.IntegerField(default=0) #-1 indicates a failed conversion attempt
     version = None
@@ -1157,8 +1157,8 @@ class Ebook(models.Model):
 
     # use 'PD-US', 'CC BY', 'CC BY-NC-SA', 'CC BY-NC-ND', 'CC BY-NC', 'CC BY-ND', 'CC BY-SA', 'CC0'
     rights = models.CharField(max_length=255, null=True, choices=cc.CHOICES, db_index=True)
-    edition = models.ForeignKey('Edition', related_name='ebooks')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
+    edition = models.ForeignKey('Edition', on_delete=models.CASCADE, related_name='ebooks')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 
     def kindle_sendable(self):
         if not self.filesize or self.filesize < send_to_kindle_limit:

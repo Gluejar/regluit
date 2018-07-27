@@ -3,7 +3,7 @@ from decimal import Decimal as D
 import logging
 
 from django.conf import settings
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.forms.models import modelformset_factory
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404
@@ -39,7 +39,7 @@ class RHAgree(CreateView):
         return super(RHAgree, self).form_valid(form)
 
 def rh_admin(request, facet='top'):
-    if not request.user.is_authenticated() or not request.user.is_staff:
+    if not request.user.is_authenticated or not request.user.is_staff:
         return render(request, "admins_only.html")
 
     PendingFormSet = modelformset_factory(models.RightsHolder, fields=['approved'], extra=0)
@@ -65,7 +65,7 @@ def rh_admin(request, facet='top'):
     return render(request, "rights_holders.html", context)
 
 def user_is_rh(user):
-    if user.is_anonymous():
+    if user.is_anonymous:
         return False
     for rh in user.rights_holder.filter(approved=True):
         return True
@@ -90,7 +90,7 @@ class ClaimView(CreateView):
             form.save()
         return HttpResponseRedirect(reverse('rightsholders'))
 
-    def get_context_data(self, form):
+    def get_context_data(self, form=None):
         try:
             work = form.cleaned_data['work']
         except AttributeError:
@@ -108,7 +108,7 @@ def claim(request):
     return ClaimView.as_view()(request)
 
 def rh_tools(request, template_name='rh_intro.html'):
-    if not request.user.is_authenticated() :
+    if not request.user.is_authenticated:
         return render(request, 'rh_intro.html')
     claims = request.user.claim.filter(user=request.user)
     campaign_form = "xxx"
@@ -198,7 +198,7 @@ def manage_campaign(request, id, ebf=None, action='manage'):
     
     campaign.not_manager = False
     campaign.problems = []
-    if (not request.user.is_authenticated()) or \
+    if (not request.user.is_authenticated) or \
             (not request.user in campaign.managers.all() and not request.user.is_staff):
         campaign.not_manager = True
         return render(request, 'manage_campaign.html', {'campaign': campaign})

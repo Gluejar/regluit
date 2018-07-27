@@ -115,10 +115,10 @@ class Transaction(models.Model):
     date_expired = models.DateTimeField(null=True)
 
     # associated User, Campaign, and Premium for this Transaction
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
-    campaign = models.ForeignKey('core.Campaign', null=True)
-    premium = models.ForeignKey('core.Premium', null=True)
-    offer = models.ForeignKey('core.Offer', null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
+    campaign = models.ForeignKey('core.Campaign', on_delete=models.CASCADE, null=True)
+    premium = models.ForeignKey('core.Premium', on_delete=models.CASCADE, null=True)
+    offer = models.ForeignKey('core.Offer', on_delete=models.CASCADE, null=True)
     extra = JSONField(null=True, default={})
 
     # whether the user wants to be not listed publicly
@@ -145,7 +145,7 @@ class Transaction(models.Model):
 
     @property
     def needed_amount(self):
-        if self.user is None or self.user.is_anonymous():
+        if self.user is None or self.user.is_anonymous:
             return self.max_amount
         if self.user.credit.available >= self.max_amount:
             return 0
@@ -153,7 +153,7 @@ class Transaction(models.Model):
 
     @property
     def credit_amount(self):
-        if self.user is None or self.user.is_anonymous():
+        if self.user is None or self.user.is_anonymous:
             return 0
         if self.user.credit.available >= self.max_amount:
             return self.max_amount
@@ -233,7 +233,7 @@ class Transaction(models.Model):
     def create(cls, amount=0.00, host=PAYMENT_HOST_NONE, max_amount=0.00, currency='USD',
                status=TRANSACTION_STATUS_NONE, campaign=None, user=None, pledge_extra=None,
                donation=False):
-        if user and user.is_anonymous():
+        if user and user.is_anonymous:
             user = None
         t = cls.objects.create(
             amount=amount,
@@ -265,7 +265,7 @@ class PaymentResponse(models.Model):
     # local status specific to the api call
     status = models.CharField(max_length=32, null=True)
 
-    transaction = models.ForeignKey(Transaction, null=False)
+    transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, null=False)
 
     def __unicode__(self):
         return u"PaymentResponse -- api: {0} correlation_id: {1} transaction: {2}".format(
@@ -287,7 +287,7 @@ class Receiver(models.Model):
     reason = models.CharField(max_length=64)
     primary = models.BooleanField(default=True)
     txn_id = models.CharField(max_length=64)
-    transaction = models.ForeignKey(Transaction)
+    transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE,)
 
     def __unicode__(self):
         return u"Receiver -- email: {0} status: {1} transaction: {2}".format(
@@ -298,7 +298,7 @@ class Receiver(models.Model):
 
 class CreditLog(models.Model):
     # a write only record of Unglue.it Credit Transactions
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     amount = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
     timestamp = models.DateTimeField(auto_now=True)
     action = models.CharField(max_length=16)
@@ -306,7 +306,7 @@ class CreditLog(models.Model):
     sent = models.IntegerField(null=True)
 
 class Credit(models.Model):
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='credit')
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='credit')
     balance = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
     pledged = models.DecimalField(default=Decimal('0.00'), max_digits=14, decimal_places=2) # max 999,999,999,999.99
     last_activity = models.DateTimeField(auto_now=True)
@@ -421,7 +421,7 @@ class Account(models.Model):
     date_deactivated = models.DateTimeField(null=True)
 
     # associated User if any
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
 
     # status variable
     status = models.CharField(max_length=11, choices=STATUS_CHOICES, null=False, default='ACTIVE')

@@ -6,7 +6,7 @@ import logging
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext
 from django.views.decorators.csrf import csrf_exempt
@@ -152,7 +152,7 @@ class ApiHelpView(TemplateView):
         
         # if user is logged in, pass in the user's API key
         u = auth.get_user(self.request)
-        if u.is_authenticated():
+        if u.is_authenticated:
             api_key = ApiKey.objects.filter(user=u)[0].key
             context['api_key'] = api_key
         

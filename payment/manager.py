@@ -17,7 +17,7 @@ django imports
 """
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.timezone import now
 
 """
@@ -486,7 +486,7 @@ class PaymentManager( object ):
         else:
             transaction.error = p.error_string()
             transaction.save()
-            logger.info("execute_transaction Error: " + p.error_string())
+            logger.info("execute_transaction Error: {}".format(p.error_string()))
             return False
     
     def cancel_transaction(self, transaction):
@@ -526,7 +526,7 @@ class PaymentManager( object ):
             else:
                 transaction.error = p.error_string()
                 transaction.save()
-                logger.info("Cancel Transaction " + str(transaction.id) + " Failed with error: " + p.error_string())
+                logger.info("Cancel Transaction {} Failed with error: {}".format(transaction.id, p.error_string()))
                 return False
             
         else:
@@ -665,7 +665,7 @@ class PaymentManager( object ):
         else:
             transaction.error = p.error_string()
             transaction.save()
-            logger.info("Pay Error: " + p.error_string())
+            logger.info("Pay Error: {}".format(p.error_string()))
             return transaction, None
 
 
@@ -711,7 +711,7 @@ class PaymentManager( object ):
         )
         t.save()
         # does user have enough credit to transact now?
-        if user.is_authenticated() and user.credit.available >= amount :
+        if user.is_authenticated and user.credit.available >= amount :
             # YES!
             return_path = "{0}?{1}".format(reverse('pledge_complete'), 
                                 urllib.urlencode({'tid':t.id})) 
@@ -958,7 +958,7 @@ class PaymentManager( object ):
         else:
             transaction.error = p.error_string()
             transaction.save()
-            logger.info("Refund Transaction " + str(transaction.id) + " Failed with error: " + p.error_string())
+            logger.info("Refund Transaction {}  Failed with error:  {}".format(str(transaction.id), p.error_string()))
             return False
         
     def make_account(self, user=None, host=None, token=None):

@@ -41,6 +41,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='deposit',
             name='target',
-            field=models.ForeignKey(related_name='deposits', to='distro.Target'),
+            field=models.ForeignKey(on_delete=models.CASCADE, related_name='deposits', to='distro.Target'),
         ),
     ]
