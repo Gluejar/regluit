@@ -117,6 +117,7 @@ urlpatterns = [
     url('^404testing/$', TemplateView.as_view(template_name='404.html') ),
     url('^500testing/$', TemplateView.as_view(template_name='500.html')),
     url('^robots.txt$', TemplateView.as_view(template_name='robots.txt',content_type='text/plain')),
+    url(r'favicon.ico$', views.static_redirect_view, {'file_name': 'favicon.ico', 'dir': 'images'}, name="favicon"),
     url(r"^emailshare/(?P<action>\w*)/?$", views.emailshare, name="emailshare"),
     url(r"^feedback/campaign/(?P<campaign_id>\d+)/?$", views.ask_rh, name="ask_rh"),
     url(r"^feedback/$", views.feedback, name="feedback"),
