@@ -4,11 +4,14 @@ import re
 import uuid
 from StringIO import StringIO
 import datetime
+import logging
 
 try:
     import lxml.etree as ET
 except ImportError:
     import xml.etree.ElementTree as ET
+
+logger = logging.getLogger(__name__)
 
 NAMESPACE = {
     "dc": "{http://purl.org/dc/elements/1.1/}",
@@ -81,14 +84,14 @@ class EPUB(zipfile.ZipFile):
             f = self.read("META-INF/container.xml")
         except KeyError:
             # By specification, there MUST be a container.xml in EPUB
-            print "The %s file is not a valid OCF." % str(filename)
+            logger.warning("The %s file is not a valid OCF." % str(filename))
             raise InvalidEpub
         try:
             # There MUST be a full path attribute on first grandchild...
             self.opf_path = ET.fromstring(f)[0][0].get("full-path")
         except IndexError:
             #  ...else the file is invalid.
-            print "The %s file is not a valid OCF." % str(filename)
+            logger.warning("The %s file is not a valid OCF." % str(filename))
             raise InvalidEpub
 
         # NEW: json-able info tree
@@ -104,11 +107,12 @@ class EPUB(zipfile.ZipFile):
 
         # Iterate over <metadata> section, fill EPUB.info["metadata"] dictionary
         for i in self.opf.find("{0}metadata".format(NAMESPACE["opf"])):
-            tag = ns.sub('', i.tag)
-            if tag not in self.info["metadata"]:
-                self.info["metadata"][tag] = i.text or i.attrib
-            else:
-                self.info["metadata"][tag] = [self.info["metadata"][tag], i.text or i.attrib]
+            if i.tag:
+                tag = ns.sub('', i.tag)
+                if tag not in self.info["metadata"]:
+                    self.info["metadata"][tag] = i.text or i.attrib
+                else:
+                    self.info["metadata"][tag] = [self.info["metadata"][tag], i.text or i.attrib]
 
         # Get id of the cover in <meta name="cover" />
         try:
@@ -411,6 +415,8 @@ class EPUB(zipfile.ZipFile):
         :type filename: str
         :param filename: name of the file to be writte
         """
+        if isinstance(filename, str):
+            filename = open(filename,'w')
         
         filename.seek(0)
         new_zip = zipfile.ZipFile(filename, 'w')

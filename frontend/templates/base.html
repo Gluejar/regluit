@@ -10,7 +10,7 @@
     <meta name="twitter:site" content="@unglueit" />
     {% block extra_meta %}{% endblock %}
     <link type="text/css" rel="stylesheet" href="{% sass_src 'scss/sitewide4.scss' %}" />
-	<link REL="SHORTCUT ICON" HREF="/static/images/favicon.ico">
+	<link rel="SHORTCUT ICON" href="{% url 'favicon'%}">
     {% block extra_css %}{% endblock %}
 	<script type="text/javascript" src="{{ jquery_home }}"></script>
     <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
