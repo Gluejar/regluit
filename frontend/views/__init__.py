@@ -498,8 +498,6 @@ def manage_ebooks(request, edition_id, by=None):
                     file=ebook_form.cleaned_data['file'],
                     format=ebook_form.cleaned_data['format'],
                     edition=edition,
-                    active=True,
-
                 )
                 ebook_form.instance.url = new_ebf.file.url
                 ebook_form.instance.provider = "Unglue.it"
