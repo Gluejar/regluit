@@ -107,7 +107,7 @@ class EPUB(zipfile.ZipFile):
 
         # Iterate over <metadata> section, fill EPUB.info["metadata"] dictionary
         for i in self.opf.find("{0}metadata".format(NAMESPACE["opf"])):
-            if i.tag:
+            if i.tag and isinstance(i.tag, str):
                 tag = ns.sub('', i.tag)
                 if tag not in self.info["metadata"]:
                     self.info["metadata"][tag] = i.text or i.attrib
