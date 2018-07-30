@@ -25,6 +25,7 @@ from django.template.loader import render_to_string
 from django.utils.timezone import now
 
 from notification import models as notification
+from registration.signals import user_activated
 
 """
 regluit imports
@@ -48,7 +49,8 @@ def create_user_objects(sender, created, instance, **kwargs):
             if created:
                 Wishlist.objects.create(user=instance)
                 profile = UserProfile.objects.create(user=instance)
-                profile.ml_subscribe()
+                if hasattr(instance, 'social_auth'):
+                    instance.profile.ml_subscribe()
         except DatabaseError:
             # this can happen when creating superuser during syncdb since the
             # core_wishlist table doesn't exist yet
@@ -350,3 +352,10 @@ def notify_join_library(sender, created, instance, **kwargs):
             })
 
 post_save.connect(notify_join_library, sender=LibraryUser)
+
+from registration.signals import user_activated
+
+def ml_subscribe(user, request, **kwargs):
+    user.profile.ml_subscribe()
+    
+user_activated.connect(ml_subscribe)
