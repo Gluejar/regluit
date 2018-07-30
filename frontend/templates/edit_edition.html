@@ -69,7 +69,7 @@ ul.fancytree-container {
     // this is the id of the submit button
 
     $j('#add_subject_submit').click(function(event) { 
-           data= $j('#id_add_subject_0').attr('value')
+           data= $j('#id_add_subject_0').val()
            if (data == 'xxbadform'){
                 alert("bad keyword");
            } else {
