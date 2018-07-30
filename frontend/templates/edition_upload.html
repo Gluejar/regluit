@@ -23,7 +23,7 @@
                 {% csrf_token %}
                 {{ ebook_form.edition.errors }}{{ ebook_form.edition }}{{ ebook_form.user.errors }}{{ ebook_form.user }}{{ ebook_form.provider.errors }}{{ ebook_form.provider }}
                 <br />
-                {{ ebook_form.url.errors }}<span>Add a Link URL: {{ ebook_form.url }}</span><br />
+                {{ ebook_form.url.errors }}{{ ebook_form.non_field_errors }}<span>Add a Link URL: {{ ebook_form.url }}</span><br />
                 or...<br />
                 {{ ebook_form.file.errors }}<span>Upload an ebook file: {{ ebook_form.file }}</span><br /><br />
                 {{ ebook_form.format.errors }}<span>File Format: {{ ebook_form.format }}</span>&nbsp;&nbsp;&nbsp;
