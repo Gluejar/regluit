@@ -24,5 +24,8 @@ class Command(BaseCommand):
        bad_subjects = [subject for subject in Subject.objects.all() if clean_string(subject.name) != subject.name]
        print ("number of bad subjects:", len(bad_subjects))
        for bad_subject in bad_subjects:
-            print (bad_subject.name.encode('ascii', 'ignore'), bad_subject.works.count())
+            self.stdout.write('{}, {}'.format(
+                bad_subject.name.encode('ascii', 'ignore'),
+                bad_subject.works.count()
+            ))
             bad_subject.delete()

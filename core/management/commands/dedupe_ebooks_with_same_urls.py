@@ -7,9 +7,9 @@ def delete_newest_ebooks(ebooks):
      given a list of ebooks (presumably with the same URL), delete all but the ebook that was created first
      """
      for ebook in sorted(ebooks, key=lambda ebook: ebook.created)[1:]:
-         print "deleting ebook.id {}, edition.id {} work.id {}".format(ebook.id,
+         self.stdout.write("deleting ebook.id {}, edition.id {} work.id {}".format(ebook.id,
                                                                        ebook.edition_id,
-                                                                       ebook.edition.work_id)
+                                                                       ebook.edition.work_id))
          ebook.delete()
          
          intact = ebooks[0]
@@ -34,5 +34,5 @@ class Command(BaseCommand):
         # look through the URLs locating ones with more than one ebook
         for (url, ebooks) in ebooks_by_url.items():
             if len(ebooks) > 1:
-                print (url, len(ebooks))
+                self.stdout.write(url, len(ebooks))
                 delete_newest_ebooks(ebooks)

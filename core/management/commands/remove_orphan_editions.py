@@ -15,4 +15,4 @@ class Command(BaseCommand):
                 edition.delete()
                 deleted=deleted+1
             numeditions=numeditions+1
-        print "%s deleted from %s total" % (deleted, numeditions)
+        self.stdout.write("%s deleted from %s total" % (deleted, numeditions))

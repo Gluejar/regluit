@@ -8,17 +8,18 @@ from regluit.core import models, bookloader
 
 class Command(BaseCommand):
     help = "relookup all editions attached to language=xx works"
-    args = "<title>"
+    def add_arguments(self, parser):
+        parser.add_argument('title', nargs='?', default='', help="start of title")    
     
     def handle(self, title='', **options):
-        print "Number of Works with language=xx, title like %s: %s" % (title, models.Work.objects.filter(language='xx', title__istartswith=title).count())
-        updated_num=0
+        self.stdout.write("Number of Works with language=xx, title like %s: %s" % (title, models.Work.objects.filter(language='xx', title__istartswith=title).count()))
+        updated_num = 0
         
         for work in models.Work.objects.filter(language='xx', title__istartswith=title):
-            print "updating work %s" % work            
+            self.stdout.write("updating work %s" % work)          
             for edition in work.editions.all():
-                print "updating edition %s" % edition
+                self.stdout.write("updating edition %s" % edition)
                 updated = bookloader.update_edition(edition)
                 if updated.work.language!= 'xx':
                     updated_num+=1
-        print "Number of updated editions= %s" % updated_num
+        self.stdout.write("Number of updated editions= %s" % updated_num)

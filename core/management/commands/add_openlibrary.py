@@ -6,5 +6,5 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for work in models.Work.objects.filter(openlibrary_lookup__isnull=True):
-            print "loading openlibrary data for %s" % work
+            self.stdout.write("loading openlibrary data for %s" % work)
             bookloader.add_openlibrary(work)

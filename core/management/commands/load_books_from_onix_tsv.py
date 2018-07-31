@@ -5,9 +5,10 @@ from regluit.core.loaders.utils import UnicodeDictReader, load_from_books
 
 class Command(BaseCommand):
     help = "load books based on a csv spreadsheet of onix data"
-    args = "<filename>"
+    def add_arguments(self, parser):
+        parser.add_argument('filename', nargs='+',  help="filename")    
 
     def handle(self, filename, **options):
         sheetreader= UnicodeDictReader(open(filename,'rU'), dialect=csv.excel_tab)
         load_from_books(sheetreader)        
-        print "finished loading"
+        pself.stdout.write("finished loading")

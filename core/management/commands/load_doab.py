@@ -4,7 +4,10 @@ from regluit.core.loaders import doab
 
 class Command(BaseCommand):
     help = "load doab books via oai"
-    args = "<from_year> <limit>"
+
+    def add_arguments(self, parser):
+        parser.add_argument('from_year', nargs='?', type=int, default=None, help="year to start on")    
+        parser.add_argument('limit', nargs='?', type=int, default=None, help="desired records")    
     
     def handle(self, from_year= None, limit=None, **options):
         from_year = int(from_year) if from_year else None

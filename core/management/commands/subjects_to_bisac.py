@@ -14,4 +14,4 @@ class Command(BaseCommand):
                 subject.name = bisac_heading.full_label
                 subject.save()
                 matches += 1
-        print "%s bisac headings converted" % matches
+        self.stdout.write("%s bisac headings converted" % matches)

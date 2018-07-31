@@ -6,6 +6,9 @@ from regluit.core.models import Ebook
 class Command(BaseCommand):
     help = "harvest downloadable ebooks from 'online' ebooks"
     args = "<limit>"
+
+    def add_arguments(self, parser):
+        parser.add_argument('limit', nargs='?', type=int, default=0, help="max to harvest")    
     
     def handle(self, limit=0, **options):
         limit = int(limit) if limit else 0
@@ -17,5 +20,5 @@ class Command(BaseCommand):
                 done += 1
                 if done > limit:
                     break
-        print 'harvested {} ebooks'.format(done)
+        self.stdout.write('harvested {} ebooks'.format(done))
         
