@@ -37,4 +37,4 @@ class Command(BaseCommand):
         else:
             books = add_by_sitemap(url, maxnum=max)  
               
-        print "loaded {} books".format(len(books))
+        self.stdout.write("loaded {} books".format(len(books)))

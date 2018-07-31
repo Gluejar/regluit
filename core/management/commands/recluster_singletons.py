@@ -14,39 +14,56 @@ from regluit.core import models, bookloader
 class Command(BaseCommand):
     help = "add and merge editions for singleton works"
     args = "<language> <max> <start>"
+    def add_arguments(self, parser):
+        parser.add_argument('language', nargs='+', help="language code")    
+        parser.add_argument('max', nargs='?', type='int', default=100, help="max singletons to process")    
+        parser.add_argument('start', nargs='?', type='int', default=0, help="start")    
     
 
     def handle(self, language, max=100, start=0, **options):
-        print "Number of singleton Works with language = %s: %s" % (language, models.Work.objects.annotate(num_editions=Count('editions')).filter(num_editions=1, language=language).count())
+        self.stdout.write("Number of singleton Works with language = %s: %s" % (
+            language,
+            models.Work.objects.annotate(
+                num_editions=Count('editions')).filter(num_editions=1, language=language).count()
+            )
+        )
         
-        try:
-            max = int(max)
-        except:
-            max = 100
-        try:
-            start = int(start)
-        except:
-            start = 0
-        
-        for (i, work) in enumerate(islice(models.Work.objects.annotate(num_editions=Count('editions')).filter(num_editions=1, language=language),start,start+max)):
+        for (i, work) in enumerate(islice(
+            models.Work.objects.annotate(
+                num_editions=Count('editions')).filter(num_editions=1, language=language),
+                start,
+                start + max
+            )
+        ):
             #check that there's still only one edition
-            print "%d %s id:%s #editions:%d #isbn:%s -->" % (i, work.title.encode('ascii','ignore'), work.id,  work.editions.count(), work.first_isbn_13()),
-            work_id=work.id
+            self.stdout.write("%d %s id:%s #editions:%d #isbn:%s -->" % (
+                i,
+                work.title.encode('ascii','ignore'),
+                work.id,
+                work.editions.count(),
+                work.first_isbn_13(),
+            )
+            work_id = work.id
             if work.editions.count() != 1:
-                print
+                self.stdout.write()
                 continue
             isbn=work.first_isbn_13()
             if isbn:
                 new_work = bookloader.relate_isbn( isbn )
                 if new_work is None:
-                    print "failed to get edition"
+                    self.stdout.write("failed to get edition")
                 elif new_work.id != work_id:
-                    print "added edition to work %s with %s editions" % (new_work.id, new_work.editions.count())
+                    self.stdout.write("added edition to work %s with %s editions" % (new_work.id, new_work.editions.count()))
                 else:
                     if work.editions.count()>1:
-                        print "singleton joined to new edition" 
+                        self.stdout.write("singleton joined to new edition")
                     else:
-                        print "singleton edition not moved" 
+                        self.stdout.write("singleton edition not moved")
             else:
-                print "no ISBN for this work and therefore no new editions"
-        print "Updated Number of singleton Works with language = %s: %s" % (language,models.Work.objects.annotate(num_editions=Count('editions')).filter(num_editions=1, language=language).count() )
+                self.stdout.write("no ISBN for this work and therefore no new editions")
+        self.stdout.write("Updated Number of singleton Works with language = %s: %s" % (
+            language,
+            models.Work.objects.annotate(
+                num_editions=Count('editions')).filter(num_editions=1,language=language).count()
+            )
+        )

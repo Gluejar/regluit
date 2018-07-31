@@ -14,5 +14,5 @@ class Command(BaseCommand):
        for subject in comma_subjects:
             num_commas = len(subject.name.split(','))-1
             if num_commas >2:
-                print subject.name
+                self.stdout.write(subject.name)
                 subject.delete()

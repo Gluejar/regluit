@@ -4,13 +4,14 @@ from regluit.core import bookloader
 
 class Command(BaseCommand):
     help = "load books based on a text file of ISBNs"
-    args = "<filename>"
+    def add_arguments(self, parser):
+        parser.add_argument('filename', nargs='+', help="filename")    
 
     def handle(self, filename, **options):
         for isbn in open(filename):
             isbn = isbn.strip()
             edition = bookloader.add_by_isbn(isbn)
             if edition:
-                print "loaded %s as %s" % (isbn, edition)
+                self.stdout.write("loaded %s as %s" % (isbn, edition))
             else:
-                print "failed to load book for %s" % isbn
+                self.stdout.write("failed to load book for %s" % isbn)

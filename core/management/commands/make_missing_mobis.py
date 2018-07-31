@@ -28,9 +28,9 @@ class Command(BaseCommand):
                     ebf = ebook.get_archive_ebf()
                     if ebf and ebf.mobied >= 0:
                         try:
-                            print u'making mobi for {}'.format(work.title)
+                            self.stdout.write(u'making mobi for {}'.format(work.title))
                             if ebf.make_mobi():
-                                print 'made mobi'
+                                self.stdout.write('made mobi')
                                 i += 1
                                 break
                             else:

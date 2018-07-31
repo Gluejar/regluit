@@ -36,7 +36,7 @@ def calc_problem_ebooks():
         if status_code <> 302:
             non302statuscode_count += 1
             
-        print ("\r", i, ebook.url, status_code, non302statuscode_count, end="")
+        self.stdout.write("\r", i, ebook.url, status_code, non302statuscode_count, end="")
         sys.stdout.flush()
 
         results.append(
@@ -56,15 +56,15 @@ class Command(BaseCommand):
     def handle(self, **options):
 
         problem_ebooks = calc_problem_ebooks()
-        print ("number of problem ebooks", len(problem_ebooks))
+        self.stdout.write("number of problem ebooks", len(problem_ebooks))
 
         # deactivate problem ebooks
         for (i, result) in enumerate(problem_ebooks):
             ebook = Ebook.objects.get(id=result['id'])
-            print ("\r", "deactivating ", i, ebook.id, end="")
+            self.stdout.write("\r", "deactivating ", i, ebook.id, end="")
             ebook.deactivate()
 
         # reload repos
         for (i, repo_name) in enumerate(set([repo_name_from_url(ebook['url']) for ebook in problem_ebooks])):
-            print ("reloading ", repo_name)
+            self.stdout.write("reloading ", repo_name)
             load_from_yaml(yaml_url(repo_name))

@@ -15,4 +15,4 @@ class Command(BaseCommand):
                 work.delete()
                 deleted=deleted+1
             numworks=numworks+1
-        print "%s deleted from %s total" % (deleted, numworks)
+        self.stdout.write("%s deleted from %s total" % (deleted, numworks))

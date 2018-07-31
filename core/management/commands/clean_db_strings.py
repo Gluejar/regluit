@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 from django.core.management.base import BaseCommand
 from django.db import IntegrityError
 
@@ -22,14 +20,14 @@ class Command(BaseCommand):
                 work.description = remove_badxml(work.description)
                 work.save()
                 work_descriptions_fixed +=1
-        print ("work_titles_fixed = {}".format(work_titles_fixed))
-        print ("work_descriptions_fixed = {}".format(work_descriptions_fixed))
+        self.stdout.write("work_titles_fixed = {}".format(work_titles_fixed))
+        self.stdout.write("work_descriptions_fixed = {}".format(work_descriptions_fixed))
         for edition in models.Edition.objects.all():
             if sanitize_line(edition.title) != edition.title:
                 edition.title = sanitize_line(edition.title)
                 edition.save()
                 edition_titles_fixed +=1
-        print ("edition_titles_fixed = {}".format(edition_titles_fixed))
+        self.stdout.write("edition_titles_fixed = {}".format(edition_titles_fixed))
         for author in models.Author.objects.all():
             if sanitize_line(author.name) != author.name:
                 author.name = sanitize_line(author.name)
@@ -43,7 +41,7 @@ class Command(BaseCommand):
                         relator.save()
                     author.delete() 
                 author_names_fixed +=1
-        print ("author_names_fixed = {}".format(author_names_fixed))
+        self.stdout.write("author_names_fixed = {}".format(author_names_fixed))
         for publishername in models.PublisherName.objects.all():
             if sanitize_line(publishername.name) != publishername.name:
                 publishername.name = sanitize_line(publishername.name)
@@ -60,4 +58,4 @@ class Command(BaseCommand):
                         publisher.save()
                     publishername.delete() 
                 publisher_names_fixed +=1
-        print ("publisher_names_fixed = {}".format(publisher_names_fixed))
+        self.stdout.write("publisher_names_fixed = {}".format(publisher_names_fixed))
