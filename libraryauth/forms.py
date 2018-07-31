@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
-from registration.forms import RegistrationForm
+from registration.forms import RegistrationFormUniqueEmail
 from .emailcheck import is_disposable
 from .models import Library
 
@@ -49,16 +49,17 @@ class UserNamePass(UserData):
             raise forms.ValidationError(_("The two passwords don't match."))
         return password2
 
-class RegistrationFormNoDisposableEmail(RegistrationForm):
+class RegistrationFormNoDisposableEmail(RegistrationFormUniqueEmail):
     def clean_email(self):
         """
         Check the supplied email address against a list of known disposable
         webmail domains.
         """
+        cleaned_email = super(RegistrationFormNoDisposableEmail, self).clean_email()
         logger.info('cleaning email')
-        if is_disposable(self.cleaned_data['email']):
+        if is_disposable(cleaned_email):
             raise forms.ValidationError(_("Please supply a permanent email address."))
-        return self.cleaned_data['email']
+        return cleaned_email
 
 class SocialAwarePasswordResetForm(PasswordResetForm):
     def get_users(self, email):
