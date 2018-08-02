@@ -7,6 +7,9 @@ from os.path import dirname, realpath, join
 import regluit
 from regluit.payment.parameters import PAYMENT_HOST_PAYPAL, PAYMENT_HOST_AMAZON
 
+from regluit.utils import custom_logging
+import logging.handlers
+logging.handlers.GroupWriteRotatingFileHandler = custom_logging.GroupWriteRotatingFileHandler
 
 PROJECT_DIR = dirname(dirname(realpath(__file__)))
 
@@ -213,7 +216,7 @@ LOGGING = {
         },
         'file': {
             'level': 'INFO',
-            'class': 'logging.handlers.RotatingFileHandler',
+            'class': 'logging.handlers.GroupWriteRotatingFileHandler',
             'filename': join(PROJECT_DIR, 'logs', 'unglue.it.log'),
             'maxBytes': 1024*1024*5, # 5 MB
             'backupCount': 5,
