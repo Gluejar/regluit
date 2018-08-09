@@ -72,10 +72,14 @@ class SpringerScraper(BaseScraper):
         value = ''
         if el:
             value = el.text.strip()
-            if value:
-                value = value.replace('\n', ': ', 1)
-                self.set('title', value)
-        if not value:
+        else:
+            el =  self.doc.select_one('.page-title')
+            if el:
+                value = el.text.strip()
+        if value:
+            value = value.replace('\n', ': ', 1)
+            self.set('title', value)
+        else:
             super(SpringerScraper, self).get_title()
 
     def get_role(self):
