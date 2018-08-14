@@ -49,7 +49,7 @@ def create_user_objects(sender, created, instance, **kwargs):
             if created:
                 Wishlist.objects.create(user=instance)
                 profile = UserProfile.objects.create(user=instance)
-                if hasattr(instance, 'social_auth'):
+                if instance.social_auth.exists():
                     instance.profile.ml_subscribe()
         except DatabaseError:
             # this can happen when creating superuser during syncdb since the
