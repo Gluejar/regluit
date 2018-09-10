@@ -1103,7 +1103,7 @@ def ebooks_in_github_release(repo_owner, repo_name, tag, token=None):
     release = release_from_tag(repo, tag)
 
     return [(EBOOK_FORMATS.get(asset.content_type), asset.name)
-            for asset in release.iter_assets()
+            for asset in release.assets()
             if EBOOK_FORMATS.get(asset.content_type) is not None]
 
 def add_from_bookdatas(bookdatas):
