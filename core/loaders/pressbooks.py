@@ -5,7 +5,9 @@ from . import BaseScraper
 class PressbooksScraper(BaseScraper):
     can_scrape_hosts = [
         'bookkernel.com', 'milnepublishing.geneseo.edu', 'press.rebus.community', 'pb.unizin.org', 
-        'opentext.wsu.edu', 'oer.missouriwestern.edu', 'eskript.ethz.ch', 'opentext.lib.vt.edu',]
+        'opentext.wsu.edu', 'oer.missouriwestern.edu', 'eskript.ethz.ch', 'opentext.lib.vt.edu',
+        'opentextbc.ca',
+    ]
     can_scrape_strings = ['pressbooks']
 
     def get_downloads(self):
