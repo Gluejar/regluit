@@ -1,5 +1,7 @@
 Django==1.11.14
 Fabric==1.6.0
+GitPython>=2.1.8
+Jinja2>=2.7
 MySQL-python==1.2.5
 Pillow==3.4.2
 PyJWT==1.4.1
@@ -8,6 +10,7 @@ PyGithub==1.15.0
 PyYAML==3.11
 amqp==1.4.9
 anyjson==0.3.3
+appdirs==1.4.0
 billiard==3.3.0.23
 awscli==1.15.33
 boto==2.48.0
@@ -18,6 +21,7 @@ chardet==3.0.4
 # pip installing pillow seems to delete distribute
 # but having distribute in requirements starting to cause problems
 # distribute==0.6.28
+docopt>=0.6
 django-celery==3.2.2
 django-ckeditor==5.6.1
 #django-email-change==0.2.3
@@ -40,10 +44,8 @@ django-tastypie==0.14.1
 git+git://github.com/resulto/django-transmeta.git@ad4d7278ba330dcf8c8446f8ae9b2c769ae8684e
 #fef-questionnaire==4.0.1
 git+git://github.com/EbookFoundation/fef-questionnaire.git@8c3b630eb6171fe9242bf0d3b456dc41de958006
-#gitenberg.metadata==0.1.6
-git+git://github.com/gitenberg-dev/gitberg-build.git@61a5fb0011e1a547b1eac14dd845ce37dbb5f85a
-#git+ssh://git@github.com/gitenberg-dev/metadata.git@0.1.11
-github3.py==0.9.5
+gitberg==0.4.2
+github3.py>=1.0.0
 html5lib==1.0.1
 httplib2==0.11.3
 isodate==0.5.1
@@ -60,10 +62,11 @@ pandas==0.19.1
 paramiko==1.14.1
 mailchimp3==3.0.4
 pycrypto==2.6
-pymarc==3.0.2
+pyepub==0.3.2
+pymarc==3.0.3
 pyoai==2.5.0
-pyparsing==2.0.3
-python-dateutil==2.5.3
+pyparsing==2.1.10
+python-dateutil>=2.6.0
 python-mimeparse==0.1.4
 python-openid==2.2.5
 social-auth-core==1.7.0
@@ -77,19 +80,26 @@ requests==2.18.4
 requests-mock==1.2.0
 requests-oauthlib==0.6.2
 selenium==2.53.1
+semver==2.2.0
+sh>=1
 six==1.11.0
 sorl-thumbnail==12.3
+SPARQLWrapper==1.6.4
 ssh==1.7.14
 stevedore==1.12.0
 stripe==1.9.1
+tox>=2.5.0
+uritemplate.py>=0.3.0
 virtualenv==1.4.9
 # virtualenv-clone==0.2.4 not sure why I have this in my env
 #virtualenvwrapper==3.6
 wsgiref==0.1.2
 xhtml2pdf==0.2.2
 webencodings==0.5.1
+wikipedia==1.4.0
 #for urllib3 secure
-cffi==1.7.0
+cffi>=1.9.1
+cairocffi==0.8.0
 cryptography==2.2.2
 enum34==1.1.6
 idna==2.6
@@ -97,7 +107,7 @@ ipaddress==1.0.16
 ndg-httpsclient==0.5.1
 pyOpenSSL==18.0.0
 pyasn1==0.1.9
-pycparser==2.14
+pycparser>=2.17
 setuptools==25.0.0
 urllib3==1.22
 beautifulsoup4==4.6.0
