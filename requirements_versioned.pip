@@ -106,7 +106,7 @@ idna==2.6
 ipaddress==1.0.16
 ndg-httpsclient==0.5.1
 pyOpenSSL==18.0.0
-pyasn1==0.1.9
+pyasn1>=0.4.2
 pycparser>=2.17
 setuptools==25.0.0
 urllib3==1.22
