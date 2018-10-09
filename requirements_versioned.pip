@@ -44,7 +44,7 @@ django-tastypie==0.14.1
 git+git://github.com/resulto/django-transmeta.git@ad4d7278ba330dcf8c8446f8ae9b2c769ae8684e
 #fef-questionnaire==4.0.1
 git+git://github.com/EbookFoundation/fef-questionnaire.git@8c3b630eb6171fe9242bf0d3b456dc41de958006
-gitberg==0.4.2
+gitberg==0.5.2
 github3.py>=1.0.0
 html5lib==1.0.1
 httplib2==0.11.3
@@ -71,7 +71,7 @@ python-mimeparse==0.1.4
 python-openid==2.2.5
 social-auth-core==1.7.0
 social-auth-app-django==2.1.0
-pytz==2016.6.1
+pytz>=2016.6.1
 rdflib==4.2.0
 rdflib-jsonld==0.3
 redis==2.10.3
@@ -90,7 +90,7 @@ stevedore==1.12.0
 stripe==1.9.1
 tox>=2.5.0
 uritemplate.py>=0.3.0
-virtualenv==1.4.9
+virtualenv>=1.4.9
 # virtualenv-clone==0.2.4 not sure why I have this in my env
 #virtualenvwrapper==3.6
 wsgiref==0.1.2
@@ -106,7 +106,7 @@ idna==2.6
 ipaddress==1.0.16
 ndg-httpsclient==0.5.1
 pyOpenSSL==18.0.0
-pyasn1==0.1.9
+pyasn1>=0.4.2
 pycparser>=2.17
 setuptools==25.0.0
 urllib3==1.22
