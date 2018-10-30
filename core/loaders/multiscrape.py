@@ -27,19 +27,21 @@ class BaseMultiScraper(BaseScraper):
         if not self.metadata.get('title', None):
             self.set('title', '!!! missing title !!!')
         self.metadata['identifiers'] = self.identifiers
+        
+    @classmethod
+    def divider(cls, doc):
+        return doc
 
 def multiscrape(url, divider, scraper_class=BaseMultiScraper):
-    try:
-        response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
+    if not divider:
+        divider = scraper_class.divider
+    response = scraper_class.get_response(url)
+    if response:
         if response.status_code == 200:
-            doc = BeautifulSoup(response.content, 'lxml')
+            doc = BeautifulSoup(response.content, scraper_class.parser_name)
             sections = divider(doc)
             for section in sections:
                 yield scraper_class(url, section)
-    except requests.exceptions.RequestException as e:
-        logger.error(e)
-        self.metadata = None
-
 
 # following is code specific to edp-open.org; refactor when we add another
 
@@ -48,6 +50,10 @@ def divider(doc):
 
 ISBNMATCH = re.compile(r'([\d\-]+)')
 class EDPMultiScraper(BaseMultiScraper):
+    @classmethod
+    def divider(cls, doc):
+        return doc.select('article.Bk')
+
     def get_isbns(self):
         '''return a dict of edition keys and ISBNs'''
         isbns = {}
@@ -90,6 +96,6 @@ def edp_scrape():
         'https://www.edp-open.org/books-in-english',
     ]
     for url in edp_urls:
-        scrapers = multiscrape(url, divider, scraper_class=EDPMultiScraper)
+        scrapers = multiscrape(url, None , scraper_class=EDPMultiScraper)
         add_from_bookdatas(scrapers)
 

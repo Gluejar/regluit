@@ -27,6 +27,8 @@ class BaseScraper(object):
     '''
     can_scrape_hosts = False
     can_scrape_strings = False
+    parser_name = 'lxml'
+
     @classmethod
     def can_scrape(cls, url):
         ''' return True if the class can scrape the URL '''
@@ -44,16 +46,23 @@ class BaseScraper(object):
                     return True
         return False
 
+    @classmethod
+    def get_response(cls, url):
+        try:
+            return requests.get(url, headers={"User-Agent": settings.USER_AGENT})
+        except requests.exceptions.RequestException as e:
+            logger.error(e)
+
     def __init__(self, url):
         self.metadata = {}
         self.identifiers = {'http': url}
         self.doc = None
         self.base = url
-        try:
-            response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
+        response = type(self).get_response(url)
+        if response:
             if response.status_code == 200:
                 self.base = response.url
-                self.doc = BeautifulSoup(response.content, 'lxml')
+                self.doc = BeautifulSoup(response.content, self.parser_name)
                 for review in self.doc.find_all(itemtype="http://schema.org/Review"):
                     review.clear()
                 self.get_all()
@@ -61,8 +70,7 @@ class BaseScraper(object):
                 self.set('title', '!!! missing title !!!')
             if not self.metadata.get('language', None):
                 self.set('language', 'en')
-        except requests.exceptions.RequestException as e:
-            logger.error(e)
+        else:
             self.metadata = {}
         self.metadata['identifiers'] = self.identifiers
 
