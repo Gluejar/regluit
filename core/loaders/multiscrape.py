@@ -18,6 +18,7 @@ returns an iterator of scrapers
 '''
         
 class BaseMultiScraper(BaseScraper):
+    parser = 'lxml'
     def __init__(self, url, doc):
         self.metadata = {}
         self.identifiers = {'http': url}
@@ -27,26 +28,26 @@ class BaseMultiScraper(BaseScraper):
         if not self.metadata.get('title', None):
             self.set('title', '!!! missing title !!!')
         self.metadata['identifiers'] = self.identifiers
-        
-    @classmethod
-    def divider(cls, doc):
-        return doc
 
-def multiscrape(url, divider, scraper_class=BaseMultiScraper):
-    if not divider:
-        divider = scraper_class.divider
-    response = scraper_class.get_response(url)
-    if response:
+    @classmethod
+    def login(cls):
+        return requests
+
+def multiscrape(url, scraper_class=BaseMultiScraper):
+    try:
+        response = scraper_class.login().get(url, headers={"User-Agent": settings.USER_AGENT})
         if response.status_code == 200:
-            doc = BeautifulSoup(response.content, scraper_class.parser_name)
-            sections = divider(doc)
+            doc = BeautifulSoup(response.content, BaseMultiScraper.parser)
+            sections = scraper_class.divider(doc)
             for section in sections:
                 yield scraper_class(url, section)
+    except requests.exceptions.RequestException as e:
+        logger.error(e)
+        self.metadata = None
+
 
 # following is code specific to edp-open.org; refactor when we add another
 
-def divider(doc):
-    return doc.select('article.Bk')
 
 ISBNMATCH = re.compile(r'([\d\-]+)')
 class EDPMultiScraper(BaseMultiScraper):
@@ -96,6 +97,6 @@ def edp_scrape():
         'https://www.edp-open.org/books-in-english',
     ]
     for url in edp_urls:
-        scrapers = multiscrape(url, None , scraper_class=EDPMultiScraper)
+        scrapers = multiscrape(url, scraper_class=EDPMultiScraper)
         add_from_bookdatas(scrapers)
 
