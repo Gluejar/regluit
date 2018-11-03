@@ -12,11 +12,8 @@
 
 
 {% block extra_css %}
-<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/home.scss' %}" />
-<!--
 <link type="text/css" rel="stylesheet" href="{% sass_src 'scss/landingpage4.scss' %}"  />
-<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/searchandbrowse2.scss' %}"  /> -->
-
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/searchandbrowse2.scss' %}"  />
 <link type="text/css" rel="stylesheet" href="{% sass_src 'scss/book_panel2.scss' %}"  />
 {% endblock %}
 {% block extra_js %}
@@ -24,19 +21,20 @@
 <script type="text/javascript" src="{{ jquery_ui_home }}"></script>
 <!-- toggle to panelview state instead of listview default -->
 <script type="text/javascript">
-
-jQuery(document).ready(function($) {
+    
+jQuery(document).ready(function($) { 
     $('.listview').addClass("panelview").removeClass("listview");
-});
+});  
 var $j = jQuery.noConflict();
 function put_un_in_cookie2(){
     $j.cookie('un', $j('#id_username_main').val(), {path: '/', expires: 90 });
     return true;
 }
-</script>
+</script>    
 
 <script type="text/javascript" src="/static/js/definitions.js"></script>
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
+<script type="text/javascript" src="/static/js/greenpanel.js"></script>
 <script type="text/javascript" src="/static/js/highlight_signup.js"></script>
 <script type="text/javascript" src="/static/js/expand.js"></script>
 <meta name="google-site-verification" content="wFZncBw5tNpwRVyR08NZFNr7WXqv5X1BkEga2fpUNOo" />
@@ -45,10 +43,10 @@ function put_un_in_cookie2(){
 {% block topsection %}
 {% include "learn_more.html" %}
 {% endblock %}
-
+    
 {% block content %}
     <div id="main-container" class="main-container-fl">
-    <div class="js-main-container" id="content-block">
+    <div class="js-main" id="content-block">
         <div id="js-maincol-fl">
         	<div id="js-main-container">
                 <h3 class="featured_books">Today's Featured Free eBook</h3>
@@ -69,7 +67,7 @@ function put_un_in_cookie2(){
                             </div>
                             </div>
                             <div class="book-detail-info" style="float:left;">
-                                <div  style="float: left;">
+                                <div  style="width: 520px;float: left;">
                                 <div  class="book-name" style="font-size:larger; margin-bottom:10px"><a href="{% url 'work' featured.id %}">{{ work.title }}</a></div>
                                 <div>
                                     <div class="pubinfo">
@@ -79,13 +77,13 @@ function put_un_in_cookie2(){
                                         {% endif %}{% if work.relators.count > 2 %}{% for author in work.relators %}{% if not forloop.first %}, <span>{{ author.name }}</span>{% endif %}{% endfor %}
                                         {% endif %}
                                         </div>
-                                        <div class="book-year">
+                                        <div class="book-year"> 
                                             {% if work.last_campaign.publisher %}
                                             <span><a href="{% url 'bypubname_list' work.last_campaign.publisher.name.id %}">{{ work.last_campaign.publisher }}</a></span>
                                             {% endif %}
                                             <span>{{ work.publication_date }}</span>
                                         </div>
-                                        <div class="book-description" style="max-height:200px;"> {{ work.description|safe }}</div>
+                                        <div class="book-description" style="max-height:200px;overflow:scroll"> {{ work.description|safe }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -96,94 +94,76 @@ function put_un_in_cookie2(){
                     <div class="spacer"></div>
                     <h3 class="featured_books">Your Recent Faves</h3>
                     <div>
-                        <div class="book_container">
-                            {% for work in faves %}
-                                {% with work.googlebooks_id as googlebooks_id %}
-                                    {% include "book_panel.html" %}
-                                {% endwith %}
-                            {% endfor %}
-                            <a class="more_featured_books" href="{% url 'supporter' request.user %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
-                        </div>
-                        <a class="more_featured_books_mobile button success" href="{% url 'supporter' request.user %}">See More</a>
+                        {% for work in faves %}
+                            {% with work.googlebooks_id as googlebooks_id %}
+                                {% include "book_panel.html" %}
+                            {% endwith %}
+                        {% endfor %}
+                        <a class="more_featured_books" href="{% url 'supporter' request.user %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
                     </div>
-
+                    
         	    {% endif %}
         	    {% if top_pledge %}
                     <div class="spacer"></div>
                     <h3 class="featured_books">Pledge to Make These eBooks Free</h3>
-                    <div class="book-list">
-                        <div class="book_container">
-                            {% for campaign in top_pledge %}
-                                {% with campaign.work as work %}
-                                {% with work.googlebooks_id as googlebooks_id %}
-                                    {% include "book_panel.html" %}
-                                {% endwith %}{% endwith %}
-                            {% endfor %}
-                            <a class="more_featured_books" href="{% url 'campaign_list' 'pledge' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
-                        </div>
+                    <div>
+                        {% for campaign in top_pledge %}
+                            {% with campaign.work as work %}
+                            {% with work.googlebooks_id as googlebooks_id %}
+                                {% include "book_panel.html" %}
+                            {% endwith %}{% endwith %}
+                        {% endfor %}
+                        <a class="more_featured_books" href="{% url 'campaign_list' 'pledge' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
                     </div>
-                    <a class="more_featured_books_mobile button success" href="{% url 'campaign_list' 'pledge' %}">See More</a>
                 {% endif %}
                 <div class="spacer"></div>
         	    <h3 class="featured_books">Read These Free Licensed eBooks</h3>
-        	    <div class="book-list">
-                    <div class="book_container">
-                        {% for work in cc_books %}
-                            {% with work.googlebooks_id as googlebooks_id %}
-                                {% include "book_panel.html" %}
-                            {% endwith %}
-                        {% endfor %}
-                        <a class="more_featured_books" href="{% url 'cc_list' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
-                    </div>
-                    <a class="button success more_featured_books_mobile" href="{% url 'cc_list' %}">See More</a>
+        	    <div>
+                    {% for work in cc_books %}
+                        {% with work.googlebooks_id as googlebooks_id %}
+                            {% include "book_panel.html" %}
+                        {% endwith %}
+                    {% endfor %}
+                    <a class="more_featured_books" href="{% url 'cc_list' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
                 </div>
                 <div class="spacer"></div>
         	    {% if top_b2u %}
                     <h3 class="featured_books">Buy and Read These eBooks to Make Them Free</h3>
-                    <div class="book-list">
-                        <div class="book_container">
-                            {% for campaign in top_b2u %}
-                                {% with campaign.work as work %}
-                                {% with work.googlebooks_id as googlebooks_id %}
-                                    {% include "book_panel.html" %}
-                                {% endwith %}{% endwith %}
-                            {% endfor %}
-                            <a class="more_featured_books" href="{% url 'campaign_list' 'b2u' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
-                        </div>
+                    <div>
+                        {% for campaign in top_b2u %}
+                            {% with campaign.work as work %}
+                            {% with work.googlebooks_id as googlebooks_id %}
+                                {% include "book_panel.html" %}
+                            {% endwith %}{% endwith %}
+                        {% endfor %}
+                        <a class="more_featured_books" href="{% url 'campaign_list' 'b2u' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
                     </div>
-                    <a class="more_featured_books_mobile button success" href="{% url 'campaign_list' 'b2u' %}">See More</a>
                 {% endif %}
                 <div class="spacer"></div>
         	    {% if top_t4u %}
                     <h3 class="featured_books">Read These Free eBooks and Thank the Creators</h3>
-                    <div class="book-list">
-                        <div class="book_container">
-                            {% for campaign in top_t4u %}
-                                {% with campaign.work as work %}
-                                {% with work.googlebooks_id as googlebooks_id %}
-                                    {% include "book_panel.html" %}
-                                {% endwith %}{% endwith %}
-                            {% endfor %}
-                            <a class="more_featured_books" href="{% url 'campaign_list' 't4u' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
-                        </div>
+                    <div>
+                        {% for campaign in top_t4u %}
+                            {% with campaign.work as work %}
+                            {% with work.googlebooks_id as googlebooks_id %}
+                                {% include "book_panel.html" %}
+                            {% endwith %}{% endwith %}
+                        {% endfor %}
+                        <a class="more_featured_books" href="{% url 'campaign_list' 't4u' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
                     </div>
-                    <a class="more_featured_books_mobile button success" href="{% url 'campaign_list' 't4u' %}">See More</a>
                 {% endif %}
                 <div class="spacer"></div>
         	    <h3 class="featured_books">Read These Unglued eBooks - You've Made Them Free</h3>
-        	    <div class="book-list">
-                    <div class="book_container">
-                        {% for work in unglued_books %}
-                            {% with work.googlebooks_id as googlebooks_id %}
-                                {% include "book_panel.html" %}
-                            {% endwith %}
-                        {% endfor %}
-                        <a class="more_featured_books" href="{% url 'campaign_list' 'unglued' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
-                    </div>
+        	    <div>
+                    {% for work in unglued_books %}
+                        {% with work.googlebooks_id as googlebooks_id %}
+                            {% include "book_panel.html" %}
+                        {% endwith %}
+                    {% endfor %}
+                    <a class="more_featured_books" href="{% url 'campaign_list' 'unglued' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
                 </div>
-                <a class="more_featured_books_mobile button success" href="{% url 'campaign_list' 'unglued' %}">See More</a>
                 <div class="spacer"></div>
-
+        	        	
             </div>
             <div id="js-rightcol">
             <div class="js-rightcol-padd">
@@ -208,7 +188,7 @@ function put_un_in_cookie2(){
                             <label>Password (again):</label>
                             <input id="id_password2_main" type="password" class="required" name="password2" size="30" />
                             </div>
-                            <div class="sidebar_button">
+                            <div class="button">
                                 <input type="submit" class="signup" value="Sign Up Now"  onclick="this.disabled=true,this.form.submit();" />
                             </div>
                             <div class="google_signup" style="padding-bottom: 10px;">
@@ -221,27 +201,32 @@ function put_un_in_cookie2(){
                         </div>
                     </div>
                 {% endif %}
-
                 <div class="jsmodule">
-                    <h3 class="module-title">Donate!</h3>
+                	<h3 class="module-title">Donate!</h3>
                     <div class="jsmod-content">
-
-                        <div>Please help support Unglue.it by making a tax-deductible donation to the Free Ebook Foundation.</div>
-                        <form class="askform" method="POST" action="{% url 'newdonation' %}">
-                            <div class="donate_amount">
-                            <label>Amount ($): </label><input id="amount" max="20000.00" min="1.00" name="amount" step="0.01" type="number" value="10.00" class="donate"></div>
-                            <div class="sidebar_button">
-                                <input name="pledge" type="submit" value="Donate" id="donatesubmit" class="donate" />
-                            </div>
-                        </form>
+                                 <div>Please help support Unglue.it by making a tax-deductible donation to the Free Ebook Foundation.</div>
+            <form class="askform" method="POST" action="{% url 'newdonation' %}">                
+                    <div class="donate_amount">
+                    <label>Amount ($): </label><input id="amount" max="20000.00" min="1.00" name="amount" step="0.01" type="number" value="10.00" class="donate"></div>
+                    <div class="button">
+                        <input name="pledge" type="submit" value="Donate" id="donatesubmit" class="donate" />
+                    </div>
+                    
+            </form> 
 
                     </div>
                 </div>
-                 <div class="jsmodule latest-ungluing">
-                    <h3 class="module-title">Latest Ungluing</h3>
+                <div class="jsmodule">
+                	<h3 class="module-title">News</h3>
                     <div class="jsmod-content">
-                        <ul class="ungluingwhat">
-                        {% for event in events %}
+                     <a href="https://blog.unglue.it/2018/10/29/57000-free-gitenberg-ebooks-are-now-in-unglue-it/">57,000 free GITenberg ebooks are now in Unglue.it</a>
+                    </div>
+                </div>
+                <div class="jsmodule">
+                	<h3 class="module-title">Latest Ungluing</h3>
+                    <div class="jsmod-content">
+						<ul class="ungluingwhat">
+						{% for event in events %}
                             {% comment %}
                                 events are tuples of date, object, and string representing object type
                             {% endcomment %}
@@ -250,22 +235,22 @@ function put_un_in_cookie2(){
                                     {% if event.2 == "pledge" %}
                                         {% if object.user%}
                                         <span class="user-avatar">
-                                            <a href="{% url 'supporter' object.user.username %}"><img src="{{ object.user.profile.avatar_url }}" title="{{ object.user.username }}" alt="Avatar for {{ object.user.username }}" /></a>
+                                            <a href="{% url 'supporter' object.user.username %}"><img src="{{ object.user.profile.avatar_url }}" width="43" height="43" title="{{ object.user.username }}" alt="Avatar for {{ object.user.username }}" /></a>
                                         </span>
                                         <span class="user-book-info">
                                             <a href="{% url 'supporter' object.user.username %}">{{ object.user.username }}</a><br />
                                             {% if object.campaign.type == 1 %}
-                                                pledged to unglue
+                                                pledged to unglue 
                                             {% elif object.campaign.type == 2 %}
-                                                bought a copy of
+                                                bought a copy of 
                                             {% elif object.campaign.type == 3 %}
-                                                supported
+                                                supported 
                                             {% endif %}<br />
                                             <a class="user-book-name" href="{% url 'work' object.campaign.work_id %}">{{ object.campaign.work.title }}</a>
                                         </span>
                                         {% else %}
                                         <span class="user-avatar">
-                                            <img src="/static/images/header/anonuser.png" title="Anonymous User" alt="Avatar for Anonymous User" />
+                                            <img src="/static/images/header/anonuser.png" width="43" height="43" title="Anonymous User" alt="Avatar for Anonymous User" />
                                         </span>
                                         <span class="user-book-info">
                                             Anonymous User<br />
@@ -275,22 +260,22 @@ function put_un_in_cookie2(){
                                         {% endif %}
                                     {% elif event.2 == "comment" %}
                                         <span class="user-avatar">
-                                            <a href="{% url 'supporter' object.user.username %}"><img src="{{ object.user.profile.avatar_url }}"  title="{{ object.user.username }}" alt="Avatar for {{ object.user.username }}" /></a>
+                                            <a href="{% url 'supporter' object.user.username %}"><img src="{{ object.user.profile.avatar_url }}" width="43" height="43" title="{{ object.user.username }}" alt="Avatar for {{ object.user.username }}" /></a>
                                         </span>
                                         <span class="user-book-info">
                                             <a href="{% url 'supporter' object.user.username %}">{{ object.user.username }}</a><br />
                                             commented on<br />
                                             <a class="user-book-name" href="{% url 'work' object.content_object.id %}?tab=2">{{ object.content_object.title }}</a>
-                                        </span>
+                                        </span>                                    
                                     {% elif event.2 == "wish" %}
                                         <span class="user-avatar">
-                                            <a href="{% url 'supporter' object.wishlist.user.username %}"><img src="{{ object.wishlist.user.profile.avatar_url }}" title="{{ object.wishlist.user.username }}" alt="Avatar for {{ object.wishlist.user.username }}" /></a>
+                                            <a href="{% url 'supporter' object.wishlist.user.username %}"><img src="{{ object.wishlist.user.profile.avatar_url }}" width="43" height="43" title="{{ object.wishlist.user.username }}" alt="Avatar for {{ object.wishlist.user.username }}" /></a>
                                         </span>
                                         <span class="user-book-info">
                                             <a href="{% url 'supporter' object.wishlist.user.username %}">{{ object.wishlist.user.username }}</a><br />
                                             faved<br />
                                             <a class="user-book-name" href="{% url 'work' object.work_id %}">{{ object.work.title }}</a>
-                                        </span>
+                                        </span>                                    
                                     {% endif %}
                                 {% endwith %}
                             </li>
@@ -299,12 +284,25 @@ function put_un_in_cookie2(){
                     </div>
                 </div>
                 <div class="jsmodule">
-                    <h3 class="module-title">Questions?</h3>
+                <h3 class="module-title">Questions?</h3>
                     <div id="jsmod-content">
                              Read our <a href="/faq/">general FAQ</a> or <a href="/faq/rightsholders/">Author/Publisher FAQ</a>.
                     </div>
                 </div>
             </div>
+            </div>
+    
+            <h3 class="featured_books">As seen on</h3>
+            <ul id="as_seen_on">
+                <li><a href="http://boingboing.net/2012/06/28/release-a-deadly-monster-a-dr.html"><img alt="boingboing" src="{{ STATIC_URL }}images/press_logos/boingboing_logo.png"></a></li>
+                <li><a href="http://www.zeit.de/digital/internet/2012-07/unglue-ebook-creative-commons"><img alt="die zeit" src="{{ STATIC_URL }}images/press_logos/die_zeit_logo.png"></a></li>
+                <li><a href="http://www.huffingtonpost.com/2012/05/21/unglueit-free-ebooks-crowdfunding_n_1532644.html"><img alt="huffington post" src="{{ STATIC_URL }}images/press_logos/huffington_post_logo.png"></a></li>
+                <li><a href="http://techcrunch.com/2014/05/06/unglue-it-sets-books-free-after-authors-get-paid/"><img alt="techcrunch" src="{{ STATIC_URL }}images/press_logos/techcrunch_logo.png"></a></li>
+                <li><a href="http://www.thedigitalshift.com/2014/02/ebooks/buy-unglue-ebook-crowdfunding-model-goes-beta/"><img alt="library journal" src="{{ STATIC_URL }}images/press_logos/library_journal_logo.png"></a></li>
+                <li><a href="http://www.networkworld.com/community/node/85329"><img alt="networkworld" src="{{ STATIC_URL }}images/press_logos/networkworld_logo.png"></a></li>
+            </ul>
+            <div class="speech_bubble"><span>For readers it’s a gold mine of great books they can have a say in bringing to market.</span></div>
+    
         </div>
     </div>
     </div>

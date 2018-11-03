@@ -190,15 +190,14 @@ span.grey {
 }
 
 /* switch to/from hover state when jquery swaps class names */
+
+div.panelview.side1  {
+	display: visible;
+}
+
 div.panelview.side2  {
-	visibility: hidden;
+	display: none;
 }
-
-div.panelview:hover .side2 {
-    visibility: visible !important;
-    z-index: 1;
-}
-
 
 /* styling of hover state */
 .panelback {

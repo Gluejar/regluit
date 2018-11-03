@@ -2,31 +2,18 @@
 
 
 {% block title %}Welcome to Unglue.It{% endblock %}
-{% block extra_css %}
-<style>
- #header #header-search-bar { visibility: hidden; }
-</style>
-{% endblock %}
 {% block doccontent %}
-
-<div class="registration">
-    <div class="registration-content">
-
-        <h1>Welcome, {{user.username}}!</h1>
-        <h2>
-            <label>Search and add free-licenced books! </label>
-        </h2>
-        <div id="header-search-bar">
-            <form action="{% url 'search' %}" method="get">
-                <input role="search" type="text" placeholder="Search" id="welcomesearch" size="25" onfocus="imgfocus()" onblur="imgblur(15)" class="inputbox" name="q" value="{{ q }}"></input>
-                <i class="fa fa-search"></i>
-            </form>
-        </div>
-        <br />
-        <div class="welcomealternatives">
-            Or you can <a href="{% url 'edit_user' %}">change your username</a> &#151; <a href="{% url 'work_list' 'popular' %}">see the site's favorite books</a>   &#151; <a href="{% url 'feedback' %}">send us feedback</a> &#151; <a href="{% url 'notification_notice_settings' %}">manage your contact preferences</a>
-        </div>
-    </div>
+<div id="welcomesearch">
+<p>Welcome, {{user.username}}!</p><p id="link-to-next"></p>
+                        	<label>Search and add free-licenced books! </label>
+				                <form action="{% url 'search' %}" method="get">
+                				    <input type="text" onfocus="imgfocus()" onblur="imgblur(0)" size="25" class="inputbox" name="q" value="{{ q }}">
+                				    <input type="submit" class="greenbutton" value="Search">
+               					</form>
+</div>
+<br />
+<div class="welcomealternatives">
+Or you can <a href="{% url 'edit_user' %}">change your username</a> &#151; <a href="{% url 'work_list' 'popular' %}">see the site's favorite books</a>   &#151; <a href="{% url 'feedback' %}">send us feedback</a> &#151; <a href="{% url 'notification_notice_settings' %}">manage your contact preferences</a>
 </div>
 {% endblock %}
 

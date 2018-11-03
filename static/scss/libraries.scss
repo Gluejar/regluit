@@ -5,6 +5,12 @@
     text-align: center;
 }
 
+.doc h3 {
+    text-align: center;
+    font-style: italic;
+    margin-bottom: $font-size-larger*2.5;
+}
+
 #widgetcode {
     display: none;
 }

@@ -1,47 +1,40 @@
 {% extends "registration/registration_base.html" %}
 
 {% block title %}Register for an account{% endblock %}
-
 {% block extra_js %}
 {{ block.super }}
 <script type="text/javascript">
- function put_un_in_cookie(){
-     $j.cookie('un', $j('#id_username').val(), {path: '/', expires: 90 });
-     return true;
- }
+function put_un_in_cookie(){
+    $j.cookie('un', $j('#id_username').val(), {path: '/', expires: 90 });
+    return true;
+}
 </script>
 {% endblock %}
-
-
 {% block doccontent %}
 {% if not user.is_authenticated %}
 
 <h3>Sign up for a Unglue.it account:</h3>
 
-<form method='post' action='#' class="p_form" onsubmit="return put_un_in_cookie();">{% csrf_token %}
-    <div>{{ form.username.label }}: {{ form.username.errors }}<br />{{ form.username }}</div>
-    <div>{{ form.email.label }}: {{ form.email.errors }}<br />{{ form.email }}</div>
-    <div>{{ form.password1.label }}: {{ form.password1.errors }}<br />{{ form.password1 }}</div>
-    <div>{{ form.password2.label }}: {{ form.password2.errors }}<br />{{ form.password2 }}</div>
-    <input type="submit" class="button success float-center" value="Send activation email"  onclick="this.disabled=true,this.form.submit();" />
-</form>
+    <form method='post' action='#' class="p_form" onsubmit="return put_un_in_cookie();">{% csrf_token %}
+        <div>{{ form.username.label }}: {{ form.username.errors }}<br />{{ form.username }}</div>
+        <div>{{ form.email.label }}: {{ form.email.errors }}<br />{{ form.email }}</div>
+        <div>{{ form.password1.label }}: {{ form.password1.errors }}<br />{{ form.password1 }}</div>
+        <div>{{ form.password2.label }}: {{ form.password2.errors }}<br />{{ form.password2 }}</div>
+        <input type="submit" value="Send activation email"  onclick="this.disabled=true,this.form.submit();" />
+    </form>
 
 
-<div class="google-signup">
-    <span class="linetext-outer"><span class="linetext-inner" >or</span></span>
-    <a class="btn btn-social btn-google-plus" href="{% url 'social:begin' "google-oauth2" %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}/next/{% endif %}" >
-        <i class="fa fa-google"></i>
-        Sign in with Google
-    </a>
-    <a class="btn btn-social btn-yahoo" href="{% url 'social:begin' "yahoo" %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}/next/{% endif %}" >
-        <i class="fa fa-yahoo"></i>
-        Sign in with Yahoo!
-    </a>
+<div class="google_signup">
+	<h3>...or</h3>
+   <a  class="btn btn-social btn-google-plus" href="{% url 'social:begin' "google-oauth2" %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}/next/{% endif %}" ><i class="fa fa-google"></i>Sign in with Google</a>
+   <a  class="btn btn-social btn-yahoo" href="{% url 'social:begin' "yahoo" %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}/next/{% endif %}" ><i class="fa fa-yahoo"></i>Sign in with Yahoo!</a>
 </div>
 {% else %}
 <div>
-    You are already logged in as <a href="{% url 'supporter' user %}">{{ user.username }}</a>.
+You are already logged in as <a href="{% url 'supporter' user %}">{{ user.username }}</a>.
 </div>
 {% endif %}
+
+</div>
 
 {% endblock %}

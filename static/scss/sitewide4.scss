@@ -2,18 +2,10 @@
 
 @import "variables.scss";
 @import "mixins.scss";
+@import "download.scss";
 @import "buttons.scss";
 @import "bootstrap-social.scss";
-
-/* old */
-
-
-#widgetcode {
-    display: none;
-}
-
-/* endold */
-
+@import "font-awesome.min.css";
 
 @mixin preview()
 {
@@ -216,6 +208,15 @@ h3 {
     }
 }
 
+input[type="submit"], a.fakeinput {
+	background: $call-to-action;
+	color: white;
+	font-weight: bold;
+	padding: 0.5em 1em;
+	cursor: pointer;
+}
+
+
 .loader-gif[disabled="disabled"], .loader-gif.show-loading {
     background: url('/static/images/loading.gif') center no-repeat !important;
 }
@@ -226,7 +227,7 @@ h3 {
 }
 
 .js-main {
-    width: 100%;
+    width:960px;
     margin:0 auto;
     clear:both;
     padding:0;
@@ -234,6 +235,12 @@ h3 {
 
 .bigger {
     font-size: $font-size-larger;
+}
+
+ul.menu{
+    list-style:none;
+    padding:0;
+    margin:0;
 }
 
 .errorlist {
@@ -397,9 +404,29 @@ h3 {
             }
         }
 
+        .unseen_count {
+            border: solid 2px;
+            @include one-border-radius(700px);
+            padding: 3px;
+            line-height: 16px;
+            width: 16px;
+            cursor: pointer;
+            text-align: center;
+
+            &#i_haz_notifications {
+                background-color: $call-to-action;
+                color: white;
+                border-color: white;
+            }
+
+            &#no_notifications_for_you {
+                border-color: $pale-blue;
+                background-color: $pale-blue;
+                color: $text-blue;
+            }
+        }
     }
 }
-
 .btn-signup {
   @include button-variant(#fff, $call-to-action,  $btn-default-border);
 }
@@ -407,45 +434,64 @@ h3 {
   @include button-variant(#fff, $bright-blue, $btn-default-border);
 }
 
-.unseen_count {
-    border: solid 2px;
-    @include one-border-radius(700px);
-    padding: 3px;
-    line-height: 16px;
-    cursor: pointer;
-    text-align: center;
-
-    &#i_haz_notifications {
-        background-color: $call-to-action;
-        color: white;
-        border-color: white;
-    }
-
-    &#no_notifications_for_you {
-        border-color: $pale-blue;
-        background-color: $pale-blue;
-        color: $text-blue;
-    }
-}
-
-.notifications-badge-holder {
-    position: relative;
-}
-
-.notifications-badge {
+#i_haz_notifications_badge {
     @include one-border-radius(700px);
     font-size: $font-size-default;
     border: solid 2px white;
-    position: absolute;
-    top: 0;
-    right: 0;
+    margin-left: -7px;
     margin-top: -10px;
-    margin-right: -10px;
     padding: 3px;
     background: $call-to-action;
     color: white;
     position: absolute;
     line-height: normal;
+}
+
+form.login, #login form {
+    label {
+        display: block;
+        line-height: 20px;
+        font-size: $font-size-larger;
+    }
+
+    input {
+        width: 90%;
+        @include one-border-radius(5px);
+        border: 1px solid $blue-grey;
+        @include height(18px);
+        margin-bottom: 6px;
+
+        &[type=submit] {
+            text-decoration: capitalize;
+            @include actionbuttons;
+        }
+
+        &:focus {
+            border: solid 1px $call-to-action;
+        }
+    }
+
+	input[type="text"], input[type="password"] {
+    	@include height($font-size-default*1.75);
+        margin-bottom: $font-size-default;
+        border-width: 2px;
+	}
+
+	input[type="submit"] {
+	    font-size: $font-size-larger;
+	}
+
+
+    span.helptext {
+        display: block;
+        margin-top: -11px;
+        font-style: italic;
+        font-size: $font-size-default;
+    }
+}
+
+#lightbox_content a.btn {
+    color: #FFF;
 }
 
 .js-search {
@@ -467,6 +513,7 @@ h3 {
         border-right: none;
         @include border-radius(50px, 0, 0, 50px);
         outline: none;
+        // background:url($background-header) -645px -180px;
         @include height(28px);
         width:156px;
         float: left;
@@ -522,6 +569,67 @@ a#readon {
 	margin-left:5px;
 }
 
+/* Explore column */
+#js-leftcol {
+    float:left;
+    width:235px;
+    margin-bottom: 20px;
+
+    a {
+        font-weight:normal;
+
+        &:hover{
+            text-decoration:underline;
+        }
+    }
+
+    .jsmod-content {
+        border: solid 1px $pale-blue;
+        @include border-radius(0, 0, 10px, 10px);
+    }
+
+    ul {
+        &.level1 > li > a, &.level1 > li > span {
+            border-bottom:1px solid $pale-blue;
+            border-top:1px solid $pale-blue;
+            @include utilityheaders;
+            padding:10px;
+        }
+
+        &.level2 li {
+            @include utilitylinks(5px, 20px, $font-size-larger);
+
+            img {
+            	vertical-align: middle;
+            	@include one-border-radius(5px);
+            }
+
+            .ungluer-name {
+				@include height(30px);
+			}
+            &.first {
+                font-size: $font-size-larger;
+                color:$text-blue;
+                padding-left:10px;
+            }
+        }
+        &.level3 li {
+            @include utilitylinks(0px, 20px, $font-size-default);
+            a img.thumbnail {
+                margin-right: 2px;
+                height: 50px;
+                width: 32px;
+            }
+            a span.thumbnail-caption {
+                font-size: $font-size-small;
+                display: inline-block;
+                width: 154px;
+                overflow-y: scroll;
+            }
+        }
+    }
+}
+
 /* Main content area: top */
 #js-topsection {
     padding:15px 0 0 0;
@@ -552,8 +660,14 @@ a#readon {
     margin: 15px 0 0 0;
 }
 
+#js-maincol-fr {
+    float:right;
+    width:725px;
+}
+
 div#content-block {
     overflow:hidden;
+    background:url($background-header) 100% -223px no-repeat;
     padding:0 0 0 7px;
     margin-bottom: 20px;
 
@@ -834,8 +948,36 @@ li.checked {
     }
 }
 
+.one_click {
+    float: left;
+    & > div {
+        float: left;
+
+        #kindle a, .kindle a , #marvin a, .marvin a, #mac_ibooks a, .mac_ibooks a{
+            font-size: $font-size-larger;
+            padding: 9px 0;
+        }
+
+        div {
+            margin: 0 10px 0 0;
+        }
+    }
+}
+
 .ebook_download_container {
     clear: left;
+}
+
+.other_instructions_paragraph {
+    display: none;
+}
+
+#iOS_app_div, #ios_div {
+    /* JS overrides display: none on instructions if it's enabled
+       if JS isn't enabled, they are not on an iOS device, so no need to
+       clutter up the download instructions with this
+    */
+    display: none;
 }
 
 .yes_js {
@@ -847,10 +989,33 @@ li.checked {
     font-size: 15px;
 }
 
+.contrib_amount {
+	padding: 10px;
+	font-size: $font-size-header;
+	text-align: center;
+
+}
 #id_preapproval_amount {
 	width: 50%;
 	line-height: 30px;
 	font-size: $font-size-larger;
+}
+#askblock {
+    float:right;
+    min-width:260px;
+    background: $pale-blue;
+    padding: 10px;
+    width:30%
+}
+.rh_ask {
+	font-size: $font-size-larger;
+	width:65%;
+}
+#contribsubmit {
+	text-align: center;
+	font-size: $font-size-header;
+	margin: 0 0 10px;
+	cursor: pointer;
 }
 #anoncontribbox {
     padding-bottom: 10px;

@@ -1,3 +1,0 @@
-.panelborders{border-width:1px 0px;border-style:solid none;border-color:#FFFFFF}.panelborders{border-width:1px 0px;border-style:solid none;border-color:#FFFFFF}.faq-container{display:flex;flex-direction:column;margin:0 auto;max-width:1024px}.faq-menu{min-width:200px}.faq-main{padding:0 25px;max-width:100vw}.faq-toplevel-nav{width:fit-content;margin:0 auto}.faq-toplevel-nav li{width:fit-content}.long-formula{white-space:pre-wrap}@media print, screen and (min-width: 40em){.faq-container{flex-direction:row}.faq-toplevel-nav>li>a,.faq-toplevel-nav>li>span{border-bottom:1px solid #edf3f4}}
-
-/*# sourceMappingURL=../../../../../../static/scss/faq.css.map */

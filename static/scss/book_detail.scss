@@ -103,6 +103,7 @@
 		    float: left;
 		    width: 50%;
 		    margin-top: $font-size-default;
+
 		    span {
 		        font-size: $font-size-larger;
 		        color: $medium-blue;
@@ -128,7 +129,6 @@
         background: -ms-linear-gradient(left, $greener-than-alert, $call-to-action);
         background: -o-linear-gradient(left, $greener-than-alert, $call-to-action);
         background: linear-gradient(left, $greener-than-alert, $call-to-action);
-
 
         filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='$alert', endColorstr='$call-to-action'); /* IE6 & IE7 */
         -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='$alert', endColorstr='$call-to-action')"; /* IE8+ */

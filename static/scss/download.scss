@@ -1,11 +1,85 @@
 @import "variables.scss";
 @import "social_share.scss";
-@import 'settings';
-@import 'foundation';
 
+.download_container {
+	width: 75%;
+	margin: auto;
+}
 
-.download-body {
-    width: 100%;
+#lightbox_content a {
+	color: $medium-blue;
+}
+
+#lightbox_content .signuptoday a {
+	color: white;
+}
+
+#lightbox_content h2, #lightbox_content h3, #lightbox_content h4 {
+	margin-top: 15px;
+}
+
+#lightbox_content h2 a {
+	font-size: $font-size-larger*1.25;
+}
+
+#lightbox_content .ebook_download {
+	a {
+		margin: auto 5px auto 0;
+		font-size: $font-size-larger;
+	}
+
+	img {
+		vertical-align: middle;
+	}
+}
+
+#lightbox_content .logo {
+	img {
+		@include one-border-radius(7px);
+		height: 50px;
+		width: 50px;
+		margin-right: 5px;
+	}
+
+	font-size: $font-size-larger;
+}
+
+#lightbox_content .one_click, #lightbox_content .ebook_download_container {
+    @include one-border-radius(5px);
+	margin-left: -.25%;
+	padding: 0.5%;
+	padding-bottom: 15px;
+	margin-bottom: 5px;
+	width: 74%;
+
+	h3 {
+		margin-top: 5px;
+	}
+}
+
+#lightbox_content .one_click {
+	border: solid 2px $call-to-action;
+}
+
+#lightbox_content .ebook_download_container {
+	border: solid 2px $blue-grey;
+}
+
+#lightbox_content a.add-wishlist .on-wishlist, #lightbox_content a.success, a.success:hover {
+	text-decoration: none;
+	color: $text-blue;
+}
+
+#lightbox_content a.success, a.success:hover {
+	cursor: default;
+}
+
+#lightbox_content ul {
+	padding-left: 50px;
+
+	li {
+		margin-bottom: 4px;
+	}
 }
 
 .border {
@@ -55,87 +129,5 @@
     a {
         width: auto;
         font-size: $font-size-larger;
-    }
-}
-
-
-//
-
-.download_option.flexible {
-
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-
-    padding: 7px 5px;
-
-    i {
-        vertical-align: middle;
-    }
-
-    .h4 {
-        margin-bottom: 0px;
-    }
-}
-
-.ebook_download {
-    display: flex;
-    flex-direction: column;
-}
-
-.flex_ul {
-    display: flex;
-    flex-direction: column;
-}
-
-.askform {
-    max-width: 400px;
-}
-
-.download_footer {
-    padding: 15px;
-}
-
-.download_container {
-    margin: 0px 10px;
-}
-
-.dropbox_download_option {
-    min-width: 122px;
-}
-
-.download_option > * {
-    flex: 1;
-}
-
-.download-centered {
-    display: flex;
-    justify-content: center;
-}
-
-@include breakpoint (medium) {
-    .download_container {
-        width: 75%;
-        margin: auto;
-    }
-
-    #download_content {
-        display: flex;
-        flex-direction: row;
-        flex-wrap: wrap;
-
-        .rh_ask, #askblock {
-            padding: 15px;
-            flex: 1 0 50%;
-        }
-
-    }
-
-    .download-label {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
     }
 }

@@ -13,142 +13,175 @@
 <!-- select {% sass_src 'scss/enhanced_download.scss' %} or {% sass_src 'scss/enhanced_download_ie.scss' %} -->
 <script type="text/javascript" src="/static/js/download_page.js"></script>
 <script type="text/javascript">
- var $j = jQuery.noConflict();
- $j(document).ready(function() {
-     // actually trigger the download_page function
-     $j(document).trigger('prettifyDownload');
- });
+var $j = jQuery.noConflict();
+$j(document).ready(function() {
+    // actually trigger the download_page function
+    $j(document).trigger('prettifyDownload');
+});
 </script>
 {% endblock %}
 
-{% block extra_css %}
-<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/download.scss' %}"  />
-{% endblock %}
 {% block avatar %}
-<img class="user-avatar" src="/static/images/header/avatar.png" height=36 width="36" alt="private" title="private" />
+        <img class="user-avatar" src="/static/images/header/avatar.png" height=36 width="36" alt="private" title="private" />
 {% endblock %}
 {% block content %}
 
 <div class="download_container">
-    <div id="download_content">
-        <span id="dropboxjs" data-app-key="{{ dropbox_key }}"></span>
-        {% if show_beg %}
-        {% if work.last_campaign.ask_money %}
-        <div class="rh_ask">
-            {{ work.last_campaign.description|safe }}
-            <div class="clearfix"></div>
-        </div>
-        <div id="askblock" class="card">
-            <div>Say thank you for making <a href="{% url 'work' work.id %}">{{ work.title }}</a> free.</div>
+<div id="lightbox_content">
+<span id="dropboxjs" data-app-key="{{ dropbox_key }}"></span>
+{% if show_beg %}
+    {% if work.last_campaign.ask_money %}
+    <div class="border" style="padding: 10px; min-height: 18em">
+        <div id="askblock">
+            <div>Please help us thank the creators for making <a href="{% url 'work' work.id %}">{{ work.title }}</a> free. The amount is up to you.</div>
             <form class="askform" method="POST" action="{% url 'thank' work.id %}#">
                 {% csrf_token %}
                 {{ form.non_field_errors }}
-                <div class="input-group">
-                    {{ form.preapproval_amount.errors }}
-                    <span class="input-group-label">$</span>
-                    <input class="input-group-field" type="number" min="0.99" max="1999.99" step="1.00"
-                           id="id_preapproval_amount" name="preapproval_amount"
-                           value="{{ form.preapproval_amount.value }}">
-                    <div class="input-group-button">
-                        <input name="pledge"  type="submit" class="button loader-gif" value="Say Thanks" id="contribsubmit">
-                    </div>
-                </div>
-                <div id="anoncontribbox">
-                    {{ form.anonymous.errors }}{{ form.anonymous }}
-                    <i class="inline-block">{{ form.anonymous.label_tag }}</i>
-                </div>
+                    <div class="contrib_amount">Amount: {{ form.preapproval_amount.errors }}${{ form.preapproval_amount }}</div>
+                    <div style="text-align: center;"><input name="pledge" type="submit" value="Say Thank You" id="contribsubmit" class="loader-gif" /></div>
+                    <div id="anoncontribbox"><I>{{ form.anonymous.label_tag }}</I> {{ form.anonymous.errors }}{{ form.anonymous }}</div>
                 {% if request.user.credit.available > 0 %}
-                <div > You have an available  credit of ${{ request.user.credit.available|intcomma }} which will be applied to your contribution.</div>
+                    <div > You have an available  credit of ${{ request.user.credit.available|intcomma }} which will be applied to your contribution.</div>
                 {% endif %}
-            </form>
+            </form> 
         </div>
-        {% else %}
         <div class="rh_ask">
-            {{ work.last_campaign.description|safe }}
-            <div class="clearfix"></div>
+                {{ work.last_campaign.description|safe }}
         </div>
-        {% endif %}
-        {% endif %}
-        {% if user_license.thanked %}
-        <div>
-            You have supported this free book!
+    </div>
+    {% else %}
+    <div class="border" style="padding: 10px">
+        <div class="rh_ask">
+                {{ work.last_campaign.description|safe }}
         </div>
-        {% endif %}
-        {% if lib_thanked %}
-        <div>
-            Your library has supported this free book!
-        </div>
-        {% endif %}
-        {% if amount %}
-        <div>
-            Your contribution of ${{amount}} is confirmed.
-            {% if request.session.receipt %}
-            A confirmation is being sent to {{ request.session.receipt }}.
+    </div>
+    {% endif %}
+{% endif %}
+{% if user_license.thanked %}
+    <div style="text-align: center; padding: 20px;">
+    <div style="background: #edf3f4; padding: 10px; width:35%; display: inline; ">
+    You have supported this free book!
+    </div>
+    </div>
+{% endif %}
+{% if lib_thanked %}
+    <div style="text-align: center; padding: 20px;">
+    <div style="background: #edf3f4; padding: 10px; width:35%; display: inline; ">
+    Your library has supported this free book!
+    </div>
+    </div>
+{% endif %}
+{% if amount %}
+    <div style="text-align: center; padding: 20px;">
+    <div style="background: #edf3f4; padding: 10px; width:35%; display: inline; ">
+    Your contribution of ${{amount}} is confirmed.
+    {% if request.session.receipt %}
+    A confirmation is being sent to {{ request.session.receipt }}.
+    {% endif %}
+    </div>
+    </div>
+{% endif %}
+{% if source %}
+
+{% else %}
+<div class="border">
+    <h2 style="width:60%">Downloads for <I><a href="{% url 'work' work.id %}">{{ work.title }}</a></i></h2>
+    <div class="sharing ebook_download_container">
+        <h3 class="jsmod-title"><span>Share</span></h3>
+        <ul class="social menu">
+            {% with site.domain as domain %}
+            <a href="https://www.facebook.com/sharer.php?u=https://{{ site.domain }}{% url 'work' work.id|urlencode:"" %}"><li class="facebook first"><span>Facebook</span></li></a>
+            <a href="https://twitter.com/intent/tweet?url=https://{{ site.domain }}{% url 'work' work.id|urlencode:"" %}&amp;text=I%27m%20enjoying%20{{ work.title|urlencode }}%2C%20a%20free%2C%20non%2DDRM%20ebook%2E%20You%20can%20too%21"><li class="twitter"><span>Twitter</span></li></a>
+            {% endwith %}
+            {% if request.user.is_authenticated %}<a href="{% url 'emailshare' 'downloaded' %}?next={% url 'work' work.id %}"><li class="email"><span>Email</span></li></a>{% endif %}
+            <a id="embed2"><li class="embed"><span>Embed</span></li></a>
+            <div id="widgetcode2">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="https://{{ request.META.HTTP_HOST }}/api/widget/{{ work.first_isbn_13 }}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
+        </ul>
+    </div>
+    {% if xfer_url or can_kindle %}
+        <div class="one_click clearfix">
+            <h3>One-click options</h3>
+            {% if mac_ibooks and xfer_url %}
+                <div id="mac_ibooks" title="{{ work.id }}" >
+                    <div class="btn_support mac_ibooks"><a href="{{ xfer_url }}">Load to iBooks</a></div>
+                </div>
             {% endif %}
-        </div>
-        {% endif %}
-        {% if source %}
-
-        {% else %}
-        <div class="download-body">
-            <h1 class="h2">Downloads for <I><a href="{% url 'work' work.id %}">{{ work.title }}</a></i></h1>
-            <div class="ebook_download_container">
-                {% if testmode %}
-                <i>Download links for uploaded files will appear here when campaign is launched.</i>
-                {% endif %}
-                {% if unglued_ebooks or other_ebooks or acq %}
-                {% if unglued_ebooks %}
-                <h2 class="h4">Download the unglued edition</h2>
-                <div class="ebook_download">
-                    {% for ebook in unglued_ebooks %}
-                    <a href="{% url 'download_ebook' ebook.id %}">
-                        <img src="{{ ebook.rights_badge }}" alt="{{ ebook.rights}}" title="{{ ebook.rights}}" /></a>
-                        <a href="{% url 'download_ebook' ebook.id %}"><img src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }}" title="{{ ebook.format }}" /></a>
-                        <a href="{% url 'download_ebook' ebook.id %}">{{ ebook.format }}</a> {% if ebook.version_label %}  ({{ ebook.version_label }}) {% endif %}
-                        {% if ebook.is_direct %}<a class="dropbox-saver" href="{{ ebook.download_url }}" data-filename="unglueit-{{ work.id }}.{{ ebook.format }}"></a>{% endif %}
-
-
-                        {% if not forloop.last %}<br /><br />{% endif %}
-                        {% endfor %}
+            {% if can_kindle %}
+                <div id="kindle_div">
+                    {% if request.user.is_authenticated and request.user.profile.kindle_email %}
+                        <div class="yes_js">
+                            <div id="kindle" class="btn_support authenticated" title="{{ work.id }}" >
+                                <a>Send to Kindle</a>
+                            </div>
+                        </div>
+                        <div class="no_js">
+                            <form method="POST" class="btn_support" action="{% url 'send_to_kindle' work.id 0 %}">
+                                <input type="submit" value="Send to Kindle">
+                            </form>
+                        </div>
+                    {% else %}
+                        <div class="btn_support kindle {% if request.user.is_anonymous %}modify{% endif %}">
+                            <a href="{% url 'kindle_config_download' work.id %}">Set up Kindle </a>
+                        </div>
+                    {% endif %}
                 </div>
-                {% endif %}
-                {% if other_ebooks %}
-                {% if unglued_ebook %}
-                <h2 class="h4">Download other freely available editions</h2>
-                {% else %}
-                <h2 class="h4">Download freely available editions</h2>
-                {% endif %}
-                <div class="ebook_download">
-                    {% for ebook in other_ebooks %}
-                    <div class="download_option flexible card">
-                        <a href="{% url 'download_ebook' ebook.id %}" class="download-label h4">
-                            <span class="hide-for-medium" >
-                                {{ebook.format}}:
-                            </span>
-                            <img class="hide-for-small-only" src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }} at {{ebook.provider}}" title="{{ ebook.format }} at {{ebook.provider}}" />
-                            <span class="hide-for-small-only" >
-                                {{ ebook.format }} {% if ebook.version_label %}  ({{ ebook.version_label }}) {% endif %} at {{ ebook.provider }}
-                            </span>
-                        </a>
-                        <a href="{% url 'download_ebook' ebook.id %}" class="download-centered hide-for-medium">
-                            <i class="fa fa-download fa-2x" title="Download {{ebook.format}}"></i>
-                        </a>
-                        {% if ebook.is_direct %}
-                        <span class="dropbox_download_option download-centered" >
-                            <a class="dropbox-saver download-centered" href="{{ ebook.download_url }}" data-filename="unglueit-{{ work.id }}.{{ ebook.format }}"></a>
-                        </span>
-                        <span class="download-centered hide-for-small-only">
-                            <img src="{{ ebook.rights_badge }}" class="" alt="{{ ebook.rights}}" title="{{ ebook.rights}}" />
-                        </span>
-                        {% endif %}
+            {% endif %}
+            {% if xfer_url %}
+                {% if iOS %}
+                    <div id="marvin" title="{{ work.id }}" >
+                        <div class="btn_support marvin"><a href="marvinhttp://{{ xfer_url|urlencode }}">Load to Marvin</a></div>
                     </div>
-                    {% endfor %}
-                </div>
                 {% endif %}
-                {% if acq %}
-                {% if work.last_campaign.type == 2 %}
-                <h2 class="h4">Download your ebook{% if acq.lib_acq %}{% if acq.on_reserve %}, on reserve for you at{% else %}, on loan to you at{% endif %} {{ acq.lib_acq.user.library }}{% endif %}</h2>
-                <div class="ebook_download">
+                
+
+            {% endif %}
+            {% if can_kindle %}{% if not request.user.is_authenticated  %}
+                 <div style="clear:left"> You'll need an unglue.it account to <i>Send to Kindle</i>.</div>
+            {% endif %}{% endif %}
+        </div>
+    {% endif %}
+    <div class="ebook_download_container">
+    {% if testmode %}
+        <i>Download links for uploaded files will appear here when campaign is launched.</i>
+    {% endif %}
+    {% if unglued_ebooks or other_ebooks or acq %}
+        {% if unglued_ebooks %}
+            <h3>Download the unglued edition</h3>
+            <div class="ebook_download">
+                {% for ebook in unglued_ebooks %}
+                    <a href="{% url 'download_ebook' ebook.id %}">
+                    <img src="{{ ebook.rights_badge }}" alt="{{ ebook.rights}}" title="{{ ebook.rights}}" /></a>
+                    <a href="{% url 'download_ebook' ebook.id %}"><img src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }}" title="{{ ebook.format }}" /></a>
+                    <a href="{% url 'download_ebook' ebook.id %}">{{ ebook.format }}</a> {% if ebook.version_label %}  ({{ ebook.version_label }}) {% endif %}
+                    {% if ebook.is_direct %}<a class="dropbox-saver" href="{{ ebook.download_url }}" data-filename="unglueit-{{ work.id }}.{{ ebook.format }}"></a>{% endif %}
+                
+
+                    {% if not forloop.last %}<br /><br />{% endif %}
+                {% endfor %}		
+            </div>
+        {% endif %}
+        {% if other_ebooks %}
+            {% if unglued_ebook %}
+                <h4>Download other freely available editions</h4>
+            {% else %}
+                <h4>Download freely available editions</h4>
+            {% endif %}
+            <div class="ebook_download">
+                {% for ebook in other_ebooks %}
+                    <a href="{% url 'download_ebook' ebook.id %}">
+                    <img src="{{ ebook.rights_badge }}" alt="{{ ebook.rights}}" title="{{ ebook.rights}}" /></a>
+                    <a href="{% url 'download_ebook' ebook.id %}"><img src="/static/images/{{ ebook.format }}32.png" height="32" alt="{{ ebook.format }} at {{ebook.provider}}" title="{{ ebook.format }} at {{ebook.provider}}" /></a>
+                    <a href="{% url 'download_ebook' ebook.id %}">{{ ebook.format }} {% if ebook.version_label %}  ({{ ebook.version_label }}) {% endif %} at {{ ebook.provider }}</a>
+                    {% if ebook.is_direct %}<a class="dropbox-saver" href="{{ ebook.download_url }}" data-filename="unglueit-{{ work.id }}.{{ ebook.format }}"></a>{% endif %}
+                
+                    {% if not forloop.last %}<br /><br />{% endif %}
+                {% endfor %}		
+            </div>
+        {% endif %}
+        {% if acq %}
+            {% if work.last_campaign.type == 2 %}
+            <h3>Download your ebook{% if acq.lib_acq %}{% if acq.on_reserve %}, on reserve for you at{% else %}, on loan to you at{% endif %} {{ acq.lib_acq.user.library }}{% endif %}</h3>
+            <div class="ebook_download">
                     <a href="{{ formats.epub }}"><img src="/static/images/epub32.png" height="32" alt="epub" title="epub" /></a>
                     <a href="{{ formats.epub }}">EPUB</a> (for iBooks, Nook, Kobo)
                     <a class="dropbox-saver" href="{{ xfer_url }}" data-filename="unglueit-{{ work.id }}.epub"></a>
@@ -156,293 +189,238 @@
                     <a href="{{ formats.mobi }}"><img src="/static/images/mobi32.png" height="32" alt="mobi" title="mobi" /></a>
                     <a href="{{ formats.mobi }}">MOBI</a> (for Kindle)
                     <a class="dropbox-saver" href="{{ kindle_url }}" data-filename="unglueit-{{ work.id }}.mobi"></a>
-                </div>
-                {% endif %}
-                {% endif %}
-                {% else %}
-                <div class="card">
-                    <p id="content-block">There are no freely available downloads of <I>{{ work.title }}</I> right now.  {% if not work in request.user.wishlist.works.all %}Would you like there to be? <a class="add-wishlist"><span class="work_id" id="w{{ work.id }}">Add this book to your wishlist.</span></a>{% else %}Ask your friends to add it to their favorites!{% endif %}</p>
-
-                    <p>If you know of a Creative-Commons-licensed or US public domain edition of this book, you can add it through the <a href="{% url 'work' work.id %}?tab=4">More... tab of the book page</a>.</p>
-                </div>
             </div>
             {% endif %}
-            {% if xfer_url or can_kindle %}
-            <div class="one_click clearfix">
-                <h2 class="h4">One-click options</h2>
-                {% if mac_ibooks and xfer_url %}
-                <div id="mac_ibooks" title="{{ work.id }}" >
-                    <div class="btn_support mac_ibooks"><a href="{{ xfer_url }}">Load to iBooks</a></div>
-                </div>
-                {% endif %}
-                {% if can_kindle %}
-                <div id="kindle_div">
-                    {% if request.user.is_authenticated and request.user.profile.kindle_email %}
-                    <div class="yes_js">
-                        <div id="kindle" class="authenticated" title="{{ work.id }}" >
-                            <a class="button success" >Send to Kindle</a>
-                        </div>
-                    </div>
-                    <div class="no_js">
-                        <form method="POST" action="{% url 'send_to_kindle' work.id 0 %}">
-                            <input class="button success" type="submit" value="Send to Kindle">
-                        </form>
-                    </div>
-                    {% else %}
-                    <a class="button secondary" href="{% url 'kindle_config_download' work.id %}">Set up Send to Kindle </a>
-                    {% endif %}
-                </div>
-                {% endif %}
-                {% if xfer_url %}
-                {% if iOS %}
-                <div id="marvin" title="{{ work.id }}" >
-                    <a class="button success" href="marvinhttp://{{ xfer_url|urlencode }}">Load to Marvin</a>
-                </div>
-                {% endif %}
-
-                {% endif %}
-                {% if can_kindle %}{% if not request.user.is_authenticated  %}
-                <div> You'll need an unglue.it account to <i>Send to Kindle</i>.</div>
-                {% endif %}{% endif %}
-            </div>
-            {% endif %}
-            <div class="clearfix"></div>
-        </div>
-        {% if unglued_ebooks or other_ebooks or acq %}
-        <h2 class="h4">Need Instructions?</h2>
-        <ul class="accordion flex_ul" data-accordion data-allow-all-closed="true" data-multi-expand="true">
-            <li class="accordion-item {% if iOS_app %}is-active{% endif %}" data-accordion-item style="order: {% if iOS_app %} 0 {% else %} 1 {% endif %}">
-                <a href="#" class="accordion-title">iOS App</a>
-                <div class="accordion-content" data-tab-content>
-                    <p>
-                        Looks like you're using an embedded browser inside an iOS app. (Maybe you followed a link in Twitter or Facebook?)
-                    </p>
-                    <p>
-                        {% if formats.epub or formats.mobi %}
-                        To read this ebook you should open this page in safari, or use one of the "One-click" buttons, above. <br />
-                        {% if iphone %}<img width="357" height="156" src="/static/images/clickhere.png" alt="how to open in safari" />{% else %}<img width="500" height="403" src="/static/images/open_safari.png" alt="how to open in safari" />{% endif %}<br clear="left" />
-                        {% endif %}
-                        {% if formats.pdf %}
-                        You should also be able to use the  <a href="{{ formats.pdf }}">pdf</a> file.
-                        {% elif formats.html %}
-                        You can read the <a href="{{ formats.html }}">HTML version</a> of this book right here in this browser.
-                        {% elif formats.text %}
-                        You can read the <a href="{{ formats.text }}">text version</a> of this book right here in this browser.
-                        {% endif %}
-                    </p>
-                    <p class="other_instructions_paragraph">
-                        Not on iOS?  Try the instructions for <a class="android other_instructions">Android</a>, <a class="desktop other_instructions">desktop computers</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
-                    </p>
-                </div>
-            </li>
-            <li class="accordion-item {% if iOS_app %}{% if not iOS_app %}is-active{% endif %}{% endif %}" data-accordion-item style="order: {% if iOS_app %}{% if not iOS_app %} 0 {% else %} 2 {% endif %} {% else %} 2 {% endif %}">
-                <a href="#" class="accordion-title">iOS</a>
-                <div class="accordion-content" data-tab-content>
-                    <h4>iOS devices</h4>
-                    {% if formats.epub %}
-                    <p>
-                        You may already have an app which reads ebooks.  Download the <a href="{{ formats.epub }}">epub file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
-                    </p>
-                    <p class="logo"><img src="/static/images/ibooks_logo.jpg" alt="iBooks Logo" />iBooks</p>
-                    <ul>
-                        <li><a href="https://itunes.apple.com/us/app/ibooks/id364709193?mt=8">Download the free iBooks app</a> from the App Store.</li>
-                        <li>Download the <a href="{{ formats.epub }}">epub file</a>.</li>
-                        <li>You will be given the option of opening the file in iBooks.</li>
-                    </ul>
-                    <p class="logo"><img src="/static/images/marvin_logo.jpg" alt="Marvin Logo" />Marvin is a great way to read ebooks. </p>
-                    <ul>
-                        <li><a href="https://itunes.apple.com/us/app/marvin-ebook-reader-for-epub/id667361209?ls=1&mt=8">Install Marvin</a> from the App Store.</li>
-                        <li>Click the "Load to Marvin" button above.</li>
-                    </ul>
-                    <p class="logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />So is Aldiko.</p>
-
-                    <ul>
-                        <li><a href="http://www.aldiko.com/">Download the free Aldiko app.</a></li>
-                        <li>Download the <a href="{{ formats.epub }}">epub file</a>.</li>
-                        <li>When the download is complete, tap it in your notifications menu.  It will be added to Aldiko, ready to read next time you open the app.</li>
-                    </ul>
-
-                    {% elif formats.pdf %}
-                    <p>
-                        You may already have an app which reads ebooks.  Download the <a href="{{ formats.pdf }}">pdf file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
-                    </p>
-                    <p class="logo"><img src="/static/images/ibooks_logo.jpg" alt="iBooks Logo" />iBooks</p>
-                    <ul>
-                        <li><a href="https://itunes.apple.com/us/app/ibooks/id364709193?mt=8">Download the free iBooks app</a> from the App Store.</li>
-                        <li>Download the <a href="{{ formats.pdf }}">pdf file</a>.</li>
-                        <li>You will be given the option of opening the file in iBooks.</li>
-                    </ul>
-                    {% elif formats.html %}
-                    <p>
-                        Download the <a href="{{ formats.html }}">HTML version</a>.
-                    </p>
-                    {% elif formats.text %}
-                    <p>
-                        Download the <a href="{{ formats.text }}">text version</a>.
-                    </p>
-                    {% else %}
-                    <p>
-                        This ebook is only available in .mobi.  Your best bet is to install the free Amazon Kindle app from the Apple Store and then use the Send-to-Kindle option above.
-                    </p>
-                    {% endif %}
-                    <p class="other_instructions_paragraph">
-                        Not on iOS?  Try the instructions for <a class="android other_instructions">Android</a>, <a class="desktop other_instructions">desktop computers</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
-                    </p>
-                </div>
-            </li>
-            <li class="accordion-item {% if android %}is-active{% endif %}" data-accordion-item style="order: {% if android %} 0 {% else %} 3 {% endif %}">
-                <a href="#" class="accordion-title">Android</a>
-                <div class="accordion-content" data-tab-content>
-                    <h4>Android devices</h4>
-                    {% if formats.epub %}
-                    <p>
-                        You may already have an app which reads ebooks.  Download the <a href="{{ formats.epub }}">epub file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
-                    </p>
-                    <p class="logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />Aldiko</p>
-
-                    <ul>
-                        <li><a href="http://www.aldiko.com/">Download the free Aldiko app.</a></li>
-                        <li>Download the <a href="{{ formats.epub }}">epub file</a>.</li>
-                        <li>When the download is complete, tap it in your notifications menu.  It will be added to Aldiko, ready to read next time you open the app.</li>
-                    </ul>
-                    {% else %}{% if formats.pdf %}
-                    <p>
-                        You may already have an app which reads ebooks.  Download the <a href="{{ formats.pdf }}">pdf file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
-                    </p>
-                    <p class="logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />Aldiko</p>
-
-                    <ul>
-                        <li><a href="http://www.aldiko.com/">Download the free Aldiko app.</a></li>
-                        <li>Download the <a href="{{ formats.pdf }}">pdf file</a>.</li>
-                        <li>When the download is complete, tap it in your notifications menu.  It will be added to Aldiko, ready to read next time you open the app.</li>
-                    </ul>
-                    {% else %}{% if formats.html %}
-                    <p>
-                        Download the <a href="{{ formats.html }}">HTML version</a>.
-                    </p>
-                    {% else %}{% if formats.text %}
-                    <p>
-                        Download the <a href="{{ formats.text }}">text version</a>.
-                    </p>
-                    {% else %}
-                    <p>
-                        This ebook is only available in .mobi.  Your best bet is to install the free Amazon Kindle app from Google Play and then use the Send-to-Kindle option above.
-                    </p>
-                    {% endif %}{% endif %}{% endif %}{% endif %}
-                    <p class="other_instructions_paragraph">
-                        Not on Android?  Try the instructions for <a class="ios other_instructions">iPhone/iPad</a>, <a class="desktop other_instructions">desktop computers</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
-                    </p>
-                </div>
-            </li>
-            <li class="accordion-item {% if desktop %}is-active{% endif %}" data-accordion-item style="order: {% if desktop %} 0 {% else %} 4 {% endif %}">
-                <a href="#" class="accordion-title">Desktop</a>
-                <div class="accordion-content" data-tab-content>
-                    <h4>Reading on a {% if mac_ibooks %}Mac{% else %}PC, Mac, or Linux{% endif %}</h4>
-                    {% if formats.pdf %}
-                    <p>
-                        You probably already have an app which reads PDFs.  Download the <a href="{{ formats.pdf }}">pdf file</a> and open it.
-                    </p>
-                    {% elif formats.epub %}
-                    {% if mac_ibooks %}
-                    <p class="logo"><img src="/static/images/ibooks_logo.jpg" alt="iBooks Logo" />iBooks</p>
-                    <ul>
-                        <li>The iBooks app is pre-installed with your system software.</li>
-                        <li>Download the <a href="{{ formats.epub }}">epub file</a>. You should be offered the choice to open it in iBooks</li>
-                    </ul>
-                    {% endif %}
-                    <p class="logo"><img src="/static/images/calibre_logo.png" alt="Calibre Logo" />Calibre</p>
-                    <ul>
-                        <li><a href="http://calibre-ebook.com/download">Download the free Calibre app.</a></li>
-                        <li>Download the <a href="{{ formats.epub }}">epub file</a>.</li>
-                        <li>Open the file in Calibre.</li>
-                        <li>You can <a href="http://blog.marvinapp.com/post/53438723356">use a Calibre plugin</a> to manage files on reader apps.
-                    </ul>
-                    {% elif formats.mobi %}
-                    <p class="logo"><img src="/static/images/calibre_logo.png" alt="Calibre Logo" />Calibre</p>
-                    <ul>
-                        <li><a href="http://calibre-ebook.com/download">Download the free Calibre app.</a></li>
-                        <li>Download the <a href="{{ formats.mobi }}">mobi file</a>.</li>
-                        <li>Open the file in Calibre.</li>
-                        <li>You can <a href="http://blog.marvinapp.com/post/53438723356">use a Calibre plugin</a> to manage files on reader apps.
-                    </ul>
-                    {% elif formats.html %}
-                    <p>
-                        You can read the <a href="{{ formats.html }}">HTML version</a> right here in your browser.
-                    </p>
-                    {% else %}
-                    <p>
-                        You can read the <a href="{{ formats.text }}">text version</a> right here in your browser.
-                    </p>
-                    {% endif %}
-                    <p class="other_instructions_paragraph">
-                        Not on a desktop computer, or want to "side-load" ebooks onto a device or app?  Try the instructions for <a class="ios other_instructions">iPhone/iPad</a>, <a class="android other_instructions">Android</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
-                    </p>
-                </div>
-            </li>
-            <li class="accordion-item {% if desktop %}is-active{% endif %}" data-accordion-item  style="order: {% if desktop %} 0 {% else %} 5 {% endif %}">
-                <a href="#" class="accordion-title">E-Readers</a>
-                <div class="accordion-content" data-tab-content>
-                    <h4>Ereaders (Kindle, Nook, Kobo, etc.)</h4>
-
-                    {% if formats.mobi or formats.pdf or formats.epub %}
-                    <ul>
-                        <li>
-                            {% if formats.mobi %}
-                            <b>Kindle</b>: download the <a href="{{ formats.mobi }}">mobi file</a> to your computer, or use the <i>Send To Kindle</i> button above.
-                            {% elif formats.pdf %}
-                            <b>Kindle</b>: download the <a href="{{ formats.pdf }}">pdf file</a> to your computer, or use the <i>Send To Kindle</i> button above.
-                            {% else %}
-                            <b>Kindle</b>: We're sorry; we don't have a version suitable for Kindle.
-                            {% endif %}
-                            {% if formats.epub %}
-                            <b>All other ereaders</b>: download the <a href="{{ formats.epub }}">epub file</a> to your computer.
-                            {% elif formats.pdf %}
-                            <b>All other ereaders</b>: download the <a href="{{ formats.pdf }}">pdf file</a> to your computer.
-                            {% else %}
-                            <b>All other ereaders</b>: We're sorry; we don't have a version suitable for your device.
-                            {% endif %}
-                        </li>
-                        <li>Plug the ereader into your computer with a USB cable.</li>
-                        <li>Using the Finder (Mac) or Windows Explorer (Windows), drag and drop the ebook file into the Documents folder on your device.  (It may also be called My Documents or My Stuff, depending on your ereader.)</li>
-                        <li>Eject your device from the Finder or Explorer and disconnect the USB.</li>
-                        <li>You may need to reboot your device to see the new book.</li>
-                    </ul>
-                    {% else %}
-                    <p>
-                        We're sorry; we don't have a file format suitable for ereaders.
-                    </p>
-                    {% endif %}
-
-                    <p class="other_instructions_paragraph">
-                        Not using an ereader?  Try the instructions for <a class="ios other_instructions">iPhone/iPad</a>, <a class="android other_instructions">Android</a>, or <a class="desktop other_instructions">desktop computers</a>.
-                    </p>
-                </div>
-            </li>
-            <li class="accordion-item {% if desktop %}is-active{% endif %}" data-accordion-item style="order: {% if desktop %} 0 {% else %} 6 {% endif %}">
-                <a href="#" class="accordion-title">Dropbox</a>
-                <div class="accordion-content" data-tab-content>
-                    <h4>Dropbox</h4>
-                    <p class="other_instructions_paragraph"> Dropbox is a good way to share your ebooks between desktop, tablet and smartphone. If you see a dropbox button above, click it to load your books into your dropbox folder. Then load the file into your reader application on your device.
-                    </p>
-                </div>
-            </li>
-        </ul>
-        <div class="download_footer card">
-            <h4>Need more help?</h4>
-            <p><a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">Ask us a question!</a></p>
-
-            <div>
-                <a href="https://www.defectivebydesign.org/drm-free">
-                    <img src="/static/images/DRM-free150.png" alt="DefectiveByDesign.org" border="0" align="middle" />
-                </a>
-                <span>
-                    All downloads from Unglue.it are DRM free. Hooray!
-                </span>
-            </div>
-        </div>
         {% endif %}
-        {% endif %}
+    {% else %}
+        <div class="border">
+            <p id="content-block">There are no freely available downloads of <I>{{ work.title }}</I> right now.  {% if not work in request.user.wishlist.works.all %}Would you like there to be? <a class="add-wishlist"><span class="work_id" id="w{{ work.id }}">Add this book to your wishlist.</span></a>{% else %}Ask your friends to add it to their favorites!{% endif %}</p>
+        
+            <p>If you know of a Creative-Commons-licensed or US public domain edition of this book, you can add it through the <a href="{% url 'work' work.id %}?tab=4">More... tab of the book page</a>.</p>
+        </div>
     </div>
+    {% endif %}
+    <div class="clearfix"></div>
+</div>
+{% if unglued_ebooks or other_ebooks or acq %}
+    <div class="border">
+<h3>Need instructions?</h3>
+    <div class="instructions">
+        <div id="iOS_app_div"{% if iOS_app %} class="active"{% endif %}>
+            <p>
+                Looks like you're using an embedded browser inside an iOS app. (Maybe you followed a link in Twitter or Facebook?)
+            </p>
+            <p>
+                {% if formats.epub or formats.mobi %}
+                    To read this ebook you should open this page in safari, or use one of the "One-click" buttons, above. <br />
+                    {% if iphone %}<img width="357" height="156" src="/static/images/clickhere.png" alt="how to open in safari" />{% else %}<img width="500" height="403" src="/static/images/open_safari.png" alt="how to open in safari" />{% endif %}<br clear="left" />
+                {% endif %}
+                {% if formats.pdf %}
+                    You should also be able to use the  <a href="{{ formats.pdf }}">pdf</a> file.
+                {% elif formats.html %}
+                    You can read the <a href="{{ formats.html }}">HTML version</a> of this book right here in this browser.
+                {% elif formats.text %}
+                    You can read the <a href="{{ formats.text }}">text version</a> of this book right here in this browser.
+                {% endif %}
+            </p>
+            <p class="other_instructions_paragraph">
+                Not on iOS?  Try the instructions for <a class="android other_instructions">Android</a>, <a class="desktop other_instructions">desktop computers</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
+            </p>
+        </div>
+        
+        <div id="ios_div"{% if iOS %}{% if not iOS_app %} class="active"{% endif %}{% endif %}>
+            <h4>iOS devices</h4>
+            {% if formats.epub %}
+                <p>
+                    You may already have an app which reads ebooks.  Download the <a href="{{ formats.epub }}">epub file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
+                </p>
+                <p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpg" alt="iBooks Logo" />iBooks</p>
+                <ul>
+                <li><a href="https://itunes.apple.com/us/app/ibooks/id364709193?mt=8">Download the free iBooks app</a> from the App Store.</li>
+                <li>Download the <a href="{{ formats.epub }}">epub file</a>.</li>
+                <li>You will be given the option of opening the file in iBooks.</li>
+                </ul>
+                <p class="ebook_download logo"><img src="/static/images/marvin_logo.jpg" alt="Marvin Logo" />Marvin is a great way to read ebooks. </p>
+                <ul>
+                <li><a href="https://itunes.apple.com/us/app/marvin-ebook-reader-for-epub/id667361209?ls=1&mt=8">Install Marvin</a> from the App Store.</li>
+                <li>Click the "Load to Marvin" button above.</li>
+                </ul>
+                <p class="ebook_download logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />So is Aldiko.</p>
+                
+                <ul>
+                <li><a href="http://www.aldiko.com/">Download the free Aldiko app.</a></li>
+                <li>Download the <a href="{{ formats.epub }}">epub file</a>.</li>
+                <li>When the download is complete, tap it in your notifications menu.  It will be added to Aldiko, ready to read next time you open the app.</li>
+                </ul>
+                
+            {% elif formats.pdf %}
+                <p>
+                    You may already have an app which reads ebooks.  Download the <a href="{{ formats.pdf }}">pdf file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
+                </p>
+                <p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpg" alt="iBooks Logo" />iBooks</p>
+                <ul>
+                <li><a href="https://itunes.apple.com/us/app/ibooks/id364709193?mt=8">Download the free iBooks app</a> from the App Store.</li>
+                <li>Download the <a href="{{ formats.pdf }}">pdf file</a>.</li>
+                <li>You will be given the option of opening the file in iBooks.</li>
+                </ul>
+            {% elif formats.html %}
+                <p>
+                    Download the <a href="{{ formats.html }}">HTML version</a>.
+                </p>
+            {% elif formats.text %}
+                <p>
+                    Download the <a href="{{ formats.text }}">text version</a>.
+                </p>
+            {% else %}
+                <p>
+                    This ebook is only available in .mobi.  Your best bet is to install the free Amazon Kindle app from the Apple Store and then use the Send-to-Kindle option above.
+                </p>
+            {% endif %}
+            <p class="other_instructions_paragraph">
+                Not on iOS?  Try the instructions for <a class="android other_instructions">Android</a>, <a class="desktop other_instructions">desktop computers</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
+            </p>
+        </div>
+        
+        <div id="android_div"{% if android %} class="active"{% endif %}>
+            <h4>Android devices</h4>
+            {% if formats.epub %}
+                <p>
+                    You may already have an app which reads ebooks.  Download the <a href="{{ formats.epub }}">epub file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
+                </p>
+                <p class="ebook_download logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />Aldiko</p>
+                
+                <ul>
+                <li><a href="http://www.aldiko.com/">Download the free Aldiko app.</a></li>
+                <li>Download the <a href="{{ formats.epub }}">epub file</a>.</li>
+                <li>When the download is complete, tap it in your notifications menu.  It will be added to Aldiko, ready to read next time you open the app.</li>
+                </ul>
+            {% else %}{% if formats.pdf %}
+                <p>
+                    You may already have an app which reads ebooks.  Download the <a href="{{ formats.pdf }}">pdf file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
+                </p>
+                <p class="ebook_download logo"><img src="/static/images/aldiko_logo.png" alt="Aldiko Logo" />Aldiko</p>
+                
+                <ul>
+                <li><a href="http://www.aldiko.com/">Download the free Aldiko app.</a></li>
+                <li>Download the <a href="{{ formats.pdf }}">pdf file</a>.</li>
+                <li>When the download is complete, tap it in your notifications menu.  It will be added to Aldiko, ready to read next time you open the app.</li>
+                </ul>
+            {% else %}{% if formats.html %}
+                <p>
+                    Download the <a href="{{ formats.html }}">HTML version</a>.
+                </p>
+            {% else %}{% if formats.text %}
+                <p>
+                    Download the <a href="{{ formats.text }}">text version</a>.
+                </p>
+            {% else %}
+                <p>
+                    This ebook is only available in .mobi.  Your best bet is to install the free Amazon Kindle app from Google Play and then use the Send-to-Kindle option above.
+                </p>
+            {% endif %}{% endif %}{% endif %}{% endif %}
+            <p class="other_instructions_paragraph">
+                Not on Android?  Try the instructions for <a class="ios other_instructions">iPhone/iPad</a>, <a class="desktop other_instructions">desktop computers</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
+            </p>
+        </div>
+        
+        <div id="desktop_div"{% if desktop %} class="active"{% endif %}>
+            <h4>Reading on a {% if mac_ibooks %}Mac{% else %}PC, Mac, or Linux{% endif %}</h4>
+            {% if formats.pdf %}
+                <p>
+                    You probably already have an app which reads PDFs.  Download the <a href="{{ formats.pdf }}">pdf file</a> and open it.
+                </p>
+            {% elif formats.epub %}
+                {% if mac_ibooks %}
+                    <p class="ebook_download logo"><img src="/static/images/ibooks_logo.jpg" alt="iBooks Logo" />iBooks</p>
+                    <ul>
+                    <li>The iBooks app is pre-installed with your system software.</li>
+                    <li>Download the <a href="{{ formats.epub }}">epub file</a>. You should be offered the choice to open it in iBooks</li>
+                    </ul>
+                {% endif %}
+                <p class="ebook_download logo"><img src="/static/images/calibre_logo.png" alt="Calibre Logo" />Calibre</p>
+                <ul>
+                <li><a href="http://calibre-ebook.com/download">Download the free Calibre app.</a></li>
+                <li>Download the <a href="{{ formats.epub }}">epub file</a>.</li>
+                <li>Open the file in Calibre.</li>
+                <li>You can <a href="http://blog.marvinapp.com/post/53438723356">use a Calibre plugin</a> to manage files on reader apps.
+                </ul>
+            {% elif formats.mobi %}
+                <p class="ebook_download logo"><img src="/static/images/calibre_logo.png" alt="Calibre Logo" />Calibre</p>
+                <ul>
+                <li><a href="http://calibre-ebook.com/download">Download the free Calibre app.</a></li>
+                <li>Download the <a href="{{ formats.mobi }}">mobi file</a>.</li>
+                <li>Open the file in Calibre.</li>
+                <li>You can <a href="http://blog.marvinapp.com/post/53438723356">use a Calibre plugin</a> to manage files on reader apps.
+                </ul>
+            {% elif formats.html %}
+                <p>
+                    You can read the <a href="{{ formats.html }}">HTML version</a> right here in your browser.
+                </p>
+            {% else %}
+                <p>
+                    You can read the <a href="{{ formats.text }}">text version</a> right here in your browser.
+                </p>
+            {% endif %}
+            <p class="other_instructions_paragraph">
+                Not on a desktop computer, or want to "side-load" ebooks onto a device or app?  Try the instructions for <a class="ios other_instructions">iPhone/iPad</a>, <a class="android other_instructions">Android</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
+            </p>
+        </div>
+        
+        <div id="ereader_div"{% if desktop %} class="active"{% endif %}>
+            <h4>Ereaders (Kindle, Nook, Kobo, etc.)</h4>
+            
+            {% if formats.mobi or formats.pdf or formats.epub %}
+                <ul>
+                <li>
+                    {% if formats.mobi %}
+                        <b>Kindle</b>: download the <a href="{{ formats.mobi }}">mobi file</a> to your computer, or use the <i>Send To Kindle</i> button above.
+                    {% elif formats.pdf %}
+                        <b>Kindle</b>: download the <a href="{{ formats.pdf }}">pdf file</a> to your computer, or use the <i>Send To Kindle</i> button above.
+                    {% else %}
+                        <b>Kindle</b>: We're sorry; we don't have a version suitable for Kindle.
+                    {% endif %}
+                    {% if formats.epub %}
+                        <b>All other ereaders</b>: download the <a href="{{ formats.epub }}">epub file</a> to your computer.
+                    {% elif formats.pdf %}
+                        <b>All other ereaders</b>: download the <a href="{{ formats.pdf }}">pdf file</a> to your computer.
+                    {% else %}
+                        <b>All other ereaders</b>: We're sorry; we don't have a version suitable for your device.
+                    {% endif %}
+                </li>
+                <li>Plug the ereader into your computer with a USB cable.</li>
+                <li>Using the Finder (Mac) or Windows Explorer (Windows), drag and drop the ebook file into the Documents folder on your device.  (It may also be called My Documents or My Stuff, depending on your ereader.)</li>
+                <li>Eject your device from the Finder or Explorer and disconnect the USB.</li>
+                <li>You may need to reboot your device to see the new book.</li>
+                </ul>
+            {% else %}
+                <p>
+                    We're sorry; we don't have a file format suitable for ereaders.
+                </p>
+            {% endif %}
+            
+            <p class="other_instructions_paragraph">
+                Not using an ereader?  Try the instructions for <a class="ios other_instructions">iPhone/iPad</a>, <a class="android other_instructions">Android</a>, or <a class="desktop other_instructions">desktop computers</a>.
+            </p>
+        </div>
+        <div id="ereader_div" class="active">
+        <h4>Dropbox</h4>
+        <p class="other_instructions_paragraph"> Dropbox is a good way to share your ebooks between desktop, tablet and smartphone. If you see a dropbox button above, click it to load your books into your dropbox folder. Then load the file into your reader application on your device.
+        </p>
+        </div>
+    </div>
+        
+        <br />
+        <h4>Need more help?</h4>
+        <p><a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">Ask us a question!</a></p>
+        
+        <div>
+            <a href="http://www.defectivebydesign.org/drm-free"><img src="/static/images/DRM-free150.png" alt="DefectiveByDesign.org" border="0" align="middle" /></a> All downloads from Unglue.it are DRM free. Hooray!
+        </div>
+    </div>
+{% else %}
+{% endif %}
+{% endif %}
+</div>
 </div>
 <script type="text/javascript" src="/static/js/dropins.js" ></script>
 {% endblock %}

@@ -1,5 +1,4 @@
 @import "variables.scss";
-@import "foundation";
 
 /* Cross-browser language */
 @mixin opacity($op)
@@ -29,29 +28,28 @@
 
 div.book-list.listview{
     clear:both;
-    display: flex;
+    display:block;
     vertical-align: middle;
-    align-items: center;
     @include height(43px);
     margin:0 5px 0 0;
     padding:7px 0;
     position: relative;
 
-    & > div {
-        padding: 10px;
-    }
-
 	/* row is a container for divs with individual content elements */
 	/* these elements are styled differently to create list and panel views */
     div {
         &.unglue-this {
+            float: left;
         }
         &.book-thumb {
+            margin-right: 5px;
+            float: left;
         }
         &.book-name {
-            flex: 1;
-            max-width: 300px;
-            padding: 0 7px;
+            width:235px;
+            margin-right:10px;
+            background:url("#{$image-base}booklist/booklist-vline.png") right center no-repeat;
+            float: left;
 
             .title {
                 display:block;
@@ -79,15 +77,28 @@ div.book-list.listview{
                 margin-top: -1px;
                 padding-right: 15px;
                 border: 1px solid $blue-grey;
-                @include border-radius(10px);
+                @include border-radius(0, 10px, 10px, 0);
                 border-left: none;
             }
 
             &.listview {
+                z-index:100;
+                // z-index only works on positioned elements, so if you
+                // do not include this the absolutely positioned add-wishlist
+                // div stacks above it! crazytown.
+                position: absolute;
+                left: 42px;
             }
         }
         &.add-wishlist, &.remove-wishlist, &.on-wishlist, &.create-account, &.pledge {
+            margin-right: 10px;
+            padding-right: 10px;
+            width: 136px;
+            background:url("#{$image-base}booklist/booklist-vline.png") right center no-repeat;
 
+            //position: absolute;
+            margin-left:255px;
+            float:left;
 
             span {
                 font-weight:normal;
@@ -123,6 +134,9 @@ div.book-list.listview{
         }
 
         &.booklist-status {
+            //width: 110px;
+            margin-right:85px;
+            float: left;
         }
     }
 }
@@ -288,9 +302,9 @@ ul.navigation li a:hover, ul.navigation li.active a {
 }
 
 .listview.icons {
-    flex: 1;
-    display: flex;
-    justify-content: flex-end;
+    position: absolute;
+    right: 31px;
+
     .booklist-status-img {
         @include one-border-radius(4px);
         background-color: #fff;
@@ -307,12 +321,6 @@ ul.navigation li a:hover, ul.navigation li.active a {
 
     .boolist-ebook img {
         margin-top: 6px;
-    }
-}
-
-@include breakpoint(medium up) {
-    .book-name {
-        flex: 100%;
     }
 }
 
@@ -346,6 +354,7 @@ div#libtools {
 }
 
 #facet_block div {
+    background:url($background-header) 100% -223px no-repeat;
     padding: 7px 7px 15px 7px;
     p {
         padding: 0 10px 0 10px;

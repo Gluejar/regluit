@@ -5,6 +5,36 @@
 	display: none;
 }
 
+#main-container.main-container-fl .js-main {
+	width:968px;
+	background:#fff url("#{$image-base}landingpage/container-top.png") top center no-repeat;
+}
+#js-maincol-fl {
+	padding:30px 30px 0 30px;
+	overflow:hidden;
+
+	#content-block {
+		background:none;
+		padding:0;
+	}
+
+	#js-main-container {
+		float: left;
+		width:672px;
+	}
+
+	.js-main-container-inner {
+		padding-right:40px;
+	}
+
+	h2.page-heading {
+		margin:0 0 20px 0;
+		color:$text-blue;
+		font-size: $font-size-header;
+		font-weight: bold;
+	}
+}
+
 #user-block1, .user-block2 {
 	float:left;
 }
@@ -360,3 +390,7 @@ ul#as_seen_on {
     }
 }
 
+#footer {
+	clear: both;
+	margin-top:30px;
+}

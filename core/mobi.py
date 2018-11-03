@@ -13,8 +13,7 @@ def convert_to_mobi(input_url, input_format="application/epub+zip"):
     return a string with the output of mobigen computation
     
     """
-    if mobigen_url and mobigen_user_id and mobigen_password:
-        print 'settings ok'
+
     # using verify=False since at the moment, using a self-signed SSL cert.
 
     payload = requests.get(input_url).content 
@@ -27,6 +26,5 @@ def convert_to_mobi(input_url, input_format="application/epub+zip"):
     if r.status_code == 200:
         return r.content
     else:
-        print "{0}: {1}".format(r.status_code, r.content)
         raise Exception("{0}: {1}".format(r.status_code, r.content))
 

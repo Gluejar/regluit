@@ -998,8 +998,8 @@ class DownloadPageTest(TestCase):
 
         anon_client = Client()
         response = anon_client.get("/work/%s/download/" % w.id, follow=True)
-        self.assertContains(response, "/download_ebook/%s/"% eb1.id, count=11) 
-        self.assertContains(response, "/download_ebook/%s/"% eb2.id, count=4)
+        self.assertContains(response, "/download_ebook/%s/"% eb1.id, count=11)
+        self.assertContains(response, "/download_ebook/%s/"% eb2.id, count=5)
         self.assertTrue(eb1.edition.work.is_free)
         eb1.delete()
         self.assertTrue(eb2.edition.work.is_free)

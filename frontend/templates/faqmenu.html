@@ -1,62 +1,62 @@
-<div class="">
-    <h3 class="jsmod-title"><span>FAQs</span></h3>
-    <div class="jsmod-content">
-        <ul class="faq-toplevel-nav vertical menu">
+            <div class="jsmodule">
+                <h3 class="jsmod-title"><span>FAQs</span></h3>
+                <div class="jsmod-content">
+                    <ul class="menu level1">
+                    
+                    	<li class="first parent">
+                    		<a href="/faq/"><span>All</span></a>
+                    	</li>
 
-            <li class="first parent">
-                <a href="/faq/"><span>All</span></a>
-            </li>
+                         <li class="parent {% if location != 'basics' %}collapse{% endif %}">
+                            <a href="{% url 'faq_location' 'basics' %}"><span>About the site</span></a>
+                            <ul class="menu level2">
+                                <li class="first"><a href="{% url 'faq_sublocation' 'basics' 'howitworks' %}"><span>About Unglue.it</span></a></li>
+                                <li><a href="{% url 'faq_sublocation' 'basics' 'account' %}"><span>Your Account</span></a></li>
+                                <li class="last"><a href="{% url 'faq_sublocation' 'basics' 'company' %}"><span>The Organization</span></a></li>
+                            </ul>
+                        </li>
+                        
+                       <li class="parent {% if location != 'unglued_ebooks' %}collapse{% endif %}">
+                            <a href="{% url 'faq_location' 'unglued_ebooks' %}"><span>Unglued Ebooks</span></a>
+                            <ul class="menu level2">
+                                <li class="first"><a href="{% url 'faq_sublocation' 'unglued_ebooks' 'general' %}"><span>General Questions</span></a></li>
+                                <li><a href="{% url 'faq_sublocation' 'unglued_ebooks' 'using' %}"><span>Using Your Unglued Ebook</span></a></li>
+                                <li class="last"><a href="{% url 'faq_sublocation' 'unglued_ebooks' 'copyright' %}"><span>Ungluing and Copyright</span></a></li>
+                            </ul>
+                        </li>
 
-            <li class="parent {% if location != 'basics' %}collapse{% endif %}">
-                <a href="{% url 'faq_location' 'basics' %}"><span>About the site</span></a>
-                <ul class="nested vertical menu">
-                    <li class="first"><a href="{% url 'faq_sublocation' 'basics' 'howitworks' %}"><span>About Unglue.it</span></a></li>
-                    <li><a href="{% url 'faq_sublocation' 'basics' 'account' %}"><span>Your Account</span></a></li>
-                    <li class="last"><a href="{% url 'faq_sublocation' 'basics' 'company' %}"><span>The Organization</span></a></li>
-                </ul>
-            </li>
+                        <li class="parent {% if location != 'campaigns' %}collapse{% endif %}">
+                            <a href="{% url 'faq_location' 'campaigns' %}"><span>Campaigns</span></a>
+                            <ul class="menu level2">
+                                <li class="first"><a href="{% url 'faq_sublocation' 'campaigns' 't4u' %}"><span>Thanks-for-Ungluing Campaigns</span></a></li>
+                                <li><a href="{% url 'faq_sublocation' 'campaigns' 'b2u' %}"><span>Buy-to-Unglue Campaigns</span></a></li>
+                                <li><a href="{% url 'faq_sublocation' 'campaigns' 'supporting' %}"><span>Pledge Campaigns</span></a></li>
+                                <li class="last"><a href="{% url 'faq_sublocation' 'campaigns' 'premiums' %}"><span>Premiums</span></a></li>
+                            </ul>
+                        </li>
+                        
 
-            <li class="parent {% if location != 'unglued_ebooks' %}collapse{% endif %}">
-                <a href="{% url 'faq_location' 'unglued_ebooks' %}"><span>Unglued Ebooks</span></a>
-                <ul class="nested vertical menu">
-                    <li class="first"><a href="{% url 'faq_sublocation' 'unglued_ebooks' 'general' %}"><span>General Questions</span></a></li>
-                    <li><a href="{% url 'faq_sublocation' 'unglued_ebooks' 'using' %}"><span>Using Your Unglued Ebook</span></a></li>
-                    <li class="last"><a href="{% url 'faq_sublocation' 'unglued_ebooks' 'copyright' %}"><span>Ungluing and Copyright</span></a></li>
-                </ul>
-            </li>
-
-            <li class="parent {% if location != 'campaigns' %}collapse{% endif %}">
-                <a href="{% url 'faq_location' 'campaigns' %}"><span>Campaigns</span></a>
-                <ul class="nested vertical menu">
-                    <li class="first"><a href="{% url 'faq_sublocation' 'campaigns' 't4u' %}"><span>Thanks-for-Ungluing Campaigns</span></a></li>
-                    <li><a href="{% url 'faq_sublocation' 'campaigns' 'b2u' %}"><span>Buy-to-Unglue Campaigns</span></a></li>
-                    <li><a href="{% url 'faq_sublocation' 'campaigns' 'supporting' %}"><span>Pledge Campaigns</span></a></li>
-                    <li class="last"><a href="{% url 'faq_sublocation' 'campaigns' 'premiums' %}"><span>Premiums</span></a></li>
-                </ul>
-            </li>
-
-
-            <li class="parent {% if location != 'rightsholders' and 'smashwords' not in request.path %}collapse{% endif %}">
-                <a href="{% url 'faq_location' 'rightsholders' %}"><span>For Rights Holders</span></a>
-                <ul class="nested vertical menu">
-                    <li class="first"><a href="{% url 'faq_sublocation' 'rightsholders' 'authorization' %}"><span>Becoming Authorized</span></a></li>
-                    <li><a href="{% url 'faq_sublocation' 'rightsholders' 'claiming' %}"><span>Claiming Works</span></a></li>
-                    <li><a href="{% url 'faq_sublocation' 'rightsholders' 'campaigns' %}"><span>Running Campaigns</span></a></li>
-                    <li><a href="{% url 'faq_sublocation' 'rightsholders' 'addingmedia' %}"><span>Adding Media</span></a></li>
-                    <li><a href="{% url 'faq_sublocation' 'rightsholders' 'publicity' %}"><span>Publicizing Campaigns</span></a></li>
-                    <li><a href="{% url 'faq_sublocation' 'rightsholders' 'funding' %}"><span>Funding</span></a></li>
-                    <li><a href="{% url 'faq_sublocation' 'rightsholders' 'conversion' %}"><span>Ebook Conversion</span></a></li>
-                    <li><a href="{% url 'faq_sublocation' 'rightsholders' 'rights' %}"><span>Rights</span></a></li>
-                    <li class="last"><a href="{% url 'about_specific' 'smashwords' %}"><span>Smashwords Authors</span></a></li>
-                </ul>
-            </li>
-
-            <li class="parent">
-                <a href="{% url 'libraries' %}"><span>For Libraries</span></a>
-            </li>
-            <li class="parent">
-                <a href="{% url 'landing' %}"><span>Start Exploring</span></a>
-            </li>
-        </ul>
-    </div>
-</div>
+                        <li class="parent {% if location != 'rightsholders' and 'smashwords' not in request.path %}collapse{% endif %}">
+                            <a href="{% url 'faq_location' 'rightsholders' %}"><span>For Rights Holders</span></a>
+                            <ul class="menu level2">
+                                <li class="first"><a href="{% url 'faq_sublocation' 'rightsholders' 'authorization' %}"><span>Becoming Authorized</span></a></li>
+                                <li><a href="{% url 'faq_sublocation' 'rightsholders' 'claiming' %}"><span>Claiming Works</span></a></li>
+                                <li><a href="{% url 'faq_sublocation' 'rightsholders' 'campaigns' %}"><span>Running Campaigns</span></a></li>
+                                <li><a href="{% url 'faq_sublocation' 'rightsholders' 'addingmedia' %}"><span>Adding Media</span></a></li>
+                                <li><a href="{% url 'faq_sublocation' 'rightsholders' 'publicity' %}"><span>Publicizing Campaigns</span></a></li>
+                                <li><a href="{% url 'faq_sublocation' 'rightsholders' 'funding' %}"><span>Funding</span></a></li>
+                                <li><a href="{% url 'faq_sublocation' 'rightsholders' 'conversion' %}"><span>Ebook Conversion</span></a></li>
+                                <li><a href="{% url 'faq_sublocation' 'rightsholders' 'rights' %}"><span>Rights</span></a></li>
+                                <li class="last"><a href="{% url 'about_specific' 'smashwords' %}"><span>Smashwords Authors</span></a></li>
+                            </ul>
+                        </li>
+                        
+                        <li class="parent">
+                            <a href="{% url 'libraries' %}"><span>For Libraries</span></a>
+                        </li>
+                        <li class="parent">
+                            <a href="{% url 'landing' %}"><span>Start Exploring</span></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>

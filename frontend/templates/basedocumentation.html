@@ -8,7 +8,7 @@
 {% block extra_extra_head %}
 <link type="text/css" rel="stylesheet" href="{% sass_src 'scss/landingpage4.scss' %}" />
 <link type="text/css" rel="stylesheet" href="{% sass_src 'scss/book_panel2.scss' %}" />
-<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/faq.scss' %}" />
+<script type="text/javascript" src="/static/js/greenpanel.js"></script>
 
 {% endblock %}
 
@@ -21,16 +21,29 @@
 {% endblock %}
 
 {% block content %}
-<div class="faq-container">
-    <div class="faq-menu">
-        {% include "faqmenu.html" %}
-        {% block subnav %}{% endblock %}
-    </div>
-    <div class="faq-main doc">
-        {% block doccontent %}
-        {% endblock %}
-    </div>
-</div>
+<div id="main-container">
+	<div class="js-main">
+		<div id="js-leftcol">
+			{% include "faqmenu.html" %}
+			{% block subnav %}{% endblock %}
+		</div>
+		<div id="js-maincol-fr" class="have-right doc">
+			<div class="js-maincol-inner">
+				<div id="content-block">
+					<div id="js-main-container">
+            			<div class="js-main-container-inner">
+
+    
+{% block doccontent %}
+{% endblock %}
+
+						</div>
+					</div>
+			</div>
+		</div>
+		</div>
+	</div>
+</div>    
 
 {% endblock %}
 

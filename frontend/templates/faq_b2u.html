@@ -16,11 +16,11 @@ Read the ebook now, help to make if available to all in the future. The eBook wa
 
 <dd>The ungluing date is the date a book gets released under a Creative Commons License. After the ungluing date, the ebook will be available for free at unglue.it, Internet Archive and any library, anywhere. You'll be able to make copies for all your friends, if that's what you want to do.</dd>
 <dt>How does that work?</dt>
-<dd>The rights holder for the book picks
+<dd>The rights holder for the book picks 
 <ol>
 <li>an initial ungluing date some time in the future, and </li>
 <li>a revenue goal</li>
-</ol> When an ebook license is purchased, the ungluing date is recalculated according to these formulae:<pre class="long-formula">
+</ol> When an ebook license is purchased, the ungluing date is recalculated according to these formulae:<pre> 
 (days per dollar) = [(initial ungluing date) - (launch date)] / (campaign goal)
 
 (current ungluing date) = (initial ungluing date) - (gross revenue)*(days per dollar)
@@ -35,12 +35,12 @@ Here's a calculator you can use to see how this works:
 {{ form.cc_date_initial.errors }}{{ form.cc_date_initial }}</p>
 {% else %}
 {% endif %}
-<p>and a revenue goal of
+<p>and a revenue goal of 
 {{ form.target.errors }}${{ form.target }},</p>
 
 {% if form.instance.dollar_per_day %}
 
-<p>If you launch today, when the Book has earned
+<p>If you launch today, when the Book has earned 
 ${{ form.revenue.errors }}{{ form.revenue }}, the new Ungluing Date will be <span class="call-to-action">{{ form.instance.cc_date }}</span> and every additional <span class="call-to-action">${{ form.instance.dollar_per_day|floatformat:2|intcomma }}</span> received will advance the Ungluing Date by one day.</p>
 
 <p><input type="submit" value="Calculate"  /> another Ungluing Date</p>

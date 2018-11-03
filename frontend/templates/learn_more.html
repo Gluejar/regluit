@@ -16,6 +16,131 @@
                             </div>
                         </div>
                     </div>
-              </div>
+                    <div {%if request.user.is_authenticated  or hide_learn_more %}id="user-block-hide" {% endif %}class="user-block-hide learnmore_block ">
+                        <h1 style="text-align: center;padding-top: 1em;width: 70%; line-height: 1.2em;">Find over 10,000 <i>free</i> ebooks here.<br />Help us make more ebooks <i>free</i>!</h1>
+                         
+                        <div class="quicktour panelview" >
+                            <div class="panelview panelfront side1" >
+                                <span style="color: #8ac3d7; " class="makeaskgive">MAKE</span>
+                                <div class="qtbutton make"><i class="fa fa-heart-o"></i>&nbsp;<i class="fa fa-heart-o"></i>&nbsp;<i class="fa fa-heart-o"></i></div>
+                            </div>
+                            <div class="panelview panelback side2" >
+                                <span class="highlight">Creators</span> make ebooks in EPUB, MOBI, and PDF.<br />
+                                <span class="highlight">Ungluers</span> love them for doing it.<br />
+                            </div>
+                        </div>
+                        <div class="arrow"><i class="fa fa-arrow-right"></i></div>
+                        <div class="quicktour panelview" >
+                            <div class="panelview panelfront side1">
+                                <span style="color: #8dc63f; " class="makeaskgive">GIVE</span>
+                                <a   title="Download this work" class="qtbutton qtreadittext"><div class="read_itbutton qtreadit"><span>Read it Now</span></div></a>
+                            </div>
+                            <div class="panelview panelback side2" >
+                                <span class="highlight">Creators</span> apply <a href="https://creativecommons.org/">Creative Commons</a> licenses to ebooks.<br />
+                                <span class="highlight">Ungluers</span> read them at home, at a library, anywhere.<br />
+                            </div>
+                        </div>
+                        <div class="arrow"><i class="fa fa-arrow-right"></i></div>
+                        <div class="quicktour panelview" >
+                            <div class="panelview panelfront side1">
+                            
+                                <span style="color: #e18551; " class="makeaskgive">ASK</span>
+                                <input name="pledge" type="submit" value="Say Thank You"  class="qtbutton" style="
+                                    left: 42px;
+                                ">
+                            </div>
+                            <div class="panelview panelback side2" >
+                                <span class="highlight">Creators</span> ask downloaders to contribute what they choose.<br />
+                                <span class="highlight">Ungluers</span> say thank you with their support.
+                            </div>
+                        </div>
+                        <div class="quicktour last">
+                            <div class="programlink">
+                                <a href="{% url 'faq_sublocation' 'campaigns' 't4u' %}">"Thanks for Ungluing"</a>
+                            </div>
+                        </div>
+                        <div class="learnmore_row"></div>
+                        <div class="quicktour panelview" >
+                            <div class="panelview panelfront side1" >
+                                <span style="color: #8ac3d7; " class="makeaskgive">MAKE</span>
+                                <div class="qtbutton make"><i class="fa fa-heart-o"></i>&nbsp;<i class="fa fa-heart-o"></i>&nbsp;<i class="fa fa-heart-o"></i></div>
+                            </div>
+                            <div class="panelview panelback side2" >
+                                <span class="highlight">Creators</span> make ebooks in EPUB.<br />
+                                <span class="highlight">Ungluers</span> love them for doing it.<br />
+                            </div>
+                        </div>
+                        <div class="arrow"><i class="fa fa-arrow-right"></i></div>
+                        <div class="quicktour panelview" >
+                            <div class="panelview panelfront side1">
+                            
+                                <span style="color: #e18551; " class="makeaskgive">ASK</span>
+                                <input name="pledge" type="submit" value="Purchase"  class="qtbutton" style="
+                                    left: 84px;
+                                ">
+                            </div>
+                            <div class="panelview panelback side2" >
+                                <span class="highlight">Creators</span> set a funding goal and a per-copy price.<br />
+                                <span class="highlight">Ungluers</span> purchase the ebook to advance the campaign.
+                            </div>
+                        </div>
+                        <div class="arrow"><i class="fa fa-arrow-right"></i></div>
+                        <div class="quicktour panelview" >
+                            <div class="panelview panelfront side1">
+                                <span style="color: #8dc63f; " class="makeaskgive">GIVE</span>
+                                <a   title="Download this work" class="qtbutton qtreadittext"><div class="read_itbutton qtreadit"><span>Read it Now</span></div></a>
+                            </div>
+                            <div class="panelview panelback side2" >
+                                When the funding goal is met, <a href="https://creativecommons.org/">Creative Commons</a> licenses are automatically applied.<br />
+                            </div>
+                        </div>
+                        <div class="quicktour last">
+                            <div class="programlink">
+                                <a href="{% url 'faq_sublocation' 'campaigns' 'b2u' %}">"Buy to Unglue"</a>
+                            </div>
+                        </div>
+                        <div class="learnmore_row"></div>
+                        <div class="quicktour panelview" >
+                            <div class="panelview panelfront side1">
+                            
+                                <span style="color: #e18551; " class="makeaskgive">ASK</span>
+                                <input name="pledge" type="submit" value="Pledge"  class="qtbutton" style="
+                                    left: 100px;
+                                ">
+                            </div>
+                            <div class="panelview panelback side2" >
+                                <span class="highlight">Creators</span> set a funding goal and rewards for supporters.<br />
+                                <span class="highlight">Ungluers</span> pledge to support the campaign.
+                            </div>
+                        </div>
+                        <div class="arrow"><i class="fa fa-arrow-right"></i></div>
+                        <div class="quicktour panelview" >
+                            <div class="panelview panelfront side1" >
+                                <span style="color: #8ac3d7; " class="makeaskgive">MAKE</span>
+                                <div class="qtbutton make"><i class="fa fa-heart-o"></i>&nbsp;<i class="fa fa-heart-o"></i>&nbsp;<i class="fa fa-heart-o"></i></div>
+                            </div>
+                            <div class="panelview panelback side2" >
+                                When the campaign succeeds, We collect <span class="highlight">Ungluer</span> pledges.<br />
+                                The ebook is <span class="highlight">created</span> and rewards are distributed.
+                            </div>
+                        </div>
+                        <div class="arrow"><i class="fa fa-arrow-right"></i></div>
+                        <div class="quicktour panelview" >
+                            <div class="panelview panelfront side1">
+                                <span style="color: #8dc63f; " class="makeaskgive">GIVE</span>
+                                <a   title="Download this work" class="qtbutton qtreadittext"><div class="read_itbutton qtreadit"><span>Read it Now</span></div></a>
+                            </div>
+                            <div class="panelview panelback side2" >
+                                <a href="https://creativecommons.org/">Creative Commons</a> licenses are  applied.<br />
+                                <span class="highlight">Ungluers</span> read them at home, at a library, anywhere.<br />
+                            </div>
+                        </div>
+                        <div class="quicktour last">
+                            <div class="programlink">
+                                <a href="{% url 'faq_sublocation' 'campaigns' 'supporting' %}">"Pledge to Unglue"</a>
+                            </div>
+                        </div>
+                    </div>
+            </div>
         </div>
     </div>

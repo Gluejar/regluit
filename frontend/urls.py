@@ -90,7 +90,6 @@ urlpatterns = [
     url(r"^work/(?P<work_id>\d+)/librarything/$", views.work_librarything, name="work_librarything"),
     url(r"^work/(?P<work_id>\d+)/goodreads/$", views.work_goodreads, name="work_goodreads"),
     url(r"^work/(?P<work_id>\d+)/openlibrary/$", views.work_openlibrary, name="work_openlibrary"),
-    url(r"^read/(?P<work_id>\d+)/$", views.read, name="read"),
     url(r"^new_edition/(?P<work_id>)(?P<edition_id>)$", views.edit_edition, name="new_edition"),
     url(r"^new_edition/(?P<work_id>\d*)/(?P<edition_id>\d*)$", views.edit_edition, name="new_edition"),
     url(r"^manage_ebooks/(?P<edition_id>\d*)$", views.manage_ebooks, name="manage_ebooks"),

@@ -2,6 +2,7 @@
 
 {% block title %}Log in to Unglue.it{% endblock %}
 {% block doccontent %}
+<div id="lightbox_content">
 
 {% if form.errors %}
 {% for error in form.non_field_errors %}
@@ -15,6 +16,7 @@ Make sure the username box has your <b>username, not your email</b> -- some brow
         <p>
             We've sent your book to your Kindle.  Happy reading!
         </p>
+        
         <p>
             In the future you can send yourself unglued ebooks with one click.  Log in, or sign up, and we'll add your Kindle email to your profile so you never have to enter it again.
         </p>
@@ -29,19 +31,14 @@ Make sure the username box has your <b>username, not your email</b> -- some brow
 <a href="{% url 'libraryauth_password_reset' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Forgot</a> your password?  <a href="{% url 'registration_register' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Need an account</a>?  <a href="/faq/basics/account">Other questions</a>?
 
 
-<div class="google-signup">
-    <a  class="btn btn-social btn-google-plus" href="{% url 'social:begin' "google-oauth2" %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}" >
-        <i class="fa fa-google"></i>
-        Sign in with Google
-    </a>
-    <a  class="btn btn-social btn-yahoo" href="{% url 'social:begin' "yahoo" %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}" >
-        <i class="fa fa-yahoo"></i>
-        Sign in with Yahoo!
-    </a>
-</div>
+<br /><br />
+
+   <a  class="btn btn-social btn-google-plus" href="{% url 'social:begin' "google-oauth2" %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}" ><i class="fa fa-google"></i>Sign in with Google</a>
+   <a  class="btn btn-social btn-yahoo" href="{% url 'social:begin' "yahoo" %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}" ><i class="fa fa-yahoo"></i>Sign in with Yahoo!</a>
 {% else %}
 <div>
 You are already logged in as <a href="{% url 'supporter' user %}">{{ user.username }}</a>.
 </div>
 {% endif %}
+</div>
 {% endblock %}
