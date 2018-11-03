@@ -1,4 +1,3 @@
-from bs4 import BeautifulSoup
 import requests
 from django.conf import settings
 
@@ -8,8 +7,10 @@ from regluit.core.validation import (
     valid_subject,
     validate_date,
 )
+from regluit.core.bookloader import add_from_bookdatas
 
-from regluit.core.loaders.multiscrape import BaseMultiScraper, multiscrape
+from .multiscrape import BaseMultiScraper, multiscrape
+from .utils import ids_from_urls
 
 class KUMultiScraper(BaseMultiScraper):
     parser_name = 'xml'
@@ -18,11 +19,11 @@ class KUMultiScraper(BaseMultiScraper):
     @classmethod
     def divider(cls, doc):
         return doc.find_all('Submission')
-    
+
     @classmethod
     def get_response(cls, url):
         return cls.login().get(url)
-        
+
     @classmethod
     def login(cls):
         s = requests.Session()
@@ -30,11 +31,11 @@ class KUMultiScraper(BaseMultiScraper):
         r = s.get('https://app.knowledgeunlatched.org/login')
         r = s.post('https://app.knowledgeunlatched.org/auth/login', json=credentials)
         return s
-    
+
     def get_license(self):
         val = self.fetch_one_el_content('LicenseURL')
         if val:
-            self.set('LicenseURL', val)
+            self.set('rights_url', val)
 
     def get_title(self):
         val = self.fetch_one_el_content('Title')
@@ -57,7 +58,7 @@ class KUMultiScraper(BaseMultiScraper):
         val = self.fetch_one_el_content('Language')
         if val:
             self.set('language', val)
-            
+
     def get_keywords(self):
         subjects = [self.fetch_one_el_content('PrimarySubject')]
         for subject in self.doc.find_all('ManualSubject'):
@@ -129,10 +130,27 @@ class KUMultiScraper(BaseMultiScraper):
         return isbns
 
     def get_identifiers(self):
+        doi_cleaner = identifier_cleaner('doi', quiet=True)
         super(KUMultiScraper, self).get_identifiers()
         url = self.fetch_one_el_content('Doi')
         if url:
-            self.identifiers['doi'] = url
+            doi = doi_cleaner(url)
+            if doi:
+                self.identifiers['doi'] = doi
         url = self.fetch_one_el_content('OAPENURL')
         if url:
-            self.identifiers['http'] = url
+            oapn = ids_from_urls(url).get('oapn', None)
+            if oapn:
+                self.identifiers['oapn'] = oapn
+
+ku_rounds = [8, 33, 1, 2, 4, 3, 5, 31, 6, 42, 26, 27]
+
+def load_ku(ku_round=None):
+    rounds = [ku_round] if ku_round else ku_rounds
+    editions = []
+    for around in rounds:
+        ku_url = 'https://app.knowledgeunlatched.org/api/rounds/{}/submissions.xml'.format(around)
+        scrapers = multiscrape(ku_url, scraper_class=KUMultiScraper)
+        editions.extend(add_from_bookdatas(scrapers))
+    return editions
+

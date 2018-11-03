@@ -18,10 +18,10 @@ returns an iterator of scrapers
 '''
         
 class BaseMultiScraper(BaseScraper):
-    parser = 'lxml'
+    parser_name = 'lxml'
     def __init__(self, url, doc):
         self.metadata = {}
-        self.identifiers = {'http': url}
+        self.identifiers = {}
         self.doc = doc
         self.base = url
         self.get_all()
@@ -35,9 +35,9 @@ class BaseMultiScraper(BaseScraper):
 
 def multiscrape(url, scraper_class=BaseMultiScraper):
     try:
-        response = scraper_class.login().get(url, headers={"User-Agent": settings.USER_AGENT})
+        response = scraper_class.get_response(url)
         if response.status_code == 200:
-            doc = BeautifulSoup(response.content, BaseMultiScraper.parser)
+            doc = BeautifulSoup(response.content, scraper_class.parser_name)
             sections = scraper_class.divider(doc)
             for section in sections:
                 yield scraper_class(url, section)
