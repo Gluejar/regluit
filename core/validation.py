@@ -44,6 +44,8 @@ ID_VALIDATION = {
              "The Unglue.it ID must be 1-6 digits."),
     'ltwk': (r'^(\d{1,8}|delete)$',
              "The LibraryThing work ID must be 1-8 digits."),
+    'oapn': (r'^(\d{1,8}|delete)$',
+             "The OAPEN ID must be 1-8 digits."),
 }
 
 def isbn_cleaner(value):

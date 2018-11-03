@@ -35,6 +35,7 @@ ID_CHOICES = (
     ('thng', 'Library Thing ID'),
     ('olwk', 'Open Library Work ID'),
     ('ltwk', 'Library Thing Work ID'),
+    ('oapn', 'OAPEN ID'),
 )
 
 OTHER_ID_CHOICES = (

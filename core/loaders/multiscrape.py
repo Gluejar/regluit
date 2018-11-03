@@ -18,9 +18,10 @@ returns an iterator of scrapers
 '''
         
 class BaseMultiScraper(BaseScraper):
+    parser_name = 'lxml'
     def __init__(self, url, doc):
         self.metadata = {}
-        self.identifiers = {'http': url}
+        self.identifiers = {}
         self.doc = doc
         self.base = url
         self.get_all()
@@ -28,12 +29,16 @@ class BaseMultiScraper(BaseScraper):
             self.set('title', '!!! missing title !!!')
         self.metadata['identifiers'] = self.identifiers
 
-def multiscrape(url, divider, scraper_class=BaseMultiScraper):
+    @classmethod
+    def login(cls):
+        return requests
+
+def multiscrape(url, scraper_class=BaseMultiScraper):
     try:
-        response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
+        response = scraper_class.get_response(url)
         if response.status_code == 200:
-            doc = BeautifulSoup(response.content, 'lxml')
-            sections = divider(doc)
+            doc = BeautifulSoup(response.content, scraper_class.parser_name)
+            sections = scraper_class.divider(doc)
             for section in sections:
                 yield scraper_class(url, section)
     except requests.exceptions.RequestException as e:
@@ -43,11 +48,13 @@ def multiscrape(url, divider, scraper_class=BaseMultiScraper):
 
 # following is code specific to edp-open.org; refactor when we add another
 
-def divider(doc):
-    return doc.select('article.Bk')
 
 ISBNMATCH = re.compile(r'([\d\-]+)')
 class EDPMultiScraper(BaseMultiScraper):
+    @classmethod
+    def divider(cls, doc):
+        return doc.select('article.Bk')
+
     def get_isbns(self):
         '''return a dict of edition keys and ISBNs'''
         isbns = {}
@@ -90,6 +97,6 @@ def edp_scrape():
         'https://www.edp-open.org/books-in-english',
     ]
     for url in edp_urls:
-        scrapers = multiscrape(url, divider, scraper_class=EDPMultiScraper)
+        scrapers = multiscrape(url, scraper_class=EDPMultiScraper)
         add_from_bookdatas(scrapers)
 
