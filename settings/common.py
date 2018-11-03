@@ -44,8 +44,10 @@ MEDIA_URL = '/media/'
 
 # set once instead of in all the templates
 JQUERY_HOME = "/static/js/jquery-1.12.4.min.js"
+
 JQUERY_UI_HOME = "/static/js/jquery-ui-1.11.4.min.js"
 JQUERY_UI_THEME = "/static/css/ui-lightness/jquery-ui-1.11.4.min.css"
+
 
 CKEDITOR_UPLOAD_PATH = ''
 CKEDITOR_RESTRICT_BY_USER = True
@@ -143,7 +145,7 @@ ROOT_URLCONF = 'regluit.urls'
 
 INSTALLED_APPS = (
     'django.contrib.auth',
-    'django.contrib.contenttypes',  
+    'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.sitemaps',
@@ -172,22 +174,26 @@ INSTALLED_APPS = (
     'ckeditor_uploader',
     'storages', 
     'sorl.thumbnail',
-    'mptt',   
-    # this must appear *after* django.frontend or else it overrides the 
+    'mptt',
+    # this must appear *after* django.frontend or else it overrides the
     # registration templates in frontend/templates/registration
     'django.contrib.admin',
-    'regluit.distro',               
+    'regluit.distro',
     'regluit.booxtream',
     'regluit.pyepub',
-    'regluit.libraryauth', 
+    'regluit.libraryauth',
     'transmeta',
     'questionnaire',
-    'questionnaire.page',  
+    'questionnaire.page',
     'sass_processor',
 )
 
 SASS_PROCESSOR_INCLUDE_DIRS = [
     os.path.join(PROJECT_DIR, 'static', 'scss'),
+    os.path.join('static', 'scss'),
+    os.path.join(PROJECT_DIR, 'static', 'scss', 'foundation', 'scss'),
+    os.path.join('static', 'scss', 'foundation', 'scss'),
+    # static/scss/foundation/scss/foundation.scss
 ]
 SASS_PROCESSOR_AUTO_INCLUDE = False
 
@@ -298,11 +304,13 @@ SOCIAL_AUTH_PIPELINE = (
     # there's any collision.
     'social_core.pipeline.user.get_username',
     
+
     # make username < 222 in length
     'regluit.libraryauth.auth.chop_username',
-    
+
     # Send a validation email to the user to verify its email address.
     # Disabled by default.
+
     # 'social_core.pipeline.mail.mail_validation',
     
     # Associates the current social details with another user account with
@@ -313,6 +321,7 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.user.create_user',
 
     # Create the record that associated the social account with this user.
+
     'social_core.pipeline.social_auth.associate_user',
     
     # Populate the extra_data field in the social record with the values
@@ -335,7 +344,7 @@ LOGIN_ERROR_URL    = '/accounts/login-error/'
 
 USER_AGENT = "unglue.it.bot v0.0.1 <https://unglue.it>"
 
-# The amount of the transaction that Gluejar takes 
+# The amount of the transaction that Gluejar takes
 GLUEJAR_COMMISSION = 0.06
 PREAPPROVAL_PERIOD = 365 # days to ask for in a preapproval
 PREAPPROVAL_PERIOD_AFTER_CAMPAIGN = 90 # if we ask for preapproval time after a campaign deadline
@@ -383,7 +392,7 @@ UPDATE_ACTIVE_CAMPAIGN_STATUSES = {
 EBOOK_NOTIFICATIONS_JOB = {
     "task": "regluit.core.tasks.report_new_ebooks",
     "schedule": crontab(hour=0, minute=30),
-    "args": ()    
+    "args": ()
 }
 
 NOTIFY_ENDING_SOON_JOB = {
@@ -407,13 +416,13 @@ UPDATE_ACCOUNT_STATUSES = {
 NOTIFY_EXPIRING_ACCOUNTS = {
     "task": "regluit.payment.tasks.notify_expiring_accounts",
     "schedule": crontab(day_of_month=22, hour=0, minute=30),
-    "args": ()    
+    "args": ()
 }
 
 NOTIFY_UNCLAIMED_GIFTS = {
     "task": "regluit.core.tasks.notify_unclaimed_gifts",
     "schedule": crontab( hour=2, minute=15),
-    "args": ()    
+    "args": ()
 }
 
 # by default, in common, we don't turn any of the celerybeat jobs on -- turn them on in the local settings file
@@ -424,11 +433,12 @@ NOTIFICATION_QUEUE_ALL = True
 PAYMENT_PROCESSOR = 'stripelib'
 
 
+
 # we should suppress Google Analytics outside of production
 SHOW_GOOGLE_ANALYTICS = False
 
 # to enable uploading to S3 and integration of django-storages + django-ckeditor
-# some variables to be overriddden in more specific settings files -- e.g., prod.py, 
+# some variables to be overriddden in more specific settings files -- e.g., prod.py,
 CKEDITOR_ALLOW_NONIMAGE_FILES = False
 
 AWS_ACCESS_KEY_ID = ''
@@ -498,5 +508,4 @@ except ImportError:
 if AWS_SECRET_ACCESS_KEY:
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 else:
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage' 
-
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'

@@ -281,7 +281,9 @@ class OfferForm(forms.ModelForm):
 
 
 class CampaignPurchaseForm(forms.Form):
-    anonymous = forms.BooleanField(required=False, label=_("Make this purchase anonymous, please"))
+    anonymous = forms.BooleanField(required=False,
+                                   label_suffix='',
+                                   label=_("Make this purchase anonymous"))
     offer_id = forms.IntegerField(required=False)
     offer = None
     library_id = forms.IntegerField(required=False)
@@ -346,7 +348,8 @@ class CampaignPurchaseForm(forms.Form):
 class CampaignThanksForm(forms.Form):
     anonymous = forms.BooleanField(
         required=False,
-        label=_("Make this contribution anonymous, please")
+        label_suffix='',
+        label=_("Make this contribution anonymous")
     )
     preapproval_amount = forms.DecimalField(
         required = True,
@@ -380,7 +383,10 @@ class CampaignPledgeForm(forms.Form):
     def amount(self):
         return self.cleaned_data["preapproval_amount"] if self.cleaned_data else None
 
-    anonymous = forms.BooleanField(required=False, label=_("Make this support anonymous, please"))
+    anonymous = forms.BooleanField(
+        required=False,
+        label_suffix='',
+        label=_("Make this support anonymous"))
     ack_name = forms.CharField(
         required=False,
         max_length=64,
