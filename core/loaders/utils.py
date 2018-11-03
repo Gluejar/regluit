@@ -359,6 +359,7 @@ ID_URLPATTERNS = {
     'doi': re.compile(r'[\./]doi\.org/(?P<id>10\.\d+/\S+)'),
     'gtbg': re.compile(r'[\./]gutenberg\.org/ebooks/(?P<id>\d{1,6})'),
     'glue': re.compile(r'[\./]unglue\.it/work/(?P<id>\d{1,7})'),
+    'oapn': re.compile(r'[\./]oapen\.org/download\?.*docid=(?P<id>\d{1,8})'),
 }
 
 def ids_from_urls(url):
