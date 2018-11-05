@@ -8,6 +8,7 @@ from regluit.core.validation import (
     validate_date,
 )
 from regluit.core.bookloader import add_from_bookdatas
+from regluit.core.models import EbookFile
 
 from .multiscrape import BaseMultiScraper, multiscrape
 from .utils import ids_from_urls
@@ -153,4 +154,14 @@ def load_ku(ku_round=None):
         scrapers = multiscrape(ku_url, scraper_class=KUMultiScraper)
         editions.extend(add_from_bookdatas(scrapers))
     return editions
+
+def activate_ku_ebooks():
+    to_activate = EbookFile.objects.filter(
+        source__startswith='https://app.knowledgeunlatched.org/uploads/',
+        ebook__active=False,
+    )
+    num_to_activate = to_activate.count()
+    for ebf in to_activate:
+        ebf.ebook.activate()
+    return num_to_activate
 
