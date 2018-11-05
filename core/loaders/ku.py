@@ -89,7 +89,7 @@ class KUMultiScraper(BaseMultiScraper):
     def get_authors(self):
         def fullname(auth):
             firstname = auth.FirstName.text
-            lastname = auth.FirstName.text
+            lastname = auth.LastName.text
             return u'{} {}'.format(firstname, lastname)
         authors = self.doc.find_all('Author')
         creator_list = []
