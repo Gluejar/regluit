@@ -10,6 +10,7 @@ from django.db import models
 from django.db.models.signals import post_save
 from django.forms import GenericIPAddressField as BaseIPAddressField
 from django.urls import reverse
+from django.utils import timezone 
 
 class Library(models.Model):
     '''
@@ -291,3 +292,13 @@ class EmailPattern(models.Model):
 
     def is_valid(self, email):
         return email.lower().endswith(self.pattern.lower())
+        
+class BadUsernamePattern(models.Model):
+    pattern = models.CharField(max_length=100)
+    last = models.DateTimeField(default=timezone.now)
+    
+    def matches(self, username):
+        if re.match(self.pattern, username):
+            self.last = timezone.now()
+            return True
+        return False

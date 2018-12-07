@@ -1,7 +1,7 @@
 import logging
 from django.conf import settings
 from django.urls import reverse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth import login as login_to_user
 from django.contrib.auth import load_backend
 from django.contrib.auth.decorators import login_required
@@ -15,7 +15,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from registration.backends.model_activation.views import RegistrationView
 
 from . import backends
-from .models import Library
+from .models import Library, BadUsernamePattern
 from .forms import LibraryForm, NewLibraryForm, RegistrationFormNoDisposableEmail, UserData
 
 logger = logging.getLogger(__name__)
@@ -288,6 +288,15 @@ class CustomRegistrationView(RegistrationView):
         q = self.request.session.get('q', False)
         if q and q in robot_qs:
             return self.render_to_response({'form':form})
+        for bad_pattern in BadUsernamePattern.objects.all():
+            if bad_pattern.matches(form.cleaned_data['username']):                
+                # pretend success
+                success_url = self.get_success_url(None)
+                try:
+                    to, args, kwargs = success_url
+                    return redirect(to, *args, **kwargs)
+                except ValueError:
+                    return redirect(success_url)
         return super(CustomRegistrationView, self).form_valid(form)
 
 def edit_user(request, redirect_to=None):
