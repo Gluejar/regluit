@@ -300,5 +300,6 @@ class BadUsernamePattern(models.Model):
     def matches(self, username):
         if re.match(self.pattern, username):
             self.last = timezone.now()
+            self.save()
             return True
         return False
