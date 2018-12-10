@@ -18,7 +18,9 @@ class Command(BaseCommand):
             new_ebf, new = dl_online(online)
             if new_ebf and new:
                 done += 1
-                if done > limit:
+                if done == limit or done == 50:
                     break
         self.stdout.write('harvested {} ebooks'.format(done))
+        if done == 50:
+            self.stdout.write('50 is the maximum; repeat to do more')
         

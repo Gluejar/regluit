@@ -446,11 +446,12 @@ def type_for_url(url, content_type=None):
     if Ebook.objects.filter(url=url):
         return Ebook.objects.filter(url=url)[0].format
     ct = content_type if content_type else contenttyper.calc_type(url)
+    binary_type = re.search("octet-stream", ct) or re.search("application/binary", ct)
     if re.search("pdf", ct):
         return "pdf"
-    elif re.search("octet-stream", ct) and re.search("pdf", url, flags=re.I):
+    elif binary_type and re.search("pdf", url, flags=re.I):
         return "pdf"
-    elif re.search("octet-stream", ct) and re.search("epub", url, flags=re.I):
+    elif binary_type and re.search("epub", url, flags=re.I):
         return "epub"
     elif re.search("text/plain", ct):
         return "text"
