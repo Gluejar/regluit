@@ -144,7 +144,7 @@ class KUMultiScraper(BaseMultiScraper):
             if oapn:
                 self.identifiers['oapn'] = oapn
 
-ku_rounds = [8, 33, 1, 2, 4, 3, 5, 31, 6, 42, 26, 27]
+ku_rounds = [8, 33, 1, 2, 4, 3, 5, 31, 6, 42, 26, 27, 29, 7, 15, 16, 11, 12, 9, 10, 23]
 
 def load_ku(ku_round=None):
     rounds = [ku_round] if ku_round else ku_rounds
