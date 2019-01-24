@@ -7,6 +7,7 @@ from ckeditor_uploader import views as ckedit_views
 
 from regluit.admin import site
 from regluit.core.sitemaps import WorkSitemap, PublisherSitemap
+from regluit.frontend.views import static_redirect_view
 
 sitemaps = {
     'works': WorkSitemap,
@@ -37,4 +38,6 @@ urlpatterns = [
         name='django.contrib.sitemaps.views.sitemap'),
     url(r'^sitemap-(?P<section>.+)\.xml$', sitemap, {'sitemaps': sitemaps},
         name='django.contrib.sitemaps.views.sitemap'),
+    url(r'^\.well-known/acme-challenge/(?P<file_name>[\w\.]*)',
+        static_redirect_view, {'dir': 'lencrypt'}),        
 ]
