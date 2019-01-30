@@ -39,5 +39,5 @@ urlpatterns = [
     url(r'^sitemap-(?P<section>.+)\.xml$', sitemap, {'sitemaps': sitemaps},
         name='django.contrib.sitemaps.views.sitemap'),
     url(r'^\.well-known/acme-challenge/(?P<file_name>[\w\.]*)',
-        static_redirect_view, {'dir': 'lencrypt'}),        
+        static_redirect_view, {'dir': '.well-known/acme-challenge'}),        
 ]
