@@ -38,6 +38,6 @@ urlpatterns = [
         name='django.contrib.sitemaps.views.sitemap'),
     url(r'^sitemap-(?P<section>.+)\.xml$', sitemap, {'sitemaps': sitemaps},
         name='django.contrib.sitemaps.views.sitemap'),
-    url(r'^\.well-known/acme-challenge/(?P<file_name>[\w\.]*)',
+    url(r'^\.well-known/acme-challenge/(?P<file_name>[\w\-_]*)',
         static_redirect_view, {'dir': '.well-known/acme-challenge'}),        
 ]
