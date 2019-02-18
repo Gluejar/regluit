@@ -28,9 +28,10 @@ class KUMultiScraper(BaseMultiScraper):
     @classmethod
     def login(cls):
         s = requests.Session()
-        credentials = {'email': settings.KU_EMAIL, 'password': settings.KU_PASSWORD}
+        credentials = {'username': settings.KU_EMAIL, 'password': settings.KU_PASSWORD}
         r = s.get('https://app.knowledgeunlatched.org/login')
-        r = s.post('https://app.knowledgeunlatched.org/auth/login', json=credentials)
+        auth_url = BeautifulSoup(r.content, "lxml").find(id='kc-form-login')['action']
+        r = s.post(auth_url, data=credentials)
         return s
 
     def get_license(self):
