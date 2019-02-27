@@ -1901,17 +1901,44 @@ class ManageAccount(FormView):
             return render(self.request, self.template_name, self.get_context_data())
 
 def search(request):
+    """
+    request params 
+    q the query
+    ty type  - au is author, g or anything else is general
+    gbo  >0 = start in google books 0 = start in unglue.it
+    page = page number for unglue.it results
+    gbpage = page number for google results
+    
+    max 10 items per page from either unglue.it or gb
+    possible results - 1 page of unglue.it results
+                     - an additional page of unglue.it
+                     - the last page of ungluit
+                     - beginning of gb, 
+                     - more from gb.
+                     
+    
+    """
     q = request.GET.get('q', '').strip()
     ty = request.GET.get('ty', 'g')  # ge= 'general, au= 'author'
     request.session['q'] = q
+    gbo = request.GET.get('gbo', '0') # gbo says where to start
     try:
         page = int(request.GET.get('page', 1))
     except ValueError:
         # garbage in page
         page = 1
-    gbo = request.GET.get('gbo', 'n') # gbo is flag for google books only
+    try:
+        gbpage = int(request.GET.get('gbpage', 1))
+    except ValueError:
+        # garbage in page
+        gbpage = 1
+   
+    start = (page - 1) * 10
+    end = page * 10 
+
     our_stuff =  Q(is_free=True) | Q(campaigns__isnull=False)
-    if len(q) > 1 and page == 1 and not gbo == 'y':
+    out = []
+    if len(q) > 1 and gbo == '0':
         isbnq = ISBN(q)
         if isbnq.valid:
             work_query = Q(identifiers__value=str(isbnq), identifiers__type="isbn")
@@ -1919,24 +1946,25 @@ def search(request):
             work_query =  Q(editions__authors__name=q)
         else:
             work_query = Q(title__icontains=q) | Q(editions__authors__name__icontains=q) | Q(subjects__name__iexact=q)
-        campaign_works = models.Work.objects.filter(our_stuff).filter(work_query).distinct()
-        for work in campaign_works:
-            results = models.Work.objects.none()
-            break
-        else:
-            if is_bad_robot(request):
-                results = models.Work.objects.none()
-            else:
-                results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=1)
-                gbo = 'y'
-    else:
-        if gbo == 'n':
-            page = page-1 # because page=1 is the unglue.it results
+        ug_works = models.Work.objects.filter(our_stuff).filter(work_query).distinct()
+        out = ug_works[start:end]
+
+    if len(out) < 10:
+        ug_more = 'no'
+        page = 1
+
         if is_bad_robot(request):
             results = models.Work.objects.none()
         else:
-            results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=page)
-        campaign_works = None
+            results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=gbpage)
+
+    elif not ug_works[10:11]:
+        ug_more = 'no'
+        results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=1)
+
+    else:
+        ug_more = 'yes'
+        results = models.Work.objects.none()
 
     # flag search result as on wishlist as appropriate
     works = []
@@ -1948,10 +1976,10 @@ def search(request):
             works.append(result)
     context = {
         "q": q,
-        "gbo": gbo,
         "ty": ty,
         "results": works,
-        "campaign_works": campaign_works
+        "ug_works": out,
+        "ug_more": ug_more
     }
     return render(request, 'search.html', context)
 
