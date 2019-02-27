@@ -2,7 +2,9 @@ from selectable.base import ModelLookup
 from selectable.registry import registry
 
 from django.contrib.auth.models import User
+from django.db import models
 from django.db.models import Count
+
 from regluit.core.models import Work, PublisherName, Edition, Subject, EditionNote, Ebook
 from regluit.utils.text import sanitize_line
 
@@ -80,6 +82,17 @@ class EditionNoteLookup(ModelLookup):
         new_note.save()
         return new_note
 
+class Search(models.Lookup):
+    lookup_name = 'search'
+
+    def as_mysql(self, compiler, connection):
+        lhs, lhs_params = self.process_lhs(compiler, connection)
+        rhs, rhs_params = self.process_rhs(compiler, connection)
+        params = lhs_params + rhs_params
+        return 'MATCH (%s) AGAINST (%s IN BOOLEAN MODE)' % (lhs, rhs), params
+
+models.TextField.register_lookup(Search)
+
 registry.register(OwnerLookup)
 registry.register(WorkLookup)
 registry.register(PublisherNameLookup)
@@ -87,3 +100,4 @@ registry.register(EditionLookup)
 registry.register(SubjectLookup)
 registry.register(EditionNoteLookup)
 registry.register(EbookLookup)
+

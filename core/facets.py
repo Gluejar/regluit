@@ -268,10 +268,10 @@ class SearchFacetGroup(FacetGroup):
                 self.term=self.facet_name[2:]
             def get_query_set(self):
                 return self._get_query_set().filter(
-                    Q(title__icontains=self.term) | 
-                    Q(editions__authors__name__icontains=self.term) | 
+                    Q(title__search=self.term) |
+                    Q(editions__authors__name__search=self.term) |
                     Q(subjects__name__iexact=self.term)
-                    )
+                )
                  
             def template(self):
                 return 'facets/search.html'

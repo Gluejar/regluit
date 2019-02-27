@@ -1945,7 +1945,7 @@ def search(request):
         elif ty == 'au':
             work_query =  Q(editions__authors__name=q)
         else:
-            work_query = Q(title__icontains=q) | Q(editions__authors__name__icontains=q) | Q(subjects__name__iexact=q)
+            work_query = Q(title__search=q) | Q(editions__authors__name__search=q) | Q(subjects__name__iexact=q)
         ug_works = models.Work.objects.filter(our_stuff).filter(work_query).distinct()
         out = ug_works[start:end]
 
