@@ -133,7 +133,10 @@ class Work(models.Model):
 
     class Meta:
         ordering = ['title']
-    
+        indexes = [
+            models.Index(fields=['is_free', 'title']),
+        ]
+
     def __unicode__(self):
         return self.title
 
@@ -742,6 +745,11 @@ class Author(models.Model):
     name = models.CharField(max_length=255, unique=True)
     editions = models.ManyToManyField("Edition", related_name="authors", through="Relator")
 
+    class Meta:
+        indexes = [
+            models.Index(fields=['name']),
+        ]
+
     def __unicode__(self):
         return self.name
 
@@ -796,7 +804,10 @@ class Subject(models.Model):
 
     class Meta:
         ordering = ['name']
-    
+        indexes = [
+            models.Index(fields=['name']),
+        ]
+
     @classmethod
     def set_by_name(cls, subject, work=None, authority=None):
         ''' use this method whenever you would be creating a new subject!'''
@@ -852,6 +863,11 @@ class Edition(models.Model):
     cover_image = models.URLField(null=True, blank=True)
     unglued = models.BooleanField(default=False)
     note = models.ForeignKey("EditionNote", on_delete=models.CASCADE, null=True, blank=True)
+
+    class Meta:
+            indexes = [
+                models.Index(fields=['work']),
+            ]
 
     def __unicode__(self):
         if self.isbn_13:
