@@ -42,10 +42,15 @@ def utf8_general_ci_norm(s):
     s1 = unicodedata.normalize('NFD', s)
     return ''.join(c for c in s1 if not unicodedata.combining(c)).upper()
 
-def get_soup(url):
-    response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
+def get_soup(url, user_agent=settings.USER_AGENT):
+    response = requests.get(url, headers={"User-Agent": user_agent})
     if response.status_code == 200:
-        return BeautifulSoup(response.content, 'lxml')
+        soup = BeautifulSoup(response.content, 'lxml')
+
+        # make sure document has a base
+        if not soup.find('base'):
+            soup.find('head').append(soup.new_tag("base", href=response.url))
+        return soup
     return None
 
 def get_authors(book):
@@ -369,74 +374,6 @@ def ids_from_urls(url):
         if id_match:
             ids[ident] = id_match.group('id')
     return ids
-
-DROPBOX_DL = re.compile(r'"(https://dl.dropboxusercontent.com/content_link/[^"]+)"')
-
-def dl_online(ebook):
-    if ebook.format != 'online':
-        pass
-    elif ebook.url.find(u'dropbox.com/s/') >= 0:
-        if ebook.url.find(u'dl=0') >= 0:
-            dl_url = ebook.url.replace(u'dl=0', u'dl=1')
-            return make_dl_ebook(dl_url, ebook)
-        response = requests.get(ebook.url, headers={"User-Agent": settings.USER_AGENT})
-        if response.status_code == 200:
-            match_dl = DROPBOX_DL.search(response.content)
-            if match_dl:
-                return make_dl_ebook(match_dl.group(1), ebook)
-            else:
-                logger.warning('couldn\'t get {}'.format(ebook.url))
-        else:
-            logger.warning('couldn\'t get dl for {}'.format(ebook.url))
-
-    elif ebook.url.find(u'jbe-platform.com/content/books/') >= 0:
-        doc = get_soup(ebook.url)
-        if doc:
-            obj = doc.select_one('div.fulltexticoncontainer-PDF a')
-            if obj:
-                dl_url = urlparse.urljoin(ebook.url, obj['href'])
-                return make_dl_ebook(dl_url, ebook)
-            else:
-                logger.warning('couldn\'t get dl_url for {}'.format(ebook.url))
-        else:
-            logger.warning('couldn\'t get soup for {}'.format(ebook.url))
-
-    return None, False
-
-def make_dl_ebook(url, ebook):
-    if EbookFile.objects.filter(source=ebook.url):
-        return EbookFile.objects.filter(source=ebook.url)[0], False
-    response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
-    if response.status_code == 200:
-        filesize = int(response.headers.get("Content-Length", 0))
-        filesize = filesize if filesize else None
-        format = type_for_url(url, content_type=response.headers.get('content-type'))
-        if format != 'online':
-            new_ebf = EbookFile.objects.create(
-                edition=ebook.edition,
-                format=format,
-                source=ebook.url,
-            )
-            new_ebf.file.save(path_for_file(new_ebf, None), ContentFile(response.content))
-            new_ebf.save()
-            new_ebook = Ebook.objects.create(
-                edition=ebook.edition,
-                format=format,
-                provider='Unglue.it',
-                url=new_ebf.file.url,
-                rights=ebook.rights,
-                filesize=filesize,
-                version_label=ebook.version_label,
-                version_iter=ebook.version_iter,
-            )
-            new_ebf.ebook = new_ebook
-            new_ebf.save()
-            return new_ebf, True
-        else:
-            logger.warning('download format for {} is not ebook'.format(url))
-    else:
-        logger.warning('couldn\'t get {}'.format(url))
-    return None, False
 
 def type_for_url(url, content_type=None):
     if not url:

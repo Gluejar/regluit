@@ -6,6 +6,7 @@ import requests
 from xhtml2pdf import pisa             # import python module
 from PyPDF2 import PdfFileMerger,PdfFileReader
 from StringIO import StringIO
+from io import BytesIO
 from tempfile import NamedTemporaryFile
 from django.template.loader import render_to_string
 from regluit import settings
@@ -60,10 +61,23 @@ def test_pdf(pdf_file):
         logger.exception('error testing a pdf: %s' % pdf_file[:100])
         return False
 
-def test_test_pdf(self):
-    assert(test_pdf(settings.TEST_PDF_URL))
-    temp = NamedTemporaryFile(delete=False)
-    test_file_content = requests.get(settings.TEST_PDF_URL).content
-    temp.write(test_file_content)
-    assert test_pdf(temp)
-    temp.close()
+def staple_pdf(urllist, user_agent=None):
+    user_agent = user_agent if user_agent else settings.USER_AGENT
+    merger = PdfFileMerger(strict=False)
+    for url in urllist:
+        response = requests.get(url, headers={"User-Agent": user_agent})
+        if response.status_code == 200:
+            merger.append(BytesIO(response.content))
+        else:
+            return None
+    out = BytesIO()
+    merger.write(out)
+    return out
+
+def test_test_pdf():
+        assert(test_pdf(settings.TEST_PDF_URL))
+        temp = NamedTemporaryFile(delete=False)
+        test_file_content = requests.get(settings.TEST_PDF_URL).content
+        temp.write(test_file_content)
+        assert test_pdf(temp)
+        temp.close()
