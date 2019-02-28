@@ -8,8 +8,8 @@ class Command(BaseCommand):
     args = "<limit>"
 
     def add_arguments(self, parser):
-        parser.add_argument('limit', nargs='?', type=int, default=0, help="max to harvest")  
-    
+        parser.add_argument('limit', nargs='?', type=int, default=0, help="max to harvest")
+
     def handle(self, limit=0, **options):
         limit = int(limit) if limit else 0
         rl = RateLimiter()
@@ -24,4 +24,3 @@ class Command(BaseCommand):
         self.stdout.write('harvested {} ebooks'.format(done))
         if done == 50:
             self.stdout.write('50 is the maximum; repeat to do more')
-        

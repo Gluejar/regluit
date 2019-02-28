@@ -1,3 +1,6 @@
+"""
+code for harvesting 'online' ebooks
+"""
 import logging
 import re
 import time
@@ -13,7 +16,7 @@ from regluit.core.models import (
 )
 from regluit.core.pdf import staple_pdf
 
-from .utils import get_soup
+from .utils import get_soup, type_for_url
 
 
 logger = logging.getLogger(__name__)
@@ -24,7 +27,7 @@ DELAY = 5.0
 class RateLimiter(object):
     def __init__(self):
         self.last = {}
-        
+
     def delay(self, provider):
         if provider in self.last:
             prev = self.last[provider]
@@ -32,7 +35,7 @@ class RateLimiter(object):
             if pres - prev < DELAY:
                 time.sleep(float(DELAY - pres + prev))
         self.last[provider] = time.time()
-        return    
+        return
 rl = RateLimiter()
 
 def dl_online(ebook, limiter=rl.delay):
@@ -51,9 +54,9 @@ def dl_online(ebook, limiter=rl.delay):
             if match_dl:
                 return make_dl_ebook(match_dl.group(1), ebook)
             else:
-                logger.warning('couldn\'t get {}'.format(ebook.url))
+                logger.warning('couldn\'t get %s', ebook.url)
         else:
-            logger.warning('couldn\'t get dl for {}'.format(ebook.url))
+            logger.warning('couldn\'t get dl for %s', ebook.url)
 
     elif ebook.url.find(u'jbe-platform.com/content/books/') >= 0:
         for ebf in ebf_if_harvested(ebook.url):
@@ -66,9 +69,9 @@ def dl_online(ebook, limiter=rl.delay):
                 dl_url = urlparse.urljoin(ebook.url, obj['href'])
                 return make_dl_ebook(dl_url, ebook)
             else:
-                logger.warning('couldn\'t get dl_url for {}'.format(ebook.url))
+                logger.warning('couldn\'t get dl_url for %s', ebook.url)
         else:
-            logger.warning('couldn\'t get soup for {}'.format(ebook.url))
+            logger.warning('couldn\'t get soup for %s', ebook.url)
     elif ebook.url.find(u'degruyter') >= 0:
         for ebf in ebf_if_harvested(ebook.url):
             return ebf, False
@@ -90,9 +93,9 @@ def dl_online(ebook, limiter=rl.delay):
             if made:
                 return made
             else:
-                logger.warning('couldn\'t get dl_url for {}'.format(ebook.url))
+                logger.warning('couldn\'t get dl_url for %s', ebook.url)
         else:
-            logger.warning('couldn\'t get soup for {}'.format(ebook.url))
+            logger.warning('couldn\'t get soup for %s', ebook.url)
 
     return None, False
 
@@ -111,13 +114,13 @@ def make_dl_ebook(url, ebook):
         if format != 'online':
             return make_harvested_ebook(response.content, ebook, format, filesize=filesize)
         else:
-            logger.warning('download format for {} is not ebook'.format(url))
+            logger.warning('download format for %s is not ebook', url)
     else:
-        logger.warning('couldn\'t get {}'.format(url))
+        logger.warning('couldn\'t get %s', url)
     return None, False
 
 def make_stapled_ebook(urllist, ebook):
-    pdffile =  staple_pdf(urllist, settings.GOOGLEBOT_UA)
+    pdffile = staple_pdf(urllist, settings.GOOGLEBOT_UA)
     if not pdffile:
         return None, False
     return make_harvested_ebook(pdffile.getvalue(), ebook, 'pdf')

@@ -9,14 +9,13 @@ from bs4 import BeautifulSoup
 import requests
 
 from django.conf import settings
-from django.core.files.base import ContentFile
 
 from regluit.api.crosswalks import inv_relator_contrib
 from regluit.bisac.models import BisacHeading
 from regluit.core.bookloader import add_by_isbn_from_google, merge_works
 from regluit.core.isbn import ISBN
 from regluit.core.models import (
-    Ebook, EbookFile, Edition, Identifier, path_for_file, Subject, Work,
+    Ebook, Edition, Identifier, Subject, Work,
 )
 
 logger = logging.getLogger(__name__)
@@ -97,7 +96,7 @@ def get_subjects(book):
                 bisac = BisacHeading.objects.get(notation=code)
                 subjects.append(bisac)
             except BisacHeading.DoesNotExist:
-                logger.warning("Please add BISAC {}".format(code))
+                logger.warning("Please add BISAC %s", code)
     return subjects
 
 def add_subject(subject_name, work, authority=''):
@@ -137,7 +136,7 @@ def get_cover(book):
             if cover.status_code < 400:
                 return cover_url
             else:
-                logger.warning("bad cover: {} for: {}".format(cover_url, url))
+                logger.warning("bad cover: %s for: %s", cover_url, url)
 
 def get_isbns(book):
     isbns = []
@@ -274,15 +273,15 @@ def load_from_books(books):
                 add_subject(bisacsh.full_label, work, authority="bisacsh")
                 bisacsh = bisacsh.parent
 
-        logging.info(u'loaded work {}'.format(work.title))
+        logging.info(u'loaded work %s', work.title)
         loading_ok = loaded_book_ok(book, work, edition)
 
         results.append((book, work, edition))
 
         try:
-            logger.info(u"{} {} {}\n".format(i, title, loading_ok))
+            logger.info(u"%s %s %s\n", i, title, loading_ok)
         except Exception as e:
-            logger.info(u"{} {} {}\n".format(i, title, str(e)))
+            logger.info(u"%s %s %s\n", i, title, str(e))
 
     return results
 
@@ -299,7 +298,7 @@ def loaded_book_ok(book, work, edition):
     try:
         url_id = Identifier.objects.get(type='http', value=get_url(book))
         if url_id is None:
-            logger.info("url_id problem: work.id {}, url: {}".format(work.id, get_url(book)))
+            logger.info("url_id problem: work.id %s, url: %s", work.id, get_url(book))
             return False
     except Exception as e:
         logger.info(str(e))
@@ -369,8 +368,8 @@ ID_URLPATTERNS = {
 
 def ids_from_urls(url):
     ids = {}
-    for ident in ID_URLPATTERNS.keys():
-        id_match = ID_URLPATTERNS[ident].search(url)
+    for ident, pattern in ID_URLPATTERNS:
+        id_match = pattern.search(url)
         if id_match:
             ids[ident] = id_match.group('id')
     return ids

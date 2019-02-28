@@ -2,14 +2,15 @@
 Utilities that manipulate pdf files
 """
 import logging
+from io import BytesIO
+from StringIO import StringIO
+from tempfile import NamedTemporaryFile
+
 import requests
 from xhtml2pdf import pisa             # import python module
-from PyPDF2 import PdfFileMerger,PdfFileReader
-from StringIO import StringIO
-from io import BytesIO
-from tempfile import NamedTemporaryFile
+from PyPDF2 import PdfFileMerger, PdfFileReader
 from django.template.loader import render_to_string
-from regluit import settings
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -21,14 +22,14 @@ def ask_pdf(context={}):
 
     # convert HTML to PDF
     pisaStatus = pisa.CreatePDF(
-            src=ask_html,                # the HTML to convert
-            dest=resultFile)           # file  to recieve result
-
+        src=ask_html,                # the HTML to convert
+        dest=resultFile,           # file  to recieve result
+    )
     #  True on success and False on errors
     assert pisaStatus.err == 0
     return resultFile
 
-def pdf_append( file1, file2, file_out ):
+def pdf_append(file1, file2, file_out):
     merger = PdfFileMerger(strict=False)
     merger.append(file1)
     merger.append(file2)
@@ -38,7 +39,7 @@ def pdf_append( file1, file2, file_out ):
 def test_pdf(pdf_file):
     temp = None
     try:
-        if isinstance(pdf_file , (str, unicode)):
+        if isinstance(pdf_file, (str, unicode)):
             if pdf_file.startswith('http:') or pdf_file.startswith('https:'):
                 temp = NamedTemporaryFile(delete=False)
                 test_file_content = requests.get(pdf_file).content
@@ -61,8 +62,7 @@ def test_pdf(pdf_file):
         logger.exception('error testing a pdf: %s' % pdf_file[:100])
         return False
 
-def staple_pdf(urllist, user_agent=None):
-    user_agent = user_agent if user_agent else settings.USER_AGENT
+def staple_pdf(urllist, user_agent=settings.USER_AGENT):
     merger = PdfFileMerger(strict=False)
     for url in urllist:
         response = requests.get(url, headers={"User-Agent": user_agent})
@@ -75,9 +75,9 @@ def staple_pdf(urllist, user_agent=None):
     return out
 
 def test_test_pdf():
-        assert(test_pdf(settings.TEST_PDF_URL))
-        temp = NamedTemporaryFile(delete=False)
-        test_file_content = requests.get(settings.TEST_PDF_URL).content
-        temp.write(test_file_content)
-        assert test_pdf(temp)
-        temp.close()
+    assert(test_pdf(settings.TEST_PDF_URL))
+    temp = NamedTemporaryFile(delete=False)
+    test_file_content = requests.get(settings.TEST_PDF_URL).content
+    temp.write(test_file_content)
+    assert test_pdf(temp)
+    temp.close()
