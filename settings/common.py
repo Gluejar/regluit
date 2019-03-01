@@ -480,6 +480,7 @@ QUESTIONNAIRE_SHOW_ITEM_RESULTS = False
 # Selenium related -- set if Se tests run
 FIREFOX_PATH = ''
 CHROMEDRIVER_PATH = ''
+GOOGLEBOT_UA = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
 
 try:
     from .keys.common import *

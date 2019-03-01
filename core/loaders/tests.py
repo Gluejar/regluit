@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.test import TestCase
 from regluit.core.models import Ebook, Edition, Work
-from .utils import dl_online
+from .harvest import dl_online
 
 class LoaderTests(TestCase):
     def setUp(self):
