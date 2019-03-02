@@ -24,5 +24,4 @@ class Command(BaseCommand):
                         self.stdout.write(online.edition.work.title)
                         online.delete()
                         removed += 1
-                        break
         self.stdout.write('%s online ebooks removed')
