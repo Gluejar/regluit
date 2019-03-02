@@ -53,13 +53,23 @@ def doab_lang_to_iso_639_1(lang):
 
 
 DOMAIN_TO_PROVIDER = dict([
+    [u'adelaide.edu.au', u'University of Adelaide'],
+    [u'aliprandi.org', u'Simone Aliprandi'],
+    [u'antilia.to.it', u'antilia.to.it'],
     [u'antropologie.zcu.cz', u'AntropoWeb'],
+    [u'aupress.ca', u'Athabasca University Press'],
+    [u'bloomsburyacademic.com', u'Bloomsbury Academic'],
     [u'books.mdpi.com', u'MDPI Books'],
     [u'books.openedition.org', u'OpenEdition Books'],
     [u'books.scielo.org', u'SciELO'],
     [u'ccdigitalpress.org', u'Computers and Composition Digital Press'],
+    [u'co-action.net', u'Co-Action Publishing'],
+    [u'degruyter.com', u'De Gruyter Online'],
     [u'digitalcommons.usu.edu', u'DigitalCommons, Utah State University'],
     [u'dl.dropboxusercontent.com', u'Dropbox'],
+    [u'doabooks.org', u'Directory of Open Access Books'],
+    [u'doi.org', u'DOI Resolver'],
+    [u'dropbox.com', u'Dropbox'],
     [u'dspace.ucalgary.ca', u'Institutional Repository at the University of Calgary'],
     [u'dx.doi.org', u'DOI Resolver'],
     [u'ebooks.iospress.nl', u'IOS Press Ebooks'],
@@ -67,36 +77,31 @@ DOMAIN_TO_PROVIDER = dict([
     [u'hw.oeaw.ac.at', u'Austrian Academy of Sciences'],
     [u'img.mdpi.org', u'MDPI Books'],
     [u'ledibooks.com', u'LediBooks'],
+    [u'ledizioni.it', u'Ledizioni'],
     [u'leo.cilea.it', u'LEO '],
     [u'leo.cineca.it', u'Letteratura Elettronica Online'],
     [u'link.springer.com', u'Springer'],
+    [u'maestrantonella.it', u'maestrantonella.it'],
     [u'oapen.org', u'OAPEN Library'],
+    [u'openbookpublishers.com', u'Open Book Publishers'],
+    [u'palgraveconnect.com', u'Palgrave Connect'],
     [u'press.openedition.org', u'OpenEdition Press'],
+    [u'scribd.com', u'Scribd'],
+    [u'springerlink.com', u'Springer'],
+    [u'ubiquitypress.com', u'Ubiquity Press'],
+    [u'unglueit-files.s3.amazonaws.com', u'Unglue.it'],
+    [u'unimib.it', u'University of Milano-Bicocca'],
+    [u'unito.it', u"University of Turin"],
     [u'windsor.scholarsportal.info', u'Scholars Portal'],
-    [u'www.adelaide.edu.au', u'University of Adelaide'],
-    [u'www.aliprandi.org', u'Simone Aliprandi'],
-    [u'www.antilia.to.it', u'antilia.to.it'],
-    [u'www.aupress.ca', u'Athabasca University Press'],
-    [u'www.bloomsburyacademic.com', u'Bloomsbury Academic'],
-    [u'www.co-action.net', u'Co-Action Publishing'],
-    [u'www.degruyter.com', u'De Gruyter Online'],
-    [u'www.doabooks.org', u'Directory of Open Access Books'],
-    [u'www.dropbox.com', u'Dropbox'],
-    [u'www.ebooks.iospress.nl', u'IOS Press Ebooks'],
-    [u'www.ledizioni.it', u'Ledizioni'],
-    [u'www.maestrantonella.it', u'maestrantonella.it'],
-    [u'www.oapen.org', u'OAPEN Library'],
-    [u'www.openbookpublishers.com', u'Open Book Publishers'],
-    [u'www.palgraveconnect.com', u'Palgrave Connect'],
-    [u'www.scribd.com', u'Scribd'],
-    [u'www.springerlink.com', u'Springer'],
-    [u'www.ubiquitypress.com', u'Ubiquity Press'],
-    [u'www.unimib.it', u'University of Milano-Bicocca'],
-    [u'www.unito.it', u"University of Turin"],
 ])
 
 def url_to_provider(url):
-    netloc = urlparse.urlparse(url).netloc
+    netloc = urlparse.urlparse(url).netloc.lower()
+    if netloc in [u'dx.doi.org', u'doi.org', u'hdl.handle.net']:
+        url = requests.get(url).url
+        netloc = urlparse.urlparse(url).netloc
+    if netloc.startswith('www.'):
+        netloc = netloc[4:]
     return DOMAIN_TO_PROVIDER.get(netloc, netloc)
 
 FRONTIERSIN = re.compile(r'frontiersin.org/books/[^/]+/(\d+)')

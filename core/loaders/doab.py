@@ -164,6 +164,7 @@ def load_doab_edition(title, doab_id, url, format, rights,
     load a record from doabooks.org represented by input parameters and return an ebook
     """
     logger.info('load doab {} {} {} {} {}'.format(doab_id, format, rights, language, provider))
+    url = url.strip()
     if language and isinstance(language, list):
         language = language[0]
     if language == 'xx' and format == 'online':
