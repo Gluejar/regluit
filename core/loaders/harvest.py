@@ -22,6 +22,7 @@ from .utils import get_soup, type_for_url
 logger = logging.getLogger(__name__)
 
 DROPBOX_DL = re.compile(r'"(https://dl.dropboxusercontent.com/content_link/[^"]+)"')
+COMPLETE = re.compile(r'complete ebook', flags=re.I)
 DELAY = 5.0
 
 class RateLimiter(object):
@@ -36,6 +37,7 @@ class RateLimiter(object):
                 time.sleep(float(DELAY - pres + prev))
         self.last[provider] = time.time()
         return
+
 rl = RateLimiter()
 
 def dl_online(ebook, limiter=rl.delay):
@@ -72,7 +74,7 @@ def dl_online(ebook, limiter=rl.delay):
                 logger.warning('couldn\'t get dl_url for %s', ebook.url)
         else:
             logger.warning('couldn\'t get soup for %s', ebook.url)
-    elif ebook.url.find(u'degruyter') >= 0:
+    elif ebook.provider == u'De Gruyter Online':
         for ebf in ebf_if_harvested(ebook.url):
             return ebf, False
         limiter(ebook.provider)
@@ -83,13 +85,26 @@ def dl_online(ebook, limiter=rl.delay):
             except:
                 base = ebook.url
             made = None
+            
+            # check for epubs
             obj = doc.select_one('a.epub-link')
             if obj:
                 dl_url = urlparse.urljoin(base, obj['href'])
-                made = make_dl_ebook(dl_url, ebook)
+                made = make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
+
+            # check for complete ebook
+            obj = doc.find('a', string=COMPLETE)
+            if obj:
+                obj = obj.parent.parent.parent.select_one('a.pdf-link')
+                if obj:
+                    dl_url = urlparse.urljoin(base, obj['href'])
+                    made = make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
+                    return made
+
+            # staple the chapters
             pdflinks = [urlparse.urljoin(base, a['href']) for a in doc.select('a.pdf-link')]
             if pdflinks:
-                made = make_stapled_ebook(pdflinks, ebook)
+                made = make_stapled_ebook(pdflinks, ebook, user_agent=settings.GOOGLEBOT_UA)
             if made:
                 return made
             else:
@@ -105,8 +120,11 @@ def ebf_if_harvested(url):
         return onlines
     return  EbookFile.objects.none()
 
-def make_dl_ebook(url, ebook):
-    response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
+def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT):
+    if not url:
+        logger.warning('no url for ebook %s', ebook.id)
+        return None, False
+    response = requests.get(url, headers={"User-Agent": user_agent})
     if response.status_code == 200:
         filesize = int(response.headers.get("Content-Length", 0))
         filesize = filesize if filesize else None
@@ -119,8 +137,8 @@ def make_dl_ebook(url, ebook):
         logger.warning('couldn\'t get %s', url)
     return None, False
 
-def make_stapled_ebook(urllist, ebook):
-    pdffile = staple_pdf(urllist, settings.GOOGLEBOT_UA)
+def make_stapled_ebook(urllist, ebook, user_agent=settings.USER_AGENT):
+    pdffile = staple_pdf(urllist, user_agent)
     if not pdffile:
         return None, False
     return make_harvested_ebook(pdffile.getvalue(), ebook, 'pdf')

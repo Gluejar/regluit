@@ -25,7 +25,8 @@ class Command(BaseCommand):
                 done += 1
         self.stdout.write('{} urls or netloc stripped'.format(done))
         done = 0
-        stale = Ebook.objects.filter(Q(url__icontains='doi') | Q(url__icontains='hdl'))
+        stale = Ebook.objects.filter(Q(provider__icontains='doi') | Q(provider='Handle Proxy'))
+        self.stdout.write('{} providers to update'.format(stale.count()))
         for ebook in stale:
             new_provider = url_to_provider(ebook.url)
             if new_provider != ebook.provider:
