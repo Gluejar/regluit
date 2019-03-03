@@ -9,6 +9,7 @@ from tempfile import NamedTemporaryFile
 import requests
 from xhtml2pdf import pisa             # import python module
 from PyPDF2 import PdfFileMerger, PdfFileReader
+from PyPDF2.utils import PdfReadError
 from django.template.loader import render_to_string
 from django.conf import settings
 
@@ -67,7 +68,11 @@ def staple_pdf(urllist, user_agent=settings.USER_AGENT):
     for url in urllist:
         response = requests.get(url, headers={"User-Agent": user_agent})
         if response.status_code == 200:
-            merger.append(BytesIO(response.content))
+            try:
+                merger.append(BytesIO(response.content))
+            except PdfReadError:
+                logger.error("error reading pdf url: %s", url)
+                return None
         else:
             return None
     out = BytesIO()
