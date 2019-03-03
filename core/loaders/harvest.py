@@ -50,6 +50,9 @@ def dl_online(ebook, limiter=rl.delay):
         if ebook.url.find(u'dl=0') >= 0:
             dl_url = ebook.url.replace(u'dl=0', u'dl=1')
             return make_dl_ebook(dl_url, ebook)
+        elif ebook.url.find(u'?') < 0:
+            dl_url = ebook.url + u'?dl=1'
+            return make_dl_ebook(dl_url, ebook)
         response = requests.get(ebook.url, headers={"User-Agent": settings.USER_AGENT})
         if response.status_code == 200:
             match_dl = DROPBOX_DL.search(response.content)
@@ -117,6 +120,7 @@ def dl_online(ebook, limiter=rl.delay):
 def ebf_if_harvested(url):
     onlines = EbookFile.objects.filter(source=url)
     if onlines:
+        logger.info('harvesting ebook %s', ebook.id)
         return onlines
     return  EbookFile.objects.none()
 
