@@ -120,7 +120,7 @@ def dl_online(ebook, limiter=rl.delay):
 def ebf_if_harvested(url):
     onlines = EbookFile.objects.filter(source=url)
     if onlines:
-        logger.info('harvesting ebook %s', ebook.id)
+        logger.info('harvesting url %s', url)
         return onlines
     return  EbookFile.objects.none()
 
