@@ -66,7 +66,11 @@ def test_pdf(pdf_file):
 def staple_pdf(urllist, user_agent=settings.USER_AGENT):
     merger = PdfFileMerger(strict=False)
     for url in urllist:
-        response = requests.get(url, headers={"User-Agent": user_agent})
+        try:
+            response = requests.get(url, headers={"User-Agent": user_agent})
+        except requests.exceptions.ConnectionError:
+            logger.error("Error getting url: %s", url)
+            return None
         if response.status_code == 200:
             try:
                 merger.append(BytesIO(response.content))
