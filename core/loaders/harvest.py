@@ -106,6 +106,7 @@ def dl_online(ebook, limiter=rl.delay):
 
             # staple the chapters
             pdflinks = [urlparse.urljoin(base, a['href']) for a in doc.select('a.pdf-link')]
+            stapled = None
             if pdflinks:
                 stapled = make_stapled_ebook(pdflinks, ebook, user_agent=settings.GOOGLEBOT_UA)
             if stapled:
