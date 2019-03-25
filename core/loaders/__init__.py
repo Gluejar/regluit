@@ -55,6 +55,7 @@ def add_by_sitemap(url, maxnum=None):
     
 def scrape_language(url):
     scraper = get_scraper(url)
-    return scraper.metadata.get('language')
+    language = scraper.metadata.get('language')
+    return language if language else 'xx'
 
 

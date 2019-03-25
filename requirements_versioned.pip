@@ -5,7 +5,8 @@ Jinja2>=2.7
 MySQL-python==1.2.5
 Pillow==3.4.2
 PyJWT==1.4.1
-PyPDF2==1.26
+#PyPDF2==1.26
+git+git://github.com/mstamy2/PyPDF2.git@18a2627adac13124d4122c8b92aaa863ccfb8c29
 PyGithub==1.15.0
 PyYAML==3.13
 amqp==1.4.9

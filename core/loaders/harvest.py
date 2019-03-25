@@ -158,8 +158,14 @@ def make_harvested_ebook(content, ebook, format, filesize=0):
         format=format,
         source=ebook.url,
     )
-    new_ebf.file.save(path_for_file(new_ebf, None), ContentFile(content))
-    new_ebf.save()
+    try:
+        new_ebf.file.save(path_for_file(new_ebf, None), ContentFile(content))
+        new_ebf.save()
+    except MemoryError:  #huge pdf files cause problems here
+        logger.error("memory error saving ebook file for %s", ebook.url)
+        new_ebf.delete()
+        return None, False
+
     new_ebook = Ebook.objects.create(
         edition=ebook.edition,
         format=format,
