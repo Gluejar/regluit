@@ -8,48 +8,12 @@ import urlparse
 
 import requests
 
-from regluit.utils.lang import get_language_code
+from regluit.utils.lang import lang_to_language_code
 from .utils import get_soup
 
-# utility functions for converting lists of individual items into individual items
-
-# let's do a mapping of the DOAB languages into the language codes used 
-# mostly, we just handle mispellings
-# also null -> xx
-
-EXTRA_LANG_MAP = dict([
-    (u'chinese', 'de'),
-    (u'deutsch', 'de'),
-    (u'eng', 'en'),
-    (u'englilsh', 'en'),
-    (u'englilsh', 'en'),
-    (u'englisch', 'en'),
-    (u'espanol', 'es'),
-    (u'ger', 'de'),
-    (u'fra', 'fr'),
-    (u'fre', 'fr'),
-    (u'francese', 'fr'),
-    (u'ita', 'it'),
-    (u'italiano', 'it'),
-    (u'norwegian', 'no'),
-    (u'por', 'pt'),
-    (u'portugese', 'pt'),
-    (u'slovene', 'sl'),
-    (u'spa', 'es'),
-    (u'spagnolo', 'es'),
-])
-
-sep = re.compile(r'[ \-;^,/]+')
 def doab_lang_to_iso_639_1(lang):
-    if lang is None or not lang:
-        return "xx"
-    else:
-        lang = sep.split(lang)[0]
-        code = get_language_code(lang)
-        if code:
-            return code
-        else:
-            return EXTRA_LANG_MAP.get(lang.lower(), 'xx')
+    lang = lang_to_language_code(lang)
+    return lang if lang else 'xx'
 
 
 DOMAIN_TO_PROVIDER = dict([

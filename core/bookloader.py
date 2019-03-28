@@ -922,7 +922,11 @@ class BasePandataLoader(object):
                         new_ids.append((identifier, id_code, value))
 
         if not work:
-            work = models.Work.objects.create(title=metadata.title, language=metadata.language)
+            if metadata.title:
+                language = lang_to_language_code(metadata.language)
+                work = models.Work.objects.create(title=metadata.title, language=language if language else 'xx')
+            else:
+                return None
         if not edition:
             if metadata.edition_note:
                 (note, created) = models.EditionNote.objects.get_or_create(note=metadata.edition_note)

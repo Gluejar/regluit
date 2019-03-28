@@ -371,6 +371,8 @@ def add_by_doab(doab_id, record=None):
             metadataPrefix='oai_dc',
             identifier='oai:doab-books:{}'.format(doab_id)
         )
+        if not record[1]:
+            return None
         metadata = record[1].getMap()
         isbns = []
         url = None
