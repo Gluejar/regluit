@@ -1,7 +1,7 @@
 import re
 from urlparse import urlparse
 
-from regluit.utils.lang import get_language_code
+from regluit.utils.lang import lang_to_language_code
 from . import BaseScraper
 
 
@@ -26,7 +26,7 @@ class UbiquityScraper(BaseScraper):
         langlabel = self.doc.find(string='Language')
         lang = langlabel.parent.parent.find_next_sibling() if langlabel else ''
         lang = lang.get_text() if lang else ''
-        lang = get_language_code(lang) if lang else ''
+        lang = lang_to_language_code(lang) if lang else ''
         if lang:
             self.set('language', lang)
         else:

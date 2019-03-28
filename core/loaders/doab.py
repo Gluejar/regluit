@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
 import datetime
-import json
 import logging
 import re
 
@@ -19,7 +18,6 @@ from oaipmh.metadata import MetadataRegistry, oai_dc_reader
 from regluit.core import bookloader, cc
 from regluit.core import models, tasks
 from regluit.core.bookloader import merge_works
-from regluit.core.isbn import ISBN
 from regluit.core.loaders.utils import type_for_url
 from regluit.core.validation import identifier_cleaner, valid_subject
 
@@ -67,10 +65,10 @@ def store_doab_cover(doab_id, redo=False):
         cover_file = ContentFile(r.content)
         content_type = r.headers.get('content-type', '')
         if u'text/html' in content_type:
-            logger.warning('Cover return html for doab_id={}: {}'.format(doab_id, e))
+            logger.warning('Cover return html for doab_id={}'.format(doab_id))
             return (None, False)
         cover_file.content_type = content_type
-            
+
 
         default_storage.save(cover_file_name, cover_file)
         return (default_storage.url(cover_file_name), True)
@@ -194,7 +192,7 @@ def load_doab_edition(title, doab_id, url, format, rights,
         if not ebook.rights:
             ebook.rights = rights
             ebook.save()
-        
+
         # update the cover id
         cover_url = update_cover_doab(doab_id, ebook.edition, redo=False)
 
@@ -371,6 +369,8 @@ def add_by_doab(doab_id, record=None):
             metadataPrefix='oai_dc',
             identifier='oai:doab-books:{}'.format(doab_id)
         )
+        if not record[1]:
+            return None
         metadata = record[1].getMap()
         isbns = []
         url = None
@@ -406,20 +406,6 @@ def add_by_doab(doab_id, record=None):
                 url_to_provider(dl_url) if dl_url else None,
                 **metadata
             )
-        else:
-            if 'format' in metadata:
-                del metadata['format']
-            edition = load_doab_edition(
-                title,
-                doab_id,
-                '',
-                '',
-                license,
-                language,
-                isbns,
-                None,
-                **metadata
-            )
         return edition
     except IdDoesNotExistError:
         return None
@@ -437,7 +423,7 @@ def load_doab_oai(from_year=None, limit=100000):
     '''
     if from_year:
         from_ = datetime.datetime(year=from_year, month=1, day=1)
-    else: 
+    else:
         # last 15 days
         from_ = datetime.datetime.now() - datetime.timedelta(days=15)
     doab_ids = []
