@@ -32,6 +32,7 @@ import regluit
 import regluit.core.isbn
 from regluit.core.validation import test_file
 from regluit.marc.models import inverse_marc_rels
+from regluit.utils.lang import lang_to_language_code
 
 from . import cc
 from . import models
