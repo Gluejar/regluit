@@ -18,12 +18,12 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.db import IntegrityError
 from django.forms import ValidationError
+from django.utils.timezone import now
 
 from django_comments.models import Comment
 from github3 import (login, GitHub)
 from github3.repos.release import Release
 
-from django.utils.timezone import now
 from gitenberg.metadata.pandata import Pandata
 
 # regluit imports
@@ -207,7 +207,7 @@ def update_edition(edition):
     # attach edition to the
     if edition.work.language != language:
         logger.info(u"reconnecting %s since it is %s instead of %s",
-            googlebooks_id, language, edition.work.language)
+                    googlebooks_id, language, edition.work.language)
         old_work = edition.work
 
         new_work = models.Work(title=title, language=language)
@@ -251,9 +251,6 @@ def get_isbn_item(items, isbn):
         for ident in industryIdentifiers:
             if ident['identifier'] == isbn:
                 return item
-    else:
-        return None # no items
-    return item
 
 def add_by_isbn_from_google(isbn, work=None):
     """add a book to the UnglueIt database from google based on ISBN. The work parameter
@@ -350,7 +347,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
     else:
         title = ''
     if not title:
-        # need a title to make an edition record; some crap records in GB. 
+        # need a title to make an edition record; some crap records in GB.
         # use title from parent if available
         if work:
             title = work.title
@@ -541,7 +538,7 @@ def merge_works(w1, w2, user=None):
     #don't merge if the works are related.
     if w2 in w1.works_related_to.all() or w1 in w2.works_related_to.all():
         return w1
-    
+
     # check if one of the works is a series with parts (that have their own isbn)
     if w1.works_related_from.filter(relation='part'):
         models.WorkRelation.objects.get_or_create(to_work=w2, from_work=w1, relation='part')
@@ -549,8 +546,8 @@ def merge_works(w1, w2, user=None):
     if w2.works_related_from.filter(relation='part'):
         models.WorkRelation.objects.get_or_create(to_work=w1, from_work=w2, relation='part')
         return w1
-        
-        
+
+
     if w2.selected_edition is not None and w1.selected_edition is None:
         #the merge should be reversed
         temp = w1
@@ -970,7 +967,7 @@ class BasePandataLoader(object):
         for yaml_subject in metadata.subjects: #always add yaml subjects (don't clear)
             if isinstance(yaml_subject, tuple):
                 (authority, heading) = yaml_subject
-            elif isinstance(yaml_subject, str) or isinstance(yaml_subject, unicode) :
+            elif isinstance(yaml_subject, str) or isinstance(yaml_subject, unicode):
                 (authority, heading) = ('', yaml_subject)
             else:
                 continue

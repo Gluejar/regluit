@@ -1,7 +1,7 @@
 import re
 from django.conf.global_settings import LANGUAGES
 
-lang2code = dict([ (lang[1].lower(), lang[0]) for lang in LANGUAGES ])
+lang2code = dict([(lang[1].lower(), lang[0]) for lang in LANGUAGES])
 code2lang = dict(LANGUAGES)
 iso639 = re.compile(r'^[a-z][a-z][a-z]?$')
 
@@ -13,21 +13,21 @@ def get_language_code(language):
     language = sep.split(language)[0].strip()
     if language in code2lang:
         return language
-    
+
     # language names (english)
     if language in lang2code:
         return lang2code.get(language)
-        
+
     # mispellings and language names
     if language in EXTRA_LANG_MAP:
         return EXTRA_LANG_MAP.get(language)
-        
+
     # accept 2 and 3 letter codes
     if iso639.match(language):
-            return language
+        return language
     return ''
 
-# let's do a mapping of the DOAB languages into the language codes used 
+# let's do a mapping of the DOAB languages into the language codes used
 # mostly, we just handle mispellings
 # also null -> xx
 sep = re.compile(r'[ ;^,/\|\'\"\]\[\t\n\r\-]+')
@@ -63,7 +63,7 @@ def lang_to_language_code(lang):
     if lang is None:
         return ''
     lang = lang.strip()
-    
+
     #get codes like en-US
     if lang_and_locale.match(lang):
         return lang
@@ -77,4 +77,5 @@ def lang_to_language_code(lang):
     code = get_language_code(lang)
     if code:
         return code
-    return ''   
+    return ''
+    
