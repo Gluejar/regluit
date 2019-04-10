@@ -11,3 +11,6 @@ MAILCHIMP_NEWS_ID = os.environ.get('MAILCHIMP_NEWS_ID', '0123456789')
 MOBIGEN_PASSWORD = os.environ.get('MOBIGEN_PASSWORD', '012345678901234')
 MOBIGEN_URL = os.environ.get('MOBIGEN_URL', '') # https://host/mobigen
 MOBIGEN_USER_ID = os.environ.get('MOBIGEN_USER_ID', 'user')
+TEST_STRIPE_PK = 'pk_0EajXPn195ZdF7Gt7pCxsqRhNN5BF'
+TEST_STRIPE_SK = 'sk_0EajIO4Dnh646KPIgLWGcO10f9qnH'
+

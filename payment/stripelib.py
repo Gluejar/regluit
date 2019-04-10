@@ -78,15 +78,6 @@ class StripelibError(baseprocessor.ProcessorError):
 
 
 # if customer.id doesn't exist, create one and then charge the customer
-# we probably should ask our users whether they are ok with our creating a customer id account -- or ask for credit
-# card info each time....
-
-# should load the keys for Stripe from db -- but for now just hardcode here
-# moving towards not having the stripe api key for the non profit partner in the unglue.it code -- but in a logically
-# distinct application
-
-TEST_STRIPE_PK = 'pk_0EajXPn195ZdF7Gt7pCxsqRhNN5BF'
-TEST_STRIPE_SK = 'sk_0EajIO4Dnh646KPIgLWGcO10f9qnH'
 
 try:
     from regluit.core.models import Key
@@ -96,8 +87,8 @@ try:
 except Exception, e:
     # currently test keys for Gluejar and for raymond.yee@gmail.com as standin for non-profit
     logger.info('Exception {0} Need to use TEST STRIPE_*_KEYs'.format(e))
-    STRIPE_PK = TEST_STRIPE_PK
-    STRIPE_SK = TEST_STRIPE_SK
+    STRIPE_PK = settings.TEST_STRIPE_PK
+    STRIPE_SK = settings.TEST_STRIPE_SK
     
 # set default stripe api_key to that of unglue.it
 
