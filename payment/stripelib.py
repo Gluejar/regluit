@@ -58,7 +58,7 @@ STRIPE_EVENT_TYPES = ['account.updated', 'account.application.deauthorized', 'ba
     'invoice.payment_succeeded', 'invoice.payment_failed', 'invoiceitem.created',
     'invoiceitem.updated', 'invoiceitem.deleted', 'plan.created', 'plan.updated',
     'plan.deleted', 'coupon.created', 'coupon.deleted', 'transfer.created',
-    'transfer.updated', 'transfer.paid', 'transfer.failed', 'ping']
+    'transfer.updated', 'transfer.paid', 'transfer.failed', 'payment_method.attached', 'ping']
 
 logger = logging.getLogger(__name__)
 
