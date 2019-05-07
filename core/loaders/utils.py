@@ -42,7 +42,10 @@ def utf8_general_ci_norm(s):
     return ''.join(c for c in s1 if not unicodedata.combining(c)).upper()
 
 def get_soup(url, user_agent=settings.USER_AGENT):
-    response = requests.get(url, headers={"User-Agent": user_agent})
+    try:
+        response = requests.get(url, headers={"User-Agent": user_agent})
+    except requests.exceptions.MissingSchema:
+        response = requests.get('http://%s' % url, headers={"User-Agent": user_agent})
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'lxml')
 
