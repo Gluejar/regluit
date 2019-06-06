@@ -1093,7 +1093,7 @@ class Wishlist(models.Model):
     def add_work(self, work, source, notify=False):
         try:
             w = Wishes.objects.get(wishlist=self, work=work)
-        except:
+        except Wishes.DoesNotExist:
             Wishes.objects.create(source=source, wishlist=self, work=work)
             work.update_num_wishes()
             # only send notification in case of new wishes

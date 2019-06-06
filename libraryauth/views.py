@@ -1,4 +1,5 @@
 import logging
+import re
 from django.conf import settings
 from django.urls import reverse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -284,20 +285,52 @@ robot_qs = {
 
 class CustomRegistrationView(RegistrationView):
     form_class = RegistrationFormNoDisposableEmail
+    def pretend_success(self):
+        # pretend success
+        success_url = self.get_success_url(None)
+        try:
+            to, args, kwargs = success_url
+            return redirect(to, *args, **kwargs)
+        except ValueError:
+            return redirect(success_url)
+
     def form_valid(self, form):
         q = self.request.session.get('q', False)
         if q and q in robot_qs:
             return self.render_to_response({'form':form})
+        username = form.cleaned_data['username']
+        email = form.cleaned_data['email']
         for bad_pattern in BadUsernamePattern.objects.all():
-            if bad_pattern.matches(form.cleaned_data['username']):                
-                # pretend success
-                success_url = self.get_success_url(None)
-                try:
-                    to, args, kwargs = success_url
-                    return redirect(to, *args, **kwargs)
-                except ValueError:
-                    return redirect(success_url)
+            if bad_pattern.matches(username):                
+                return self.pretend_success()
+        if suspicious(username, email):
+            return self.pretend_success()
         return super(CustomRegistrationView, self).form_valid(form)
+
+SUSPICIOUSUN = re.compile(r'^[A-Z]([a-z]{4,8})[a-z]{3}$', )
+MANYDOTS = re.compile(r'(\.[^\.]+){4}')
+def similar(s1, s2):
+    #trigrams in common
+    (short, longer) = (s1, s2) if len(s2) > len(s1) else (s2, s1)
+    if len(short) < 3:
+        return short in longer
+    for trigram in [short[i:i + 3] for i in range(0, len(short) - 2)]:
+        if trigram in longer:
+            return True
+    return False
+
+def suspicious(username, email):
+    if '@' not in email:
+        return False
+    [em_username, host] = email.split('@')[0:2]
+    if MANYDOTS.search(em_username):
+        return True
+    test = SUSPICIOUSUN.search(username)
+    if not test:
+        return False
+    if similar(em_username.lower(), test.group(0).lower()):
+        return False
+    return not similar(host.lower(), test.group(0).lower())
 
 def edit_user(request, redirect_to=None):
     if not request.user.is_authenticated:
