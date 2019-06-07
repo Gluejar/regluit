@@ -1,5 +1,5 @@
 import re
-from urlparse import urlparse
+from urlparse import urlparse, urljoin
 
 from regluit.utils.lang import lang_to_language_code
 from . import BaseScraper
@@ -31,3 +31,10 @@ class UbiquityScraper(BaseScraper):
             self.set('language', lang)
         else:
             super(UbiquityScraper, self).get_language()
+
+    def get_downloads(self):
+        for dl_type in ['epub', 'mobi', 'pdf']:
+            dl_a = self.doc.find('a', attrs={'data-category': '{} download'.format(dl_type)})
+            if dl_a and 'href' in dl_a.attrs:
+                url = urljoin(self.base, dl_a['href'].strip())
+                self.set('download_url_{}'.format(dl_type), url)
