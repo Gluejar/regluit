@@ -13,11 +13,11 @@ amqp==1.4.9
 anyjson==0.3.3
 appdirs==1.4.0
 billiard==3.3.0.23
-awscli==1.15.33
+awscli>=1.15.52
 boto==2.48.0
 boto3==1.7.33
 celery==3.1.23
-certifi==2018.4.16
+certifi==2019.3.9
 chardet==3.0.4
 # pip installing pillow seems to delete distribute
 # but having distribute in requirements starting to cause problems
