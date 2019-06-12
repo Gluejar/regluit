@@ -1,3 +1,4 @@
+import logging
 import requests
 from bs4 import BeautifulSoup
 
@@ -12,6 +13,8 @@ from .pressbooks import PressbooksScraper
 from .springer import SpringerScraper
 from .ubiquity import UbiquityScraper
 from .smashwords import SmashwordsScraper
+
+logger = logging.getLogger(__name__)
 
 def get_scraper(url):
     scrapers = [
