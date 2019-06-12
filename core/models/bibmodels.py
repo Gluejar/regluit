@@ -53,7 +53,7 @@ from regluit.core.parameters import (
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 logger = logging.getLogger(__name__)
-good_providers = ('Internet Archive', 'Unglue.it', 'Github', 'OAPEN Library')
+good_providers = ('Internet Archive', 'Unglue.it', 'Github', 'OAPEN Library', 'SciELO')
 
 def id_for(obj, type):
     if not obj.pk:

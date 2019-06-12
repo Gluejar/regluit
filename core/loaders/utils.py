@@ -377,13 +377,14 @@ def ids_from_urls(url):
             ids[ident] = id_match.group('id')
     return ids
 
-def type_for_url(url, content_type=None):
+def type_for_url(url, content_type=None, force=False):
     if not url:
         return ''
-    if url.find('books.openedition.org') >= 0:
-        return 'online'
-    if Ebook.objects.filter(url=url):
-        return Ebook.objects.filter(url=url)[0].format
+    if not force:
+        if url.find('books.openedition.org') >= 0:
+            return 'online'
+        if Ebook.objects.filter(url=url):
+            return Ebook.objects.filter(url=url)[0].format
     ct = content_type if content_type else contenttyper.calc_type(url)
     binary_type = re.search("octet-stream", ct) or re.search("application/binary", ct)
     if re.search("pdf", ct):
