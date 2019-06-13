@@ -9,8 +9,9 @@ from decimal import Decimal
 import unicodedata
 from urlparse import urlparse
 
-from sorl.thumbnail import get_thumbnail
+from botocore.exceptions import ClientError
 from PIL import ImageFile
+from sorl.thumbnail import get_thumbnail
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -1225,8 +1226,12 @@ class Ebook(models.Model):
         else:
             ebf = self.ebook_files.filter(asking=False).order_by('-created')[0]
             if not self.filesize:
-                self.filesize = ebf.file.size
-                self.save()
+                try:
+                    self.filesize = ebf.file.size
+                    self.save()
+                except ClientError:
+                    # error thrown when the can't access the S3 bucket
+                    pass
             return ebf
 
     def set_provider(self):
