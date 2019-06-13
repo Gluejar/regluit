@@ -307,7 +307,7 @@ class CustomRegistrationView(RegistrationView):
             return self.pretend_success()
         return super(CustomRegistrationView, self).form_valid(form)
 
-SUSPICIOUSUN = re.compile(r'^[A-Z]([a-z]{4,8})[a-z]{3}$', )
+SUSPICIOUSUN = re.compile(r'^[A-Z][a-z]{7}[a-z]*$', )
 MANYDOTS = re.compile(r'(\.[^\.]+){4}')
 def similar(s1, s2):
     #trigrams in common
