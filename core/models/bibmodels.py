@@ -1,13 +1,13 @@
 import logging
 import math
 import re
-import urllib
-import urllib2
 import uuid
 
 from decimal import Decimal
 import unicodedata
 from urlparse import urlparse
+
+import requests
 
 from botocore.exceptions import ClientError
 from PIL import ImageFile
@@ -1198,13 +1198,13 @@ class Ebook(models.Model):
         return ebf.file
 
     def get_archive_ebf(self): # returns an ebf
-        if not self.ebook_files.filter(asking=False):
+        if not self.ebook_files.filter(asking=False).count():
             if not self.provider in good_providers:
                 return None
             try:
-                r = urllib2.urlopen(self.url)
-                try:
-                    self.filesize = int(r.info().getheaders("Content-Length")[0])
+                r = requests.get(self.url)
+                if r.status_code == 200:
+                    self.filesize = len(r.content)
                     if self.save:
                         self.filesize = self.filesize if self.filesize < 2147483647 else 2147483647  # largest safe positive integer
                         self.save()
@@ -1214,12 +1214,11 @@ class Ebook(models.Model):
                         format=self.format,
                         source=self.url
                     )
-                    ebf.file.save(path_for_file(ebf, None), ContentFile(r.read()))
+                    ebf.file.save(path_for_file(ebf, None), ContentFile(r.content))
                     ebf.file.close()
                     ebf.save()
                     return ebf
-                except IndexError:
-                    # response has no Content-Length header probably a bad link
+                else:
                     logging.error('Bad link error: {}'.format(self.url))
             except IOError:
                 logger.error(u'could not open {}'.format(self.url))
