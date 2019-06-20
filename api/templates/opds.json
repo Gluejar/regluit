@@ -11,7 +11,7 @@
     {"title": "{{ feed.title }} - Popular", "href": "{{ feed.feed_path|urlencode }}/?order_by=popular", "type": "application/opds+json"},
     {"title": "{{ feed.title }} - New", "href": "{{ feed.feed_path|urlencode }}/?order_by=newest",  "type": "application/opds+json" },
   {% for feed in feeds %}
-    {"title": "{{ feed.title }}", "href": "{{ feed.feed_path|urlencode }}/", "type": "application/opds+json" },
+    {"title": "{{ feed.title }}", "href": "{{ feed.feed_path|urlencode }}/", "type": "application/opds+json" }{% if not forloop.last %},{% endif %}
   {% endfor %}
   ]
 }
