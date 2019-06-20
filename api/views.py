@@ -1,6 +1,6 @@
 from tastypie.models import ApiKey
 
-import json
+import json as json_module
 import logging
 
 from django.contrib import auth
@@ -115,7 +115,7 @@ def travisci_webhook(request):
     
         try:
             
-            data = json.loads(request.POST.get('payload'))
+            data = json_module.loads(request.POST.get('payload'))
 
             # example of URL to feed to yaml loader:
             # https://github.com/GITenberg/Adventures-of-Huckleberry-Finn_76/raw/master/metadata.yaml
@@ -167,11 +167,11 @@ class ApiHelpView(TemplateView):
         return context    
 
 class OPDSNavigationView(TemplateView):
-    json=False
+    json = False
     # https://stackoverflow.com/a/6867976: secret to how to change content-type
     
     def render_to_response(self, context, **response_kwargs):
-        if json:
+        if self.json:
             response_kwargs['content_type'] = "application/vnd.opds.navigation+json"
         else:
             response_kwargs['content_type'] = "application/atom+xml;profile=opds-catalog;kind=navigation"
@@ -179,7 +179,7 @@ class OPDSNavigationView(TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super(OPDSNavigationView, self).get_context_data(**kwargs)
-        if json:
+        if self.json:
             context["feeds"] = opds_json.feeds()
             context["feed"] = opds_json.get_facet_facet('all')
         else:
