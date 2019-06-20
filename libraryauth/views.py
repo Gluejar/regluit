@@ -1,15 +1,16 @@
 import logging
 import re
 from django.conf import settings
-from django.urls import reverse
-from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth import login as login_to_user
 from django.contrib.auth import load_backend
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.models import User
 from django.contrib.auth.views import password_change, LoginView
+from django.db import IntegrityError
 from django.http import HttpResponseRedirect, Http404
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 
 from django.views.generic.edit import CreateView, UpdateView
 
@@ -305,7 +306,11 @@ class CustomRegistrationView(RegistrationView):
                 return self.pretend_success()
         if suspicious(username, email):
             return self.pretend_success()
-        return super(CustomRegistrationView, self).form_valid(form)
+        try:
+            return super(CustomRegistrationView, self).form_valid(form)
+        except IntegrityError:
+            # probably rapid double click
+            return self.pretend_success()
 
 SUSPICIOUSUN = re.compile(r'^[A-Z][a-z]{7}[a-z]*$', )
 MANYDOTS = re.compile(r'(\.[^\.]+){4}')
