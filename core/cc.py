@@ -151,6 +151,8 @@ def license_value(facet):
     else:
         return ''
 
+MATCH_CC_LICENSE = re.compile(r' BY(-NC)?(-ND|-SA)? ')
+
 def match_license(license_string):
     if license_string in LICENSE_LIST_ALL:
         return license_string
@@ -164,6 +166,9 @@ def match_license(license_string):
         return INFO_ALL[l][0]
     except ValueError:
         pass
+    lic = MATCH_CC_LICENSE.search(license_string)
+    if lic:
+        return 'CC {}'.format(lic.group(0).upper())
     return RIGHTS_ALIAS.get(license_string, None)
 
 MATCH_LICENSE = re.compile(r'creativecommons.org/licenses/([^/]+)/')
