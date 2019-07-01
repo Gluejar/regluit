@@ -168,7 +168,7 @@ def match_license(license_string):
         pass
     lic = MATCH_CC_LICENSE.search(license_string)
     if lic:
-        return 'CC {}'.format(lic.group(0).upper())
+        return 'CC{}'.format(lic.group(0).upper().strip())
     return RIGHTS_ALIAS.get(license_string, None)
 
 MATCH_LICENSE = re.compile(r'creativecommons.org/licenses/([^/]+)/')
