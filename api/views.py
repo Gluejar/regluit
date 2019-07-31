@@ -229,7 +229,7 @@ class OnixView(View):
         facet = kwargs.get('facet', 'all')
 
         if not facet:
-            raise HttpResponseBadRequest
+            return HttpResponseBadRequest(content='No facet provided')
 
         max_records = request.GET.get('max', 100)
 
