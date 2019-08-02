@@ -239,8 +239,12 @@ class OnixView(View):
             max_records = None
 
         facet_class = opds.get_facet_class(facet)()
-        page_number = request.GET.get('page')
+        page = request.GET.get('page', None)
+        try:
+            page = int(page)
+        except:
+            page = None
 
-        feed = onix.onix_feed(facet_class, max_records, page_number=page_number)
+        feed = onix.onix_feed(facet_class, max_records, page_number=page)
         return HttpResponse(feed, content_type="text/xml")
 

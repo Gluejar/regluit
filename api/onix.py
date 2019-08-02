@@ -3,7 +3,7 @@ import pytz
 import re
 from lxml import etree
 
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, InvalidPage
 
 from regluit.core import models
 from regluit.core.cc import ccinfo
@@ -26,8 +26,11 @@ def onix_feed(facet, max=None, page_number=None):
     works = facet.works[0:max] if max else facet.works
 
     if page_number is not None:
-        p = Paginator(works, WORKS_PER_PAGE)
-        works = p.page(page_number)
+        try:
+            p = Paginator(works, WORKS_PER_PAGE)
+            works = p.page(page_number)
+        except InvalidPage:
+            works = []
 
     for work in works:
         editions = models.Edition.objects.filter(work=work,ebooks__isnull=False)
