@@ -2,6 +2,9 @@ import datetime
 import pytz
 import re
 from lxml import etree
+
+from django.core.paginator import Paginator, InvalidPage
+
 from regluit.core import models
 from regluit.core.cc import ccinfo
 from regluit.bisac import Bisac
@@ -10,16 +13,25 @@ feed_xml = """<?xml version="1.0" encoding="UTF-8"?>
 <ONIXMessage release="3.0" xmlns="http://ns.editeur.org/onix/3.0/reference" />
 """
 bisac = Bisac()
+WORKS_PER_PAGE = 30
 
 def text_node(tag, text, attrib={}):
     node = etree.Element(tag, attrib=attrib)
     node.text = text
     return node
 
-def onix_feed(facet, max=None):
+def onix_feed(facet, max=None, page_number=None):
     feed = etree.fromstring(feed_xml)
     feed.append(header(facet))
     works = facet.works[0:max] if max else facet.works
+
+    if page_number is not None:
+        try:
+            p = Paginator(works, WORKS_PER_PAGE)
+            works = p.page(page_number)
+        except InvalidPage:
+            works = []
+
     for work in works:
         editions = models.Edition.objects.filter(work=work,ebooks__isnull=False)
         editions = facet.facet_object.filter_model("Edition",editions).distinct()

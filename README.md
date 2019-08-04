@@ -10,7 +10,7 @@ contains four main applications: `core`, `frontend`, `api` and `payment` that ca
 and configured on as many ec2 instances that are needed to support traffic.
 The partitioning between these modules is not as clean as would be ideal. `payment` is particularly messy because we had to retool it twice because we had to switch from Paypal to Amazon Payments to Stripe.
 
-regluit was originally developed on Django 1.3 (python 2.7) and currently runs on Django 1.8.
+regluit was originally developed on Django 1.3 (python 2.7) and currently runs on Django 1.11.
 
 Develop
 -------

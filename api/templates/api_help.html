@@ -89,11 +89,13 @@ XML: <a href="/api/v1/identifier/?format=xml&amp;api_key={{api_key}}&amp;usernam
     <dd><code><a href="{% url 'opds_acqusition' 'kw.fiction' %}">{{base_url}}{% url 'opds_acqusition' 'kw.fiction' %}</a></code></dd>
     <dt>filtered by ungluer</dt>
     <dd><code><a href="{% url 'opds_acqusition' '@eric' %}">{{base_url}}{% url 'opds_acqusition' '@eric' %}</a></code></dd>
+    <dt>filtered by having a Project Gutenberg or DOAB identifier (doab, gtbg)</dt>
+    <dd><code><a href="{% url 'opds_acqusition' 'doab/-gtbg' %}">{{base_url}}{% url 'opds_acqusition' 'doab/-gtbg' %}</a></code></dd>
     </p>
         <p>There's also an OPDS record available for every work on unglue.it. For example, requesting, <code><a href="{% url 'opds_acqusition' 'all'%}?work=13950">{{base_url}}{% url 'opds_acqusition' 'all'%}?work=13950</a></code> get you to the web page or opds record for <i>A Christmas Carol</i>.</p>
    
     <h3>ONIX Catalog Feeds</h3>
-    <p>There is an <a href="http://www.editeur.org/12/about-release-3.0/">ONIX 3.0</a> feed corresponding to every facet of our <a href="{% url 'free' %}">free ebook lists</a>. You don't need a key to use them. There is a maximum of 100 books per result you can change with the max parameter. For example, here are the <a href="{% url 'onix' 'by-nc-nd/epub' %}">first hundred CC BY-ND-ND licensed books available in EPUB.</a></p>
+    <p>There is an <a href="http://www.editeur.org/12/about-release-3.0/">ONIX 3.0</a> feed corresponding to every facet of our <a href="{% url 'free' %}">free ebook lists</a>. You don't need a key to use them. There is a maximum of 100 books per result you can change with the <code>max</code> parameter. For example, here are the <a href="{% url 'onix' 'by-nc-nd/epub' %}?max=20">first twenty CC BY-ND-ND licensed books available in EPUB.</a> Pages of 30 records each are available via the <code>page</code> parameter. Here's the <a href="{% url 'onix' 'doab' %}?page=1">first page of books from the Directory of Open Access Books.</a></p>
     <p>There's also an ONIX record available for every free ebook on unglue.it.  For example, here is <a href="{% url 'onix_all' %}?work=140086"><i>Issues in Open Research Data</i></a>.</p>
     
     <h3>Identifiers with Content type negotiation</h3>

@@ -216,24 +216,35 @@ class OPDSAcquisitionView(View):
 
 
 class OnixView(View):
-
     def get(self, request, *args, **kwargs):
         work = request.GET.get('work', None)
+
         if work:
             try:
-                work=models.safe_get_work(work)
+                work = models.safe_get_work(work)
             except models.Work.DoesNotExist:
-                raise Http404 
-            return HttpResponse(onix.onix_feed_for_work(work),
-                            content_type="text/xml")
+                raise Http404
+            return HttpResponse(onix.onix_feed_for_work(work), content_type="text/xml")
+
         facet = kwargs.get('facet', 'all')
-        if facet:
-            max = request.GET.get('max', 100)
-            try:
-                max = int(max)
-            except:
-                max = None
-            facet_class = opds.get_facet_class(facet)()
-            return HttpResponse(onix.onix_feed(facet_class, max),
-                                content_type="text/xml")
+
+        if not facet:
+            return HttpResponseBadRequest(content='No facet provided')
+
+        max_records = request.GET.get('max', 100)
+
+        try:
+            max_records = int(max_records)
+        except Exception:
+            max_records = None
+
+        facet_class = opds.get_facet_class(facet)()
+        page = request.GET.get('page', None)
+        try:
+            page = int(page)
+        except:
+            page = None
+
+        feed = onix.onix_feed(facet_class, max_records, page_number=page)
+        return HttpResponse(feed, content_type="text/xml")
 
