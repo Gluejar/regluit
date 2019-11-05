@@ -1,5 +1,4 @@
 # data from https://github.com/edsu/bisac
-
 class Bisac(object):
     
     def __init__(self):
@@ -16,7 +15,6 @@ class Bisac(object):
             return top
         return bisac.get(subject, {}).get('notation','')
         
-
 bisac= {
   "Religion / Christian Life / Social Issues": {
     "related": [], 
@@ -23130,4 +23128,215 @@ bisac= {
     "notation": "HIS042000", 
     "alt_label": []
   },
+  "Political Science / Public Policy / Economic Policy": {
+    "related": [], 
+    "pref_label": "Political Science / Public Policy / Economic Policy", 
+    "notation": "POL024000", 
+    "alt_label": []
+  },
+  "Biography & Autobiography / Science & Technology": {
+    "related": [], 
+    "pref_label": "Biography & Autobiography / Science & Technology", 
+    "notation": "BIO015000", 
+    "alt_label": []
+  },
+  "History / Middle East / Iran": {
+    "related": [], 
+    "pref_label": "History / Middle East / Iran", 
+    "notation": "HIS026020", 
+    "alt_label": []
+  },
+  "History / Europe / Spain & Portugal": {
+    "related": [], 
+    "pref_label": "History / Europe / Spain & Portugal", 
+    "notation": "HIS045000", 
+    "alt_label": []
+  },
+  "History / African American": {
+    "related": [], 
+    "pref_label": "History / African American", 
+    "notation": "HIS056000", 
+    "alt_label": []
+  },
+  "History / Women": {
+    "related": [], 
+    "pref_label": "History / Women", 
+    "notation": "HIS058000", 
+    "alt_label": []
+  },
+  "History / Europe / Poland": {
+    "related": [], 
+    "pref_label": "History / Europe / Poland", 
+    "notation": "HIS060000", 
+    "alt_label": []
+  },
+  "Language Arts & Disciplines / Literacy": {
+    "related": [], 
+    "pref_label": "Language Arts & Disciplines / Literacy", 
+    "notation": "LAN010000", 
+    "alt_label": []
+  },
+  "Language Arts & Disciplines / Linguistics / Sociolinguistics": {
+    "related": [], 
+    "pref_label": "Language Arts & Disciplines / Linguistics / Sociolinguistics", 
+    "notation": "LAN009050", 
+    "alt_label": []
+  },
+  "Language Arts & Disciplines / Library & Information Science / Digital & Online Resources": {
+    "related": [], 
+    "pref_label": "Language Arts & Disciplines / Library & Information Science / Digital & Online Resources", 
+    "notation": "LAN025060", 
+    "alt_label": []
+  },
+  "Literary Criticism / European / Eastern": {
+    "related": [], 
+    "pref_label": "Literary Criticism / European / Eastern", 
+    "notation": "LIT004110", 
+    "alt_label": []
+  },
+  "Literary Criticism / Comparative Literature": {
+    "related": [], 
+    "pref_label": "Literary Criticism / Comparative Literature", 
+    "notation": "LIT020000", 
+    "alt_label": []
+  },
+  "Literary Criticism / Modern / General": {
+    "related": [], 
+    "pref_label": "Literary Criticism / Modern / General", 
+    "notation": "LIT024000", 
+    "alt_label": []
+  },
+  "Literary Criticism / Modern / 16th Century": {
+    "related": [], 
+    "pref_label": "Literary Criticism / Modern / 16th Century", 
+    "notation": "LIT024010", 
+    "alt_label": []
+  },
+  "Literary Criticism / Modern / 17th Century": {
+    "related": [], 
+    "pref_label": "Literary Criticism / Modern / 17th Century", 
+    "notation": "LIT024020", 
+    "alt_label": []
+  },
+  "Literary Criticism / Modern / 18th Century": {
+    "related": [], 
+    "pref_label": "Literary Criticism / Modern / 18th Century", 
+    "notation": "LIT024030", 
+    "alt_label": []
+  },
+  "Literary Criticism / Modern / 19th Century": {
+    "related": [], 
+    "pref_label": "Literary Criticism / Modern / 19th Century", 
+    "notation": "LIT024040", 
+    "alt_label": []
+  },
+  "Literary Criticism / Modern / 20th Century": {
+    "related": [], 
+    "pref_label": "Literary Criticism / Modern / 20th Century", 
+    "notation": "LIT024050", 
+    "alt_label": []
+  },
+  "Literary Criticism / Modern / 21st Century": {
+    "related": [], 
+    "pref_label": "Literary Criticism / Modern / 21st Century", 
+    "notation": "LIT024060", 
+    "alt_label": []
+  },
+  "Political Science / Security (National & International)": {
+    "related": [], 
+    "pref_label": "Political Science / Security (National & International)", 
+    "notation": "POL012000", 
+    "alt_label": []
+  },
+  "Political Science / Intergovernmental Organizations": {
+    "related": [], 
+    "pref_label": "Political Science / Intergovernmental Organizations", 
+    "notation": "POL048000", 
+    "alt_label": []
+  },
+  "Political Science / Genocide & War Crimes": {
+    "related": [], 
+    "pref_label": "Political Science / Genocide & War Crimes", 
+    "notation": "POL061000", 
+    "alt_label": []
+  },
+  "Political Science / Geopolitics": {
+    "related": [], 
+    "pref_label": "Political Science / Geopolitics", 
+    "notation": "POL062000", 
+    "alt_label": []
+  },
+  "Political Science / Political Process / Media & Internet": {
+    "related": [], 
+    "pref_label": "Political Science / Political Process / Media & Internet", 
+    "notation": "POL065000", 
+    "alt_label": []
+  },
+  "Political Science / Public Policy / Military Policy": {
+    "related": [], 
+    "pref_label": "Political Science / Public Policy / Military Policy", 
+    "notation": "POL069000", 
+    "alt_label": []
+  },
+  "Psychology / Animal & Comparative Psychology": {
+    "related": [], 
+    "pref_label": "Psychology / Animal & Comparative Psychology", 
+    "notation": "PSY054000", 
+    "alt_label": []
+  },
+  "Religion / Buddhism / General": {
+    "related": [], 
+    "pref_label": "Religion / Buddhism / General", 
+    "notation": "REL007000", 
+    "alt_label": []
+  },
+  "Science / Environmental Science": {
+    "related": [], 
+    "pref_label": "Science / Environmental Science", 
+    "notation": "SCI026000", 
+    "alt_label": []
+  },
+  "Science / Ethics": {
+    "related": [], 
+    "pref_label": "Science / Ethics", 
+    "notation": "SCI101000", 
+    "alt_label": []
+  },
+  "Social Science / Sociology / Social Theory": {
+    "related": [], 
+    "pref_label": "Social Science / Sociology / Social Theory", 
+    "notation": "SOC026040", 
+    "alt_label": []
+  },
+  "Social Science / Indigenous Studies": {
+    "related": [], 
+    "pref_label": "Social Science / Indigenous Studies", 
+    "notation": "SOC062000", 
+    "alt_label": []
+  },
+  "Technology & Engineering / Electronics / Circuits / General": {
+    "related": [], 
+    "pref_label": "Technology & Engineering / Electronics / Circuits / General", 
+    "notation": "TEC008010", 
+    "alt_label": []
+  },
+  "History / Modern / 19th Century": {
+    "related": [], 
+    "pref_label": "History / Modern / 19th Century", 
+    "notation": "HIS037060", 
+    "alt_label": []
+  },
+  "History / Europe / Greece": {
+    "related": [], 
+    "pref_label": "History / Europe / Greece", 
+    "notation": "HIS042000", 
+    "alt_label": []
+  },
+  "History / Social History": {
+    "related": [], 
+    "pref_label": "History / Social History", 
+    "notation": "HIS054000", 
+    "alt_label": []
+  },
+
 }
