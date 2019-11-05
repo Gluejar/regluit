@@ -7,10 +7,10 @@ from django.conf import settings
 from gitenberg.metadata.pandata import Pandata
 
 from regluit.core.bookloader import add_from_bookdatas, BasePandataLoader
+from .scrape import BaseScraper
 from .hathitrust import HathitrustScraper
 from .pressbooks import PressbooksScraper
 from .routledge import RoutledgeScraper
-from .scrape import BaseScraper
 from .springer import SpringerScraper
 from .smashwords import SmashwordsScraper
 from .ubiquity import UbiquityScraper
