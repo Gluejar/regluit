@@ -31,12 +31,24 @@ class RoutledgeScraper(BaseScraper):
     
     def get_isbns(self):
         '''return a dict of edition keys and ISBNs'''
+        def get_isbn(url):
+            match = isbnmatch.search(url)
+            if match:
+                return match.group(0)
+            
+        def get_eisbn(eurl):
+            response = requests.get(eurl, allow_redirects=False)
+            if response.status_code in (301, 302):
+                eurl = response.headers['Location']
+            return get_isbn(eurl)
+
         isbns = super(RoutledgeScraper, self).get_isbns()
         readbookstr = self.doc.find(string=readbook)
         if readbookstr:
             eurl = readbookstr.find_parent()['href']
-            if isbnmatch.search(eurl):
-                isbns['ebook'] = isbnmatch.search(eurl).group(0)
+            eisbn = get_eisbn(eurl)
+            if eisbn:
+                isbns['ebook'] = eisbn
         return isbns
 
     def get_description(self):
