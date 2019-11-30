@@ -68,7 +68,7 @@ class KUMultiScraper(BaseMultiScraper):
             subjects.append(subject.text)
         bisac = self.fetch_one_el_content('BISAC')
         if bisac:
-            subjects.append(u'!bisacsh {}'.format(bisac))
+            subjects.append((u'bisacsh', bisac))
         subjects.append('KUnlatched')
         self.set('subjects', subjects)
 
