@@ -13,6 +13,17 @@ class BisacHeading(MPTTModel):
     
     def __unicode__(self):
         return self.full_label
+
+def interpret_notation(notation):
+    #translate a notation
+    if notation:
+        try:
+            bisac_heading = BisacHeading.objects.get(notation=notation)
+            return bisac_heading.full_label
+        except  BisacHeading.DoesNotExist:
+            pass
+    return notation
+
         
 def populate_bisac_headings():
     for key in bisac.keys():

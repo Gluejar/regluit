@@ -102,13 +102,6 @@ def get_subjects(book):
                 logger.warning("Please add BISAC %s", code)
     return subjects
 
-def add_subject(subject_name, work, authority=''):
-    try:
-        subject = Subject.objects.get(name=subject_name)
-    except Subject.DoesNotExist:
-        subject = Subject.objects.create(name=subject_name, authority=authority)
-    subject.works.add(work)
-
 def get_title(book):
     title = book.get('FullTitle', '') #UMICH
     if title:

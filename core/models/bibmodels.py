@@ -29,6 +29,7 @@ import regluit
 from regluit.marc.models import MARCRecord as NewMARC
 from questionnaire.models import Landing
 
+from regluit.bisac.models import interpret_notation
 from regluit.core import mobi
 import regluit.core.cc as cc
 from regluit.core.epub import test_epub
@@ -796,6 +797,8 @@ class Relator(models.Model):
             except Relation.DoesNotExist:
                 logger.warning("relation not found: code = %s" % relation_code)
 
+AUTHMATCH = re.compile(r'\s*!([a-z]+):?\s+(.*)')
+
 class Subject(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=200, unique=True)
@@ -820,7 +823,7 @@ class Subject(models.Model):
             cls.set_by_name(additional_subject, work, authority)
         subject = subjects[0]
         # make sure there's no heading
-        headingmatch = re.match(r'^!(.+):(.+)', subject)
+        headingmatch = AUTHMATCH.match(subject)
         if headingmatch:
             subject = headingmatch.group(2).strip()
             authority = headingmatch.group(1).strip()
@@ -832,7 +835,8 @@ class Subject(models.Model):
             subject = subject[6:].split('=')[0].replace('_', ' ').strip().capitalize()
             subject = 'Award Winner - {}'.format(subject)
             authority = 'award'
-
+        if authority == 'bisacsh':
+            subject = interpret_notation(subject)
         if valid_subject(subject):
             (subject_obj, created) = cls.objects.get_or_create(name=subject)
             if not subject_obj.authority and authority:
