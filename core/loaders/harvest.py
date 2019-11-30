@@ -69,7 +69,7 @@ def dl_online(ebook, limiter=rl.delay):
         limiter(ebook.provider)
         doc = get_soup(ebook.url)
         if doc:
-            obj = doc.select_one('div.fulltexticoncontainer-PDF a')
+            obj = doc.select_one('div.pdfItem a')
             if obj:
                 dl_url = urlparse.urljoin(ebook.url, obj['href'])
                 return make_dl_ebook(dl_url, ebook)
