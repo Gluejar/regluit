@@ -2,7 +2,7 @@ import re
 from django.core.management.base import BaseCommand
 from regluit.bisac.models import BisacHeading
 from regluit.core.models import Subject
-from regluit.core.loaders.utils import add_subject
+
 
 bisac_pattern = re.compile(r'[A-Z]{3}\d+')
 
@@ -19,7 +19,7 @@ class Command(BaseCommand):
                     bisac_heading = BisacHeading.objects.get(notation=bisac_code)
                     for work in subject.works.all():
                         while bisac_heading:
-                            add_subject(bisac_heading.full_label, work, authority="bisacsh")
+                            Subject.set_by_name(bisac_heading.full_label, work, authority="bisacsh")
                             bisac_heading = bisac_heading.parent
                     subject.delete()
                 except  BisacHeading.DoesNotExist:

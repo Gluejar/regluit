@@ -17,7 +17,7 @@ class RoutledgeScraper(BaseScraper):
     def get_keywords(self):
         subjects = []
         for sub in self.doc.select('dl.dl-codes dt'):
-            subjects.append('!bisacsh ' + sub.string)
+            subjects.append(('bisacsh', sub.string))
         self.set('subjects', subjects)
 
     def get_author_list(self):

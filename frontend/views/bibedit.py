@@ -23,6 +23,7 @@ from regluit.core.parameters import WORK_IDENTIFIERS
 from regluit.core.loaders import add_by_webpage
 from regluit.core.loaders.doab import add_by_doab
 from regluit.core.loaders.utils import ids_from_urls
+from regluit.core.models import Subject
 from regluit.frontend.forms import EditionForm, IdentifierForm
 
 from .rh_views import user_is_rh
@@ -55,16 +56,6 @@ def safe_get_work(work_id):
     except models.Work.DoesNotExist:
         raise Http404
     return work
-
-def add_subject(subject_name, work, authority=''):
-    '''
-    add a subject to a work
-    '''
-    try:
-        subject = models.Subject.objects.get(name=subject_name)
-    except models.Subject.DoesNotExist:
-        subject = models.Subject.objects.create(name=subject_name, authority=authority)
-    subject.works.add(work)
 
 def get_edition(edition_id):
     '''
@@ -336,10 +327,10 @@ def edit_edition(request, work_id, edition_id, by=None):
                 if form.cleaned_data.has_key('bisac'):
                     bisacsh = form.cleaned_data['bisac']
                     while bisacsh:
-                        add_subject(bisacsh.full_label, work, authority="bisacsh")
+                        Subject.set_by_name(bisacsh.full_label, work, authority="bisacsh")
                         bisacsh = bisacsh.parent
                 for subject_name in edition.new_subjects:
-                    add_subject(subject_name, work)
+                    Subject.set_by_name(subject_name, work)
                 work_url = reverse('work', kwargs={'work_id': edition.work_id})
                 cover_file = form.cleaned_data.get("coverfile", None)
                 if cover_file:
