@@ -1039,9 +1039,9 @@ class EbookFileTests(TestCase):
         c = Campaign.objects.create(
             work=w,
             type=parameters.BUY2UNGLUE,
-            cc_date_initial=datetime(2020, 1, 1),
+            cc_date_initial=datetime(2030, 1, 1),
             target=1000,
-            deadline=datetime(2020, 1, 1),
+            deadline=datetime(2030, 1, 1),
             license='CC BY',
             description="dummy description",
         )
