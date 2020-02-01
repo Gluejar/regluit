@@ -363,7 +363,7 @@ class UnifiedCampaignTests(TestCase):
     def good_cc_scenario(self):
         # how much of test.campaigntest.test_relaunch can be done here?
 
-        card1 = card(number=TEST_CARDS[0][0], exp_month=1, exp_year='2020', cvc='123', name='Raymond Yee',
+        card1 = card(number=TEST_CARDS[0][0], exp_month=1, exp_year='2030', cvc='123', name='Raymond Yee',
           address_line1="100 Jackson St.", address_line2="", address_zip="94706", address_state="CA", address_country=None)  # good card
 
         (events, charge_exception) = self.pledge_to_work_with_cc(username="RaymondYee", password="Test_Password_", work_id=1, card=card1,
@@ -428,7 +428,7 @@ class UnifiedCampaignTests(TestCase):
         c.save()
 
         # set up a good card
-        card1 = card(number=TEST_CARDS[0][0], exp_month=1, exp_year='2020', cvc='123', name='dataunbound',
+        card1 = card(number=TEST_CARDS[0][0], exp_month=1, exp_year='2030', cvc='123', name='dataunbound',
           address_line1="100 Jackson St.", address_line2="", address_zip="94706", address_state="CA", address_country=None)  # good card
 
         sc = StripeClient()
