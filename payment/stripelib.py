@@ -165,7 +165,7 @@ def is_luhn_valid(card_number):
     
 # https://stripe.com/docs/tutorials/charges
 
-def card (number=TEST_CARDS[0][0], exp_month=1, exp_year=2020, cvc=None, name=None,
+def card (number=TEST_CARDS[0][0], exp_month=1, exp_year=2030, cvc=None, name=None,
           address_line1=None, address_line2=None, address_zip=None, address_state=None, address_country=None):
     
     """Note: there is no place to enter address_city in the API"""
