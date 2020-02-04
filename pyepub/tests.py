@@ -69,7 +69,7 @@ class EpubTests(unittest.TestCase):
 
     def test_addpart_noguide(self):
         epub2=EPUB(self.epub2file2,mode='a')
-        self.assertEqual(len(epub2.opf),3)
+        self.assertEqual(len(epub2.opf),4)
         self.assertEqual(epub2.info['guide'],None)
         num_spine_items = len(epub2.opf[2])
         uxml = u'<?xml version="1.0" encoding="utf-8" standalone="yes"?><test>VojtěchVojtíšek</test>'
