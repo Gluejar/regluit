@@ -122,11 +122,11 @@ class BookLoaderTests(TestCase):
         # edition
         edition = bookloader.add_by_isbn('9780143034759')
         self.assertEqual(edition.title, u'Alexander Hamilton')
-        self.assertEqual(edition.publication_date, u'2005')
+        self.assertEqual(edition.publication_date, u'2004')
         self.assertEqual(edition.publisher, u'Penguin')
         self.assertEqual(edition.isbn_10, '0143034758')
         self.assertEqual(edition.isbn_13, '9780143034759')
-        self.assertEqual(edition.googlebooks_id, '4iafgTEhU3QC')
+        self.assertEqual(edition.googlebooks_id, '4PeiDwAAQBAJ')
 
         # authors
         self.assertEqual(edition.authors.all().count(), 1)
@@ -134,7 +134,7 @@ class BookLoaderTests(TestCase):
 
         # work
         self.assertTrue(edition.work)
-        self.assertEqual(edition.work.googlebooks_id, '4iafgTEhU3QC')
+        self.assertEqual(edition.work.googlebooks_id, '4PeiDwAAQBAJ')
         self.assertEqual(edition.work.first_isbn_13(), '9780143034759')
 
         # test duplicate pubname
