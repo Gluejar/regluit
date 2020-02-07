@@ -1,7 +1,8 @@
 # IP address part of this of this copied from
 # https://github.com/benliles/django-ipauth/blob/master/ipauth/models.py
-
+import logging
 import re
+
 from django.contrib.auth.models import Group
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -11,6 +12,8 @@ from django.db.models.signals import post_save
 from django.forms import GenericIPAddressField as BaseIPAddressField
 from django.urls import reverse
 from django.utils import timezone 
+
+logger = logging.getLogger(__name__)
 
 class Library(models.Model):
     '''
@@ -303,3 +306,11 @@ class BadUsernamePattern(models.Model):
             self.save()
             return True
         return False
+
+def get_special():
+    specials = Library.objects.filter(user__username='special')
+    for special in specials:
+        logger.info('special library found')
+        return special
+    return None
+

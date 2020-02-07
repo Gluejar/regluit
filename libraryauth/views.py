@@ -17,7 +17,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from registration.backends.model_activation.views import RegistrationView
 
 from . import backends
-from .models import Library, BadUsernamePattern
+from .models import Library, BadUsernamePattern, get_special
 from .forms import LibraryForm, NewLibraryForm, RegistrationFormNoDisposableEmail, UserData
 
 logger = logging.getLogger(__name__)
@@ -94,6 +94,8 @@ class Authenticator:
             self.library = Library.objects.get(user__username=library)
         elif isinstance(library, Library):
             self.library = library
+        elif library == special:
+            return
         else:
             raise Exception
         self.backend_class = getattr(backends, self.library.backend)
@@ -120,7 +122,11 @@ class Authenticator:
         return self.backend_class.authenticator().process(self, success_url, deny_url)
 
     def allowed(self):
-        return  self.backend_class().authenticate(self.request, self.library)
+        if self.library:
+            return  self.backend_class().authenticate(self.request, self.library)
+
+special = get_special()
+
 
 class BaseLibraryView:
     model = Library
@@ -305,6 +311,10 @@ class CustomRegistrationView(RegistrationView):
             if bad_pattern.matches(username):                
                 return self.pretend_success()
         if suspicious(username, email):
+            return self.pretend_success()
+        special_auth = Authenticator(self.request, special)
+        if special_auth.allowed():
+            logger.info('special login from %s' % self.request.META['REMOTE_ADDR'])
             return self.pretend_success()
         try:
             return super(CustomRegistrationView, self).form_valid(form)
