@@ -31,9 +31,12 @@ from django.utils.timezone import now
 
 from django_comments.models import Comment
 
-#regluit imports
+from regluit.payment.models import Transaction
+from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
+from regluit.pyepub import EPUB
+from regluit.utils.localdatetime import date_today
 
-from regluit.core import (
+from . import (
     isbn,
     bookloader,
     models,
@@ -43,7 +46,9 @@ from regluit.core import (
     tasks,
     parameters,
 )
-from regluit.core.models import (
+from .epub import test_epub
+from .loaders.utils import (load_from_books, loaded_book_ok, )
+from .models import (
     Campaign,
     Work,
     UnglueitError,
@@ -59,18 +64,11 @@ from regluit.core.models import (
     EbookFile,
     Acq,
     Hold,
+    safe_get_work,
 )
-
-from regluit.core.parameters import TESTING, LIBRARY, RESERVE
-from regluit.core.loaders.utils import (load_from_books, loaded_book_ok, )
-from regluit.core.validation import valid_subject
-from regluit.frontend.views import safe_get_work
-from regluit.payment.models import Transaction
-from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
-from regluit.pyepub import EPUB
-from regluit.utils.localdatetime import date_today
-from .epub import test_epub
+from .parameters import TESTING, LIBRARY, RESERVE
 from .pdf import test_pdf
+from .validation import valid_subject
 
 TESTDIR = os.path.join(os.path.dirname(__file__), '../test/')
 YAML_VERSIONFILE = os.path.join(TESTDIR, 'versiontest.yaml')
@@ -123,11 +121,11 @@ class BookLoaderTests(TestCase):
         # edition
         edition = bookloader.add_by_isbn('9780143034759')
         self.assertEqual(edition.title, u'Alexander Hamilton')
-        self.assertEqual(edition.publication_date, u'2004')
+        self.assertTrue(edition.publication_date in (u'2004', u'2005'))
         self.assertEqual(edition.publisher, u'Penguin')
         self.assertEqual(edition.isbn_10, '0143034758')
         self.assertEqual(edition.isbn_13, '9780143034759')
-        self.assertEqual(edition.googlebooks_id, '4PeiDwAAQBAJ')
+        self.assertTrue(edition.googlebooks_id in ('4PeiDwAAQBAJ', '4iafgTEhU3QC'))
 
         # authors
         self.assertEqual(edition.authors.all().count(), 1)
@@ -135,7 +133,7 @@ class BookLoaderTests(TestCase):
 
         # work
         self.assertTrue(edition.work)
-        self.assertEqual(edition.work.googlebooks_id, '4PeiDwAAQBAJ')
+        self.assertTrue(edition.googlebooks_id in ('4PeiDwAAQBAJ', '4iafgTEhU3QC'))
         self.assertEqual(edition.work.first_isbn_13(), '9780143034759')
 
         # test duplicate pubname
@@ -935,7 +933,7 @@ class SafeGetWorkTest(TestCase):
         self.assertEqual(work, w1)
         work = safe_get_work(w2_id)
         self.assertEqual(work, w1)
-        self.assertRaises(Http404, safe_get_work, 3)
+        self.assertRaises(Work.DoesNotExist, safe_get_work, 3)
 
 class WorkTests(TestCase):
     def setUp(self):
