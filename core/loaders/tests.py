@@ -17,7 +17,7 @@ class LoaderTests(TestCase):
         edition = Edition(work=work)
         edition.save()
 
-        dropbox_url = 'https://www.dropbox.com/s/h5jzpb4vknk8n7w/Jakobsson_The_Troll_Inside_You_EBook.pdf?dl=0'
+        dropbox_url = 'https://www.dropbox.com/s/azaztyvgf6b98bc/stellar-consensus-protocol.pdf?dl=0'
         dropbox_ebook = Ebook.objects.create(format='online', url=dropbox_url, edition=edition)
         dropbox_ebf, new_ebf = dl_online(dropbox_ebook)
         self.assertTrue(dropbox_ebf.ebook.filesize)
