@@ -15,6 +15,7 @@ import requests
 import requests_mock
 
 #django imports
+from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -59,7 +60,7 @@ from regluit.core.models import (
     Acq,
     Hold,
 )
-from regluit.libraryauth.models import Library
+
 from regluit.core.parameters import TESTING, LIBRARY, RESERVE
 from regluit.core.loaders.utils import (load_from_books, loaded_book_ok, )
 from regluit.core.validation import valid_subject
@@ -1211,6 +1212,7 @@ class LibTests(TestCase):
         e = Edition.objects.create(title=w.title, work=w)
         u = User.objects.create_user('test', 'test@example.org', 'testpass')
         lu = User.objects.create_user('library', 'testu@example.org', 'testpass')
+        Library = apps.get_model('libraryauth', 'Library')
         lib = Library.objects.create(user=lu, owner=u)
         c = Campaign.objects.create(
             work=w,
