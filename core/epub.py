@@ -2,7 +2,7 @@
 Utilities that manipulate epub files
 """
 
-from regluit.pyepub import EPUB, InvalidEpub
+from pyepub import EPUB, InvalidEpub
 from StringIO import StringIO
 from django.template.loader import render_to_string
 

@@ -13,6 +13,7 @@ from time import sleep, mktime
 from celery.task.sets import TaskSet
 import requests
 import requests_mock
+from pyepub import EPUB
 
 #django imports
 from django.apps import apps
@@ -33,7 +34,6 @@ from django_comments.models import Comment
 
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
-from regluit.pyepub import EPUB
 from regluit.utils.localdatetime import date_today
 
 from . import (

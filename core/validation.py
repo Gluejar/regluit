@@ -12,7 +12,7 @@ from PyPDF2 import PdfFileReader
 from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from regluit.pyepub import EPUB
+from pyepub import EPUB
 from regluit.mobi import Mobi
 from .isbn import ISBN
 

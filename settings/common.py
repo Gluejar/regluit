@@ -178,7 +178,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'regluit.distro',               
     'regluit.booxtream',
-    'regluit.pyepub',
+    'pyepub',
     'regluit.libraryauth', 
     'transmeta',
     'questionnaire',
