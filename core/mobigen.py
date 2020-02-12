@@ -80,7 +80,6 @@ def generate_mobi_ebook_for_edition(edition):
     # copy metadata from sister ebook
     
     ebfile_url = default_storage.url(file_.name)
-    #print (ebfile_url)
     
     ebook = Ebook(url=ebfile_url,
                   format="mobi", 

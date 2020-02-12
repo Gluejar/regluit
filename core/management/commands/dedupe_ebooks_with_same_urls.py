@@ -13,11 +13,11 @@ def delete_newest_ebooks(ebooks):
          ebook.delete()
          
          intact = ebooks[0]
-         print "leaving undeleted: ebook.id {}, edition.id {} work.id {}".format(
+         print("leaving undeleted: ebook.id {}, edition.id {} work.id {}".format(
             intact.id,
             intact.edition_id,
             intact.edition.work_id
-         )
+         ))
             
 
 class Command(BaseCommand):

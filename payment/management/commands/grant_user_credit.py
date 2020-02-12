@@ -9,7 +9,7 @@ class Command(BaseCommand):
 
     def handle(self, username, amount, action="credit", *args, **kwargs):
         if action not in ("debit", "redeem", "credit"):
-            print 'action should be  in ("debit", "redeem", "credit")'
+            print('action should be  in ("debit", "redeem", "credit")')
             return
         user = User.objects.get(username=username)
         if amount == 'all':
@@ -20,5 +20,5 @@ class Command(BaseCommand):
             amount = int(amount)
         notify = action != "redeem"
         user.credit.add_to_balance(amount, notify=notify)
-        print "{}ed ${} from {}".format(action, amount, username)
-        print "{} now has a balance of {} credits".format(username, user.credit.balance)
+        print("{}ed ${} from {}".format(action, amount, username))
+        print("{} now has a balance of {} credits".format(username, user.credit.balance))

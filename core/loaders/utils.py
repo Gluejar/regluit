@@ -303,7 +303,6 @@ def loaded_book_ok(book, work, edition):
     # isbns
     for isbn in isbns:
         if Identifier.objects.filter(type='isbn', value=isbn).count() <> 1:
-            # print ("isbn problem: work.id {}, isbn: {}".format(work.id, isbn))
             return False
         else:
             try:
@@ -311,9 +310,6 @@ def loaded_book_ok(book, work, edition):
             except Exception as e:
                 logger.info(e)
                 return False
-
-            # authors
-            # print set([ed.name for ed in edition_for_isbn.authors.all()])
 
             if (
                     set([utf8_general_ci_norm(author[0]) for author in authors]) !=

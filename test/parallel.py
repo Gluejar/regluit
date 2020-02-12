@@ -19,17 +19,17 @@ We will take this in steps by first writing toy models and filling them out
 
 def doubler(n):
     #time.sleep(random.uniform(0,0.1))
-    print "in doubler %s " % (n)
+    print("in doubler %s " % (n))
     return 2*n
 
 def negator(n):
     #time.sleep(random.uniform(0,0.1))
-    print "in negator %s " % (n)
+    print("in negator %s " % (n))
     return -n
 
 def tripler(n):
     #time.sleep(random.uniform(0,0.1))
-    print "in tripler %s " % (n)
+    print("in tripler %s " % (n))
     return 3*n
 
 
@@ -46,10 +46,10 @@ class Consumer(multiprocessing.Process):
             next_task = self.task_queue.get()
             if next_task is None:
                 # Poison pill means shutdown
-                print '%s: Exiting' % proc_name
+                print('%s: Exiting' % proc_name)
                 self.task_queue.task_done()
                 break
-            print '%s: %s' % (proc_name, next_task)
+            print('%s: %s' % (proc_name, next_task))
             answer = next_task()
             self.task_queue.task_done()
             self.result_queue.put(answer)
@@ -60,13 +60,13 @@ class NetTask(object):
     def __init__(self, n):
         self.n = n
     def __call__(self):
-        print "NetTask %s" % (self.n)
+        print("NetTask %s" % (self.n))
         
         results = [apply(doubler, (self.n,)),
                    apply(negator, (self.n,)),
                    apply(tripler, (self.n,))]
-        print results
-        print "NetTask about to return results for %s" % (self.n)
+        print(results)
+        print("NetTask about to return results for %s" % (self.n))
         return (self.n, results)
         #return (self.n, sum(r.get() for r in async_results))
     def __str__(self):
@@ -85,7 +85,7 @@ def main():
 
     # Start consumers
     num_consumers = multiprocessing.cpu_count()
-    print 'Creating %d consumers' % num_consumers
+    print('Creating %d consumers' % num_consumers)
     consumers = [ Consumer(tasks, results_queue)
                   for i in xrange(num_consumers) ]
     for w in consumers:
@@ -108,10 +108,10 @@ def main():
     while results_so_far < n_tasks:
         result = results_queue.get()
         net_results[result[0]] = result[1]
-        print result
+        print(result)
         results_so_far += 1
     
-    print "net results", net_results
+    print("net results", net_results)
     
 if __name__ == '__main__':
     main()

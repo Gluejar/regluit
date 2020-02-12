@@ -141,9 +141,9 @@ def campaign_display():
     campaigns_with_incomplete_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_INCOMPLETE)
     campaigns_with_completed_transactions = models.Campaign.objects.filter(transaction__status=IPN_PAY_STATUS_COMPLETED)
     
-    print "campaigns with active transactions", campaigns_with_active_transactions
-    print "campaigns with incomplete transactions", campaigns_with_incomplete_transactions
-    print "campaigns with completed transactions", campaigns_with_completed_transactions
+    print("campaigns with active transactions", campaigns_with_active_transactions)
+    print("campaigns with incomplete transactions", campaigns_with_incomplete_transactions)
+    print("campaigns with completed transactions", campaigns_with_completed_transactions)
     
 def campaigns_active():
     return models.Campaign.objects.filter(transaction__status=IPN_PREAPPROVAL_STATUS_ACTIVE)
@@ -194,7 +194,7 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
 
     time.sleep(5)
     
-    print "now opening unglue.it"
+    print("now opening unglue.it")
     
     #sel.get("http://www.google.com")
     sel.get(UNGLUE_IT_URL)    
@@ -240,11 +240,11 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     # check to see whether there is an error
     error_messages = WebDriverWait(sel,20).until(lambda d: d.find_elements_by_css_selector("ul.errorlist"))
     if len(error_messages):
-        print "yes:  Error in just hitting pledge button as expected"
+        print("yes:  Error in just hitting pledge button as expected")
     else:
-        print "ooops:  there should be an error message when pledge button hit"
+        print("ooops:  there should be an error message when pledge button hit")
     
-    print "making $10 pledge"
+    print("making $10 pledge")
     
     # now we have to replace the current preapproval amount with 10
     sel.execute_script("""document.getElementById("id_preapproval_amount").value="10";""")
@@ -294,19 +294,19 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     time.sleep(3)
     
     # should be back on a pledge complete page
-    print sel.current_url, re.search(r"/pledge/complete",sel.current_url)
+    print(sel.current_url, re.search(r"/pledge/complete", sel.current_url))
     
     # need to pick out the actual work pledged.
     work_url = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector('p.pledge_complete a[href*="/work/"]'))
     work_url.click()
 
     # change_pledge
-    print "clicking Modify Pledge button"
+    print("clicking Modify Pledge button")
     change_pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
     change_pledge_button.click()
     
     # enter a new pledge, which is less than the previous amount 
-    print "changing pledge to $5 -- should not need to go to Stripe"
+    print("changing pledge to $5 -- should not need to go to Stripe")
     sel.execute_script("""document.getElementById("id_preapproval_amount").value="5";""")
     
     pledge_button = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input[value*='Modify Pledge']"))
@@ -350,7 +350,7 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
     result = pm.execute_campaign(c)
     
     # should have a Complete transaction
-    print result
+    print(result)
     
     yield sel
     

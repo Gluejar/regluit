@@ -326,8 +326,6 @@ def fnf(auth):
     else:
         if parts[1].strip() in ('der', 'van', 'von', 'de', 'ter'):
             return u'{} {} {}'.format(parts[2].strip(), parts[1].strip(), parts[0].strip())
-        #print auth
-        #print re.search(namelist,auth).group(0)
         return u'{} {}, {}'.format(parts[2].strip(), parts[0].strip(), parts[1].strip())
 
 

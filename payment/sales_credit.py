@@ -24,9 +24,8 @@ for purchase in stripe_reader:
             campaign_id = description['tc.id']
             try:
                 campaign = Campaign.objects.get(id = campaign_id)
-                #print campaign.name
             except Campaign.DoesNotExist:
-                print 'missing campaign:'+ campaign_id
+                print('missing campaign:'+ campaign_id)
                 continue
             if royalties_due.has_key(campaign.id):
                 royalty_due = royalties_due[campaign.id].royalty_due
@@ -43,4 +42,4 @@ for purchase in stripe_reader:
             campaign.royalty_due=royalty_due
             royalties_due[campaign.id]=campaign
 for campaign in royalties_due.values():
-    print campaign.rightsholder + ' '+campaign.name+' '+str(campaign.royalty_due)
+    print(campaign.rightsholder + ' '+campaign.name+' '+str(campaign.royalty_due))

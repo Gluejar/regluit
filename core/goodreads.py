@@ -173,7 +173,6 @@ class GoodreadsClient(object):
         while (more_pages):
         
           r = request(method,request_url,params=params)
-          # print request_url, params
           if r.status_code != httplib.OK:
               raise GoodreadsException('Error in review_list_unauth, http status_code: {0}'.format(r.status_code))
           else:

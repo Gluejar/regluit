@@ -11,6 +11,6 @@ class Command(BaseCommand):
         transactions = regluit.payment.models.Transaction.objects.all()
         for t in transactions:
             pd = regluit.payment.paypal.PaymentDetails(t)
-            print pprint(pd.response)
-            print pd.compare()
+            print(pprint(pd.response))
+            print(pd.compare())
      

@@ -9,5 +9,5 @@ class Command(BaseCommand):
         campaigns = regluit.core.models.Campaign.objects.all()
         for c in campaigns:
             c.update_left()
-            print c.left
+            print(c.left)
      

@@ -39,7 +39,7 @@ class Migration(migrations.Migration):
                 elif ebf.edition.work.campaigns.filter(type=2):
                     pass
                 else:
-                    print 'ebf {} is dangling'.format(ebf.id)
+                    print('ebf {} is dangling'.format(ebf.id))
 
     def noop(apps, schema_editor):
         pass

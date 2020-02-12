@@ -21,8 +21,6 @@ def uncompress_lz77(data):
     offset += 1;
     ord_ = ord(char);
 
-    # print " ".join([repr(char), hex(ord_)])
-
     # The long if-elsif chain is the best logic for $ord handling
     ## no critic (Cascading if-elsif chain)
     if (ord_ == 0):

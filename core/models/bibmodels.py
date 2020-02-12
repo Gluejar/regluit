@@ -334,7 +334,7 @@ class Work(models.Model):
         nkfd_form = unicodedata.normalize('NFKD', self.title) #unaccent accented letters
         for c in nkfd_form:
             ccat = unicodedata.category(c)
-            #print ccat
+
             if ccat.startswith('L') or  ccat.startswith('N'): # only letters and numbers
                 if ord(c) > 127:
                     safe = safe + '#' #a non latin script letter or number

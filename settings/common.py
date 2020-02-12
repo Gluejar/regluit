@@ -485,7 +485,7 @@ GOOGLEBOT_UA = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/b
 try:
     from .keys.common import *
 except ImportError:
-    print 'no real key file found, using dummy'
+    print('no real key file found, using dummy')
     from .dummy.common import *
 
 try:

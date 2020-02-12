@@ -239,7 +239,7 @@ def launch_instance(ami='ami-a29943cb',
         key = ec2.get_all_key_pairs(keynames=[key_name])[0]
     except ec2.ResponseError, e:
         if e.code == 'InvalidKeyPair.NotFound':
-            print 'Creating keypair: %s' % key_name
+            print('Creating keypair: %s' % key_name)
             # Create an SSH key to use when logging into instances.
             key = ec2.create_key_pair(key_name)
             
@@ -258,7 +258,7 @@ def launch_instance(ami='ami-a29943cb',
         group = ec2.get_all_security_groups(groupnames=[group_name])[0]
     except ec2.ResponseError, e:
         if e.code == 'InvalidGroup.NotFound':
-            print 'Creating Security Group: %s' % group_name
+            print('Creating Security Group: %s' % group_name)
             # Create a security group to control access to instance via SSH.
             group = ec2.create_security_group(group_name,
                                               'A group that allows SSH access')
@@ -271,7 +271,7 @@ def launch_instance(ami='ami-a29943cb',
         group.authorize('tcp', ssh_port, ssh_port, cidr)
     except ec2.ResponseError, e:
         if e.code == 'InvalidPermission.Duplicate':
-            print 'Security Group: %s already authorized' % group_name
+            print('Security Group: %s already authorized' % group_name)
         else:
             raise
 
@@ -292,12 +292,12 @@ def launch_instance(ami='ami-a29943cb',
     # The instance has been launched but it's not yet up and
     # running.  Let's wait for its state to change to 'running'.
 
-    print 'waiting for instance'
+    print('waiting for instance')
     while instance.state != 'running':
-        print '.'
+        print('.')
         time.sleep(5)
         instance.update()
-    print 'done'
+    print('done')
 
     # Let's tag the instance with the specified label so we can
     # identify it later.
@@ -394,6 +394,6 @@ def destroy_image(image_id):
 if __name__ == '__main__':
     pprint (stats_for_instances(all_instances()))
     web1 = instance('web1')
-    print instance_metrics(web1)
-    print all_images()
+    print(instance_metrics(web1))
+    print(all_images())
 

@@ -155,7 +155,7 @@ class Processor:
         '''
         def __init__(self, transaction):
             
-            print "Finish"
+            print("Finish")
                 
                 
     class PaymentDetails(BasePaymentRequest):

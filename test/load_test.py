@@ -11,7 +11,7 @@ Fire up various threads to unglue.it / please.unglueit.com to see how much load 
 """
 
 def get_with_time(url, label=None):
-    print "get_with_time: %s" % (label)
+    print("get_with_time: %s" % (label))
     time0 = time.time()
     page = requests.get(url).content
     time1 = time.time()
@@ -26,7 +26,7 @@ if __name__ == '__main__':
     url = "http://unglue.it/lists/popular"
     
     results = [pool.apply_async(get_with_time, (url,k)) for k in xrange(n_calls)]
-    print [result.get(999999999)[1] for result in results]
+    print([result.get(999999999)[1] for result in results])
     
     
 

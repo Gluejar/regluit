@@ -838,7 +838,6 @@ def load_from_yaml(yaml_url, test_mode=False):
     return edition.work_id if edition else None
 
 def edition_for_ident(id_type, id_value):
-    #print 'returning edition for {}: {}'.format(id_type, id_value)
     for ident in models.Identifier.objects.filter(type=id_type, value=id_value):
         return ident.edition if ident.edition else ident.work.editions[0]
 
@@ -1065,7 +1064,6 @@ def git_download_from_yaml_url(yaml_url, version, edition_name='book', format_='
     '''
     if yaml_url.endswith('raw/master/metadata.yaml'):
         repo_url = yaml_url[0:-24]
-        #print (repo_url,version,edition_name)
         ebook_url = repo_url + 'releases/download/' + version + '/' + edition_name + '.' + format_
         return ebook_url
 

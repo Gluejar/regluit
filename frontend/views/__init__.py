@@ -1644,14 +1644,14 @@ def new_survey(request, work_id):
         if form.is_valid():
             if not work and form.work:
                 for my_work in my_works:
-                    print '{} {}'.format(my_work.id, form.work_id)
+                    print('{} {}'.format(my_work.id, form.work_id))
                     if my_work == form.work:
                         work = form.work
                         break
                 else:
-                    print 'not mine'
+                    print('not mine')
                     return HttpResponseRedirect(reverse('surveys'))
-            print "create landing"
+            print("create landing")
             landing = Landing.objects.create(label=form.cleaned_data['label'], questionnaire=form.cleaned_data['survey'], content_object=work)
             return HttpResponseRedirect(reverse('surveys'))
     return render(request, "manage_survey.html", {"work":work, "form":form})

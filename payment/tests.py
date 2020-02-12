@@ -48,7 +48,7 @@ def set_test_logging():
 
 def loginSandbox(selenium):
     
-    print "LOGIN SANDBOX"
+    print("LOGIN SANDBOX")
     
     try:
         selenium.get('https://developer.paypal.com/')
@@ -70,9 +70,9 @@ def paySandbox(test, selenium, url, authorize=False, already_at_url=False, sleep
     
     
     if authorize:
-        print "AUTHORIZE SANDBOX"
+        print("AUTHORIZE SANDBOX")
     else:
-        print "PAY SANDBOX"
+        print("PAY SANDBOX")
     
     try:
         # We need this sleep to make sure the JS engine is finished from the sandbox loging page
@@ -80,7 +80,7 @@ def paySandbox(test, selenium, url, authorize=False, already_at_url=False, sleep
 
         if not already_at_url:
             selenium.get(url)
-            print "Opened URL %s" % url
+            print("Opened URL %s" % url)
    
         try:
             # Button is only visible if the login box is NOT open
@@ -92,7 +92,7 @@ def paySandbox(test, selenium, url, authorize=False, already_at_url=False, sleep
             # so selenium can find them, but we need them in view to interact
             time.sleep(sleep_time)
         except:
-            print "Ready for Login"
+            print("Ready for Login")
 
         email_element = WebDriverWait(selenium, 60).until(lambda d : d.find_element_by_id("login_email"))
         email_element.click()
@@ -127,11 +127,11 @@ def paySandbox(test, selenium, url, authorize=False, already_at_url=False, sleep
     except:
         traceback.print_exc()
     
-    print "Tranasction Complete"
+    print("Tranasction Complete")
     
 def payAmazonSandbox(sel):
     
-        print "Expected title: {0} \n Actual Title: {1}".format('Amazon.com Sign In', sel.title)
+        print("Expected title: {0} \n Actual Title: {1}".format('Amazon.com Sign In', sel.title))
         # does it make sense to throw up if there is problem....what better invariants?
         login_email = WebDriverWait(sel,20).until(lambda d: d.find_element_by_css_selector("input#ap_email"))
         login_email.click()
@@ -146,17 +146,10 @@ def payAmazonSandbox(sel):
         time.sleep(2)
         
         # sel.find_element_by_css_selector("input[type='image']")
-        print "Expected title: {0} \n Actual Title: {1}".format('Amazon Payments', sel.title)        
-        print "looking for credit_card_confirm", sel.current_url
+        print("Expected title: {0} \n Actual Title: {1}".format('Amazon Payments', sel.title))       
+        print ("looking for credit_card_confirm", sel.current_url)
         credit_card_confirm = WebDriverWait(sel,20).until(lambda d: d.find_elements_by_css_selector("input[type='image']"))
         credit_card_confirm[-1].click()
-        
-        #print "looking for payment_confirm", sel.current_url
-        #payment_confirm = WebDriverWait(sel,20).until(lambda d: d.find_elements_by_css_selector("input[type='image']"))
-        #print "payment_confirm ", payment_confirm
-        #print "len(payment_confirm)", len(payment_confirm)
-        #time.sleep(1)
-        #payment_confirm[-1].click()
 
 @unittest.skip("skipping PledgeTest (selenium)")
 class PledgeTest(TestCase):
@@ -185,7 +178,7 @@ class PledgeTest(TestCase):
         try:
             valid(url)
         except ValidationError, e:
-            print e
+            print(e)
 
     def tearDown(self):
         self.selenium.quit()
@@ -214,11 +207,11 @@ class AuthorizeTest(TestCase):
         try:
             valid(url)
         except ValidationError, e:
-            print e
+            print(e)
         
     def test_authorize(self):
         
-        print "RUNNING TEST: test_authorize"
+        print("RUNNING TEST: test_authorize")
         
         p = PaymentManager()
     
