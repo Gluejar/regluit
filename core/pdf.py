@@ -3,7 +3,6 @@ Utilities that manipulate pdf files
 """
 import logging
 from io import BytesIO
-from StringIO import StringIO
 from tempfile import NamedTemporaryFile
 
 import requests

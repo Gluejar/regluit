@@ -9,7 +9,7 @@
 import os
 import sys
 import struct
-import cStringIO as StringIO
+from io import BytesIO
 import bz2
 
 from Crypto.Cipher import AES
@@ -67,14 +67,14 @@ class CTRCounter:
         return self.nonce + right_half
 
 def encrypt_string(plaintext, key, compress=False):
-    plaintext_obj = StringIO.StringIO(plaintext)
-    ciphertext_obj = StringIO.StringIO()
+    plaintext_obj = BytesIO(bytes(plaintext))
+    ciphertext_obj = BytesIO()
     encrypt_file(plaintext_obj, key, ciphertext_obj, compress=compress)
     return ciphertext_obj.getvalue()
 
 def decrypt_string(ciphertext, key):
-    plaintext_obj = StringIO.StringIO()
-    ciphertext_obj = StringIO.StringIO(ciphertext)
+    plaintext_obj = BytesIO()
+    ciphertext_obj = BytesIO(bytes(ciphertext))
     decrypt_file(ciphertext_obj, key, plaintext_obj)
     return plaintext_obj.getvalue()
 

@@ -3,7 +3,6 @@ Utilities that manipulate epub files
 """
 
 from pyepub import EPUB, InvalidEpub
-from StringIO import StringIO
 from django.template.loader import render_to_string
 
 def personalize(epub_file, acq):
