@@ -177,7 +177,7 @@ class PledgeTest(TestCase):
         valid = URLValidator(verify_exists=True)
         try:
             valid(url)
-        except ValidationError, e:
+        except ValidationError as e:
             print(e)
 
     def tearDown(self):
@@ -206,7 +206,7 @@ class AuthorizeTest(TestCase):
         valid = URLValidator(verify_exists=True)
         try:
             valid(url)
-        except ValidationError, e:
+        except ValidationError as e:
             print(e)
         
     def test_authorize(self):

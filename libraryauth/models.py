@@ -238,7 +238,7 @@ class Block(models.Model):
                 if self.lower > self.upper:
                     raise ValidationError('Lower end of the Block must be less '
                                           'than or equal to the upper end')
-            except ValueError, e:
+            except ValueError as e:
                 pass
 
 

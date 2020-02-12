@@ -79,7 +79,7 @@ class GoogleWebDriverTest(unittest.TestCase):
         time.sleep(3)
         try:
             sel.find_element_by_xpath("//a[contains(@href,'wikipedia')]")
-        except NoSuchElementException, e:
+        except NoSuchElementException as e:
             self.verificationErrors.append(str(e))
     
     def tearDown(self):
@@ -107,7 +107,7 @@ def run_google_rc():
             sel.click("name=btnG")
             time.sleep(3)
             try: self.failUnless(sel.is_text_present("Wikipedia"))
-            except AssertionError, e: self.verificationErrors.append(str(e))
+            except AssertionError as e: self.verificationErrors.append(str(e))
         
         def tearDown(self):
             self.selenium.stop()

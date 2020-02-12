@@ -199,7 +199,7 @@ def ml_subscribe_task(profile, **kwargs):
                 data=data,
             )
             return True
-    except Exception, e:
+    except Exception as e:
         logger.error("error subscribing to mailchimp list %s" % (e))
         return False
 

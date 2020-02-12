@@ -102,14 +102,14 @@ def instance(tag_name):
     """return instance tagged with Name=tag_name"""
     try:
         return ec2.get_all_instances(filters={'tag:Name' : tag_name})[0].instances[0]
-    except Exception, e:
+    except Exception as e:
         return None
 
 def db(instance_id):
     """return RDS instance with instance_id if it exists; None otherwise"""
     try:
         return rds.get_all_dbinstances(instance_id=instance_id)[0]
-    except Exception, e:
+    except Exception as e:
         return None
     
 def all_images(owners=(GLUEJAR_ACCOUNT_ID, )):
@@ -123,7 +123,7 @@ def console_output(instance):
     """return console output of instance"""
     try:
         return instance.get_console_output().output
-    except Exception, e:
+    except Exception as e:
         return None
 
 def instance_metrics(instance):
@@ -366,7 +366,7 @@ def db_info(db, db_name='unglueit', master_password=None):
                 'create_time': db.create_time, 
                 'latest_restorable_time':db.latest_restorable_time,
                 'django_setting': django_setting})
-    except Exception, e:
+    except Exception as e:
         return None
  
 def test_ec2_user_data(ssh_pwd=None):

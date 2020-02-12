@@ -163,7 +163,7 @@ def cluster_status(max_num=None):
         success = lt.load()
         print("success: %s" % (success))
         input_file.close()
-    except Exception, e:
+    except Exception as e:
         print(e)
     
     for (i, (isbn, ed_id, ed_title, ed_created,  work_id, work_created, lang)) in enumerate(

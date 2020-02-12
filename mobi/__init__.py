@@ -52,7 +52,7 @@ class Mobi:
         self.f = open(filename, "rb");
       else:
         self.f = filename;
-    except IOError,e:
+    except IOError as e:
       sys.stderr.write("Could not open %s! " % filename);
       raise e;
     self.offset = 0;

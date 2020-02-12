@@ -952,7 +952,7 @@ class PledgeView(FormView):
             self.premiums = self.campaign.custom_premiums() | models.Premium.objects.filter(id=150)
             # Campaign must be ACTIVE
             assert self.campaign.status == 'ACTIVE'
-        except Exception, e:
+        except Exception as e:
             # this used to raise an exception, but that seemed pointless. 
             # This now has the effect of preventing any pledges.
             return {}
@@ -1093,7 +1093,7 @@ class PurchaseView(PledgeView):
             self.campaign = self.work.last_campaign()
             # Campaign must be ACTIVE
             assert self.campaign.status == 'ACTIVE'
-        except Exception, e:
+        except Exception as e:
             # this used to raise an exception, but that seemed pointless. This now has the effect of preventing any pledges.
             return {}
         self.data = {
@@ -1433,7 +1433,7 @@ class FundCompleteView(TemplateView):
         try:
             campaign = self.transaction.campaign
             work = campaign.work
-        except Exception, e:
+        except Exception as e:
             campaign = None
             work = None
 
@@ -1565,7 +1565,7 @@ class PledgeCancelView(FormView):
             else:
                 logger.error("Attempt to cancel transaction id {0} failed".format(transaction.id))
                 return HttpResponse("Our attempt to cancel your transaction failed. We have logged this error.")
-        except Exception, e:
+        except Exception as e:
             logger.error("Exception from attempt to cancel pledge for campaign id {0} for username {1}: {2}".format(campaign_id, user.username, e))
             return HttpResponse("Sorry, something went wrong in canceling your campaign pledge. We have logged this error.")
 
@@ -1719,7 +1719,7 @@ def campaign_admin(request):
                 else:
                     check_status_results += "<p>No payments needed updating</p>"
                 command_status = _("Transactions updated based on PaymentDetails and PreapprovalDetails")
-            except Exception, e:
+            except Exception as e:
                 check_status_results = e
         elif 'execute_campaigns' in request.POST.keys():
             c_id = request.POST.get('active_campaign', None)
@@ -1728,7 +1728,7 @@ def campaign_admin(request):
                     campaign = models.Campaign.objects.get(id=c_id)
                     results = pm.execute_campaign(campaign)
                     command_status = str(results)
-                except Exception, e:
+                except Exception as e:
                     command_status = "Error in executing transactions for campaign %s " % (str(e))
         elif 'finish_campaigns' in request.POST.keys():
             c_id = request.POST.get('incomplete_campaign', None)
@@ -1737,7 +1737,7 @@ def campaign_admin(request):
                     campaign = models.Campaign.objects.get(id=c_id)
                     results = pm.finish_campaign(campaign)
                     command_status = str(results)
-                except Exception, e:
+                except Exception as e:
                     command_status = "Error in finishing transactions for campaign %s " % (str(e))
 
         elif 'cancel_campaigns' in request.POST.keys():
@@ -1747,7 +1747,7 @@ def campaign_admin(request):
                     campaign = models.Campaign.objects.get(id=c_id)
                     results = pm.cancel_campaign(campaign)
                     command_status = str(results)
-                except Exception, e:
+                except Exception as e:
                     command_status = "Error in canceling transactions for campaign %s " % (str(e))
 
     (campaigns_with_active_transactions, campaigns_with_incomplete_transactions, campaigns_with_completed_transactions,
@@ -2017,7 +2017,7 @@ def wishlist(request):
         except bookloader.LookupFailure:
             logger.warning("failed to load googlebooks_id %s" % googlebooks_id)
             return HttpResponse('error adding googlebooks id')
-        except Exception, e:
+        except Exception as e:
             logger.warning("Error in wishlist adding %s" % (e))
             return HttpResponse('error adding googlebooks id')
         # TODO: redirect to work page, when it exists
@@ -2307,7 +2307,7 @@ def goodreads_load_shelf(request):
         ct.save()
 
         return HttpResponse("<span style='margin: auto 10px auto 36px;vertical-align: middle;display: inline-block;'>We're on it! <a href='JavaScript:window.location.reload()'>Reload the page</a> to see the books we've snagged so far.</span>")
-    except Exception, e:
+    except Exception as e:
         return HttpResponse("Error in loading shelf: %s " % (e))
         logger.info("Error in loading shelf for user %s: %s ", user, e)
 
@@ -2360,7 +2360,7 @@ def librarything_load(request):
         ct.save()
 
         return HttpResponse("<span style='margin: auto 10px auto 36px;vertical-align: middle;display: inline-block;'>We're on it! <a href='JavaScript:window.location.reload()'>Reload the page</a> to see the books we've snagged so far.</span>")
-    except Exception, e:
+    except Exception as e:
         return HttpResponse("Error in loading LibraryThing library: %s " % (e))
         logger.info("Error in loading LibraryThing for user %s: %s ", user, e)
 
@@ -2372,7 +2372,7 @@ def clear_wishlist(request):
         request.user.wishlist.works.clear()
         logger.info("Wishlist for user %s cleared", request.user)
         return HttpResponse('wishlist cleared')
-    except Exception, e:
+    except Exception as e:
         logger.info("Error in clearing wishlist for user %s: %s ", request.user, e)
         return HttpResponse("Error in clearing wishlist: %s " % (e))
 
@@ -2420,7 +2420,7 @@ def clear_celery_tasks(request):
         request.user.tasks.clear()
         logger.info("Celery tasks for user %s cleared", request.user)
         return HttpResponse('Celery Tasks List cleared')
-    except Exception, e:
+    except Exception as e:
         logger.info("Error in clearing Celery Tasks for user %s: %s ", request.user, e)
         return HttpResponse("Error in clearing Celery Tasks: %s " % (e))
 

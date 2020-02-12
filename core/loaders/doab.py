@@ -72,7 +72,7 @@ def store_doab_cover(doab_id, redo=False):
 
         default_storage.save(cover_file_name, cover_file)
         return (default_storage.url(cover_file_name), True)
-    except Exception, e:
+    except Exception as e:
         # if there is a problem, return None for cover URL
         logger.warning('Failed to make cover image for doab_id={}: {}'.format(doab_id, e))
         return (None, False)

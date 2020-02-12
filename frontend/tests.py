@@ -350,7 +350,7 @@ class UnifiedCampaignTests(TestCase):
         # catch any exception and pass it along
         try:
             self.assertTrue(pm.execute_transaction(transaction, ()))
-        except Exception, charge_exception:
+        except Exception as charge_exception:
             pass
         else:
             charge_exception = None

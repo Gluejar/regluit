@@ -84,7 +84,7 @@ try:
     STRIPE_PK = Key.objects.get(name="STRIPE_PK").value
     STRIPE_SK = Key.objects.get(name="STRIPE_SK").value
     logger.info('Successful loading of STRIPE_*_KEYs')
-except Exception, e:
+except Exception as e:
     # currently test keys for Gluejar and for raymond.yee@gmail.com as standin for non-profit
     logger.info('Exception {0} Need to use TEST STRIPE_*_KEYs'.format(e))
     STRIPE_PK = settings.TEST_STRIPE_PK
@@ -796,7 +796,7 @@ class Processor(baseprocessor.Processor):
         # retrieve the request's body and parse it as JSON in, e.g. Django
         try:
             event_json = json.loads(request.body)
-        except ValueError, e:
+        except ValueError as e:
             # not able to parse request.body -- throw a "Bad Request" error
             logger.warning("Non-json being sent to Stripe IPN: {0}".format(e))
             return HttpResponse(status=400)
@@ -822,13 +822,13 @@ class Processor(baseprocessor.Processor):
 
                 try:
                     (resource, action) = re.match("^(.+)\.([^\.]*)$", event_type).groups()
-                except Exception, e:
+                except Exception as e:
                     logger.warning("Parsing of event_type into resource, action failed: {0}".format(e))
                     return HttpResponse(status=400)
                 
                 try:
                     ev_object = event.data.object
-                except Exception, e:
+                except Exception as e:
                     logger.warning("attempt to retrieve event object failed: {0}".format(e))                            
                     return HttpResponse(status=400)
                 
@@ -853,7 +853,7 @@ class Processor(baseprocessor.Processor):
                                 logger.info("ev_object.id == transaction.pay_key: {0}".format(ev_object.id))
                             else:
                                 logger.warning("ev_object.id {0} <> transaction.pay_key {1}".format(ev_object.id, transaction.pay_key))
-                        except Exception, e:
+                        except Exception as e:
                             logger.warning(e)    
                             
                     elif action == 'failed':
@@ -869,7 +869,7 @@ class Processor(baseprocessor.Processor):
                             else:
                                 logger.warning("ev_object.id {0} <> transaction.pay_key {1}".format(ev_object.id, transaction.pay_key))
 
-                        except Exception, e:
+                        except Exception as e:
                             logger.warning(e)
                     elif action == 'refunded':
                         pass

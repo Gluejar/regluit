@@ -59,7 +59,7 @@ def add_by_oclc_from_google(oclc):
         url = "https://www.googleapis.com/books/v1/volumes"
         try:
             results = _get_json(url, {"q": '"OCLC%s"' % oclc})
-        except LookupFailure, e:
+        except LookupFailure as e:
             logger.exception(u"lookup failure for %s", oclc)
             return None
         if not 'items' in results or not results['items']:
@@ -70,9 +70,9 @@ def add_by_oclc_from_google(oclc):
             e = add_by_googlebooks_id(results['items'][0]['id'], results=results['items'][0])
             models.Identifier(type='oclc', value=oclc, edition=e, work=e.work).save()
             return e
-        except LookupFailure, e:
+        except LookupFailure as e:
             logger.exception(u"failed to add edition for %s", oclc)
-        except IntegrityError, e:
+        except IntegrityError as e:
             logger.exception(u"google books data for %s didn't fit our db", oclc)
         return None
 
@@ -283,9 +283,9 @@ def add_by_isbn_from_google(isbn, work=None):
                 results=item,
                 isbn=isbn
             )
-        except LookupFailure, e:
+        except LookupFailure as e:
             logger.exception(u"failed to add edition for %s", isbn)
-        except IntegrityError, e:
+        except IntegrityError as e:
             logger.exception(u"google books data for %s didn't fit our db", isbn)
         return None
     return None
@@ -872,9 +872,9 @@ def load_ebookfile(url, etype):
         contentfile = ContentFile(r.content)
         test_file(contentfile, etype)
         return contentfile
-    except IOError, e:
+    except IOError as e:
         logger.error(u'could not open {}'.format(url))
-    except ValidationError, e:
+    except ValidationError as e:
         logger.error(u'downloaded {} was not a valid {}'.format(url, etype))
 
 class BasePandataLoader(object):

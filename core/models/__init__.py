@@ -639,7 +639,7 @@ class Campaign(models.Model):
             raise UnglueitError(_('Campaign needs to be initialized in order to be activated'))
         try:
             active_claim = self.work.claim.filter(status="active")[0]
-        except IndexError, e:
+        except IndexError as e:
             raise UnglueitError(_('Campaign needs to have an active claim in order to be activated'))
         if not self.launchable:
             raise UnglueitError('Configuration issues need to be addressed before campaign is activated: %s' % str(self.problems[0]))
@@ -1265,12 +1265,12 @@ class UserProfile(models.Model):
             )
             if member['status'] == 'subscribed':
                 return 'True'
-        except MailChimpError, e:
+        except MailChimpError as e:
             if e[0]['status'] != 404: # don't log case where user is not on a list
                 logger.error("error getting mailchimp status  %s" % (e))
-        except ValueError, e:
+        except ValueError as e:
             logger.error("bad email address  %s" % (self.user.email))
-        except Exception, e:
+        except Exception as e:
             logger.error("error getting mailchimp status  %s" % (e))
         return False
 
@@ -1291,10 +1291,10 @@ class UserProfile(models.Model):
                 subscriber_hash=self.user.email,
             )
             return True
-        except MailChimpError, e:
+        except MailChimpError as e:
             if e[0]['status'] != 404: # don't log case where user is not on a list
                 logger.error("error getting mailchimp status  %s" % (e))
-        except Exception, e:
+        except Exception as e:
             logger.error("error unsubscribing from mailchimp list  %s" % (e))
         return False
 
