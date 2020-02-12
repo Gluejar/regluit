@@ -542,17 +542,17 @@ class SearchTests(TestCase):
         self.assertEqual(len(results), 10)
 
         r = results[0]
-        self.assertTrue(r.has_key('title'))
-        self.assertTrue(r.has_key('author'))
-        self.assertTrue(r.has_key('description'))
-        self.assertTrue(r.has_key('cover_image_thumbnail'))
+        self.assertTrue('title' in r)
+        self.assertTrue('author' in r)
+        self.assertTrue('description' in r)
+        self.assertTrue('cover_image_thumbnail' in r)
         self.assertTrue(
             r['cover_image_thumbnail'].startswith('https')
             or r['cover_image_thumbnail'].startswith('http')
         )
-        self.assertTrue(r.has_key('publisher'))
-        self.assertTrue(r.has_key('isbn_13'))
-        self.assertTrue(r.has_key('googlebooks_id'))
+        self.assertTrue('publisher' in r)
+        self.assertTrue('isbn_13' in r)
+        self.assertTrue('googlebooks_id' in r)
 
     def test_pagination(self, mocking=False):
         if not (mocking or settings.TEST_INTEGRATION):
@@ -825,7 +825,7 @@ class GoodreadsTest(TestCase):
         reviews = gc.review_list_unauth(user_id=gr_uid, shelf='read')
         # test to see whether there is a book field in each of the review
         # url for test is https://www.goodreads.com/review/list.xml?id=767708&shelf=read&page=1&per_page=20&order=a&v=2&key=[key]
-        self.assertTrue(all([r.has_key("book") for r in reviews]))
+        self.assertTrue(all(["book" in r for r in reviews]))
 
 class LibraryThingTest(TestCase):
 

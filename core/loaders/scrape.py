@@ -140,7 +140,7 @@ class BaseScraper(object):
             else:
                 if el.text:
                     value_list.append(el.text)
-                elif el.has_key('content'):
+                elif 'content' in el:
                     value_list.append(el['content'])
         return value_list
                 

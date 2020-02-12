@@ -87,35 +87,35 @@ def get_edition_for_id(id_type, id_value, user=None):
                 return ident.edition if ident.edition else ident.work.preferred_edition
 
     #need to make a new edition
-    if identifiers.has_key('goog'):
+    if 'goog' in identifiers:
         edition = add_by_googlebooks_id(identifiers['goog'])
         if edition:
             
             return user_edition(edition, user)
 
-    if identifiers.has_key('isbn'):
+    if 'isbn' in identifiers:
         edition = add_by_isbn(identifiers['isbn'])
         if edition:
             return user_edition(edition, user)
     
-    if identifiers.has_key('doab'):
+    if 'doab' in identifiers:
         edition = add_by_doab(identifiers['doab'])
         if edition:
             return user_edition(edition, user)
     
-    if identifiers.has_key('oclc'):
+    if 'oclc' in identifiers:
         edition = add_by_oclc(identifiers['oclc'])
         if edition:
             return user_edition(edition, user)
     
-    if identifiers.has_key('glue'):
+    if 'glue' in identifiers:
         try:
             work = models.safe_get_work(identifiers['glue'])
             return work.preferred_edition
         except:
             pass
     
-    if identifiers.has_key('http'):
+    if 'http' in identifiers:
         edition = add_by_webpage(identifiers['http'], user=user)
         return user_edition(edition, user)
 
@@ -217,7 +217,7 @@ def edit_edition(request, work_id, edition_id, by=None):
         'title': title,
     } 
     if request.method == 'POST':
-        keep_editing = request.POST.has_key('add_author_submit')
+        keep_editing = 'add_author_submit' in request.POST
         form = None
         edition.new_authors = zip(
             request.POST.getlist('new_author'),
@@ -226,32 +226,32 @@ def edit_edition(request, work_id, edition_id, by=None):
         edition.new_subjects = request.POST.getlist('new_subject')
         if edition.id and admin:
             for author in edition.authors.all():
-                if request.POST.has_key('delete_author_%s' % author.id):
+                if 'delete_author_%s' % author.id in request.POST:
                     edition.remove_author(author)
                     form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
                     keep_editing = True
                     break
             work_rels = models.WorkRelation.objects.filter(Q(to_work=work) | Q(from_work=work))
             for work_rel in work_rels:
-                if request.POST.has_key('delete_work_rel_%s' % work_rel.id):
+                if 'delete_work_rel_%s' % work_rel.id in request.POST:
                     work_rel.delete()
                     form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
                     keep_editing = True
                     break
-            activate_all = request.POST.has_key('activate_all_ebooks')
-            deactivate_all = request.POST.has_key('deactivate_all_ebooks')
+            activate_all = 'activate_all_ebooks' in request.POST
+            deactivate_all = 'deactivate_all_ebooks' in request.POST
             ebookchange = False
-            if request.POST.has_key('set_ebook_rights') and request.POST.has_key('set_rights'):
+            if 'set_ebook_rights' in request.POST and 'set_rights' in request.POST:
                 rights = request.POST['set_rights']
                 for ebook in work.ebooks_all():
                     ebook.rights = rights
                     ebook.save()
                     ebookchange = True
             for ebook in work.ebooks_all():
-                if request.POST.has_key('activate_ebook_%s' % ebook.id) or activate_all:
+                if 'activate_ebook_%s' % ebook.id in request.POST or activate_all:
                     ebook.activate()
                     ebookchange = True
-                elif request.POST.has_key('deactivate_ebook_%s' % ebook.id) or deactivate_all:
+                elif 'deactivate_ebook_%s' % ebook.id in request.POST or deactivate_all:
                     ebook.deactivate()
                     ebookchange = True
             if ebookchange:
@@ -312,7 +312,7 @@ def edit_edition(request, work_id, edition_id, by=None):
                         work=work
                     )
                 for relator in edition.relators.all():
-                    if request.POST.has_key('change_relator_%s' % relator.id):
+                    if 'change_relator_%s' % relator.id in request.POST:
                         new_relation = request.POST['change_relator_%s' % relator.id]
                         relator.set(new_relation)
                 related_work = form.cleaned_data['add_related_work']
@@ -324,7 +324,7 @@ def edit_edition(request, work_id, edition_id, by=None):
                     )
                 for (author_name, author_relation) in edition.new_authors:
                     edition.add_author(author_name, author_relation)
-                if form.cleaned_data.has_key('bisac'):
+                if 'bisac' in form.cleaned_data:
                     bisacsh = form.cleaned_data['bisac']
                     while bisacsh:
                         Subject.set_by_name(bisacsh.full_label, work, authority="bisacsh")

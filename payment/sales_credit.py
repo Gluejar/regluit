@@ -27,7 +27,7 @@ for purchase in stripe_reader:
             except Campaign.DoesNotExist:
                 print('missing campaign:'+ campaign_id)
                 continue
-            if royalties_due.has_key(campaign.id):
+            if campaign.id in royalties_due:
                 royalty_due = royalties_due[campaign.id].royalty_due
             else:
                 royalty_due = D(0)

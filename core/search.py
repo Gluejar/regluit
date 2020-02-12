@@ -20,12 +20,12 @@ def gluejar_search(q, user_ip='69.243.24.29', page=1):
                  'googlebooks_id': item.get('id')}
 
             # TODO: allow multiple authors
-            if v.has_key('authors') and len(v['authors']) == 1:
+            if 'authors' in v and len(v['authors']) == 1:
                 r['author'] = r['authors_short'] = v['authors'][0]
-            elif v.has_key('authors') and len(v['authors']) > 2:
+            elif 'authors' in v and len(v['authors']) > 2:
                 r['author'] = v['authors'][0]
                 r['authors_short'] = '%s et al.' % v['authors'][0]
-            elif v.has_key('authors') and len(v['authors']) == 2:
+            elif 'authors' in v and len(v['authors']) == 2:
                 r['author'] = v['authors'][0]
                 r['authors_short'] = '%s and %s' % (v['authors'][0], v['authors'][1])
             else:
@@ -41,7 +41,7 @@ def gluejar_search(q, user_ip='69.243.24.29', page=1):
                         r['isbn_13'] = regluit.core.isbn.convert_10_to_13(i['identifier'])
 
             # cover image
-            if v.has_key('imageLinks'):
+            if 'imageLinks' in v:
                 url = v['imageLinks'].get('thumbnail', "")
                 url = re.sub(
                     r'http://(bks[0-9]+\.)?books\.google\.com',

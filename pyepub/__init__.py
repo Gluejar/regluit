@@ -353,7 +353,7 @@ class EPUB(zipfile.ZipFile):
         element.text = value
         self.opf[0].append(element)
         # note that info is ignoring namespace entirely
-        if self.info["metadata"].has_key(term):
+        if term in self.info["metadata"]:
             self.info["metadata"][term] = [self.info["metadata"][term] , value]
         else:
             self.info["metadata"][term] = value

@@ -171,13 +171,13 @@ def process_kindle_email(request):
     download + login/account creation; add kindle email to profile
     """
     user = request.user
-    if user.is_authenticated and request.session.has_key('kindle_email'):
+    if user.is_authenticated and 'kindle_email' in request.session:
         user.profile.kindle_email = request.session['kindle_email']
         user.profile.save()
         request.session.pop('kindle_email')
 
 def next(request):
-    if request.COOKIES.has_key('next'):
+    if 'next' in request.COOKIES:
         response = HttpResponseRedirect(urllib.unquote(urllib.unquote(request.COOKIES['next'])))
         response.delete_cookie('next')
         return response
@@ -314,7 +314,7 @@ def work(request, work_id, action='display'):
                 for form in formset.deleted_forms:
                     detach_edition(form.instance)
                     alert = 'editions have been split'
-            if request.POST.has_key('select_edition'):
+            if 'select_edition' in request.POST:
                 selected_id = request.POST['select_edition']
                 try:
                     work.selected_edition = work.editions.get(id=selected_id)
@@ -326,7 +326,7 @@ def work(request, work_id, action='display'):
         formset = EditionFormSet(instance=work)
 
     # process waiting add request
-    if not request.user.is_anonymous and request.session.has_key("add_wishlist"):
+    if not request.user.is_anonymous and "add_wishlist" in request.session:
         add_url = request.session["add_wishlist"]
         if add_url == request.path:
             request.user.wishlist.add_work(work, "login", notify=True)
@@ -556,7 +556,7 @@ def googlebooks(request, googlebooks_id):
     work_url = reverse('work', kwargs={'work_id': edition.work_id})
 
     # process waiting add request
-    if not request.user.is_anonymous and request.session.has_key("add_wishlist"):
+    if not request.user.is_anonymous and "add_wishlist" in request.session:
         add_url = request.session["add_wishlist"]
         if add_url == request.path:
             request.user.wishlist.add_work(edition.work, "login", notify=True)
@@ -601,7 +601,7 @@ class MapSubjectView(FormView):
         context = self.get_context_data()
         context['subject'] = form.cleaned_data['subject']
         context['onto_subject'] = form.cleaned_data['onto_subject']
-        if self.request.POST.has_key('confirm_map_subject'):
+        if 'confirm_map_subject' in self.request.POST:
             initial_count = context['onto_subject'].works.all().count()
             initial_free_count = context['onto_subject'].works.filter(is_free=True).count()
             context['onto_subject'].works.add(*list(context['subject'].works.all()))
@@ -616,7 +616,7 @@ class MapSubjectView(FormView):
 class FilterableListView(ListView):
     send_marc = False
     def get_queryset(self):
-        if self.request.GET.has_key('pub_lang'):
+        if 'pub_lang' in self.request.GET:
             if self.model is models.Campaign:
                 return self.get_queryset_all().filter(work__language=self.request.GET['pub_lang'])
             else:
@@ -626,7 +626,7 @@ class FilterableListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(FilterableListView, self).get_context_data(**kwargs)
-        if self.request.GET.has_key('pub_lang'):
+        if 'pub_lang' in self.request.GET:
             context['pub_lang'] = self.request.GET['pub_lang']
         else:
             context['pub_lang'] = ''
@@ -700,7 +700,7 @@ class FacetedView(FilterableListView):
         context = super(FacetedView, self).get_context_data(**kwargs)
         facet = self.kwargs.get('facet','all')
         qs = self.get_queryset()
-        if self.request.GET.has_key('setkw') and self.request.user.is_staff:
+        if 'setkw' in self.request.GET and self.request.user.is_staff:
             setkw = self.request.GET['setkw']
             try:
                 context['setkw'] =  models.Subject.objects.get(name=setkw)
@@ -858,7 +858,7 @@ class MergeView(FormView):
         return context
 
     def get_form_class(self):
-        if self.request.method == 'POST' and self.request.POST.has_key('confirm_merge_works'):
+        if self.request.method == 'POST' and 'confirm_merge_works' in self.request.POST:
             return WorkForm
         else:
             return OtherWorkForm
@@ -873,7 +873,7 @@ class MergeView(FormView):
     def form_valid(self, form):
         other_work = form.cleaned_data['other_work']
         context = self.get_context_data()
-        if self.request.POST.has_key('confirm_merge_works'):
+        if 'confirm_merge_works' in self.request.POST:
             context['old_work_id'] = other_work.id
             self.work = merge_works(self.work, other_work, self.request.user)
             context['merge_complete'] = True
@@ -983,11 +983,11 @@ class PledgeView(FormView):
                     'ack_name':ack_name, 'ack_dedication':ack_dedication, 'anonymous':anonymous}
         if self.request.method  == 'POST':
             self.data.update(self.request.POST.dict())
-            if not self.request.POST.has_key('anonymous'):
+            if not 'anonymous' in self.request.POST:
                 del self.data['anonymous']
-            if not self.request.POST.has_key('ack_name'):
+            if not 'ack_name' in self.request.POST:
                 del self.data['ack_name']
-            if not self.request.POST.has_key('ack_dedication'):
+            if not 'ack_dedication' in self.request.POST:
                 del self.data['ack_dedication']
             return {'data':self.data}
         else:
@@ -1106,7 +1106,7 @@ class PurchaseView(PledgeView):
             data.update(self.data)
             self.data = data
             self.data['give'] = self.give
-            if not self.request.POST.has_key('anonymous'):
+            if not 'anonymous' in self.request.POST:
                 del self.data['anonymous']
             return {'data':self.data}
         else:
@@ -1173,7 +1173,7 @@ class FundView(FormView):
 
     def get_form_kwargs(self):
         kwargs = super(FundView, self).get_form_kwargs()
-        if kwargs.has_key('data'):
+        if 'data' in kwargs:
             data = kwargs['data'].copy()
             kwargs['data'] = data
         else:
@@ -1442,7 +1442,7 @@ class FundCompleteView(TemplateView):
         if not self.user_is_ok():
             return context
 
-        gift = self.transaction.extra.has_key('give_to')
+        gift = 'give_to' in self.transaction.extra
         if not gift:
             # add the work corresponding to the Transaction on the user's wishlist if it's not already on the wishlist
             if self.transaction.user is not None and (campaign is not None) and (work is not None):
@@ -2576,7 +2576,7 @@ def feedback(request, recipient='unglueit@ebookfoundation.org', template='feedba
             context['page'] = request.GET['page']
         except:
             context['page'] = '/'
-        if not context.has_key('subject'):
+        if not 'subject' in context:
             context['subject'] = "Feedback on page "+context['page']
         form = FeedbackForm(initial=context)
     context['form'] = form
@@ -2631,11 +2631,11 @@ class DownloadView(PurchaseView):
         if not self.campaign or self.campaign.type != THANKS:
             return  False
         elif self.user_license and self.user_license.thanked:
-            return self.request.GET.has_key('offer_id') or self.request.POST.has_key('offer_id')
+            return 'offer_id' in self.request.GET or 'offer_id' in self.request.POST
         elif self.lib_thanked:
             return False
         elif self.campaign.status != 'ACTIVE':
-            return self.request.GET.has_key('testmode') or self.request.POST.has_key('testmode')
+            return 'testmode' in self.request.GET or 'testmode' in self.request.POST
         else:
             return True
 
@@ -2655,7 +2655,7 @@ class DownloadView(PurchaseView):
             return HttpResponse("Our attempt to set up your contribution failed. We have logged this problem.")
 
     def get_form_kwargs(self):
-        if self.kwargs.has_key('work'):
+        if 'work' in self.kwargs:
             self.work = self.kwargs["work"]
             self.show_beg = lambda: False
         else:
@@ -2669,7 +2669,7 @@ class DownloadView(PurchaseView):
             }
         if self.request.method  == 'POST':
             self.data.update(self.request.POST.dict())
-            if not self.request.POST.has_key('anonymous'):
+            if not 'anonymous' in self.request.POST:
                 del self.data['anonymous']
             return {'data':self.data}
         else:
@@ -2763,8 +2763,8 @@ class DownloadView(PurchaseView):
             'action': "Contribution",
             'user_license': self.user_license,
             'lib_thanked': self.lib_thanked,
-            'amount': D(self.request.session.pop('amount')/100) if self.request.session.has_key('amount') else None,
-            'testmode': self.request.GET.has_key('testmode') or self.request.POST.has_key('testmode'),
+            'amount': D(self.request.session.pop('amount')/100) if 'amount' in self.request.session else None,
+            'testmode': 'testmode' in self.request.GET or 'testmode' in self.request.POST,
             'source': self.request.GET.get('source', self.request.POST.get('source', '')),
 
         })
@@ -3077,7 +3077,7 @@ def send_to_kindle(request, work_id, javascript='0'):
         title = ebook.edition.work.kindle_safe_title()
     context['ebook'] = ebook
 
-    if request.POST.has_key('kindle_email'):
+    if 'kindle_email' in request.POST:
         kindle_email = request.POST['kindle_email']
         try:
             validate_email(kindle_email)
@@ -3122,7 +3122,7 @@ def send_to_kindle(request, work_id, javascript='0'):
         logger.error('Unexpected error: %s', sys.exc_info())
         return local_response(request, javascript,  context, 1)
 
-    if request.POST.has_key('kindle_email') and not request.user.is_authenticated:
+    if 'kindle_email' in request.POST and not request.user.is_authenticated:
         return HttpResponseRedirect(reverse('superlogin'))
     return local_response(request, javascript,  context, 2)
 
@@ -3147,7 +3147,7 @@ class LibModeView(FormView):
     success_url = reverse_lazy('marc')
 
     def form_valid(self, form):
-        enable = form.data.has_key('enable')
+        enable = 'enable' in form.data
         if enable:
             try:
                 libpref = self.request.user.libpref

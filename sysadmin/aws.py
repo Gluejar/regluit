@@ -81,9 +81,9 @@ def modify_rds_parameter(group_name, parameter, value, apply_immediate=False):
     """
     
     pg = rds.get_all_dbparameters(group_name)
-    while not pg.has_key(parameter) and hasattr(pg, 'Marker'):
+    while not parameter in pg and hasattr(pg, 'Marker'):
         pg = rds.get_all_dbparameters(group_name, marker = pg.Marker)
-    if pg.has_key(parameter):
+    if parameter in pg:
         pg[parameter].value = value
         pg[parameter].apply(immediate=apply_immediate)
         return True

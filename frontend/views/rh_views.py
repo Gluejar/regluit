@@ -117,7 +117,7 @@ def rh_tools(request, template_name='rh_intro.html'):
     for claim in claims:
         if claim.can_open_new:
             if request.method == 'POST' and  \
-                    request.POST.has_key('cl_%s-work' % claim.id) and \
+                    'cl_%s-work' % claim.id in request.POST and \
                     int(request.POST['cl_%s-work' % claim.id]) == claim.work_id :
                 claim.campaign_form = OpenCampaignForm(
                     data = request.POST,
@@ -153,7 +153,7 @@ def rh_tools(request, template_name='rh_intro.html'):
         if claim.campaign:
             if claim.campaign.status in ['ACTIVE','INITIALIZED']:
                 e_m_key = 'edit_managers_%s' % claim.campaign.id
-                if request.method == 'POST' and request.POST.has_key(e_m_key):
+                if request.method == 'POST' and e_m_key in request.POST:
                     claim.campaign.edit_managers_form = EditManagersForm(
                         instance=claim.campaign,
                         data=request.POST,
@@ -174,7 +174,7 @@ def rh_tools(request, template_name='rh_intro.html'):
     new_campaign = None
     for campaign in campaigns:
         if campaign.clonable():
-            if request.method == 'POST' and  request.POST.has_key('c%s-campaign_id'% campaign.id):
+            if request.method == 'POST' and  'c%s-campaign_id'% campaign.id in request.POST:
                 clone_form = CloneCampaignForm(data=request.POST, prefix = 'c%s' % campaign.id)
                 if clone_form.is_valid():
                     campaign.clone()
@@ -211,7 +211,7 @@ def manage_campaign(request, id, ebf=None, action='manage'):
         offer.offer_form = OfferForm(instance=offer, prefix='offer_%d'%offer.id)
 
     if request.method == 'POST' :
-        if request.POST.has_key('add_premium') :
+        if 'add_premium' in request.POST :
             new_premium_form = CustomPremiumForm(data=request.POST)
             if new_premium_form.is_valid():
                 new_premium_form.save()
@@ -221,7 +221,7 @@ def manage_campaign(request, id, ebf=None, action='manage'):
                 alerts.append(_('New premium has not been added'))
             form = ManageCampaignForm(instance=campaign)
             activetab = '#2'
-        elif request.POST.has_key('save') or request.POST.has_key('launch') :
+        elif 'save' in request.POST or 'launch' in request.POST :
             form = ManageCampaignForm(instance=campaign, data=request.POST)
             if form.is_valid():
                 form.save()
@@ -250,9 +250,9 @@ def manage_campaign(request, id, ebf=None, action='manage'):
                 else:
                     alerts.append(_('Campaign has NOT been launched'))
             new_premium_form = CustomPremiumForm(initial={'campaign': campaign})
-        elif request.POST.has_key('inactivate') :
+        elif 'inactivate' in request.POST :
             activetab = '#2'
-            if request.POST.has_key('premium_id'):
+            if 'premium_id' in request.POST:
                 premiums_to_stop = request.POST.getlist('premium_id')
                 for premium_to_stop in premiums_to_stop:
                     selected_premium = models.Premium.objects.get(id=premium_to_stop)
@@ -262,9 +262,9 @@ def manage_campaign(request, id, ebf=None, action='manage'):
                         alerts.append(_('Premium %s has been inactivated'% premium_to_stop))
             form = ManageCampaignForm(instance=campaign)
             new_premium_form = CustomPremiumForm(initial={'campaign': campaign})
-        elif request.POST.has_key('change_offer'):
+        elif 'change_offer' in request.POST:
             for offer in offers :
-                if request.POST.has_key('offer_%d-work' % offer.id) :
+                if 'offer_%d-work' % offer.id in request.POST :
                     offer.offer_form = OfferForm(
                         instance=offer,
                         data = request.POST,

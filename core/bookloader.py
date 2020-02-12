@@ -62,7 +62,7 @@ def add_by_oclc_from_google(oclc):
         except LookupFailure, e:
             logger.exception(u"lookup failure for %s", oclc)
             return None
-        if not results.has_key('items') or not results['items']:
+        if not 'items' in results or not results['items']:
             logger.warn(u"no google hits for %s", oclc)
             return None
 
@@ -136,7 +136,7 @@ def get_google_isbn_results(isbn):
     except LookupFailure:
         logger.exception(u"lookup failure for %s", isbn)
         return None
-    if not results.has_key('items') or not results['items']:
+    if not 'items' in results or not results['items']:
         logger.warn(u"no google hits for %s", isbn)
         return None
     return results
@@ -188,7 +188,7 @@ def update_edition(edition):
     item = results['items'][0]
     googlebooks_id = item['id']
     d = item['volumeInfo']
-    if d.has_key('title'):
+    if 'title' in d:
         title = d['title']
     else:
         title = ''
@@ -342,7 +342,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
         item = _get_json(url)
     d = item['volumeInfo']
 
-    if d.has_key('title'):
+    if 'title' in d:
         title = d['title']
     else:
         title = ''
@@ -486,7 +486,7 @@ def add_related(isbn):
                     logger.debug(u"merge_works path 1 %s %s", work.id, related_edition.work_id)
                     work = merge_works(work, related_edition.work)
             else:
-                if other_editions.has_key(related_language):
+                if related_language in other_editions:
                     other_editions[related_language].append(related_edition)
                 else:
                     other_editions[related_language] = [related_edition]
@@ -670,9 +670,9 @@ def add_openlibrary(work, hard_refresh=False):
         except LookupFailure:
             logger.exception(u"OL lookup failed for  %s", isbn_key)
             e = {}
-        if e.has_key(isbn_key):
-            if e[isbn_key].has_key('details'):
-                if e[isbn_key]['details'].has_key('oclc_numbers'):
+        if isbn_key in e:
+            if 'details' in e[isbn_key]:
+                if 'oclc_numbers' in e[isbn_key]['details']:
                     for oclcnum in e[isbn_key]['details']['oclc_numbers']:
                         models.Identifier.get_or_add(
                             type='oclc',
@@ -680,42 +680,42 @@ def add_openlibrary(work, hard_refresh=False):
                             work=work,
                             edition=edition
                         )
-                if e[isbn_key]['details'].has_key('identifiers'):
+                if 'identifiers' in e[isbn_key]['details']:
                     ids = e[isbn_key]['details']['identifiers']
-                    if ids.has_key('goodreads'):
+                    if 'goodreads' in ids:
                         models.Identifier.get_or_add(
                             type='gdrd',
                             value=ids['goodreads'][0],
                             work=work, edition=edition
                         )
-                    if ids.has_key('librarything'):
+                    if 'librarything' in ids:
                         models.Identifier.get_or_add(
                             type='ltwk',
                             value=ids['librarything'][0],
                             work=work
                         )
-                    if ids.has_key('google'):
+                    if 'google' in ids:
                         models.Identifier.get_or_add(
                             type='goog',
                             value=ids['google'][0],
                             work=work
                         )
-                    if ids.has_key('project_gutenberg'):
+                    if 'project_gutenberg' in ids:
                         models.Identifier.get_or_add(
                             type='gute',
                             value=ids['project_gutenberg'][0],
                             work=work
                         )
-                if e[isbn_key]['details'].has_key('works'):
+                if 'works' in e[isbn_key]['details']:
                     work_key = e[isbn_key]['details']['works'].pop(0)['key']
                     logger.info(u"got openlibrary work %s for isbn %s", work_key, isbn_key)
                     models.Identifier.get_or_add(type='olwk', value=work_key, work=work)
                     try:
                         w = _get_json("https://openlibrary.org" + work_key, type='ol')
-                        if w.has_key('description'):
+                        if 'description' in w:
                             description = w['description']
                             if isinstance(description, dict):
-                                if description.has_key('value'):
+                                if 'value' in description:
                                     description = description['value']
                             description = despam_description(description)
                             if not work.description or \
@@ -723,7 +723,7 @@ def add_openlibrary(work, hard_refresh=False):
                                    len(description) > len(work.description):
                                 work.description = description
                                 work.save()
-                        if w.has_key('subjects') and len(w['subjects']) > len(subjects):
+                        if 'subjects' in w and len(w['subjects']) > len(subjects):
                             subjects = w['subjects']
                     except LookupFailure:
                         logger.exception(u"OL lookup failed for  %s", work_key)

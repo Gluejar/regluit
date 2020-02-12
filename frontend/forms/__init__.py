@@ -531,14 +531,14 @@ class MsgForm(forms.Form):
 
     def full_clean(self):
         super(MsgForm, self).full_clean()
-        if self.data.has_key("supporter"):
+        if "supporter" in self.data:
             try:
                 self.cleaned_data['supporter'] = User.objects.get(id=self.data["supporter"])
             except User.DoesNotExist:
                 raise ValidationError("Supporter does not exist")
         else:
             raise ValidationError("Supporter is not specified")
-        if self.data.has_key("work"):
+        if "work" in self.data:
             try:
                 self.cleaned_data['work'] = Work.objects.get(id=self.data["work"])
             except Work.DoesNotExist:

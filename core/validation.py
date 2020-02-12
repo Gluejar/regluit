@@ -81,7 +81,7 @@ ID_MORE_VALIDATION = {
 }
 
 def identifier_cleaner(id_type, quiet=False):
-    if ID_VALIDATION.has_key(id_type):
+    if id_type in ID_VALIDATION:
         (regex, err_msg) = ID_VALIDATION[id_type]
         extra = ID_MORE_VALIDATION.get(id_type, None)
         if isinstance(regex, (str, unicode)):
