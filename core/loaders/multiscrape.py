@@ -1,6 +1,6 @@
 import logging
 import re
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 import requests

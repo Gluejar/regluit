@@ -5,7 +5,7 @@ import uuid
 
 from decimal import Decimal
 import unicodedata
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 import requests
 

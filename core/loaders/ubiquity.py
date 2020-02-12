@@ -1,5 +1,5 @@
 import re
-from urlparse import urlparse, urljoin
+from urllib.parse import urlparse, urljoin
 
 from regluit.utils.lang import lang_to_language_code
 from . import BaseScraper

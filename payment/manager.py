@@ -3,8 +3,8 @@ external library imports
 """
 import logging
 import traceback
-import urllib
-import urlparse
+from urllib.parse import urlencode
+from urllib.parse import urljoin
 import uuid
 
 from datetime import timedelta
@@ -561,8 +561,8 @@ class PaymentManager( object ):
             
         if return_url is None:
             return_path = "{0}?{1}".format(reverse('pledge_complete'), 
-                                urllib.urlencode({'tid':transaction.id})) 
-            return_url = urlparse.urljoin(settings.BASE_URL_SECURE, return_path)
+                                urlencode({'tid':transaction.id})) 
+            return_url = urljoin(settings.BASE_URL_SECURE, return_path)
         
         p = transaction.get_payment_class().Preapproval(transaction, transaction.max_amount, expiry, return_url=return_url, paymentReason=paymentReason) 
        
@@ -714,7 +714,7 @@ class PaymentManager( object ):
         if user.is_authenticated and user.credit.available >= amount :
             # YES!
             return_path = "{0}?{1}".format(reverse('pledge_complete'), 
-                                urllib.urlencode({'tid':t.id})) 
+                                urlencode({'tid':t.id})) 
             return_url = urlparse.urljoin(settings.BASE_URL_SECURE, return_path)
             if campaign.is_pledge() :
                 success = credit.pledge_transaction(t,user,amount)
@@ -837,7 +837,7 @@ class PaymentManager( object ):
                 transaction.set_pledge_extra(pledge_extra)
                 credit.pledge_transaction(transaction,transaction.user,amount)
                 return_path = "{0}?{1}".format(reverse('pledge_complete'), 
-                                    urllib.urlencode({'tid':transaction.id})) 
+                                    urlencode({'tid':transaction.id})) 
                 return_url = urlparse.urljoin(settings.BASE_URL_SECURE, return_path)
                 
                 logger.info("Updated amount of transaction to %f" % amount)

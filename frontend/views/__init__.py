@@ -5,7 +5,7 @@ import re
 import sys
 import json
 import logging
-import urllib
+from urllib.parse import unquote
 import requests
 
 from datetime import timedelta, date
@@ -178,7 +178,7 @@ def process_kindle_email(request):
 
 def next(request):
     if 'next' in request.COOKIES:
-        response = HttpResponseRedirect(urllib.unquote(urllib.unquote(request.COOKIES['next'])))
+        response = HttpResponseRedirect(unquote(unquote(request.COOKIES['next'])))
         response.delete_cookie('next')
         return response
     else:

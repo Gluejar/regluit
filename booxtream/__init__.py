@@ -1,6 +1,6 @@
 import random
 from functools import partial
-from urllib import quote
+from urllib.parse import quote
 from xml.etree import ElementTree
 
 import requests

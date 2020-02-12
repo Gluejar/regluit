@@ -4,8 +4,8 @@ import logging
 import math
 import random
 import re
-import urllib
-import urllib2
+from urllib.parse import urlencode, quote_plus
+from urllib.request import urlopen
 from datetime import timedelta, datetime
 from decimal import Decimal
 from tempfile import SpooledTemporaryFile
@@ -237,7 +237,7 @@ class Acq(models.Model):
             return True
         def get_archive(self):
             try:
-                r = urllib2.urlopen(self.url)
+                r = urlopen(self.url)
                 try:
                     self.filesize = int(r.info().getheaders("Content-Length")[0])
                 except IndexError:
@@ -1023,7 +1023,7 @@ class Campaign(models.Model):
                 format_versions.append(format_version)
 
     def make_unglued_ebf(self, format, watermarked):
-        r = urllib2.urlopen(watermarked.download_link(format))
+        r = urlopen(watermarked.download_link(format))
         ebf = EbookFile.objects.create(edition=self.work.preferred_edition, format=format)
         ebf.file.save(path_for_file(ebf, None), ContentFile(r.read()))
         ebf.file.close()
@@ -1301,13 +1301,13 @@ class UserProfile(models.Model):
     def gravatar(self):
         # construct the url
         gravatar_url = "https://www.gravatar.com/avatar/" + hashlib.md5(self.user.email.lower()).hexdigest() + "?"
-        gravatar_url += urllib.urlencode({'d':'wavatar', 's':'50'})
+        gravatar_url += urlencode({'d':'wavatar', 's':'50'})
         return gravatar_url
 
     def unglueitar(self):
         # construct the url
         gravatar_url = "https://www.gravatar.com/avatar/" + hashlib.md5(urllib.quote_plus(self.user.username.encode('utf-8')) + '@unglue.it').hexdigest() + "?"
-        gravatar_url += urllib.urlencode({'d':'wavatar', 's':'50'})
+        gravatar_url += urlencode({'d':'wavatar', 's':'50'})
         return gravatar_url
 
 

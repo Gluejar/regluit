@@ -4,7 +4,7 @@ doab_utils.py
 """
 
 import re
-import urlparse
+from urllib.parse import urlparse, urljoin
 
 import requests
 
@@ -60,10 +60,10 @@ DOMAIN_TO_PROVIDER = dict([
 ])
 
 def url_to_provider(url):
-    netloc = urlparse.urlparse(url).netloc.lower()
+    netloc = urlparse(url).netloc.lower()
     if netloc in [u'dx.doi.org', u'doi.org', u'hdl.handle.net']:
         url = requests.get(url).url
-        netloc = urlparse.urlparse(url).netloc
+        netloc = urlparse(url).netloc
     if netloc.startswith('www.'):
         netloc = netloc[4:]
     return DOMAIN_TO_PROVIDER.get(netloc, netloc)
@@ -87,10 +87,10 @@ def online_to_download(url):
         if doc:
             obj = doc.find('a', class_='pdf_file')
             if obj:
-                urls.append(urlparse.urljoin(url, obj['href']))
+                urls.append(urljoin(url, obj['href']))
             obj = doc.find('a', class_='epub_file')
             if obj:
-                urls.append(urlparse.urljoin(url, obj['href']))
+                urls.append(urljoin(url, obj['href']))
     elif FRONTIERSIN.search(url):
         booknum = FRONTIERSIN.search(url).group(1)
         urls.append(u'https://www.frontiersin.org/GetFile.aspx?ebook={}&fileformat=EPUB'.format(booknum))

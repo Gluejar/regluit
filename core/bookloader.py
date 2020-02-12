@@ -6,7 +6,7 @@ import logging
 import re
 from datetime import timedelta
 from xml.etree import ElementTree
-from urlparse import (urljoin, urlparse)
+from urllib.parse import (urljoin, urlparse)
 
 import requests
 

@@ -2,7 +2,7 @@ from itertools import islice
 
 from lxml import etree
 import datetime
-import urlparse
+from urllib.parse import urlparse
 from django.urls import reverse
 from django.utils.http import urlquote
 
@@ -58,12 +58,12 @@ def add_query_component(url, qc):
     """
     add component qc to the querystring of url
     """
-    m = list(urlparse.urlparse(url))
+    m = list(urlparse(url))
     if len(m[4]):
         m[4] = "&".join([m[4],qc])
     else:
         m[4] = qc
-    return urlparse.urlunparse(m)
+    return urlunparse(m)
 
 def isbn_node(isbn):
     node = etree.Element("{http://purl.org/dc/terms/}identifier")

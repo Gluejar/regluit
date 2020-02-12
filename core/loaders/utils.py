@@ -3,7 +3,7 @@ import logging
 import re
 import time
 import unicodedata
-import urlparse
+from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
 import requests
@@ -409,7 +409,7 @@ class ContentTyper(object):
     def calc_type(self, url):
         delay = 1
         # is there a delay associated with the url
-        netloc = urlparse.urlparse(url).netloc
+        netloc = urlparse(url).netloc
 
         # wait if necessary
         last_call = self.last_call.get(netloc)

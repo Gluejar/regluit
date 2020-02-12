@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal as D
 from math import factorial
 import unittest
-from urlparse import parse_qs, urlparse
+from urllib.parse import urlparse, parse_qs
 from tempfile import NamedTemporaryFile
 from time import sleep, mktime
 

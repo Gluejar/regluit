@@ -1,7 +1,7 @@
 from itertools import islice
 
 import datetime
-import urlparse
+from urllib.parse import urlparse
 from django.urls import reverse
 from django.utils.http import urlquote
 import json

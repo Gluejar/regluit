@@ -1,6 +1,6 @@
 from __future__ import print_function
 from itertools import islice
-from urlparse import urlparse
+from urllib.parse import urlparse
 import sys
 
 import requests
