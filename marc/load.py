@@ -95,7 +95,7 @@ def stub(edition):
             tag='250',
             indicators = [' ', ' '],
             subfields = [
-                'a', unicode(edition.note),
+                'a', str(edition.note),
             ]
         )
         record.add_ordered_field(field250)
@@ -110,7 +110,7 @@ def stub(edition):
             ]
         )
         if edition.publication_date:
-            field260.add_subfield('c', unicode(edition.publication_date))
+            field260.add_subfield('c', str(edition.publication_date))
         record.add_ordered_field(field260)
     
     if edition.description:

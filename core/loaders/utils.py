@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 def UnicodeDictReader(utf8_data, **kwargs):
     csv_reader = csv.DictReader(utf8_data, **kwargs)
     for row in csv_reader:
-        yield {key: unicode(value, 'utf-8') for key, value in row.iteritems()}
+        yield {key: str(value, 'utf-8') for key, value in row.iteritems()}
 
 def utf8_general_ci_norm(s):
     """

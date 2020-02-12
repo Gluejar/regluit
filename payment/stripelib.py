@@ -513,7 +513,7 @@ class PledgeScenarioTest(TestCase):
     
     def test_charge_good_cust(self):
         charge = self._sc.create_charge(10, customer=self._good_cust.id, description="$10 for good cust")
-        self.assertEqual(type(charge.id), unicode)
+        self.assertEqual(type(charge.id), str)
 
         # print out all the pieces of Customer and Charge objects
         print(dir(charge))

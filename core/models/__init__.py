@@ -116,7 +116,7 @@ class Key(models.Model):
 
     value = property(_get_value, _set_value)
 
-    def __unicode__(self):
+    def __str__(self):
         return "Key with name {0}".format(self.name)
 
 class CeleryTask(models.Model):
@@ -128,7 +128,7 @@ class CeleryTask(models.Model):
     function_args = models.IntegerField(null=True)  # not full generalized here -- takes only a single arg for now.
     active = models.NullBooleanField(default=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return "Task %s arg:%s ID# %s %s: State %s " % (self.function_name, self.function_args, self.task_id, self.description, self.state)
 
     @property
@@ -170,7 +170,7 @@ class Premium(models.Model):
     def premium_remaining(self):
         t_model = apps.get_model('payment', 'Transaction')
         return self.limit - t_model.objects.filter(premium=self).count()
-    def  __unicode__(self):
+    def  __str__(self):
         return  (self.campaign.work.title if self.campaign else '')  + ' $' + str(self.amount)
 
 class PledgeExtra:
@@ -251,7 +251,7 @@ class Acq(models.Model):
     def ebook(self):
         return self.mock_ebook(self)
 
-    def __unicode__(self):
+    def __str__(self):
         if self.lib_acq:
             return "%s, %s: %s for %s" % (self.work.title, self.get_license_display(), self.lib_acq.user, self.user)
         else:
@@ -362,7 +362,7 @@ class Hold(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='holds', null=False)
     library = models.ForeignKey(Library, on_delete=models.CASCADE, related_name='holds', null=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s for %s at %s' % (self.work, self.user.username, self.library)
     def ahead(self):
         return Hold.objects.filter(work=self.work, library=self.library, created__lt=self.created).count()
@@ -411,7 +411,7 @@ class Campaign(models.Model):
         self.problems = []
         super(Campaign, self).__init__(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         try:
             return u"Campaign for %s" % self.work.title
         except:
@@ -642,7 +642,7 @@ class Campaign(models.Model):
         except IndexError, e:
             raise UnglueitError(_('Campaign needs to have an active claim in order to be activated'))
         if not self.launchable:
-            raise UnglueitError('Configuration issues need to be addressed before campaign is activated: %s' % unicode(self.problems[0]))
+            raise UnglueitError('Configuration issues need to be addressed before campaign is activated: %s' % str(self.problems[0]))
         self.status = 'ACTIVE'
         self.left = self.target
         self.activated = datetime.today()
@@ -1087,7 +1087,7 @@ class Wishlist(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='wishlist')
     works = models.ManyToManyField('Work', related_name='wishlists', through='Wishes')
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s's Books" % self.user.username
 
     def add_work(self, work, source, notify=False):
@@ -1129,7 +1129,7 @@ class Badge(models.Model):
     @property
     def path(self):
         return '/static/images/%s.png' % self.name
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 def pledger():
@@ -1188,7 +1188,7 @@ class UserProfile(models.Model):
         )
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.user.username
 
     def reset_pledge_badge(self):

@@ -11,7 +11,7 @@ def libname(value):
     try:
         vl = long(value)
         lib = models.Library.objects.get(pk=vl)
-        return lib.__unicode__()
+        return lib.__str__()
     except models.Library.DoesNotExist:
         return value
 

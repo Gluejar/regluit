@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "5ed85c2329d64e967c739a1f126cdac6d50d9d67c59ef5449b634d48a2c96dc8"
+            "sha256": "62533efda9c3ef0a52947142ab50608c51e6dcb09337c2a2837087d4e7bb675b"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -24,12 +24,26 @@
             "index": "pypi",
             "version": "==1.11.28"
         },
+        "pyepub": {
+            "hashes": [
+                "sha256:d81e4f73a3c4155a81ccf613b22f28e0bc5b0ae551a656fd953a3a5fc6880aff"
+            ],
+            "index": "pypi",
+            "version": "==0.5.0"
+        },
         "pytz": {
             "hashes": [
                 "sha256:1c557d7d0e871de1f5ccd5833f60fb2550652da6be2693c1e02300743d21500d",
                 "sha256:b02c06db6cf09c12dd25137e563b31700d3b80fcc4ad23abb7a315f2789819be"
             ],
             "version": "==2019.3"
+        },
+        "six": {
+            "hashes": [
+                "sha256:236bdbdce46e6e6a3d61a337c0f8b763ca1e8717c03b369e87a7ec7ce1319c0a",
+                "sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c"
+            ],
+            "version": "==1.14.0"
         }
     },
     "develop": {}

@@ -75,7 +75,7 @@ def product(edition, facet=None):
     ident_node =  etree.SubElement(product_node, "ProductIdentifier")
     ident_node.append(text_node("ProductIDType", "01" )) #proprietary
     ident_node.append(text_node("IDTypeName", "unglue.it edition id" )) #proprietary
-    ident_node.append(text_node("IDValue", unicode(edition.id) )) 
+    ident_node.append(text_node("IDValue", str(edition.id) )) 
     
     # wrong isbn better than no isbn
     isbn = edition.isbn_13 if edition.isbn_13 else edition.work.first_isbn_13()
@@ -118,7 +118,7 @@ def product(edition, facet=None):
     for contrib in edition.relators.all():
         contrib_i+=1
         contrib_node = etree.SubElement(descriptive_node, "Contributor")
-        contrib_node.append(text_node("SequenceNumber", unicode(contrib_i )))
+        contrib_node.append(text_node("SequenceNumber", str(contrib_i )))
         contrib_node.append(text_node("ContributorRole", relator_contrib.get(contrib.relation.code,"") ))
         contrib_node.append(text_node("PersonName", contrib.author.name))
         contrib_node.append(text_node("PersonNameInverted", contrib.author.last_name_first))

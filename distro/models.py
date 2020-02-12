@@ -14,7 +14,7 @@ class Target(models.Model):
     protocol = models.CharField(max_length=10, default='ftp')
     formats = models.ManyToManyField('Format', related_name='targets')
     
-    def __unicode__(self):
+    def __str__(self):
         return self.name
     
     def get_ftp(self):
@@ -65,5 +65,5 @@ class Deposit(models.Model):
 class Format(models.Model):
     name = models.CharField(max_length=4)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name

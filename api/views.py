@@ -130,7 +130,7 @@ def travisci_webhook(request):
                 return HttpResponse('Successful. work_id: {}'.format(work_id))
         
         except Exception as e:
-                return HttpResponseBadRequest('Unsuccessful. Exception: {}'.format(unicode(e)))
+                return HttpResponseBadRequest('Unsuccessful. Exception: {}'.format(str(e)))
                 
         else:
             

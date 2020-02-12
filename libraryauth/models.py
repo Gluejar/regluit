@@ -44,8 +44,8 @@ class Library(models.Model):
     )
     credential = None
 
-    def __unicode__(self):
-        return unicode(self.name)
+    def __str__(self):
+        return str(self.name)
 
     def add_user(self, user):
         user.groups.add(self.group)
@@ -161,7 +161,7 @@ class IP(object):
 
         raise ValueError('Invalid arguments')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.string
 
     def __str__(self):
@@ -242,7 +242,7 @@ class Block(models.Model):
                 pass
 
 
-    def __unicode__(self):
+    def __str__(self):
         if self.upper and self.upper.int:
             return u'%s %s-%s' % (self.library, self.lower, self.upper)
         return u'%s %s' % (self.library, self.lower)

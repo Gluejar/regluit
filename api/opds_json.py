@@ -285,7 +285,7 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
 def append_navlink(feed, rel, path, page, order_by, group=None, active=None , title=""):
     link = { 
         "rel": rel,
-        "href": UNGLUEIT_URL + "/api/opdsjson/" + urlquote(path) + '/?order_by=' + order_by + ('&page=' + unicode(page) ),
+        "href": UNGLUEIT_URL + "/api/opdsjson/" + urlquote(path) + '/?order_by=' + order_by + ('&page=' + str(page) ),
         "type": ACQUISITION,
         "title": title,
     }

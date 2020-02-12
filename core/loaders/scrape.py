@@ -79,7 +79,7 @@ class BaseScraper(object):
     #
 
     def set(self, name, value):
-        if isinstance(value,(str, unicode)):
+        if isinstance(value, str):
             value= value.strip()
         self.metadata[name] = value
 

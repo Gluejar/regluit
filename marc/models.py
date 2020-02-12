@@ -131,7 +131,7 @@ class MARCRecord(models.Model):
     
     def load_from_file(self, source='raw'):
         #parse guts
-        if isinstance(self.guts, str) or isinstance(self.guts, unicode):
+        if isinstance(self.guts, str) or isinstance(self.guts, str):
             marcfile = StringIO(self.guts)
         else:
             marcfile = self.guts

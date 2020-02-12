@@ -335,7 +335,7 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
 def append_navlink(feed, rel, path, page, order_by, group=None, active=None , title=""):
     link = etree.Element("link")
     link.attrib.update({"rel":rel,
-             "href": UNGLUEIT_URL + "/api/opds/" + urlquote(path) + '/?order_by=' + order_by + ('&page=' + unicode(page) if page!=None else ''),
+             "href": UNGLUEIT_URL + "/api/opds/" + urlquote(path) + '/?order_by=' + order_by + ('&page=' + str(page) if page!=None else ''),
              "type": ACQUISITION,
              "title": title,
             })
