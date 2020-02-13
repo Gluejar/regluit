@@ -8,6 +8,29 @@ verify_ssl = true
 [packages]
 django = "<2"
 pyepub = "*"
+django-celery = "==3.2.2"
+django-contrib-comments = "*"
+django-extensions = "*"
+django-registration = "==2.4.1"
+social-auth-app-django = "==2.1.0"
+django-tastypie = "==0.14.1"
+django-el-pagination = "==3.2.4"
+django-selectable = "==1.1.0"
+django-email-change = {editable = true,git = "git://github.com/eshellman/django-email-change.git",ref = "830808b9b9db5f3ca9ec0cb22f8fda5cc2cef12d"}
+django-ckeditor = "==5.6.1"
+django-storages = "==1.5.2"
+sorl-thumbnail = "==12.3"
+django-mptt = "==0.8.6"
+django-sass-processor = "==0.5.6"
+django-notification = {editable = true,git = "git://github.com/eshellman/django-notification.git",ref = "cf942dfe755882740d9af0004348d87b19326a03"}
+mysqlclient = "*"
+mailchimp3 = "==3.0.4"
+pycrypto = "*"
+xhtml2pdf = "*"
+botocore = "*"
+pymarc = "*"
+fef-questionnaire = {editable = true,git = "git://github.com/EbookFoundation/fef-questionnaire.git",ref = "8978d43fd1986ca9177005e58e5100fa5d8fc0b0"}
+django-jsonfield = "==1.0.0"
 
 [requires]
 python_version = "3.6"
