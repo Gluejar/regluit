@@ -3,7 +3,7 @@ import json
 import datetime
 from decimal import Decimal as D
 #import Tkinter, tkFileDialog
-from StringIO import StringIO
+from io import StringIO
 from regluit.core.models import Campaign
 
 #root = Tkinter.Tk()

@@ -1,7 +1,7 @@
 """
 Utilities that manipulate epub files
 """
-
+from io import StringIO, BytesIO
 from pyepub import EPUB, InvalidEpub
 from django.template.loader import render_to_string
 
@@ -20,7 +20,7 @@ def ask_epub(epub_file, context):
     output = EPUB(epub_file, "a")
     part = StringIO(str(render_to_string('epub/ask.xhtml', context)))
     output.addpart(part, "ask.xhtml", "application/xhtml+xml", 1) #after title, we hope
-    asking_epub= StringIO()
+    asking_epub = BytesIO()
     output.writetodisk(asking_epub)
     return asking_epub
    

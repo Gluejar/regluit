@@ -1,7 +1,7 @@
 import logging
 import requests
 from ftplib import FTP, FTP_TLS
-from StringIO import StringIO
+from io import StringIO
 from django.db import models
 
 logger = logging.getLogger(__name__)

@@ -1,7 +1,7 @@
 import pymarc
 import logging
 from datetime import datetime
-from StringIO import StringIO
+from io import StringIO
 
 from django.apps import apps
 from django.conf import settings

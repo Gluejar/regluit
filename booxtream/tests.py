@@ -2,7 +2,7 @@ import unittest
 import time
 from urllib.request import urlopen
 from tempfile import NamedTemporaryFile
-from StringIO import StringIO
+from io import BytesIO
 from django.conf import settings
 
 class TestBooXtream(unittest.TestCase):
@@ -67,7 +67,7 @@ class TestBooXtream(unittest.TestCase):
 
         # make sure it works with an in-memory file
         self.epub2file.seek(0)
-        in_mem_epub = StringIO()
+        in_mem_epub = BytesIO()
         in_mem_epub.write(self.epub2file.read())
         in_mem_epub.seek(0)
         boox2 = inst.platform(epubfile=in_mem_epub, **params)

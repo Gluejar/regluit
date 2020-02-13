@@ -2,7 +2,7 @@
 Utilities that manipulate pdf files
 """
 import logging
-from io import BytesIO
+from io import BytesIO, StringIO
 from tempfile import NamedTemporaryFile
 
 import requests
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 def ask_pdf(context={}):
     ask_html = StringIO(str(render_to_string('pdf/ask.html', context)))
     # open output file for writing (truncated binary)
-    resultFile = StringIO()
+    resultFile = BytesIO()
 
     # convert HTML to PDF
     pisaStatus = pisa.CreatePDF(

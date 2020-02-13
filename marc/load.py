@@ -8,7 +8,6 @@ Use the MARCXML file for the non-unglued edition from Library of Congress.
 import pymarc
 import logging
 from datetime import datetime
-from StringIO import StringIO
 
 from django.conf import settings
 from django.urls import reverse

@@ -4,7 +4,6 @@ Utilities for calling mobigen for management. do not use in application
 """
 
 from itertools import islice
-from StringIO import StringIO
 import uuid
 
 from django.core.files.storage import default_storage
