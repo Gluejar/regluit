@@ -12,8 +12,8 @@ import os
 import unittest
 from struct import *
 from pprint import pprint
-import utils
-from lz77 import uncompress_lz77
+from . import utils
+from .lz77 import uncompress_lz77
 
 class Mobi:
   def parse(self):
