@@ -1,6 +1,6 @@
 import csv
 import HTMLParser
-import httplib
+import http.client as httplib
 import logging
 import re
 from datetime import datetime

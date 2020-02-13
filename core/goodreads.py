@@ -1,7 +1,7 @@
 """
 external library imports
 """
-import httplib
+import http.client as httplib
 import json
 import logging
 import oauth2 as oauth
