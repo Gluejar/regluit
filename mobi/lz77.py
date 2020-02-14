@@ -1,6 +1,7 @@
 import struct
 # ported directly from the PalmDoc Perl library
 # http://kobesearch.cpan.org/htdocs/EBook-Tools/EBook/Tools/PalmDoc.pm.html
+# ... and reported to py 3
 
 def uncompress_lz77(data):
   length = len(data);
@@ -11,28 +12,28 @@ def uncompress_lz77(data):
   # lz77offset;   # LZ77 offset
   # lz77length;   # LZ77 length
   # lz77pos;    # Position inside $lz77length
-  text = '';   # Output (uncompressed) text
+  text = b'';   # Output (uncompressed) text
   # textlength;   # Length of uncompressed text during LZ77 pass
   # textpos;    # Position inside $text during LZ77 pass
 
   while offset < length:
-    # char = substr($data,$offset++,1);
-    char = data[offset];
+    # char = substr($data, $offset++, 1);
+    ord_ = data[offset];
+    byte = ord_.to_bytes(1, byteorder='big')
     offset += 1;
-    ord_ = ord(char);
 
     # The long if-elsif chain is the best logic for $ord handling
     ## no critic (Cascading if-elsif chain)
     if (ord_ == 0):
       # Nulls are literal
-      text += char;
+      text += byte;
     elif (ord_ <= 8):
       # Next $ord bytes are literal
-      text += data[offset:offset+ord_] # text .=substr($data,$offset,ord);
+      text += data[offset:offset + ord_] # text .=substr($data, $offset, ord);
       offset += ord_;
     elif (ord_ <= 0x7f):
       # Values from 0x09 through 0x7f are literal
-      text += char;
+      text += byte;
     elif (ord_ <= 0xbf):
       # Data is LZ77-compressed
 
@@ -75,10 +76,10 @@ def uncompress_lz77(data):
                 " beginning of text! %x" % lz77);
           return;
 
-        text += text[textpos:textpos+1]; #text .= substr($text,$textpos,1);
-        textlength+=1;
+        text += text[textpos:textpos + 1]; #text .= substr($text, $textpos, 1);
+        textlength += 1;
     else:
       # 0xc0 - 0xff are single characters (XOR 0x80) preceded by
       # a space
-      text += ' ' + chr(ord_ ^ 0x80);
+      text += b' ' + (ord_ ^ 0x80).to_bytes(1, byteorder='big');
   return text;

@@ -39,6 +39,7 @@ fef-questionnaire = {editable = true,git = "git://github.com/EbookFoundation/fef
 risparser = "*"
 pyoai = "*"
 selenium = "*"
+boto3 = "*"
 
 [requires]
 python_version = "3.6"

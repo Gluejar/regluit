@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "5cdab55cbbc113e38dd1a6a930aecdd8eff15692d9a06eaf681f9c18c47fc50a"
+            "sha256": "38bffc23703770928967ab698b472eb5be2d8b46c1d14149eebf882527ec293c"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -56,6 +56,14 @@
                 "sha256:d4d2fed1a251ea58eed47b48db3778ebb92f5ff4407dc91869c6f41c3a9249d0"
             ],
             "version": "==3.3.0.23"
+        },
+        "boto3": {
+            "hashes": [
+                "sha256:3f02c5ec585fe0c7c843026f0f3db3a7bb98a830072b0eb151456ed07ba8e46d",
+                "sha256:435fc7220e76894228f9ceebc19ab226de78f515652f8643e3e22581a7e08ed7"
+            ],
+            "index": "pypi",
+            "version": "==1.11.17"
         },
         "botocore": {
             "hashes": [
@@ -801,6 +809,13 @@
             ],
             "index": "pypi",
             "version": "==0.4.3"
+        },
+        "s3transfer": {
+            "hashes": [
+                "sha256:2482b4259524933a022d59da830f51bd746db62f047d6eb213f2f8855dcb8a13",
+                "sha256:921a37e2aefc64145e7b73d50c71bb4f26f46e4c9f414dc648c6245ff92cf7db"
+            ],
+            "version": "==0.3.3"
         },
         "selenium": {
             "hashes": [

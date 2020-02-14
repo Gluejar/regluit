@@ -299,7 +299,7 @@ class Acq(models.Model):
         return self.watermarked
 
     def _hash(self):
-        return hashlib.md5('%s:%s:%s:%s'%(settings.SOCIAL_AUTH_TWITTER_SECRET, self.user_id, self.work_id, self.created)).hexdigest()
+        return hashlib.md5(bytes('%s:%s:%s:%s'%(settings.SOCIAL_AUTH_TWITTER_SECRET, self.user_id, self.work_id, self.created), 'utf-8')).hexdigest()
 
     def expire_in(self, delta):
         self.expires = (now() + delta) if delta else now()
@@ -1300,13 +1300,13 @@ class UserProfile(models.Model):
 
     def gravatar(self):
         # construct the url
-        gravatar_url = "https://www.gravatar.com/avatar/" + hashlib.md5(self.user.email.lower()).hexdigest() + "?"
+        gravatar_url = "https://www.gravatar.com/avatar/" + hashlib.md5(bytes(self.user.email.lower(), 'utf-8')).hexdigest() + "?"
         gravatar_url += urlencode({'d':'wavatar', 's':'50'})
         return gravatar_url
 
     def unglueitar(self):
         # construct the url
-        gravatar_url = "https://www.gravatar.com/avatar/" + hashlib.md5(quote_plus(self.user.username.encode('utf-8')) + '@unglue.it').hexdigest() + "?"
+        gravatar_url = "https://www.gravatar.com/avatar/" + hashlib.md5(bytes(quote_plus(self.user.username), 'utf-8') + b'@unglue.it').hexdigest() + "?"
         gravatar_url += urlencode({'d':'wavatar', 's':'50'})
         return gravatar_url
 
