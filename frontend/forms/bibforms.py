@@ -165,7 +165,7 @@ class EditionForm(forms.ModelForm):
                     else:
                         err_msg = "{} is a duplicate for work #{}.".format(id_value, ident.work_id)
                     self.add_error('id_value', forms.ValidationError(err_msg))
-            except forms.ValidationError, ve:
+            except forms.ValidationError as ve:
                 self.add_error(
                     'id_value',
                     forms.ValidationError('{}: {}'.format(ve.message, id_value))
