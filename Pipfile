@@ -22,15 +22,23 @@ django-storages = "==1.5.2"
 sorl-thumbnail = "==12.3"
 django-mptt = "==0.8.6"
 django-sass-processor = "==0.5.6"
-django-notification = {editable = true,git = "git://github.com/eshellman/django-notification.git",ref = "cf942dfe755882740d9af0004348d87b19326a03"}
 mysqlclient = "*"
 mailchimp3 = "==3.0.4"
 pycrypto = "*"
 xhtml2pdf = "*"
 botocore = "*"
 pymarc = "*"
-fef-questionnaire = {editable = true,git = "git://github.com/EbookFoundation/fef-questionnaire.git",ref = "8978d43fd1986ca9177005e58e5100fa5d8fc0b0"}
 django-jsonfield = "==1.0.0"
+django-notification = {editable = true,git = "git://github.com/eshellman/django-notification.git",ref = "b6788d7570067b9b89469e9ec6ea12d668351596"}
+github3-py = "*"
+gitberg = "*"
+oauth2 = "*"
+mechanize = "*"
+stripe = "*"
+fef-questionnaire = {editable = true,git = "git://github.com/EbookFoundation/fef-questionnaire.git",ref = "6b4aafe2b26575ef23c48d7704d59abd4799d5f5"}
+risparser = "*"
+pyoai = "*"
+selenium = "*"
 
 [requires]
 python_version = "3.6"
