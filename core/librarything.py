@@ -1,5 +1,5 @@
 import csv
-import HTMLParser
+from html import parser as HTMLParser
 import http.client as httplib
 import logging
 import re
