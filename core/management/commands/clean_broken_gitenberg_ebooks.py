@@ -33,7 +33,7 @@ def calc_problem_ebooks():
 
         status_code = requests.head(ebook.url).status_code
         
-        if status_code <> 302:
+        if status_code != 302:
             non302statuscode_count += 1
             
         self.stdout.write("\r", i, ebook.url, status_code, non302statuscode_count, end="")
@@ -47,7 +47,7 @@ def calc_problem_ebooks():
             
         )
 
-    return [result for result in results if result['status_code'] <> 302]
+    return [result for result in results if result['status_code'] != 302]
 
 
 class Command(BaseCommand):

@@ -217,7 +217,7 @@ def cluster_status(max_num=None):
         for ed in models.Work.objects.get(id=w_id).editions.values('id', 'created')]).values()])
          for w_id in franken_works]) if len(franken_works) else None
     
-    scattered_clusters = [(k, len(set(([e.work_id for e in v])))) for (k,v) in work_clusters.items() if len(set(([e.work_id for e in v]))) <> 1 ]    
+    scattered_clusters = [(k, len(set(([e.work_id for e in v])))) for (k,v) in work_clusters.items() if len(set(([e.work_id for e in v]))) != 1 ]    
     
     s = {'work_clusters':work_clusters, 'current_map':current_map, 'results':results, 'franken_works': franken_works,
          'wcp':wcp, 'latest_franken_event': latest_franken_event, 'affected_works':affected_works,

@@ -302,7 +302,7 @@ def loaded_book_ok(book, work, edition):
 
     # isbns
     for isbn in isbns:
-        if Identifier.objects.filter(type='isbn', value=isbn).count() <> 1:
+        if Identifier.objects.filter(type='isbn', value=isbn).count() != 1:
             return False
         else:
             try:
