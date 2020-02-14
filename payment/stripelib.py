@@ -702,7 +702,7 @@ class Processor(baseprocessor.Processor):
             if transaction.status == TRANSACTION_STATUS_COMPLETE:
                 return
             # make sure we are dealing with a stripe transaction
-            if transaction.host <> PAYMENT_HOST_STRIPE:
+            if transaction.host != PAYMENT_HOST_STRIPE:
                 raise StripelibError("transaction.host {0} is not the expected {1}".format(transaction.host, PAYMENT_HOST_STRIPE))
             
             sc = StripeClient()
@@ -852,7 +852,7 @@ class Processor(baseprocessor.Processor):
                             if ev_object.id == transaction.pay_key:
                                 logger.info("ev_object.id == transaction.pay_key: {0}".format(ev_object.id))
                             else:
-                                logger.warning("ev_object.id {0} <> transaction.pay_key {1}".format(ev_object.id, transaction.pay_key))
+                                logger.warning("ev_object.id {0} != transaction.pay_key {1}".format(ev_object.id, transaction.pay_key))
                         except Exception as e:
                             logger.warning(e)    
                             
@@ -867,7 +867,7 @@ class Processor(baseprocessor.Processor):
                             if ev_object.id == transaction.pay_key:
                                 logger.info("ev_object.id == transaction.pay_key: {0}".format(ev_object.id))
                             else:
-                                logger.warning("ev_object.id {0} <> transaction.pay_key {1}".format(ev_object.id, transaction.pay_key))
+                                logger.warning("ev_object.id {0} != transaction.pay_key {1}".format(ev_object.id, transaction.pay_key))
 
                         except Exception as e:
                             logger.warning(e)
