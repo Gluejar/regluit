@@ -13,7 +13,7 @@ class TestBooXtream(unittest.TestCase):
         self.epub2file.write(test_file_content.read())
         self.epub2file.seek(0)
         self.textfile = NamedTemporaryFile(delete=False)
-        self.textfile.write("bad text file")
+        self.textfile.write(b'bad text file')
         self.textfile.seek(0)
 
 
