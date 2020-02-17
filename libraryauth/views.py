@@ -90,7 +90,7 @@ class Authenticator:
 
     def __init__(self, request, library, *args, **kwargs):
         self.request = request
-        if  isinstance(library, basestring):
+        if  isinstance(library, str):
             self.library = Library.objects.get(user__username=library)
         elif isinstance(library, Library):
             self.library = library
