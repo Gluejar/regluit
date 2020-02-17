@@ -67,7 +67,7 @@ def generate_mobi_ebook_for_edition(edition):
     
     file_ = write_file_to_storage(output, 
                               "application/x-mobipocket-ebook", 
-                              "/ebf/{0}.mobi".format(uuid.uuid4().get_hex()))
+                              "/ebf/{0}.mobi".format(uuid.uuid4().hex))
     
     # create a path for the ebookfile:   IS THIS NECESSARY?
     # https://github.com/Gluejar/regluit/blob/25dcb06f464dc11b5e589ab6859dfcc487f8f3ef/core/models.py#L1771
