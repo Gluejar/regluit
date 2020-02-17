@@ -492,7 +492,7 @@ def add_related(isbn):
                     other_editions[related_language] = [related_edition]
 
     # group the other language editions together
-    for lang_group in other_editions.itervalues():
+    for lang_group in other_editions.values():
         logger.debug(u"lang_group (ed, work): %s", [(ed.id, ed.work_id) for ed in lang_group])
         if len(lang_group) > 1:
             lang_edition = lang_group[0]
