@@ -70,7 +70,7 @@ def fac(n, sleep_interval=None):
         return 1
     else:
         res = 1
-        for i in xrange(2,n+1):
+        for i in range(2,n+1):
             res = res*i
             fac.update_state(state="PROGRESS", meta={"current": i, "total": n})
             if sleep_interval is not None:

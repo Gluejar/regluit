@@ -87,18 +87,18 @@ def main():
     num_consumers = multiprocessing.cpu_count()
     print('Creating %d consumers' % num_consumers)
     consumers = [ Consumer(tasks, results_queue)
-                  for i in xrange(num_consumers) ]
+                  for i in range(num_consumers) ]
     for w in consumers:
         w.start()    
         
     n_tasks = 2
     
     # create a separate process for each totaler operation
-    for k in xrange(n_tasks):
+    for k in range(n_tasks):
         tasks.put(NetTask(k))
         
     # Add a poison pill for each consumer
-    for i in xrange(num_consumers):
+    for i in range(num_consumers):
         tasks.put(None)        
         
     # while there is an expectation of more results, read off results in the results queue

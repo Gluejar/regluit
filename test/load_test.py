@@ -25,7 +25,7 @@ if __name__ == '__main__':
     
     url = "http://unglue.it/lists/popular"
     
-    results = [pool.apply_async(get_with_time, (url,k)) for k in xrange(n_calls)]
+    results = [pool.apply_async(get_with_time, (url,k)) for k in range(n_calls)]
     print([result.get(999999999)[1] for result in results])
     
     

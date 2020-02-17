@@ -90,7 +90,7 @@ if __name__ == '__main__':
     big_processor.start()
     
     n_tasks = 10
-    for k in xrange(n_tasks):
+    for k in range(n_tasks):
         big_queue.put(BigTask(k, doubler_queue))
         
     doubler_queue.put(None) # mark the end
