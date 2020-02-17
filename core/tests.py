@@ -1055,7 +1055,7 @@ class EbookFileTests(TestCase):
         self.assertEqual(len(test_epub.opf), 4)
         self.assertTrue(len(test_epub.opf[2]) < 30)
 
-        acq = Acq.objects.create(user=u,work=w,license=TESTING)
+        acq = Acq.objects.create(user=u, work=w, license=TESTING)
         self.assertIsNot(acq.nonce, None)
 
         url = acq.get_watermarked().download_link_epub
@@ -1125,7 +1125,7 @@ class EbookFileTests(TestCase):
         temp.close()
         try:
             # now we can try putting the test pdf file into Django storage
-            temp_file = open(temp.name)
+            temp_file = open(temp.name, 'rb')
 
             dj_file = DjangoFile(temp_file)
             ebf = EbookFile(format='epub', edition=e, file=dj_file)

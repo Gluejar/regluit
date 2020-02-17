@@ -1046,8 +1046,8 @@ class Campaign(models.Model):
                 'epub': True,
             }
             ungluified = ungluify(self.work.epubfiles()[0].file, self)
-            ungluified.filename.seek(0)
-            watermarked = watermarker.platform(epubfile=ungluified.filename, **params)
+            ungluified.file_obj.seek(0)
+            watermarked = watermarker.platform(epubfile=ungluified.file_obj, **params)
             self.make_unglued_ebf('epub', watermarked)
             self.make_unglued_ebf('mobi', watermarked)
             return True

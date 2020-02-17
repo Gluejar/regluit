@@ -89,7 +89,7 @@ def add_group(sender, created, instance, **kwargs):
 
 post_save.connect(add_group, sender=Library)
 
-def ip_to_long(value):
+def ip_to_int(value):
     validators.validate_ipv4_address(value)
 
     lower_validator = validators.MinValueValidator(0)
@@ -106,7 +106,7 @@ def ip_to_long(value):
 
     return output
 
-def long_to_ip(value):
+def int_to_ip(value):
     validators.validate_integer(value)
     value = int(value)
 
@@ -125,9 +125,9 @@ class IP(object):
             self._int = IP.int
 
         try:
-            self._int = long(value)
+            self._int = int(value)
         except ValueError:
-            self._int = ip_to_long(value)
+            self._int = ip_to_int(value)
         except (TypeError, ValidationError):
             self._int = None
 
@@ -138,7 +138,7 @@ class IP(object):
 
     def _get_str(self):
         if self.int != None:
-            return long_to_ip(self.int)
+            return int_to_ip(self.int)
         return ''
 
     string = property(_get_str, _set_int)

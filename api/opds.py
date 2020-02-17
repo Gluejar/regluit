@@ -2,7 +2,7 @@ from itertools import islice
 
 from lxml import etree
 import datetime
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlunparse
 from django.urls import reverse
 from django.utils.http import urlquote
 
@@ -266,7 +266,7 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
       xsi:schemaLocation="http://purl.org/dc/elements/1.1/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dc.xsd 
       http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd"/>"""
     
-    feed = etree.fromstring(feed_xml)
+    feed = etree.fromstring(bytes(feed_xml, 'utf-8'))
     
     # add title
     # TO DO: will need to calculate the number items and where in the feed we are

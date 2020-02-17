@@ -340,7 +340,7 @@ def edit_edition(request, work_id, edition_id, by=None):
                         edition.pk,
                         cover_file.name
                     )
-                    new_file = default_storage.open(cover_file_name, 'w')
+                    new_file = default_storage.open(cover_file_name, 'wb')
                     new_file.write(cover_file.read())
                     new_file.close()
                     #and put its url into cover_image

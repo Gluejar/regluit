@@ -1,7 +1,7 @@
 import pymarc
 import logging
 from datetime import datetime
-from io import StringIO
+from io import BytesIO
 
 from django.apps import apps
 from django.conf import settings
@@ -79,7 +79,7 @@ def _xml(record):
     return pymarc.record_to_xml(record)
 
 def _mrc(record):
-    mrc_file = StringIO()
+    mrc_file = BytesIO()
     writer = pymarc.MARCWriter(mrc_file)
     writer.write(record)
     mrc_file.seek(0)
@@ -132,7 +132,7 @@ class MARCRecord(models.Model):
     def load_from_file(self, source='raw'):
         #parse guts
         if isinstance(self.guts, str) or isinstance(self.guts, str):
-            marcfile = StringIO(self.guts)
+            marcfile = BytesIO(bytes(self.guts, 'utf-8'))
         else:
             marcfile = self.guts
         if source == 'loc':
@@ -147,7 +147,7 @@ class MARCRecord(models.Model):
         if self._the_record:
             the_record = self._the_record
         else:
-            the_record = pymarc.parse_xml_to_array(StringIO(self.guts))[0]
+            the_record = pymarc.parse_xml_to_array(BytesIO(bytes(self.guts, 'utf-8')))[0]
         for field in the_record.get_fields('856'):
             the_record.remove_field(field)
         self._the_record = the_record

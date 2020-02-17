@@ -142,7 +142,7 @@ class ApiTests(TestCase):
             'username': self.user.username, 
             'api_key': self.user.api_key.key
         })
-        self.assertTrue(r.content.find('<rights>CC BY</rights>')>0)
+        self.assertTrue(r.content.find(b'<rights>CC BY</rights>')>0)
 
     def test_widget(self):
         r = self.client.get('/api/widget/0441007465/')

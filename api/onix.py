@@ -21,7 +21,7 @@ def text_node(tag, text, attrib={}):
     return node
 
 def onix_feed(facet, max=None, page_number=None):
-    feed = etree.fromstring(feed_xml)
+    feed = etree.fromstring(bytes(feed_xml, 'utf-8'))
     feed.append(header(facet))
     works = facet.works[0:max] if max else facet.works
 
@@ -42,7 +42,7 @@ def onix_feed(facet, max=None, page_number=None):
     return etree.tostring(feed, pretty_print=True)
     
 def onix_feed_for_work(work):
-    feed = etree.fromstring(feed_xml)
+    feed = etree.fromstring(bytes(feed_xml, 'utf-8'))
     feed.append(header(work))
     for edition in models.Edition.objects.filter(work=work,ebooks__isnull=False).distinct():
         edition_prod = product(edition)
