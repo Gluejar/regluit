@@ -77,18 +77,8 @@ class StripelibError(baseprocessor.ProcessorError):
     pass
 
 
-# if customer.id doesn't exist, create one and then charge the customer
-
-try:
-    from regluit.core.models import Key
-    STRIPE_PK = Key.objects.get(name="STRIPE_PK").value
-    STRIPE_SK = Key.objects.get(name="STRIPE_SK").value
-    logger.info('Successful loading of STRIPE_*_KEYs')
-except Exception as e:
-    # currently test keys for Gluejar and for raymond.yee@gmail.com as standin for non-profit
-    logger.info('Exception {0} Need to use TEST STRIPE_*_KEYs'.format(e))
-    STRIPE_PK = settings.TEST_STRIPE_PK
-    STRIPE_SK = settings.TEST_STRIPE_SK
+STRIPE_PK = settings.STRIPE_PK
+STRIPE_SK = settings.STRIPE_SK
     
 # set default stripe api_key to that of unglue.it
 

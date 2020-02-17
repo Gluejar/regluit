@@ -55,7 +55,6 @@ from .models import (
     Edition,
     RightsHolder,
     Claim,
-    Key,
     Ebook,
     Premium,
     Subject,
@@ -907,17 +906,6 @@ class ISBNTest(TestCase):
             len(set([isbn.ISBN(milosz_10).to_string(), isbn.ISBN(milosz_13).to_string()])),
             1
         )
-
-class EncryptedKeyTest(TestCase):
-    def test_create_read_key(self):
-        name = "the great answer"
-        value = "42"
-        key = Key.objects.create(name=name, value=value)
-        key.save()
-        # do we get back the value?
-        self.assertEqual(Key.objects.filter(name=name)[0].value, value)
-        # just checking that the encrypted value is not the same as the value
-        self.assertNotEqual(key.encrypted_value, value)  # is this always true?
 
 class SafeGetWorkTest(TestCase):
     def test_good_work(self):
