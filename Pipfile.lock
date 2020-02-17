@@ -641,13 +641,6 @@
             ],
             "version": "==2.19"
         },
-        "pycrypto": {
-            "hashes": [
-                "sha256:f2ce1e989b272cfcb677616763e0a2e7ec659effa67a88aa92b3a65528f60a3c"
-            ],
-            "index": "pypi",
-            "version": "==2.6.1"
-        },
         "pyepub": {
             "hashes": [
                 "sha256:d81e4f73a3c4155a81ccf613b22f28e0bc5b0ae551a656fd953a3a5fc6880aff"

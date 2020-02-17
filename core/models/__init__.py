@@ -47,7 +47,6 @@ from regluit.payment.parameters import (
     TRANSACTION_STATUS_FAILED,
     TRANSACTION_STATUS_INCOMPLETE
 )
-from regluit.utils import crypto
 from regluit.utils.localdatetime import date_today
 
 from regluit.core.parameters import (
