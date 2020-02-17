@@ -65,7 +65,7 @@ class RhPageTests(TestCase):
         r = anon_client.get("/work/{}/".format(self.work.id))
         r = anon_client.head("/work/{}/".format(self.work.id))
         self.assertEqual(r.status_code, 200)
-        csrfmatch =  re.search("name='csrfmiddlewaretoken' value='([^']*)'", r.content)
+        csrfmatch =  re.search("name='csrfmiddlewaretoken' value='([^']*)'", str(r.content, 'utf-8'))
         self.assertFalse(csrfmatch)
         r = anon_client.post("/work/{}/kw/".format(self.work.id))
         self.assertEqual(r.status_code, 302)
@@ -73,27 +73,27 @@ class RhPageTests(TestCase):
     def can_edit(self, client, can=True):
         r = client.get("/work/{}/".format(self.work.id))
         self.assertEqual(r.status_code, 200)
-        csrfmatch =  re.search("name='csrfmiddlewaretoken' value='([^']*)'", r.content)
+        csrfmatch =  re.search("name='csrfmiddlewaretoken' value='([^']*)'", str(r.content, 'utf-8'))
         self.assertTrue(csrfmatch)
         csrf = csrfmatch.group(1)
         r = client.post("/work/{}/kw/".format(self.work.id), {
-                u'csrfmiddlewaretoken': csrf,
-                u'kw_add':u'true',
-                u'add_kw_0':u'Fiction',
-                u'add_kw_1':self.kw.id
+                'csrfmiddlewaretoken': csrf,
+                'kw_add':'true',
+                'add_kw_0':'Fiction',
+                'add_kw_1':self.kw.id
             })
         if can:
-            self.assertEqual(r.content, u'Fiction')
+            self.assertEqual(r.content, b'Fiction')
         else:
-            self.assertEqual(r.content, u'true')
+            self.assertEqual(r.content, b'true')
         r = client.post("/work/{}/kw/".format(self.work.id), {
-                u'csrfmiddlewaretoken': csrf,
-                u'remove_kw' : u'Fiction'
+                'csrfmiddlewaretoken': csrf,
+                'remove_kw' : 'Fiction'
             })
         if can:
-            self.assertEqual(r.content, u'removed Fiction')
+            self.assertEqual(r.content, b'removed Fiction')
         else:
-            self.assertEqual(r.content, u'False')
+            self.assertEqual(r.content, b'False')
 
     def test_user(self):
         # test non-RightsHolder
@@ -348,12 +348,12 @@ class UnifiedCampaignTests(TestCase):
         transaction = Transaction.objects.get(id=t_id)
 
         # catch any exception and pass it along
+        charge_exception = None
         try:
             self.assertTrue(pm.execute_transaction(transaction, ()))
-        except Exception as charge_exception:
-            pass
-        else:
-            charge_exception = None
+        except Exception as e:
+            charge_exception = e
+            
 
         # retrieve events from this period
         events = list(sc._all_objs('Event', created={'gte': time0}))
@@ -465,12 +465,12 @@ class UnifiedCampaignTests(TestCase):
         self.assertEqual(len(mail.outbox), 9)
 
         # expect these 6 notices :
-        # u'pledge_charged', <User: dataunbound>,
-        # u'pledge_failed', <User: dataunbound>,
-        # u'new_wisher', <User: hmelville>,
-        # u'pledge_you_have_pledged', <User: dataunbound>,
-        # u'pledge_charged', <User: RaymondYee>,
-        # u'pledge_you_have_pledged', <User: RaymondYee>,
+        # 'pledge_charged', <User: dataunbound>,
+        # 'pledge_failed', <User: dataunbound>,
+        # 'new_wisher', <User: hmelville>,
+        # 'pledge_you_have_pledged', <User: dataunbound>,
+        # 'pledge_charged', <User: RaymondYee>,
+        # 'pledge_you_have_pledged', <User: RaymondYee>,
         # plus two customer creation emails
 
     def stripe_token_none(self):

@@ -52,7 +52,7 @@ class TestLibraryAuth(TestCase):
                                       'email': 'bob@mailnesia.com',
                                       'password1': 'secret',
                                       'password2': 'secret'})
-        self.assertTrue('Please supply a permanent email address' in resp.content)
+        self.assertTrue('Please supply a permanent email address' in str(resp.content, 'utf-8'))
 
         with self.assertRaises(User.DoesNotExist):
             User.objects.get(username='badbob')
