@@ -9,7 +9,7 @@ def libname(value):
     returns library name  .
     """
     try:
-        vl = long(value)
+        vl = int(value)
         lib = models.Library.objects.get(pk=vl)
         return lib.__str__()
     except models.Library.DoesNotExist:
