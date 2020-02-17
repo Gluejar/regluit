@@ -4,7 +4,7 @@ code for harvesting 'online' ebooks
 import logging
 import re
 import time
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 
 import requests
 
