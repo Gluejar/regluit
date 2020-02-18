@@ -51,8 +51,8 @@ def onix_feed_for_work(work):
     return etree.tostring(feed, pretty_print=True)
     
 def header(facet=None):
-    header_node = etree.Element("Header")	
-    sender_node = etree.Element("Sender")	
+    header_node = etree.Element("Header")
+    sender_node = etree.Element("Sender")
     sender_node.append(text_node("SenderName", "unglue.it"))
     sender_node.append(text_node("EmailAddress", "unglueit@ebookfoundation.org"))
     header_node.append(sender_node)

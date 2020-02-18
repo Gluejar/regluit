@@ -302,7 +302,7 @@ def handle_wishlist_added(supporter, work, **kwargs):
         
         from regluit.core.tasks import emit_notifications
         emit_notifications.delay()
-		
+
 wishlist_added.connect(handle_wishlist_added)
 
 deadline_impending = Signal(providing_args=["campaign"])

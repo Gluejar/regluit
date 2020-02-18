@@ -199,7 +199,7 @@ def load_from_books(books):
         Author3First, Author3Role, AuthorBio, TableOfContents, Excerpt, DescriptionLong,
         DescriptionBrief, BISACCode1, BISACCode2, BISACCode3, CopyrightYear, ePublicationDate,
         eListPrice, ListPriceCurrencyType, List Price in USD (paper ISBN), eTerritoryRights,
-        SubjectListMARC, , Book-level DOI, URL,	License
+        SubjectListMARC, , Book-level DOI, URL, License
 
         '''
 

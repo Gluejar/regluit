@@ -12,4 +12,4 @@ register = Library()
 @stringfilter
 def urldecode(value):
     return unquote(value)
-	
+
