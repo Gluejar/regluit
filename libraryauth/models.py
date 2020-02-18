@@ -314,7 +314,7 @@ def get_special():
             logger.info('special library found')
             return special
         return None
-    catch OperationalError:
+    except OperationalError:
         # database not loaded yet, for example during testing
         return None
 
