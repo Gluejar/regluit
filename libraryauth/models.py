@@ -2,6 +2,7 @@
 # https://github.com/benliles/django-ipauth/blob/master/ipauth/models.py
 import logging
 import re
+from functools import total_ordering
 
 from django.contrib.auth.models import Group
 from django.conf import settings
@@ -93,16 +94,16 @@ def ip_to_int(value):
     validators.validate_ipv4_address(value)
 
     lower_validator = validators.MinValueValidator(0)
-    upper_validator = validators.MinValueValidator(255)
+    upper_validator = validators.MaxValueValidator(255)
 
-    value = value.split('.')
+    value = [int(octet) for octet in value.split('.')]
     output = 0
 
     for i in range(0, 4):
         validators.validate_integer(value[i])
         lower_validator(value[i])
         upper_validator(value[i])
-        output += int(value[i]) * (256**(3-i))
+        output += value[i] * (256**(3-i))
 
     return output
 
@@ -116,6 +117,7 @@ def int_to_ip(value):
     return '%d.%d.%d.%d' % (value >> 24, value >> 16 & 255,
                             value >> 8 & 255, value & 255)
 
+@total_ordering
 class IP(object):
     def __init__(self, value):
         self.int = value
@@ -152,17 +154,14 @@ class IP(object):
 
         return self.int == other.int
 
-    def __cmp__(self, other):
+    def __gt__(self, other):
         if not isinstance(other, IP):
             other = IP(other)
 
         if self.int is not None and other.int is not None:
-            return self.int.__cmp__(other.int)
+            return self.int.__gt__(other.int)
 
         raise ValueError('Invalid arguments')
-
-    def __str__(self):
-        return self.string
 
     def __str__(self):
         return self.string
