@@ -37,7 +37,6 @@ TIME_ZONE = 'America/New_York'
 
 # Amazon SES
 
-EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend'
 MAIL_USE_TLS = True 
 EMAIL_HOST = 'email-smtp.us-east-1.amazonaws.com'
 EMAIL_PORT = 465
