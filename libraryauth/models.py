@@ -10,6 +10,7 @@ from django.core.exceptions import ValidationError
 from django.core import validators
 from django.db import models
 from django.db.models.signals import post_save
+fron django.db.utils import OperationalError
 from django.forms import GenericIPAddressField as BaseIPAddressField
 from django.urls import reverse
 from django.utils import timezone 
@@ -307,9 +308,13 @@ class BadUsernamePattern(models.Model):
         return False
 
 def get_special():
-    specials = Library.objects.filter(user__username='special')
-    for special in specials:
-        logger.info('special library found')
-        return special
-    return None
+    try:
+        specials = Library.objects.filter(user__username='special')
+        for special in specials:
+            logger.info('special library found')
+            return special
+        return None
+    catch OperationalError:
+        # database not loaded yet, for example during testing
+        return None
 
