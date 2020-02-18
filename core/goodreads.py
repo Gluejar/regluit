@@ -38,7 +38,7 @@ class GoodreadsAuthorizationRequired(GoodreadsException):
 
 def filter_none(d):
     d2 = {}
-    for (k,v) in d.iteritems():
+    for (k,v) in d.items():
         if v is not None:
             d2[k] = v
     return d2

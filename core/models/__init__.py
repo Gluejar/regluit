@@ -878,9 +878,9 @@ class Campaign(models.Model):
         if time_remaining.days:
             countdown = "%s days" % str(time_remaining.days + 1)
         elif time_remaining.seconds > 3600:
-            countdown = "%s hours" % str(time_remaining.seconds/3600 + 1)
+            countdown = "%s hours" % str(time_remaining.seconds // 3600 + 1)
         elif time_remaining.seconds > 60:
-            countdown = "%s minutes" % str(time_remaining.seconds/60 + 1)
+            countdown = "%s minutes" % str(time_remaining.seconds // 60 + 1)
         else:
             countdown = "Seconds"
 
@@ -1249,7 +1249,7 @@ class UserProfile(models.Model):
             if member['status'] == 'subscribed':
                 return 'True'
         except MailChimpError as e:
-            if e[0]['status'] != 404: # don't log case where user is not on a list
+            if e.args[0]['status'] != 404: # don't log case where user is not on a list
                 logger.error("error getting mailchimp status  %s" % (e))
         except ValueError as e:
             logger.error("bad email address  %s" % (self.user.email))
@@ -1275,7 +1275,7 @@ class UserProfile(models.Model):
             )
             return True
         except MailChimpError as e:
-            if e[0]['status'] != 404: # don't log case where user is not on a list
+            if e.args[0]['status'] != 404: # don't log case where user is not on a list
                 logger.error("error getting mailchimp status  %s" % (e))
         except Exception as e:
             logger.error("error unsubscribing from mailchimp list  %s" % (e))

@@ -1302,7 +1302,7 @@ class GiftCredit(TemplateView):
             return context
         except CreditLog.DoesNotExist:
             #not used yet!
-            amount = envelope['amount']+envelope['cents']/D(100)
+            amount = envelope['amount'] + envelope['cents'] // D(100)
             CreditLog.objects.create(user=user, amount=amount, action='deposit', sent=envelope['sent'])
             ts = Transaction.objects.filter(user=user, campaign=campaign, status=TRANSACTION_STATUS_NONE).order_by('-pk')
             if ts.count()==0:
@@ -2763,7 +2763,7 @@ class DownloadView(PurchaseView):
             'action': "Contribution",
             'user_license': self.user_license,
             'lib_thanked': self.lib_thanked,
-            'amount': D(self.request.session.pop('amount')/100) if 'amount' in self.request.session else None,
+            'amount': D(self.request.session.pop('amount') // 100) if 'amount' in self.request.session else None,
             'testmode': 'testmode' in self.request.GET or 'testmode' in self.request.POST,
             'source': self.request.GET.get('source', self.request.POST.get('source', '')),
 

@@ -108,7 +108,7 @@ def load_routledge():
                 books[book_url] = new_book
             else:
                 books[book_url].metadata['subjects'].append(subject)
-    print("Harvesting %s books" % len(books.values()))
+    print("Harvesting %s books" % len(list[books.values()]))
     add_from_bookdatas(books.values())
     return books
     

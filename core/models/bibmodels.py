@@ -404,9 +404,9 @@ class Work(models.Model):
                     status = 6
                 else:
                     if campaign.type == BUY2UNGLUE:
-                        status = int(6 - 6*campaign.left/campaign.target)
+                        status = int(6 - 6 * campaign.left / campaign.target)
                     else:
-                        status = int(float(campaign.current_total)*6/target)
+                        status = int(float(campaign.current_total) * 6 / target)
                     if status >= 6:
                         status = 6
         return status
