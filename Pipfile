@@ -4,6 +4,7 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+pylint = "*"
 
 [packages]
 django = "<2"
@@ -33,7 +34,7 @@ gitberg = "*"
 oauth2 = "*"
 mechanize = "*"
 stripe = "*"
-fef-questionnaire = {editable = true,git = "git://github.com/EbookFoundation/fef-questionnaire.git",ref = "6b4aafe2b26575ef23c48d7704d59abd4799d5f5"}
+fef-questionnaire = {editable = true,git = "git://github.com/EbookFoundation/fef-questionnaire.git",ref = "c58e5bfece711fcaf88f788162f73eb26fbfea9d"}
 risparser = "*"
 pyoai = "*"
 selenium = "*"
