@@ -47,10 +47,7 @@ CELERYD_HIJACK_ROOT_LOGGER = False
 BASE_URL_SECURE = 'https://please.unglueit.com'
 
 # use redis for production queue
-BROKER_TRANSPORT = "redis"
-BROKER_HOST = "localhost"
-BROKER_PORT = 6379
-BROKER_VHOST = "0"
+BROKER_URL = "redis://localhost:6379/0"
 
 LOGGING = {
     'version': 1,
