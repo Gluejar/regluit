@@ -91,10 +91,11 @@ def send_mail_task(subject, message, from_email, recipient_list,
                 from_email = settings.DEFAULT_FROM_EMAIL
             except:
                 pass
-        r= send_mail(subject, message, from_email, recipient_list, fail_silently=False, auth_user=auth_user,
+        r = send_mail(subject, message, from_email, recipient_list, fail_silently=False, auth_user=auth_user,
                      auth_password=auth_password, connection=connection)
+        logger.info('sent mail about %s to %s' % subject, recipient_list)
     except:
-        r=logger.info('failed to send message:' + message)
+        r = logger.info('failed to send message:' + message)
     return r
     
 #task to update the status of active campaigns

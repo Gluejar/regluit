@@ -162,7 +162,6 @@ INSTALLED_APPS = (
     'registration',
     'social_django',
     'tastypie',
-    'djcelery',
     'el_pagination',
     'selectable',
     'regluit.frontend.templatetags',
@@ -355,16 +354,12 @@ UNGLUEIT_RECOMMENDED_USERNAME = 'unglueit'
 B2U_TERM = datetime.timedelta(days=5*365 +1 ) # 5 years?
 MAX_CC_DATE = datetime.date( 2099,12,31)
 
-TEST_RUNNER = "djcelery.contrib.test_runner.CeleryTestSuiteRunner"
-import djcelery
-djcelery.setup_loader()
-
 # Mailchimp archive JavaScript URL
 CAMPAIGN_ARCHIVE_JS = "http://us2.campaign-archive1.com/generate-js/?u=15472878790f9faa11317e085&fid=28161&show=10"
 
 # periodic tasks for celery
 # start out with nothing scheduled
-CELERYBEAT_SCHEDULE = {}
+BEAT_SCHEDULE = {}
 from celery.schedules import crontab
 # define some periodic tasks
 
