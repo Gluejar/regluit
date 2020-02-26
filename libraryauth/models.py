@@ -311,7 +311,6 @@ def get_special():
     try:
         specials = Library.objects.filter(user__username='special')
         for special in specials:
-            logger.info('special library found')
             return special
         return None
     except OperationalError:
