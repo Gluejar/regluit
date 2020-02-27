@@ -7,6 +7,7 @@ from datetime import timedelta
 from decimal import Decimal as D
 
 #django imports
+from django.conf import settings
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.core import mail
@@ -515,4 +516,8 @@ class UnifiedCampaignTests(TestCase):
 
         r = self.client.post(pledge_fund_path, data={'stripe_token':stripe_token}, follow=True)
         self.assertEqual(r.status_code, 200)
+
+    def tearDown(self):
+        from notification import models
+        models.QUEUE_ALL = settings.NOTIFICATION_QUEUE_ALL
 
