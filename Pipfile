@@ -9,7 +9,6 @@ pylint = "*"
 [packages]
 django = "<2"
 pyepub = "*"
-django-celery = "==3.2.2"
 django-contrib-comments = "*"
 django-extensions = "*"
 django-registration = "==2.4.1"
@@ -41,7 +40,7 @@ selenium = "*"
 boto3 = "*"
 requests-mock = "*"
 django-notification = {editable = true,git = "git://github.com/eshellman/django-notification.git",ref = "41f0a7bdd9af835adfb27a26a0d9536f083ad568"}
-redis = "*"
+celery = "*"
 
 [requires]
 python_version = "3.6"

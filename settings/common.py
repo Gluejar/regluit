@@ -357,16 +357,19 @@ MAX_CC_DATE = datetime.date( 2099,12,31)
 # Mailchimp archive JavaScript URL
 CAMPAIGN_ARCHIVE_JS = "http://us2.campaign-archive1.com/generate-js/?u=15472878790f9faa11317e085&fid=28161&show=10"
 
+# use redis for production queue
+BROKER_URL = "redis://localhost:6379//"
+
 # periodic tasks for celery
 # start out with nothing scheduled
-BEAT_SCHEDULE = {}
+CELERYBEAT_SCHEDULE = {}
 from celery.schedules import crontab
 # define some periodic tasks
 
 SEND_TEST_EMAIL_JOB = {
     "task": "regluit.core.tasks.send_mail_task",
-    "schedule": crontab(hour=18, minute=20),
-    "args": ('hi there  18:20', 'testing 1, 2, 3', 'notices@gluejar.com', ['raymond.yee@gmail.com'])
+    "schedule": crontab(minute='0,5,10'),
+    "args": ('hi there 20,25,30', 'testing 1, 2, 3', 'notices@gluejar.com', ['unglueit@ebookfoundation.org'])
 }
 
 UPDATE_ACTIVE_CAMPAIGN_STATUSES = {

@@ -43,15 +43,12 @@ EMAIL_PORT = 465
 DEFAULT_FROM_EMAIL = 'notices@gluejar.com'
 
 # send celery log to Python logging
-CELERYD_HIJACK_ROOT_LOGGER = False
+WORKER_HIJACK_ROOT_LOGGER = False
 
 # Next step to try https
 #BASE_URL = 'http://unglue.it'
 BASE_URL_SECURE = 'https://unglue.it'
 IPN_SECURE_URL = False
-
-# use redis for production queue
-BROKER_URL = "redis://localhost:6379/0"
 
 LOGGING = {
     'version': 1,

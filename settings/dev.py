@@ -59,11 +59,8 @@ REDIRECT_IS_HTTPS = False
 #BASE_URL = 'http://0.0.0.0'
 BASE_URL_SECURE = 'https://0.0.0.0'
 
-# use redis as queuing service
-BROKER_URL = "redis://localhost:6379/0"
-
 # send celery log to Python logging
-CELERYD_HIJACK_ROOT_LOGGER = False
+WORKER_HIJACK_ROOT_LOGGER = False
 
 # a debug_toolbar setting
 INTERNAL_IPS = ('127.0.0.1',)

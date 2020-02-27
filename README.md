@@ -39,8 +39,8 @@ to install python-setuptools in step 1:
 1. `django-admin.py migrate --noinput`
 1. `django-admin.py loaddata core/fixtures/initial_data.json core/fixtures/bookloader.json` populate database with test data to run properly.
 1. `redis-server` to start the task broker
-1. `celery -A regluit worker --loglevel=INFO` start the celery daemon to perform asynchronous tasks like adding related editions, and display logging information in the foreground.
-1. `django-admin.py celerybeat -l INFO` to start the celerybeat daemon to handle scheduled tasks.
+1. `celery -A regluit worker --loglevel=INFO ` start the celery daemon to perform asynchronous tasks like adding related editions, and display logging information in the foreground. Add ` --logfile=logs/celery.log` if you want the logs to go into a log file.
+1. `celery -A regluit beat --loglevel=INFO` to start the celerybeat daemon to handle scheduled tasks. 
 1. `django-admin.py runserver 0.0.0.0:8000` (you can change the port number from the default value of 8000)
 1. make sure a [redis server](https://redis.io/topics/quickstart) is running
 1. Point your browser to http://localhost:8000/

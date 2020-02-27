@@ -47,8 +47,6 @@ REDIRECT_IS_HTTPS = False
 #BASE_URL = 'http://0.0.0.0/'
 BASE_URL_SECURE = 'http://0.0.0.0/'
 
-BROKER_URL = "redis://localhost:6379/0"
-
 # Amazon  S3 access
 AWS_STORAGE_BUCKET_NAME = 'unglueit-testfiles'
 
