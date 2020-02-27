@@ -5,9 +5,9 @@
 amqp==2.5.2
 appdirs==1.4.3
 beautifulsoup4==4.8.2
-billiard==3.6.2.0
-boto3==1.12.6
-botocore==1.15.6
+billiard==3.6.3.0
+boto3==1.12.8
+botocore==1.15.8
 cairocffi==0.8.0
 celery==4.4.0
 certifi==2019.11.28
@@ -79,6 +79,7 @@ pytz==2019.3
 pyyaml==5.3
 rdflib-jsonld==0.4.0
 rdflib==4.2.2
+redis==3.4.1
 reportlab==3.5.34
 requests-mock==1.7.0
 requests-oauthlib==1.3.0
@@ -95,13 +96,13 @@ social-auth-core==3.2.0
 sorl-thumbnail==12.3
 soupsieve==2.0
 sparqlwrapper==1.6.4
-stripe==2.42.0
+stripe==2.43.0
 toml==0.10.0
 tox==3.14.5
 uritemplate==3.0.1
 urllib3==1.25.8 ; python_version != '3.4'
 vine==1.3.0
-virtualenv==20.0.5
+virtualenv==20.0.7
 webencodings==0.5.1
 wikipedia==1.4.0
 xhtml2pdf==0.2.4
