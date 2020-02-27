@@ -10,7 +10,7 @@ from urllib.parse import urlparse, parse_qs
 from tempfile import NamedTemporaryFile
 from time import sleep, mktime
 
-from celery.task.sets import TaskSet
+from celery import group
 import requests
 import requests_mock
 from pyepub import EPUB
@@ -788,7 +788,7 @@ class CeleryTaskTest(TestCase):
     def test_subtask(self):
         n = 30
         subtasks = [tasks.fac.subtask(args=(x,)) for x in range(n)]
-        job = TaskSet(tasks=subtasks)
+        job = group(subtasks)
         result = job.apply_async()
         while not result.ready():
             sleep(0.2)

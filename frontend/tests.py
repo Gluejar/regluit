@@ -289,6 +289,11 @@ class UnifiedCampaignTests(TestCase):
         # how many works and campaigns?
         self.assertEqual(Work.objects.count(), 3)
         self.assertEqual(Campaign.objects.count(), 2)
+        
+        # disable notification queuing
+        from notification import models
+        models.QUEUE_ALL = False
+        
 
     def do_test_junk_webhook(self):
         """send in junk json and then an event that doesn't exist"""
