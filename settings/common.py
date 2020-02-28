@@ -359,8 +359,8 @@ MAX_CC_DATE = datetime.date( 2099,12,31)
 CAMPAIGN_ARCHIVE_JS = "http://us2.campaign-archive1.com/generate-js/?u=15472878790f9faa11317e085&fid=28161&show=10"
 
 # use redis for production queue and results
-BROKER_URL = "redis://127.0.0.1:6379/0"
-CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/1"
+BROKER_URL = "redis://localhost:6379/0"
+CELERY_RESULT_BACKEND = "redis://localhost:6379/1"
 
 # periodic tasks for celery
 # start out with nothing scheduled
