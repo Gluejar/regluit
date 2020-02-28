@@ -777,6 +777,7 @@ class WishlistTest(TestCase):
         self.assertEqual(user.wishlist.works.count(), 0)
         self.assertEqual(work.num_wishes, num_wishes)
 
+@unittest.skipIf(settings.TEST_PLATFORM == 'travis')
 class CeleryTaskTest(TestCase):
 
     def test_single_fac(self):

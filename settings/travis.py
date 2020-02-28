@@ -1,6 +1,5 @@
 # coding=utf-8
 from .common import *
-
 DEBUG = True
 TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
 IS_PREVIEW = False
@@ -59,5 +58,6 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
 GOOGLE_BOOKS_API_KEY = ''
 TEST_INTEGRATION = False
 LOCAL_TEST = True
+TEST_PLATFORM = 'travis'
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 

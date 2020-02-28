@@ -18,6 +18,7 @@ LANGUAGES = (
     ('en', 'English'),
 )
 LOCAL_TEST = False
+TEST_PLATFORM = 'production'
 TESTING = sys.argv[1:2] == ['test'] # detect if we're running tests (used to turn off a repair migration)
 ALLOWED_HOSTS = ['.unglue.it', '.unglueit.com',]
 
