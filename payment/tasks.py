@@ -1,7 +1,7 @@
 """
 external library imports
 """
-from celery.task import task
+from celery import shared_task
 
 """
 django imports
@@ -18,7 +18,7 @@ from regluit.payment.models import Account
 from regluit.utils.localdatetime import date_today
 
 #task to update the status of accounts
-@task
+@shared_task
 def update_account_status(all_accounts=True, send_notice_on_change_only=True):
     """update the status of all Accounts
     
@@ -50,7 +50,7 @@ def update_account_status(all_accounts=True, send_notice_on_change_only=True):
     return errors
  
 # task run roughly 8 days ahead of card expirations
-@task
+@shared_task
 def notify_expiring_accounts():    
     expiring_accounts = Account.objects.filter(status='EXPIRING', user__isnull=False)
     for account in expiring_accounts:
@@ -60,7 +60,7 @@ def notify_expiring_accounts():
                 }, True)
 
 # used for bootstrapping our expired cc notification for first time
-@task
+@shared_task
 def notify_expired_accounts():
     expired_accounts = Account.objects.filter(status='EXPIRED')
     for account in expired_accounts:

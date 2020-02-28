@@ -3,7 +3,7 @@ external library imports
 """
 import logging
 
-from celery.task import task
+from celery import shared_task
 from datetime import timedelta
 from time import sleep
 
@@ -39,7 +39,7 @@ from regluit.utils.localdatetime import date_today
 logger = logging.getLogger(__name__)
 mc_client = MailChimp(mc_api=settings.MAILCHIMP_API_KEY)
 
-@task 
+@shared_task 
 def populate_edition(isbn):
     """given an edition this task will populate the database with additional
     information about related editions and subjects related to this edition
@@ -50,18 +50,18 @@ def populate_edition(isbn):
         bookloader.add_openlibrary(edition.work)
     return edition
 
-@task
+@shared_task
 def load_goodreads_shelf_into_wishlist(user_id, shelf_name='all', goodreads_user_id=None, max_books=None,
                                        expected_number_of_books=None):
     user=User.objects.get(id=user_id)
     return goodreads.load_goodreads_shelf_into_wishlist(user,shelf_name,goodreads_user_id,max_books, expected_number_of_books)
 
-@task
+@shared_task
 def load_librarything_into_wishlist(user_id, lt_username, max_books=None):
     user=User.objects.get(id=user_id)
     return librarything.load_librarything_into_wishlist(user, lt_username, max_books)
     
-@task
+@shared_task
 def fac(n, sleep_interval=None):
     # used to test celery task execution 
     if not(isinstance(n,int) and n >= 0):
@@ -78,7 +78,7 @@ def fac(n, sleep_interval=None):
         return res
 
 
-@task
+@shared_task
 def send_mail_task(subject, message, from_email, recipient_list,
             fail_silently=False, auth_user=None, auth_password=None,
             connection=None, override_from_email=True):
@@ -99,17 +99,17 @@ def send_mail_task(subject, message, from_email, recipient_list,
     return r
     
 #task to update the status of active campaigns
-@task
+@shared_task
 def update_active_campaign_status():
     """update the status of all active campaigns -- presumed to be run at midnight Eastern time"""
     return [c.update_status(send_notice=True, ignore_deadline_for_success=True, process_transactions=True) for c in Campaign.objects.filter(status='Active') ]
 
-@task
+@shared_task
 def emit_notifications():
     logger.info('notifications emitting' )
     return send_all()
     
-@task
+@shared_task
 def report_new_ebooks(created=None):   #created= creation date
     if created:
         period = (created, created+timedelta(days=1))
@@ -128,7 +128,7 @@ def report_new_ebooks(created=None):   #created= creation date
             )
             break
         
-@task
+@shared_task
 def notify_ending_soon():
     c_active = Campaign.objects.filter(status='Active', type=REWARDS)
     for c in c_active:
@@ -138,11 +138,11 @@ def notify_ending_soon():
             """
             deadline_impending.send(sender=None, campaign=c)
 
-@task
+@shared_task
 def watermark_acq(acq):
     acq.get_watermarked()
     
-@task
+@shared_task
 def process_ebfs(campaign):
     if campaign.type == THANKS:
         if campaign.use_add_ask:
@@ -152,11 +152,11 @@ def process_ebfs(campaign):
         campaign.make_mobis()
         
 
-@task
+@shared_task
 def make_mobi(ebookfile):
     return ebookfile.make_mobi()
     
-@task
+@shared_task
 def refresh_acqs():
     in_10_min = now() + timedelta(minutes=10)
     acqs = Acq.objects.filter(refreshed=False, refreshes__lt=in_10_min)
@@ -181,15 +181,15 @@ def refresh_acqs():
         else:
             acq.refreshed = True
 
-@task
+@shared_task
 def convert_to_mobi(input_url, input_format="application/epub+zip"):
     return mobigen.convert_to_mobi(input_url, input_format)
 
-@task
+@shared_task
 def generate_mobi_ebook_for_edition(edition):
     return mobigen.generate_mobi_ebook_for_edition(edition)
 
-@task
+@shared_task
 def ml_subscribe_task(profile, **kwargs):
     try:
         if not profile.on_ml:
@@ -204,7 +204,7 @@ def ml_subscribe_task(profile, **kwargs):
         logger.error("error subscribing to mailchimp list %s" % (e))
         return False
 
-@task
+@shared_task
 def notify_unclaimed_gifts():
     unclaimed = Gift.objects.filter(used=None)
     for gift in unclaimed:
