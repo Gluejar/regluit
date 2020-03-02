@@ -2,7 +2,7 @@ from itertools import islice
 
 from lxml import etree
 import datetime
-import urlparse
+from urllib.parse import urlparse, urlunparse
 from django.urls import reverse
 from django.utils.http import urlquote
 
@@ -58,12 +58,12 @@ def add_query_component(url, qc):
     """
     add component qc to the querystring of url
     """
-    m = list(urlparse.urlparse(url))
+    m = list(urlparse(url))
     if len(m[4]):
         m[4] = "&".join([m[4],qc])
     else:
         m[4] = qc
-    return urlparse.urlunparse(m)
+    return urlunparse(m)
 
 def isbn_node(isbn):
     node = etree.Element("{http://purl.org/dc/terms/}identifier")
@@ -266,7 +266,7 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
       xsi:schemaLocation="http://purl.org/dc/elements/1.1/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dc.xsd 
       http://purl.org/dc/terms/ http://dublincore.org/schemas/xmls/qdc/2008/02/11/dcterms.xsd"/>"""
     
-    feed = etree.fromstring(feed_xml)
+    feed = etree.fromstring(bytes(feed_xml, 'utf-8'))
     
     # add title
     # TO DO: will need to calculate the number items and where in the feed we are
@@ -335,7 +335,7 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
 def append_navlink(feed, rel, path, page, order_by, group=None, active=None , title=""):
     link = etree.Element("link")
     link.attrib.update({"rel":rel,
-             "href": UNGLUEIT_URL + "/api/opds/" + urlquote(path) + '/?order_by=' + order_by + ('&page=' + unicode(page) if page!=None else ''),
+             "href": UNGLUEIT_URL + "/api/opds/" + urlquote(path) + '/?order_by=' + order_by + ('&page=' + str(page) if page!=None else ''),
              "type": ACQUISITION,
              "title": title,
             })

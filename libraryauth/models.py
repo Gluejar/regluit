@@ -2,6 +2,7 @@
 # https://github.com/benliles/django-ipauth/blob/master/ipauth/models.py
 import logging
 import re
+from functools import total_ordering
 
 from django.contrib.auth.models import Group
 from django.conf import settings
@@ -9,6 +10,7 @@ from django.core.exceptions import ValidationError
 from django.core import validators
 from django.db import models
 from django.db.models.signals import post_save
+from django.db.utils import OperationalError
 from django.forms import GenericIPAddressField as BaseIPAddressField
 from django.urls import reverse
 from django.utils import timezone 
@@ -44,8 +46,8 @@ class Library(models.Model):
     )
     credential = None
 
-    def __unicode__(self):
-        return unicode(self.name)
+    def __str__(self):
+        return str(self.name)
 
     def add_user(self, user):
         user.groups.add(self.group)
@@ -89,26 +91,26 @@ def add_group(sender, created, instance, **kwargs):
 
 post_save.connect(add_group, sender=Library)
 
-def ip_to_long(value):
+def ip_to_int(value):
     validators.validate_ipv4_address(value)
 
     lower_validator = validators.MinValueValidator(0)
-    upper_validator = validators.MinValueValidator(255)
+    upper_validator = validators.MaxValueValidator(255)
 
-    value = value.split('.')
+    value = [int(octet) for octet in value.split('.')]
     output = 0
 
     for i in range(0, 4):
         validators.validate_integer(value[i])
         lower_validator(value[i])
         upper_validator(value[i])
-        output += long(value[i]) * (256**(3-i))
+        output += value[i] * (256**(3-i))
 
     return output
 
-def long_to_ip(value):
+def int_to_ip(value):
     validators.validate_integer(value)
-    value = long(value)
+    value = int(value)
 
     validators.MinValueValidator(0)(value)
     validators.MaxValueValidator(4294967295)(value)
@@ -116,6 +118,7 @@ def long_to_ip(value):
     return '%d.%d.%d.%d' % (value >> 24, value >> 16 & 255,
                             value >> 8 & 255, value & 255)
 
+@total_ordering
 class IP(object):
     def __init__(self, value):
         self.int = value
@@ -125,9 +128,9 @@ class IP(object):
             self._int = IP.int
 
         try:
-            self._int = long(value)
+            self._int = int(value)
         except ValueError:
-            self._int = ip_to_long(value)
+            self._int = ip_to_int(value)
         except (TypeError, ValidationError):
             self._int = None
 
@@ -138,7 +141,7 @@ class IP(object):
 
     def _get_str(self):
         if self.int != None:
-            return long_to_ip(self.int)
+            return int_to_ip(self.int)
         return ''
 
     string = property(_get_str, _set_int)
@@ -152,17 +155,14 @@ class IP(object):
 
         return self.int == other.int
 
-    def __cmp__(self, other):
+    def __gt__(self, other):
         if not isinstance(other, IP):
             other = IP(other)
 
         if self.int is not None and other.int is not None:
-            return self.int.__cmp__(other.int)
+            return self.int.__gt__(other.int)
 
         raise ValueError('Invalid arguments')
-
-    def __unicode__(self):
-        return self.string
 
     def __str__(self):
         return self.string
@@ -238,11 +238,11 @@ class Block(models.Model):
                 if self.lower > self.upper:
                     raise ValidationError('Lower end of the Block must be less '
                                           'than or equal to the upper end')
-            except ValueError, e:
+            except ValueError as e:
                 pass
 
 
-    def __unicode__(self):
+    def __str__(self):
         if self.upper and self.upper.int:
             return u'%s %s-%s' % (self.library, self.lower, self.upper)
         return u'%s %s' % (self.library, self.lower)
@@ -308,9 +308,12 @@ class BadUsernamePattern(models.Model):
         return False
 
 def get_special():
-    specials = Library.objects.filter(user__username='special')
-    for special in specials:
-        logger.info('special library found')
-        return special
-    return None
+    try:
+        specials = Library.objects.filter(user__username='special')
+        for special in specials:
+            return special
+        return None
+    except OperationalError:
+        # database not loaded yet, for example during testing
+        return None
 

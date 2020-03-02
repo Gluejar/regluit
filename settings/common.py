@@ -18,6 +18,7 @@ LANGUAGES = (
     ('en', 'English'),
 )
 LOCAL_TEST = False
+TEST_PLATFORM = 'production'
 TESTING = sys.argv[1:2] == ['test'] # detect if we're running tests (used to turn off a repair migration)
 ALLOWED_HOSTS = ['.unglue.it', '.unglueit.com',]
 
@@ -162,7 +163,6 @@ INSTALLED_APPS = (
     'registration',
     'social_django',
     'tastypie',
-    'djcelery',
     'el_pagination',
     'selectable',
     'regluit.frontend.templatetags',
@@ -178,7 +178,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'regluit.distro',               
     'regluit.booxtream',
-    'regluit.pyepub',
+    'pyepub',
     'regluit.libraryauth', 
     'transmeta',
     'questionnaire',
@@ -355,12 +355,12 @@ UNGLUEIT_RECOMMENDED_USERNAME = 'unglueit'
 B2U_TERM = datetime.timedelta(days=5*365 +1 ) # 5 years?
 MAX_CC_DATE = datetime.date( 2099,12,31)
 
-TEST_RUNNER = "djcelery.contrib.test_runner.CeleryTestSuiteRunner"
-import djcelery
-djcelery.setup_loader()
-
 # Mailchimp archive JavaScript URL
 CAMPAIGN_ARCHIVE_JS = "http://us2.campaign-archive1.com/generate-js/?u=15472878790f9faa11317e085&fid=28161&show=10"
+
+# use redis for production queue and results
+BROKER_URL = "redis://127.0.0.1:6379/0"
+CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/1"
 
 # periodic tasks for celery
 # start out with nothing scheduled
@@ -370,8 +370,8 @@ from celery.schedules import crontab
 
 SEND_TEST_EMAIL_JOB = {
     "task": "regluit.core.tasks.send_mail_task",
-    "schedule": crontab(hour=18, minute=20),
-    "args": ('hi there  18:20', 'testing 1, 2, 3', 'notices@gluejar.com', ['raymond.yee@gmail.com'])
+    "schedule": crontab(minute='0,5,10'),
+    "args": ('hi there 20,25,30', 'testing 1, 2, 3', 'notices@gluejar.com', ['unglueit@ebookfoundation.org'])
 }
 
 UPDATE_ACTIVE_CAMPAIGN_STATUSES = {
@@ -485,7 +485,7 @@ GOOGLEBOT_UA = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/b
 try:
     from .keys.common import *
 except ImportError:
-    print 'no real key file found, using dummy'
+    print('no real key file found, using dummy')
     from .dummy.common import *
 
 try:

@@ -6,7 +6,7 @@ import logging
 import re
 from datetime import timedelta
 from xml.etree import ElementTree
-from urlparse import (urljoin, urlparse)
+from urllib.parse import (urljoin, urlparse)
 
 import requests
 
@@ -59,10 +59,10 @@ def add_by_oclc_from_google(oclc):
         url = "https://www.googleapis.com/books/v1/volumes"
         try:
             results = _get_json(url, {"q": '"OCLC%s"' % oclc})
-        except LookupFailure, e:
+        except LookupFailure as e:
             logger.exception(u"lookup failure for %s", oclc)
             return None
-        if not results.has_key('items') or not results['items']:
+        if not 'items' in results or not results['items']:
             logger.warn(u"no google hits for %s", oclc)
             return None
 
@@ -70,9 +70,9 @@ def add_by_oclc_from_google(oclc):
             e = add_by_googlebooks_id(results['items'][0]['id'], results=results['items'][0])
             models.Identifier(type='oclc', value=oclc, edition=e, work=e.work).save()
             return e
-        except LookupFailure, e:
+        except LookupFailure as e:
             logger.exception(u"failed to add edition for %s", oclc)
-        except IntegrityError, e:
+        except IntegrityError as e:
             logger.exception(u"google books data for %s didn't fit our db", oclc)
         return None
 
@@ -136,7 +136,7 @@ def get_google_isbn_results(isbn):
     except LookupFailure:
         logger.exception(u"lookup failure for %s", isbn)
         return None
-    if not results.has_key('items') or not results['items']:
+    if not 'items' in results or not results['items']:
         logger.warn(u"no google hits for %s", isbn)
         return None
     return results
@@ -188,7 +188,7 @@ def update_edition(edition):
     item = results['items'][0]
     googlebooks_id = item['id']
     d = item['volumeInfo']
-    if d.has_key('title'):
+    if 'title' in d:
         title = d['title']
     else:
         title = ''
@@ -283,9 +283,9 @@ def add_by_isbn_from_google(isbn, work=None):
                 results=item,
                 isbn=isbn
             )
-        except LookupFailure, e:
+        except LookupFailure as e:
             logger.exception(u"failed to add edition for %s", isbn)
-        except IntegrityError, e:
+        except IntegrityError as e:
             logger.exception(u"google books data for %s didn't fit our db", isbn)
         return None
     return None
@@ -342,7 +342,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
         item = _get_json(url)
     d = item['volumeInfo']
 
-    if d.has_key('title'):
+    if 'title' in d:
         title = d['title']
     else:
         title = ''
@@ -486,13 +486,13 @@ def add_related(isbn):
                     logger.debug(u"merge_works path 1 %s %s", work.id, related_edition.work_id)
                     work = merge_works(work, related_edition.work)
             else:
-                if other_editions.has_key(related_language):
+                if related_language in other_editions:
                     other_editions[related_language].append(related_edition)
                 else:
                     other_editions[related_language] = [related_edition]
 
     # group the other language editions together
-    for lang_group in other_editions.itervalues():
+    for lang_group in other_editions.values():
         logger.debug(u"lang_group (ed, work): %s", [(ed.id, ed.work_id) for ed in lang_group])
         if len(lang_group) > 1:
             lang_edition = lang_group[0]
@@ -670,9 +670,9 @@ def add_openlibrary(work, hard_refresh=False):
         except LookupFailure:
             logger.exception(u"OL lookup failed for  %s", isbn_key)
             e = {}
-        if e.has_key(isbn_key):
-            if e[isbn_key].has_key('details'):
-                if e[isbn_key]['details'].has_key('oclc_numbers'):
+        if isbn_key in e:
+            if 'details' in e[isbn_key]:
+                if 'oclc_numbers' in e[isbn_key]['details']:
                     for oclcnum in e[isbn_key]['details']['oclc_numbers']:
                         models.Identifier.get_or_add(
                             type='oclc',
@@ -680,42 +680,42 @@ def add_openlibrary(work, hard_refresh=False):
                             work=work,
                             edition=edition
                         )
-                if e[isbn_key]['details'].has_key('identifiers'):
+                if 'identifiers' in e[isbn_key]['details']:
                     ids = e[isbn_key]['details']['identifiers']
-                    if ids.has_key('goodreads'):
+                    if 'goodreads' in ids:
                         models.Identifier.get_or_add(
                             type='gdrd',
                             value=ids['goodreads'][0],
                             work=work, edition=edition
                         )
-                    if ids.has_key('librarything'):
+                    if 'librarything' in ids:
                         models.Identifier.get_or_add(
                             type='ltwk',
                             value=ids['librarything'][0],
                             work=work
                         )
-                    if ids.has_key('google'):
+                    if 'google' in ids:
                         models.Identifier.get_or_add(
                             type='goog',
                             value=ids['google'][0],
                             work=work
                         )
-                    if ids.has_key('project_gutenberg'):
+                    if 'project_gutenberg' in ids:
                         models.Identifier.get_or_add(
                             type='gute',
                             value=ids['project_gutenberg'][0],
                             work=work
                         )
-                if e[isbn_key]['details'].has_key('works'):
+                if 'works' in e[isbn_key]['details']:
                     work_key = e[isbn_key]['details']['works'].pop(0)['key']
                     logger.info(u"got openlibrary work %s for isbn %s", work_key, isbn_key)
                     models.Identifier.get_or_add(type='olwk', value=work_key, work=work)
                     try:
                         w = _get_json("https://openlibrary.org" + work_key, type='ol')
-                        if w.has_key('description'):
+                        if 'description' in w:
                             description = w['description']
                             if isinstance(description, dict):
-                                if description.has_key('value'):
+                                if 'value' in description:
                                     description = description['value']
                             description = despam_description(description)
                             if not work.description or \
@@ -723,7 +723,7 @@ def add_openlibrary(work, hard_refresh=False):
                                    len(description) > len(work.description):
                                 work.description = description
                                 work.save()
-                        if w.has_key('subjects') and len(w['subjects']) > len(subjects):
+                        if 'subjects' in w and len(w['subjects']) > len(subjects):
                             subjects = w['subjects']
                     except LookupFailure:
                         logger.exception(u"OL lookup failed for  %s", work_key)
@@ -838,7 +838,6 @@ def load_from_yaml(yaml_url, test_mode=False):
     return edition.work_id if edition else None
 
 def edition_for_ident(id_type, id_value):
-    #print 'returning edition for {}: {}'.format(id_type, id_value)
     for ident in models.Identifier.objects.filter(type=id_type, value=id_value):
         return ident.edition if ident.edition else ident.work.editions[0]
 
@@ -873,9 +872,9 @@ def load_ebookfile(url, etype):
         contentfile = ContentFile(r.content)
         test_file(contentfile, etype)
         return contentfile
-    except IOError, e:
+    except IOError as e:
         logger.error(u'could not open {}'.format(url))
-    except ValidationError, e:
+    except ValidationError as e:
         logger.error(u'downloaded {} was not a valid {}'.format(url, etype))
 
 class BasePandataLoader(object):
@@ -967,7 +966,7 @@ class BasePandataLoader(object):
         for yaml_subject in metadata.subjects: #always add yaml subjects (don't clear)
             if isinstance(yaml_subject, tuple):
                 (authority, heading) = yaml_subject
-            elif isinstance(yaml_subject, str) or isinstance(yaml_subject, unicode):
+            elif isinstance(yaml_subject, str) or isinstance(yaml_subject, str):
                 (authority, heading) = ('', yaml_subject)
             else:
                 continue
@@ -1065,7 +1064,6 @@ def git_download_from_yaml_url(yaml_url, version, edition_name='book', format_='
     '''
     if yaml_url.endswith('raw/master/metadata.yaml'):
         repo_url = yaml_url[0:-24]
-        #print (repo_url,version,edition_name)
         ebook_url = repo_url + 'releases/download/' + version + '/' + edition_name + '.' + format_
         return ebook_url
 

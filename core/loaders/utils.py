@@ -3,7 +3,7 @@ import logging
 import re
 import time
 import unicodedata
-import urlparse
+from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
 import requests
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 def UnicodeDictReader(utf8_data, **kwargs):
     csv_reader = csv.DictReader(utf8_data, **kwargs)
     for row in csv_reader:
-        yield {key: unicode(value, 'utf-8') for key, value in row.iteritems()}
+        yield {key: str(value, 'utf-8') for key, value in row.iteritems()}
 
 def utf8_general_ci_norm(s):
     """
@@ -199,7 +199,7 @@ def load_from_books(books):
         Author3First, Author3Role, AuthorBio, TableOfContents, Excerpt, DescriptionLong,
         DescriptionBrief, BISACCode1, BISACCode2, BISACCode3, CopyrightYear, ePublicationDate,
         eListPrice, ListPriceCurrencyType, List Price in USD (paper ISBN), eTerritoryRights,
-        SubjectListMARC, , Book-level DOI, URL,	License
+        SubjectListMARC, , Book-level DOI, URL, License
 
         '''
 
@@ -302,8 +302,7 @@ def loaded_book_ok(book, work, edition):
 
     # isbns
     for isbn in isbns:
-        if Identifier.objects.filter(type='isbn', value=isbn).count() <> 1:
-            # print ("isbn problem: work.id {}, isbn: {}".format(work.id, isbn))
+        if Identifier.objects.filter(type='isbn', value=isbn).count() != 1:
             return False
         else:
             try:
@@ -311,9 +310,6 @@ def loaded_book_ok(book, work, edition):
             except Exception as e:
                 logger.info(e)
                 return False
-
-            # authors
-            # print set([ed.name for ed in edition_for_isbn.authors.all()])
 
             if (
                     set([utf8_general_ci_norm(author[0]) for author in authors]) !=
@@ -413,7 +409,7 @@ class ContentTyper(object):
     def calc_type(self, url):
         delay = 1
         # is there a delay associated with the url
-        netloc = urlparse.urlparse(url).netloc
+        netloc = urlparse(url).netloc
 
         # wait if necessary
         last_call = self.last_call.get(netloc)

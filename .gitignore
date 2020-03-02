@@ -15,3 +15,4 @@ celerybeat.pid
 celerybeat-schedule
 .gitignore~
 static/scss/*.css.map
+assets/*

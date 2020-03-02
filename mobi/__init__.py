@@ -12,8 +12,8 @@ import os
 import unittest
 from struct import *
 from pprint import pprint
-import utils
-from lz77 import uncompress_lz77
+from . import utils
+from .lz77 import uncompress_lz77
 
 class Mobi:
   def parse(self):
@@ -38,11 +38,11 @@ class Mobi:
 
   def author(self):
     "Returns the author of the book"
-    return self.config['exth']['records'][100]
+    return str(self.config['exth']['records'][100], 'utf-8')
 
   def title(self):
     "Returns the title of the book"
-    return self.config['mobi']['Full Name']
+    return str(self.config['mobi']['Full Name'], 'utf-8')
 
 ###########  Private API ###########################
 
@@ -52,7 +52,7 @@ class Mobi:
         self.f = open(filename, "rb");
       else:
         self.f = filename;
-    except IOError,e:
+    except IOError as e:
       sys.stderr.write("Could not open %s! " % filename);
       raise e;
     self.offset = 0;
@@ -230,7 +230,7 @@ class Mobi:
     self.offset += resultsDict['header length'];
 
     def onebits(x, width=16):
-        return len(filter(lambda x: x == "1", (str((x>>i)&1) for i in xrange(width-1,-1,-1))));
+        return len(list(filter(lambda x: x == "1", (str((x >> i) & 1) for i in range(width-1, -1, -1)))));
 
     resultsDict['extra bytes'] = 2*onebits(unpack(">H", self.contents[self.offset-2:self.offset])[0] & 0xFFFE)
 
@@ -258,29 +258,40 @@ class Mobi:
     self.offset = offset+headerlen;
     return resultsDict
 
+TESTDIR = os.path.join(os.path.dirname(__file__), '../test/')
+MOBIFILE = os.path.join(TESTDIR, 'CharlesDarwin.mobi')
+
 class MobiTests(unittest.TestCase):
+
   def setUp(self):
-    self.mobitest = Mobi("../test/CharlesDarwin.mobi");
+    self.mobitest = Mobi(MOBIFILE);
+    
   def testParse(self):
     self.mobitest.parse();
-    pprint (self.mobitest.config)
+    #pprint (self.mobitest.config)
+    
   def testRead(self):
     self.mobitest.parse();
-    content = ""
+    content = b''
     for i in range(1,5):
       content += self.mobitest.readRecord(i);
+      
   def testImage(self):
     self.mobitest.parse();
-    pprint (self.mobitest.records);
+    #pprint (self.mobitest.records);
     for record in range(4):
-      f = open("imagerecord%d.jpg" % record, 'w')
+      f = open("imagerecord%d.jpg" % record, 'wb')
       f.write(self.mobitest.readImageRecord(record));
       f.close();
+    for record in range(4):
+      f = os.remove("imagerecord%d.jpg" % record)
+      
   def testAuthorTitle(self):
     self.mobitest.parse()
     self.assertEqual(self.mobitest.author(), 'Charles Darwin')
     self.assertEqual(self.mobitest.title(), 'The Origin of Species by means '+
         'of Natural Selection, 6th Edition')
+        
 
 if __name__ == '__main__':
   unittest.main()

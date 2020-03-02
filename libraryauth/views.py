@@ -90,7 +90,7 @@ class Authenticator:
 
     def __init__(self, request, library, *args, **kwargs):
         self.request = request
-        if  isinstance(library, basestring):
+        if  isinstance(library, str):
             self.library = Library.objects.get(user__username=library)
         elif isinstance(library, Library):
             self.library = library
@@ -359,7 +359,7 @@ def edit_user(request, redirect_to=None):
                 request.user.username = form.cleaned_data['username']
                 request.user.save()
                 if 'set_password'  in request.POST.keys() and \
-                    form.cleaned_data.has_key('set_password'):
+                    'set_password' in form.cleaned_data:
                     if not request.user.has_usable_password():
                         request.user.set_password(form.cleaned_data['set_password'])
                 request.user.save()

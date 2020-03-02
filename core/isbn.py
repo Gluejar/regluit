@@ -165,8 +165,8 @@ class ISBN(object):
                 return "%s-%s-%s-%s-%s" % (s[0:3], s[3], s[4:7], s[7:12], s[12])
             else:
                 return self.__isbn13
-    def __unicode__(self):
-        return unicode(self.to_string(type=self.type, hyphenate=False))
+    def __str__(self):
+        return str(self.to_string(type=self.type, hyphenate=False))
     def __str__(self):
         s = self.to_string(type=self.type, hyphenate=False)
         if s is not None:

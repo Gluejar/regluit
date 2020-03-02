@@ -1,19 +1,19 @@
 import unittest
 import time
-import urllib2
+from urllib.request import urlopen
 from tempfile import NamedTemporaryFile
-from StringIO import StringIO
+from io import BytesIO
 from django.conf import settings
 
 class TestBooXtream(unittest.TestCase):
     def setUp(self):
         # get a small epub test file as a file-like object
         self.epub2file = NamedTemporaryFile(delete=False)
-        test_file_content = urllib2.urlopen('http://www.hxa.name/articles/content/EpubGuide-hxa7241.epub')
+        test_file_content = urlopen('http://www.hxa.name/articles/content/EpubGuide-hxa7241.epub')
         self.epub2file.write(test_file_content.read())
         self.epub2file.seek(0)
         self.textfile = NamedTemporaryFile(delete=False)
-        self.textfile.write("bad text file")
+        self.textfile.write(b'bad text file')
         self.textfile.seek(0)
 
 
@@ -67,7 +67,7 @@ class TestBooXtream(unittest.TestCase):
 
         # make sure it works with an in-memory file
         self.epub2file.seek(0)
-        in_mem_epub = StringIO()
+        in_mem_epub = BytesIO()
         in_mem_epub.write(self.epub2file.read())
         in_mem_epub.seek(0)
         boox2 = inst.platform(epubfile=in_mem_epub, **params)

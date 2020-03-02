@@ -4,7 +4,7 @@ code for harvesting 'online' ebooks
 import logging
 import re
 import time
-import urlparse
+from urllib.parse import urlparse, urljoin
 
 import requests
 
@@ -71,7 +71,7 @@ def dl_online(ebook, limiter=rl.delay):
         if doc:
             obj = doc.select_one('div.pdfItem a')
             if obj:
-                dl_url = urlparse.urljoin(ebook.url, obj['href'])
+                dl_url = urljoin(ebook.url, obj['href'])
                 return make_dl_ebook(dl_url, ebook)
             else:
                 logger.warning('couldn\'t get dl_url for %s', ebook.url)
@@ -92,7 +92,7 @@ def dl_online(ebook, limiter=rl.delay):
             # check for epubs
             obj = doc.select_one('a.epub-link')
             if obj:
-                dl_url = urlparse.urljoin(base, obj['href'])
+                dl_url = urljoin(base, obj['href'])
                 made = make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
 
             # check for complete ebook
@@ -100,12 +100,12 @@ def dl_online(ebook, limiter=rl.delay):
             if obj:
                 obj = obj.parent.parent.parent.select_one('a.pdf-link')
                 if obj:
-                    dl_url = urlparse.urljoin(base, obj['href'])
+                    dl_url = urljoin(base, obj['href'])
                     made = make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
                     return made
 
             # staple the chapters
-            pdflinks = [urlparse.urljoin(base, a['href']) for a in doc.select('a.pdf-link')]
+            pdflinks = [urljoin(base, a['href']) for a in doc.select('a.pdf-link')]
             stapled = None
             if pdflinks:
                 stapled = make_stapled_ebook(pdflinks, ebook, user_agent=settings.GOOGLEBOT_UA)

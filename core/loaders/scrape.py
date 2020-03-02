@@ -1,11 +1,10 @@
 import re
 import logging
-from urlparse import urlparse
+from urllib.parse import urlparse, urljoin
 import requests
 from bs4 import BeautifulSoup
 #from gitenberg.metadata.pandata import Pandata
 from django.conf import settings
-from urlparse import urljoin
 
 from regluit.core import models
 from regluit.core.validation import (
@@ -79,7 +78,7 @@ class BaseScraper(object):
     #
 
     def set(self, name, value):
-        if isinstance(value,(str, unicode)):
+        if isinstance(value, str):
             value= value.strip()
         self.metadata[name] = value
 
@@ -140,7 +139,7 @@ class BaseScraper(object):
             else:
                 if el.text:
                     value_list.append(el.text)
-                elif el.has_key('content'):
+                elif 'content' in el:
                     value_list.append(el['content'])
         return value_list
                 

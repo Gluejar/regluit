@@ -5,7 +5,7 @@ import uuid
 
 from decimal import Decimal
 import unicodedata
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 import requests
 
@@ -108,7 +108,7 @@ class Identifier(models.Model):
             i.save()
             return i
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{0}:{1}'.format(self.type, self.value)
         
     def label(self):
@@ -139,7 +139,7 @@ class Work(models.Model):
             models.Index(fields=['is_free', 'title']),
         ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def __init__(self, *args, **kwargs):
@@ -334,7 +334,7 @@ class Work(models.Model):
         nkfd_form = unicodedata.normalize('NFKD', self.title) #unaccent accented letters
         for c in nkfd_form:
             ccat = unicodedata.category(c)
-            #print ccat
+
             if ccat.startswith('L') or  ccat.startswith('N'): # only letters and numbers
                 if ord(c) > 127:
                     safe = safe + '#' #a non latin script letter or number
@@ -404,9 +404,9 @@ class Work(models.Model):
                     status = 6
                 else:
                     if campaign.type == BUY2UNGLUE:
-                        status = int(6 - 6*campaign.left/campaign.target)
+                        status = int(6 - 6 * campaign.left / campaign.target)
                     else:
-                        status = int(float(campaign.current_total)*6/target)
+                        status = int(float(campaign.current_total) * 6 / target)
                     if status >= 6:
                         status = 6
         return status
@@ -752,7 +752,7 @@ class Author(models.Model):
             models.Index(fields=['name']),
         ]
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     @property
@@ -848,7 +848,7 @@ class Subject(models.Model):
         else:
             return None
     
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 
@@ -874,7 +874,7 @@ class Edition(models.Model):
                 models.Index(fields=['work']),
             ]
 
-    def __unicode__(self):
+    def __str__(self):
         if self.isbn_13:
             return "%s (ISBN %s) %s" % (self.title, self.isbn_13, self.publisher)
         if self.oclc:
@@ -1050,7 +1050,7 @@ class Edition(models.Model):
 
 class EditionNote(models.Model):
     note = models.CharField(max_length=64, null=True, blank=True, unique=True)
-    def __unicode__(self):
+    def __str__(self):
         return self.note
 
 class Publisher(models.Model):
@@ -1060,7 +1060,7 @@ class Publisher(models.Model):
     logo_url = models.URLField(max_length=1024, null=True, blank=True)
     description = models.TextField(default='', null=True, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name.name
 
 class PublisherName(models.Model):
@@ -1068,7 +1068,7 @@ class PublisherName(models.Model):
 
     publisher = models.ForeignKey('Publisher', on_delete=models.CASCADE, related_name='alternate_names', null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def save(self, *args, **kwargs):
@@ -1103,7 +1103,7 @@ def safe_get_work(work_id):
     return work
 
 def path_for_file(instance, filename):
-    return "ebf/{}.{}".format(uuid.uuid4().get_hex(), instance.format)
+    return "ebf/{}.{}".format(uuid.uuid4().hex, instance.format)
 
 class EbookFile(models.Model):
     file = models.FileField(upload_to=path_for_file)
@@ -1312,7 +1312,7 @@ class Ebook(models.Model):
     def is_direct(self):
         return self.provider not in ('Google Books', 'Project Gutenberg')
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s (%s from %s)" % (self.edition.title, self.format, self.provider)
 
     def deactivate(self):

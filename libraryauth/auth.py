@@ -30,7 +30,7 @@ def pic_storage_url(user, backend, url):
         pic_file.content_type = content_type
         default_storage.save(pic_file_name, pic_file)
         return default_storage.url(pic_file_name)
-    except Exception, e:
+    except Exception as e:
         # if there is a problem, return None for cover URL
         logger.warning('Failed to store cover for username={}'.format(user))
         return None
@@ -58,7 +58,7 @@ def facebook_extra_values(user, extra_data):
             user.profile.avatar_source = FACEBOOK
         user.profile.save()
         return True
-    except Exception, e:
+    except Exception as e:
         logger.exception(e)
         return
 
@@ -73,7 +73,7 @@ def twitter_extra_values(user, extra_data):
             user.profile.avatar_source = TWITTER
         user.profile.save()
         return True
-    except Exception, e:
+    except Exception as e:
         logger.error(e)
         return False
 

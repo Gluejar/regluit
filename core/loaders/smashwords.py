@@ -1,5 +1,5 @@
 import re
-from urlparse import urljoin
+from urllib.parse import urljoin
 from regluit.core.loaders.scrape import BaseScraper
 
 SWCAT = re.compile(r'^https://www\.smashwords\.com/books/category.*')

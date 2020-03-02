@@ -39,7 +39,7 @@ def update_account_status(all_accounts=True, send_notice_on_change_only=True):
     for account in accounts_to_calc:
         try:
             account.update_status(send_notice_on_change_only=send_notice_on_change_only)
-        except Exception, e:
+        except Exception as e:
             errors.append(e)
 
     # fire off notices

@@ -14,18 +14,18 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddIndex(
             model_name='edition',
-            index=models.Index(fields=[b'work'], name='core_editio_work_id_3ae536_idx'),
+            index=models.Index(fields=['work'], name='core_editio_work_id_3ae536_idx'),
         ),
         migrations.AddIndex(
             model_name='author',
-            index=models.Index(fields=[b'name'], name='core_author_name_fca240_idx'),
+            index=models.Index(fields=['name'], name='core_author_name_fca240_idx'),
         ),
         migrations.AddIndex(
             model_name='subject',
-            index=models.Index(fields=[b'name'], name='core_subjec_name_36111e_idx'),
+            index=models.Index(fields=['name'], name='core_subjec_name_36111e_idx'),
         ),
         migrations.AddIndex(
             model_name='work',
-            index=models.Index(fields=[b'is_free', b'title'], name='core_work_is_free_1e4d06_idx'),
+            index=models.Index(fields=['is_free', 'title'], name='core_work_is_free_1e4d06_idx'),
         ),
     ]

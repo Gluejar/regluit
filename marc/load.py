@@ -8,7 +8,6 @@ Use the MARCXML file for the non-unglued edition from Library of Congress.
 import pymarc
 import logging
 from datetime import datetime
-from StringIO import StringIO
 
 from django.conf import settings
 from django.urls import reverse
@@ -95,7 +94,7 @@ def stub(edition):
             tag='250',
             indicators = [' ', ' '],
             subfields = [
-                'a', unicode(edition.note),
+                'a', str(edition.note),
             ]
         )
         record.add_ordered_field(field250)
@@ -110,7 +109,7 @@ def stub(edition):
             ]
         )
         if edition.publication_date:
-            field260.add_subfield('c', unicode(edition.publication_date))
+            field260.add_subfield('c', str(edition.publication_date))
         record.add_ordered_field(field260)
     
     if edition.description:

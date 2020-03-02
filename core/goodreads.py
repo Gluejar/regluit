@@ -1,7 +1,7 @@
 """
 external library imports
 """
-import httplib
+import http.client as httplib
 import json
 import logging
 import oauth2 as oauth
@@ -9,8 +9,7 @@ import re
 
 from itertools import islice
 from requests import request
-from urllib import urlencode
-from urlparse import urlparse, urlunparse, urljoin
+from urllib.parse import urlencode, urlparse, urlunparse, urljoin, parse_qsl
 from xml.etree import ElementTree as ET
 
 """
@@ -23,12 +22,6 @@ regluit imports
 """
 import regluit.core
 from regluit.core import bookloader, models
-
-# import parse_qsl from cgi if it doesn't exist in urlparse
-try:
-  from urlparse import parse_qsl
-except:
-  from cgi import parse_qsl
 
 from django.conf import settings
 
@@ -45,7 +38,7 @@ class GoodreadsAuthorizationRequired(GoodreadsException):
 
 def filter_none(d):
     d2 = {}
-    for (k,v) in d.iteritems():
+    for (k,v) in d.items():
         if v is not None:
             d2[k] = v
     return d2
@@ -173,7 +166,6 @@ class GoodreadsClient(object):
         while (more_pages):
         
           r = request(method,request_url,params=params)
-          # print request_url, params
           if r.status_code != httplib.OK:
               raise GoodreadsException('Error in review_list_unauth, http status_code: {0}'.format(r.status_code))
           else:
@@ -312,7 +304,7 @@ def load_goodreads_shelf_into_wishlist(user, shelf_name='all', goodreads_user_id
             if edition.new:
                 regluit.core.tasks.populate_edition.delay(edition.isbn_13)
 
-        except Exception, e:
+        except Exception as e:
             logger.info ("Exception adding ISBN %s: %s", isbn, e) 
 
     logger.info('Leaving load_goodreads_shelf_into_wishlist.  Length of wishlist for user %s is %s', user, len(user.wishlist.works.all()))

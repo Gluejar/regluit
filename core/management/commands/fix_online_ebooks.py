@@ -22,7 +22,7 @@ class Command(BaseCommand):
                 online.active = True
                 online.save()
                 done += 1
-                self.stdout.write(unicode(online.edition.work.title))
+                self.stdout.write(online.edition.work.title)
             if done > limit:
                 break
         self.stdout.write('fixed {} ebooks'.format(done))

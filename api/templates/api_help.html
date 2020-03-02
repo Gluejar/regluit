@@ -65,7 +65,7 @@ XML: <a href="/api/v1/identifier/?format=xml&amp;api_key={{api_key}}&amp;usernam
     {% if user.is_authenticated %}
     <h3>Campaign info</h3>
     <p>Here's how to get data on all campaigns. if the user is logged in to Unglue.it, they can tell if the campaign book is on their fave list</p>
-    <p>JSON: <a href="/api/v1/campaign/?format=json&amp;api_key={{api_key}}&amp;username={{user.username}}">{{base_url}}/api/v1/campaign/?format=json&amp;api_key={your_api_key}&amp;username={your_username}</a><<br />XML: <a href="/api/v1/campaign/?format=xml&amp;api_key={{api_key}}&amp;username={{user.username}}">{{base_url}}/api/v1/campaign/?format=json&amp;api_key={your_api_key}&amp;username={your_username}</a></p>
+    <p>JSON: <a href="/api/v1/campaign/?format=json&amp;api_key={{api_key}}&amp;username={{user.username}}">{{base_url}}/api/v1/campaign/?format=json&amp;api_key={your_api_key}&amp;username={your_username}</a><br />XML: <a href="/api/v1/campaign/?format=xml&amp;api_key={{api_key}}&amp;username={{user.username}}">{{base_url}}/api/v1/campaign/?format=json&amp;api_key={your_api_key}&amp;username={your_username}</a></p>
     <h3>Identifier Resolution</h3>
     <p>Here's how to get work/edition data for an isbn</p>
     <p>JSON: <a href="/api/v1/identifier/?format=json&amp;api_key={{api_key}}&amp;username={{user.username}}&amp;type=isbn&amp;value=9780441012039">{{base_url}}/api/v1/identifier/?format=json&amp;api_key={your_api_key}&amp;username={your_username}&amp;type=isbn&amp;value=9780441012039</a><br />
@@ -75,22 +75,22 @@ XML: <a href="/api/v1/identifier/?format=xml&amp;api_key={{api_key}}&amp;usernam
     
 
     <h3>OPDS Catalog Feeds</h3>
-    <p>We have a basic implementation of <a href="http://opds-spec.org/specs/opds-catalog-1-1-20110627/">OPDS</a> feeds. You don't need a key to use them. The starting point is <code><a href="{% url 'opds' %}">{{base_url}}{% url 'opds' %}</a></code></p>
+    <p>We have a basic implementation of <a href="http://opds-spec.org/specs/opds-catalog-1-1-20110627/">OPDS</a> feeds. You don't need a key to use them. The starting point is <code><a href="{% url 'opds' %}">{{base_url}}{% url 'opds' %}</a></code>. Use the <code>page</code> parameter to page through the results.</p>
     <p>
     Examples:
     <dl>
     <dt>filtered by format</dt>
-    <dd><code><a href="{% url 'opds_acqusition' 'epub' %}">{{base_url}}{% url 'opds_acqusition' 'epub' %}</a></code></dd>
+    <dd><code><a href="{% url 'opds_acqusition' 'epub' %}?page=1">{{base_url}}{% url 'opds_acqusition' 'epub' %}</a></code></dd>
     <dt>filtered by license</dt>
-    <dd><code><a href="{% url 'opds_acqusition' 'by-sa' %}">{{base_url}}{% url 'opds_acqusition' 'by-sa' %}</a></code></dd>
+    <dd><code><a href="{% url 'opds_acqusition' 'by-sa' %}?page=1">{{base_url}}{% url 'opds_acqusition' 'by-sa' %}</a></code></dd>
     <dt>filtered by title search</dt>
-    <dd><code><a href="{% url 'opds_acqusition' 's.open' %}">{{base_url}}{% url 'opds_acqusition' 's.open' %}</a></code></dd>
+    <dd><code><a href="{% url 'opds_acqusition' 's.open' %}?page=1">{{base_url}}{% url 'opds_acqusition' 's.open' %}</a></code></dd>
     <dt>filtered by keyword</dt>
-    <dd><code><a href="{% url 'opds_acqusition' 'kw.fiction' %}">{{base_url}}{% url 'opds_acqusition' 'kw.fiction' %}</a></code></dd>
+    <dd><code><a href="{% url 'opds_acqusition' 'kw.fiction' %}?page=1">{{base_url}}{% url 'opds_acqusition' 'kw.fiction' %}</a></code></dd>
     <dt>filtered by ungluer</dt>
-    <dd><code><a href="{% url 'opds_acqusition' '@eric' %}">{{base_url}}{% url 'opds_acqusition' '@eric' %}</a></code></dd>
+    <dd><code><a href="{% url 'opds_acqusition' '@eric' %}?page=1">{{base_url}}{% url 'opds_acqusition' '@eric' %}</a></code></dd>
     <dt>filtered by having a Project Gutenberg or DOAB identifier (doab, gtbg)</dt>
-    <dd><code><a href="{% url 'opds_acqusition' 'doab/-gtbg' %}">{{base_url}}{% url 'opds_acqusition' 'doab/-gtbg' %}</a></code></dd>
+    <dd><code><a href="{% url 'opds_acqusition' 'doab/-gtbg' %}?page=1">{{base_url}}{% url 'opds_acqusition' 'doab/-gtbg' %}?page=1</a></code></dd>
     </p>
         <p>There's also an OPDS record available for every work on unglue.it. For example, requesting, <code><a href="{% url 'opds_acqusition' 'all'%}?work=13950">{{base_url}}{% url 'opds_acqusition' 'all'%}?work=13950</a></code> get you to the web page or opds record for <i>A Christmas Carol</i>.</p>
    

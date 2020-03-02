@@ -58,14 +58,14 @@ def marc_records(request, selected_records=None):
         elif hasattr(record_name, 'edition'):
             record = models.MARCRecord(edition=record_name.edition)
         elif record_name.startswith('edition_'):
-            record_id = long(record_name[8:])
+            record_id = int(record_name[8:])
             try:
                 edition = Edition.objects.get(pk=record_id)
             except Edition.DoesNotExist:
                 continue
             record = models.MARCRecord(edition=edition)
         elif record_name.startswith('record_'):
-            record_id = long(record_name[7:])
+            record_id = int(record_name[7:])
             try:
                 record = models.MARCRecord.objects.get(id=record_id )
             except models.MARCRecord.DoesNotExist:

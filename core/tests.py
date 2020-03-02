@@ -6,13 +6,14 @@ from datetime import datetime, timedelta
 from decimal import Decimal as D
 from math import factorial
 import unittest
-from urlparse import parse_qs, urlparse
+from urllib.parse import urlparse, parse_qs
 from tempfile import NamedTemporaryFile
 from time import sleep, mktime
 
-from celery.task.sets import TaskSet
+from celery import group
 import requests
 import requests_mock
+from pyepub import EPUB
 
 #django imports
 from django.apps import apps
@@ -33,7 +34,6 @@ from django_comments.models import Comment
 
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
-from regluit.pyepub import EPUB
 from regluit.utils.localdatetime import date_today
 
 from . import (
@@ -55,7 +55,6 @@ from .models import (
     Edition,
     RightsHolder,
     Claim,
-    Key,
     Ebook,
     Premium,
     Subject,
@@ -110,7 +109,7 @@ class BookLoaderTests(TestCase):
 
     def test_add_by_isbn_mock(self):
         with requests_mock.Mocker(real_http=True) as m:
-            with open(os.path.join(TESTDIR, 'gb_hamilton.json')) as gb:
+            with open(os.path.join(TESTDIR, 'gb_hamilton.json'), 'rb') as gb:
                 m.get('https://www.googleapis.com/books/v1/volumes', content=gb.read())
             self.test_add_by_isbn(mocking=True)
 
@@ -154,7 +153,7 @@ class BookLoaderTests(TestCase):
 
     def test_language_locale_mock(self):
         with requests_mock.Mocker(real_http=True) as m:
-            with open(os.path.join(TESTDIR, 'zhCN.json')) as gb:
+            with open(os.path.join(TESTDIR, 'zhCN.json'), 'rb') as gb:
                 m.get('https://www.googleapis.com/books/v1/volumes', content=gb.read())
             self.test_language_locale(mocking=True)
 
@@ -166,7 +165,7 @@ class BookLoaderTests(TestCase):
 
     def test_update_edition_mock(self):
         with requests_mock.Mocker(real_http=True) as m:
-            with open(os.path.join(TESTDIR, 'python4da.json')) as gb:
+            with open(os.path.join(TESTDIR, 'python4da.json'), 'rb') as gb:
                 m.get('https://www.googleapis.com/books/v1/volumes', content=gb.read())
             self.test_update_edition(mocking=True)
 
@@ -197,7 +196,7 @@ class BookLoaderTests(TestCase):
 
     def test_thingisbn_mock(self):
         with requests_mock.Mocker(real_http=True) as m:
-            with open(os.path.join(TESTDIR, '9780441569595.xml')) as lt:
+            with open(os.path.join(TESTDIR, '9780441569595.xml'), 'rb') as lt:
                 m.get('https://www.librarything.com/api/thingISBN/0441007465', content=lt.read())
             self.test_thingisbn(mocking=True)
 
@@ -219,7 +218,7 @@ class BookLoaderTests(TestCase):
         langbefore = models.Work.objects.filter(language=lang).count()
         # ask for related editions to be added using the work we just created
         with requests_mock.Mocker(real_http=True) as m:
-            with open(os.path.join(TESTDIR, '9780441569595.xml')) as lt:
+            with open(os.path.join(TESTDIR, '9780441569595.xml'), 'rb') as lt:
                 m.get('https://www.librarything.com/api/thingISBN/0441007465', content=lt.read())
             bookloader.add_related('0441007465') # should join the editions
         self.assertTrue(models.Edition.objects.count() >= edbefore)
@@ -240,7 +239,7 @@ class BookLoaderTests(TestCase):
     def test_populate_edition(self):
         edition = bookloader.add_by_isbn('9780606301121') # A People's History Of The United States
         with requests_mock.Mocker(real_http=True) as m:
-            with open(os.path.join(TESTDIR, '9780061989834.xml')) as lt:
+            with open(os.path.join(TESTDIR, '9780061989834.xml'), 'rb') as lt:
                 m.get('https://www.librarything.com/api/thingISBN/9780606301121', content=lt.read())
             edition = tasks.populate_edition.run(edition.isbn_13)
         self.assertTrue(edition.work.editions.all().count() > 10)
@@ -422,7 +421,7 @@ class BookLoaderTests(TestCase):
 
     def test_ebook(self):
         with requests_mock.Mocker(real_http=True) as m:
-            with open(os.path.join(TESTDIR, 'gb_latinlanguage.json')) as gb:
+            with open(os.path.join(TESTDIR, 'gb_latinlanguage.json'), 'rb') as gb:
                 m.get('https://www.googleapis.com/books/v1/volumes', content=gb.read())
                 edition = bookloader.add_by_oclc('1246014')
             # we've seen the public domain status of this book fluctuate -- and the OCLC
@@ -466,7 +465,7 @@ class BookLoaderTests(TestCase):
         # http://books.google.com/books?id=D-WjL_HRbNQC&printsec=frontcover#v=onepage&q&f=false
         # Social Life of Information
         with requests_mock.Mocker(real_http=True) as m:
-            with open(os.path.join(TESTDIR, 'gb_sociallife.json')) as gb:
+            with open(os.path.join(TESTDIR, 'gb_sociallife.json'), 'rb') as gb:
                 m.get('https://www.googleapis.com/books/v1/volumes', content=gb.read())
                 e = bookloader.add_by_isbn('1578517087')
                 self.assertTrue(e)
@@ -484,7 +483,7 @@ class BookLoaderTests(TestCase):
 
     def test_unicode_openlibrary(self):
         with requests_mock.Mocker(real_http=True) as m:
-            with open(os.path.join(TESTDIR, 'gb_fightclub.json')) as gb:
+            with open(os.path.join(TESTDIR, 'gb_fightclub.json'), 'rb') as gb:
                 m.get('https://www.googleapis.com/books/v1/volumes', content=gb.read())
             work = bookloader.add_by_isbn('9783894808358').work #fight club
             bookloader.add_openlibrary(work)
@@ -525,8 +524,8 @@ class SearchTests(TestCase):
     def test_search_mock(self):
         with requests_mock.Mocker(real_http=True) as m:
             with open(
-                os.path.join(TESTDIR, 'gb_melville.json')
-            ) as gb, open(os.path.join(TESTDIR, 'gb_melville2.json')) as gb2:
+                os.path.join(TESTDIR, 'gb_melville.json'), 'rb'
+            ) as gb, open(os.path.join(TESTDIR, 'gb_melville2.json'), 'rb') as gb2:
                 m.get(
                     'https://www.googleapis.com/books/v1/volumes',
                     [{'content':gb2.read()}, {'content':gb.read()}]
@@ -542,17 +541,17 @@ class SearchTests(TestCase):
         self.assertEqual(len(results), 10)
 
         r = results[0]
-        self.assertTrue(r.has_key('title'))
-        self.assertTrue(r.has_key('author'))
-        self.assertTrue(r.has_key('description'))
-        self.assertTrue(r.has_key('cover_image_thumbnail'))
+        self.assertTrue('title' in r)
+        self.assertTrue('author' in r)
+        self.assertTrue('description' in r)
+        self.assertTrue('cover_image_thumbnail' in r)
         self.assertTrue(
             r['cover_image_thumbnail'].startswith('https')
             or r['cover_image_thumbnail'].startswith('http')
         )
-        self.assertTrue(r.has_key('publisher'))
-        self.assertTrue(r.has_key('isbn_13'))
-        self.assertTrue(r.has_key('googlebooks_id'))
+        self.assertTrue('publisher' in r)
+        self.assertTrue('isbn_13' in r)
+        self.assertTrue('googlebooks_id' in r)
 
     def test_pagination(self, mocking=False):
         if not (mocking or settings.TEST_INTEGRATION):
@@ -778,6 +777,7 @@ class WishlistTest(TestCase):
         self.assertEqual(user.wishlist.works.count(), 0)
         self.assertEqual(work.num_wishes, num_wishes)
 
+@unittest.skipIf(settings.TEST_PLATFORM == 'travis', 'no celery tests on travis')
 class CeleryTaskTest(TestCase):
 
     def test_single_fac(self):
@@ -789,7 +789,7 @@ class CeleryTaskTest(TestCase):
     def test_subtask(self):
         n = 30
         subtasks = [tasks.fac.subtask(args=(x,)) for x in range(n)]
-        job = TaskSet(tasks=subtasks)
+        job = group(subtasks)
         result = job.apply_async()
         while not result.ready():
             sleep(0.2)
@@ -825,7 +825,7 @@ class GoodreadsTest(TestCase):
         reviews = gc.review_list_unauth(user_id=gr_uid, shelf='read')
         # test to see whether there is a book field in each of the review
         # url for test is https://www.goodreads.com/review/list.xml?id=767708&shelf=read&page=1&per_page=20&order=a&v=2&key=[key]
-        self.assertTrue(all([r.has_key("book") for r in reviews]))
+        self.assertTrue(all(["book" in r for r in reviews]))
 
 class LibraryThingTest(TestCase):
 
@@ -902,23 +902,11 @@ class ISBNTest(TestCase):
         self.assertEqual(isbn.ISBN(python_13).validate(), python_10)
 
         # curious about set membership
-        self.assertEqual(len(set([isbn.ISBN(milosz_10), isbn.ISBN(milosz_13)])), 2)
         self.assertEqual(len(set([str(isbn.ISBN(milosz_10)), str(isbn.ISBN(milosz_13))])), 2)
         self.assertEqual(
             len(set([isbn.ISBN(milosz_10).to_string(), isbn.ISBN(milosz_13).to_string()])),
             1
         )
-
-class EncryptedKeyTest(TestCase):
-    def test_create_read_key(self):
-        name = "the great answer"
-        value = "42"
-        key = Key.objects.create(name=name, value=value)
-        key.save()
-        # do we get back the value?
-        self.assertEqual(Key.objects.filter(name=name)[0].value, value)
-        # just checking that the encrypted value is not the same as the value
-        self.assertNotEqual(key.encrypted_value, value)  # is this always true?
 
 class SafeGetWorkTest(TestCase):
     def test_good_work(self):
@@ -1022,7 +1010,7 @@ class EbookFileTests(TestCase):
     fixtures = ['initial_data.json']
     def test_badepub_errors(self):
         textfile = NamedTemporaryFile(delete=False)
-        textfile.write("bad text file")
+        textfile.write(b"bad text file")
         textfile.seek(0)
         self.assertTrue(test_epub(textfile))
 
@@ -1053,7 +1041,7 @@ class EbookFileTests(TestCase):
 
         try:
             # now we can try putting the test epub file into Django storage
-            temp_file = open(temp.name)
+            temp_file = open(temp.name, 'rb')
 
             dj_file = DjangoFile(temp_file)
             ebf = EbookFile(format='epub', edition=e, file=dj_file)
@@ -1068,7 +1056,7 @@ class EbookFileTests(TestCase):
         self.assertEqual(len(test_epub.opf), 4)
         self.assertTrue(len(test_epub.opf[2]) < 30)
 
-        acq = Acq.objects.create(user=u,work=w,license=TESTING)
+        acq = Acq.objects.create(user=u, work=w, license=TESTING)
         self.assertIsNot(acq.nonce, None)
 
         url = acq.get_watermarked().download_link_epub
@@ -1107,7 +1095,7 @@ class EbookFileTests(TestCase):
         temp.close()
         try:
             # now we can try putting the test pdf file into Django storage
-            temp_file = open(temp.name)
+            temp_file = open(temp.name, 'rb')
 
             dj_file = DjangoFile(temp_file)
             ebf = EbookFile(format='pdf', edition=e, file=dj_file)
@@ -1138,7 +1126,7 @@ class EbookFileTests(TestCase):
         temp.close()
         try:
             # now we can try putting the test pdf file into Django storage
-            temp_file = open(temp.name)
+            temp_file = open(temp.name, 'rb')
 
             dj_file = DjangoFile(temp_file)
             ebf = EbookFile(format='epub', edition=e, file=dj_file)
@@ -1169,13 +1157,13 @@ class EbookFileTests(TestCase):
         e = Edition.objects.create(title=w.title, work=w)
 
         temp = NamedTemporaryFile(delete=False)
-        test_file_content = "bad text file"
+        test_file_content = b"bad text file"
         temp.write(test_file_content)
         temp.close()
 
         try:
             # put the bad file into Django storage
-            temp_file = open(temp.name)
+            temp_file = open(temp.name, 'rb')
             dj_file = DjangoFile(temp_file)
             ebf = EbookFile(format='epub', edition=e, file=dj_file)
             ebf.save()

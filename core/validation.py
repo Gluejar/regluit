@@ -12,7 +12,7 @@ from PyPDF2 import PdfFileReader
 from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from regluit.pyepub import EPUB
+from pyepub import EPUB
 from regluit.mobi import Mobi
 from .isbn import ISBN
 
@@ -81,10 +81,10 @@ ID_MORE_VALIDATION = {
 }
 
 def identifier_cleaner(id_type, quiet=False):
-    if ID_VALIDATION.has_key(id_type):
+    if id_type in ID_VALIDATION:
         (regex, err_msg) = ID_VALIDATION[id_type]
         extra = ID_MORE_VALIDATION.get(id_type, None)
-        if isinstance(regex, (str, unicode)):
+        if isinstance(regex, str):
             regex = re.compile(regex)
         def cleaner(value):
             if not value:

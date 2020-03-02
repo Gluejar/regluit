@@ -161,10 +161,10 @@ def cluster_status(max_num=None):
     try:
         input_file = open(fname, "r")
         success = lt.load()
-        print "success: %s" % (success)
+        print("success: %s" % (success))
         input_file.close()
-    except Exception, e:
-        print e
+    except Exception as e:
+        print(e)
     
     for (i, (isbn, ed_id, ed_title, ed_created,  work_id, work_created, lang)) in enumerate(
         islice(models.Identifier.objects.filter(type='isbn').values_list('value', 'edition__id',
@@ -173,7 +173,7 @@ def cluster_status(max_num=None):
         
         lt_work_id = lt.thingisbn(isbn, return_work_id=True)
         key = (lt_work_id, lang, isbn if lt_work_id is None else None, None)
-        print i, isbn, lt_work_id, key
+        print(i, isbn, lt_work_id, key)
         work_clusters[key].add(EdInfo(isbn=isbn, ed_id=ed_id, ed_title=ed_title, ed_created=ed_created,
                                       work_id=work_id, work_created=work_created, lang=lang))
         current_map[work_id].add(key)
@@ -181,18 +181,18 @@ def cluster_status(max_num=None):
     lt.save()
     
     # Now add the Editions without any ISBNs
-    print "editions w/o isbn"
+    print("editions w/o isbn")
     for (i, (ed_id, ed_title, ed_created, work_id, work_created, lang)) in enumerate(
         islice(models.Edition.objects.exclude(identifiers__type='isbn').values_list('id',
                 'title', 'created', 'work__id', 'work__created', 'work__language' ), None)):
         
         key = (None, lang, None, ed_id)
-        print i, ed_id, ed_title.encode('ascii','ignore'), key
+        print(i, ed_id, ed_title.encode('ascii','ignore'), key)
         work_clusters[key].add(EdInfo(isbn=None, ed_id=ed_id, ed_title=ed_title, ed_created=ed_created,
                                       work_id=work_id, work_created=work_created, lang=lang))
         current_map[work_id].add(key)
 
-    print "number of clusters", len(work_clusters)
+    print("number of clusters", len(work_clusters))
     
     # all unglue.it Works that contain Editions belonging to more than one newly calculated cluster are "FrankenWorks"
     franken_works = sorted([k for (k,v) in current_map.items() if len(v) > 1])
@@ -217,7 +217,7 @@ def cluster_status(max_num=None):
         for ed in models.Work.objects.get(id=w_id).editions.values('id', 'created')]).values()])
          for w_id in franken_works]) if len(franken_works) else None
     
-    scattered_clusters = [(k, len(set(([e.work_id for e in v])))) for (k,v) in work_clusters.items() if len(set(([e.work_id for e in v]))) <> 1 ]    
+    scattered_clusters = [(k, len(set(([e.work_id for e in v])))) for (k,v) in work_clusters.items() if len(set(([e.work_id for e in v]))) != 1 ]    
     
     s = {'work_clusters':work_clusters, 'current_map':current_map, 'results':results, 'franken_works': franken_works,
          'wcp':wcp, 'latest_franken_event': latest_franken_event, 'affected_works':affected_works,
@@ -229,24 +229,24 @@ def cluster_status(max_num=None):
 def clean_frankenworks(s, do=False):
     # list out the email addresses of accounts with wishlists to be affected
     
-    print "number of email addresses: ", len(s['affected_emails'])
-    print ", ".join(s['affected_emails'])
+    print("number of email addresses: %s" % len(s['affected_emails']))
+    print(", ".join(s['affected_emails']))
     
     # list the works we delete
-    print "number of FrankenWorks", len(s['franken_works'])
-    print s['franken_works']
+    print("number of FrankenWorks %s" % len(s['franken_works']))
+    print(s['franken_works'])
     
     # delete the affected comments
-    print "deleting comments"
+    print("deleting comments")
     for (i, comment) in enumerate(s['affected_comments']):
-        print i, "deleting ", comment
+        print(i, "deleting ", comment)
         if do:
             comment.delete()
     
     # delete the Frankenworks
-    print "deleting Frankenworks"
+    print("deleting Frankenworks")
     for (i, work) in enumerate(s['affected_works']):
-        print i, "deleting ", work.id
+        print(i, "deleting ", work.id)
         if do:
             work.delete()    
     
@@ -259,9 +259,9 @@ def clean_frankenworks(s, do=False):
     scattered_lt = dictlist([(k[0], k) for (k,v) in s['scattered_clusters']])
     isbns = map(popisbn, [s['work_clusters'][k[0]] for k in scattered_lt.values()])
     
-    print "running bookloader"
+    print("running bookloader")
     for (i, isbn) in enumerate(isbns):
-        print i, isbn
+        print(i, isbn)
         if do:
             bookloader.add_related(isbn)
     

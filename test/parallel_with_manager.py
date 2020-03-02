@@ -6,7 +6,7 @@ class DoubleTask(object):
         self.n = n
         self.conn = conn # pipe to send results back
     def __call__(self):
-        print "DoubleTask %s" % (self.n)
+        print("DoubleTask %s" % (self.n))
         self.conn.send((self.n, 2*self.n))
         self.conn.close()
         return (self.n, 2*self.n)
@@ -17,7 +17,7 @@ class TripleTask(object):
     def __init__(self, n):
         self.n = n
     def __call__(self):
-        print "TripleTask %s" % (self.n)
+        print("TripleTask %s" % (self.n))
         return (self.n, 3*self.n)
     def __str__(self):
         return 'TripleTask (%d)' % (self.n)    
@@ -27,7 +27,7 @@ class BigTask(object):
         self.n = n
         self.doubler_queue = doubler_queue
     def __call__(self):
-        print "BigTask %s" % (self.n)
+        print("BigTask %s" % (self.n))
         # put the DoubleTask into the doubler_queue and wait for a result
         parent_conn, child_conn = Pipe()
         
@@ -50,10 +50,10 @@ class SimpleConsumer(multiprocessing.Process):
             next_task = self.task_queue.get()
             if next_task is None:
                 # Poison pill means shutdown
-                print '%s: Exiting' % proc_name
+                print('%s: Exiting' % proc_name)
                 self.task_queue.task_done()
                 break
-            print '%s: %s' % (proc_name, next_task)
+            print('%s: %s' % (proc_name, next_task))
             answer = next_task()
             self.task_queue.task_done()
         return answer   
@@ -90,7 +90,7 @@ if __name__ == '__main__':
     big_processor.start()
     
     n_tasks = 10
-    for k in xrange(n_tasks):
+    for k in range(n_tasks):
         big_queue.put(BigTask(k, doubler_queue))
         
     doubler_queue.put(None) # mark the end
@@ -104,9 +104,9 @@ if __name__ == '__main__':
     while results_so_far < n_tasks:
         result = big_results.get()
         net_results[result[0]] = result[1]
-        print result
+        print(result)
         results_so_far += 1
     
-    print "net results", net_results    
+    print("net results", net_results)
     
     

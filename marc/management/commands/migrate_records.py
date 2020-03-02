@@ -24,8 +24,8 @@ class Command(BaseCommand):
                     editions.append(old_record.edition.pk)
                     xml_file.close()
                     new_record.save()
-                    print 'record %s updated' % new_record.id
+                    print('record %s updated' % new_record.id)
                 except IOError:
                     if created:
                         new_record.delete()
-                    print 'failed opening %s' % old_record.xml_record
+                    print('failed opening %s' % old_record.xml_record)

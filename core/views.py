@@ -12,12 +12,12 @@ def test_read(request):
         
         row_id = 1
         
-        print "Attempting to read row"
+        print("Attempting to read row")
         
         # A read the waits for the exclusive lock for the row
         campaign = Campaign.objects.raw("SELECT * FROM core_campaign WHERE id=%d FOR UPDATE" % row_id)[0]
         
-        print "Successfully read row data %d" % campaign.target
+        print("Successfully read row data %d" % campaign.target)
         
     except:
         traceback.print_exc()
@@ -31,7 +31,7 @@ def test_write(request):
         row_id = 1
         campaign = Campaign.objects.get(id=row_id)
         
-        print "Attempting to write row via ordinary ORM"
+        print("Attempting to write row via ordinary ORM")
         
         #
         # Modify the data.  This will block if any shared lock (Either FOR UPDATE or LOCK IN SHARED MODE is held
@@ -39,7 +39,7 @@ def test_write(request):
         campaign.target = campaign.target + 10
         campaign.save()
         
-        print "Successfully write new row data %d" % campaign.target
+        print("Successfully write new row data %d" % campaign.target)
         
     except:
         traceback.print_exc()
@@ -52,11 +52,11 @@ def test_lock(request):
     try:
         row_id = 1
 
-        print "Attempting to acquire row lock"
+        print("Attempting to acquire row lock")
 
         campaign = Campaign.objects.raw("SELECT * FROM core_campaign WHERE id=%d FOR UPDATE" % row_id)[0]
 
-        print "Row lock acquired, modifying data"
+        print("Row lock acquired, modifying data")
 
         # Modify the data
         campaign.target = campaign.target + 10
@@ -72,9 +72,9 @@ def test_lock(request):
         # As soon as the function completes, the transaction will be committed and the lock released.
         # You can modify the commit_on_success decorator to get different transaction behaviors
         #
-        print "Thread sleeping for 10 seconds"
+        print("Thread sleeping for 10 seconds")
         time.sleep(10)
-        print "Thread sleep complete"
+        print("Thread sleep complete")
 
     except:
         traceback.print_exc()

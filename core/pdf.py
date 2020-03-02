@@ -2,8 +2,7 @@
 Utilities that manipulate pdf files
 """
 import logging
-from io import BytesIO
-from StringIO import StringIO
+from io import BytesIO, StringIO
 from tempfile import NamedTemporaryFile
 
 import requests
@@ -17,9 +16,9 @@ logger = logging.getLogger(__name__)
 
 # Utility function
 def ask_pdf(context={}):
-    ask_html = StringIO(unicode(render_to_string('pdf/ask.html', context)))
+    ask_html = StringIO(str(render_to_string('pdf/ask.html', context)))
     # open output file for writing (truncated binary)
-    resultFile = StringIO()
+    resultFile = BytesIO()
 
     # convert HTML to PDF
     pisaStatus = pisa.CreatePDF(
@@ -40,7 +39,7 @@ def pdf_append(file1, file2, file_out):
 def test_pdf(pdf_file):
     temp = None
     try:
-        if isinstance(pdf_file, (str, unicode)):
+        if isinstance(pdf_file, str):
             if pdf_file.startswith('http:') or pdf_file.startswith('https:'):
                 temp = NamedTemporaryFile(delete=False)
                 test_file_content = requests.get(pdf_file).content

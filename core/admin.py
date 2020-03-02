@@ -196,7 +196,7 @@ class EbookAdminForm(forms.ModelForm):
 class EbookAdmin(ModelAdmin):
     form = EbookAdminForm
     search_fields = ('edition__title', '^url')  # search by provider using leading url
-    list_display = ('__unicode__', 'created', 'user', 'edition')
+    list_display = ('__str__', 'created', 'user', 'edition')
     date_hierarchy = 'created'
     ordering = ('edition__title',)
     readonly_fields = ('user', 'filesize', 'download_count')

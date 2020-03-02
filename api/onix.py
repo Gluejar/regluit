@@ -21,7 +21,7 @@ def text_node(tag, text, attrib={}):
     return node
 
 def onix_feed(facet, max=None, page_number=None):
-    feed = etree.fromstring(feed_xml)
+    feed = etree.fromstring(bytes(feed_xml, 'utf-8'))
     feed.append(header(facet))
     works = facet.works[0:max] if max else facet.works
 
@@ -42,7 +42,7 @@ def onix_feed(facet, max=None, page_number=None):
     return etree.tostring(feed, pretty_print=True)
     
 def onix_feed_for_work(work):
-    feed = etree.fromstring(feed_xml)
+    feed = etree.fromstring(bytes(feed_xml, 'utf-8'))
     feed.append(header(work))
     for edition in models.Edition.objects.filter(work=work,ebooks__isnull=False).distinct():
         edition_prod = product(edition)
@@ -51,8 +51,8 @@ def onix_feed_for_work(work):
     return etree.tostring(feed, pretty_print=True)
     
 def header(facet=None):
-    header_node = etree.Element("Header")	
-    sender_node = etree.Element("Sender")	
+    header_node = etree.Element("Header")
+    sender_node = etree.Element("Sender")
     sender_node.append(text_node("SenderName", "unglue.it"))
     sender_node.append(text_node("EmailAddress", "unglueit@ebookfoundation.org"))
     header_node.append(sender_node)
@@ -75,7 +75,7 @@ def product(edition, facet=None):
     ident_node =  etree.SubElement(product_node, "ProductIdentifier")
     ident_node.append(text_node("ProductIDType", "01" )) #proprietary
     ident_node.append(text_node("IDTypeName", "unglue.it edition id" )) #proprietary
-    ident_node.append(text_node("IDValue", unicode(edition.id) )) 
+    ident_node.append(text_node("IDValue", str(edition.id) )) 
     
     # wrong isbn better than no isbn
     isbn = edition.isbn_13 if edition.isbn_13 else edition.work.first_isbn_13()
@@ -118,7 +118,7 @@ def product(edition, facet=None):
     for contrib in edition.relators.all():
         contrib_i+=1
         contrib_node = etree.SubElement(descriptive_node, "Contributor")
-        contrib_node.append(text_node("SequenceNumber", unicode(contrib_i )))
+        contrib_node.append(text_node("SequenceNumber", str(contrib_i )))
         contrib_node.append(text_node("ContributorRole", relator_contrib.get(contrib.relation.code,"") ))
         contrib_node.append(text_node("PersonName", contrib.author.name))
         contrib_node.append(text_node("PersonNameInverted", contrib.author.last_name_first))

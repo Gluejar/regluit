@@ -168,7 +168,7 @@ class Transaction(models.Model):
             self.secret = str(uuid.uuid1())
         super(Transaction, self).save(*args, **kwargs) # Call the "real" save() method.
 
-    def __unicode__(self):
+    def __str__(self):
         return u"-- Transaction:\n \tstatus: %s\n \t amount: %s\n \terror: %s\n" % (self.status, str(self.amount), self.error)
 
     def create_receivers(self, receiver_list):
@@ -267,11 +267,11 @@ class PaymentResponse(models.Model):
 
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE, null=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"PaymentResponse -- api: {0} correlation_id: {1} transaction: {2}".format(
             self.api,
             self.correlation_id,
-            unicode(self.transaction)
+            str(self.transaction)
         )
 
 
@@ -289,11 +289,11 @@ class Receiver(models.Model):
     txn_id = models.CharField(max_length=64)
     transaction = models.ForeignKey(Transaction, on_delete=models.CASCADE,)
 
-    def __unicode__(self):
+    def __str__(self):
         return u"Receiver -- email: {0} status: {1} transaction: {2}".format(
             self.email,
             self.status,
-            unicode(self.transaction)
+            str(self.transaction)
         )
 
 class CreditLog(models.Model):

@@ -8,4 +8,4 @@ class Command(BaseCommand):
     def handle(self, file, **options):
         xml_file = open(file,'r')
         num_loaded = import_records(xml_file)
-        print '%s records created' % num_loaded
+        print('%s records created' % num_loaded)

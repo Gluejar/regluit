@@ -1,5 +1,5 @@
 import re
-from urlparse import urljoin
+from urllib.parse import urljoin
 
 import requests
 from bs4 import BeautifulSoup
@@ -128,5 +128,5 @@ def load_springer(startpage=1, endpage=None):
                         book_url = urljoin(base, link['href'])
                         yield SpringerScraper(book_url)
             except requests.exceptions.ConnectionError:
-                print 'couldn\'t connect to %s' % url
+                print('couldn\'t connect to %s' % url)
     return add_from_bookdatas(springer_open_books(startpage, endpage))

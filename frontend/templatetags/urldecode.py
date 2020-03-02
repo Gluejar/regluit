@@ -1,7 +1,7 @@
 """
 {{ raw|urldecode }}
 """
-from urllib import unquote
+from urllib.parse import unquote
 
 from django.template import Library
 from django.template.defaultfilters import stringfilter
@@ -12,4 +12,4 @@ register = Library()
 @stringfilter
 def urldecode(value):
     return unquote(value)
-	
+

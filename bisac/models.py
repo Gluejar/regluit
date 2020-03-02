@@ -11,7 +11,7 @@ class BisacHeading(MPTTModel):
     class MPTTMeta:
         order_insertion_by = ['notation']
     
-    def __unicode__(self):
+    def __str__(self):
         return self.full_label
 
 def interpret_notation(notation):

@@ -72,7 +72,7 @@ def store_doab_cover(doab_id, redo=False):
 
         default_storage.save(cover_file_name, cover_file)
         return (default_storage.url(cover_file_name), True)
-    except Exception, e:
+    except Exception as e:
         # if there is a problem, return None for cover URL
         logger.warning('Failed to make cover image for doab_id={}: {}'.format(doab_id, e))
         return (None, False)
@@ -326,8 +326,6 @@ def fnf(auth):
     else:
         if parts[1].strip() in ('der', 'van', 'von', 'de', 'ter'):
             return u'{} {} {}'.format(parts[2].strip(), parts[1].strip(), parts[0].strip())
-        #print auth
-        #print re.search(namelist,auth).group(0)
         return u'{} {}, {}'.format(parts[2].strip(), parts[0].strip(), parts[1].strip())
 
 

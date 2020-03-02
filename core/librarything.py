@@ -1,6 +1,6 @@
 import csv
-import HTMLParser
-import httplib
+from html import parser as HTMLParser
+import http.client as httplib
 import logging
 import re
 from datetime import datetime
@@ -140,7 +140,7 @@ class LibraryThing(object):
             # lc classification
             try:
                 book_data["lc_call_number"] = cols[2].xpath('.//span')[0].text
-            except Exception, e:
+            except Exception as e:
                 logger.info("no lc call number for: %s %s", book_data["title"], e)
                 book_data["lc_call_number"] = None
 
@@ -156,7 +156,7 @@ class LibraryThing(object):
                 # check for &nbsp
                 if book_data["isbn"] == u'\xA0':
                     book_data["isbn"] = None
-            except Exception, e:
+            except Exception as e:
                 book_data["isbn"] = None
 
             yield book_data
@@ -203,7 +203,7 @@ class LibraryThing(object):
                 count_text = etree.xpath('//td[@class="pbGroup"]')[0].text
                 total = int(re.search(r'(\d+)$', count_text).group(1))
                 logger.info('total: %d', total)
-            except Exception, e:
+            except Exception as e:
                 # assume for now that if we can't grab this text,
                 # there is no page bar and no books
                 logger.info('Exception {0}'.format(e))
@@ -277,5 +277,5 @@ def load_librarything_into_wishlist(user, lt_username, max_books=None):
             if edition.new:
                 tasks.populate_edition.delay(edition.isbn_13)
             logger.info("Work with isbn %s added to wishlist.", isbn)
-        except Exception, e:
+        except Exception as e:
             logger.info("error adding ISBN %s: %s", isbn, e)

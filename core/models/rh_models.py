@@ -33,7 +33,7 @@ class Claim(models.Model):
                 return 2  # can open a THANKS campaign
         return 1 # can open any type of campaign
 
-    def  __unicode__(self):
+    def  __str__(self):
         return self.work.title
 
     @property
@@ -76,7 +76,7 @@ class RightsHolder(models.Model):
     signer_title = models.CharField(max_length=30,  blank=False, default='')
     signature = models.CharField(max_length=100, blank=False, default='' )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.rights_holder_name
 
 def notify_rh(sender, created, instance, **kwargs):

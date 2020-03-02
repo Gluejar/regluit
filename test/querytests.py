@@ -22,19 +22,19 @@ def list_popular():
                     )
              )
 
-    print w1.count()
-    print len(w0)
-    print list(w1.all()) == w0
+    print(w1.count())
+    print(len(w0))
+    print(list(w1.all()) == w0)
     
-    print "difference: ", filter(lambda item: item[1][0] != item[1][1], enumerate(izip(w0,w1)))
+    print("difference: ", filter(lambda item: item[1][0] != item[1][1], enumerate(izip(w0,w1))))
     
 def list_new():
     """Compare calculating new works using QuerySets + distinct() and order_by() with an alternate approach """
     w1 = models.Work.objects.filter(wishlists__isnull=False).distinct().order_by('-created', 'id')
     w0 = [w for w in  models.Work.objects.order_by('-created', 'id') if w.wishlists.count()]
     
-    print w1.count()
-    print len(w0)
-    print list(w1.all()) == w0
+    print(w1.count())
+    print(len(w0))
+    print(list(w1.all()) == w0)
     
-    print "difference: ", filter(lambda item: item[1][0] != item[1][1], enumerate(izip(w0,w1)))
+    print("difference: ", filter(lambda item: item[1][0] != item[1][1], enumerate(izip(w0,w1))))

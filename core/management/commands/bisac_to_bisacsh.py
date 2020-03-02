@@ -11,7 +11,7 @@ class Command(BaseCommand):
     
     def handle(self, **options):
         for subject in Subject.objects.filter(name__contains='bisac'):
-            print subject.name
+            print(subject.name)
             match = bisac_pattern.search(subject.name)
             bisac_code = match.group(0) if match else None
             if bisac_code:

@@ -70,7 +70,7 @@ def fac(n, sleep_interval=None):
         return 1
     else:
         res = 1
-        for i in xrange(2,n+1):
+        for i in range(2,n+1):
             res = res*i
             fac.update_state(state="PROGRESS", meta={"current": i, "total": n})
             if sleep_interval is not None:
@@ -91,10 +91,11 @@ def send_mail_task(subject, message, from_email, recipient_list,
                 from_email = settings.DEFAULT_FROM_EMAIL
             except:
                 pass
-        r= send_mail(subject, message, from_email, recipient_list, fail_silently=False, auth_user=auth_user,
+        r = send_mail(subject, message, from_email, recipient_list, fail_silently=False, auth_user=auth_user,
                      auth_password=auth_password, connection=connection)
+        logger.info('sent mail about %s to %s' % (subject, recipient_list))
     except:
-        r=logger.info('failed to send message:' + message)
+        r = logger.info('failed to send message:' + message)
     return r
     
 #task to update the status of active campaigns
@@ -199,7 +200,7 @@ def ml_subscribe_task(profile, **kwargs):
                 data=data,
             )
             return True
-    except Exception, e:
+    except Exception as e:
         logger.error("error subscribing to mailchimp list %s" % (e))
         return False
 

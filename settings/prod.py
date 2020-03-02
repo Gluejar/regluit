@@ -37,25 +37,18 @@ TIME_ZONE = 'America/New_York'
 
 # Amazon SES
 
-EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend'
 MAIL_USE_TLS = True 
 EMAIL_HOST = 'email-smtp.us-east-1.amazonaws.com'
 EMAIL_PORT = 465
 DEFAULT_FROM_EMAIL = 'notices@gluejar.com'
 
 # send celery log to Python logging
-CELERYD_HIJACK_ROOT_LOGGER = False
+WORKER_HIJACK_ROOT_LOGGER = False
 
 # Next step to try https
 #BASE_URL = 'http://unglue.it'
 BASE_URL_SECURE = 'https://unglue.it'
 IPN_SECURE_URL = False
-
-# use redis for production queue
-BROKER_TRANSPORT = "redis"
-BROKER_HOST = "localhost"
-BROKER_PORT = 6379
-BROKER_VHOST = "0"
 
 LOGGING = {
     'version': 1,

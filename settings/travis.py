@@ -1,6 +1,5 @@
 # coding=utf-8
 from .common import *
-
 DEBUG = True
 TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
 IS_PREVIEW = False
@@ -31,7 +30,6 @@ TIME_ZONE = 'America/New_York'
 # settings for outbout email
 # if you have a gmail account you can use your email address and password
 
-EMAIL_BACKEND = 'django_smtp_ssl.SSLEmailBackend'
 MAIL_USE_TLS = True 
 EMAIL_HOST = 'email-smtp.us-east-1.amazonaws.com'
 EMAIL_PORT = 465
@@ -48,11 +46,6 @@ REDIRECT_IS_HTTPS = False
 #BASE_URL = 'http://0.0.0.0/'
 BASE_URL_SECURE = 'http://0.0.0.0/'
 
-BROKER_TRANSPORT = "redis"
-BROKER_HOST = "localhost"
-BROKER_PORT = 6379
-BROKER_VHOST = "0"
-
 # Amazon  S3 access
 AWS_STORAGE_BUCKET_NAME = 'unglueit-testfiles'
 
@@ -65,5 +58,6 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
 GOOGLE_BOOKS_API_KEY = ''
 TEST_INTEGRATION = False
 LOCAL_TEST = True
+TEST_PLATFORM = 'travis'
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 

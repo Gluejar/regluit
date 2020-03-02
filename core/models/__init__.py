@@ -4,8 +4,8 @@ import logging
 import math
 import random
 import re
-import urllib
-import urllib2
+from urllib.parse import urlencode, quote_plus
+from urllib.request import urlopen
 from datetime import timedelta, datetime
 from decimal import Decimal
 from tempfile import SpooledTemporaryFile
@@ -47,7 +47,6 @@ from regluit.payment.parameters import (
     TRANSACTION_STATUS_FAILED,
     TRANSACTION_STATUS_INCOMPLETE
 )
-from regluit.utils import crypto
 from regluit.utils.localdatetime import date_today
 
 from regluit.core.parameters import (
@@ -103,22 +102,6 @@ logger = logging.getLogger(__name__)
 class UnglueitError(RuntimeError):
     pass
 
-class Key(models.Model):
-    """an encrypted key store"""
-    name = models.CharField(max_length=255, unique=True)
-    encrypted_value = models.TextField(null=True, blank=True)
-
-    def _get_value(self):
-        return crypto.decrypt_string(binascii.a2b_hex(self.encrypted_value), settings.SECRET_KEY)
-
-    def _set_value(self, value):
-        self.encrypted_value = binascii.b2a_hex(crypto.encrypt_string(value, settings.SECRET_KEY))
-
-    value = property(_get_value, _set_value)
-
-    def __unicode__(self):
-        return "Key with name {0}".format(self.name)
-
 class CeleryTask(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     task_id = models.CharField(max_length=255)
@@ -128,7 +111,7 @@ class CeleryTask(models.Model):
     function_args = models.IntegerField(null=True)  # not full generalized here -- takes only a single arg for now.
     active = models.NullBooleanField(default=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return "Task %s arg:%s ID# %s %s: State %s " % (self.function_name, self.function_args, self.task_id, self.description, self.state)
 
     @property
@@ -170,7 +153,7 @@ class Premium(models.Model):
     def premium_remaining(self):
         t_model = apps.get_model('payment', 'Transaction')
         return self.limit - t_model.objects.filter(premium=self).count()
-    def  __unicode__(self):
+    def  __str__(self):
         return  (self.campaign.work.title if self.campaign else '')  + ' $' + str(self.amount)
 
 class PledgeExtra:
@@ -237,7 +220,7 @@ class Acq(models.Model):
             return True
         def get_archive(self):
             try:
-                r = urllib2.urlopen(self.url)
+                r = urlopen(self.url)
                 try:
                     self.filesize = int(r.info().getheaders("Content-Length")[0])
                 except IndexError:
@@ -251,7 +234,7 @@ class Acq(models.Model):
     def ebook(self):
         return self.mock_ebook(self)
 
-    def __unicode__(self):
+    def __str__(self):
         if self.lib_acq:
             return "%s, %s: %s for %s" % (self.work.title, self.get_license_display(), self.lib_acq.user, self.user)
         else:
@@ -299,7 +282,7 @@ class Acq(models.Model):
         return self.watermarked
 
     def _hash(self):
-        return hashlib.md5('%s:%s:%s:%s'%(settings.SOCIAL_AUTH_TWITTER_SECRET, self.user_id, self.work_id, self.created)).hexdigest()
+        return hashlib.md5(bytes('%s:%s:%s:%s'%(settings.SOCIAL_AUTH_TWITTER_SECRET, self.user_id, self.work_id, self.created), 'utf-8')).hexdigest()
 
     def expire_in(self, delta):
         self.expires = (now() + delta) if delta else now()
@@ -362,7 +345,7 @@ class Hold(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='holds', null=False)
     library = models.ForeignKey(Library, on_delete=models.CASCADE, related_name='holds', null=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s for %s at %s' % (self.work, self.user.username, self.library)
     def ahead(self):
         return Hold.objects.filter(work=self.work, library=self.library, created__lt=self.created).count()
@@ -411,7 +394,7 @@ class Campaign(models.Model):
         self.problems = []
         super(Campaign, self).__init__(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         try:
             return u"Campaign for %s" % self.work.title
         except:
@@ -639,10 +622,10 @@ class Campaign(models.Model):
             raise UnglueitError(_('Campaign needs to be initialized in order to be activated'))
         try:
             active_claim = self.work.claim.filter(status="active")[0]
-        except IndexError, e:
+        except IndexError as e:
             raise UnglueitError(_('Campaign needs to have an active claim in order to be activated'))
         if not self.launchable:
-            raise UnglueitError('Configuration issues need to be addressed before campaign is activated: %s' % unicode(self.problems[0]))
+            raise UnglueitError('Configuration issues need to be addressed before campaign is activated: %s' % str(self.problems[0]))
         self.status = 'ACTIVE'
         self.left = self.target
         self.activated = datetime.today()
@@ -895,9 +878,9 @@ class Campaign(models.Model):
         if time_remaining.days:
             countdown = "%s days" % str(time_remaining.days + 1)
         elif time_remaining.seconds > 3600:
-            countdown = "%s hours" % str(time_remaining.seconds/3600 + 1)
+            countdown = "%s hours" % str(time_remaining.seconds // 3600 + 1)
         elif time_remaining.seconds > 60:
-            countdown = "%s minutes" % str(time_remaining.seconds/60 + 1)
+            countdown = "%s minutes" % str(time_remaining.seconds // 60 + 1)
         else:
             countdown = "Seconds"
 
@@ -1023,7 +1006,7 @@ class Campaign(models.Model):
                 format_versions.append(format_version)
 
     def make_unglued_ebf(self, format, watermarked):
-        r = urllib2.urlopen(watermarked.download_link(format))
+        r = urlopen(watermarked.download_link(format))
         ebf = EbookFile.objects.create(edition=self.work.preferred_edition, format=format)
         ebf.file.save(path_for_file(ebf, None), ContentFile(r.read()))
         ebf.file.close()
@@ -1063,8 +1046,8 @@ class Campaign(models.Model):
                 'epub': True,
             }
             ungluified = ungluify(self.work.epubfiles()[0].file, self)
-            ungluified.filename.seek(0)
-            watermarked = watermarker.platform(epubfile=ungluified.filename, **params)
+            ungluified.file_obj.seek(0)
+            watermarked = watermarker.platform(epubfile=ungluified.file_obj, **params)
             self.make_unglued_ebf('epub', watermarked)
             self.make_unglued_ebf('mobi', watermarked)
             return True
@@ -1087,7 +1070,7 @@ class Wishlist(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='wishlist')
     works = models.ManyToManyField('Work', related_name='wishlists', through='Wishes')
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s's Books" % self.user.username
 
     def add_work(self, work, source, notify=False):
@@ -1129,7 +1112,7 @@ class Badge(models.Model):
     @property
     def path(self):
         return '/static/images/%s.png' % self.name
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
 def pledger():
@@ -1188,7 +1171,7 @@ class UserProfile(models.Model):
         )
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.user.username
 
     def reset_pledge_badge(self):
@@ -1265,12 +1248,12 @@ class UserProfile(models.Model):
             )
             if member['status'] == 'subscribed':
                 return 'True'
-        except MailChimpError, e:
-            if e[0]['status'] != 404: # don't log case where user is not on a list
+        except MailChimpError as e:
+            if e.args[0]['status'] != 404: # don't log case where user is not on a list
                 logger.error("error getting mailchimp status  %s" % (e))
-        except ValueError, e:
+        except ValueError as e:
             logger.error("bad email address  %s" % (self.user.email))
-        except Exception, e:
+        except Exception as e:
             logger.error("error getting mailchimp status  %s" % (e))
         return False
 
@@ -1291,23 +1274,23 @@ class UserProfile(models.Model):
                 subscriber_hash=self.user.email,
             )
             return True
-        except MailChimpError, e:
-            if e[0]['status'] != 404: # don't log case where user is not on a list
+        except MailChimpError as e:
+            if e.args[0]['status'] != 404: # don't log case where user is not on a list
                 logger.error("error getting mailchimp status  %s" % (e))
-        except Exception, e:
+        except Exception as e:
             logger.error("error unsubscribing from mailchimp list  %s" % (e))
         return False
 
     def gravatar(self):
         # construct the url
-        gravatar_url = "https://www.gravatar.com/avatar/" + hashlib.md5(self.user.email.lower()).hexdigest() + "?"
-        gravatar_url += urllib.urlencode({'d':'wavatar', 's':'50'})
+        gravatar_url = "https://www.gravatar.com/avatar/" + hashlib.md5(bytes(self.user.email.lower(), 'utf-8')).hexdigest() + "?"
+        gravatar_url += urlencode({'d':'wavatar', 's':'50'})
         return gravatar_url
 
     def unglueitar(self):
         # construct the url
-        gravatar_url = "https://www.gravatar.com/avatar/" + hashlib.md5(urllib.quote_plus(self.user.username.encode('utf-8')) + '@unglue.it').hexdigest() + "?"
-        gravatar_url += urllib.urlencode({'d':'wavatar', 's':'50'})
+        gravatar_url = "https://www.gravatar.com/avatar/" + hashlib.md5(bytes(quote_plus(self.user.username), 'utf-8') + b'@unglue.it').hexdigest() + "?"
+        gravatar_url += urlencode({'d':'wavatar', 's':'50'})
         return gravatar_url
 
 

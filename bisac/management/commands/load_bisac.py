@@ -9,4 +9,4 @@ class Command(BaseCommand):
     def handle(self, **options):
         populate_bisac_headings()
         attach_dangling_branches()
-        print "bisac table is ready"
+        print("bisac table is ready")

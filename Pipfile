@@ -1,0 +1,47 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pylint = "*"
+
+[packages]
+django = "<2"
+pyepub = "*"
+django-contrib-comments = "*"
+django-extensions = "*"
+django-registration = "==2.4.1"
+social-auth-app-django = "==2.1.0"
+django-tastypie = "==0.14.1"
+django-el-pagination = "==3.2.4"
+django-selectable = "==1.1.0"
+django-email-change = {editable = true,git = "git://github.com/eshellman/django-email-change.git",ref = "830808b9b9db5f3ca9ec0cb22f8fda5cc2cef12d"}
+django-ckeditor = "==5.6.1"
+django-storages = "==1.5.2"
+sorl-thumbnail = "==12.3"
+django-mptt = "==0.8.6"
+django-sass-processor = "==0.5.6"
+mysqlclient = "*"
+mailchimp3 = "==3.0.4"
+xhtml2pdf = "*"
+botocore = "*"
+pymarc = "*"
+django-jsonfield = "==1.0.0"
+github3-py = "*"
+gitberg = "*"
+oauth2 = "*"
+mechanize = "*"
+stripe = "*"
+fef-questionnaire = {editable = true,git = "git://github.com/EbookFoundation/fef-questionnaire.git",ref = "c58e5bfece711fcaf88f788162f73eb26fbfea9d"}
+risparser = "*"
+pyoai = "*"
+selenium = "*"
+boto3 = "*"
+requests-mock = "*"
+django-notification = {editable = true,git = "git://github.com/eshellman/django-notification.git",ref = "41f0a7bdd9af835adfb27a26a0d9536f083ad568"}
+celery = "*"
+redis = "*"
+
+[requires]
+python_version = "3.6"

@@ -23,18 +23,18 @@ class BaseFacet(object):
         else:
             return query_set
     
-    def __unicode__(self):
+    def __str__(self):
         if self.facet_name == 'all':
             return 'Free eBooks'
-        return unicode(self.facet_name)
+        return str(self.facet_name)
     
     @property    
     def title(self):
-        return self.__unicode__()
+        return self.__str__()
     
     @property    
     def label(self):
-        return self.__unicode__()
+        return self.__str__()
     
     def get_query_set(self):
         return self._get_query_set()
@@ -83,7 +83,7 @@ class BaseFacet(object):
 
     @property
     def description(self):
-        return self.__unicode__()
+        return self.__str__()
         
 class FacetGroup(object):
     # a FacetGroup should implement title, facets, has_facet(self, facet_name) and get_facet_class(self, facet_name)
