@@ -65,6 +65,9 @@ WORKER_HIJACK_ROOT_LOGGER = False
 # a debug_toolbar setting
 INTERNAL_IPS = ('127.0.0.1',)
 
+# start out with nothing scheduled
+CELERYBEAT_SCHEDULE = {}
+
 # decide which of the period tasks to add to the schedule
 #CELERYBEAT_SCHEDULE['send_test_email'] = SEND_TEST_EMAIL_JOB
 #CELERYBEAT_SCHEDULE['refresh_acqs'] = REFRESH_ACQS_JOB
