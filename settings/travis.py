@@ -61,3 +61,4 @@ LOCAL_TEST = True
 TEST_PLATFORM = 'travis'
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
+CELERYBEAT_SCHEDULE = {}
