@@ -2459,9 +2459,9 @@ def work_openlibrary(request, work_id):
         try:
             j = json.loads(requests.get(u).content)
             # as long as there were some matches get the first one and route to it
-            if len(j.keys()) > 0:
-                first = j.keys()[0]
+            for first in j.keys():
                 url = "https://openlibrary.org" + j[first]['key']
+                break
         except ValueError:
             # fail at openlibrary
             logger.warning("failed to get OpenLibrary json at %s" % u)
