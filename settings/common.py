@@ -414,6 +414,18 @@ NOTIFY_UNCLAIMED_GIFTS = {
     "args": ()    
 }
 
+SAVE_INFO_PAGE = {
+    "task": "regluit.frontend.tasks.save_info_page",
+    "schedule": crontab(day_of_month='1,11,21', hour=0, minute=40),
+    "args": ()    
+}
+
+PERIODIC_CLEANUP = {
+    "task": "regluit.core.tasks.periodic_cleanup",
+    "schedule": crontab(day_of_month='1,11,21', hour=0, minute=35),
+    "args": ()    
+}
+
 # by default, in common, we don't turn any of the celerybeat jobs on -- turn them on in the local settings file
 
 # set notification queueing on
