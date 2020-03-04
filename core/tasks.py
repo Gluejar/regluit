@@ -13,6 +13,7 @@ django imports
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
+from django.core.management import call_command
 from django.utils.timezone import now
 from notification.engine import send_all
 from notification import models as notification
@@ -217,3 +218,8 @@ def notify_unclaimed_gifts():
         if unclaimed_duration > 0 and unclaimed_duration % 7 == 0 : # first notice in 7 days
             notification.send_now([gift.acq.user], "purchase_gift_waiting", {'gift':gift}, True)
             notification.send_now([gift.giver], "purchase_notgot_gift", {'gift':gift}, True)
+
+@task
+def periodic_cleanup():
+    call_command('clearsessions')
+    call_command('cleanupregistration')
