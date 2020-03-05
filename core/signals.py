@@ -202,7 +202,7 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
         transaction.campaign.update_left()
         notification.send([transaction.user], "purchase_complete", context, True)
         from regluit.core.tasks import watermark_acq
-        watermark_acq.delay(new_acq)
+        watermark_acq.delay(new_acq.id)
         if transaction.campaign.cc_date < date_today() :
             transaction.campaign.update_status(send_notice=True)
     elif transaction.campaign.type is THANKS:

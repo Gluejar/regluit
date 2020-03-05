@@ -32,7 +32,7 @@ from regluit.core import (
     librarything,
     mobigen
 )
-from regluit.core.models import Campaign, Acq, Gift
+from regluit.core.models import Acq, Campaign, EbookFile, Gift, UserProfile
 from regluit.core.signals import deadline_impending
 from regluit.core.parameters import RESERVE, REWARDS, THANKS
 from regluit.utils.localdatetime import date_today
@@ -140,11 +140,21 @@ def notify_ending_soon():
             deadline_impending.send(sender=None, campaign=c)
 
 @task
-def watermark_acq(acq):
+def watermark_acq(acq_id):
+    try:
+        acq = Acq.objects.get(acq_id)
+    except Acq.DoesNotExist as e:
+        logger.error("error getting acq %s" % (acq_id))
+        return False
     acq.get_watermarked()
     
 @task
-def process_ebfs(campaign):
+def process_ebfs(campaign_id):
+    try:
+        campaign = Campaign.objects.get(campaign_id)
+    except Campaign.DoesNotExist as e:
+        logger.error("error getting acq %s" % (campaign_id))
+        return False
     if campaign.type == THANKS:
         if campaign.use_add_ask:
             campaign.add_ask_to_ebfs()
@@ -154,7 +164,12 @@ def process_ebfs(campaign):
         
 
 @task
-def make_mobi(ebookfile):
+def make_mobi(ebookfile_id):
+    try:
+        ebookfile = EbookFile.objects.get(ebookfile_id)
+    except EbookFile.DoesNotExist as e:
+        logger.error("error getting EbookFile %s" % (ebookfile_id))
+        return False
     return ebookfile.make_mobi()
     
 @task
@@ -187,11 +202,13 @@ def convert_to_mobi(input_url, input_format="application/epub+zip"):
     return mobigen.convert_to_mobi(input_url, input_format)
 
 @task
-def generate_mobi_ebook_for_edition(edition):
-    return mobigen.generate_mobi_ebook_for_edition(edition)
-
-@task
-def ml_subscribe_task(profile, **kwargs):
+def ml_subscribe_task(profile_id, **kwargs):
+    try:
+        profile = UserProfile.objects.get(profile_id)
+    except UserProfile.DoesNotExist as e:
+        logger.error("error getting profile %s" % (profile_id))
+        return False
+        
     try:
         if not profile.on_ml:
             data = {"email_address": profile.user.email, "status_if_new": "pending"}
