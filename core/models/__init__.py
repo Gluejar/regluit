@@ -308,7 +308,7 @@ class Acq(models.Model):
             borrowed = Acq.objects.create(user=user, work=self.work, license=BORROWED, lib_acq=self)
             from regluit.core.tasks import watermark_acq
             notification.send([user], "library_borrow", {'acq':borrowed})
-            watermark_acq.delay(borrowed)
+            watermark_acq.delay(borrowed.id)
             result = borrowed
         from regluit.core.tasks import emit_notifications
         emit_notifications.delay()
@@ -1262,7 +1262,7 @@ class UserProfile(models.Model):
             # use @example.org email addresses for testing!
             return
         from regluit.core.tasks import ml_subscribe_task
-        ml_subscribe_task.delay(self, **kwargs)
+        ml_subscribe_task.delay(self.id, **kwargs)
 
     def ml_unsubscribe(self):
         if "@example.org" in self.user.email:

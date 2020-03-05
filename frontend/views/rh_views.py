@@ -235,7 +235,7 @@ def manage_campaign(request, id, ebf=None, action='manage'):
                 campaign.update_left()
                 if campaign.type is THANKS :
                     campaign.work.description = form.cleaned_data['work_description']
-                    tasks.process_ebfs.delay(campaign)
+                    tasks.process_ebfs.delay(campaign.id)
                 campaign.work.save()
                 alerts.append(_('Campaign data has been saved'))
                 activetab = '#2'
@@ -287,7 +287,7 @@ def manage_campaign(request, id, ebf=None, action='manage'):
             except ValueError:
                 raise Http404
 
-            tasks.make_mobi.delay(ebookfile)
+            tasks.make_mobi.delay(ebookfile.id)
             return HttpResponseRedirect(reverse('mademobi', args=[campaign.id]))
         elif action == 'mademobi':
             alerts.append('A MOBI file is being generated')

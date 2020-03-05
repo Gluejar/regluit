@@ -452,7 +452,7 @@ def edition_uploads(request, edition_id):
                     context['upload_error'] = e
                     form.instance.delete()
                 else:
-                    tasks.process_ebfs.delay(edition.work.last_campaign())
+                    tasks.process_ebfs.delay(edition.work.last_campaign().id)
                 if form.instance.id:
                     new_ebook = models.Ebook.objects.create(
                         edition=edition,
@@ -2704,7 +2704,7 @@ class DownloadView(PurchaseView):
                     # prepare this acq for download
                     if not an_acq.watermarked or an_acq.watermarked.expired:
                         if not an_acq.on_reserve:
-                            watermark_acq.delay(an_acq)
+                            watermark_acq.delay(an_acq.id)
                     acq = an_acq
                     formats['epub'] = reverse('download_acq', kwargs={'nonce':acq.nonce, 'format':'epub'})
                     formats['mobi'] = reverse('download_acq', kwargs={'nonce':acq.nonce, 'format':'mobi'})
@@ -3054,7 +3054,7 @@ def send_to_kindle(request, work_id, javascript='0'):
                 # prepare this acq for download
                 if not an_acq.watermarked or an_acq.watermarked.expired:
                     if not an_acq.on_reserve:
-                        watermark_acq.delay(an_acq)
+                        watermark_acq.delay(an_acq.id)
                 acq = an_acq
                 break
 

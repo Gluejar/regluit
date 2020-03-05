@@ -219,10 +219,10 @@ def edit_edition(request, work_id, edition_id, by=None):
     if request.method == 'POST':
         keep_editing = 'add_author_submit' in request.POST
         form = None
-        edition.new_authors = zip(
+        edition.new_authors = list(zip(
             request.POST.getlist('new_author'),
             request.POST.getlist('new_author_relation')
-        )
+        ))
         edition.new_subjects = request.POST.getlist('new_subject')
         if edition.id and admin:
             for author in edition.authors.all():

@@ -40,7 +40,7 @@ selenium = "*"
 boto3 = "*"
 requests-mock = "*"
 django-notification = {editable = true,git = "git://github.com/eshellman/django-notification.git",ref = "41f0a7bdd9af835adfb27a26a0d9536f083ad568"}
-celery = "*"
+celery = "==4.4.0"
 redis = "*"
 
 [requires]
