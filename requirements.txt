@@ -1,6 +1,6 @@
 -i https://pypi.org/simple
--e git+git://github.com/EbookFoundation/fef-questionnaire.git@c58e5bfece711fcaf88f788162f73eb26fbfea9d#egg=fef-questionnaire
--e git+git://github.com/eshellman/django-email-change.git@830808b9b9db5f3ca9ec0cb22f8fda5cc2cef12d#egg=django-email-change
+-e git+git://github.com/EbookFoundation/fef-questionnaire.git@a75128f797852e0a389cdad48222b56fa68144dd#egg=fef-questionnaire
+-e git+git://github.com/eshellman/django-email-change.git@da14d434e9c84c55075ba31578ac49aa5fbb99d6#egg=django-email-change
 -e git+git://github.com/eshellman/django-notification.git@41f0a7bdd9af835adfb27a26a0d9536f083ad568#egg=django-notification
 amqp==2.5.2
 appdirs==1.4.3
