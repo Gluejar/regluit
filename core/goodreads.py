@@ -84,9 +84,9 @@ class GoodreadsClient(object):
         if int(response['status']) != httplib.OK:
           raise Exception('Invalid response: %s' % response['status'])
         
-        request_token = dict(parse_qsl(content))
+        request_token = dict(parse_qsl(str(content, 'utf-8')))
         
-        q = {'oauth_token':request_token['oauth_token']}
+        q = {'oauth_token': request_token['oauth_token']}
         if callback_url is not None:
           q['oauth_callback'] = callback_url
         
@@ -102,9 +102,9 @@ class GoodreadsClient(object):
       if int(response['status']) != httplib.OK:
           raise Exception('Invalid response: %s' % response['status'])
       
-      access_token_raw = dict(parse_qsl(content))
-      self.__load_access_token(access_token_raw)
-      return access_token_raw
+      access_token = dict(parse_qsl(str(content, 'utf-8')))
+      self.__load_access_token(access_token)
+      return access_token
     
     def load_user_access_token(self,user):
       access_token = {'oauth_token':user.profile.goodreads_auth_token,
@@ -255,14 +255,17 @@ class GoodreadsClient(object):
             shelves = doc.find('shelves')
             # do a simple parsing to a dictionary
             
-            d = dict(  [ (k,int(shelves.attrib[k])) for k in shelves.attrib ]  )
-            d["user_shelves"] = [{'name':shelf.find('name').text,
-                                  'book_count':int(shelf.find('book_count').text),
-                                  'description':shelf.find('description').text if shelf.find('description').attrib['nil'] != 'true' else None,
-                                  'exclusive_flag':shelf.find('exclusive_flag').text} \
-                for shelf in shelves.findall('user_shelf')]
+            d = dict([(k, int(shelves.attrib[k])) for k in shelves.attrib])
+            d["user_shelves"] = [{
+                'name': shelf.find('name').text,
+                'book_count': int(shelf.find('book_count').text),
+                'description': shelf.find('description').text if shelf.find('description') else None,
+                'exclusive_flag': shelf.find('exclusive_flag').text == 'true'
+            } for shelf in shelves.findall('user_shelf')]
   
-            d["total_book_count"] = sum([shelf['book_count'] if shelf['exclusive_flag'] == 'true' else 0 for shelf in d["user_shelves"]])
+            d["total_book_count"] = sum(
+                [shelf['book_count'] if shelf['exclusive_flag'] else 0 for shelf in d["user_shelves"]]
+            )
             return d
         
         
