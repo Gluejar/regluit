@@ -194,10 +194,10 @@ class OPDSAcquisitionView(View):
         work = request.GET.get('work', None)
         if work:
             if self.json:
-                return HttpResponse(opds_json.opds_feed_for_work(work),
+                return StreamingHttpResponse(opds_json.opds_feed_for_work(work),
                         content_type="application/opds-publication+json")
             else:
-                return HttpResponse(opds.opds_feed_for_work(work),
+                return StreamingHttpResponse(opds.opds_feed_for_work(work),
                         content_type="application/atom+xml;profile=opds-catalog;kind=acquisition")
         facet = kwargs.get('facet')
         page = request.GET.get('page', None)
