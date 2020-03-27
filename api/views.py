@@ -17,6 +17,7 @@ from django.http import (
     HttpResponseBadRequest,
     HttpResponseRedirect,
     Http404,
+    StreamingHttpResponse,
 )
 
 
@@ -211,7 +212,7 @@ class OPDSAcquisitionView(View):
                         content_type="application/opds+json")
         else:
             facet_class = opds.get_facet_class(facet)()
-            return HttpResponse(facet_class.feed(page,order_by),
+            return StreamingHttpResponse(facet_class.feed(page,order_by),
                         content_type="application/atom+xml;profile=opds-catalog;kind=acquisition")
 
 
@@ -246,5 +247,5 @@ class OnixView(View):
             page = None
 
         feed = onix.onix_feed(facet_class, max_records, page_number=page)
-        return HttpResponse(feed, content_type="text/xml")
+        return StreamingHttpResponse(feed, content_type="text/xml")
 
