@@ -208,7 +208,7 @@ class OPDSAcquisitionView(View):
             page = None
         if self.json:
             facet_class = opds_json.get_facet_class(facet)()
-            return HttpResponse(facet_class.feed(page,order_by),
+            return StreamingHttpResponse(facet_class.feed(page,order_by),
                         content_type="application/opds+json")
         else:
             facet_class = opds.get_facet_class(facet)()

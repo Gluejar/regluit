@@ -1,17 +1,18 @@
-from itertools import islice
-
 import datetime
-from urllib.parse import urlparse
-from django.urls import reverse
-from django.utils.http import urlquote
+from itertools import islice
+from io import StringIO
+import logging
 import json
+from urllib.parse import urlparse
+
 import pytz
 
-import logging
-logger = logging.getLogger(__name__)
+from django.urls import reverse
+from django.utils.http import urlquote
 
 from regluit.core import models, facets
 import regluit.core.cc as cc
+
 from .opds import (
     feeds,
     get_facet_class,
@@ -20,6 +21,8 @@ from .opds import (
     get_facet_facet,
     opds_feed_for_work,
 )
+
+logger = logging.getLogger(__name__)
 
 licenses = cc.LICENSE_LIST
 
@@ -227,6 +230,8 @@ def opds_feed_for_work(work_id):
     return opds_feed_for_works( single_work_facet(work_id) )
 
 def opds_feed_for_works(the_facet, page=None, order_by='newest'):
+    def send_obj(obj):
+        return json.dumps(obj, indent=2, separators=(',', ': '), sort_keys=False)
     if order_by == 'none':
         books_per_page = 50000
     else:
@@ -237,7 +242,6 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
     metadata = {"title": title}
     links = []
     feedlist = []
-    feed = {"@context": JSONCONTEXT, "metadata": metadata, "links": links, "publications": feedlist}
     
     # add title
     # TO DO: will need to calculate the number items and where in the feed we are
@@ -255,34 +259,43 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
             page = 0
 
     # self link
-    append_navlink(feed, 'self', feed_path, page , order_by, title="First {}".format(books_per_page))
+    append_navlink(links, 'self', feed_path, page , order_by, title="First {}".format(books_per_page))
     
     # next link    
     try:
         works[books_per_page * page + books_per_page]
-        append_navlink(feed, 'next', feed_path, page+1 , order_by, 
+        append_navlink(links, 'next', feed_path, page+1 , order_by, 
             title="Next {}".format(books_per_page))
     except IndexError:
         pass
     
     # sort facets
-    append_navlink(feed, FACET_RELATION, feed_path, None, 'popular', group="Order", active = order_by=='popular', title="Sorted by popularity")
-    append_navlink(feed, FACET_RELATION, feed_path, None, 'newest', group="Order", active = order_by=='newest', title="Sorted by newest")
+    append_navlink(links, FACET_RELATION, feed_path, None, 'popular', group="Order", active = order_by=='popular', title="Sorted by popularity")
+    append_navlink(links, FACET_RELATION, feed_path, None, 'newest', group="Order", active = order_by=='newest', title="Sorted by newest")
     
     #other facets
     for other_group in the_facet.facet_object.get_other_groups():
         for facet_object in other_group.get_facets():
-            append_navlink(feed, FACET_RELATION, feed_path + '/' + facet_object.facet_name, None, order_by, group=other_group.title, title=facet_object.title)
+            append_navlink(links, FACET_RELATION, feed_path + '/' + facet_object.facet_name, None, order_by, group=other_group.title, title=facet_object.title)
     
     works = islice(works,  books_per_page * page, books_per_page * page + books_per_page)
     if page > 0:
-        append_navlink(feed, 'previous', feed_path, page-1, order_by, title="Previous {}".format(books_per_page))
+        append_navlink(links, 'previous', feed_path, page-1, order_by, title="Previous {}".format(books_per_page))
+
+    yield '{' + f"""
+"@context": {JSONCONTEXT},
+"metadata": {json.dumps(metadata, indent=2,)},
+"links": {json.dumps(links, indent=2,)},
+"publications": 
+[
+"""
+    
     for work in works:
         node = work_node(work, facet=the_facet.facet_object)
-        feedlist.append(node)
-    return json.dumps(feed,indent=2, separators=(',', ': '), sort_keys=False)
+        yield json.dumps(node, indent=2) + ',\r'
+    yield '\r]\r}' 
 
-def append_navlink(feed, rel, path, page, order_by, group=None, active=None , title=""):
+def append_navlink(links, rel, path, page, order_by, group=None, active=None , title=""):
     link = { 
         "rel": rel,
         "href": UNGLUEIT_URL + "/api/opdsjson/" + urlquote(path) + '/?order_by=' + order_by + ('&page=' + str(page) ),
@@ -294,4 +307,4 @@ def append_navlink(feed, rel, path, page, order_by, group=None, active=None , ti
             link['facetGroup'] = group
             if active:
                 link['activeFacet'] = 'true'
-    feed['links'].append(link)
+    links.append(link)
