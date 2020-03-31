@@ -57,11 +57,12 @@ def onix_feed(facet, max=None, page_number=None):
     yield '</ONIXMessage>'
     
 def onix_feed_for_work(work):
-    soup.append(header(work))
-    for edition in models.Edition.objects.filter(work=work,ebooks__isnull=False).distinct():
+    soup = BeautifulSoup(feed_xml, 'xml')
+    soup.ONIXMessage.append(header(work))
+    for edition in models.Edition.objects.filter(work=work, ebooks__isnull=False).distinct():
         edition_prod = product(edition)
         if edition_prod is not None:
-            soup.append(product(edition))
+            soup.ONIXMessage.append(product(edition))
     return str(soup)
     
 def header(facet=None):
