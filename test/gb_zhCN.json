@@ -1,0 +1,102 @@
+{
+  "kind": "books#volumes",
+  "totalItems": 1,
+  "items": [
+    {
+      "kind": "books#volume",
+      "id": "YO3FDwAAQBAJ",
+      "etag": "40WYx/9Qf8A",
+      "selfLink": "https://www.googleapis.com/books/v1/volumes/YO3FDwAAQBAJ",
+      "volumeInfo": {
+        "title": "杜甫文集（4册）",
+        "authors": [
+          "王新龙编著"
+        ],
+        "publisher": "BEIJING BOOK CO. INC.",
+        "publishedDate": "2009-08-01",
+        "description": "深刻反映唐代安史之乱前后20多年的社会全貌。把社会现实与个人生活紧密结合，达到思想内容与艺术形式的完美统一。代表唐代诗歌的最高成就，展现诗人的一生传奇。",
+        "industryIdentifiers": [
+          {
+            "type": "ISBN_13",
+            "identifier": "9787999076179"
+          },
+          {
+            "type": "ISBN_10",
+            "identifier": "7999076171"
+          }
+        ],
+        "readingModes": {
+          "text": true,
+          "image": false
+        },
+        "printType": "BOOK",
+        "categories": [
+          "Poetry"
+        ],
+        "maturityRating": "MATURE",
+        "allowAnonLogging": false,
+        "contentVersion": "1.1.1.0.preview.2",
+        "panelizationSummary": {
+          "containsEpubBubbles": false,
+          "containsImageBubbles": false
+        },
+        "imageLinks": {
+          "smallThumbnail": "http://books.google.com/books/content?id=YO3FDwAAQBAJ&printsec=frontcover&img=1&zoom=5&edge=curl&source=gbs_api",
+          "thumbnail": "http://books.google.com/books/content?id=YO3FDwAAQBAJ&printsec=frontcover&img=1&zoom=1&edge=curl&source=gbs_api"
+        },
+        "language": "zh-CN",
+        "previewLink": "http://books.google.com/books?id=YO3FDwAAQBAJ&printsec=frontcover&dq=isbn:9787999076179&hl=&cd=1&source=gbs_api",
+        "infoLink": "https://play.google.com/store/books/details?id=YO3FDwAAQBAJ&source=gbs_api",
+        "canonicalVolumeLink": "https://play.google.com/store/books/details?id=YO3FDwAAQBAJ"
+      },
+      "saleInfo": {
+        "country": "US",
+        "saleability": "FOR_SALE",
+        "isEbook": true,
+        "listPrice": {
+          "amount": 9.24,
+          "currencyCode": "USD"
+        },
+        "retailPrice": {
+          "amount": 9.24,
+          "currencyCode": "USD"
+        },
+        "buyLink": "https://play.google.com/store/books/details?id=YO3FDwAAQBAJ&rdid=book-YO3FDwAAQBAJ&rdot=1&source=gbs_api",
+        "offers": [
+          {
+            "finskyOfferType": 1,
+            "listPrice": {
+              "amountInMicros": 9240000,
+              "currencyCode": "USD"
+            },
+            "retailPrice": {
+              "amountInMicros": 9240000,
+              "currencyCode": "USD"
+            },
+            "giftable": true
+          }
+        ]
+      },
+      "accessInfo": {
+        "country": "US",
+        "viewability": "PARTIAL",
+        "embeddable": true,
+        "publicDomain": false,
+        "textToSpeechPermission": "ALLOWED",
+        "epub": {
+          "isAvailable": true,
+          "acsTokenLink": "http://books.google.com/books/download/%E6%9D%9C%E7%94%AB%E6%96%87%E9%9B%86_4%E5%86%8C-sample-epub.acsm?id=YO3FDwAAQBAJ&format=epub&output=acs4_fulfillment_token&dl_type=sample&source=gbs_api"
+        },
+        "pdf": {
+          "isAvailable": false
+        },
+        "webReaderLink": "http://play.google.com/books/reader?id=YO3FDwAAQBAJ&hl=&printsec=frontcover&source=gbs_api",
+        "accessViewStatus": "SAMPLE",
+        "quoteSharingAllowed": false
+      },
+      "searchInfo": {
+        "textSnippet": "深刻反映唐代安史之乱前后20多年的社会全貌。把社会现实与个人生活紧密结合，达到思想内容与艺术形式的完美统一。代表唐代诗歌的最高成就，展现诗人的一生传奇。"
+      }
+    }
+  ]
+}
