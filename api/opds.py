@@ -47,7 +47,8 @@ def get_facet_class(name):
 
 def text_node(tag, text):
     node = soup.new_tag(tag)
-    node.string = text
+    if text:
+        node.string = text
     return node
 
 def html_node(tag, html):

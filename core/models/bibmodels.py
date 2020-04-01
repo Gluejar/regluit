@@ -891,7 +891,7 @@ class Edition(models.Model):
                 im = get_thumbnail(self.cover_image, 'x550', crop='noop', quality=95)
                 if im.exists():
                     return im.url
-            except IOError:
+            except (IOError, OSError):
                 pass
         elif self.googlebooks_id:
             url = "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=0" % self.googlebooks_id
@@ -902,7 +902,7 @@ class Edition(models.Model):
                     im = get_thumbnail(url, 'x550', crop='noop', quality=95)
                 if im.exists():
                     return im.url
-            except IOError:
+            except (IOError, OSError):
                 pass
         return ''
 
@@ -913,7 +913,7 @@ class Edition(models.Model):
                 im = get_thumbnail(self.cover_image, 'x80', crop='noop', quality=95)
                 if im.exists():
                     return im.url
-            except IOError:
+            except (IOError, OSError):
                 pass
         if self.googlebooks_id:
             return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % self.googlebooks_id
@@ -926,7 +926,7 @@ class Edition(models.Model):
                 im = get_thumbnail(self.cover_image, '128', crop='noop', quality=95)
                 if im.exists():
                     return im.url
-            except IOError:
+            except (IOError, OSError):
                 pass
         if self.googlebooks_id:
             return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % self.googlebooks_id

@@ -433,6 +433,8 @@ NOTIFICATION_QUEUE_ALL = True
 # amazon or paypal for now.
 PAYMENT_PROCESSOR = 'stripelib'
 
+# allow application code to catch thumbnailing errors
+THUMBNAIL_DEBUG = True
 
 # we should suppress Google Analytics outside of production
 SHOW_GOOGLE_ANALYTICS = False
