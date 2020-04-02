@@ -225,7 +225,7 @@ class OnixView(View):
                 work = models.safe_get_work(work)
             except models.Work.DoesNotExist:
                 raise Http404
-            return StreamingHttpResponse(onix.onix_feed_for_work(work), content_type="text/xml")
+            return HttpResponse(onix.onix_feed_for_work(work), content_type="text/xml")
 
         facet = kwargs.get('facet', 'all')
 
