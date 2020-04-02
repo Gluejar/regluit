@@ -17,7 +17,7 @@ import regluit.core.cc as cc
 licenses = cc.LICENSE_LIST
 logger = logging.getLogger(__name__)
 
-soup = BeautifulSoup('', 'lxml')
+soup = BeautifulSoup('', 'xml')
 FORMAT_TO_MIMETYPE = {'pdf':"application/pdf",
                       'epub':"application/epub+zip",
                       'mobi':"application/x-mobipocket-ebook",

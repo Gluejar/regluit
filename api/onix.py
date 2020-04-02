@@ -17,7 +17,7 @@ feed_header = """<?xml version="1.0" encoding="UTF-8"?>
 <ONIXMessage release="3.0" xmlns="http://ns.editeur.org/onix/3.0/reference" >
 """
 feed_xml = feed_header + '</ONIXMessage>'
-soup = BeautifulSoup('', 'lxml')
+soup = BeautifulSoup('', 'xml')
 bisac = Bisac()
 
 def text_node(tag, text, attrib=None):
