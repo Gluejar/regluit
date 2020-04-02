@@ -17,7 +17,7 @@ import regluit.core.cc as cc
 licenses = cc.LICENSE_LIST
 logger = logging.getLogger(__name__)
 
-soup = BeautifulSoup('', 'lxml')
+soup = None
 FORMAT_TO_MIMETYPE = {'pdf':"application/pdf",
                       'epub':"application/epub+zip",
                       'mobi':"application/x-mobipocket-ebook",
@@ -273,6 +273,9 @@ def opds_feed_for_work(work_id):
     return opds_feed_for_works(single_work_facet(work_id))
 
 def opds_feed_for_works(the_facet, page=None, order_by='newest'):
+    global soup
+    if not soup:
+        soup = BeautifulSoup('', 'lxml')
     works = the_facet.works
     feed_path = the_facet.feed_path
     title = the_facet.title

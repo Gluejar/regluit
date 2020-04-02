@@ -17,7 +17,7 @@ feed_header = """<?xml version="1.0" encoding="UTF-8"?>
 <ONIXMessage release="3.0" xmlns="http://ns.editeur.org/onix/3.0/reference" >
 """
 feed_xml = feed_header + '</ONIXMessage>'
-soup = BeautifulSoup('', 'lxml')
+soup = None
 bisac = Bisac()
 
 def text_node(tag, text, attrib=None):
@@ -36,6 +36,10 @@ def sub_element(node, tag, attrib=None):
 
 
 def onix_feed(facet, max=None, page_number=None):
+    global soup
+    if not soup:
+        soup = BeautifulSoup('', 'lxml')
+
     yield feed_header + str(header(facet))
     works = facet.works[0:max] if max else facet.works
 
@@ -56,6 +60,10 @@ def onix_feed(facet, max=None, page_number=None):
     yield '</ONIXMessage>'
 
 def onix_feed_for_work(work):
+    global soup
+    if not soup:
+        soup = BeautifulSoup('', 'lxml')
+
     feed = BeautifulSoup(feed_xml, 'xml')
     feed.ONIXMessage.append(header(work))
     for edition in models.Edition.objects.filter(work=work, ebooks__isnull=False).distinct():
