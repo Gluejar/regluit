@@ -16,8 +16,8 @@ import regluit.core.cc as cc
 
 licenses = cc.LICENSE_LIST
 logger = logging.getLogger(__name__)
-soup = BeautifulSoup('', 'xml')
 
+soup = None
 FORMAT_TO_MIMETYPE = {'pdf':"application/pdf",
                       'epub':"application/epub+zip",
                       'mobi':"application/x-mobipocket-ebook",
@@ -47,7 +47,8 @@ def get_facet_class(name):
 
 def text_node(tag, text):
     node = soup.new_tag(tag)
-    node.string = text
+    if text:
+        node.string = text
     return node
 
 def html_node(tag, html):
@@ -124,16 +125,16 @@ def work_node(work, facet=None):
 
     cover_node = soup.new_tag("link")
     cover_node.attrs.update({
-        "href":work.cover_image_small(),
-        "type":"image/"+work.cover_filetype(),
-        "rel":"http://opds-spec.org/image/thumbnail"
+        "href": work.cover_image_small(),
+        "type": "image/" + work.cover_filetype(),
+        "rel": "http://opds-spec.org/image/thumbnail"
     })
     node.append(cover_node)
     cover_node = soup.new_tag("link")
     cover_node.attrs.update({
-        "href":work.cover_image_thumbnail(),
-        "type":"image/"+work.cover_filetype(),
-        "rel":"http://opds-spec.org/image"
+        "href": work.cover_image_thumbnail(),
+        "type": "image/" + work.cover_filetype(),
+        "rel": "http://opds-spec.org/image"
     })
     node.append(cover_node)
 
@@ -272,10 +273,14 @@ def opds_feed_for_work(work_id):
     return opds_feed_for_works(single_work_facet(work_id))
 
 def opds_feed_for_works(the_facet, page=None, order_by='newest'):
+    global soup
+    if not soup:
+        soup = BeautifulSoup('', 'lxml')
     works = the_facet.works
     feed_path = the_facet.feed_path
     title = the_facet.title
-    feed_header = """<feed xmlns:dcterms="http://purl.org/dc/terms/"
+    feed_header = """<?xml version="1.0" encoding="UTF-8"?>
+    <feed xmlns:dcterms="http://purl.org/dc/terms/"
       xmlns:opds="http://opds-spec.org/"
       xmlns="http://www.w3.org/2005/Atom"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -356,7 +361,6 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
     works = islice(works, 10 * page, 10 * page + 10)
     if page > 0:
         yield navlink('previous', feed_path, page-1, order_by, title="Previous 10").prettify()
-
 
     for work in works:
         yield work_node(work, facet=the_facet.facet_object).prettify()

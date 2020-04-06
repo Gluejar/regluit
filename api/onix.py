@@ -17,8 +17,8 @@ feed_header = """<?xml version="1.0" encoding="UTF-8"?>
 <ONIXMessage release="3.0" xmlns="http://ns.editeur.org/onix/3.0/reference" >
 """
 feed_xml = feed_header + '</ONIXMessage>'
+soup = None
 bisac = Bisac()
-soup = BeautifulSoup(feed_xml, 'xml')
 
 def text_node(tag, text, attrib=None):
     node = soup.new_tag(tag)
@@ -36,6 +36,10 @@ def sub_element(node, tag, attrib=None):
 
 
 def onix_feed(facet, max=None, page_number=None):
+    global soup
+    if not soup:
+        soup = BeautifulSoup('', 'lxml')
+
     yield feed_header + str(header(facet))
     works = facet.works[0:max] if max else facet.works
 
@@ -56,13 +60,17 @@ def onix_feed(facet, max=None, page_number=None):
     yield '</ONIXMessage>'
 
 def onix_feed_for_work(work):
-    soup = BeautifulSoup(feed_xml, 'xml')
-    soup.ONIXMessage.append(header(work))
+    global soup
+    if not soup:
+        soup = BeautifulSoup('', 'lxml')
+
+    feed = BeautifulSoup(feed_xml, 'xml')
+    feed.ONIXMessage.append(header(work))
     for edition in models.Edition.objects.filter(work=work, ebooks__isnull=False).distinct():
         edition_prod = product(edition)
         if edition_prod is not None:
-            soup.ONIXMessage.append(product(edition))
-    return str(soup)
+            feed.ONIXMessage.append(product(edition))
+    return str(feed)
 
 def header(facet=None):
     header_node = soup.new_tag("Header")
