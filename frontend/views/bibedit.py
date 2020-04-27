@@ -160,12 +160,13 @@ def new_edition(request, by=None):
                 else:
                     edition = get_edition_for_id(id_type, id_value, user=request.user)
             
-            return HttpResponseRedirect(
-                reverse('new_edition', kwargs={
-                    'work_id': edition.work_id,
-                    'edition_id': edition.id
-                })
-            )
+            if edition:
+                return HttpResponseRedirect(
+                    reverse('new_edition', kwargs={
+                        'work_id': edition.work_id,
+                        'edition_id': edition.id
+                    })
+                )
     else:
         form = IdentifierForm()
     return render(request, 'new_edition.html', {'form': form, 'alert':alert})

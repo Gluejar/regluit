@@ -360,6 +360,8 @@ ID_URLPATTERNS = {
 
 def ids_from_urls(url):
     ids = {}
+    if not url:
+        return ids
     for ident, pattern in ID_URLPATTERNS.items():
         id_match = pattern.search(url)
         if id_match:

@@ -19,7 +19,7 @@ django-selectable = "==1.1.0"
 django-email-change = {editable = true,git = "git://github.com/eshellman/django-email-change.git",ref = "830808b9b9db5f3ca9ec0cb22f8fda5cc2cef12d"}
 django-ckeditor = "==5.6.1"
 django-storages = "==1.5.2"
-sorl-thumbnail = "==12.3"
+sorl-thumbnail = "==12.6.3"
 django-mptt = "==0.8.6"
 django-sass-processor = "==0.5.6"
 mysqlclient = "*"
