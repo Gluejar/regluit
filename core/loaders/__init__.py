@@ -43,6 +43,8 @@ def scrape_sitemap(url, maxnum=None):
         logger.error(e)
 
 def add_by_webpage(url, work=None, user=None):
+    if not url:
+        return None
     edition = None
     scraper = get_scraper(url)
     loader = BasePandataLoader(url)
