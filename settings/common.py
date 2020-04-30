@@ -361,6 +361,7 @@ CAMPAIGN_ARCHIVE_JS = "http://us2.campaign-archive1.com/generate-js/?u=154728787
 # use redis for production queue and results
 BROKER_URL = "redis://127.0.0.1:6379/0"
 CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/1"
+CELERY_LOG_DIR = ""
 
 # periodic tasks for celery
 from celery.schedules import crontab
