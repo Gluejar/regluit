@@ -417,7 +417,7 @@ NOTIFY_UNCLAIMED_GIFTS = {
 
 SAVE_INFO_PAGE = {
     "task": "regluit.frontend.tasks.save_info_page",
-    "schedule": crontab(day_of_month='1,11,21', hour=0, minute=40),
+    "schedule": crontab(day_of_month='*', hour=0, minute=40),
     "args": ()    
 }
 
