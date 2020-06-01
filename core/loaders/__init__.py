@@ -52,7 +52,10 @@ def add_by_webpage(url, work=None, user=None):
     pandata.metadata = scraper.metadata
     for metadata in pandata.get_edition_list():
         edition = loader.load_from_pandata(metadata, work)
-        work = edition.work
+        if hasattr(edition, 'work'):
+            work = edition.work
+        else:
+            return None
     loader.load_ebooks(pandata, edition, user=user)
     return edition if edition else None
 
