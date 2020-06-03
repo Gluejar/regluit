@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d571bb7cb4f24fc5ceebb1cc75b33d14a4b9c89d2ef4282a3f77ab983c7fca24"
+            "sha256": "5477929f0107571c0edebe78e9b617250fdc4b29546d77639fe08254a065ea08"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -241,7 +241,7 @@
         "django-notification": {
             "editable": true,
             "git": "git://github.com/eshellman/django-notification.git",
-            "ref": "7e6b437b7e1ef1c9c437411809ceddbf13afabf3"
+            "ref": "24b5fcbc4c4e4694658261dc545f213462416f83"
         },
         "django-registration": {
             "hashes": [
