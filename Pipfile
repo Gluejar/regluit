@@ -39,7 +39,7 @@ pyoai = "*"
 selenium = "*"
 boto3 = "*"
 requests-mock = "*"
-django-notification = {editable = true,git = "git://github.com/eshellman/django-notification.git",ref = "7e6b437b7e1ef1c9c437411809ceddbf13afabf3"}
+django-notification = {editable = true,git = "git://github.com/eshellman/django-notification.git",ref = "24b5fcbc4c4e4694658261dc545f213462416f83"}
 celery = "==4.4.0"
 redis = "*"
 httplib2 = "==0.18.0"
