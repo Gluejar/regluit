@@ -117,7 +117,8 @@ def get_edition_for_id(id_type, id_value, user=None):
     
     if 'http' in identifiers:
         edition = add_by_webpage(identifiers['http'], user=user)
-        return user_edition(edition, user)
+        if edition:
+            return user_edition(edition, user)
 
     
     # return a dummy edition and identifier
@@ -128,7 +129,7 @@ def get_edition_for_id(id_type, id_value, user=None):
     for key in identifiers.keys():
         if key == 'glue':
             id_value = work.id
-        if key not in ('http', 'goog', 'oclc', 'isbn'):
+        if key not in ('goog', 'oclc', 'isbn'):
             if key in WORK_IDENTIFIERS:
                 edid = str(edition.id)
                 models.Identifier.objects.create(type='edid', value=edid, work=work, edition=edition)  

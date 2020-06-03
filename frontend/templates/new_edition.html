@@ -17,7 +17,7 @@
     <p>Step 1 -  <b>Identifier</b></p>
 
 
-<p>To add a work and edition to Unglue.it, we need to start with an identifier. We'll see if we can find some metadata based on the identifier you give us. If you give us an ISBN, we'll often be able to find some. If there's no ISBN, give us a URL (a web address) and we'll check the page for bibliographic info. </p>
+<p>To add a work and edition to Unglue.it, we need to start with an identifier. We'll see if we can find some metadata based on the identifier you give us. If you give us an ISBN, we'll often be able to find some. If there's no ISBN, give us a URL (a web address) and we'll check the page for bibliographic info. Note: Amazon won't let us use metadata from their site, so better to use non-Amazon URLs.</p>
 {% if not request.user.rights_holder.all.count %}
     <p>If someone else has already added the work to unglue.it, you may not be able to edit its metadata.</p>
 {% endif %}
