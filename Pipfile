@@ -33,7 +33,7 @@ gitberg = "*"
 oauth2 = "*"
 mechanize = "*"
 stripe = "*"
-fef-questionnaire = {editable = true,git = "git://github.com/EbookFoundation/fef-questionnaire.git",ref = "c58e5bfece711fcaf88f788162f73eb26fbfea9d"}
+fef-questionnaire = {editable = true,git = "git://github.com/EbookFoundation/fef-questionnaire.git",ref = "6672fa575b2d93b1353f926e9894ae88b4251892"}
 risparser = "*"
 pyoai = "*"
 selenium = "*"
