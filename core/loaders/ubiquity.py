@@ -9,8 +9,8 @@ HAS_EDS = re.compile(r'\(eds?\.\)')
 UBIQUITY_HOSTS = ["ubiquitypress.com", "kriterium.se", "oa.finlit.fi", "humanities-map.net",
     "oa.psupress.org", "larcommons.net", "uwestminsterpress.co.uk", "stockholmuniversitypress.se",
     "luminosoa.org", "iitikship.iiti.ac.in", "aperio.press", "press.lse.ac.uk", "press.sjms.nu", 
-    "trystingtree.library.oregonstate.edu", "publishing.vt.edu", "universitypress.whiterose.ac.uk",
-    "www.winchesteruniversitypress.org",
+    "publishing.vt.edu", "universitypress.whiterose.ac.uk", "www.winchesteruniversitypress.org", 
+    "utsepress.lib.uts.edu.au", "www.mwv-open.de", "hup.fi", 
 ]
 
 class UbiquityScraper(BaseScraper):

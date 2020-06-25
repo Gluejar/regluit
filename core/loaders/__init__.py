@@ -1,4 +1,5 @@
 import logging
+from ssl import SSLError
 import requests
 from bs4 import BeautifulSoup
 
@@ -40,6 +41,8 @@ def scrape_sitemap(url, maxnum=None):
             if scraper.metadata.get('genre', None) == 'book':
                 yield scraper
     except requests.exceptions.RequestException as e:
+        logger.error(e)
+    except SSLError as e:
         logger.error(e)
 
 def add_by_webpage(url, work=None, user=None):
