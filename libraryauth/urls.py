@@ -67,11 +67,11 @@ urlpatterns = [
     )),
     url(r'^accounts/password/change/$',
         login_required(views.social_aware_password_change),
-        {'post_change_redirect': reverse_lazy('auth_password_change_done')},
+        {'post_change_redirect': reverse_lazy('password_change_done')},
         name='libraryauth_password_change'),
     url(r'^password/reset/$',
         password_reset,
-        {'post_reset_redirect': reverse_lazy('auth_password_reset_done'),
+        {'post_reset_redirect': reverse_lazy('password_reset_done'),
         'password_reset_form': forms.SocialAwarePasswordResetForm},
         name='libraryauth_password_reset'),
 
