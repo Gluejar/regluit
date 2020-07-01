@@ -411,7 +411,7 @@ NOTIFY_EXPIRING_ACCOUNTS = {
 
 NOTIFY_UNCLAIMED_GIFTS = {
     "task": "regluit.core.tasks.notify_unclaimed_gifts",
-    "schedule": crontab( hour=2, minute=15),
+    "schedule": crontab(hour=2, minute=15),
     "args": ()    
 }
 
@@ -424,6 +424,12 @@ SAVE_INFO_PAGE = {
 PERIODIC_CLEANUP = {
     "task": "regluit.core.tasks.periodic_cleanup",
     "schedule": crontab(day_of_month='1,11,21', hour=0, minute=35),
+    "args": ()    
+}
+
+EMIT_NOTICES = {
+    "task": "regluit.core.tasks.emit_notifications",
+    "schedule": crontab(minute='1,11,21,31,41,51'),
     "args": ()    
 }
 
