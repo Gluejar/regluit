@@ -16,7 +16,6 @@
 <script type="text/javascript" src="{{ jquery_ui_home }}"></script>
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
 <script type="text/javascript" src="/static/js/toggle.js"></script>
-<script type="text/javascript" src="/static/js/tabs.js"></script>
 {% endblock %}
 {% block topsection %}
 <div id="locationhash">{{ activetab }}</div>
@@ -33,7 +32,7 @@
 								</div>
 								<div class="user-block2">
 								{% block userblock2 %}
-								<span class="user-short-info">With your help we're raising money to give these {% if pub_lang %}{{pub_lang|ez_lang_name}} language {% endif %}books to the world.</span>
+								<span class="user-short-info">These {% if pub_lang %}{{pub_lang|ez_lang_name}} language {% endif %}books are Free!</span>
 								{% endblock %}
 								</div>
     	                        <div class="user-block3">
@@ -61,12 +60,7 @@
         <div id="js-maincol-fr">
         <div class="js-maincol-inner">
             <div id="content-block">
-                <div class="content-block-heading wantto" id="tabs">
-                    <ul class="tabs">
-                        <li class="tabs1"><a href="#">Unglued<br />({{ counts.unglued }})</a></li>
-                        <li class="tabs2"><a href="#">Ungluing<br />({{ counts.unglueing }})</a></li>
-                        <li class="tabs3"><a href="#">Not Yet<br />({{ counts.wished }})</a></li>
-                    </ul>
+                <div class="content-block-heading unglued" id="tabs">
                     <ul class="book-list-view">
                         <li>View As:</li>
                         <li class="view-list">
@@ -80,9 +74,15 @@
                             </a>
                         </li>
                     </ul>
+                    <ul class="book-list-view">
+                        <li>Sort by:</li>
+                        <li class="view-list"><a {% if facet == 'popular' %}class="chosen" {% endif %}href="{% url url_name 'popular' pubname %}{% if pub_lang %}?pub_lang={{pub_lang}}{% endif %}">popular</a></li>
+                        <li class="view-list"><a {% if facet == 'new' %}class="chosen" {% endif %}href="{% url url_name 'new' pubname %}{% if pub_lang %}?pub_lang={{pub_lang}}{% endif %}">newest</a></li>
+                    </ul>
+
                 </div>
                 <div id="content-block-content">
-                    {% ifequal work_list.count 0 %}
+                    {% if not work_list.0 %}
                     {% block noworks %}
                     There aren't any {{ pub_lang|ez_lang_name }} works in this list yet.  {% block add_more %}Why not add your favorite books to your list, so we can feature them here?{% endblock %}
 					{% endblock %}
@@ -90,47 +90,18 @@
                         {% lazy_paginate 20 works_unglued using "works_unglued" %}
                         {% for work in works_unglued %}
                         <div class="{% cycle 'row1' 'row2' %}">
-                        {% with googlebooks_id=work.googlebooks_id tab_override='tabs-1' %}					
+                        {% with googlebooks_id=work.googlebooks_id %}					
                         {% include "book_panel.html" %}
                         {% endwith %}
                         </div>
                         {% endfor %}
-                        <div class="pagination content-block-heading tabs-1">
+                        <div class="pagination content-block-heading">
                             {% get_pages %}
                             {% for page in pages %}
                                 <a href="{{ page.path }}#1" class="endless_page_link">{{ page.number }}</a>
                             {% endfor %}
                         </div>
-                        {% lazy_paginate 20 works_active using "works_active" %}
-                        {% for work in works_active %}
-                        <div class="{% cycle 'row1' 'row2' %}">
-                        {% with googlebooks_id=work.googlebooks_id  tab_override='tabs-2' %}					
-                        {% include "book_panel.html" %}
-                        {% endwith %}
-                        </div>
-                        {% endfor %}
-                        <div class="pagination content-block-heading tabs-2">
-                            {% get_pages %}
-                            {% for page in pages %}
-                                <a href="{{ page.path }}#2" class="endless_page_link">{{ page.number }}</a>
-                            {% endfor %}
-                        </div>
-    
-                        {% lazy_paginate 20 works_wished using "works_wished" %}
-                        {% for work in works_wished %}
-                        <div class="{% cycle 'row1' 'row2' %}">
-                        {% with googlebooks_id=work.googlebooks_id  tab_override='tabs-3' %}					
-                        {% include "book_panel.html" %}
-                        {% endwith %}
-                        </div>
-                        {% endfor %}
-                        <div class="pagination content-block-heading tabs-3">
-                            {% get_pages %}
-                            {% for page in pages %}
-                                <a href="{{ page.path }}#3" class="endless_page_link">{{ page.number }}</a>
-                            {% endfor %}
-                        </div>
-                    {% endifequal %}
+                    {% endif %}
                 </div>
             </div>    
             {% if request.user.libpref %}

@@ -645,42 +645,23 @@ recommended_user = User.objects.filter(username=settings.UNGLUEIT_RECOMMENDED_US
 class WorkListView(FilterableListView):
     template_name = "work_list.html"
     context_object_name = "work_list"
-    max_works = 100000
 
     def get_queryset_all(self):
         facet = self.kwargs.get('facet', None)
-        if (facet == 'popular'):
-            return models.Work.objects.exclude(num_wishes=0).order_by('-num_wishes', 'id')
-        elif (facet == 'recommended'):
+        if facet == 'popular':
+            return models.Work.objects.exclude(num_wishes=0).order_by('-num_wishes')
+        elif facet == 'recommended':
             self.template_name = "recommended.html"
             return models.Work.objects.filter(wishlists__user=recommended_user).order_by('-num_wishes')
-        elif (facet == 'new'):
-            return models.Work.objects.exclude(num_wishes=0).order_by('-created', '-num_wishes' ,'id')
         else:
-            return models.Work.objects.all().order_by('-created', 'id')
+            return models.Work.objects.all().order_by('-created')
 
     def get_context_data(self, **kwargs):
         context = super(WorkListView, self).get_context_data(**kwargs)
         qs = self.get_queryset()
-        context['facet'] = self.kwargs.get('facet','')
-        works_unglued = qs.filter(is_free = True).distinct() | qs.filter(campaigns__status='SUCCESSFUL').distinct()
-        context['works_unglued'] = works_unglued[:self.max_works]
-        context['works_active'] = qs.filter(campaigns__status='ACTIVE').distinct()[:self.max_works]
-        context['works_wished'] = qs.filter(is_free=False).exclude(campaigns__status='ACTIVE').exclude(campaigns__status='SUCCESSFUL').distinct()[:self.max_works]
-
-        counts = {}
-        counts['unglued'] = context['works_unglued'].count()
-        counts['unglueing'] = context['works_active'].count()
-        counts['wished'] = context['works_wished'].count()
-        context['counts'] = counts
-
-        if counts['unglueing']:
-            context['activetab'] = "#2"
-        elif counts['unglued']:
-            context['activetab'] = "#1"
-        else:
-            context['activetab'] = "#3"
-
+        context['facet'] = self.kwargs.get('facet','all')
+        context['works_unglued'] = qs.filter(is_free=True).distinct()
+        context['url_name'] = 'work_list_nopub'
         return context
 
 class FacetedView(FilterableListView):
@@ -718,7 +699,6 @@ class FacetedView(FilterableListView):
 class ByPubView(WorkListView):
     template_name = "bypub_list.html"
     context_object_name = "work_list"
-    max_works = 100000
     publisher_name = None
     publisher = None
 
@@ -740,11 +720,11 @@ class ByPubView(WorkListView):
         facet = self.kwargs.get('facet','')
         self.get_publisher_name()
         objects = models.Work.objects.filter(editions__publisher_name__id=self.publisher_name.id).distinct()
-        if (facet == 'popular'):
+        if facet == 'popular':
             return objects.order_by('-num_wishes', 'id')
-        elif (facet == 'pubdate'):
+        elif facet == 'pubdate':
             return objects.order_by('-editions__publication_date') # turns out this messes up distinct, and MySQL doesn't support DISTINCT ON
-        elif (facet == 'new'):
+        elif facet == 'new':
             return objects.filter(num_wishes__gt=0).order_by('-created', '-num_wishes' ,'id')
         else:
             return objects.order_by('title', 'id')
@@ -754,6 +734,7 @@ class ByPubView(WorkListView):
         context['pubname'] = self.publisher_name
         context['publisher'] = self.publisher
         context['facet'] = self.kwargs.get('facet','all')
+        context['url_name'] = 'bypub_list'
 
         return context
 

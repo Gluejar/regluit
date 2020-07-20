@@ -55,14 +55,6 @@
                                 <li><a href="{% url 'work_list' 'popular' %}"><span>Site Favorites</span></a></li>
                                 <li><a href="{% url 'work_list' 'new' %}"><span>Latest Favorites</span></a></li>
                                 <!--<li><a href="{% url 'work_list' 'recommended' %}"><span>Noteworthy</span></a></li>-->
-                            {% if pubname %}
-                                <li>{{ pubname }}...
-                                <ul class="menu level3">
-                                    <li class="first"><a href="{% url 'bypub_list' 'popular' pubname %}"><span>Most popular</span></a></li>
-                                    <li><a href="{% url 'bypub_list' pubname %}"><span>By Title</span></a></li>
-                                </ul>
-                                </li>
-                             {% endif %}
                             </ul>
                         </li>
                         {% if show_langs %}
