@@ -3,7 +3,7 @@
 {% load el_pagination_tags %}
 {% load lang_utils %}
 
-{% block title %} Works published by {{ pubname }} {% endblock %}
+{% block title %} Works published by {{ pubname }} with free editions{% endblock %}
 {% block userblock1 %}
     {% if publisher %}
     <div class="publogo"><a href="{{ publisher.url }}"><img src="{{ publisher.logo_url }}" alt="{{ pubname }} logo" width="220" /></a></div>
@@ -13,10 +13,10 @@
 {% endblock %}
 {% block userblock2 %}
     {% if publisher %}
-    <span class="special-user-name">Books from <a href="{{ publisher.url }}">{{ pubname }}</a> {% if pub_lang %}( {{pub_lang|ez_lang_name}} ) {% endif %}</span>
+    <span class="special-user-name"><a href="{{ publisher.url }}">{{ pubname }}</a> books {% if pub_lang %}(in {{pub_lang|ez_lang_name}} ) {% endif %} with free versions</span>
     <div class="description">{{ publisher.description|safe }}</div>
     {% else %}
-    <span class="special-user-name">Books from {{ pubname }} {% if pub_lang %}( {{pub_lang|ez_lang_name}} ) {% endif %}</span>
+    <span class="special-user-name">{{ pubname }} books {% if pub_lang %}(in {{pub_lang|ez_lang_name}} ) {% endif %} with free versions</span>
 {% endif %}
 {% endblock %}
 

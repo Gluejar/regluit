@@ -82,7 +82,7 @@ location.hash = "#2";
                         </ul>
                 </div>
                 <div id="content-block-content">
-                    {% ifequal campaign_list.count 0 %}
+                    {% if not campaign_list.0 %}
                     There aren't any {{ facet_label }}{{ pub_lang|ez_lang_name }} ungluing campaigns right now.  If you're an author, publisher, or other rights holder, you can <a href="/faq/rightsholders">start one</a>.
                     {% else %}
                     {% lazy_paginate 20 campaign_list using "campaign_list" %}
@@ -101,7 +101,7 @@ location.hash = "#2";
                             <a href="{{ page.path }}#1" class="endless_page_link">{{ page.number }}</a>
                         {% endfor %}
                     </div>
-                    {% endifequal %}
+                    {% endif %}
                 </div>
             </div>    
             {% if request.user.libpref %}
