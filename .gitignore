@@ -17,3 +17,4 @@ celerybeat-schedule
 static/scss/*.css.map
 assets/*
 *.ipynb
+dump.rdb
