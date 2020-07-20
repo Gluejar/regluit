@@ -75,7 +75,7 @@
                 </div>
                 <div id="content-block-content">
                     <div id="books-go-here">
-                        {% ifequal work_list.count 0 %}
+                        {% if not work_list.count.0 %}
                         There aren't any {{ pub_lang|ez_lang_name }} {% if cc.is_cc %}Creative Commons{% endif %} {{ license }} works in this list. Why don't you add some? Use the "More" tab on a work, there are links there for adding ebooks.
                         {% else %}
                         {% lazy_paginate 20 work_list using "work_list" %}
@@ -92,7 +92,7 @@
                                 <a href="{{ page.path }}#1" class="endless_page_link">{{ page.number }}</a>
                             {% endfor %}
                         </div>
-                        {% endifequal %}
+                        {% endif %}
                     </div>
                 </div>
             </div> 
