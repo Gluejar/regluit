@@ -291,7 +291,7 @@ function highlightTarget(targetdiv) {
                 {% endif %}
                 
                 <div id="content-block-content">
-                    {% ifequal wishlist.works.all.count 0 %}
+                    {% if not wishlist.works.all.0 %}
                         {% ifequal request.user supporter %}
                         <div class="empty-wishlist">
                         
@@ -392,7 +392,7 @@ function highlightTarget(targetdiv) {
                         {% endfor %}
                     </div>
                     
-                    {% endifequal %}
+                    {% endif %}
                 </div>
             </div>    
             {% if request.user.libpref %}
