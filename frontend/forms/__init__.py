@@ -38,7 +38,6 @@ from regluit.core.models import (
     Press,
     Libpref,
     TWITTER,
-    FACEBOOK,
     UNGLUEITAR
 )
 from regluit.libraryauth.models import Library
@@ -181,13 +180,12 @@ class EbookForm(forms.ModelForm):
         return self.cleaned_data
 
 class ProfileForm(forms.ModelForm):
-    clear_facebook = forms.BooleanField(required=False)
     clear_twitter = forms.BooleanField(required=False)
     clear_goodreads = forms.BooleanField(required=False)
 
     class Meta:
         model = UserProfile
-        fields = 'tagline', 'librarything_id', 'facebook_id', 'home_url', 'clear_facebook', 'clear_twitter', 'clear_goodreads', 'avatar_source'
+        fields = 'tagline', 'librarything_id', 'home_url', 'clear_twitter', 'clear_goodreads', 'avatar_source'
         widgets = {
             'tagline': forms.Textarea(attrs={'rows': 5, 'onKeyUp': "counter(this, 140)", 'onBlur': "counter(this, 140)"}),
         }

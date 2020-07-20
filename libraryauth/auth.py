@@ -12,8 +12,8 @@ from social_core.exceptions import (AuthAlreadyAssociated, SocialAuthBaseExcepti
 from social_django.middleware import SocialAuthExceptionMiddleware
 
 ANONYMOUS_AVATAR = '/static/images/header/avatar.png'
-(NO_AVATAR, GRAVATAR, TWITTER, FACEBOOK, PRIVATETAR) = (0, 1, 2, 3, 4)
-AVATARS = (NO_AVATAR, GRAVATAR, TWITTER, FACEBOOK, PRIVATETAR)
+(NO_AVATAR, GRAVATAR, TWITTER, PRIVATETAR) = (0, 1, 2, 4)
+AVATARS = (NO_AVATAR, GRAVATAR, TWITTER, PRIVATETAR)
 
 logger = logging.getLogger(__name__)
 
@@ -44,23 +44,11 @@ def selectively_associate_by_email(backend, details, user=None, *args, **kwargs)
     attempt to take over another user account by using the same (not validated)
     email address on some provider.
 
-    Not using Facebook or Twitter to authenticate a user.
+    Not using Twitter to authenticate a user.
     """
-    if backend.name  in ('twitter', 'facebook'):
+    if backend.name  in ('twitter'):
         return None
     return associate_by_email(backend, details, user=None, *args, **kwargs)
-
-def facebook_extra_values(user, extra_data):
-    try:
-        profile_image_url = extra_data['picture']['data']['url']
-        user.profile.pic_url = pic_storage_url(user, 'facebook', profile_image_url)
-        if user.profile.avatar_source is None or user.profile.avatar_source is PRIVATETAR:
-            user.profile.avatar_source = FACEBOOK
-        user.profile.save()
-        return True
-    except Exception as e:
-        logger.exception(e)
-        return
 
 def twitter_extra_values(user, extra_data):
     try:
@@ -80,8 +68,6 @@ def twitter_extra_values(user, extra_data):
 def deliver_extra_data(backend, user, social, response, *args, **kwargs):
     if backend.name == 'twitter':
         twitter_extra_values(user, social.extra_data)
-    if backend.name == 'facebook':
-        facebook_extra_values(user, response)
 
 # following is needed because of length limitations in a unique constrain for MySQL
 def chop_username(username, *args, **kwargs):
@@ -93,7 +79,7 @@ def selective_social_user(backend, uid, user=None, *args, **kwargs):
     social = backend.strategy.storage.user.get_social_auth(provider, uid)
     if social:
         if user and social.user != user:
-            if backend.name not in ('twitter', 'facebook'):
+            if backend.name not in ('twitter'):
                 msg = 'This {0} account is already in use.'.format(provider)
                 raise AuthAlreadyAssociated(backend, msg)
         elif not user:

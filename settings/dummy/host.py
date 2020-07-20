@@ -30,11 +30,6 @@ SOCIAL_AUTH_TWITTER_SECRET = os.environ.get("SOCIAL_AUTH_TWITTER_SECRET",  '0123
 BOOXTREAM_API_KEY = os.environ.get("BOOXTREAM_API_KEY", None) # 30 chars
 BOOXTREAM_API_USER = os.environ.get("BOOXTREAM_API_USER", 'user')
 
-# you'll need to create a new Facebook application to fill in these blanks
-# https://developers.facebook.com/apps/
-SOCIAL_AUTH_FACEBOOK_KEY = os.environ.get("SOCIAL_AUTH_FACEBOOK_KEY", '012345678901234')
-SOCIAL_AUTH_FACEBOOK_SECRET = os.environ.get("SOCIAL_AUTH_FACEBOOK_SECRET",  '01234567890123456789012345678901')
-
 # https://console.developers.google.com/apis/credentials/oauthclient/
 # unglue.it (prod) SOCIAL_AUTH_GOOGLE_OAUTH2_KEY #2
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get("_KEY", '012345678901-01234567890123456789012345678901.apps.googleusercontent.com')
