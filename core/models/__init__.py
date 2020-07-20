@@ -1128,7 +1128,7 @@ def pledger2():
 pledger2.instance = None
 
 ANONYMOUS_AVATAR = '/static/images/header/avatar.png'
-(NO_AVATAR, GRAVATAR, TWITTER, FACEBOOK, UNGLUEITAR) = AVATARS
+(NO_AVATAR, GRAVATAR, TWITTER, UNGLUEITAR) = AVATARS
 
 class Libpref(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='libpref')
@@ -1146,7 +1146,6 @@ class UserProfile(models.Model):
     pic_url = models.URLField(blank=True)
     home_url = models.URLField(blank=True)
     twitter_id = models.CharField(max_length=15, blank=True)
-    facebook_id = models.CharField(max_length=31, blank=True)
     librarything_id = models.CharField(max_length=31, blank=True)
     badges = models.ManyToManyField('Badge', related_name='holders', blank=True)
     kindle_email = models.EmailField(max_length=254, blank=True)
@@ -1166,7 +1165,7 @@ class UserProfile(models.Model):
         choices=(
             (NO_AVATAR, 'No Avatar, Please'),
             (GRAVATAR, 'Gravatar'),
-            (TWITTER, 'Twitter/Facebook'),
+            (TWITTER, 'Twitter'),
             (UNGLUEITAR, 'Unglueitar'),
         )
     )
@@ -1296,7 +1295,7 @@ class UserProfile(models.Model):
 
     @property
     def avatar_url(self):
-        if self.avatar_source is None or self.avatar_source in (TWITTER, FACEBOOK):
+        if self.avatar_source is None or self.avatar_source in (TWITTER,):
             if self.pic_url:
                 return self.pic_url
             else:

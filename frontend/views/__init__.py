@@ -1795,11 +1795,7 @@ def supporter(request, supporter_username, template_name, extra_context={}):
         if  request.method == 'POST':
             profile_form = ProfileForm(data=request.POST, instance=profile_obj)
             if profile_form.is_valid():
-                if profile_form.cleaned_data['clear_facebook'] or profile_form.cleaned_data['clear_twitter'] or  profile_form.cleaned_data['clear_goodreads'] :
-                    if profile_form.cleaned_data['clear_facebook']:
-                        profile_obj.facebook_id = 0
-                        if profile_obj.avatar_source == models.FACEBOOK:
-                            profile_obj.avatar_source = models.UNGLUEITAR
+                if  profile_form.cleaned_data['clear_twitter'] or  profile_form.cleaned_data['clear_goodreads'] :
                     if profile_form.cleaned_data['clear_twitter']:
                         profile_obj.twitter_id = ""
                         if profile_obj.avatar_source == models.TWITTER:
@@ -2062,7 +2058,6 @@ class InfoPageView(TemplateView):
         users.yesterday = users.filter(date_joined__range = (date_today()-timedelta(days=1), date_today()))
         users.gr = users.filter(profile__goodreads_user_id__isnull = False)
         users.lt = users.exclude(profile__librarything_id = '')
-        users.fb = users.filter(profile__facebook_id__isnull = False)
         users.tw = users.exclude(profile__twitter_id = '')
         users.libtools = users.filter(libpref__isnull = False)
         works = models.Work.objects
