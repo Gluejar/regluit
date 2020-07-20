@@ -51,6 +51,7 @@ urlpatterns = [
     url(r"^campaigns/(?P<facet>\w*)$", views.CampaignListView.as_view(), name='campaign_list'),
     url(r"^campaigns/(?P<facet>\w*)/marc/$", views.CampaignListView.as_view(send_marc=True), name='campaign_list_marc'),
     url(r"^lists/(?P<facet>\w*)$", views.WorkListView.as_view(),  name='work_list'),
+    url(r"^lists/(?P<facet>\w*)(?P<pubname>)$", views.WorkListView.as_view(),  name='work_list_nopub'),
     url(r"^lists/(?P<facet>\w*)/marc/$", views.WorkListView.as_view(send_marc=True),  name='work_list_marc'),
     url(r"^free/(?P<path>.*)/marc/$", views.FacetedView.as_view(send_marc=True),  name='faceted_list_marc'),
     url(r"^free/(?P<path>.*)/$", views.FacetedView.as_view(),  name='faceted_list'),
