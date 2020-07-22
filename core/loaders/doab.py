@@ -94,7 +94,8 @@ def update_cover_doab(doab_id, edition, store_cover=True, redo=True):
     return None
 
 def attach_more_doab_metadata(edition, description, subjects,
-                              publication_date, publisher_name=None, language=None, authors=u''):
+                              publication_date, publisher_name=None, language=None, 
+                              dois=[], authors=u''):
 
     """
     for given edition, attach description, subjects, publication date to
@@ -136,6 +137,10 @@ def attach_more_doab_metadata(edition, description, subjects,
                 for [rel, auth] in authlist:
                     edition.add_author(auth, rel)
 
+    for doi in dois:
+        if not edition.work.doi:
+            models.Identifier.set('doi', doi, work=edition.work)
+            break
     return edition
 
 def add_all_isbns(isbns, work, language=None, title=None):
@@ -155,8 +160,7 @@ def add_all_isbns(isbns, work, language=None, title=None):
     return work, first_edition
 
 def load_doab_edition(title, doab_id, url, format, rights,
-                      language, isbns,
-                      provider, **kwargs):
+                      language, isbns, provider, dois=[], **kwargs):
 
     """
     load a record from doabooks.org represented by input parameters and return an ebook
@@ -290,6 +294,7 @@ def load_doab_edition(title, doab_id, url, format, rights,
         publication_date=unlist(kwargs.get('date')),
         publisher_name=unlist(kwargs.get('publisher')),
         authors=kwargs.get('creator'),
+        dois=dois,
     )
     if rights:
         for ebook in edition.ebooks.all():
@@ -359,6 +364,7 @@ mdregistry = MetadataRegistry()
 mdregistry.registerReader('oai_dc', oai_dc_reader)
 doab_client = Client(DOAB_OAIURL, mdregistry)
 isbn_cleaner = identifier_cleaner('isbn', quiet=True)
+doi_cleaner = identifier_cleaner('doi', quiet=True)
 ISBNSEP = re.compile(r'[/]+')
 
 def add_by_doab(doab_id, record=None):
@@ -371,6 +377,7 @@ def add_by_doab(doab_id, record=None):
             return None
         metadata = record[1].getMap()
         isbns = []
+        dois = []
         url = None
         for ident in metadata.pop('identifier', []):
             if ident.startswith('ISBN: '):
@@ -382,6 +389,11 @@ def add_by_doab(doab_id, record=None):
             elif ident.find('doabooks.org') >= 0:
                 # should already know the doab_id
                 continue
+            elif ident.startswith('DOI: '):
+                ident = ident[5:].strip()
+                ident = doi_cleaner(ident)
+                if ident:
+                    dois.append(ident)
             else:
                 url = ident
         language = doab_lang_to_iso_639_1(unlist(metadata.pop('language', None)))
@@ -402,6 +414,7 @@ def add_by_doab(doab_id, record=None):
                 language,
                 isbns,
                 url_to_provider(dl_url) if dl_url else None,
+                dois=dois,
                 **metadata
             )
         return edition
