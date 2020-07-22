@@ -209,6 +209,7 @@ def load_doab_edition(title, doab_id, url, format, rights,
             publisher_name=unlist(kwargs.get('publisher')),
             language=language,
             authors=kwargs.get('creator'),
+            dois=dois,
         )
         # make sure all isbns are added
         add_all_isbns(isbns, ebook.edition.work, language=language, title=title)
