@@ -428,16 +428,19 @@ def getdoab(url):
         return id_match.group(1)
     return False
 
-def load_doab_oai(from_year=None, limit=100000):
+def load_doab_oai(from_date, from_id=0, limit=100):
     '''
     use oai feed to get oai updates
     '''
-    if from_year:
-        from_ = datetime.datetime(year=from_year, month=1, day=1)
+    start = datetime.datetime.now()
+    if from_date:
+        from_ = from_date
     else:
         # last 15 days
         from_ = datetime.datetime.now() - datetime.timedelta(days=15)
-    doab_ids = []
+    doab_id = None
+    num_doabs = 0
+    new_doabs = 0 
     for record in doab_client.listRecords(metadataPrefix='oai_dc', from_=from_):
         if not record[1]:
             continue
@@ -448,10 +451,16 @@ def load_doab_oai(from_year=None, limit=100000):
         if idents:
             for ident in idents:
                 doab = getdoab(ident)
+                if doab and int(doab) < from_id:
+                    continue
                 if doab:
-                    doab_ids.append(doab)
+                    doab_id = doab
+                    num_doabs += 1
                     e = add_by_doab(doab, record=record)
+                    if e.created > start:
+                        new_doabs += 1
                     title = e.title if e else None
                     logger.info(u'updated:\t{}\t{}'.format(doab, title))
-        if len(doab_ids) > limit:
+        if num_doabs >= limit:
             break
+    return num_doabs, new_doabs, doab_id
