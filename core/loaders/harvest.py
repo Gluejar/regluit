@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 DROPBOX_DL = re.compile(r'"(https://dl.dropboxusercontent.com/content_link/[^"]+)"')
 COMPLETE = re.compile(r'complete ebook', flags=re.I)
 DELAY = 5.0
+OPENBOOKPUB =  re.compile(r'openbookpublishers.com/+(reader|product|/?download/book)/(\d+)')
 
 class RateLimiter(object):
     def __init__(self):
@@ -43,9 +44,11 @@ rl = RateLimiter()
 def dl_online(ebook, limiter=rl.delay):
     if ebook.format != 'online':
         pass
+
     elif ebook.url.find(u'dropbox.com/s/') >= 0:
         for ebf in ebf_if_harvested(ebook.url):
             return ebf, False
+        logger.info('harvesting url %s' % url)
         limiter(ebook.provider)
         if ebook.url.find(u'dl=0') >= 0:
             dl_url = ebook.url.replace(u'dl=0', u'dl=1')
@@ -77,6 +80,7 @@ def dl_online(ebook, limiter=rl.delay):
                 logger.warning('couldn\'t get dl_url for %s', ebook.url)
         else:
             logger.warning('couldn\'t get soup for %s', ebook.url)
+
     elif ebook.provider == u'De Gruyter Online':
         for ebf in ebf_if_harvested(ebook.url):
             return ebf, False
@@ -118,24 +122,54 @@ def dl_online(ebook, limiter=rl.delay):
         else:
             logger.warning('couldn\'t get soup for %s', ebook.url)
 
+    elif OPENBOOKPUB.search(ebook.url):
+        limiter(ebook.provider)
+        match = OPENBOOKPUB.search(ebook.url)
+        booknum = None
+        if match and match.group(1) in ('product', 'reader'):
+            prodnum = match.group(2)
+            prod_url = 'https://www.openbookpublishers.com/product/{}'.format(prodnum)
+            doc = get_soup(prod_url, settings.GOOGLEBOT_UA)
+            if doc:
+                obj = doc.find('button', value='Download')
+                if obj:
+                    booknum = obj.get('onclick')
+                    if booknum:
+                        booknum = OPENBOOKPUB.search(booknum).group(2)
+            else:
+                logger.warning('couldn\'t get soup for %s', prod_url)
+        else:
+            booknum = match.group(2)
+        if not booknum:
+            logger.warning('couldn\'t get booknum for %s', ebook.url)
+            return None, False
+        dl_url = 'https://www.openbookpublishers.com//download/book_content/{}'.format(booknum)
+        made = make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA, method='POST')
+        return made
     return None, False
+
 
 def ebf_if_harvested(url):
     onlines = EbookFile.objects.filter(source=url)
     if onlines:
-        logger.info('harvesting url %s', url)
         return onlines
     return  EbookFile.objects.none()
 
-def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT):
+def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET'):
     if not url:
         logger.warning('no url for ebook %s', ebook.id)
         return None, False
-    response = requests.get(url, headers={"User-Agent": user_agent})
+    logger.info('making %s' % url)
+    if method == 'POST':
+        response = requests.post(url, headers={"User-Agent": user_agent})
+    else:
+        response = requests.get(url, headers={"User-Agent": user_agent})
     if response.status_code == 200:
         filesize = int(response.headers.get("Content-Length", 0))
         filesize = filesize if filesize else None
-        format = type_for_url(url, content_type=response.headers.get('content-type'))
+        format = type_for_url(url, 
+                              content_type=response.headers.get('content-type'),
+                              disposition=response.headers.get('content-disposition'))
         if format != 'online':
             return make_harvested_ebook(response.content, ebook, format, filesize=filesize)
         else:
