@@ -173,7 +173,7 @@ class Work(models.Model):
         super(Work, self).delete(*args, **kwargs)  # Call the "real" save() method.
         
     def id_for(self, type):
-        return id_for(self, type)
+        return id_for(self, type) # this is NOT recursive!
 
     @property
     def gtbg(self):

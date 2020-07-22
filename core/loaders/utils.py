@@ -368,7 +368,8 @@ def ids_from_urls(url):
             ids[ident] = id_match.group('id')
     return ids
 
-def type_for_url(url, content_type=None, force=False):
+def type_for_url(url, content_type=None, force=False, disposition=''):
+    url_disp = url + disposition
     if not url:
         return ''
     if not force:
@@ -376,14 +377,20 @@ def type_for_url(url, content_type=None, force=False):
             return 'online'
         if Ebook.objects.filter(url=url):
             return Ebook.objects.filter(url=url)[0].format
-    ct = content_type if content_type else contenttyper.calc_type(url)
+    if content_type:
+        ct = content_type
+        url_disp = url + disposition
+    else:
+        ct, url_disp = contenttyper.calc_type(url)
     binary_type = re.search("octet-stream", ct) or re.search("application/binary", ct)
     if re.search("pdf", ct):
         return "pdf"
-    elif binary_type and re.search("pdf", url, flags=re.I):
+    elif binary_type and re.search("pdf", url_disp, flags=re.I):
         return "pdf"
-    elif binary_type and re.search("epub", url, flags=re.I):
+    elif binary_type and re.search("epub", url_disp, flags=re.I):
         return "epub"
+    elif binary_type and re.search("mobi", url_disp, flags=re.I):
+        return "mobi"
     elif re.search("text/plain", ct):
         return "text"
     elif re.search("text/html", ct):
@@ -403,12 +410,19 @@ class ContentTyper(object):
 
     def content_type(self, url):
         try:
-            r = requests.head(url)
-            return r.headers.get('content-type', '')
+            r = requests.head(url, allow_redirects=True)
+            if r.status_code == 405:
+                r =  requests.get(url)
+            return r.headers.get('content-type', ''), r.headers.get('content-disposition', '')
         except:
             return ''
 
     def calc_type(self, url):
+        # check to see if we already know
+        for ebook in Ebook.objects.filter(url=url):
+            if ebook.type != 'online':
+                return ebook.type
+
         delay = 1
         # is there a delay associated with the url
         netloc = urlparse(url).netloc
