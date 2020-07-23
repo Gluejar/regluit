@@ -372,6 +372,12 @@ def type_for_url(url, content_type=None, force=False, disposition=''):
     url_disp = url + disposition
     if not url:
         return ''
+
+    # check to see if we already know
+    for ebook in Ebook.objects.filter(url=url):
+        if ebook.format != 'online':
+            return ebook.format
+
     if not force:
         if url.find('books.openedition.org') >= 0:
             return 'online'
@@ -415,14 +421,10 @@ class ContentTyper(object):
                 r =  requests.get(url)
             return r.headers.get('content-type', ''), r.headers.get('content-disposition', '')
         except:
-            return ''
+            return '', ''
 
     def calc_type(self, url):
-        # check to see if we already know
-        for ebook in Ebook.objects.filter(url=url):
-            if ebook.type != 'online':
-                return ebook.type
-
+        logger.info(url)
         delay = 1
         # is there a delay associated with the url
         netloc = urlparse(url).netloc
