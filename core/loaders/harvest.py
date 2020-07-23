@@ -43,110 +43,21 @@ rl = RateLimiter()
 
 def dl_online(ebook, limiter=rl.delay):
     if ebook.format != 'online':
-        pass
-
-    elif ebook.url.find(u'dropbox.com/s/') >= 0:
-        for ebf in ebf_if_harvested(ebook.url):
-            return ebf, False
-        logger.info('harvesting url %s' % url)
-        limiter(ebook.provider)
-        if ebook.url.find(u'dl=0') >= 0:
-            dl_url = ebook.url.replace(u'dl=0', u'dl=1')
-            return make_dl_ebook(dl_url, ebook)
-        elif ebook.url.find(u'?') < 0:
-            dl_url = ebook.url + u'?dl=1'
-            return make_dl_ebook(dl_url, ebook)
-        response = requests.get(ebook.url, headers={"User-Agent": settings.USER_AGENT})
-        if response.status_code == 200:
-            match_dl = DROPBOX_DL.search(response.content)
-            if match_dl:
-                return make_dl_ebook(match_dl.group(1), ebook)
-            else:
-                logger.warning('couldn\'t get %s', ebook.url)
-        else:
-            logger.warning('couldn\'t get dl for %s', ebook.url)
-
-    elif ebook.url.find(u'jbe-platform.com/content/books/') >= 0:
-        for ebf in ebf_if_harvested(ebook.url):
-            return ebf, False
-        limiter(ebook.provider)
-        doc = get_soup(ebook.url)
-        if doc:
-            obj = doc.select_one('div.pdfItem a')
-            if obj:
-                dl_url = urljoin(ebook.url, obj['href'])
-                return make_dl_ebook(dl_url, ebook)
-            else:
-                logger.warning('couldn\'t get dl_url for %s', ebook.url)
-        else:
-            logger.warning('couldn\'t get soup for %s', ebook.url)
-
-    elif ebook.provider == u'De Gruyter Online':
-        for ebf in ebf_if_harvested(ebook.url):
-            return ebf, False
-        limiter(ebook.provider)
-        doc = get_soup(ebook.url, settings.GOOGLEBOT_UA)
-        if doc:
-            try:
-                base = doc.find('base')['href']
-            except:
-                base = ebook.url
-            made = None
-            
-            # check for epubs
-            obj = doc.select_one('a.epub-link')
-            if obj:
-                dl_url = urljoin(base, obj['href'])
-                made = make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
-
-            # check for complete ebook
-            obj = doc.find('a', string=COMPLETE)
-            if obj:
-                obj = obj.parent.parent.parent.select_one('a.pdf-link')
-                if obj:
-                    dl_url = urljoin(base, obj['href'])
-                    made = make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
-                    return made
-
-            # staple the chapters
-            pdflinks = [urljoin(base, a['href']) for a in doc.select('a.pdf-link')]
-            stapled = None
-            if pdflinks:
-                stapled = make_stapled_ebook(pdflinks, ebook, user_agent=settings.GOOGLEBOT_UA)
-            if stapled:
-                return stapled
-            elif made:
-                return made
-            else:
-                logger.warning('couldn\'t get dl_url for %s', ebook.url)
-        else:
-            logger.warning('couldn\'t get soup for %s', ebook.url)
-
-    elif OPENBOOKPUB.search(ebook.url):
-        limiter(ebook.provider)
-        match = OPENBOOKPUB.search(ebook.url)
-        booknum = None
-        if match and match.group(1) in ('product', 'reader'):
-            prodnum = match.group(2)
-            prod_url = 'https://www.openbookpublishers.com/product/{}'.format(prodnum)
-            doc = get_soup(prod_url, settings.GOOGLEBOT_UA)
-            if doc:
-                obj = doc.find('button', value='Download')
-                if obj:
-                    booknum = obj.get('onclick')
-                    if booknum:
-                        booknum = OPENBOOKPUB.search(booknum).group(2)
-            else:
-                logger.warning('couldn\'t get soup for %s', prod_url)
-        else:
-            booknum = match.group(2)
-        if not booknum:
-            logger.warning('couldn\'t get booknum for %s', ebook.url)
-            return None, False
-        dl_url = 'https://www.openbookpublishers.com//download/book_content/{}'.format(booknum)
-        made = make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA, method='POST')
-        return made
+        return None, False
+    for do_harvest, harvester in harvesters(ebook):
+        if do_harvest:
+            for ebf in ebf_if_harvested(ebook.url):
+                return ebf, False
+            limiter(ebook.provider)
+            return harvester(ebook)
     return None, False
+
+
+def harvesters(ebook):
+    yield ebook.url.find(u'dropbox.com/s/') >= 0, harvest_dropbox
+    yield ebook.url.find(u'jbe-platform.com/content/books/') >= 0 >= 0, harvest_jbe
+    yield ebook.provider == u'De Gruyter Online', harvest_degruyter
+    yield OPENBOOKPUB.search(ebook.url), harvest_obp
 
 
 def ebf_if_harvested(url):
@@ -154,6 +65,7 @@ def ebf_if_harvested(url):
     if onlines:
         return onlines
     return  EbookFile.objects.none()
+
 
 def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET'):
     if not url:
@@ -168,8 +80,8 @@ def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET'):
         filesize = int(response.headers.get("Content-Length", 0))
         filesize = filesize if filesize else None
         format = type_for_url(url, 
-                              content_type=response.headers.get('content-type'),
-                              disposition=response.headers.get('content-disposition'))
+                              content_type=response.headers.get('content-type', ''),
+                              disposition=response.headers.get('content-disposition', ''))
         if format != 'online':
             return make_harvested_ebook(response.content, ebook, format, filesize=filesize)
         else:
@@ -213,3 +125,98 @@ def make_harvested_ebook(content, ebook, format, filesize=0):
     new_ebf.ebook = new_ebook
     new_ebf.save()
     return new_ebf, True
+
+def harvest_obp(ebook):    
+    match = OPENBOOKPUB.search(ebook.url)
+    booknum = None
+    if match and match.group(1) in ('product', 'reader'):
+        prodnum = match.group(2)
+        prod_url = 'https://www.openbookpublishers.com/product/{}'.format(prodnum)
+        doc = get_soup(prod_url, settings.GOOGLEBOT_UA)
+        if doc:
+            obj = doc.find('button', value='Download')
+            if obj:
+                booknum = obj.get('onclick')
+                if booknum:
+                    booknum = OPENBOOKPUB.search(booknum).group(2)
+        else:
+            logger.warning('couldn\'t get soup for %s', prod_url)
+    else:
+        booknum = match.group(2)
+    if not booknum:
+        logger.warning('couldn\'t get booknum for %s', ebook.url)
+        return None, False
+    dl_url = 'https://www.openbookpublishers.com//download/book_content/{}'.format(booknum)
+    made = make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA, method='POST')
+    return made
+
+def harvest_degruyter(ebook):
+    doc = get_soup(ebook.url, settings.GOOGLEBOT_UA)
+    if doc:
+        try:
+            base = doc.find('base')['href']
+        except:
+            base = ebook.url
+        made = None
+        
+        # check for epubs
+        obj = doc.select_one('a.epub-link')
+        if obj:
+            dl_url = urljoin(base, obj['href'])
+            made = make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
+
+        # check for complete ebook
+        obj = doc.find('a', string=COMPLETE)
+        if obj:
+            obj = obj.parent.parent.parent.select_one('a.pdf-link')
+            if obj:
+                dl_url = urljoin(base, obj['href'])
+                made = make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
+                return made
+
+        # staple the chapters
+        pdflinks = [urljoin(base, a['href']) for a in doc.select('a.pdf-link')]
+        stapled = None
+        if pdflinks:
+            stapled = make_stapled_ebook(pdflinks, ebook, user_agent=settings.GOOGLEBOT_UA)
+        if stapled:
+            return stapled
+        elif made:
+            return made
+        else:
+            logger.warning('couldn\'t get dl_url for %s', ebook.url)
+    else:
+        logger.warning('couldn\'t get soup for %s', ebook.url)
+    return None, False
+
+def harvest_dropbox(ebook):
+    if ebook.url.find(u'dl=0') >= 0:
+        dl_url = ebook.url.replace(u'dl=0', u'dl=1')
+        return make_dl_ebook(dl_url, ebook)
+    elif ebook.url.find(u'?') < 0:
+        dl_url = ebook.url + u'?dl=1'
+        return make_dl_ebook(dl_url, ebook)
+    response = requests.get(ebook.url, headers={"User-Agent": settings.USER_AGENT})
+    if response.status_code == 200:
+        match_dl = DROPBOX_DL.search(response.content)
+        if match_dl:
+            return make_dl_ebook(match_dl.group(1), ebook)
+        else:
+            logger.warning('couldn\'t get %s', ebook.url)
+    else:
+        logger.warning('couldn\'t get dl for %s', ebook.url)
+    return None, False 
+        
+def harvest_jbe(ebook): 
+    doc = get_soup(ebook.url)
+    if doc:
+        obj = doc.select_one('div.pdfItem a')
+        if obj:
+            dl_url = urljoin(ebook.url, obj['href'])
+            return make_dl_ebook(dl_url, ebook)
+        else:
+            logger.warning('couldn\'t get dl_url for %s', ebook.url)
+    else:
+        logger.warning('couldn\'t get soup for %s', ebook.url)
+    return None, False
+
