@@ -251,6 +251,10 @@ def get_isbn_item(items, isbn):
         for ident in industryIdentifiers:
             if ident['identifier'] == isbn:
                 return item
+    # no isbn item maybe "other"
+    for item in items:
+        return item
+        
 
 def add_by_isbn_from_google(isbn, work=None):
     """add a book to the UnglueIt database from google based on ISBN. The work parameter
