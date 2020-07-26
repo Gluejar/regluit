@@ -375,6 +375,7 @@ def add_by_doab(doab_id, record=None):
             identifier='oai:doab-books:{}'.format(doab_id)
         )
         if not record[1]:
+            logger.error('No content in record %s', record)
             return None
         metadata = record[1].getMap()
         isbns = []
@@ -419,7 +420,8 @@ def add_by_doab(doab_id, record=None):
                 **metadata
             )
         return edition
-    except IdDoesNotExistError:
+    except IdDoesNotExistError as e:
+        logger.error(e)
         return None
 
 
@@ -458,6 +460,9 @@ def load_doab_oai(from_date, from_id=0, limit=100):
                     doab_id = doab
                     num_doabs += 1
                     e = add_by_doab(doab, record=record)
+                    if not e:
+                        logger.error('null edition for doab #%s', doab)
+                        continue
                     if e.created > start:
                         new_doabs += 1
                     title = e.title if e else None
