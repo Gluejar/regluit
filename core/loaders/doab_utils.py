@@ -2,7 +2,7 @@
 doab_utils.py
 
 """
-
+import logging
 import re
 from urllib.parse import urlparse, urljoin
 
@@ -10,6 +10,8 @@ import requests
 
 from regluit.utils.lang import lang_to_language_code
 from .utils import get_soup
+
+logger = logging.getLogger(__name__)
 
 def doab_lang_to_iso_639_1(lang):
     lang = lang_to_language_code(lang)
@@ -102,5 +104,7 @@ def online_to_download(url):
         return urls
     else:
         urls.append(url)
+    if not urls:
+        logging.warning('no valid download urls for %s', url)
     return urls
 

@@ -407,6 +407,8 @@ def type_for_url(url, content_type=None, force=False, disposition=''):
         return "epub"
     elif re.search("mobi", ct):
         return "mobi"
+    elif ct == '404':
+        return ct
     return "other"
 
 class ContentTyper(object):
@@ -419,6 +421,9 @@ class ContentTyper(object):
             r = requests.head(url, allow_redirects=True)
             if r.status_code == 405:
                 r =  requests.get(url)
+            elif r.status_code == 404:
+                logger.error('File not found (404) for %s', url)
+                return '404', ''
             return r.headers.get('content-type', ''), r.headers.get('content-disposition', '')
         except:
             return '', ''
