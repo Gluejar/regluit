@@ -42,14 +42,14 @@ rl = RateLimiter()
 
 def dl_online(ebook, limiter=rl.delay):
     if ebook.format != 'online':
-        return None, False
+        return None, 0
     for do_harvest, harvester in harvesters(ebook):
         if do_harvest:
             for ebf in ebf_if_harvested(ebook.url):
-                return ebf, False
+                return ebf, 0
             limiter(ebook.provider)
             return harvester(ebook)
-    return None, False
+    return None, 0
 
 
 def harvesters(ebook):
@@ -69,7 +69,7 @@ def ebf_if_harvested(url):
 def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET'):
     if not url:
         logger.warning('no url for ebook %s', ebook.id)
-        return None, False
+        return None, 0
     logger.info('making %s' % url)
     if method == 'POST':
         response = requests.post(url, headers={"User-Agent": user_agent})
@@ -87,12 +87,12 @@ def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET'):
             logger.warning('download format for %s is not ebook', url)
     else:
         logger.warning('couldn\'t get %s', url)
-    return None, False
+    return None, 0
 
 def make_stapled_ebook(urllist, ebook, user_agent=settings.USER_AGENT):
     pdffile = staple_pdf(urllist, user_agent)
     if not pdffile:
-        return None, False
+        return None, 0
     return make_harvested_ebook(pdffile.getvalue(), ebook, 'pdf')
 
 def make_harvested_ebook(content, ebook, format, filesize=0):
@@ -109,7 +109,7 @@ def make_harvested_ebook(content, ebook, format, filesize=0):
     except MemoryError:  #huge pdf files cause problems here
         logger.error("memory error saving ebook file for %s", ebook.url)
         new_ebf.delete()
-        return None, False
+        return None, 0
 
     new_ebook = Ebook.objects.create(
         edition=ebook.edition,
@@ -123,7 +123,7 @@ def make_harvested_ebook(content, ebook, format, filesize=0):
     )
     new_ebf.ebook = new_ebook
     new_ebf.save()
-    return new_ebf, True
+    return new_ebf, 1
 
 def harvest_obp(ebook):    
     match = OPENBOOKPUB.search(ebook.url)
@@ -144,7 +144,7 @@ def harvest_obp(ebook):
         booknum = match.group(2)
     if not booknum:
         logger.warning('couldn\'t get booknum for %s', ebook.url)
-        return None, False
+        return None, 0
     dl_url = 'https://www.openbookpublishers.com//download/book_content/{}'.format(booknum)
     made = make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA, method='POST')
     return made
@@ -192,7 +192,7 @@ def harvest_degruyter(ebook):
             logger.warning('couldn\'t get dl_url for %s', ebook.url)
     else:
         logger.warning('couldn\'t get soup for %s', ebook.url)
-    return None, False
+    return None, 0
 
 def harvest_dropbox(ebook):
     if ebook.url.find(u'dl=0') >= 0:
@@ -210,7 +210,7 @@ def harvest_dropbox(ebook):
             logger.warning('couldn\'t get %s', ebook.url)
     else:
         logger.warning('couldn\'t get dl for %s', ebook.url)
-    return None, False 
+    return None, 0 
         
 def harvest_jbe(ebook): 
     doc = get_soup(ebook.url)
@@ -223,5 +223,6 @@ def harvest_jbe(ebook):
             logger.warning('couldn\'t get dl_url for %s', ebook.url)
     else:
         logger.warning('couldn\'t get soup for %s', ebook.url)
-    return None, False
+    return None, 0
+
 
