@@ -385,9 +385,9 @@ def type_for_url(url, content_type=None, force=False, disposition=''):
             return Ebook.objects.filter(url=url)[0].format
     if content_type:
         ct = content_type
-        url_disp = url + disposition
     else:
-        ct, url_disp = contenttyper.calc_type(url)
+        ct, disposition = contenttyper.calc_type(url)
+    url_disp = url + disposition
     binary_type = re.search("octet-stream", ct) or re.search("application/binary", ct)
     if re.search("pdf", ct):
         return "pdf"
