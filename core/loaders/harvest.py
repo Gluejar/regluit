@@ -54,7 +54,7 @@ def dl_online(ebook, limiter=rl.delay):
 
 def harvesters(ebook):
     yield ebook.url.find(u'dropbox.com/s/') >= 0, harvest_dropbox
-    yield ebook.url.find(u'jbe-platform.com/content/books/') >= 0 >= 0, harvest_jbe
+    yield ebook.url.find(u'jbe-platform.com/content/books/') >= 0, harvest_jbe
     yield ebook.provider == u'De Gruyter Online', harvest_degruyter
     yield OPENBOOKPUB.search(ebook.url), harvest_obp
     yield ebook.provider == 'Transcript-Verlag', harvest_transcript
