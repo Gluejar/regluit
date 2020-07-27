@@ -57,6 +57,7 @@ def harvesters(ebook):
     yield ebook.url.find(u'jbe-platform.com/content/books/') >= 0 >= 0, harvest_jbe
     yield ebook.provider == u'De Gruyter Online', harvest_degruyter
     yield OPENBOOKPUB.search(ebook.url), harvest_obp
+    yield ebook.provider == 'Transcript-Verlag', harvest_transcript
 
 
 def ebf_if_harvested(url):
@@ -225,4 +226,18 @@ def harvest_jbe(ebook):
         logger.warning('couldn\'t get soup for %s', ebook.url)
     return None, 0
 
+def harvest_transcript(ebook): 
+    num = 0
+    harvested = None
+    doc = get_soup(ebook.url)
+    if doc:
+        objs = doc.select('a.content--link')
+        for obj in objs:
+            dl_url = urljoin(ebook.url, obj['href'])
+            if dl_url.endswith('.pdf') or dl_url.endswith('.epub'):
+                harvested, made = make_dl_ebook(dl_url, ebook)
+                num += made
+    if not harvested:
+        logger.warning('couldn\'t get any dl_url for %s', ebook.url)
+    return harvested, num
 
