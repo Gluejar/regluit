@@ -18,9 +18,9 @@ class Command(BaseCommand):
         for online in onlines:
             new_ebf, new = dl_online(online, limiter=rl.delay)
             if new_ebf and new:
-                done += 1
+                done += new
                 self.stdout.write(new_ebf.edition.work.title)
-                if done == limit or done == 100:
+                if done >= limit or done >= 100:
                     break
         self.stdout.write('harvested {} ebooks'.format(done))
         if done == 100:

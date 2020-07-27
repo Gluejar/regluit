@@ -385,9 +385,9 @@ def type_for_url(url, content_type=None, force=False, disposition=''):
             return Ebook.objects.filter(url=url)[0].format
     if content_type:
         ct = content_type
-        url_disp = url + disposition
     else:
-        ct, url_disp = contenttyper.calc_type(url)
+        ct, disposition = contenttyper.calc_type(url)
+    url_disp = url + disposition
     binary_type = re.search("octet-stream", ct) or re.search("application/binary", ct)
     if re.search("pdf", ct):
         return "pdf"
@@ -409,6 +409,14 @@ def type_for_url(url, content_type=None, force=False, disposition=''):
         return "mobi"
     elif ct == '404':
         return ct
+    # no content-type header!
+    elif ct == '' and re.search("epub", url_disp, flags=re.I):
+        return "epub"
+    elif ct == '' and re.search("pdf", url_disp, flags=re.I):
+        return "pdf"
+    elif ct == '' and re.search("mobi", url_disp, flags=re.I):
+        return "mobi"
+
     return "other"
 
 class ContentTyper(object):
