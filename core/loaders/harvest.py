@@ -22,7 +22,6 @@ from .utils import get_soup, type_for_url
 logger = logging.getLogger(__name__)
 
 DROPBOX_DL = re.compile(r'"(https://dl.dropboxusercontent.com/content_link/[^"]+)"')
-COMPLETE = re.compile(r'complete ebook', flags=re.I)
 DELAY = 5.0
 OPENBOOKPUB =  re.compile(r'openbookpublishers.com/+(reader|product|/?download/book)/(\d+)')
 
@@ -150,6 +149,10 @@ def harvest_obp(ebook):
     made = make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA, method='POST')
     return made
 
+DEGRUYTERFULL = re.compile(r'/downloadpdf/title/.*')
+DEGRUYTERCHAP = re.compile(r'/downloadpdf/book/.*')
+COMPLETE = re.compile(r'complete ebook', flags=re.I)
+
 def harvest_degruyter(ebook):
     doc = get_soup(ebook.url, settings.GOOGLEBOT_UA)
     if doc:
@@ -169,13 +172,15 @@ def harvest_degruyter(ebook):
         obj = doc.find('a', string=COMPLETE)
         if obj:
             obj = obj.parent.parent.parent.select_one('a.pdf-link')
-            if obj:
-                dl_url = urljoin(base, obj['href'])
-                made = make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
-                return made
+        else:
+            obj = doc.find('a', href=DEGRUYTERFULL)
+        if obj:
+            dl_url = urljoin(base, obj['href'])
+            made = make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
+            return made
 
         # staple the chapters
-        pdflinks = [urljoin(base, a['href']) for a in doc.select('a.pdf-link')]
+        pdflinks = [urljoin(base, a['href']) for a in doc.find_all('a', href=DEGRUYTERCHAP)]
         stapled = None
         if pdflinks:
             stapled = make_stapled_ebook(pdflinks, ebook, user_agent=settings.GOOGLEBOT_UA)
