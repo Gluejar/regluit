@@ -409,6 +409,14 @@ def type_for_url(url, content_type=None, force=False, disposition=''):
         return "mobi"
     elif ct == '404':
         return ct
+    # no content-type header!
+    elif ct == '' and re.search("epub", url_disp, flags=re.I):
+        return "epub"
+    elif ct == '' and re.search("pdf", url_disp, flags=re.I):
+        return "pdf"
+    elif ct == '' and re.search("mobi", url_disp, flags=re.I):
+        return "mobi"
+
     return "other"
 
 class ContentTyper(object):
