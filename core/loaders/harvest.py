@@ -58,6 +58,7 @@ def harvesters(ebook):
     yield ebook.provider == u'De Gruyter Online', harvest_degruyter
     yield OPENBOOKPUB.search(ebook.url), harvest_obp
     yield ebook.provider == 'Transcript-Verlag', harvest_transcript
+    yield ebook.provider == 'ksp.kit.edu', harvest_ksp
 
 
 def ebf_if_harvested(url):
@@ -240,4 +241,17 @@ def harvest_transcript(ebook):
     if not harvested:
         logger.warning('couldn\'t get any dl_url for %s', ebook.url)
     return harvested, num
+
+def harvest_ksp(ebook): 
+    doc = get_soup(ebook.url)
+    if doc:
+        obj = doc.select_one('p.linkForPDF a')
+        if obj:
+            dl_url = urljoin(ebook.url, obj['href'])
+            return make_dl_ebook(dl_url, ebook)
+        else:
+            logger.warning('couldn\'t get dl_url for %s', ebook.url)
+    else:
+        logger.warning('couldn\'t get soup for %s', ebook.url)
+    return None, 0
 
