@@ -20,8 +20,8 @@ class Command(BaseCommand):
             if new_ebf and new:
                 done += new
                 self.stdout.write(new_ebf.edition.work.title)
-                if done >= limit or done >= 100:
+                if done >= limit or done >= 500:
                     break
         self.stdout.write('harvested {} ebooks'.format(done))
-        if done == 100:
-            self.stdout.write('100 is the maximum; repeat to do more')
+        if done >= 500:
+            self.stdout.write('500 is the maximum; repeat to do more')
