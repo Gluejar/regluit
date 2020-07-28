@@ -51,7 +51,11 @@ def get_soup(url, user_agent=settings.USER_AGENT):
 
         # make sure document has a base
         if not soup.find('base'):
-            soup.find('head').append(soup.new_tag("base", href=response.url))
+            obj = soup.find('head')
+            if obj:
+                obj.append(soup.new_tag("base", href=response.url))
+            else:
+                logger.error('No head for  %s', url)
         return soup
     return None
 
