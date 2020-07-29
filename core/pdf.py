@@ -82,7 +82,7 @@ def staple_pdf(urllist, user_agent=settings.USER_AGENT):
     out = BytesIO()
     try:
         merger.write(out)
-    except PdfReadError:
+    except (PdfReadError, RecursionError):
         logger.error("error writing pdf url: %s", url)
         return None
     return out
