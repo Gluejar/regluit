@@ -18,3 +18,5 @@ static/scss/*.css.map
 assets/*
 *.ipynb
 dump.rdb
+Pipfile
+*.lock

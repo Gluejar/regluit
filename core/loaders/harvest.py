@@ -63,6 +63,7 @@ def harvesters(ebook):
     yield ebook.provider == 'nomos-elibrary.de', harvest_nomos
     yield ebook.provider == 'frontiersin.org', harvest_frontiersin
     yield ebook.url.find('link.springer') >= 0, harvest_springerlink
+    yield ebook.provider == 'OAPEN Library', harvest_oapen
 
 
 def ebf_if_harvested(url):
@@ -353,3 +354,33 @@ def harvest_springerlink(ebook):
         logger.warning('couldn\'t get any dl_url for %s', ebook.url)
     return harvested, num
 
+OAPENPDF = re.compile('^/bitstream.*\.pdf')
+
+def harvest_oapen(ebook):
+    for old_ebook in ebook.edition.work.ebooks():
+        if (old_ebook.id != ebook.id and
+                old_ebook.provider == ebook.provider and
+                old_ebook.format == 'pdf'):            
+            ebook.delete()
+            return None, 0
+
+    harvested = None
+    made = 0
+    if ebook.url.find('oapen.org/record') < 0:
+        return None, 0
+
+    doc = get_soup(ebook.url)
+    try:
+        base = doc.find('base')['href']
+    except:
+        base = ebook.url
+    
+    if doc:
+        obj = doc.find('a', href=OAPENPDF)
+        if obj:
+            dl_url =  urljoin(base, obj['href'])
+            harvested, made = make_dl_ebook(dl_url, ebook)
+    if made == 0:
+        logger.warning('couldn\'t get any dl_url for %s', ebook.url)
+    return harvested, made
+  
