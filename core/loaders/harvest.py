@@ -60,6 +60,7 @@ def harvesters(ebook):
     yield ebook.provider == 'Transcript-Verlag', harvest_transcript
     yield ebook.provider == 'ksp.kit.edu', harvest_ksp
     yield ebook.provider == 'digitalis.uc.pt', harvest_digitalis
+    yield ebook.provider == 'nomos-elibrary.de', harvest_nomos
 
 
 def ebf_if_harvested(url):
@@ -280,6 +281,34 @@ def harvest_digitalis(ebook):
                 return make_dl_ebook(dl_url, ebook)
         else:
             logger.warning('couldn\'t get dl_url for %s', ebook.url)
+    else:
+        logger.warning('couldn\'t get soup for %s', ebook.url)
+    return None, 0
+
+NOMOSPDF = re.compile('download_full_pdf')
+def harvest_nomos(ebook): 
+    doc = get_soup(ebook.url)
+    if doc:
+        obj = doc.find('a', href=NOMOSPDF)
+        if obj:
+            dl_url = urljoin(ebook.url, obj['href'])
+            return make_dl_ebook(dl_url, ebook)
+        else:
+            logger.warning('will try stabling a book for %s', ebook.url)
+
+        # staple the chapters
+        chaps = doc.select('li.access[data-doi]')
+        pdflinks = [urljoin(
+                            'https://www.nomos-elibrary.de',
+                            chap['data-doi'] + '.pdf?download_full_pdf=1'
+                            ) for chap in chaps]
+        stapled = None
+        if pdflinks:
+            stapled = make_stapled_ebook(pdflinks, ebook, user_agent=settings.GOOGLEBOT_UA)
+        if stapled:
+            return stapled
+        else:
+            logger.warning('couldn\'t staple ebook  %s', ebook.url)
     else:
         logger.warning('couldn\'t get soup for %s', ebook.url)
     return None, 0
