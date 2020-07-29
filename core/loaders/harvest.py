@@ -73,6 +73,20 @@ def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET'):
         logger.warning('no url for ebook %s', ebook.id)
         return None, 0
     logger.info('making %s' % url)
+
+    # check to see if url already harvested
+    new_prev = []
+    for ebf in ebf_if_harvested(url):
+        new_ebf = EbookFile.objects.create(
+            edition=ebf.edition,
+            format=ebf.format,
+            file=ebf.file,
+            source=ebook.url,
+        )
+        new_prev.append(new_ebf)
+    if new_prev:
+        return new_prev[0], len(new_prev)
+
     if method == 'POST':
         response = requests.post(url, headers={"User-Agent": user_agent})
     else:
