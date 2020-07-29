@@ -46,6 +46,10 @@ def get_soup(url, user_agent=settings.USER_AGENT):
         response = requests.get(url, headers={"User-Agent": user_agent})
     except requests.exceptions.MissingSchema:
         response = requests.get('http://%s' % url, headers={"User-Agent": user_agent})
+    except requests.exceptions.ConnectionError as e:
+        logger.error("Connection refused for %s", url)
+        logger.error(e)
+        return None
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'lxml')
 
