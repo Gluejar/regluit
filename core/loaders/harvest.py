@@ -62,6 +62,7 @@ def harvesters(ebook):
     yield ebook.provider == 'digitalis.uc.pt', harvest_digitalis
     yield ebook.provider == 'nomos-elibrary.de', harvest_nomos
     yield ebook.provider == 'frontiersin.org', harvest_frontiersin
+    yield ebook.url.find('link.springer') >= 0, harvest_springerlink
 
 
 def ebf_if_harvested(url):
@@ -327,6 +328,27 @@ def harvest_frontiersin(ebook):
                 user_agent=requests.utils.default_user_agent(),
             )
             num += made
+    if num == 0:
+        logger.warning('couldn\'t get any dl_url for %s', ebook.url)
+    return harvested, num
+
+SPRINGERDL = re.compile(r'(EPUB|PDF|MOBI)')
+
+def harvest_springerlink(ebook): 
+    num = 0
+    harvested = None
+    doc = get_soup(ebook.url)
+    if doc:
+        found = []
+        for obj in doc.find_all('a', title=SPRINGERDL):
+            if obj.get('href'):
+                dl_url = urljoin(ebook.url, obj.get('href'))
+                if dl_url in found:
+                    continue
+                else:
+                    found.append(dl_url)
+                harvested, made = make_dl_ebook(dl_url, ebook)
+                num += made
     if num == 0:
         logger.warning('couldn\'t get any dl_url for %s', ebook.url)
     return harvested, num
