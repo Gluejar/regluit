@@ -61,6 +61,7 @@ def harvesters(ebook):
     yield ebook.provider == 'ksp.kit.edu', harvest_ksp
     yield ebook.provider == 'digitalis.uc.pt', harvest_digitalis
     yield ebook.provider == 'nomos-elibrary.de', harvest_nomos
+    yield ebook.provider == 'frontiersin.org', harvest_frontiersin
 
 
 def ebf_if_harvested(url):
@@ -312,4 +313,21 @@ def harvest_nomos(ebook):
     else:
         logger.warning('couldn\'t get soup for %s', ebook.url)
     return None, 0
+
+def harvest_frontiersin(ebook): 
+    num = 0
+    harvested = None
+    doc = get_soup(ebook.url)
+    if doc:
+        for obj in doc.select('button[data-href]'):
+            dl_url = obj['data-href']
+            harvested, made = make_dl_ebook(
+                dl_url,
+                ebook,
+                user_agent=requests.utils.default_user_agent(),
+            )
+            num += made
+    if num == 0:
+        logger.warning('couldn\'t get any dl_url for %s', ebook.url)
+    return harvested, num
 
