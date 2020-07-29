@@ -9,11 +9,15 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('limit', nargs='?', type=int, default=0, help="max to harvest")
+        parser.add_argument('--ebook', nargs='?', type=int, default=0, help="ebook to harvest")
 
     def handle(self, limit=0, **options):
         limit = int(limit) if limit else 0
         rl = RateLimiter()
-        onlines = Ebook.objects.filter(format='online')
+        if options.get('ebook'):
+            onlines = Ebook.objects.filter(id=options.get('ebook'))
+        else:
+            onlines = Ebook.objects.filter(format='online')
         done = 0
         for online in onlines:
             new_ebf, new = dl_online(online, limiter=rl.delay)
