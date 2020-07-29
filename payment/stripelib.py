@@ -635,7 +635,11 @@ class Processor(baseprocessor.Processor):
         # ASSUMPTION:  a user has any given moment one and only one active payment Account
         if token:
             # user is anonymous
-            account =  transaction.get_payment_class().make_account(token = token, email = transaction.receipt)
+            try:
+                account =  transaction.get_payment_class().make_account(token = token, email = transaction.receipt)
+            except StripelibError as e:
+                self.errorMessage = str(e)
+                return
         else:
             account = transaction.user.profile.account
 
