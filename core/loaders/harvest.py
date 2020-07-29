@@ -59,6 +59,10 @@ def harvesters(ebook):
     yield OPENBOOKPUB.search(ebook.url), harvest_obp
     yield ebook.provider == 'Transcript-Verlag', harvest_transcript
     yield ebook.provider == 'ksp.kit.edu', harvest_ksp
+    yield ebook.provider == 'digitalis.uc.pt', harvest_digitalis
+    yield ebook.provider == 'nomos-elibrary.de', harvest_nomos
+    yield ebook.provider == 'frontiersin.org', harvest_frontiersin
+    yield ebook.url.find('link.springer') >= 0, harvest_springerlink
 
 
 def ebf_if_harvested(url):
@@ -73,6 +77,20 @@ def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET'):
         logger.warning('no url for ebook %s', ebook.id)
         return None, 0
     logger.info('making %s' % url)
+
+    # check to see if url already harvested
+    new_prev = []
+    for ebf in ebf_if_harvested(url):
+        new_ebf = EbookFile.objects.create(
+            edition=ebf.edition,
+            format=ebf.format,
+            file=ebf.file,
+            source=ebook.url,
+        )
+        new_prev.append(new_ebf)
+    if new_prev:
+        return new_prev[0], len(new_prev)
+
     if method == 'POST':
         response = requests.post(url, headers={"User-Agent": user_agent})
     else:
@@ -254,4 +272,84 @@ def harvest_ksp(ebook):
     else:
         logger.warning('couldn\'t get soup for %s', ebook.url)
     return None, 0
+
+def harvest_digitalis(ebook): 
+    doc = get_soup(ebook.url)
+    if doc:
+        obj = doc.find('meta', attrs={"name": "citation_pdf_url"})
+        if obj:
+            dl_url = urljoin(ebook.url, obj.get('content', None))
+            if dl_url:
+                return make_dl_ebook(dl_url, ebook)
+        else:
+            logger.warning('couldn\'t get dl_url for %s', ebook.url)
+    else:
+        logger.warning('couldn\'t get soup for %s', ebook.url)
+    return None, 0
+
+NOMOSPDF = re.compile('download_full_pdf')
+def harvest_nomos(ebook): 
+    doc = get_soup(ebook.url)
+    if doc:
+        obj = doc.find('a', href=NOMOSPDF)
+        if obj:
+            dl_url = urljoin(ebook.url, obj['href'])
+            return make_dl_ebook(dl_url, ebook)
+        else:
+            logger.warning('will try stabling a book for %s', ebook.url)
+
+        # staple the chapters
+        chaps = doc.select('li.access[data-doi]')
+        pdflinks = [urljoin(
+                            'https://www.nomos-elibrary.de',
+                            chap['data-doi'] + '.pdf?download_full_pdf=1'
+                            ) for chap in chaps]
+        stapled = None
+        if pdflinks:
+            stapled = make_stapled_ebook(pdflinks, ebook, user_agent=settings.GOOGLEBOT_UA)
+        if stapled:
+            return stapled
+        else:
+            logger.warning('couldn\'t staple ebook  %s', ebook.url)
+    else:
+        logger.warning('couldn\'t get soup for %s', ebook.url)
+    return None, 0
+
+def harvest_frontiersin(ebook): 
+    num = 0
+    harvested = None
+    doc = get_soup(ebook.url)
+    if doc:
+        for obj in doc.select('button[data-href]'):
+            dl_url = obj['data-href']
+            harvested, made = make_dl_ebook(
+                dl_url,
+                ebook,
+                user_agent=requests.utils.default_user_agent(),
+            )
+            num += made
+    if num == 0:
+        logger.warning('couldn\'t get any dl_url for %s', ebook.url)
+    return harvested, num
+
+SPRINGERDL = re.compile(r'(EPUB|PDF|MOBI)')
+
+def harvest_springerlink(ebook): 
+    num = 0
+    harvested = None
+    doc = get_soup(ebook.url)
+    if doc:
+        found = []
+        for obj in doc.find_all('a', title=SPRINGERDL):
+            if obj.get('href'):
+                dl_url = urljoin(ebook.url, obj.get('href'))
+                if dl_url in found:
+                    continue
+                else:
+                    found.append(dl_url)
+                harvested, made = make_dl_ebook(dl_url, ebook)
+                num += made
+    if num == 0:
+        logger.warning('couldn\'t get any dl_url for %s', ebook.url)
+    return harvested, num
 
