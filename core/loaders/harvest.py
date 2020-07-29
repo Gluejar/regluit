@@ -59,6 +59,7 @@ def harvesters(ebook):
     yield OPENBOOKPUB.search(ebook.url), harvest_obp
     yield ebook.provider == 'Transcript-Verlag', harvest_transcript
     yield ebook.provider == 'ksp.kit.edu', harvest_ksp
+    yield ebook.provider == 'digitalis.uc.pt', harvest_digitalis
 
 
 def ebf_if_harvested(url):
@@ -263,6 +264,20 @@ def harvest_ksp(ebook):
         if obj:
             dl_url = urljoin(ebook.url, obj['href'])
             return make_dl_ebook(dl_url, ebook)
+        else:
+            logger.warning('couldn\'t get dl_url for %s', ebook.url)
+    else:
+        logger.warning('couldn\'t get soup for %s', ebook.url)
+    return None, 0
+
+def harvest_digitalis(ebook): 
+    doc = get_soup(ebook.url)
+    if doc:
+        obj = doc.find('meta', attrs={"name": "citation_pdf_url"})
+        if obj:
+            dl_url = urljoin(ebook.url, obj.get('content', None))
+            if dl_url:
+                return make_dl_ebook(dl_url, ebook)
         else:
             logger.warning('couldn\'t get dl_url for %s', ebook.url)
     else:
