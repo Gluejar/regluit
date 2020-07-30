@@ -428,6 +428,7 @@ def harvest_bloomsbury(ebook):
             if obj:
                 chap = urljoin(base, obj['href']) + '.pdf?dl'
             pdflinks.append(chap)
+        stapled = None
         if pdflinks:
             stapled = make_stapled_ebook(pdflinks, ebook, strip_covers=True)
         if stapled:
