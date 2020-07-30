@@ -9,6 +9,7 @@ import requests
 from xhtml2pdf import pisa             # import python module
 from PyPDF2 import PdfFileMerger, PdfFileReader
 from PyPDF2.utils import PdfReadError
+from PyPDF2.pagerange import PageRange
 from django.template.loader import render_to_string
 from django.conf import settings
 
@@ -62,7 +63,9 @@ def test_pdf(pdf_file):
         logger.exception('error testing a pdf: %s' % pdf_file[:100])
         return False
 
-def staple_pdf(urllist, user_agent=settings.USER_AGENT):
+def staple_pdf(urllist, user_agent=settings.USER_AGENT, strip_covers=False):
+    pages = None
+    all_but_first = PageRange('1:')
     merger = PdfFileMerger(strict=False)
     s = requests.Session()
     for url in urllist:
@@ -74,12 +77,13 @@ def staple_pdf(urllist, user_agent=settings.USER_AGENT):
         if response.status_code == 200:
             try:
                 logger.debug('adding %s bytes from  %s', len(response.content), url)
-                merger.append(BytesIO(response.content))
+                merger.append(BytesIO(response.content), pages=pages)
             except PdfReadError:
                 logger.error("error reading pdf url: %s", url)
                 return None
         else:
             return None
+        pages = all_but_first if strip_covers else pages
     out = BytesIO()
     try:
         merger.write(out)
