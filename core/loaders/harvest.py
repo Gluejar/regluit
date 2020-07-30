@@ -64,7 +64,7 @@ def harvesters(ebook):
     yield ebook.provider == 'frontiersin.org', harvest_frontiersin
     yield ebook.url.find('link.springer') >= 0, harvest_springerlink
     yield ebook.provider == 'OAPEN Library', harvest_oapen
-
+    yield ebook.provider == 'pulp.up.ac.za', harvest_pulp
 
 def ebf_if_harvested(url):
     onlines = EbookFile.objects.filter(source=url)
@@ -388,4 +388,29 @@ def harvest_oapen(ebook):
     if made == 0:
         logger.warning('couldn\'t get any dl_url for %s', ebook.url)
     return harvested, made
+
+EDOCMAN = re.compile('component/edocman/')
+def harvest_pulp(ebook):
+    def edocman(url):
+        if not EDOCMAN.search(url):
+            return
+        return url + '/download?Itemid='
+    dl_url = edocman(ebook.url)
+    if dl_url:
+        return make_dl_ebook(dl_url, ebook)
+    doc = get_soup(ebook.url)
+    harvested = None
+    made = 0
+    if doc:
+        obj = doc.find('a', href=EDOCMAN)
+        if obj:
+            dl_url =  edocman(urljoin(ebook.url, obj['href']))
+            harvested, made = make_dl_ebook(dl_url, ebook,
+                                            user_agent=requests.utils.default_user_agent())
+    if made == 0:
+        logger.warning('couldn\'t get any dl_url for %s or %s', ebook.url, dl_url)
+    return harvested, made
+        
+        
+    
   
