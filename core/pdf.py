@@ -73,6 +73,7 @@ def staple_pdf(urllist, user_agent=settings.USER_AGENT):
             return None
         if response.status_code == 200:
             try:
+                logger.debug('adding %s bytes from  %s', len(response.content), url)
                 merger.append(BytesIO(response.content))
             except PdfReadError:
                 logger.error("error reading pdf url: %s", url)
