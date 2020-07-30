@@ -66,6 +66,8 @@ def harvesters(ebook):
     yield ebook.provider == 'OAPEN Library', harvest_oapen
     yield ebook.provider == 'pulp.up.ac.za', harvest_pulp
     yield ebook.provider == 'bloomsburycollections.com', harvest_bloomsbury
+    yield ebook.provider == 'Athabasca University Press', harvest_athabasca
+    yield ebook.url.find('digitalcommons.usu.edu') > 0, harvest_usu
 
 def ebf_if_harvested(url):
     onlines = EbookFile.objects.filter(source=url)
@@ -436,3 +438,33 @@ def harvest_bloomsbury(ebook):
         logger.warning('couldn\'t get soup for %s', ebook.url)
     return None, 0
 
+def harvest_athabasca(ebook):
+    doc = get_soup(ebook.url)
+    if doc:
+        try:
+            base = doc.find('base')['href']
+        except:
+            base = ebook.url
+        obj = doc.select_one('li.downloadPDF a[href]')
+        if obj:
+            dl_url = urljoin(base, obj['href'])
+            return make_dl_ebook(dl_url, ebook)
+        else:
+            logger.warning('couldn\'t get dl_url for %s', base)
+    else:
+        logger.warning('couldn\'t get soup for %s', ebook.url)
+    return None, 0
+
+
+def harvest_usu(ebook):
+    doc = get_soup(ebook.url)
+    if doc:
+        obj = doc.select_one('#full-text a[href]')
+        if obj:
+            dl_url = urljoin(ebook.url, obj['href'])
+            return make_dl_ebook(dl_url, ebook)
+        else:
+            logger.warning('couldn\'t get dl_url for %s', base)
+    else:
+        logger.warning('couldn\'t get soup for %s', ebook.url)
+    return None, 0
