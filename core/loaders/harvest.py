@@ -65,6 +65,7 @@ def harvesters(ebook):
     yield ebook.url.find('link.springer') >= 0, harvest_springerlink
     yield ebook.provider == 'OAPEN Library', harvest_oapen
     yield ebook.provider == 'pulp.up.ac.za', harvest_pulp
+    yield ebook.provider == 'bloomsburycollections.com', harvest_bloomsbury
 
 def ebf_if_harvested(url):
     onlines = EbookFile.objects.filter(source=url)
@@ -110,8 +111,8 @@ def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET'):
         logger.warning('couldn\'t get %s', url)
     return None, 0
 
-def make_stapled_ebook(urllist, ebook, user_agent=settings.USER_AGENT):
-    pdffile = staple_pdf(urllist, user_agent)
+def make_stapled_ebook(urllist, ebook, user_agent=settings.USER_AGENT, strip_covers=False):
+    pdffile = staple_pdf(urllist, user_agent, strip_covers=strip_covers)
     if not pdffile:
         return None, 0
     return make_harvested_ebook(pdffile.getvalue(), ebook, 'pdf')
@@ -389,6 +390,7 @@ def harvest_oapen(ebook):
         logger.warning('couldn\'t get any dl_url for %s', ebook.url)
     return harvested, made
 
+
 EDOCMAN = re.compile('component/edocman/')
 def harvest_pulp(ebook):
     def edocman(url):
@@ -397,7 +399,7 @@ def harvest_pulp(ebook):
         return url + '/download?Itemid='
     dl_url = edocman(ebook.url)
     if dl_url:
-        return make_dl_ebook(dl_url, ebook)
+        return make_dl_ebook(dl_url, ebook, user_agent=requests.utils.default_user_agent())
     doc = get_soup(ebook.url)
     harvested = None
     made = 0
@@ -410,7 +412,27 @@ def harvest_pulp(ebook):
     if made == 0:
         logger.warning('couldn\'t get any dl_url for %s or %s', ebook.url, dl_url)
     return harvested, made
-        
-        
-    
-  
+
+
+def harvest_bloomsbury(ebook):
+    doc = get_soup(ebook.url)
+    if doc:
+        pdflinks = []
+        try:
+            base = doc.find('base')['href']
+        except:
+            base = ebook.url
+        for obj in doc.select('li.pdf-chapter--title a[href]'):
+            if obj:
+                chap = urljoin(base, obj['href']) + '.pdf?dl'
+            pdflinks.append(chap)
+        if pdflinks:
+            stapled = make_stapled_ebook(pdflinks, ebook, strip_covers=True)
+        if stapled:
+            return stapled
+        else:
+            logger.warning('couldn\'t staple %s', pdflinks)
+    else:
+        logger.warning('couldn\'t get soup for %s', ebook.url)
+    return None, 0
+
