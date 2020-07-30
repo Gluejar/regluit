@@ -389,6 +389,7 @@ def harvest_oapen(ebook):
         logger.warning('couldn\'t get any dl_url for %s', ebook.url)
     return harvested, made
 
+
 EDOCMAN = re.compile('component/edocman/')
 def harvest_pulp(ebook):
     def edocman(url):
@@ -397,7 +398,7 @@ def harvest_pulp(ebook):
         return url + '/download?Itemid='
     dl_url = edocman(ebook.url)
     if dl_url:
-        return make_dl_ebook(dl_url, ebook)
+        return make_dl_ebook(dl_url, ebook, user_agent=requests.utils.default_user_agent())
     doc = get_soup(ebook.url)
     harvested = None
     made = 0
