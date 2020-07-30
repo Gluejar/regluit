@@ -301,10 +301,15 @@ def harvest_nomos(ebook):
 
         # staple the chapters
         chaps = doc.select('li.access[data-doi]')
-        pdflinks = [urljoin(
-                            'https://www.nomos-elibrary.de',
-                            chap['data-doi'] + '.pdf?download_full_pdf=1'
-                            ) for chap in chaps]
+        
+        pdflinks = []
+        for chap in chaps:
+            link = urljoin(
+                'https://www.nomos-elibrary.de',
+                chap['data-doi'] + '.pdf?download_full_pdf=1'
+            )
+            if link not in pdflinks:
+                pdflinks.append(link)
         stapled = None
         if pdflinks:
             stapled = make_stapled_ebook(pdflinks, ebook, user_agent=settings.GOOGLEBOT_UA)
