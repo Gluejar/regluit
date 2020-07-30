@@ -44,7 +44,8 @@ from regluit.payment.signals import transaction_charged, transaction_failed
 # ['charge.disputed', 'coupon.updated'] are legacy events -- don't know whether to
 # include them in list
 
-STRIPE_EVENT_TYPES = ['account.updated', 'account.application.deauthorized', 'balance.available',
+STRIPE_EVENT_TYPES = [
+    'account.updated', 'account.application.deauthorized', 'balance.available',
     'charge.succeeded', 'charge.failed', 'charge.refunded', 'charge.captured',
     'charge.dispute.created', 'charge.dispute.updated', 'charge.dispute.closed',
     'customer.created', 'customer.updated', 'customer.deleted',
@@ -58,7 +59,8 @@ STRIPE_EVENT_TYPES = ['account.updated', 'account.application.deauthorized', 'ba
     'invoice.payment_succeeded', 'invoice.payment_failed', 'invoiceitem.created',
     'invoiceitem.updated', 'invoiceitem.deleted', 'plan.created', 'plan.updated',
     'plan.deleted', 'coupon.created', 'coupon.deleted', 'transfer.created',
-    'transfer.updated', 'transfer.paid', 'transfer.failed', 'payment_method.attached', 'ping']
+    'transfer.updated', 'transfer.paid', 'transfer.failed', 'payment_method.attached', 'ping',
+]
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +84,7 @@ STRIPE_SK = settings.STRIPE_SK
 
 # set default stripe api_key to that of unglue.it
 
-stripe.api_key =  STRIPE_SK
+stripe.api_key = STRIPE_SK
 
 # maybe we should be able to set this in django.settings...
 
@@ -131,7 +133,7 @@ CARD_FIELDS_TO_COMPARE = ('exp_month', 'exp_year', 'name', 'address_line1', 'add
 
 
 def filter_none(d):
-    return dict([(k,v) for (k,v) in d.items() if v is not None])
+    return dict([(k, v) for (k, v) in d.items() if v is not None])
 
 # if you create a Customer object, then you'll be able to charge multiple times. You can create a customer with a token.
 
@@ -377,7 +379,7 @@ class StripeErrorTest(TestCase):
         for k in CARD_FIELDS_TO_COMPARE:
             self.assertEqual(token2.card[k], card1[k])
         # last4
-        self.assertEqual(token2.card.last4,  TEST_CARDS[0][0][-4:])
+        self.assertEqual(token2.card.last4, TEST_CARDS[0][0][-4:])
         # fingerprint
         self.assertGreaterEqual(len(token2.card.fingerprint), 16)
 
@@ -386,10 +388,10 @@ class StripeErrorTest(TestCase):
         self.assertEqual(charge1.amount, 1000)
         self.assertEqual(charge1.id[:3], "ch_")
         # dispute, failure_message, fee, fee_details
-        self.assertEqual(charge1.dispute,None)
-        self.assertEqual(charge1.failure_message,None)
-        self.assertEqual(charge1.fee,59)
-        self.assertEqual(charge1.refunded,False)
+        self.assertEqual(charge1.dispute, None)
+        self.assertEqual(charge1.failure_message, None)
+        self.assertEqual(charge1.fee, 59)
+        self.assertEqual(charge1.refunded, False)
 
 
     def test_error_creating_customer_with_declined_card(self):
@@ -423,7 +425,8 @@ class StripeErrorTest(TestCase):
 
         sc = StripeClient()
         card1 = card(number=BAD_CC_NUM, exp_month=1, exp_year=2020, cvc='123', name='Don Giovanni',
-          address_line1="100 Jackson St.", address_line2="", address_zip="94706", address_state="CA", address_country=None)  # good card
+          address_line1="100 Jackson St.", address_line2="", address_zip="94706",
+          address_state="CA", address_country=None)  # good card
 
         try:
             token1 = sc.create_token(card=card1)
@@ -437,7 +440,8 @@ class StripeErrorTest(TestCase):
 
         sc = StripeClient()
         card1 = card(number=TEST_CARDS[0][0], exp_month=13, exp_year=2020, cvc='123', name='Don Giovanni',
-          address_line1="100 Jackson St.", address_line2="", address_zip="94706", address_state="CA", address_country=None)
+          address_line1="100 Jackson St.", address_line2="", address_zip="94706",
+          address_state="CA", address_country=None)
 
         try:
             token1 = sc.create_token(card=card1)
@@ -465,7 +469,8 @@ class StripeErrorTest(TestCase):
 
         sc = StripeClient()
         card1 = card(number=TEST_CARDS[0][0], exp_month=12, exp_year=2020, cvc='99', name='Don Giovanni',
-          address_line1="100 Jackson St.", address_line2="", address_zip="94706", address_state="CA", address_country=None)
+          address_line1="100 Jackson St.", address_line2="", address_zip="94706",
+          address_state="CA", address_country=None)
 
         try:
             token1 = sc.create_token(card=card1)
@@ -516,7 +521,7 @@ class PledgeScenarioTest(TestCase):
     def test_charge_bad_cust(self):
         # expect the card to be declined -- and for us to get CardError
         self.assertRaises(stripe.error.CardError, self._sc.create_charge, 10,
-                          customer = self._cust_bad_card.id, description="$10 for bad cust")
+                          customer=self._cust_bad_card.id, description="$10 for bad cust")
 
     @classmethod
     def tearDownClass(cls):
@@ -551,14 +556,14 @@ class Processor(baseprocessor.Processor):
             raise StripelibError(e.args, e)
 
         account = Account(host = PAYMENT_HOST_STRIPE,
-                          account_id = customer.id,
-                          card_last4 = customer.active_card.last4,
-                          card_type = customer.active_card.type,
-                          card_exp_month = customer.active_card.exp_month,
-                          card_exp_year = customer.active_card.exp_year,
-                          card_fingerprint = customer.active_card.fingerprint,
-                          card_country = customer.active_card.country,
-                          user = user
+                          account_id=customer.id,
+                          card_last4=customer.active_card.last4,
+                          card_type=customer.active_card.type,
+                          card_exp_month=customer.active_card.exp_month,
+                          card_exp_year=customer.active_card.exp_year,
+                          card_fingerprint=customer.active_card.fingerprint,
+                          card_country=customer.active_card.country,
+                          user=user
                           )
         if user and user.profile.account:
             user.profile.account.deactivate()
@@ -578,7 +583,7 @@ class Processor(baseprocessor.Processor):
 
             now_val = now()
             if expiry is None:
-                expiry = now_val + timedelta( days=settings.PREAPPROVAL_PERIOD )
+                expiry = now_val + timedelta(days=settings.PREAPPROVAL_PERIOD)
             transaction.date_authorized = now_val
             transaction.date_expired = expiry
 
@@ -625,8 +630,8 @@ class Processor(baseprocessor.Processor):
         If the transaction has a null user (is_anonymous), then a token musr be supplied
       '''
 
-      def __init__( self, transaction, return_url=None,  amount=None, paymentReason="", token=None):
-        self.transaction=transaction
+      def __init__( self, transaction, return_url=None, amount=None, paymentReason="", token=None):
+        self.transaction = transaction
         self.url = return_url
 
         now_val = now()
@@ -635,7 +640,11 @@ class Processor(baseprocessor.Processor):
         # ASSUMPTION:  a user has any given moment one and only one active payment Account
         if token:
             # user is anonymous
-            account =  transaction.get_payment_class().make_account(token = token, email = transaction.receipt)
+            try:
+                account = transaction.get_payment_class().make_account(token=token, email=transaction.receipt)
+            except StripelibError as e:
+                self.errorMessage = str(e)
+                return
         else:
             account = transaction.user.profile.account
 
@@ -668,13 +677,13 @@ class Processor(baseprocessor.Processor):
             self.errorMessage = p.errorMessage #pass error message up
             logger.info("execute_transaction Error: {}".format(p.error_string()))
 
-      def amount( self ):
+      def amount(self):
           return self.transaction.amount
 
-      def key( self ):
+      def key(self):
           return self.transaction.pay_key
 
-      def next_url( self ):
+      def next_url(self):
           return self.url
 
     class Execute(StripePaymentRequest):
