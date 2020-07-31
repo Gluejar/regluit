@@ -51,6 +51,18 @@ def dl_online(ebook, limiter=rl.delay):
             return harvester(ebook)
     return None, 0
 
+CMPPROVIDERS = [
+    'editorial.uniagustiniana.edu.co',
+    'llibres.urv.cat',
+    'fedoabooks.unina.it',
+    'Scholars Portal',
+    'pressesagro.be',
+    'ebooks.epublishing.ekt.gr',
+    'teiresias-supplements.mcgill.ca',
+    'humanities-digital-library.org',
+    'editorial.uniagustiniana.edu.co',
+]
+
 
 def harvesters(ebook):
     yield ebook.url.find(u'dropbox.com/s/') >= 0, harvest_dropbox
@@ -69,10 +81,9 @@ def harvesters(ebook):
     yield ebook.provider == 'Athabasca University Press', harvest_athabasca
     yield ebook.url.find('digitalcommons.usu.edu') > 0, harvest_usu
     yield ebook.provider == 'libros.fahce.unlp.edu.ar', harvest_fahce
-    yield ebook.provider == 'fedoabooks.unina.it', harvest_cmp
     yield ebook.provider == 'digital.library.unt.edu', harvest_unt
     yield ebook.provider == 'diposit.ub.edu', harvest_ub
-    yield ebook.provider == 'llibres.urv.cat', harvest_cmp
+    yield ebook.provider in CMPPROVIDERS, harvest_cmp
 
 def ebf_if_harvested(url):
     onlines = EbookFile.objects.filter(source=url)
@@ -481,6 +492,8 @@ def harvest_cmp(ebook):
         return doc.select('a.cmp_download_link[href]')
     def dl(url):
         return url.replace('view', 'download') + '?inline=1'
+    if ebook.url.find('/view/') >= 0:
+        return make_dl_ebook(dl(ebook.url), ebook)
     return harvest_multiple_generic(ebook, selector, dl=dl)
 
 
