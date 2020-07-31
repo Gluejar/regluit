@@ -70,6 +70,8 @@ def harvesters(ebook):
     yield ebook.url.find('digitalcommons.usu.edu') > 0, harvest_usu
     yield ebook.provider == 'libros.fahce.unlp.edu.ar', harvest_fahce
     yield ebook.provider == 'fedoabooks.unina.it', harvest_fedoabooks
+    yield ebook.provider == 'digital.library.unt.edu', harvest_unt
+    yield ebook.provider == 'diposit.ub.edu', harvest_ub
 
 def ebf_if_harvested(url):
     onlines = EbookFile.objects.filter(source=url)
@@ -472,10 +474,27 @@ def harvest_fahce(ebook):
         return doc.select_one('div.publicationFormatLink a[href]')
     return harvest_one_generic(ebook, selector)
 
+
 def harvest_fedoabooks(ebook):
     def selector(doc):
         return doc.select('a.cmp_download_link[href]')
     def dl(url):
         return url.replace('view', 'download') + '?inline=1'
     return harvest_multiple_generic(ebook, selector, dl=dl)
+
+
+UBPDF = re.compile(r'/dspace/bitstream/.*\.pdf')
+def harvest_ub(ebook):
+    def selector(doc):
+        return doc.find(href=UBPDF)
+    return harvest_one_generic(ebook, selector)
+
+
+# won't harvest page-image books
+def harvest_unt(ebook):
+    def selector(doc):
+        return doc.select_one('#link-pdf-version[href]')
+    return harvest_one_generic(ebook, selector)
+
+
 
