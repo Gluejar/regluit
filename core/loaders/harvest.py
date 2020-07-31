@@ -170,6 +170,29 @@ def harvest_one_generic(ebook, selector):
         logger.warning('couldn\'t get soup for %s', ebook.url)
     return None, 0
 
+def harvest_multiple_generic(ebook, selector, dl=lambda x:x):
+    num = 0
+    harvested = None
+    doc = get_soup(ebook.url)
+    if doc:
+        found = []
+        try:
+            base = doc.find('base')['href']
+        except:
+            base = ebook.url
+        for obj in selector(doc):
+            dl_url = dl(urljoin(base, obj.get('href')))
+            logger.info(dl_url)
+            if dl_url in found:
+                continue
+            else:
+                found.append(dl_url)
+            harvested, made = make_dl_ebook(dl_url, ebook)
+            num += made
+    if num == 0:
+        logger.warning('couldn\'t get any dl_url for %s', ebook.url)
+    return harvested, num
+
 def harvest_obp(ebook):    
     match = OPENBOOKPUB.search(ebook.url)
     booknum = None
@@ -349,23 +372,9 @@ def harvest_frontiersin(ebook):
 SPRINGERDL = re.compile(r'(EPUB|PDF|MOBI)')
 
 def harvest_springerlink(ebook): 
-    num = 0
-    harvested = None
-    doc = get_soup(ebook.url)
-    if doc:
-        found = []
-        for obj in doc.find_all('a', title=SPRINGERDL):
-            if obj.get('href'):
-                dl_url = urljoin(ebook.url, obj.get('href'))
-                if dl_url in found:
-                    continue
-                else:
-                    found.append(dl_url)
-                harvested, made = make_dl_ebook(dl_url, ebook)
-                num += made
-    if num == 0:
-        logger.warning('couldn\'t get any dl_url for %s', ebook.url)
-    return harvested, num
+    def selector(doc):
+        return doc.find_all('a', title=SPRINGERDL)
+    return harvest_multiple_generic(ebook, selector)
 
 OAPENPDF = re.compile('^/bitstream.*\.pdf')
 
