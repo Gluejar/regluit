@@ -465,7 +465,7 @@ def harvest_usu(ebook):
             dl_url = urljoin(ebook.url, obj['href'])
             return make_dl_ebook(dl_url, ebook)
         else:
-            logger.warning('couldn\'t get dl_url for %s', base)
+            logger.warning('couldn\'t get dl_url for %s', ebook.url)
     else:
         logger.warning('couldn\'t get soup for %s', ebook.url)
     return None, 0
