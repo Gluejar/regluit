@@ -149,6 +149,27 @@ def make_harvested_ebook(content, ebook, format, filesize=0):
     new_ebf.save()
     return new_ebf, 1
 
+
+def harvest_one_generic(ebook, selector):
+    doc = get_soup(ebook.url)
+    if doc:
+        try:
+            base = doc.find('base')['href']
+        except:
+            base = ebook.url
+        obj = selector(doc)
+        if obj:
+            dl_url = urljoin(base, obj['href'])
+            harvest = make_dl_ebook(dl_url, ebook)
+            if not harvest[0]:
+                logger.warning('couldn\'t harvest %s', dl_url)
+            return harvest
+        else:
+            logger.warning('couldn\'t get dl_url for %s', ebook.url)
+    else:
+        logger.warning('couldn\'t get soup for %s', ebook.url)
+    return None, 0
+
 def harvest_obp(ebook):    
     match = OPENBOOKPUB.search(ebook.url)
     booknum = None
@@ -237,17 +258,9 @@ def harvest_dropbox(ebook):
     return None, 0 
         
 def harvest_jbe(ebook): 
-    doc = get_soup(ebook.url)
-    if doc:
-        obj = doc.select_one('div.pdfItem a')
-        if obj:
-            dl_url = urljoin(ebook.url, obj['href'])
-            return make_dl_ebook(dl_url, ebook)
-        else:
-            logger.warning('couldn\'t get dl_url for %s', ebook.url)
-    else:
-        logger.warning('couldn\'t get soup for %s', ebook.url)
-    return None, 0
+    def selector(doc):
+        return doc.select_one('div.pdfItem a')
+    return harvest_one_generic(ebook, selector)
 
 def harvest_transcript(ebook): 
     num = 0
@@ -265,17 +278,9 @@ def harvest_transcript(ebook):
     return harvested, num
 
 def harvest_ksp(ebook): 
-    doc = get_soup(ebook.url)
-    if doc:
-        obj = doc.select_one('p.linkForPDF a')
-        if obj:
-            dl_url = urljoin(ebook.url, obj['href'])
-            return make_dl_ebook(dl_url, ebook)
-        else:
-            logger.warning('couldn\'t get dl_url for %s', ebook.url)
-    else:
-        logger.warning('couldn\'t get soup for %s', ebook.url)
-    return None, 0
+    def selector(doc):
+        return doc.select_one('p.linkForPDF a')
+    return harvest_one_generic(ebook, selector)
 
 def harvest_digitalis(ebook): 
     doc = get_soup(ebook.url)
@@ -440,32 +445,13 @@ def harvest_bloomsbury(ebook):
     return None, 0
 
 def harvest_athabasca(ebook):
-    doc = get_soup(ebook.url)
-    if doc:
-        try:
-            base = doc.find('base')['href']
-        except:
-            base = ebook.url
-        obj = doc.select_one('li.downloadPDF a[href]')
-        if obj:
-            dl_url = urljoin(base, obj['href'])
-            return make_dl_ebook(dl_url, ebook)
-        else:
-            logger.warning('couldn\'t get dl_url for %s', base)
-    else:
-        logger.warning('couldn\'t get soup for %s', ebook.url)
-    return None, 0
+    def selector(doc):
+        return doc.select_one('li.downloadPDF a[href]')
+    return harvest_one_generic(ebook, selector)
 
 
 def harvest_usu(ebook):
-    doc = get_soup(ebook.url)
-    if doc:
-        obj = doc.select_one('#full-text a[href]')
-        if obj:
-            dl_url = urljoin(ebook.url, obj['href'])
-            return make_dl_ebook(dl_url, ebook)
-        else:
-            logger.warning('couldn\'t get dl_url for %s', ebook.url)
-    else:
-        logger.warning('couldn\'t get soup for %s', ebook.url)
-    return None, 0
+    def selector(doc):
+        return doc.select_one('#full-text a[href]')
+    return harvest_one_generic(ebook, selector)
+
