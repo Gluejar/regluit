@@ -68,6 +68,8 @@ def harvesters(ebook):
     yield ebook.provider == 'bloomsburycollections.com', harvest_bloomsbury
     yield ebook.provider == 'Athabasca University Press', harvest_athabasca
     yield ebook.url.find('digitalcommons.usu.edu') > 0, harvest_usu
+    yield ebook.provider == 'libros.fahce.unlp.edu.ar', harvest_fahce
+    yield ebook.provider == 'fedoabooks.unina.it', harvest_fedoabooks
 
 def ebf_if_harvested(url):
     onlines = EbookFile.objects.filter(source=url)
@@ -463,4 +465,17 @@ def harvest_usu(ebook):
     def selector(doc):
         return doc.select_one('#full-text a[href]')
     return harvest_one_generic(ebook, selector)
+
+
+def harvest_fahce(ebook):
+    def selector(doc):
+        return doc.select_one('div.publicationFormatLink a[href]')
+    return harvest_one_generic(ebook, selector)
+
+def harvest_fedoabooks(ebook):
+    def selector(doc):
+        return doc.select('a.cmp_download_link[href]')
+    def dl(url):
+        return url.replace('view', 'download') + '?inline=1'
+    return harvest_multiple_generic(ebook, selector, dl=dl)
 
