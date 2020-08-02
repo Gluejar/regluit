@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from regluit.core.models import EbookFile
+from regluit.core.models import EbookFile, Ebookfile
 
 class Command(BaseCommand):
 
