@@ -489,6 +489,9 @@ def harvest_fahce(ebook):
 
 def harvest_cmp(ebook):
     def selector(doc):
+        objs = doc.select('.tab-content a.cmp_download_link[href]')
+        if (len({obj['href'] for obj in objs})) > 1:
+            return []
         return doc.select('a.cmp_download_link[href]')
     def dl(url):
         return url.replace('view', 'download') + '?inline=1'
