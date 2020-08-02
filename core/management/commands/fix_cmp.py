@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 
-from regluit.core.models import EbookFile, Ebookfile
+from regluit.core.models import EbookFile, Ebook
+from regluit.core.loaders.utils import get_soup
 
 class Command(BaseCommand):
 
@@ -12,7 +13,7 @@ class Command(BaseCommand):
             if doc:
                 objs = doc.select('.tab-content a.cmp_download_link[href]')
                 for obj in objs:
-                    for ebf in EbookFile.objects.filter(source=ebook.url):
+                    for ebf in EbookFile.objects.filter(source=obj['href']):
                         bad_ebook = ebf.ebook
                         try:
                             ebf.file.delete()
