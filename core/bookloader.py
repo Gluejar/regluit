@@ -623,7 +623,9 @@ def detach_edition(e):
     there's another work to attach to
     """
     logger.info(u"splitting edition %s from %s", e, e.work)
-    w = models.Work(title=e.title, language=e.work.language)
+    frees = models.Edition.objects.annotate(free=Sum('ebooks__active')).filter(free__gt=0)
+    is_free = frees.count() > 0
+    w = models.Work(title=e.title, language=e.work.language, is_free=is_free)
     w.save()
 
     for identifier in e.identifiers.all():
