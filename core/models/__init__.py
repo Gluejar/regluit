@@ -22,11 +22,11 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.contrib.contenttypes.fields import GenericRelation
-from django.urls import reverse
 from django.core.files.base import ContentFile
-from django.db import models
+from django.db import models, IntegrityError
 from django.db.models import F, Q
 from django.db.models.signals import post_save
+from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
@@ -1077,7 +1077,11 @@ class Wishlist(models.Model):
         try:
             w = Wishes.objects.get(wishlist=self, work=work)
         except Wishes.DoesNotExist:
-            Wishes.objects.create(source=source, wishlist=self, work=work)
+            try:
+                Wishes.objects.create(source=source, wishlist=self, work=work)
+            except IntegrityError:
+                # threading issue?
+                return
             work.update_num_wishes()
             # only send notification in case of new wishes
             # and only when they result from user action, not (e.g.) our tests
