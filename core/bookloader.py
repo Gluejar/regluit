@@ -551,14 +551,20 @@ def merge_works(w1, w2, user=None):
     if w2.works_related_from.filter(relation='part'):
         models.WorkRelation.objects.get_or_create(to_work=w1, from_work=w2, relation='part')
         return w1
-
+    if w1.editions.count() > 3 and w2.editions.count() > 3 and not user:
+        # avoid big merges
+        return w1
 
     if w2.selected_edition is not None and w1.selected_edition is None:
         #the merge should be reversed
         temp = w1
         w1 = w2
         w2 = temp
-    models.WasWork(was=w2.pk, work=w1, user=user).save()
+    try:
+        models.WasWork(was=w2.pk, work=w1, user=user).save()
+    except IntegrityError:
+        # already a 'was' entry for w2; somehow it was never deleted
+        pass
     for ww in models.WasWork.objects.filter(work=w2):
         ww.work = w1
         ww.save()
