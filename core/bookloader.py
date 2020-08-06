@@ -17,6 +17,7 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.db import IntegrityError
+from django.db.models import Sum
 from django.forms import ValidationError
 from django.utils.timezone import now
 
@@ -617,23 +618,34 @@ def merge_works(w1, w2, user=None):
     w2.delete(cascade=False)
     return w1
 
-def detach_edition(e):
+def detach_editions(eds):
     """
     will detach edition from its work, creating a new stub work. if remerge=true, will see if
     there's another work to attach to
     """
+    e = eds[0]
+    from_work = e.work
     logger.info(u"splitting edition %s from %s", e, e.work)
-    frees = models.Edition.objects.annotate(free=Sum('ebooks__active')).filter(free__gt=0)
-    is_free = frees.count() > 0
-    w = models.Work(title=e.title, language=e.work.language, is_free=is_free)
+    w = models.Work(title=e.title, language=e.work.language)
+    w.save()
+    for e in eds:
+        for identifier in e.identifiers.all():
+            identifier.work = w
+            identifier.save()
+
+        e.work = w
+        e.save()
+
+    models.WorkRelation.objects.get_or_create(
+        to_work=w,
+        from_work=from_work,
+        relation='unspecified',
+    )
+
+    frees = models.Work.objects.annotate(free=Sum('editions__ebooks__active')).filter(free__gt=0)
+    w.is_free = frees.count() > 0
     w.save()
 
-    for identifier in e.identifiers.all():
-        identifier.work = w
-        identifier.save()
-
-    e.work = w
-    e.save()
 
 SPAM_STRINGS = ["GeneralBooksClub.com", "AkashaPublishing.Com"]
 def despam_description(description):

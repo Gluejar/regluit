@@ -64,7 +64,7 @@ from regluit.core import (
     userlists,
 )
 import regluit.core.cc as cc
-from regluit.core.bookloader import merge_works, detach_edition
+from regluit.core.bookloader import merge_works, detach_editions
 from regluit.core.goodreads import GoodreadsClient
 from regluit.core.isbn import ISBN
 from regluit.core.search import gluejar_search
@@ -311,9 +311,9 @@ def work(request, work_id, action='display'):
         if request.method == "POST" and (request.user.is_staff or (work.last_campaign() and request.user in work.last_campaign().managers.all())):
             formset = EditionFormSet(data=request.POST, instance=work)
             if formset.is_valid():
-                for form in formset.deleted_forms:
-                    detach_edition(form.instance)
-                    alert = 'editions have been split'
+                to_split = [form.instance for form in formset.deleted_forms]
+                detach_editions(to_split)
+                alert = 'editions have been split'
             if 'select_edition' in request.POST:
                 selected_id = request.POST['select_edition']
                 try:

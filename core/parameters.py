@@ -20,7 +20,8 @@ TEXT_RELATION_CHOICES = (
     ('translation', 'translation'),
     ('revision', 'revision'),
     ('sequel', 'sequel'),
-    ('part', 'part')
+    ('part', 'part'),
+    ('unspecified', 'unspecified')
 )
 
 ID_CHOICES = (
