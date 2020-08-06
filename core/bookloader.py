@@ -17,6 +17,7 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.db import IntegrityError
+from django.db.models import Sum
 from django.forms import ValidationError
 from django.utils.timezone import now
 
@@ -550,14 +551,20 @@ def merge_works(w1, w2, user=None):
     if w2.works_related_from.filter(relation='part'):
         models.WorkRelation.objects.get_or_create(to_work=w1, from_work=w2, relation='part')
         return w1
-
+    if w1.editions.count() > 3 and w2.editions.count() > 3 and not user:
+        # avoid big merges
+        return w1
 
     if w2.selected_edition is not None and w1.selected_edition is None:
         #the merge should be reversed
         temp = w1
         w1 = w2
         w2 = temp
-    models.WasWork(was=w2.pk, work=w1, user=user).save()
+    try:
+        models.WasWork(was=w2.pk, work=w1, user=user).save()
+    except IntegrityError:
+        # already a 'was' entry for w2; somehow it was never deleted
+        pass
     for ww in models.WasWork.objects.filter(work=w2):
         ww.work = w1
         ww.save()
@@ -617,21 +624,34 @@ def merge_works(w1, w2, user=None):
     w2.delete(cascade=False)
     return w1
 
-def detach_edition(e):
+def detach_editions(eds):
     """
     will detach edition from its work, creating a new stub work. if remerge=true, will see if
     there's another work to attach to
     """
+    e = eds[0]
+    from_work = e.work
     logger.info(u"splitting edition %s from %s", e, e.work)
     w = models.Work(title=e.title, language=e.work.language)
     w.save()
+    for e in eds:
+        for identifier in e.identifiers.all():
+            identifier.work = w
+            identifier.save()
 
-    for identifier in e.identifiers.all():
-        identifier.work = w
-        identifier.save()
+        e.work = w
+        e.save()
 
-    e.work = w
-    e.save()
+    models.WorkRelation.objects.get_or_create(
+        to_work=w,
+        from_work=from_work,
+        relation='unspecified',
+    )
+
+    frees = models.Work.objects.annotate(free=Sum('editions__ebooks__active')).filter(free__gt=0)
+    w.is_free = frees.count() > 0
+    w.save()
+
 
 SPAM_STRINGS = ["GeneralBooksClub.com", "AkashaPublishing.Com"]
 def despam_description(description):
