@@ -61,6 +61,8 @@ def get_soup(url, user_agent=settings.USER_AGENT):
             else:
                 logger.error('No head for  %s', url)
         return soup
+    else:
+        logger.error('%s returned code %s', url, response.status_code)
     return None
 
 def get_authors(book):
