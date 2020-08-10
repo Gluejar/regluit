@@ -244,6 +244,10 @@ def harvest_stapled_generic(ebook, selector, chap_selector, strip_covers=0):
         logger.warning('couldn\'t get soup for %s', ebook.url)
     return None, 0
 
+
+def harvest_badhead(ebook):
+    return make_dl_ebook(ebook.url, ebook)
+
 def harvest_obp(ebook):    
     match = OPENBOOKPUB.search(ebook.url)
     booknum = None
