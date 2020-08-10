@@ -63,9 +63,9 @@ def test_pdf(pdf_file):
         logger.exception('error testing a pdf: %s' % pdf_file[:100])
         return False
 
-def staple_pdf(urllist, user_agent=settings.USER_AGENT, strip_covers=False):
+def staple_pdf(urllist, user_agent=settings.USER_AGENT, strip_covers=0):
     pages = None
-    all_but_first = PageRange('1:')
+    all_but_cover = PageRange('%s:' % int(strip_covers))
     merger = PdfFileMerger(strict=False)
     s = requests.Session()
     for url in urllist:
@@ -83,7 +83,7 @@ def staple_pdf(urllist, user_agent=settings.USER_AGENT, strip_covers=False):
                 return None
         else:
             return None
-        pages = all_but_first if strip_covers else pages
+        pages = all_but_cover if strip_covers else pages
     out = BytesIO()
     try:
         merger.write(out)
