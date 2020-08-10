@@ -344,7 +344,7 @@ def harvest_nomos(ebook):
             dl_url = urljoin(ebook.url, obj['href'])
             return make_dl_ebook(dl_url, ebook)
         else:
-            logger.warning('will try stabling a book for %s', ebook.url)
+            logger.warning('will try stapling a book for %s', ebook.url)
 
         # staple the chapters
         chaps = doc.select('li.access[data-doi]')
