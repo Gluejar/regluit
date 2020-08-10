@@ -87,6 +87,10 @@ def harvesters(ebook):
     yield ebook.provider in CMPPROVIDERS, harvest_cmp
     yield 'mdpi' in ebook.provider.lower(), harvest_mdpi
     yield ebook.provider == 'idunn.no', harvest_idunn
+    yield ebook.provider == 'press.ucalgary.ca', harvest_calgary
+    yield ebook.provider == 'Ledizioni', harvest_badhead
+    yield ebook.provider == 'muse.jhu.edu', harvest_muse
+    yield ebook.provider == 'IOS Press Ebooks', harvest_ios
 
 def ebf_if_harvested(url):
     onlines = EbookFile.objects.filter(source=url)
@@ -112,6 +116,7 @@ def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET'):
         )
         new_prev.append(new_ebf)
     if new_prev:
+        logger.info("Previously harvested")
         return new_prev[0], len(new_prev)
 
     if method == 'POST':
@@ -121,13 +126,14 @@ def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET'):
     if response.status_code == 200:
         filesize = int(response.headers.get("Content-Length", 0))
         filesize = filesize if filesize else None
+        logger.debug(response.headers.get('content-type', ''))
         format = type_for_url(url, 
                               content_type=response.headers.get('content-type', ''),
                               disposition=response.headers.get('content-disposition', ''))
         if format != 'online':
             return make_harvested_ebook(response.content, ebook, format, filesize=filesize)
         else:
-            logger.warning('download format for %s is not ebook', url)
+            logger.warning('download format %s for %s is not ebook', format, url)
     else:
         logger.warning('couldn\'t get %s', url)
     return None, 0
@@ -211,6 +217,42 @@ def harvest_multiple_generic(ebook, selector, dl=lambda x:x):
     if num == 0:
         logger.warning('couldn\'t get any dl_url for %s', ebook.url)
     return harvested, num
+
+def harvest_stapled_generic(ebook, selector, chap_selector, strip_covers=0):
+    doc = get_soup(ebook.url)
+    if doc:
+        try:
+            base = doc.find('base')['href']
+        except:
+            base = ebook.url
+        made = None
+        
+        # check for complete ebook
+        if selector:
+            obj = selector(doc)
+            if obj:
+                dl_url = urljoin(base, obj['href'])
+                made = make_dl_ebook(dl_url, ebook)
+            if made:
+                return made
+
+        # staple the chapters
+        pdflinks = [urljoin(base, a['href']) for a in chap_selector(doc)]
+        stapled = None
+        if pdflinks:
+            stapled = make_stapled_ebook(pdflinks, ebook, user_agent=settings.GOOGLEBOT_UA,
+                                         strip_covers=strip_covers)
+            if stapled:
+                return stapled
+
+        logger.warning('couldn\'t make ebook file for %s', ebook.url)
+    else:
+        logger.warning('couldn\'t get soup for %s', ebook.url)
+    return None, 0
+
+
+def harvest_badhead(ebook):
+    return make_dl_ebook(ebook.url, ebook)
 
 def harvest_obp(ebook):    
     match = OPENBOOKPUB.search(ebook.url)
@@ -537,3 +579,37 @@ def harvest_idunn(ebook):
                 dl_url = 'https://www.idunn.no/file/pdf/%s/%s.pdf' % (prod_id, filename)
                 return make_dl_ebook(dl_url, ebook)
     return None, 0
+
+
+def harvest_calgary(ebook):
+    def selector(doc):
+        return doc.find('a', string=re.compile('Full Text'))
+    def chap_selector(doc):
+        return doc.find_all('a', href=re.compile('/bitstream/'))
+    return harvest_stapled_generic(ebook, selector, chap_selector, strip_covers=2)
+
+
+def harvest_muse(ebook):
+    def chap_selector(doc):
+        return doc.find_all('a', href=re.compile(r'/chapter/\d+/pdf'))
+    return harvest_stapled_generic(ebook, None, chap_selector, strip_covers=1)
+
+
+def harvest_ios(ebook):    
+    booknum = None
+    doc = get_soup(ebook.url)
+    if doc:
+        obj = doc.find('link', rel='image_src', href=True)
+        if obj:
+            booknum = obj['href'].replace('http://ebooks.iospress.nl/Cover/', '')
+            if booknum:
+                dl_url = 'http://ebooks.iospress.nl/Download/Pdf?id=%s' % booknum
+                return make_dl_ebook(dl_url, ebook, method='POST')
+            else:
+                logger.warning('couldn\'t get booknum for %s', ebook.url)
+        else:
+            logger.warning('couldn\'t get link for %s', ebook.url)
+    else:
+        logger.warning('couldn\'t get soup for %s', ebook.url)
+    return None, 0
+
