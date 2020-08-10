@@ -61,6 +61,7 @@ CMPPROVIDERS = [
     'teiresias-supplements.mcgill.ca',
     'humanities-digital-library.org',
     'editorial.uniagustiniana.edu.co',
+    'monographs.uc.pt',
 ]
 
 
@@ -84,6 +85,8 @@ def harvesters(ebook):
     yield ebook.provider == 'digital.library.unt.edu', harvest_unt
     yield ebook.provider == 'diposit.ub.edu', harvest_ub
     yield ebook.provider in CMPPROVIDERS, harvest_cmp
+    yield 'mdpi' in ebook.provider.lower(), harvest_mdpi
+    yield ebook.provider == 'idunn.no', harvest_idunn
 
 def ebf_if_harvested(url):
     onlines = EbookFile.objects.filter(source=url)
@@ -514,4 +517,23 @@ def harvest_unt(ebook):
     return harvest_one_generic(ebook, selector)
 
 
+def harvest_mdpi(ebook):
+    def selector(doc):
+        return doc.select_one('div.main-download-container a[alt=download]')
+    if 'http://books.mdpi.com' in ebook.url:
+        ebook.delete()
+        return None, 0
+    return harvest_one_generic(ebook, selector)
 
+
+def harvest_idunn(ebook): 
+    doc = get_soup(ebook.url)
+    if doc:
+        obj = doc.select_one('#accessinfo[data-product-id]')
+        if obj:
+            prod_id = obj['data-product-id']
+            filename = obj.get('data-issue-pdf-url', ebook.url[:21])
+            if prod_id and filename:
+                dl_url = 'https://www.idunn.no/file/pdf/%s/%s.pdf' % (prod_id, filename)
+                return make_dl_ebook(dl_url, ebook)
+    return None, 0
