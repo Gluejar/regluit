@@ -391,8 +391,6 @@ def type_for_url(url, content_type=None, force=False, disposition=''):
     if not force:
         if url.find('books.openedition.org') >= 0:
             return 'online'
-        if Ebook.objects.filter(url=url):
-            return Ebook.objects.filter(url=url)[0].format
     if content_type:
         ct = content_type
     else:
