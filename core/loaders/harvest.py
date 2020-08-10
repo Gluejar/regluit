@@ -112,6 +112,7 @@ def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET'):
         )
         new_prev.append(new_ebf)
     if new_prev:
+        logger.info("Previously harvested")
         return new_prev[0], len(new_prev)
 
     if method == 'POST':
@@ -121,13 +122,14 @@ def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET'):
     if response.status_code == 200:
         filesize = int(response.headers.get("Content-Length", 0))
         filesize = filesize if filesize else None
+        logger.debug(response.headers.get('content-type', ''))
         format = type_for_url(url, 
                               content_type=response.headers.get('content-type', ''),
                               disposition=response.headers.get('content-disposition', ''))
         if format != 'online':
             return make_harvested_ebook(response.content, ebook, format, filesize=filesize)
         else:
-            logger.warning('download format for %s is not ebook', url)
+            logger.warning('download format %s for %s is not ebook', format, url)
     else:
         logger.warning('couldn\'t get %s', url)
     return None, 0
