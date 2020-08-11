@@ -67,7 +67,7 @@ CMPPROVIDERS = [
 
 def harvesters(ebook):
     yield 'dropbox.com/s/' in ebook.url, harvest_dropbox
-    yield 'jbe-platform.com/content/books/' in ebook.url, harvest_jbe
+    yield ebook.provider == 'jbe-platform.com', harvest_jbe
     yield ebook.provider == u'De Gruyter Online', harvest_degruyter
     yield OPENBOOKPUB.search(ebook.url), harvest_obp
     yield ebook.provider == 'Transcript-Verlag', harvest_transcript
@@ -75,7 +75,7 @@ def harvesters(ebook):
     yield ebook.provider == 'digitalis.uc.pt', harvest_digitalis
     yield ebook.provider == 'nomos-elibrary.de', harvest_nomos
     yield ebook.provider == 'frontiersin.org', harvest_frontiersin
-    yield 'link.springer' in ebook.url, harvest_springerlink
+    yield ebook.provider in ['Palgrave Connect', 'Springer', 'springer.com'], harvest_springerlink
     yield ebook.provider == 'OAPEN Library', harvest_oapen
     yield ebook.provider == 'pulp.up.ac.za', harvest_pulp
     yield ebook.provider == 'bloomsburycollections.com', harvest_bloomsbury
@@ -83,17 +83,26 @@ def harvesters(ebook):
     yield 'digitalcommons.usu.edu' in ebook.url, harvest_usu
     yield ebook.provider == 'libros.fahce.unlp.edu.ar', harvest_fahce
     yield ebook.provider == 'digital.library.unt.edu', harvest_unt
-    yield ebook.provider == 'diposit.ub.edu', harvest_ub
+    yield ebook.provider in ['diposit.ub.edu', 'orbi.ulg.ac.be'], harvest_dspace
     yield ebook.provider in CMPPROVIDERS, harvest_cmp
     yield 'mdpi' in ebook.provider.lower(), harvest_mdpi
     yield ebook.provider == 'idunn.no', harvest_idunn
     yield ebook.provider == 'press.ucalgary.ca', harvest_calgary
-    yield ebook.provider == 'Ledizioni', harvest_badhead
+    yield ebook.provider in ['Ledizioni', 'bibsciences.org',
+                             'heiup.uni-heidelberg.de', 'e-archivo.uc3m.es'], harvest_badhead
     yield ebook.provider == 'muse.jhu.edu', harvest_muse
     yield ebook.provider == 'IOS Press Ebooks', harvest_ios
     yield ebook.provider == 'elgaronline.com', harvest_elgar
     yield ebook.provider == 'worldscientific.com', harvest_wsp
-    yield ebook.provider == 'edition-open-access.de', harvest_mprl
+    yield ebook.provider in ['edition-open-access.de', 'edition-open-sources.org'], harvest_mprl
+    yield ebook.provider == 'rti.org', harvest_rti
+    yield ebook.provider == 'edoc.unibas.ch', harvest_unibas
+    yield ebook.provider == 'books.pensoft.net', harvest_pensoft
+    yield ebook.provider == 'edp-open.org', harvest_edp
+    yield ebook.provider == 'waxmann.com', harvest_waxmann
+    yield ebook.provider == 'pbsociety.org.pl', harvest_ojs
+    yield ebook.provider == 'content.sciendo.com', harvest_sciendo
+
 
 def ebf_if_harvested(url):
     onlines = EbookFile.objects.filter(source=url)
@@ -347,8 +356,8 @@ def harvest_dropbox(ebook):
         
 def harvest_jbe(ebook): 
     def selector(doc):
-        return doc.select_one('div.pdfItem a')
-    return harvest_one_generic(ebook, selector)
+        return doc.select('div.access-options a[href]')
+    return harvest_multiple_generic(ebook, selector)
 
 def harvest_transcript(ebook): 
     num = 0
@@ -549,10 +558,10 @@ def harvest_cmp(ebook):
     return harvest_multiple_generic(ebook, selector, dl=dl)
 
 
-UBPDF = re.compile(r'/dspace/bitstream/.*\.pdf')
-def harvest_ub(ebook):
+DSPACEPDF = re.compile(r'/bitstream/.*\.pdf')
+def harvest_dspace(ebook):
     def selector(doc):
-        return doc.find(href=UBPDF)
+        return doc.find(href=DSPACEPDF)
     return harvest_one_generic(ebook, selector)
 
 
@@ -641,4 +650,54 @@ def harvest_mprl(ebook):
     def selector(doc):
         return doc.select('a.ml-20[href]')
     return harvest_multiple_generic(ebook, selector)
+
+
+def harvest_rti(ebook):
+    return make_dl_ebook(ebook.url + "/fulltext.pdf", ebook)
+
+
+def harvest_unibas(ebook):
+    def selector(doc):
+        return doc.select_one('a.ep_document_link[href]')
+    return harvest_one_generic(ebook, selector)
+
+
+def harvest_pensoft(ebook):
+    if ebook.id == 263395:
+        book_id = '12847'
+    elif ebook.url.startswith('https://books.pensoft.net/books/'):
+        book_id = ebook.url[32:]
+    else:
+        return None, 0
+    r = requests.get('https://books.pensoft.net/api/books/' + book_id)
+    if r.status_code == 200:
+        file_id = r.json()['data']['item_files'][0]['id']
+        return make_dl_ebook('https://books.pensoft.net/api/item_files/%s' % file_id, ebook)
+    return None, 0
+
+
+def harvest_edp(ebook):
+    def selector(doc):
+        return doc.select_one('a.fulldl[href]')
+    return harvest_one_generic(ebook, selector)
+
+
+def harvest_waxmann(ebook):
+    if ebook.url.startswith('https://www.waxmann.com/buch'):
+        return make_dl_ebook(ebook.url.replace('buch', 'index.php?eID=download&buchnr='), ebook) 
+    return None, 0
+
+
+def harvest_ojs(ebook):
+    def selector(doc):
+        return doc.select('#articleFullText a[href]')
+    def dl(url):
+        return url.replace('view', 'download') + '?inline=1'
+    return harvest_multiple_generic(ebook, selector, dl=dl)
+
+
+def harvest_sciendo(ebook):    
+    def selector(doc):
+        return doc.select_one('a[title=PDF]')
+    return harvest_one_generic(ebook, selector, user_agent=settings.GOOGLEBOT_UA)
 
