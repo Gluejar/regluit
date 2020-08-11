@@ -218,8 +218,9 @@ def harvest_multiple_generic(ebook, selector, dl=lambda x:x):
         logger.warning('couldn\'t get any dl_url for %s', ebook.url)
     return harvested, num
 
-def harvest_stapled_generic(ebook, selector, chap_selector, strip_covers=0):
-    doc = get_soup(ebook.url)
+def harvest_stapled_generic(ebook, selector, chap_selector, strip_covers=0,
+                            user_agent=settings.GOOGLEBOT_UA, dl=lambda x:x):
+    doc = get_soup(ebook.url, user_agent=user_agent)
     if doc:
         try:
             base = doc.find('base')['href']
@@ -231,16 +232,16 @@ def harvest_stapled_generic(ebook, selector, chap_selector, strip_covers=0):
         if selector:
             obj = selector(doc)
             if obj:
-                dl_url = urljoin(base, obj['href'])
+                dl_url = dl(urljoin(base, obj['href']))
                 made = make_dl_ebook(dl_url, ebook)
             if made:
                 return made
 
         # staple the chapters
-        pdflinks = [urljoin(base, a['href']) for a in chap_selector(doc)]
+        pdflinks = [dl(urljoin(base, a['href'])) for a in chap_selector(doc)]
         stapled = None
         if pdflinks:
-            stapled = make_stapled_ebook(pdflinks, ebook, user_agent=settings.GOOGLEBOT_UA,
+            stapled = make_stapled_ebook(pdflinks, ebook, user_agent=user_agent,
                                          strip_covers=strip_covers)
             if stapled:
                 return stapled
