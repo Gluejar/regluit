@@ -93,6 +93,7 @@ def harvesters(ebook):
     yield ebook.provider == 'IOS Press Ebooks', harvest_ios
     yield ebook.provider == 'elgaronline.com', harvest_elgar
     yield ebook.provider == 'worldscientific.com', harvest_wsp
+    yield ebook.provider == 'edition-open-access.de', harvest_mprl
 
 def ebf_if_harvested(url):
     onlines = EbookFile.objects.filter(source=url)
@@ -635,5 +636,9 @@ def harvest_wsp(ebook):
     return harvest_stapled_generic(ebook, None, chap_selector, user_agent=settings.USER_AGENT,
                                    dl=dl)
 
-#https://www.worldscientific.com/doi/pdf/10.1142/9781783265640_0002
-#https://www.worldscientific.com/doi/pdf/10.1142/9781783265640_0002?download=true
+
+def harvest_mprl(ebook): 
+    def selector(doc):
+        return doc.select('a.ml-20[href]')
+    return harvest_multiple_generic(ebook, selector)
+
