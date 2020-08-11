@@ -91,6 +91,9 @@ def harvesters(ebook):
     yield ebook.provider == 'Ledizioni', harvest_badhead
     yield ebook.provider == 'muse.jhu.edu', harvest_muse
     yield ebook.provider == 'IOS Press Ebooks', harvest_ios
+    yield ebook.provider == 'elgaronline.com', harvest_elgar
+    yield ebook.provider == 'worldscientific.com', harvest_wsp
+    yield ebook.provider == 'edition-open-access.de', harvest_mprl
 
 def ebf_if_harvested(url):
     onlines = EbookFile.objects.filter(source=url)
@@ -218,8 +221,9 @@ def harvest_multiple_generic(ebook, selector, dl=lambda x:x):
         logger.warning('couldn\'t get any dl_url for %s', ebook.url)
     return harvested, num
 
-def harvest_stapled_generic(ebook, selector, chap_selector, strip_covers=0):
-    doc = get_soup(ebook.url)
+def harvest_stapled_generic(ebook, selector, chap_selector, strip_covers=0,
+                            user_agent=settings.GOOGLEBOT_UA, dl=lambda x:x):
+    doc = get_soup(ebook.url, user_agent=user_agent)
     if doc:
         try:
             base = doc.find('base')['href']
@@ -231,16 +235,16 @@ def harvest_stapled_generic(ebook, selector, chap_selector, strip_covers=0):
         if selector:
             obj = selector(doc)
             if obj:
-                dl_url = urljoin(base, obj['href'])
+                dl_url = dl(urljoin(base, obj['href']))
                 made = make_dl_ebook(dl_url, ebook)
             if made:
                 return made
 
         # staple the chapters
-        pdflinks = [urljoin(base, a['href']) for a in chap_selector(doc)]
+        pdflinks = [dl(urljoin(base, a['href'])) for a in chap_selector(doc)]
         stapled = None
         if pdflinks:
-            stapled = make_stapled_ebook(pdflinks, ebook, user_agent=settings.GOOGLEBOT_UA,
+            stapled = make_stapled_ebook(pdflinks, ebook, user_agent=user_agent,
                                          strip_covers=strip_covers)
             if stapled:
                 return stapled
@@ -573,11 +577,15 @@ def harvest_idunn(ebook):
     if doc:
         obj = doc.select_one('#accessinfo[data-product-id]')
         if obj:
-            prod_id = obj['data-product-id']
+            pdf_id = obj.get('data-pdf-id', '')
+            prod_id = obj.get('data-product-id', '')
             filename = obj.get('data-issue-pdf-url', ebook.url[:21])
-            if prod_id and filename:
-                dl_url = 'https://www.idunn.no/file/pdf/%s/%s.pdf' % (prod_id, filename)
-                return make_dl_ebook(dl_url, ebook)
+            dl_url = 'https://www.idunn.no/file/pdf/%s/%s.pdf' % (pdf_id, filename)
+            ebf, num = make_dl_ebook(dl_url, ebook)
+            if ebf:
+                return ebf, num
+            dl_url = 'https://www.idunn.no/file/pdf/%s/%s.pdf' % (prod_id, filename)
+            return make_dl_ebook(dl_url, ebook)
     return None, 0
 
 
@@ -612,4 +620,25 @@ def harvest_ios(ebook):
     else:
         logger.warning('couldn\'t get soup for %s', ebook.url)
     return None, 0
+
+
+def harvest_elgar(ebook):
+    def chap_selector(doc):
+        return doc.select('#toc li.pdfLink a[href]')
+    return harvest_stapled_generic(ebook, None, chap_selector)
+
+
+def harvest_wsp(ebook):
+    def chap_selector(doc):
+        return doc.select('#toc a[title=PDF]')
+    def dl(url):
+        return url + '?download=true'
+    return harvest_stapled_generic(ebook, None, chap_selector, user_agent=settings.USER_AGENT,
+                                   dl=dl)
+
+
+def harvest_mprl(ebook): 
+    def selector(doc):
+        return doc.select('a.ml-20[href]')
+    return harvest_multiple_generic(ebook, selector)
 
