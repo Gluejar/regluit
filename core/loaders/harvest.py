@@ -178,8 +178,8 @@ def make_harvested_ebook(content, ebook, format, filesize=0):
     return new_ebf, 1
 
 
-def harvest_one_generic(ebook, selector):
-    doc = get_soup(ebook.url)
+def harvest_one_generic(ebook, selector, user_agent=settings.USER_AGENT):
+    doc = get_soup(ebook.url, user_agent=user_agent)
     if doc:
         try:
             base = doc.find('base')['href']
@@ -188,7 +188,7 @@ def harvest_one_generic(ebook, selector):
         obj = selector(doc)
         if obj:
             dl_url = urljoin(base, obj['href'])
-            harvest = make_dl_ebook(dl_url, ebook)
+            harvest = make_dl_ebook(dl_url, ebook, user_agent=user_agent)
             if not harvest[0]:
                 logger.warning('couldn\'t harvest %s', dl_url)
             return harvest
