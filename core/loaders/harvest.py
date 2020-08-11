@@ -91,6 +91,7 @@ def harvesters(ebook):
     yield ebook.provider == 'Ledizioni', harvest_badhead
     yield ebook.provider == 'muse.jhu.edu', harvest_muse
     yield ebook.provider == 'IOS Press Ebooks', harvest_ios
+    yield ebook.provider == 'elgaronline.com', harvest_elgar
 
 def ebf_if_harvested(url):
     onlines = EbookFile.objects.filter(source=url)
@@ -617,4 +618,11 @@ def harvest_ios(ebook):
     else:
         logger.warning('couldn\'t get soup for %s', ebook.url)
     return None, 0
+
+
+def harvest_elgar(ebook):
+    def chap_selector(doc):
+        return doc.select('#toc li.pdfLink a[href]')
+    return harvest_stapled_generic(ebook, None, chap_selector)
+
 
