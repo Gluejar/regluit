@@ -574,11 +574,15 @@ def harvest_idunn(ebook):
     if doc:
         obj = doc.select_one('#accessinfo[data-product-id]')
         if obj:
-            prod_id = obj['data-product-id']
+            pdf_id = obj.get('data-pdf-id', '')
+            prod_id = obj.get('data-product-id', '')
             filename = obj.get('data-issue-pdf-url', ebook.url[:21])
-            if prod_id and filename:
-                dl_url = 'https://www.idunn.no/file/pdf/%s/%s.pdf' % (prod_id, filename)
-                return make_dl_ebook(dl_url, ebook)
+            dl_url = 'https://www.idunn.no/file/pdf/%s/%s.pdf' % (pdf_id, filename)
+            ebf, num = make_dl_ebook(dl_url, ebook)
+            if ebf:
+                return ebf, num
+            dl_url = 'https://www.idunn.no/file/pdf/%s/%s.pdf' % (prod_id, filename)
+            return make_dl_ebook(dl_url, ebook)
     return None, 0
 
 
