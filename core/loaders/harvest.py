@@ -131,10 +131,14 @@ def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET'):
         logger.info("Previously harvested")
         return new_prev[0], len(new_prev)
 
-    if method == 'POST':
-        response = requests.post(url, headers={"User-Agent": user_agent})
-    else:
-        response = requests.get(url, headers={"User-Agent": user_agent})
+    try:
+        if method == 'POST':
+            response = requests.post(url, headers={"User-Agent": user_agent})
+        else:
+            response = requests.get(url, headers={"User-Agent": user_agent})
+    except requests.exceptions.SSLError:
+        logger.error('bad certificate? for %s', url)
+        return None, 0
     if response.status_code == 200:
         filesize = int(response.headers.get("Content-Length", 0))
         filesize = filesize if filesize else None
@@ -671,8 +675,11 @@ def harvest_pensoft(ebook):
         return None, 0
     r = requests.get('https://books.pensoft.net/api/books/' + book_id)
     if r.status_code == 200:
-        file_id = r.json()['data']['item_files'][0]['id']
-        return make_dl_ebook('https://books.pensoft.net/api/item_files/%s' % file_id, ebook)
+        try:
+            file_id = r.json()['data']['item_files'][0]['id']
+            return make_dl_ebook('https://books.pensoft.net/api/item_files/%s' % file_id, ebook)
+        except IndexError:
+            logger.error('no item_file for %s', ebook.url)
     return None, 0
 
 
