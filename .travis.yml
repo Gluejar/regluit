@@ -13,8 +13,8 @@ env:
     - PYTHONPATH=/home/travis/build/Gluejar/
 
 before_install:
-  - sudo mkdir /var/log/django
-  - sudo chmod 777 /var/log/django
+  - sudo mkdir ~/build/Gluejar/regluit/logs/
+  - sudo chmod 777 ~/build/Gluejar/regluit/logs/
   - mkdir ~/build/Gluejar/regluit/settings/keys/
   - cp ~/build/Gluejar/regluit/settings/dummy/__init__.py ~/build/Gluejar/regluit/settings/keys/__init__.py
   - openssl aes-256-cbc -K $encrypted_690265ba1262_key -iv $encrypted_690265ba1262_iv -in ~/build/Gluejar/regluit/test/travis-host.py.enc -out ~/build/Gluejar/regluit/settings/keys/host.py -d
