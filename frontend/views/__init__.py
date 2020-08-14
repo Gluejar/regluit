@@ -710,7 +710,7 @@ class ByPubView(WorkListView):
         self.set_publisher()
 
     def set_publisher(self):
-        if self.publisher_name.key_publisher.count():
+        if self.publisher_name.key_publisher.exists():
             self.publisher = self.publisher_name.key_publisher.all()[0]
         elif self.publisher_name.publisher:
             self.publisher = self.publisher_name.publisher
@@ -944,7 +944,7 @@ class PledgeView(FormView):
             type=PAYMENT_TYPE_AUTHORIZATION
         )
         premium_id = self.request.GET.get('premium_id', self.request.POST.get('premium_id', 150))
-        if transactions.count() == 0:
+        if not transactions.exists():
             ack_name = self.request.user.profile.ack_name
             ack_dedication = ''
             anonymous = self.request.user.profile.anon_pref
@@ -1286,9 +1286,9 @@ class GiftCredit(TemplateView):
             amount = envelope['amount'] + envelope['cents'] // D(100)
             CreditLog.objects.create(user=user, amount=amount, action='deposit', sent=envelope['sent'])
             ts = Transaction.objects.filter(user=user, campaign=campaign, status=TRANSACTION_STATUS_NONE).order_by('-pk')
-            if ts.count()==0:
+            if not ts.exists():
                 ts = Transaction.objects.filter(user=user, campaign=campaign, status=TRANSACTION_STATUS_MODIFIED).order_by('-pk')
-            if ts.count()>0:
+            if ts.exists():
                 t = ts[0]
                 credit_transaction(t, user, amount)
                 for t in ts[1:]:
@@ -1479,7 +1479,7 @@ class PledgeCancelView(FormView):
         work = campaign.work
         transactions = campaign.transactions().filter(user=user, status=TRANSACTION_STATUS_ACTIVE)
 
-        if transactions.count() < 1:
+        if not transactions.exists():
             context["error"] = "You don't have an active transaction for this campaign."
             return context
         elif transactions.count() > 1:
@@ -1843,7 +1843,7 @@ def library(request, library_name):
     except Library.DoesNotExist:
         raise Http404
     works_active = models.Work.objects.filter(acqs__user=library.user, acqs__license=LIBRARY).distinct()
-    if works_active.count() > 0:
+    if works_active.exists():
         context['works_active'] = works_active
         context['activetab'] = "#2"
     context['ungluers'] = userlists.library_users(library, 5)

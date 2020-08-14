@@ -95,7 +95,7 @@ class Identifier(models.Model):
                 identifier.edition = edition
                 identifier.save()
             others = Identifier.objects.filter(type=type, work=work, edition=edition).exclude(value=value)
-            if others.count() > 0:
+            if others.exists():
                 for other in others:
                     other.delete()
         return identifier
@@ -285,25 +285,25 @@ class Work(models.Model):
 
     def authors(self):
         # assumes that they come out in the same order they go in!
-        if self.preferred_edition and self.preferred_edition.authors.all().count() > 0:
+        if self.preferred_edition and self.preferred_edition.authors.exists():
             return  self.preferred_edition.authors.all()
         for edition in self.editions.all():
-            if edition.authors.all().count() > 0:
+            if edition.authors.exists():
                 return edition.authors.all()
         return Author.objects.none()
 
     def relators(self):
         # assumes that they come out in the same order they go in!
-        if self.preferred_edition and self.preferred_edition.relators.all().count() > 0:
+        if self.preferred_edition and self.preferred_edition.relators.exists():
             return  self.preferred_edition.relators.all()
         for edition in self.editions.all():
-            if edition.relators.all().count() > 0:
+            if edition.relators.exists():
                 return edition.relators.all()
         return Relator.objects.none()
 
     def author(self):
         # assumes that they come out in the same order they go in!
-        if self.relators().count() > 0:
+        if self.relators().exists():
             return self.relators()[0].name
         return ''
 
@@ -637,7 +637,7 @@ class Work(models.Model):
         if user.is_anonymous:
             return False
         lib_license = self.get_lib_license(user)
-        if lib_license and lib_license.acqs.count():
+        if lib_license and lib_license.acqs.exists():
             return True
         return False
 
@@ -656,12 +656,12 @@ class Work(models.Model):
 
         @property
         def is_active(self):
-            return  self.acqs.filter(expires__isnull=True).count() > 0 or self.acqs.filter(expires__gt=now()).count() > 0
+            return  self.acqs.filter(expires__isnull=True).exists() or self.acqs.filter(expires__gt=now()).exists()
 
         @property
         def borrowed(self):
             loans = self.acqs.filter(license=BORROWED, expires__gt=now())
-            if loans.count() == 0:
+            if not loans.exists():
                 return None
             else:
                 return loans[0]
@@ -669,7 +669,7 @@ class Work(models.Model):
         @property
         def purchased(self):
             purchases = self.acqs.filter(license=INDIVIDUAL, expires__isnull=True)
-            if purchases.count() == 0:
+            if not purchases.exists():
                 return None
             else:
                 return purchases[0]
@@ -682,18 +682,18 @@ class Work(models.Model):
         def next_acq(self):
             """ This is the next available copy in the user's libraries"""
             loans = self.acqs.filter(license=LIBRARY, refreshes__gt=now()).order_by('refreshes')
-            if loans.count() == 0:
+            if not loans.exists():
                 return None
             else:
                 return loans[0]
 
         @property
         def borrowable(self):
-            return  self.acqs.filter(license=LIBRARY, refreshes__lt=now()).count() > 0
+            return  self.acqs.filter(license=LIBRARY, refreshes__lt=now()).exists()
 
         @property
         def thanked(self):
-            return  self.acqs.filter(license=THANKED).count() > 0
+            return  self.acqs.filter(license=THANKED).exists()
 
         @property
         def borrowable_acq(self):
@@ -1035,7 +1035,7 @@ class Edition(models.Model):
 
     @property
     def funding_info(self):
-        if self.ebooks.all().count() == 0:
+        if not self.ebooks.exists():
             return ''
         if self.unglued:
             return 'The book is available as a free download thanks to the generous support of interested readers and organizations, who made donations using the crowd-funding website Unglue.it.'
@@ -1205,7 +1205,7 @@ class Ebook(models.Model):
         return ebf.file
 
     def get_archive_ebf(self): # returns an ebf
-        if not self.ebook_files.filter(asking=False).count():
+        if not self.ebook_files.filter(asking=False).exists():
             if not self.provider in good_providers:
                 return None
             try:
@@ -1331,10 +1331,10 @@ def set_free_flag(sender, instance, created, **kwargs):
         if not instance.edition.work.is_free and instance.active:
             instance.edition.work.is_free = True
             instance.edition.work.save()
-    elif not instance.active and instance.edition.work.is_free and instance.edition.work.ebooks().count() == 0:
+    elif not instance.active and instance.edition.work.is_free and not instance.edition.work.ebooks().exists():
         instance.edition.work.is_free = False
         instance.edition.work.save()
-    elif instance.active and not instance.edition.work.is_free and instance.edition.work.ebooks().count() > 0:
+    elif instance.active and not instance.edition.work.is_free and instance.edition.work.ebooks().exists():
         instance.edition.work.is_free = True
         instance.edition.work.save()
 

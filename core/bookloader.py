@@ -219,7 +219,7 @@ def update_edition(edition):
             logger.info(u"moving identifier %s", identifier.value)
             identifier.work = new_work
             identifier.save()
-        if old_work and old_work.editions.count() == 0:
+        if old_work and not old_work.editions.exists():
             #a dangling work; make sure nothing else is attached!
             merge_works(new_work, old_work)
 
@@ -649,7 +649,7 @@ def detach_editions(eds):
     )
 
     frees = models.Work.objects.annotate(free=Sum('editions__ebooks__active')).filter(free__gt=0)
-    w.is_free = frees.count() > 0
+    w.is_free = frees.exists()
     w.save()
 
 
@@ -977,7 +977,7 @@ class BasePandataLoader(object):
             if len(work.description) < 500:
                 work.description = metadata.description
 
-        if metadata.creator and not edition.authors.count():
+        if metadata.creator and not edition.authors.exists():
             edition.authors.clear()
             for key in metadata.creator.keys():
                 creators = metadata.creator[key]

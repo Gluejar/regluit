@@ -102,9 +102,9 @@ class MARCUpload(FormView):
     def get_initial(self):
         if self.request.method == 'GET':
             edition = self.request.GET.get('edition',None)
-            if Edition.objects.filter(id=edition).count():
+            if Edition.objects.filter(id=edition).exists():
                 edition = Edition.objects.filter(id=edition)[0]
-                if edition.ebooks.count() or edition.ebook_files.count():
+                if edition.ebooks.exists() or edition.ebook_files.exists():
                     return {'edition':edition.id}
         return {}
 

@@ -86,7 +86,7 @@ class ClaimView(CreateView):
         if not models.Claim.objects.filter(
             work=work,
             rights_holder=rights_holder,
-        ).exclude(status='release').count():
+        ).exclude(status='release').exists():
             form.save()
         return HttpResponseRedirect(reverse('rightsholders'))
 

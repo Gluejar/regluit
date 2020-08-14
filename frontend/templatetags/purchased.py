@@ -22,7 +22,7 @@ def purchased(context):
             context['borrowable'] = None
             context['in_library'] = None
             holds = user.holds.filter(work=work)
-            if holds.count():
+            if holds.exists():
                 context['on_hold'] = holds[0]
         if user_license:
             context['purchased'] = user_license.purchased

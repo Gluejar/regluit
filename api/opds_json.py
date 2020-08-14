@@ -135,7 +135,7 @@ def work_node(work, facet=None):
 
     # publisher
     #<dcterms:publisher>Open Book Publishers</dcterms:publisher>
-    if work.publishers().count():
+    if work.publishers().exists():
         metadata["publishers"] = [
             {"publisher": publisher.name.name} for publisher in work.publishers()
         ]

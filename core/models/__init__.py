@@ -474,10 +474,10 @@ class Campaign(models.Model):
                     self.problems.append(_('A campaign must have a target'))
                     may_launch = False
             if self.type == BUY2UNGLUE:
-                if self.work.offers.filter(price__gt=0, active=True).count() == 0:
+                if not self.work.offers.filter(price__gt=0, active=True).exists():
                     self.problems.append(_('You can\'t launch a buy-to-unglue campaign before setting a price for your ebooks'))
                     may_launch = False
-                if EbookFile.objects.filter(edition__work=self.work).count() == 0:
+                if not EbookFile.objects.filter(edition__work=self.work).exists():
                     self.problems.append(_('You can\'t launch a buy-to-unglue campaign if you don\'t have any ebook files uploaded'))
                     may_launch = False
                 if (self.cc_date_initial is None) or (self.cc_date_initial > datetime.combine(settings.MAX_CC_DATE, datetime.min.time())) or (self.cc_date_initial < now()):
@@ -492,7 +492,7 @@ class Campaign(models.Model):
                     may_launch = False
             if self.type == THANKS:
                 # the case in which there is no EbookFile and no Ebook associated with work (We have ebooks without ebook files.)
-                if EbookFile.objects.filter(edition__work=self.work).count() == 0 and self.work.ebooks().count() == 0:
+                if not EbookFile.objects.filter(edition__work=self.work).exists() and not self.work.ebooks().exists():
                     self.problems.append(_('You can\'t launch a thanks-for-ungluing campaign if you don\'t have any ebook files uploaded'))
                     may_launch = False
         except Exception as e:
@@ -703,13 +703,13 @@ class Campaign(models.Model):
         # only if a campaign is SUCCESSFUL, we allow for recharged
 
         if self.status == 'SUCCESSFUL':
-            if self.transaction_set.filter(Q(user=user) & (Q(status=TRANSACTION_STATUS_COMPLETE) | Q(status=TRANSACTION_STATUS_ACTIVE))).count():
+            if self.transaction_set.filter(Q(user=user) & (Q(status=TRANSACTION_STATUS_COMPLETE) | Q(status=TRANSACTION_STATUS_ACTIVE))).exists():
                 # presence of an active or complete transaction means no transaction to recharge
                 return None
             else:
                 transactions = self.transaction_set.filter(Q(user=user) & (Q(status=TRANSACTION_STATUS_ERROR) | Q(status=TRANSACTION_STATUS_FAILED)))
                 # assumption --that the first failed/errored transaction has the amount we need to recharge
-                if transactions.count():
+                if transactions.exists():
                     return transactions[0]
                 else:
                     return None
@@ -1196,7 +1196,7 @@ class UserProfile(models.Model):
     def account(self):
         # there should be only one active account per user
         accounts = self.user.account_set.filter(date_deactivated__isnull=True)
-        if accounts.count() == 0:
+        if accounts.exists():
             return None
         else:
             return accounts[0]
@@ -1204,7 +1204,7 @@ class UserProfile(models.Model):
     @property
     def old_account(self):
         accounts = self.user.account_set.filter(date_deactivated__isnull=False).order_by('-date_deactivated')
-        if accounts.count() == 0:
+        if accounts.exists():
             return None
         else:
             return accounts[0]
