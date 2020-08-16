@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 
 from regluit.core.loaders.doab_utils import online_to_download
 from regluit.core.models import Ebook
-from regluit.core.loaders.utils import type_for_url
+from regluit.core.loader import type_for_url
 
 class Command(BaseCommand):
     help = "fix 'online' ebooks"
