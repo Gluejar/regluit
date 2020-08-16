@@ -39,8 +39,8 @@ class RateLimiter(object):
 
 rl = RateLimiter()
 
-def dl_online(ebook, limiter=rl.delay, format='online'):
-    if ebook.format != format or ebook.provider in DONT_HARVEST:
+def dl_online(ebook, limiter=rl.delay, format='online', force=False):
+    if ebook.format != format or (not force and ebook.provider in DONT_HARVEST):
         return None, 0
     if ebook.ebook_files.exists():
         return ebook.ebook_files.first(), 0

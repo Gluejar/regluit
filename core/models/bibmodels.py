@@ -1210,7 +1210,7 @@ class Ebook(models.Model):
         elif EbookFile.objects.filter(source=self.url, format=self.format):
             ebf = self.ebook_files.filter(asking=False).last()
         else:
-            ebf, num = dl_online(self, format=self.format)
+            ebf, num = dl_online(self, format=self.format, force=True)
             if not ebf:
                 return None
         return ebf
