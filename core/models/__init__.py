@@ -1198,9 +1198,8 @@ class UserProfile(models.Model):
         # there should be only one active account per user
         accounts = self.user.account_set.filter(date_deactivated__isnull=True)
         if accounts.exists():
-            return None
-        else:
             return accounts[0]
+        return None
 
     @property
     def old_account(self):
