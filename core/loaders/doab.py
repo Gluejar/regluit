@@ -18,7 +18,7 @@ from oaipmh.metadata import MetadataRegistry, oai_dc_reader
 from regluit.core import bookloader, cc
 from regluit.core import models, tasks
 from regluit.core.bookloader import merge_works
-from regluit.core.loaders.utils import type_for_url
+from regluit.core.models.loader import type_for_url
 from regluit.core.validation import identifier_cleaner, valid_subject
 
 from . import scrape_language

@@ -61,6 +61,7 @@ from regluit.core.parameters import (
     THANKED,
     OFFER_CHOICES,
     ACQ_CHOICES,
+    GOOD_PROVIDERS,
 )
 from regluit.core.epub import personalize, ungluify, ask_epub
 from regluit.core.pdf import ask_pdf, pdf_append
@@ -79,7 +80,6 @@ from .bibmodels import (
     EbookFile,
     Edition,
     EditionNote,
-    good_providers,
     Identifier,
     path_for_file,
     Publisher,
@@ -893,9 +893,9 @@ class Campaign(models.Model):
     def make_mobis(self):
         # make archive files for ebooks, make mobi files for epubs
         versions = set()
-        for ebook in self.work.ebooks().filter(provider__in=good_providers, format='mobi'):
+        for ebook in self.work.ebooks().filter(provider__in=GOOD_PROVIDERS, format='mobi'):
             versions.add(ebook.version_label)
-        for ebook in self.work.ebooks_all().exclude(provider='Unglue.it').filter(provider__in=good_providers, format='epub'):
+        for ebook in self.work.ebooks_all().exclude(provider='Unglue.it').filter(provider__in=GOOD_PROVIDERS, format='epub'):
             if not ebook.version_label in versions:
                 # now make the mobi file
                 ebf = ebook.get_archive_ebf()
@@ -912,7 +912,7 @@ class Campaign(models.Model):
                 ebf.file.open()
                 to_dos.append({'content': ebf.file.read(), 'ebook': ebf.ebook})
                 format_versions.append(format_version)
-        for ebook in self.work.ebooks_all().exclude(provider='Unglue.it').filter(provider__in=good_providers):
+        for ebook in self.work.ebooks_all().exclude(provider='Unglue.it').filter(provider__in=GOOD_PROVIDERS):
             format_version = '{}_{}'.format(ebook.format, ebook.version_label)
             if ebook.format in ('pdf', 'epub') and not format_version in format_versions:
                 to_dos.append({'content': ebook.get_archive().read(), 'ebook': ebook})
@@ -1018,6 +1018,7 @@ class Campaign(models.Model):
             provider="Unglue.it",
             url=settings.BASE_URL_SECURE + reverse('download_campaign', args=[self.work_id, format]),
             version_label='unglued',
+            filesize=ebf.file.size,
         )
         old_ebooks = Ebook.objects.exclude(pk=ebook.pk).filter(
             edition=self.work.preferred_edition,

@@ -9,7 +9,7 @@ from urllib.parse import urlparse, urljoin
 import requests
 
 from regluit.utils.lang import lang_to_language_code
-from .utils import get_soup
+from .soup import get_soup
 
 logger = logging.getLogger(__name__)
 

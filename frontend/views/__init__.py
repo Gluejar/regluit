@@ -494,8 +494,9 @@ def manage_ebooks(request, edition_id, by=None):
         ebook_form = EbookForm(data = request.POST, files=request.FILES,)
         if ebook_form.is_valid():
             if ebook_form.cleaned_data.get('file', None):
+                file=ebook_form.cleaned_data['file']
                 new_ebf = models.EbookFile.objects.create(
-                    file=ebook_form.cleaned_data['file'],
+                    file=file,
                     format=ebook_form.cleaned_data['format'],
                     edition=edition,
                 )
@@ -504,6 +505,8 @@ def manage_ebooks(request, edition_id, by=None):
                 ebook_form.instance.save()
                 new_ebf.ebook = ebook_form.instance
                 new_ebf.save()
+                new_ebf.ebook.filesize = new_ebf.file.size
+                new_ebf.ebook.save()                
             else:
                 ebook_form.save()
                 ebook_form.instance.set_next_iter()

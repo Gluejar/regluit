@@ -14,7 +14,6 @@ import requests
 # django imports
 
 from django.conf import settings
-from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.db import IntegrityError
 from django.db.models import Sum
@@ -31,7 +30,6 @@ from gitenberg.metadata.pandata import Pandata
 
 import regluit
 import regluit.core.isbn
-from regluit.core.validation import test_file
 from regluit.marc.models import inverse_marc_rels
 from regluit.utils.lang import lang_to_language_code
 
@@ -39,6 +37,7 @@ from . import cc
 from . import models
 from .parameters import WORK_IDENTIFIERS
 from .validation import identifier_cleaner, unreverse_name
+from .models import loader
 
 logger = logging.getLogger(__name__)
 request_log = logging.getLogger("requests")
@@ -884,22 +883,6 @@ def edition_for_etype(etype, metadata, default=None):
         for key in metadata.edition_identifiers.keys():
             return edition_for_ident(key, metadata.identifiers[key])
 
-def load_ebookfile(url, etype):
-    '''
-    return a ContentFile if a new ebook has been loaded
-    '''
-    ebfs = models.EbookFile.objects.filter(source=url)
-    if ebfs:
-        return None
-    try:
-        r = requests.get(url)
-        contentfile = ContentFile(r.content)
-        test_file(contentfile, etype)
-        return contentfile
-    except IOError as e:
-        logger.error(u'could not open {}'.format(url))
-    except ValidationError as e:
-        logger.error(u'downloaded {} was not a valid {}'.format(url, etype))
 
 class BasePandataLoader(object):
     def __init__(self, url):
@@ -1016,8 +999,8 @@ class BasePandataLoader(object):
             if url:
                 edition = edition_for_etype(key, metadata, default=default_edition)
                 if edition:
-                    contentfile = load_ebookfile(url, key)
-                    if contentfile:
+                    contentfile, fmt = loader.load_ebookfile(url, key)
+                    if contentfile and fmt == key:
                         contentfile_name = '/loaded/ebook_{}.{}'.format(edition.id, key)
                         path = default_storage.save(contentfile_name, contentfile)
                         ebf = models.EbookFile.objects.create(

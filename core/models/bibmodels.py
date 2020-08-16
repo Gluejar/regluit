@@ -35,8 +35,8 @@ from regluit.core import mobi
 import regluit.core.cc as cc
 from regluit.core.epub import test_epub
 from regluit.core.links import id_url
+from regluit.core.loaders.harvest import dl_online
 from regluit.core.validation import valid_subject
-
 from regluit.core.parameters import (
     AGE_LEVEL_CHOICES,
     BORROWED,
@@ -56,7 +56,6 @@ from regluit.core.parameters import (
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 logger = logging.getLogger(__name__)
-good_providers = ('Internet Archive', 'Unglue.it', 'Github', 'OAPEN Library', 'SciELO')
 
 def id_for(obj, type):
     if not obj.pk:
@@ -1143,7 +1142,7 @@ class EbookFile(models.Model):
             edition=self.edition,
             format='mobi',
             asking=self.asking,
-            source=self.file.url
+            source=self.file.url,
         )
             
         new_mobi_ebf.file.save(path_for_file(new_mobi_ebf, None), mobi_cf)
@@ -1157,6 +1156,7 @@ class EbookFile(models.Model):
                 rights=self.ebook.rights,
                 version_label=self.ebook.version_label,
                 version_iter=self.ebook.version_iter,
+                filesize=mobi_cf.size,
             )
             new_mobi_ebf.ebook = new_ebook
         new_mobi_ebf.save()
@@ -1205,40 +1205,15 @@ class Ebook(models.Model):
         return ebf.file
 
     def get_archive_ebf(self): # returns an ebf
-        if not self.ebook_files.filter(asking=False).exists():
-            if not self.provider in good_providers:
-                return None
-            try:
-                r = requests.get(self.url)
-                if r.status_code == 200:
-                    self.filesize = len(r.content)
-                    if self.save:
-                        self.filesize = self.filesize if self.filesize < 2147483647 else 2147483647  # largest safe positive integer
-                        self.save()
-                    ebf = EbookFile.objects.create(
-                        edition=self.edition,
-                        ebook=self,
-                        format=self.format,
-                        source=self.url
-                    )
-                    ebf.file.save(path_for_file(ebf, None), ContentFile(r.content))
-                    ebf.file.close()
-                    ebf.save()
-                    return ebf
-                else:
-                    logging.error('Bad link error: {}'.format(self.url))
-            except IOError:
-                logger.error(u'could not open {}'.format(self.url))
+        if self.ebook_files.filter(asking=False):
+            ebf = self.ebook_files.filter(asking=False).last()
+        elif EbookFile.objects.filter(source=self.url, format=self.format):
+            ebf = self.ebook_files.filter(asking=False).last()
         else:
-            ebf = self.ebook_files.filter(asking=False).order_by('-created')[0]
-            if not self.filesize:
-                try:
-                    self.filesize = ebf.file.size
-                    self.save()
-                except ClientError:
-                    # error thrown when the can't access the S3 bucket
-                    pass
-            return ebf
+            ebf, num = dl_online(self, format=self.format)
+            if not ebf:
+                return None
+        return ebf
 
     def set_provider(self):
         self.provider = Ebook.infer_provider(self.url)

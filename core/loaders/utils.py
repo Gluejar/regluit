@@ -10,6 +10,7 @@ import requests
 
 from django.conf import settings
 
+
 from regluit.api.crosswalks import inv_relator_contrib
 from regluit.bisac.models import BisacHeading
 from regluit.core.bookloader import add_by_isbn_from_google, merge_works
@@ -17,6 +18,8 @@ from regluit.core.isbn import ISBN
 from regluit.core.models import (
     Ebook, Edition, Identifier, Subject, Work,
 )
+
+from .soup import get_soup
 
 logger = logging.getLogger(__name__)
 
@@ -41,29 +44,6 @@ def utf8_general_ci_norm(s):
     s1 = unicodedata.normalize('NFD', s)
     return ''.join(c for c in s1 if not unicodedata.combining(c)).upper()
 
-def get_soup(url, user_agent=settings.USER_AGENT):
-    try:
-        response = requests.get(url, headers={"User-Agent": user_agent})
-    except requests.exceptions.MissingSchema:
-        response = requests.get('http://%s' % url, headers={"User-Agent": user_agent})
-    except requests.exceptions.ConnectionError as e:
-        logger.error("Connection refused for %s", url)
-        logger.error(e)
-        return None
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.content, 'lxml')
-
-        # make sure document has a base
-        if not soup.find('base'):
-            obj = soup.find('head')
-            if obj:
-                obj.append(soup.new_tag("base", href=response.url))
-            else:
-                logger.error('No head for  %s', url)
-        return soup
-    else:
-        logger.error('%s returned code %s', url, response.status_code)
-    return None
 
 def get_authors(book):
     authors = []
@@ -378,89 +358,3 @@ def ids_from_urls(url):
             ids[ident] = id_match.group('id')
     return ids
 
-def type_for_url(url, content_type=None, force=False, disposition=''):
-    url_disp = url + disposition
-    if not url:
-        return ''
-
-    # check to see if we already know
-    for ebook in Ebook.objects.filter(url=url):
-        if ebook.format != 'online':
-            return ebook.format
-
-    if not force:
-        if url.find('books.openedition.org') >= 0:
-            return 'online'
-    if content_type:
-        ct = content_type
-    else:
-        ct, disposition = contenttyper.calc_type(url)
-    url_disp = url + disposition
-    binary_type = re.search("octet-stream", ct) or re.search("application/binary", ct)
-    if re.search("pdf", ct):
-        return "pdf"
-    elif binary_type and re.search("pdf", url_disp, flags=re.I):
-        return "pdf"
-    elif binary_type and re.search("epub", url_disp, flags=re.I):
-        return "epub"
-    elif binary_type and re.search("mobi", url_disp, flags=re.I):
-        return "mobi"
-    elif re.search("text/plain", ct):
-        return "text"
-    elif re.search("text/html", ct):
-        if url.find('oapen.org/view') >= 0:
-            return "html"
-        return "online"
-    elif re.search("epub", ct):
-        return "epub"
-    elif re.search("mobi", ct):
-        return "mobi"
-    elif ct == '404':
-        return ct
-    # no content-type header!
-    elif ct == '' and re.search("epub", url_disp, flags=re.I):
-        return "epub"
-    elif ct == '' and re.search("pdf", url_disp, flags=re.I):
-        return "pdf"
-    elif ct == '' and re.search("mobi", url_disp, flags=re.I):
-        return "mobi"
-
-    return "other"
-
-class ContentTyper(object):
-    """ """
-    def __init__(self):
-        self.last_call = dict()
-
-    def content_type(self, url):
-        try:
-            r = requests.head(url, allow_redirects=True)
-            if r.status_code == 405:
-                r =  requests.get(url)
-            elif r.status_code == 404:
-                logger.error('File not found (404) for %s', url)
-                return '404', ''
-            return r.headers.get('content-type', ''), r.headers.get('content-disposition', '')
-        except:
-            return '', ''
-
-    def calc_type(self, url):
-        logger.info(url)
-        delay = 1
-        # is there a delay associated with the url
-        netloc = urlparse(url).netloc
-
-        # wait if necessary
-        last_call = self.last_call.get(netloc)
-        if last_call is not None:
-            now = time.time()
-            min_time_next_call = last_call + delay
-            if min_time_next_call > now:
-                time.sleep(min_time_next_call-now)
-
-        self.last_call[netloc] = time.time()
-
-        # compute the content-type
-        return self.content_type(url)
-
-contenttyper = ContentTyper()
