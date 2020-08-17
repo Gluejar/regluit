@@ -61,6 +61,7 @@ from regluit.core.parameters import (
     THANKED,
     OFFER_CHOICES,
     ACQ_CHOICES,
+    GOOD_PROVIDERS,
 )
 from regluit.core.epub import personalize, ungluify, ask_epub
 from regluit.core.pdf import ask_pdf, pdf_append
@@ -79,7 +80,6 @@ from .bibmodels import (
     EbookFile,
     Edition,
     EditionNote,
-    good_providers,
     Identifier,
     path_for_file,
     Publisher,
@@ -474,10 +474,10 @@ class Campaign(models.Model):
                     self.problems.append(_('A campaign must have a target'))
                     may_launch = False
             if self.type == BUY2UNGLUE:
-                if self.work.offers.filter(price__gt=0, active=True).count() == 0:
+                if not self.work.offers.filter(price__gt=0, active=True).exists():
                     self.problems.append(_('You can\'t launch a buy-to-unglue campaign before setting a price for your ebooks'))
                     may_launch = False
-                if EbookFile.objects.filter(edition__work=self.work).count() == 0:
+                if not EbookFile.objects.filter(edition__work=self.work).exists():
                     self.problems.append(_('You can\'t launch a buy-to-unglue campaign if you don\'t have any ebook files uploaded'))
                     may_launch = False
                 if (self.cc_date_initial is None) or (self.cc_date_initial > datetime.combine(settings.MAX_CC_DATE, datetime.min.time())) or (self.cc_date_initial < now()):
@@ -492,7 +492,7 @@ class Campaign(models.Model):
                     may_launch = False
             if self.type == THANKS:
                 # the case in which there is no EbookFile and no Ebook associated with work (We have ebooks without ebook files.)
-                if EbookFile.objects.filter(edition__work=self.work).count() == 0 and self.work.ebooks().count() == 0:
+                if not EbookFile.objects.filter(edition__work=self.work).exists() and not self.work.ebooks().exists():
                     self.problems.append(_('You can\'t launch a thanks-for-ungluing campaign if you don\'t have any ebook files uploaded'))
                     may_launch = False
         except Exception as e:
@@ -703,16 +703,13 @@ class Campaign(models.Model):
         # only if a campaign is SUCCESSFUL, we allow for recharged
 
         if self.status == 'SUCCESSFUL':
-            if self.transaction_set.filter(Q(user=user) & (Q(status=TRANSACTION_STATUS_COMPLETE) | Q(status=TRANSACTION_STATUS_ACTIVE))).count():
+            if self.transaction_set.filter(Q(user=user) & (Q(status=TRANSACTION_STATUS_COMPLETE) | Q(status=TRANSACTION_STATUS_ACTIVE))).exists():
                 # presence of an active or complete transaction means no transaction to recharge
                 return None
             else:
                 transactions = self.transaction_set.filter(Q(user=user) & (Q(status=TRANSACTION_STATUS_ERROR) | Q(status=TRANSACTION_STATUS_FAILED)))
                 # assumption --that the first failed/errored transaction has the amount we need to recharge
-                if transactions.count():
-                    return transactions[0]
-                else:
-                    return None
+                return transactions.first()
         else:
             return None
 
@@ -893,9 +890,9 @@ class Campaign(models.Model):
     def make_mobis(self):
         # make archive files for ebooks, make mobi files for epubs
         versions = set()
-        for ebook in self.work.ebooks().filter(provider__in=good_providers, format='mobi'):
+        for ebook in self.work.ebooks().filter(provider__in=GOOD_PROVIDERS, format='mobi'):
             versions.add(ebook.version_label)
-        for ebook in self.work.ebooks_all().exclude(provider='Unglue.it').filter(provider__in=good_providers, format='epub'):
+        for ebook in self.work.ebooks_all().exclude(provider='Unglue.it').filter(provider__in=GOOD_PROVIDERS, format='epub'):
             if not ebook.version_label in versions:
                 # now make the mobi file
                 ebf = ebook.get_archive_ebf()
@@ -912,7 +909,7 @@ class Campaign(models.Model):
                 ebf.file.open()
                 to_dos.append({'content': ebf.file.read(), 'ebook': ebf.ebook})
                 format_versions.append(format_version)
-        for ebook in self.work.ebooks_all().exclude(provider='Unglue.it').filter(provider__in=good_providers):
+        for ebook in self.work.ebooks_all().exclude(provider='Unglue.it').filter(provider__in=GOOD_PROVIDERS):
             format_version = '{}_{}'.format(ebook.format, ebook.version_label)
             if ebook.format in ('pdf', 'epub') and not format_version in format_versions:
                 to_dos.append({'content': ebook.get_archive().read(), 'ebook': ebook})
@@ -1018,6 +1015,7 @@ class Campaign(models.Model):
             provider="Unglue.it",
             url=settings.BASE_URL_SECURE + reverse('download_campaign', args=[self.work_id, format]),
             version_label='unglued',
+            filesize=ebf.file.size,
         )
         old_ebooks = Ebook.objects.exclude(pk=ebook.pk).filter(
             edition=self.work.preferred_edition,
@@ -1190,24 +1188,19 @@ class UserProfile(models.Model):
 
     @property
     def pledge_count(self):
-        return self.user.transaction_set.exclude(status='NONE').exclude(status='Canceled', reason=None).exclude(anonymous=True).count()
+        return self.user.transaction_set.exclude(status='NONE').exclude(
+            status='Canceled', reason=None).exclude(anonymous=True).count()
 
     @property
     def account(self):
         # there should be only one active account per user
-        accounts = self.user.account_set.filter(date_deactivated__isnull=True)
-        if accounts.count() == 0:
-            return None
-        else:
-            return accounts[0]
+        return self.user.account_set.filter(date_deactivated__isnull=True).first()
 
     @property
     def old_account(self):
-        accounts = self.user.account_set.filter(date_deactivated__isnull=False).order_by('-date_deactivated')
-        if accounts.count() == 0:
-            return None
-        else:
-            return accounts[0]
+        return self.user.account_set.filter(
+            date_deactivated__isnull=False
+        ).order_by('-date_deactivated').first()
 
     @property
     def pledges(self):
@@ -1216,10 +1209,7 @@ class UserProfile(models.Model):
     @property
     def last_transaction(self):
         from regluit.payment.models import Transaction
-        try:
-            return Transaction.objects.filter(user=self.user).order_by('-date_modified')[0]
-        except IndexError:
-            return None
+        return Transaction.objects.filter(user=self.user).order_by('-date_modified').first()
 
     @property
     def ack_name(self):
@@ -1236,8 +1226,7 @@ class UserProfile(models.Model):
         last = self.last_transaction
         if last:
             return last.anonymous
-        else:
-            return None
+        return None
 
     @property
     def on_ml(self):

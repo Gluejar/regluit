@@ -150,7 +150,7 @@ def work_node(work, facet=None):
 
     # publisher
     #<dcterms:publisher>Open Book Publishers</dcterms:publisher>
-    if work.publishers().count():
+    if work.publishers().exists():
         for publisher in work.publishers():
             node.append(text_node("dcterms:publisher", publisher.name.name))
 

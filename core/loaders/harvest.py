@@ -4,20 +4,19 @@ code for harvesting 'online' ebooks
 import logging
 import re
 import time
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urljoin
 
 import requests
 
 from django.conf import settings
 from django.core.files.base import ContentFile
 
-from regluit.core.models import (
-    Ebook, EbookFile, path_for_file,
-)
+from regluit.core import models
+from regluit.core.models import loader
+from regluit.core.parameters import GOOD_PROVIDERS
 from regluit.core.pdf import staple_pdf
 
-from .utils import get_soup, type_for_url
-
+from .soup import get_soup
 
 logger = logging.getLogger(__name__)
 
@@ -40,9 +39,11 @@ class RateLimiter(object):
 
 rl = RateLimiter()
 
-def dl_online(ebook, limiter=rl.delay):
-    if ebook.format != 'online':
+def dl_online(ebook, limiter=rl.delay, format='online', force=False):
+    if ebook.format != format or (not force and ebook.provider in DONT_HARVEST):
         return None, 0
+    if ebook.ebook_files.exists():
+        return ebook.ebook_files.first(), 0
     for do_harvest, harvester in harvesters(ebook):
         if do_harvest:
             for ebf in ebf_if_harvested(ebook.url):
@@ -63,9 +64,16 @@ CMPPROVIDERS = [
     'editorial.uniagustiniana.edu.co',
     'monographs.uc.pt',
 ]
-
+DONT_HARVEST = [
+    'Unglue.it',
+    'Github',
+    'Project Gutenberg',
+    'Google Books',
+    'OpenEdition Books',
+]
 
 def harvesters(ebook):
+    yield ebook.provider in GOOD_PROVIDERS, harvest_generic
     yield 'dropbox.com/s/' in ebook.url, harvest_dropbox
     yield ebook.provider == 'jbe-platform.com', harvest_jbe
     yield ebook.provider == u'De Gruyter Online', harvest_degruyter
@@ -82,14 +90,14 @@ def harvesters(ebook):
     yield ebook.provider == 'Athabasca University Press', harvest_athabasca
     yield 'digitalcommons.usu.edu' in ebook.url, harvest_usu
     yield ebook.provider == 'libros.fahce.unlp.edu.ar', harvest_fahce
-    yield ebook.provider == 'digital.library.unt.edu', harvest_unt
+    yield ebook.provider in ['digital.library.unt.edu', 'texashistory.unt.edu'], harvest_unt
     yield ebook.provider in ['diposit.ub.edu', 'orbi.ulg.ac.be'], harvest_dspace
     yield ebook.provider in CMPPROVIDERS, harvest_cmp
     yield 'mdpi' in ebook.provider.lower(), harvest_mdpi
     yield ebook.provider == 'idunn.no', harvest_idunn
     yield ebook.provider == 'press.ucalgary.ca', harvest_calgary
     yield ebook.provider in ['Ledizioni', 'bibsciences.org',
-                             'heiup.uni-heidelberg.de', 'e-archivo.uc3m.es'], harvest_badhead
+                             'heiup.uni-heidelberg.de', 'e-archivo.uc3m.es'], harvest_generic
     yield ebook.provider == 'muse.jhu.edu', harvest_muse
     yield ebook.provider == 'IOS Press Ebooks', harvest_ios
     yield ebook.provider == 'elgaronline.com', harvest_elgar
@@ -97,18 +105,21 @@ def harvesters(ebook):
     yield ebook.provider in ['edition-open-access.de', 'edition-open-sources.org'], harvest_mprl
     yield ebook.provider == 'rti.org', harvest_rti
     yield ebook.provider == 'edoc.unibas.ch', harvest_unibas
-    yield ebook.provider == 'books.pensoft.net', harvest_pensoft
+    yield 'pensoft' in ebook.provider, harvest_pensoft
     yield ebook.provider == 'edp-open.org', harvest_edp
     yield ebook.provider == 'waxmann.com', harvest_waxmann
     yield ebook.provider == 'pbsociety.org.pl', harvest_ojs
     yield ebook.provider == 'content.sciendo.com', harvest_sciendo
+    yield ebook.provider == 'edition-topoi.org', harvest_topoi
+    yield ebook.provider == 'meson.press', harvest_meson    
+    yield 'brillonline' in ebook.provider, harvest_brill
 
 
 def ebf_if_harvested(url):
-    onlines = EbookFile.objects.filter(source=url)
+    onlines = models.EbookFile.objects.filter(source=url)
     if onlines:
         return onlines
-    return  EbookFile.objects.none()
+    return  models.EbookFile.objects.none()
 
 
 def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET'):
@@ -118,77 +129,72 @@ def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET'):
     logger.info('making %s' % url)
 
     # check to see if url already harvested
-    new_prev = []
     for ebf in ebf_if_harvested(url):
-        new_ebf = EbookFile.objects.create(
+        if ebf.ebook == ebook:
+            return ebf, 0
+        new_ebf = models.EbookFile.objects.create(
             edition=ebf.edition,
             format=ebf.format,
             file=ebf.file,
             source=ebook.url,
+            ebook=ebook,
         )
-        new_prev.append(new_ebf)
-    if new_prev:
         logger.info("Previously harvested")
-        return new_prev[0], len(new_prev)
+        return new_ebf, 0
 
-    try:
-        if method == 'POST':
-            response = requests.post(url, headers={"User-Agent": user_agent})
-        else:
-            response = requests.get(url, headers={"User-Agent": user_agent})
-    except requests.exceptions.SSLError:
-        logger.error('bad certificate? for %s', url)
-        return None, 0
-    if response.status_code == 200:
-        filesize = int(response.headers.get("Content-Length", 0))
-        filesize = filesize if filesize else None
-        logger.debug(response.headers.get('content-type', ''))
-        format = type_for_url(url, 
-                              content_type=response.headers.get('content-type', ''),
-                              disposition=response.headers.get('content-disposition', ''))
-        if format != 'online':
-            return make_harvested_ebook(response.content, ebook, format, filesize=filesize)
-        else:
-            logger.warning('download format %s for %s is not ebook', format, url)
+    
+    dl_cf, fmt = loader.load_ebookfile(url, ebook.format, user_agent=user_agent, method=method)
+    if dl_cf:
+        return make_harvested_ebook(dl_cf, ebook, fmt, filesize=dl_cf.size)
     else:
-        logger.warning('couldn\'t get %s', url)
+        logger.warning('download format %s for %s is not ebook', ebook.format, url)
     return None, 0
 
 def make_stapled_ebook(urllist, ebook, user_agent=settings.USER_AGENT, strip_covers=False):
     pdffile = staple_pdf(urllist, user_agent, strip_covers=strip_covers)
     if not pdffile:
         return None, 0
-    return make_harvested_ebook(pdffile.getvalue(), ebook, 'pdf')
+    return make_harvested_ebook(ContentFile(pdffile.getvalue()), ebook, 'pdf')
 
 def make_harvested_ebook(content, ebook, format, filesize=0):
     if not filesize:
         filesize = len(content)
-    new_ebf = EbookFile.objects.create(
+    new_ebf = models.EbookFile.objects.create(
         edition=ebook.edition,
         format=format,
         source=ebook.url,
     )
     try:
-        new_ebf.file.save(path_for_file(new_ebf, None), ContentFile(content))
+        new_ebf.file.save(models.path_for_file(new_ebf, None), content)
         new_ebf.save()
     except MemoryError:  #huge pdf files cause problems here
         logger.error("memory error saving ebook file for %s", ebook.url)
         new_ebf.delete()
         return None, 0
-
-    new_ebook = Ebook.objects.create(
-        edition=ebook.edition,
-        format=format,
-        provider='Unglue.it',
-        url=new_ebf.file.url,
-        rights=ebook.rights,
-        filesize=filesize,
-        version_label=ebook.version_label,
-        version_iter=ebook.version_iter,
-    )
-    new_ebf.ebook = new_ebook
+    if ebook.format == "online":
+        harvested_ebook = models.Ebook.objects.create(
+            edition=ebook.edition,
+            format=format,
+            provider='Unglue.it',
+            url=new_ebf.file.url,
+            rights=ebook.rights,
+            filesize=filesize if filesize < 2147483647 else 2147483647, # largest safe integer
+            version_label=ebook.version_label,
+            version_iter=ebook.version_iter,
+        )
+    else:
+        if not ebook.filesize:
+            ebook.filesize = filesize if filesize < 2147483647 else 2147483647
+            ebook.save()
+        harvested_ebook = ebook
+        
+    new_ebf.ebook = harvested_ebook
     new_ebf.save()
     return new_ebf, 1
+
+
+def harvest_generic(ebook):
+    return make_dl_ebook(ebook.url, ebook)
 
 
 def harvest_one_generic(ebook, selector, user_agent=settings.USER_AGENT):
@@ -210,6 +216,7 @@ def harvest_one_generic(ebook, selector, user_agent=settings.USER_AGENT):
     else:
         logger.warning('couldn\'t get soup for %s', ebook.url)
     return None, 0
+
 
 def harvest_multiple_generic(ebook, selector, dl=lambda x:x):
     num = 0
@@ -233,6 +240,7 @@ def harvest_multiple_generic(ebook, selector, dl=lambda x:x):
     if num == 0:
         logger.warning('couldn\'t get any dl_url for %s', ebook.url)
     return harvested, num
+
 
 def harvest_stapled_generic(ebook, selector, chap_selector, strip_covers=0,
                             user_agent=settings.GOOGLEBOT_UA, dl=lambda x:x):
@@ -267,9 +275,6 @@ def harvest_stapled_generic(ebook, selector, chap_selector, strip_covers=0,
         logger.warning('couldn\'t get soup for %s', ebook.url)
     return None, 0
 
-
-def harvest_badhead(ebook):
-    return make_dl_ebook(ebook.url, ebook)
 
 def harvest_obp(ebook):    
     match = OPENBOOKPUB.search(ebook.url)
@@ -665,12 +670,14 @@ def harvest_unibas(ebook):
         return doc.select_one('a.ep_document_link[href]')
     return harvest_one_generic(ebook, selector)
 
-
+PENSOFT = re.compile(r'/book/(\d+)/list/')
 def harvest_pensoft(ebook):
     if ebook.id == 263395:
         book_id = '12847'
     elif ebook.url.startswith('https://books.pensoft.net/books/'):
         book_id = ebook.url[32:]
+    elif PENSOFT.search(ebook.url):
+        book_id = PENSOFT.search(ebook.url).group(1)
     else:
         return None, 0
     r = requests.get('https://books.pensoft.net/api/books/' + book_id)
@@ -708,3 +715,24 @@ def harvest_sciendo(ebook):
         return doc.select_one('a[title=PDF]')
     return harvest_one_generic(ebook, selector, user_agent=settings.GOOGLEBOT_UA)
 
+
+def harvest_topoi(ebook):    
+    def selector(doc):
+        return doc.select_one('li.pdf a[href]')
+    return harvest_one_generic(ebook, selector)
+
+
+def harvest_meson(ebook):    
+    def selector(doc):
+        for btn in doc.select_one('a[href] btn.btn-openaccess'):
+            yield btn.parent
+    return harvest_one_generic(ebook, selector)
+
+
+def harvest_brill(ebook):
+    r = requests.get(ebook.url, headers={'User-Agent': settings.GOOGLEBOT_UA})
+    if not r.url.startswith('https://brill.com/view/title/'):
+        return None, 0
+    dl_url = 'https://brill.com/downloadpdf/title/%s.pdf' % r.url[29:]
+    return make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA) 
+    

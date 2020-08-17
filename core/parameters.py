@@ -48,8 +48,5 @@ WORK_IDENTIFIERS = ('doi','olwk','glue','ltwk', 'http', 'doab')
 
 ID_CHOICES_MAP = dict(ID_CHOICES)
 
-
-
-
-
+GOOD_PROVIDERS = ('Internet Archive', 'Unglue.it', 'Github', 'OAPEN Library', 'SciELO')
 
