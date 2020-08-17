@@ -709,10 +709,7 @@ class Campaign(models.Model):
             else:
                 transactions = self.transaction_set.filter(Q(user=user) & (Q(status=TRANSACTION_STATUS_ERROR) | Q(status=TRANSACTION_STATUS_FAILED)))
                 # assumption --that the first failed/errored transaction has the amount we need to recharge
-                if transactions.exists():
-                    return transactions[0]
-                else:
-                    return None
+                return transactions.first()
         else:
             return None
 
@@ -1191,23 +1188,19 @@ class UserProfile(models.Model):
 
     @property
     def pledge_count(self):
-        return self.user.transaction_set.exclude(status='NONE').exclude(status='Canceled', reason=None).exclude(anonymous=True).count()
+        return self.user.transaction_set.exclude(status='NONE').exclude(
+            status='Canceled', reason=None).exclude(anonymous=True).count()
 
     @property
     def account(self):
         # there should be only one active account per user
-        accounts = self.user.account_set.filter(date_deactivated__isnull=True)
-        if accounts.exists():
-            return accounts[0]
-        return None
+        return self.user.account_set.filter(date_deactivated__isnull=True).first()
 
     @property
     def old_account(self):
-        accounts = self.user.account_set.filter(date_deactivated__isnull=False).order_by('-date_deactivated')
-        if accounts.exists():
-            return None
-        else:
-            return accounts[0]
+        return self.user.account_set.filter(
+            date_deactivated__isnull=False
+        ).order_by('-date_deactivated').first()
 
     @property
     def pledges(self):
@@ -1216,10 +1209,7 @@ class UserProfile(models.Model):
     @property
     def last_transaction(self):
         from regluit.payment.models import Transaction
-        try:
-            return Transaction.objects.filter(user=self.user).order_by('-date_modified')[0]
-        except IndexError:
-            return None
+        return Transaction.objects.filter(user=self.user).order_by('-date_modified').first()
 
     @property
     def ack_name(self):
@@ -1236,8 +1226,7 @@ class UserProfile(models.Model):
         last = self.last_transaction
         if last:
             return last.anonymous
-        else:
-            return None
+        return None
 
     @property
     def on_ml(self):

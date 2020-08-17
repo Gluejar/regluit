@@ -659,19 +659,11 @@ class Work(models.Model):
 
         @property
         def borrowed(self):
-            loans = self.acqs.filter(license=BORROWED, expires__gt=now())
-            if not loans.exists():
-                return None
-            else:
-                return loans[0]
+            return self.acqs.filter(license=BORROWED, expires__gt=now()).first()
 
         @property
         def purchased(self):
-            purchases = self.acqs.filter(license=INDIVIDUAL, expires__isnull=True)
-            if not purchases.exists():
-                return None
-            else:
-                return purchases[0]
+            return self.acqs.filter(license=INDIVIDUAL, expires__isnull=True).first()
 
         @property
         def lib_acqs(self):
@@ -680,11 +672,8 @@ class Work(models.Model):
         @property
         def next_acq(self):
             """ This is the next available copy in the user's libraries"""
-            loans = self.acqs.filter(license=LIBRARY, refreshes__gt=now()).order_by('refreshes')
-            if not loans.exists():
-                return None
-            else:
-                return loans[0]
+            return self.acqs.filter(license=LIBRARY,
+                                    refreshes__gt=now()).order_by('refreshes').first()
 
         @property
         def borrowable(self):
@@ -696,8 +685,7 @@ class Work(models.Model):
 
         @property
         def borrowable_acq(self):
-            for acq in self.acqs.filter(license=LIBRARY, refreshes__lt=now()):
-                return acq
+            return self.acqs.filter(license=LIBRARY, refreshes__lt=now()).first()
 
         @property
         def is_duplicate(self):
