@@ -52,6 +52,31 @@ def dl_online(ebook, limiter=rl.delay, format='online', force=False):
             return harvester(ebook)
     return None, 0
 
+def archive_dl(ebook, limiter=rl.delay, format='all', force=False):
+    """ status codes
+        0 : archive exists
+        1 : archive made
+       -1 : urls does not return an ebook file
+    """
+    status = -1
+    ebf = None
+    if ebook.ebook_files.filter(asking=False):
+        status = 0
+    elif models.EbookFile.objects.filter(source=ebook.url, format=ebook.format):
+        status = 0
+    else:
+        dl_cf, fmt = loader.load_ebookfile(ebook.url, ebook.format)
+        if dl_cf:
+            ebf, num =  make_harvested_ebook(dl_cf, ebook, fmt, filesize=dl_cf.size)
+            status = 1
+        else:
+            logger.warning('download format %s for %s is not ebook', ebook.format, ebook.url)
+        limiter(ebook.provider)
+        if not ebf:
+            status = -1
+    return status
+    
+
 CMPPROVIDERS = [
     'editorial.uniagustiniana.edu.co',
     'llibres.urv.cat',
