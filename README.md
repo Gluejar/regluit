@@ -27,7 +27,7 @@ to install python-setuptools in step 1:
 1. `git clone git@github.com:Gluejar/regluit.git`
 1. `cd regluit`
 1. `mkvirtualenv regluit`
-1. `pip install -r requirements_versioned.pip`
+1. `pip install -r requirements.txt`
 1. `add2virtualenv ..`
 1. `cp settings/dev.py settings/me.py`
 1. `mkdir settings/keys/`
