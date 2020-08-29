@@ -1,6 +1,7 @@
 import logging
 import re
 import requests
+import time
 from urllib.parse import urlparse
 
 from django.apps import apps
