@@ -5,6 +5,7 @@ import requests
 
 from django.conf import settings
 
+logger = logging.getLogger(__name__)
 
 def get_soup(url, user_agent=settings.USER_AGENT):
     try:
