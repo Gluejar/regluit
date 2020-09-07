@@ -22,7 +22,7 @@ from regluit.core.models.loader import type_for_url
 from regluit.core.validation import identifier_cleaner, valid_subject
 
 from . import scrape_language
-from .doab_utils import doab_lang_to_iso_639_1, online_to_download, url_to_provider
+from .doab_utils import doab_lang_to_iso_639_1, online_to_download
 
 logger = logging.getLogger(__name__)
 
@@ -415,7 +415,7 @@ def add_by_doab(doab_id, record=None):
                 license,
                 language,
                 isbns,
-                url_to_provider(dl_url) if dl_url else None,
+                models.Ebook.infer_provider(dl_url) if dl_url else None,
                 dois=dois,
                 **metadata
             )

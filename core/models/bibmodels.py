@@ -50,6 +50,7 @@ from regluit.core.parameters import (
     THANKED,
     THANKS,
     WORK_IDENTIFIERS,
+    DOMAIN_TO_PROVIDER,
 )
 
 # fix truncated file problems per https://stackoverflow.com/questions/12984426/python-pil-ioerror-image-file-truncated-with-big-images
@@ -1265,7 +1266,13 @@ class Ebook(models.Model):
         elif re.match(r'https?://www\.oapen\.org/download', url):
             provider = 'OAPEN Library'
         else:
-            provider = None
+            netloc = urlparse(url).netloc.lower()
+            if netloc in [u'dx.doi.org', u'doi.org', u'hdl.handle.net']:
+                url = requests.get(url).url
+                netloc = urlparse(url).netloc
+            if netloc.startswith('www.'):
+                netloc = netloc[4:]
+            provider = DOMAIN_TO_PROVIDER.get(netloc, netloc)
         return provider
 
     def increment(self):
