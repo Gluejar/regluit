@@ -138,6 +138,7 @@ def harvesters(ebook):
     yield ebook.provider == 'edition-topoi.org', harvest_topoi
     yield ebook.provider == 'meson.press', harvest_meson    
     yield 'brillonline' in ebook.provider, harvest_brill
+    yield ebook.provider == 'DOI Resolver', harvest_doi   
 
 
 def ebf_if_harvested(url):
@@ -761,3 +762,17 @@ def harvest_brill(ebook):
     dl_url = 'https://brill.com/downloadpdf/title/%s.pdf' % r.url[29:]
     return make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA) 
     
+def harvest_doi(ebook):
+    # usually a 404.
+    r = requests.get(ebook.url)
+    if r.status_code == 404 and not ebook.ebook_files.exists():
+        logger.info('deleting ebook for dead doi %s', ebook.url)
+        ebook.delete()
+        return None, -1
+    else:
+        ebook.url = r.url
+        ebook.set_provider()
+        logger.info('reset provider to %s', ebook.provider)
+        ebook.save()
+        return None, 0
+        
