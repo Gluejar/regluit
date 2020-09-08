@@ -689,7 +689,6 @@ def harvest_mprl(ebook):
 
 def harvest_rti(ebook):
     return make_dl_ebook(ebook.url + "/fulltext.pdf", ebook)
-unibz.it
 
 
 def harvest_unibas(ebook):
