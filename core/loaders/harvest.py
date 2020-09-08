@@ -689,6 +689,7 @@ def harvest_mprl(ebook):
 
 def harvest_rti(ebook):
     return make_dl_ebook(ebook.url + "/fulltext.pdf", ebook)
+unibz.it
 
 
 def harvest_unibas(ebook):
@@ -750,9 +751,9 @@ def harvest_topoi(ebook):
 
 def harvest_meson(ebook):    
     def selector(doc):
-        for btn in doc.select_one('a[href] btn.btn-openaccess'):
+        for btn in doc.select('a[href] btn.btn-openaccess'):
             yield btn.parent
-    return harvest_one_generic(ebook, selector)
+    return harvest_multiple_generic(ebook, selector)
 
 
 def harvest_brill(ebook):
