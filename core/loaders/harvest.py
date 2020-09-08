@@ -138,7 +138,8 @@ def harvesters(ebook):
     yield ebook.provider == 'edition-topoi.org', harvest_topoi
     yield ebook.provider == 'meson.press', harvest_meson    
     yield 'brillonline' in ebook.provider, harvest_brill
-    yield ebook.provider == 'DOI Resolver', harvest_doi   
+    yield ebook.provider == 'DOI Resolver', harvest_doi
+    yield ebook.provider == 'ispf-lab.cnr.it', harvest_ipsflab 
 
 
 def ebf_if_harvested(url):
@@ -775,4 +776,12 @@ def harvest_doi(ebook):
         logger.info('reset provider to %s', ebook.provider)
         ebook.save()
         return None, 0
+
+
+def harvest_ipsflab(ebook):    
+    def selector(doc):
+        return doc.find_all('a', href=re.compile(r'/system/files/ispf_lab/quaderni/.*\.(pdf|epub)'))
+    return harvest_multiple_generic(ebook, selector)
+
+
         
