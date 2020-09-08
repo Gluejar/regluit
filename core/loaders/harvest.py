@@ -138,6 +138,8 @@ def harvesters(ebook):
     yield ebook.provider == 'edition-topoi.org', harvest_topoi
     yield ebook.provider == 'meson.press', harvest_meson    
     yield 'brillonline' in ebook.provider, harvest_brill
+    yield ebook.provider == 'DOI Resolver', harvest_doi
+    yield ebook.provider == 'ispf-lab.cnr.it', harvest_ipsflab 
 
 
 def ebf_if_harvested(url):
@@ -749,9 +751,9 @@ def harvest_topoi(ebook):
 
 def harvest_meson(ebook):    
     def selector(doc):
-        for btn in doc.select_one('a[href] btn.btn-openaccess'):
+        for btn in doc.select('a[href] btn.btn-openaccess'):
             yield btn.parent
-    return harvest_one_generic(ebook, selector)
+    return harvest_multiple_generic(ebook, selector)
 
 
 def harvest_brill(ebook):
@@ -761,3 +763,25 @@ def harvest_brill(ebook):
     dl_url = 'https://brill.com/downloadpdf/title/%s.pdf' % r.url[29:]
     return make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA) 
     
+def harvest_doi(ebook):
+    # usually a 404.
+    r = requests.get(ebook.url)
+    if r.status_code == 404 and not ebook.ebook_files.exists():
+        logger.info('deleting ebook for dead doi %s', ebook.url)
+        ebook.delete()
+        return None, -1
+    else:
+        ebook.url = r.url
+        ebook.set_provider()
+        logger.info('reset provider to %s', ebook.provider)
+        ebook.save()
+        return None, 0
+
+
+def harvest_ipsflab(ebook):    
+    def selector(doc):
+        return doc.find_all('a', href=re.compile(r'/system/files/ispf_lab/quaderni/.*\.(pdf|epub)'))
+    return harvest_multiple_generic(ebook, selector)
+
+
+        
