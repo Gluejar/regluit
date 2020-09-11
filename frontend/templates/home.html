@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load cache %}
 {% load sass_tags %}
 {% block title %}&#151; Support Free eBooks{% endblock %}
 
@@ -49,6 +49,7 @@ function put_un_in_cookie2(){
     <div class="js-main" id="content-block">
         <div id="js-maincol-fl">
         	<div id="js-main-container">
+        	    {% cache 600 featured %}
                 <h3 class="featured_books">Today's Featured Free eBook</h3>
                     {% with featured as work %}
                         <div class="book-detail">
@@ -90,6 +91,7 @@ function put_un_in_cookie2(){
                         </div>
                     {% endwith %}
                 </div>
+                {% endcache %}
                 {% if faves %}
                     <div class="spacer"></div>
                     <h3 class="featured_books">Your Recent Faves</h3>
@@ -224,6 +226,7 @@ function put_un_in_cookie2(){
                 </div>
                 <div class="jsmodule">
                 	<h3 class="module-title">Latest Ungluing</h3>
+                	{% cache 600 events %}
                     <div class="jsmod-content">
 						<ul class="ungluingwhat">
 						{% for event in events %}
@@ -282,6 +285,7 @@ function put_un_in_cookie2(){
                         {% endfor %}
                         </ul>
                     </div>
+                    {% endcache %}
                 </div>
                 <div class="jsmodule">
                 <h3 class="module-title">Questions?</h3>

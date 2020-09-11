@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 
+{% load cache %}
 {% load comments %}
 {% load humanize %}
 {% load lib_acqs %}
@@ -14,6 +15,7 @@
     {% endif %}{% if action == 'editions' %} – All Editions{% endif %}
 {% endblock %}
 {% block extra_meta %}
+{% cache 600 head work.id %}
 <meta property="og:title" content="{{ work.title }}" />
 <meta property="og:type" content="book" />
 <meta property="og:url" content="https://unglue.it{% url 'work' work.id %}" />
@@ -21,6 +23,7 @@
 <meta property="og:site_name" content="Unglue.it" />
 {% for author in work.relators %}<meta property="book:author" content="{{ author.name }}" />{% endfor %}
 {% if work.first_isbn_13 %}<meta property="book:isbn" content="{{ work.first_isbn_13 }}" />{% endif %}
+{% endcache %}
 {% endblock %}
 {% block extra_css %}
 <link type="text/css" rel="stylesheet" href="{% sass_src 'scss/campaign2.scss' %}"  />
@@ -29,6 +32,7 @@
     {{ kwform.media.css }}
     
 {% endif %}
+
 {% endblock %}
 
 {% block extra_js %}
@@ -74,6 +78,7 @@
                 <div class="js-maincol-inner">
                     <div id="content-block">
                         <div class="book-detail">
+                            {% cache 600 book-cover work_id %}
                             {% if work.uses_google_cover %}
                                 <div class="book-cover" id="book-detail-img">
                                     <a href="{{ work.googlebooks_url }}">
@@ -84,7 +89,9 @@
                                     <img itemprop="image" src="{{ work.cover_image_thumbnail }}" alt="{{ work.title }}" title="{{ work.title }}" width="131" height="192" />
                                 </div>
                             {% endif %}
+                            {% endcache %}
                             <div class="book-detail-info">
+                                {% cache 600 book-detail work_id %}
                                 <div class="layout">
                                     <h2 class="book-name" itemprop="name">{{ work.title }}</h2>
                                 <div>
@@ -218,7 +225,8 @@
                                         <a rel="nofollow" class="find-goodreads" href="{% url 'work_goodreads' work_id %}"><img src="/static/images/supporter_icons/goodreads_square.png" title="Find on GoodReads"  alt="Find on GoodReads" /></a>
                                         <a rel="nofollow" class="find-librarything" href="{% url 'work_librarything' work_id %}"><img src="/static/images/supporter_icons/librarything_square.png" title="Find on LibraryThing" alt="Find on LibraryThing" /></a>
                                     </div>
-                                </div>                            
+                                </div>    
+                                {% endcache %}                        
                                 <div class="btn_wishlist" id="wishlist_actions">
                                     {% if request.user.is_anonymous %}
                                         <div class="create-account">

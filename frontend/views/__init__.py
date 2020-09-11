@@ -1,6 +1,7 @@
 '''
 external library imports
 '''
+import functools
 import re
 import sys
 import json
@@ -8,7 +9,7 @@ import logging
 from urllib.parse import unquote
 import requests
 
-from datetime import timedelta, date
+from datetime import timedelta, date, datetime
 from decimal import Decimal as D
 from itertools import chain
 from notification import models as notification
@@ -137,6 +138,17 @@ from .rh_views import campaign_results, claim, manage_campaign, rh_admin, RHAgre
 
 logger = logging.getLogger(__name__)
 
+def log_time(method):
+    @functools.wraps(method)
+    def wrapper(*args, **kwargs):
+        start_time = datetime.now()
+        page = method(*args, **kwargs)
+        end_time = datetime.now()
+        logging.debug('returned %s. Total time: %s' % (method, (end_time - start_time)))
+        return page
+    return wrapper    
+    
+
 def static_redirect_view(request, file_name, dir=""):
     return HttpResponseRedirect('/static/'+dir+"/"+file_name)
 
@@ -192,6 +204,7 @@ def cover_width(work):
 
     return cover_width
 
+@log_time
 def home(request, landing=False):
     faves = None
     if request.user.is_authenticated :
@@ -298,6 +311,7 @@ def stub(request):
 def acks(request, work):
     return render(request, 'front_matter.html', {'campaign': work.last_campaign()})
 
+@log_time
 def work(request, work_id, action='display'):
     work = safe_get_work(work_id)
     alert = ''

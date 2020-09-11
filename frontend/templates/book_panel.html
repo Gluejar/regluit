@@ -1,11 +1,11 @@
-
+{% load cache %}
 {% load humanize %}
 {% load purchased %}
 {% load lib_acqs %}
 {% load bookpanel %}
-{% with first_ebook=work.first_ebook thumbnail=work.cover_image_thumbnail author=work.authors_short title=work.title last_campaign=work.last_campaign status=work.last_campaign.status deadline=work.last_campaign.deadline workid=work.id wishlist=request.user.wishlist.works.all %}
+{% with last_campaign=work.last_campaign status=work.last_campaign.status deadline=work.last_campaign.deadline workid=work.id wishlist=request.user.wishlist.works.all %}
 {% purchased %}{% lib_acqs %}{% bookpanel %}
-<div class="thewholebook listview tabs {% if tab_override %}{{tab_override}}{% elif first_ebook or status == 'SUCCESSFUL' %}tabs-1{% elif status == 'ACTIVE' %}tabs-2{% else %}tabs-3{% endif %}">
+<div class="thewholebook listview tabs {% if tab_override %}{{tab_override}}{% elif work.first_ebook or status == 'SUCCESSFUL' %}tabs-1{% elif status == 'ACTIVE' %}tabs-2{% else %}tabs-3{% endif %}">
 <div class="listview book-list">
     <div class="listview panelback side2">
     	{% comment %} hover state of panel {% endcomment %}
@@ -16,8 +16,8 @@
                 <div class="greenpanel_top">
                     {% comment %}bibliographic data{% endcomment %}
                     <div class="white_text"> 
-                        <p><a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">{{ title }}</a></p>
-                        <p>{{ author }}</p>
+                        <p><a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">{{ work.title }}</a></p>
+                        <p>{{ work.authors_short }}</p>
                     </div>
                     {% comment %}link to work page{% endcomment %}
                     <div class="moreinfo">
@@ -60,7 +60,7 @@
                     <a href="{% url 'download' workid %}" class="hijax"><span class="read_itbutton button_text"><span>Read it Now</span></span></a>
                 {% elif borrowable %}
                     <a href="{% url 'borrow' workid %}?library={{library}}" class="hijax"><span class="read_itbutton button_text"><span>Borrow It</span></span></a>
-                {% elif first_ebook %}
+                {% elif work.first_ebook %}
                     <a href="{% url 'download' workid %}" class="hijax"><span class="read_itbutton button_text"><span>Read it Now</span></span></a>
                 {% else %}
                     <a href="{% url 'work' workid %}"><span class="read_itbutton button_text"><span>Coming Soon</span></span></a>
@@ -70,8 +70,8 @@
                 <div class="greenpanel_top">
                     {% comment %}bibliographic data{% endcomment %}
                     <div class="white_text"> 
-                        <p><a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">{{ title }}</a></p>
-                        <p>{{ author }}</p>
+                        <p><a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">{{ work.title }}</a></p>
+                        <p>{{ work.authors_short }}</p>
                     </div>
                     {% comment %}link to work page{% endcomment %}
                     <div class="moreinfo">
@@ -136,8 +136,8 @@
                 <div class="greenpanel_top">
                     {% comment %}bibliographic data{% endcomment %}
                     <div class="white_text"> 
-                        <p><a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">{{ title }}</a></p>
-                        <p>{{ author }}</p>
+                        <p><a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">{{ work.title }}</a></p>
+                        <p>{{ work.authors_short }}</p>
                     </div>
                     {% comment %}link to work page{% endcomment %}
                     <div class="moreinfo">
@@ -165,15 +165,15 @@
 			<div class="greenpanel_top">
                 {% comment %}bibliographic data{% endcomment %}
                 <div class="white_text"> 
-                    <p><a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">{{ title }}</a></p>
-                    <p>{{ author }}</p>
+                    <p><a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">{{ work.title }}</a></p>
+                    <p>{{ work.authors_short }}</p>
                 </div>
                 {% comment %}link to work page{% endcomment %}
                 <div class="moreinfo">
                         <a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}" target="_top">More Info</a> 
                 </div>
 				<div class="unglued_white">
-                {% if first_ebook %}
+                {% if work.first_ebook %}
 					<b>AVAILABLE!</b>
                 {% else %}
                    <p>No campaign yet.</p><br /><p>But if lots of ungluers fave this book, maybe there will be!</p>
@@ -184,7 +184,7 @@
                 </div>
 			</div>
             <div class="white_text bottom_button">
-                {% if first_ebook %}
+                {% if work.first_ebook %}
                     <a href="{% url 'download' workid %}" class="hijax"><span class="read_itbutton button_text"><span>Read it Now</span></span></a>
                 {% else %}
                     {% include "num_wishes.html" %}	
@@ -196,16 +196,17 @@
 
 		</div>
     </div>
+    {% cache 3600 bookpanel workid %}
     <div class="listview panelfront side1 book-thumb">
-         <a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}" target="_top"><img src="{{ thumbnail }}" alt="Book cover" title="book cover" /></a>
+         <a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}" target="_top"><img src="{{ work.cover_image_thumbnail  }}" alt="Book cover" title="book cover" /></a>
     </div>
     <div class="listview panelfront side1 book-name">
         <div class="title">
-            <a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">{{ title }}</a>
+            <a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">{{ work.title }}</a>
         </div>
-        <div class="listview author">{{ author }}</div>
+        <div class="listview author">{{ work.authors_short }}</div>
     </div>
-    
+    {% endcache %}
     {% comment %}same logic as above{% endcomment %}
     {% if setkw %}
         {% if setkw in work.subjects.all %}
@@ -286,13 +287,13 @@
 		{% elif status == "INITIALIZED" %}
 		    <span class="booklist-status-label">Status:&nbsp;</span><span class="booklist-status-text">Coming soon!</span>
 		{% elif status == "SUCCESSFUL" %}
-		    {% if not first_ebook %}
+		    {% if not work.first_ebook %}
 		        <span class="booklist-status-text">Ebook coming soon</span>
 		    {% else %}
 		        {% include 'num_wishes.html' %}
 		    {% endif %}
 		{% else %}
-		    {% if first_ebook %}
+		    {% if work.first_ebook %}
 		        {% include 'num_wishes.html' %}
 		    {% endif %}
 		{% endif %}
@@ -306,7 +307,7 @@
     			If B2U, read, borrow, reserve, purchase
     			Otherwise: number of wishes
     	{% endcomment %}
-        {% if purchased or borrowed or first_ebook %}
+        {% if purchased or borrowed or work.first_ebook %}
             <a href="{% url 'download' workid %}" class="hijax" title="Download this work"><div class="read_itbutton"><span>Read it Now</span></div></a>
         {% elif borrowable %}
             <a href="{% url 'borrow' workid %}?library={{library}}" class="hijax" title="Borrow this work"><div class="read_itbutton"><span>Borrow It</span></div></a>
