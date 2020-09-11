@@ -1,5 +1,8 @@
+{% load cache %}
+
 <div class="clearfix">
     <div class="editions">
+            {% cache 600 edition edition.id %}
             <div class="book-cover">
                 <img src="{{ edition.cover_image_thumbnail }}" title="edition cover" alt="edition cover" />
             </div>
@@ -32,6 +35,7 @@
             {% if edition.oclc %}
                 OCLC: <a href="https://www.worldcat.org/oclc/{{ edition.oclc }}">{{ edition.oclc }}</a><br />
             {% endif %}
+            {% endcache %}
             {% if not managing %}
                 {% if user_can_edit_work %}
                     <a href="{% url 'new_edition' work_id edition.id %}">Edit this edition</a><br />

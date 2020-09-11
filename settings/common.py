@@ -246,6 +246,13 @@ LOGGING = {
     }
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'regluit',
+    }
+}
+
 # django-registration
 EMAIL_HOST = 'smtp.gluejar.com'
 DEFAULT_FROM_EMAIL = 'notices@gluejar.com'
