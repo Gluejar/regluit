@@ -31,6 +31,7 @@ from regluit.core import models
 
 logger = logging.getLogger(__name__)
 
+ANONYMOUS_MAX_RECORDS = 100
 
 def editions(request):
     editions = models.Edition.objects.all()
@@ -215,7 +216,6 @@ class OPDSAcquisitionView(View):
             return StreamingHttpResponse(facet_class.feed(page,order_by),
                         content_type="application/atom+xml;profile=opds-catalog;kind=acquisition")
 
-
 class OnixView(View):
     def get(self, request, *args, **kwargs):
         work = request.GET.get('work', None)
@@ -232,12 +232,14 @@ class OnixView(View):
         if not facet:
             return HttpResponseBadRequest(content='No facet provided')
 
-        max_records = request.GET.get('max', 100)
+        max_records = request.GET.get('max', ANONYMOUS_MAX_RECORDS)
 
         try:
             max_records = int(max_records)
         except Exception:
-            max_records = None
+            max_records = ANONYMOUS_MAX_RECORDS
+            
+        max_records = max_records if request.user.is_authenticated else ANONYMOUS_MAX_RECORDS
 
         facet_class = opds.get_facet_class(facet)()
         page = request.GET.get('page', None)
