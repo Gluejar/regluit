@@ -23,11 +23,11 @@ from django.http import (
 
 
 import regluit.core.isbn
-from regluit.core.bookloader import load_from_yaml
 from regluit.api import opds, onix, opds_json
 from regluit.api.models import repo_allowed
-
+from regluit.core.bookloader import load_from_yaml
 from regluit.core import models
+from regluit.core.parameters import ORDER_BY_KEYS
 
 logger = logging.getLogger(__name__)
 
@@ -203,6 +203,10 @@ class OPDSAcquisitionView(View):
         facet = kwargs.get('facet')
         page = request.GET.get('page', None)
         order_by =  request.GET.get('order_by', 'newest')
+        
+        # robots occasionally mangle order_by
+        order_by = order_by if order_by in ORDER_BY_KEYS else 'newest'
+
         try:
             page = int(page)
         except:

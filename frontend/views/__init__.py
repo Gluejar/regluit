@@ -689,6 +689,10 @@ class FacetedView(FilterableListView):
             self.vertex = get_facet_object(facet_path)
 
         order_by = self.request.GET.get('order_by', 'newest')
+
+        # robots occasionally mangle order_by
+        order_by = order_by if order_by in ORDER_BY_KEYS else 'newest'
+
         #special cases
         if order_by == 'subjects':
             return self.vertex.get_query_set().annotate(kws=Count('subjects')).order_by('kws')
@@ -708,7 +712,11 @@ class FacetedView(FilterableListView):
         context['tab_override'] = 'tabs-1'
         context['path'] = self.vertex.get_facet_path().replace('//','/').strip('/')
         context['vertex'] = self.vertex
-        context['order_by'] = self.request.GET.get('order_by', 'newest')
+
+        order_by = self.request.GET.get('order_by', 'newest')        
+        # robots occasionally mangle order_by
+        context['order_by'] = order_by if order_by in ORDER_BY_KEYS else 'newest'
+
         context['view_as'] = self.request.GET.get('view_as', None)
         return context
 

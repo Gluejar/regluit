@@ -2,6 +2,7 @@ from django.apps import apps
 from django.contrib.auth.models import User
 from django.db.models import Q
 from regluit.core import cc
+from regluit.core.parameters import ORDER_BY_KEYS
 
 class BaseFacet(object):
     facet_name = 'all'
@@ -392,15 +393,6 @@ def get_facet_object(facet_path):
         facet_object = get_facet(facet)(facet_object)
     return facet_object
 
-order_by_keys = {
-    'newest':['-featured', '-created'],
-    'oldest':['created'],
-    'featured':['-featured', '-num_wishes'],
-    'popular':['-num_wishes'],
-    'title':['title'],
-    'none':[], #no ordering 
-}   
-           
 def get_order_by(order_by_key):
     # return the args to use as arguments for order_by
-    return order_by_keys.get(order_by_key,'')
+    return ORDER_BY_KEYS.get(order_by_key,'')

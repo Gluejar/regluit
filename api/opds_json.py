@@ -223,6 +223,7 @@ def opds_feed_for_work(work_id):
 def opds_feed_for_works(the_facet, page=None, order_by='newest'):
     if order_by == 'none':
         books_per_page = 50000
+        order_by = 'newest'
     else:
         books_per_page = 50
     works = the_facet.works

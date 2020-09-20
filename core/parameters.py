@@ -95,3 +95,12 @@ DOMAIN_TO_PROVIDER = dict([
     [u'windsor.scholarsportal.info', u'Scholars Portal'],
 ])
 
+ORDER_BY_KEYS = {
+    'newest':['-featured', '-created'],
+    'oldest':['created'],
+    'featured':['-featured', '-num_wishes'],
+    'popular':['-num_wishes'],
+    'title':['title'],
+    'none':[], #no ordering 
+}   
+
