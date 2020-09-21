@@ -366,7 +366,7 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
     for work in works:
         yield work_node(work, facet=the_facet.facet_object).prettify()
 
-    yield '</feed>'
+    yield '</feed>\r\n'
 
 def navlink(rel, path, page, order_by, group=None, active=None, title=""):
     link = soup.new_tag("link")
