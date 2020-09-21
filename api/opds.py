@@ -25,7 +25,8 @@ FORMAT_TO_MIMETYPE = {'pdf':"application/pdf",
                       'text':"text/html"}
 
 UNGLUEIT_URL = 'https://unglue.it'
-ACQUISITION = "application/atom+xml;profile=opds-catalog;kind=acquisition"
+ACQUISITION = "application/atom+xml; profile=opds-catalog ;kind=acquisition; charset=utf-8"
+NAVIGATION = "application/atom+xml; profile=opds-catalog; kind=navigation; charset=utf-8"
 FACET_RELATION = "http://opds-spec.org/facet"
 
 old_facets = ["creative_commons", "active_campaigns"]
@@ -365,7 +366,7 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
     for work in works:
         yield work_node(work, facet=the_facet.facet_object).prettify()
 
-    yield '</feed>'
+    yield '</feed>\r\n'
 
 def navlink(rel, path, page, order_by, group=None, active=None, title=""):
     link = soup.new_tag("link")
