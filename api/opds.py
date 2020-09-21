@@ -25,7 +25,8 @@ FORMAT_TO_MIMETYPE = {'pdf':"application/pdf",
                       'text':"text/html"}
 
 UNGLUEIT_URL = 'https://unglue.it'
-ACQUISITION = "application/atom+xml;profile=opds-catalog;kind=acquisition"
+ACQUISITION = "application/atom+xml; profile=opds-catalog ;kind=acquisition; charset=utf-8"
+NAVIGATION = "application/atom+xml; profile=opds-catalog; kind=navigation; charset=utf-8"
 FACET_RELATION = "http://opds-spec.org/facet"
 
 old_facets = ["creative_commons", "active_campaigns"]

@@ -176,7 +176,7 @@ class OPDSNavigationView(TemplateView):
         if self.json:
             response_kwargs['content_type'] = "application/vnd.opds.navigation+json"
         else:
-            response_kwargs['content_type'] = "application/atom+xml;profile=opds-catalog;kind=navigation"
+            response_kwargs['content_type'] = opds.NAVIGATION
         return super(TemplateView, self).render_to_response(context, **response_kwargs)
 
     def get_context_data(self, **kwargs):
@@ -199,7 +199,7 @@ class OPDSAcquisitionView(View):
                         content_type="application/opds-publication+json")
             else:
                 return StreamingHttpResponse(opds.opds_feed_for_work(work),
-                        content_type="application/atom+xml;profile=opds-catalog;kind=acquisition")
+                        content_type=opds.ACQUISITION)
         facet = kwargs.get('facet')
         page = request.GET.get('page', None)
         order_by =  request.GET.get('order_by', 'newest')
@@ -214,11 +214,11 @@ class OPDSAcquisitionView(View):
         if self.json:
             facet_class = opds_json.get_facet_class(facet)()
             return StreamingHttpResponse(facet_class.feed(page,order_by),
-                        content_type="application/opds+json")
+                        content_type="application/opds+json; charset=utf-8")
         else:
             facet_class = opds.get_facet_class(facet)()
             return StreamingHttpResponse(facet_class.feed(page,order_by),
-                        content_type="application/atom+xml;profile=opds-catalog;kind=acquisition")
+                        content_type=opds.ACQUISITION)
 
 class OnixView(View):
     def get(self, request, *args, **kwargs):
