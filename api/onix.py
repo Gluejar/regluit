@@ -16,7 +16,7 @@ WORKS_PER_PAGE = 30
 feed_header = """<?xml version="1.0" encoding="UTF-8"?>
 <ONIXMessage release="3.0" xmlns="http://ns.editeur.org/onix/3.0/reference" >
 """
-feed_xml = feed_header + '</ONIXMessage>'
+feed_xml = feed_header + '</ONIXMessage>\r\n'
 soup = None
 bisac = Bisac()
 
