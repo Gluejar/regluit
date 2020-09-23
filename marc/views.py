@@ -74,7 +74,7 @@ def marc_records(request, selected_records=None):
         outfile.write(record.record(format=format, link_target=link_target))
 
     if format == 'xml':
-        outfile.write('</collection>')
+        outfile.write('</collection>\r\n')
 
     return outfile
 
