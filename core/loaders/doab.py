@@ -48,7 +48,7 @@ def store_doab_cover(doab_id, redo=False):
         return (default_storage.url(cover_file_name), False)
 
     # download cover image to cover_file
-    url = "http://www.doabooks.org/doab?func=cover&rid={0}".format(doab_id)
+    url = "https://www.doabooks.org/doab?func=cover&rid={0}".format(doab_id)
     try:
         r = requests.get(url, allow_redirects=False) # requests doesn't handle ftp redirects.
         if r.status_code == 302:
@@ -64,8 +64,8 @@ def store_doab_cover(doab_id, redo=False):
             r = requests.get(url)
         cover_file = ContentFile(r.content)
         content_type = r.headers.get('content-type', '')
-        if u'text/html' in content_type:
-            logger.warning('Cover return html for doab_id={}'.format(doab_id))
+        if not 'image/' in content_type:
+            logger.warning('Non-image returned for doab_id={}'.format(doab_id))
             return (None, False)
         cover_file.content_type = content_type
 
@@ -85,11 +85,17 @@ def update_cover_doab(doab_id, edition, store_cover=True, redo=True):
     if store_cover:
         (cover_url, new_cover) = store_doab_cover(doab_id, redo=redo)
     else:
-        cover_url = "http://www.doabooks.org/doab?func=cover&rid={0}".format(doab_id)
+        cover_url = "https://www.doabooks.org/doab?func=cover&rid={0}".format(doab_id)
 
     if cover_url is not None:
         edition.cover_image = cover_url
         edition.save()
+        good = edition.cover_image_small() and edition.cover_image_thumbnail()
+        if not good:
+            # oh well
+            logger.warning("Couldn't make thumbnails for %s using %s" % (doab_id, cover_url))
+            edition.cover_image = None
+            edition.save()
         return cover_url
     return None
 
