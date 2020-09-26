@@ -244,7 +244,7 @@ def load_from_books(books):
         # possibly replace work.description
         description = get_description(book)
         if len(description) > len(work.description):
-            work.description = description
+            work.description = description.replace('\r\n', '\n')
             work.save()
 
         # set language

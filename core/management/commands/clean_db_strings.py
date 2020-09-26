@@ -16,10 +16,17 @@ class Command(BaseCommand):
                 work.title = sanitize_line(work.title)
                 work.save()
                 work_titles_fixed +=1
-            if work.description and remove_badxml(work.description) != work.description:
-                work.description = remove_badxml(work.description)
-                work.save()
-                work_descriptions_fixed +=1
+            if work.description:
+                save =  False
+                if '\r\n' in work.description:
+                    work.description = work.description.replace('\r\n', '\n')
+                    save = True
+                if work.description and remove_badxml(work.description) != work.description:
+                    work.description = remove_badxml(work.description)
+                    save = True
+                if save:
+                    work.save()
+                    work_descriptions_fixed +=1
         self.stdout.write("work_titles_fixed = {}".format(work_titles_fixed))
         self.stdout.write("work_descriptions_fixed = {}".format(work_descriptions_fixed))
         for edition in models.Edition.objects.all():

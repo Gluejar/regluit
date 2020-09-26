@@ -665,7 +665,7 @@ def despam_description(description):
     pieces = description.split("a million books for free.")
     if len(pieces) > 1:
         return pieces[1]
-    return description
+    return description.replace('\r\n', '\n')
 
 def add_openlibrary(work, hard_refresh=False):
     if (not hard_refresh) and work.openlibrary_lookup is not None:
@@ -958,7 +958,7 @@ class BasePandataLoader(object):
         if metadata.description and len(metadata.description) > len(work.description):
             # don't over-write reasonably long descriptions
             if len(work.description) < 500:
-                work.description = metadata.description
+                work.description = metadata.description.replace('\r\n', '\n')
 
         if metadata.creator and not edition.authors.exists():
             edition.authors.clear()
