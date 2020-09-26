@@ -119,8 +119,8 @@ def attach_more_doab_metadata(edition, description, subjects,
 
     # attach description to work if it's not empty
     work = edition.work
-    if not work.description:
-        work.description = description
+    if description and not work.description:
+        work.description = description.replace('\r\n', '\n')
 
     # update subjects
     for s in subjects:
