@@ -140,6 +140,7 @@ def harvesters(ebook):
     yield 'brillonline' in ebook.provider, harvest_brill
     yield ebook.provider == 'DOI Resolver', harvest_doi
     yield ebook.provider == 'ispf-lab.cnr.it', harvest_ipsflab 
+    yield ebook.provider == 'libros.uchile.cl', harvest_libroschile
 
 
 def ebf_if_harvested(url):
@@ -776,6 +777,35 @@ def harvest_doi(ebook):
         logger.info('reset provider to %s', ebook.provider)
         ebook.save()
         return None, 0
+
+GUID = re.compile(r'FBInit\.GUID = \"([0-9a-z]+)\"')
+LIBROSID = re.compile(r'(\d+)$')
+LIBROSROOT = 'https://libros.uchile.cl/files/presses/1/monographs/%s/submission/proof/'
+LIBROSINDEX = LIBROSROOT + 'index.html'
+LIBROSJSON = LIBROSROOT + 'files/assets/html/workspace.js?uni=%s'
+LIBRODPDF = LIBROSROOT + 'files/assets/common/downloads/%s?uni=%s'
+
+def harvest_libroschile(ebook):
+    booknum = LIBROSID.search(ebook.url).group(1)
+    if not booknum:
+        return None, 0
+    viewurl = LIBROSINDEX % booknum
+    doc = get_soup(viewurl)
+    if not doc:
+        return None, 0
+    hit = doc.find(string=GUID)
+    if not hit:
+        return None, 0
+    guid = GUID.search(hit)
+    if not guid:
+        return None, 0
+    jsonurl = LIBROSJSON % (booknum, guid)
+    json =  requests.get(jsonurl).json()
+    if not json:
+        return None, 0
+    filename = json['downloads']['url']
+    pdfurl =  LIBRODPDF % (booknum, filename, guid)
+    return make_dl_ebook(pdfurl, ebook) 
 
 
 def harvest_ipsflab(ebook):    
