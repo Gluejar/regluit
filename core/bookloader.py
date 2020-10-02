@@ -770,7 +770,10 @@ def _get_json(url, params={}, type='gb'):
     if type == 'gb':
         params['key'] = settings.GOOGLE_BOOKS_API_KEY
         params['country'] = 'us'
-    response = requests.get(url, params=params, headers=headers)
+    try:
+        response = requests.get(url, params=params, headers=headers)
+    except requests.exceptions.ConnectionError:
+        raise LookupFailure("GET failed: url=%s and params=%s" % (url, params))
     if response.status_code == 200:
         return json.loads(response.content)
     else:
