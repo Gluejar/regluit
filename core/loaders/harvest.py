@@ -803,7 +803,9 @@ def harvest_libroschile(ebook):
     json =  requests.get(jsonurl).json()
     if not json:
         return None, 0
-    filename = json['downloads']['url']
+    filename = json.get('downloads',{}).get('url', None)
+    if not filename:
+        return None, 0
     pdfurl =  LIBRODPDF % (booknum, filename, guid)
     return make_dl_ebook(pdfurl, ebook) 
 
