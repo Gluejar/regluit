@@ -108,7 +108,7 @@ def update_active_campaign_status():
 @task
 def emit_notifications():
     logger.info('notifications emitting' )
-    return send_all()
+    call_command('emit_notices')
     
 @task
 def report_new_ebooks(created=None):   #created= creation date
