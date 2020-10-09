@@ -122,7 +122,10 @@ def load_ebookfile(url, format, user_agent=settings.USER_AGENT, method='GET'):
         logger.error('bad certificate? for %s', url)
         return None, ''
     except IOError as e:
-        logger.error('could not open %', url)
+        logger.error('could not open %s', url)
+        return None, ''
+    except UnicodeDecodeError as e:
+        logger.error('decoding error for %s', url)
         return None, ''
 
     if response.status_code == 200:
