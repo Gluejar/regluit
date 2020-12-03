@@ -615,6 +615,8 @@ def harvest_mdpi(ebook):
     if 'http://books.mdpi.com' in ebook.url:
         ebook.delete()
         return None, 0
+    elif 'img.mdpi.org' in ebook.url:
+        return harvest_generic(ebook)
     return harvest_one_generic(ebook, selector)
 
 
@@ -675,13 +677,11 @@ def harvest_elgar(ebook):
 
 
 def harvest_wsp(ebook):
-    def chap_selector(doc):
-        return doc.select('#toc a[title=PDF]')
-    def dl(url):
-        return url + '?download=true'
-    return harvest_stapled_generic(ebook, None, chap_selector, user_agent=settings.USER_AGENT,
-                                   dl=dl)
-
+    idmatch = re.search(r'1142/(\d+)', ebook.url)
+    if idmatch:
+        url = 'https://www.worldscientific.com/doi/pdf/10.1142/%s?download=true' % idmatch.group(1)
+        return make_dl_ebook(url, ebook)
+    return None, 0
 
 def harvest_mprl(ebook): 
     def selector(doc):
