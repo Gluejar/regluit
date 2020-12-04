@@ -28,11 +28,14 @@ class Command(BaseCommand):
         done = 0
         for online in onlines:
             if not online.ebook_files.exists():
-                r = requests.get(online.url)
-                if r.status_code == 404:
-                    removed.append(online.edition.id)
-                    self.stdout.write(online.edition.title)
-                    online.delete()
+                try:
+                    r = requests.get(online.url)
+                    if r.status_code == 404:
+                        removed.append(online.edition.id)
+                        self.stdout.write(online.edition.title)
+                        online.delete()
+                except UnicodeDecodeError:
+                    self.stdout.write("Encoding error for %s" % online.url)
                 done +=1
             if done >= limit or done >= 500:
                 break

@@ -51,7 +51,7 @@ jmespath==0.10.0
 jwcrypto==0.7
 kombu==4.6.10
 lxml==4.5.2
-mailchimp3==3.0.4
+mailchimp3==3.0.14
 markupsafe==1.1.1
 mechanize==0.4.5
 mock==2.0.0
