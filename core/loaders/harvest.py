@@ -680,7 +680,7 @@ def harvest_wsp(ebook):
     idmatch = re.search(r'1142/(\d+)', ebook.url)
     if idmatch:
         url = 'https://www.worldscientific.com/doi/pdf/10.1142/%s?download=true' % idmatch.group(1)
-        return make_dl_ebook(url, ebook)
+        return make_dl_ebook(url, ebook, user_agent=settings.CHROME_UA)
     return None, 0
 
 def harvest_mprl(ebook): 
