@@ -715,7 +715,7 @@ class PaymentManager( object ):
             # YES!
             return_path = "{0}?{1}".format(reverse('pledge_complete'), 
                                 urlencode({'tid':t.id})) 
-            return_url = urlparse.urljoin(settings.BASE_URL_SECURE, return_path)
+            return_url = urljoin(settings.BASE_URL_SECURE, return_path)
             if campaign.is_pledge() :
                 success = credit.pledge_transaction(t,user,amount)
                 if success:
@@ -838,7 +838,7 @@ class PaymentManager( object ):
                 credit.pledge_transaction(transaction,transaction.user,amount)
                 return_path = "{0}?{1}".format(reverse('pledge_complete'), 
                                     urlencode({'tid':transaction.id})) 
-                return_url = urlparse.urljoin(settings.BASE_URL_SECURE, return_path)
+                return_url = urljoin(settings.BASE_URL_SECURE, return_path)
                 
                 logger.info("Updated amount of transaction to %f" % amount)
                 pledge_modified.send(sender=self, transaction=transaction,up_or_down=up_or_down)
