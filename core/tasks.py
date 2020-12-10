@@ -28,7 +28,6 @@ regluit imports
 from regluit.core import (
     bookloader,
     models,
-    goodreads, 
     librarything,
     mobigen
 )
@@ -50,12 +49,6 @@ def populate_edition(isbn):
     if edition:
         bookloader.add_openlibrary(edition.work)
     return edition
-
-@task
-def load_goodreads_shelf_into_wishlist(user_id, shelf_name='all', goodreads_user_id=None, max_books=None,
-                                       expected_number_of_books=None):
-    user=User.objects.get(id=user_id)
-    return goodreads.load_goodreads_shelf_into_wishlist(user,shelf_name,goodreads_user_id,max_books, expected_number_of_books)
 
 @task
 def load_librarything_into_wishlist(user_id, lt_username, max_books=None):

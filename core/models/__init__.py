@@ -1155,12 +1155,6 @@ class UserProfile(models.Model):
     # keep track of work the user adds
     works = models.ManyToManyField('Work', related_name='contributors', blank=True)
 
-    goodreads_user_id = models.CharField(max_length=32, null=True, blank=True)
-    goodreads_user_name = models.CharField(max_length=200, null=True, blank=True)
-    goodreads_auth_token = models.TextField(null=True, blank=True)
-    goodreads_auth_secret = models.TextField(null=True, blank=True)
-    goodreads_user_link = models.CharField(max_length=200, null=True, blank=True)
-
     avatar_source = models.PositiveSmallIntegerField(
         null=True,
         default=UNGLUEITAR,

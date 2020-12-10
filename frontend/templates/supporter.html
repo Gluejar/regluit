@@ -139,11 +139,6 @@ function highlightTarget(targetdiv) {
                                             <img src="/static/images/supporter_icons/twitter_square.png" alt="{{ supporter }}'s Twitter" title="{{ supporter }}'s Twitter"  />
                                         </a>
                                     {% endif %}
-                                    {% if supporter.profile.goodreads_user_link %}
-                                        <a href="{{supporter.profile.goodreads_user_link}}" class="nounderline">
-                                            <img src="/static/images/supporter_icons/goodreads_square.png" alt="{{ supporter }}'s profile on GoodReads" title="{{ supporter }}'s page on GoodReads"  />
-                                        </a>
-                                    {% endif %}
                                     {% if supporter.profile.librarything_id %}
                                         <a href="https://www.librarything.com/profile/{{ supporter.profile.librarything_id }}" class="nounderline">
                                             <img src="/static/images/supporter_icons/librarything_square.png" alt="{{ supporter }}'s profile on LibraryThing" title="{{ supporter }}'s page on LibraryThing"  />
@@ -185,13 +180,6 @@ function highlightTarget(targetdiv) {
                                     <a href="{% url 'social:begin' backend='twitter' %}?next={% url 'supporter' supporter %}#edit">Connect your Twitter account</a> to Unglue.it 
                                     {% endif %} 
                                 </div>
-                                <div class="check-list" id="connectgr">
-                                    {% if user.profile.goodreads_user_id %}
-                                    <a href="{% url 'goodreads_auth' %}">Update your GoodReads connection</a>  <br /> or disconnect GoodReads: {{ profile_form.clear_goodreads }}
-                                    {% else %}
-                                    <a href="{% url 'goodreads_auth' %}">Connect your GoodReads account</a> to Unglue.it                                   
-                                    {% endif %} 
-                                </div>
                                 <div class="check-list" id="connectlt">
                                     <label>{% if supporter.profile.librarything_id %}Change{% else %}Add{% endif %} your LibraryThing User ID:</label>
                                     {{ profile_form.librarything_id }}{{ profile_form.librarything_id.errors }}
@@ -200,18 +188,6 @@ function highlightTarget(targetdiv) {
                             </form> 
                             <div class="block block3">
                                 <h3 class="title">Import your books</h3>
-                                {% if request.user.profile.goodreads_user_id %}
-                                <form id="load_shelf_form" method="post" action="#">
-                                    {% csrf_token %}
-                                    <div class="fieldWrapper">
-                                        
-                                        <div id="loadgr"><span><span id="goodreads_shelves"></span><input id="goodreads_input" type="submit" value="Select your GoodReads shelves" /></span>
-                                        </div>
-                                    </div>
-                                </form>
-                                {% else %}
-                                <div id="loadgr" onclick="highlightTarget('#connectgr'); return false;"><div>Connect your GoodReads account to import from GoodReads.</div></div>
-                                {% endif %}
                                 {% if request.user.profile.librarything_id %}
                                 <form id="librarything_load" method="post" action="#">
                                     {% csrf_token %}

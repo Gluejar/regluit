@@ -41,7 +41,6 @@ from . import (
     bookloader,
     models,
     search,
-    goodreads,
     librarything,
     tasks,
     parameters,
@@ -478,7 +477,6 @@ class BookLoaderTests(TestCase):
         self.assertTrue(len(subjects) > 10)
         self.assertTrue('Science fiction' in subjects)
         self.assertTrue('/works/OL27258W' in work.identifiers.filter(type='olwk').values_list('value', flat=True))
-        self.assertTrue('888628' in work.identifiers.filter(type='gdrd').values_list('value', flat=True))
         self.assertTrue('609' in work.identifiers.filter(type='ltwk').values_list('value', flat=True))
 
     def test_unicode_openlibrary(self):
@@ -795,37 +793,6 @@ class CeleryTaskTest(TestCase):
             sleep(0.2)
         self.assertEqual(result.join(), [factorial(x) for x in range(n)])
 
-class GoodreadsTest(TestCase):
-
-    @unittest.skip("Goodreads down at the moment")
-    def test_goodreads_shelves(self):
-        if not settings.GOODREADS_API_SECRET:
-            return
-        # test to see whether the core undeletable shelves are on the list
-        gr_uid = "767708"  # for Raymond Yee
-        gc = goodreads.GoodreadsClient(
-            key=settings.GOODREADS_API_KEY,
-            secret=settings.GOODREADS_API_SECRET
-        )
-        shelves = gc.shelves_list(gr_uid)
-        shelf_names = [s['name'] for s in shelves['user_shelves']]
-        self.assertTrue('currently-reading' in shelf_names)
-        self.assertTrue('read' in shelf_names)
-        self.assertTrue('to-read' in shelf_names)
-
-    @unittest.skip("Goodreads down at the moment")
-    def test_review_list_unauth(self):
-        if not settings.GOODREADS_API_SECRET:
-            return
-        gr_uid = "767708"  # for Raymond Yee
-        gc = goodreads.GoodreadsClient(
-            key=settings.GOODREADS_API_KEY,
-            secret=settings.GOODREADS_API_SECRET
-        )
-        reviews = gc.review_list_unauth(user_id=gr_uid, shelf='read')
-        # test to see whether there is a book field in each of the review
-        # url for test is https://www.goodreads.com/review/list.xml?id=767708&shelf=read&page=1&per_page=20&order=a&v=2&key=[key]
-        self.assertTrue(all(["book" in r for r in reviews]))
 
 class LibraryThingTest(TestCase):
 

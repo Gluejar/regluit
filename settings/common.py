@@ -348,9 +348,6 @@ PAYPAL_GLUEJAR_EMAIL = 'info@ebookfoundation.org' #legacy code needs this
 # How many days we will try to collect on failed transactions until they are written off
 RECHARGE_WINDOW = 14
 
-GOODREADS_API_KEY = ""
-GOODREADS_API_SECRET = ""
-
 # unglue.it parameters
 UNGLUEIT_MINIMUM_TARGET = 500 # in US Dollars
 UNGLUEIT_MAXIMUM_TARGET = 10000000 # in US Dollars

@@ -705,12 +705,6 @@ def add_openlibrary(work, hard_refresh=False):
                         )
                 if 'identifiers' in e[isbn_key]['details']:
                     ids = e[isbn_key]['details']['identifiers']
-                    if 'goodreads' in ids:
-                        models.Identifier.get_or_add(
-                            type='gdrd',
-                            value=ids['goodreads'][0],
-                            work=work, edition=edition
-                        )
                     if 'librarything' in ids:
                         models.Identifier.get_or_add(
                             type='ltwk',

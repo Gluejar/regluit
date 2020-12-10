@@ -17,7 +17,6 @@ base.html    extra_css(empty)  extra_js(empty)    extra_head(empty)
     comments.html   extra_css    extra_head
     download.html  extra_js
     faceted_list.html   extra_css    extra_head
-    goodreads_display.html    extra_head
     home.html   extra_css  extra_js
     kindle_change_successful.html   extra_js
     libraryauth/library.html    extra_head  extra_css  extra_js
