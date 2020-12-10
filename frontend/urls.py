@@ -66,11 +66,6 @@ urlpatterns = [
     url(r"^creativecommons/$", views.FacetedView.as_view(),  name='cc_list'),
     url(r"^creativecommons/(?P<path>[^\s]*)/marc/$", views.FacetedView.as_view(send_marc=True),  name='cc_list_marc'),
     url(r"^creativecommons/(?P<path>[^\s]*)$", views.FacetedView.as_view(),  name='cc_list_detail'),
-    url(r"^goodreads/auth/$", views.goodreads_auth, name="goodreads_auth"),
-    url(r"^goodreads/auth_cb/$", views.goodreads_cb, name="goodreads_cb"),
-    url(r"^goodreads/flush/$", views.goodreads_flush_assoc, name="goodreads_flush_assoc"),
-    url(r"^goodreads/load_shelf/$", views.goodreads_load_shelf, name="goodreads_load_shelf"),
-    url(r"^goodreads/shelves/$", views.goodreads_calc_shelves, name="goodreads_calc_shelves"),
     url(r"^stub/", views.stub, name="stub"),
     url(r"^work/(?P<work_id>\d+)/$", views.work, name="work"),
     url(r"^work/(?P<work_id>\d+)/preview/$", views.work, {'action': 'preview'}, name="work_preview"),
@@ -89,7 +84,6 @@ urlpatterns = [
     url(r"^work/(?P<work_id>\d+)/editions/$", views.work,{'action': 'editions'}, name="work_editions"),
     url(r"^work/\d+/acks/images/(?P<file_name>[\w\.]*)$", views.static_redirect_view,{'dir': 'images'}), 
     url(r"^work/(?P<work_id>\d+)/librarything/$", views.work_librarything, name="work_librarything"),
-    url(r"^work/(?P<work_id>\d+)/goodreads/$", views.work_goodreads, name="work_goodreads"),
     url(r"^work/(?P<work_id>\d+)/openlibrary/$", views.work_openlibrary, name="work_openlibrary"),
     url(r"^new_edition/(?P<work_id>)(?P<edition_id>)$", views.edit_edition, name="new_edition"),
     url(r"^new_edition/(?P<work_id>\d*)/(?P<edition_id>\d*)$", views.edit_edition, name="new_edition"),
@@ -150,7 +144,5 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += [
-        url(r"^goodreads/$", login_required(views.GoodreadsDisplayView.as_view()), name="goodreads_display"),
-        url(r"^goodreads/clear_wishlist/$", views.clear_wishlist, name="clear_wishlist"),
         url(r"^celery/clear/$", views.clear_celery_tasks, name="clear_celery_tasks"),
 ]

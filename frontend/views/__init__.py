@@ -66,7 +66,6 @@ from regluit.core import (
 )
 import regluit.core.cc as cc
 from regluit.core.bookloader import merge_works, detach_editions
-from regluit.core.goodreads import GoodreadsClient
 from regluit.core.isbn import ISBN
 from regluit.core.search import gluejar_search
 from regluit.core.signals import supporter_message
@@ -79,7 +78,6 @@ from regluit.frontend.forms import (
     CampaignPledgeForm,
     CampaignPurchaseForm,
     CampaignThanksForm,
-    GoodreadsShelfLoadingForm,
     RightsHolderForm,
     UserClaimForm,
     LibraryThingForm,
@@ -1820,18 +1818,11 @@ def supporter(request, supporter_username, template_name, extra_context={}):
         if  request.method == 'POST':
             profile_form = ProfileForm(data=request.POST, instance=profile_obj)
             if profile_form.is_valid():
-                if  profile_form.cleaned_data['clear_twitter'] or  profile_form.cleaned_data['clear_goodreads'] :
+                if  profile_form.cleaned_data['clear_twitter']:
                     if profile_form.cleaned_data['clear_twitter']:
                         profile_obj.twitter_id = ""
                         if profile_obj.avatar_source == models.TWITTER:
                             profile_obj.avatar_source = models.UNGLUEITAR
-                    if profile_form.cleaned_data['clear_goodreads']:
-                        profile_obj.goodreads_user_id = None
-                        profile_obj.goodreads_user_name = None
-                        profile_obj.goodreads_user_link = None
-                        profile_obj.goodreads_auth_token = None
-                        profile_obj.goodreads_auth_secret = None
-
                     profile_obj.save()
                 profile_form.save()
 
@@ -2081,7 +2072,6 @@ class InfoPageView(TemplateView):
         users.year = users.filter(date_joined__year = date_today().year)
         users.month = users.year.filter(date_joined__month = date_today().month)
         users.yesterday = users.filter(date_joined__range = (date_today()-timedelta(days=1), date_today()))
-        users.gr = users.filter(profile__goodreads_user_id__isnull = False)
         users.lt = users.exclude(profile__librarything_id = '')
         users.tw = users.exclude(profile__twitter_id = '')
         users.libtools = users.filter(libpref__isnull = False)
@@ -2185,152 +2175,8 @@ class FAQView(FormView):
                 })
         return cd
 
-class GoodreadsDisplayView(TemplateView):
-    template_name = "goodreads_display.html"
-    def get_context_data(self, **kwargs):
-        context = super(GoodreadsDisplayView, self).get_context_data(**kwargs)
-        session = self.request.session
-        gr_client = GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
-
-        user = self.request.user
-        if user.is_authenticated:
-            api_key = ApiKey.objects.filter(user=user)[0].key
-            context['api_key'] = api_key
-
-        if user.profile.goodreads_user_id is None:
-            # calculate the Goodreads authorization URL
-            (context["goodreads_auth_url"], request_token) = gr_client.begin_authorization(self.request.build_absolute_uri(reverse('goodreads_cb')))
-            logger.info("goodreads_auth_url: %s" %(context["goodreads_auth_url"]))
-            # store request token in session so that we can redeem it for auth_token if authorization works
-            session['goodreads_request_token'] = request_token['oauth_token']
-            session['goodreads_request_secret'] = request_token['oauth_token_secret']
-        else:
-            gr_shelves = gr_client.shelves_list(user_id=user.profile.goodreads_user_id)
-            context["shelves_info"] = gr_shelves
-            gr_shelf_load_form = GoodreadsShelfLoadingForm()
-            # load the shelves into the form
-            choices = [('all:%d' % (gr_shelves["total_book_count"]),'all (%d)' % (gr_shelves["total_book_count"]))] +  \
-                [("%s:%d" % (s["name"], s["book_count"]) ,"%s (%d)" % (s["name"], s["book_count"])) for s in gr_shelves["user_shelves"]]
-            gr_shelf_load_form.fields['goodreads_shelf_name_number'].widget = Select(choices=tuple(choices))
-
-            context["gr_shelf_load_form"] = gr_shelf_load_form
-
-# also load any CeleryTasks associated with the user
-            context["celerytasks"] = models.CeleryTask.objects.filter(user=user)
-
-        return context
-
-@login_required
-def goodreads_auth(request):
-
-    # calculate the Goodreads authorization URL
-    gr_client = GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
-    (goodreads_auth_url, request_token) = gr_client.begin_authorization(request.build_absolute_uri(reverse('goodreads_cb')))
-    logger.info("goodreads_auth_url: %s" %(goodreads_auth_url))
-    # store request token in session so that we can redeem it for auth_token if authorization works
-    request.session['goodreads_request_token'] = request_token['oauth_token']
-    request.session['goodreads_request_secret'] = request_token['oauth_token_secret']
-
-    return HttpResponseRedirect(goodreads_auth_url)
-
-@login_required
-def goodreads_cb(request):
-    """handle callback from Goodreads"""
-
-    session = request.session
-    authorized_flag = request.GET['authorize']  # is it '1'?
-    request_oauth_token = request.GET['oauth_token']
-
-    if authorized_flag == '1':
-        request_token = {'oauth_token': session.get('goodreads_request_token'),
-                         'oauth_token_secret': session.get('goodreads_request_secret')}
-        gr_client = GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
-
-        access_token = gr_client.complete_authorization(request_token)
-
-        # store the access token in the user profile
-        profile = request.user.profile
-        profile.goodreads_auth_token = access_token["oauth_token"]
-        profile.goodreads_auth_secret = access_token["oauth_token_secret"]
-
-        # let's get the userid, username
-        user = gr_client.auth_user()
-
-        profile.goodreads_user_id = user["userid"]
-        profile.goodreads_user_name = user["name"]
-        profile.goodreads_user_link = user["link"]
-
-        profile.save()  # is this needed?
-
-    # redirect to the Goodreads display page -- should observe some next later
-    return HttpResponseRedirect(reverse('supporter', args=[request.user]))
-
-@require_POST
-@login_required
-@csrf_exempt
-def goodreads_flush_assoc(request):
-    user = request.user
-    if user.is_authenticated:
-        profile = user.profile
-        profile.goodreads_user_id = None
-        profile.goodreads_user_name = None
-        profile.goodreads_user_link = None
-        profile.goodreads_auth_token = None
-        profile.goodreads_auth_secret = None
-        profile.save()
-        logger.info('Goodreads association flushed for user %s', user)
-    return HttpResponseRedirect(reverse('goodreads_display'))
-
-@require_POST
-@login_required
-@csrf_exempt
-def goodreads_load_shelf(request):
-    """
-    a view to allow user load goodreads shelf into her wishlist
-    """
-    # Should be moved to the API
-    goodreads_shelf_name_number = request.POST.get('goodreads_shelf_name_number', 'all:0')
-    user = request.user
-    try:
-        # parse out shelf name and expected number of books
-        (shelf_name, expected_number_of_books) = re.match(r'^(.*):(\d+)$', goodreads_shelf_name_number).groups()
-        expected_number_of_books = int(expected_number_of_books)
-        logger.info('Adding task to load shelf %s to user %s with %d books', shelf_name, user, expected_number_of_books)
-        load_task_name = "load_goodreads_shelf_into_wishlist"
-        load_task = getattr(tasks, load_task_name)
-        task_id = load_task.delay(user.id, shelf_name, expected_number_of_books=expected_number_of_books)
-
-        ct = models.CeleryTask()
-        ct.task_id = task_id
-        ct.function_name = load_task_name
-        ct.user = user
-        ct.description = "Loading Goodread shelf %s to user %s with %s books" % (shelf_name, user, expected_number_of_books)
-        ct.save()
-
-        return HttpResponse("<span style='margin: auto 10px auto 36px;vertical-align: middle;display: inline-block;'>We're on it! <a href='JavaScript:window.location.reload()'>Reload the page</a> to see the books we've snagged so far.</span>")
-    except Exception as e:
-        return HttpResponse("Error in loading shelf: %s " % (e))
-        logger.info("Error in loading shelf for user %s: %s ", user, e)
 
 
-@login_required
-def goodreads_calc_shelves(request):
-
-    # we should move towards calculating this only if needed (perhaps with Ajax), caching previous results, etc to speed up
-    # performance
-
-    if request.user.profile.goodreads_user_id is not None:
-        gr_client = GoodreadsClient(key=settings.GOODREADS_API_KEY, secret=settings.GOODREADS_API_SECRET)
-        goodreads_shelves = gr_client.shelves_list(user_id=request.user.profile.goodreads_user_id)
-        #goodreads_shelf_load_form = GoodreadsShelfLoadingForm()
-        ## load the shelves into the form
-        #choices = [('all:%d' % (goodreads_shelves["total_book_count"]),'all (%d)' % (goodreads_shelves["total_book_count"]))] +  \
-        #    [("%s:%d" % (s["name"], s["book_count"]) ,"%s (%d)" % (s["name"], s["book_count"])) for s in goodreads_shelves["user_shelves"]]
-        #goodreads_shelf_load_form.fields['goodreads_shelf_name_number'].widget = Select(choices=tuple(choices))
-    else:
-        goodreads_shelf_load_form = None
-
-    return HttpResponse(json.dumps(goodreads_shelves), content_type="application/json")
 
 
 @require_POST
@@ -2472,17 +2318,6 @@ def work_openlibrary(request, work_id):
         url = "https://openlibrary.org/search?" + q
     return HttpResponseRedirect(url)
 
-def work_goodreads(request, work_id):
-    work = safe_get_work(work_id)
-    isbn = work.first_isbn_13()
-    if work.goodreads_id:
-        url = work.goodreads_url
-    elif isbn:
-        url = "https://www.goodreads.com/book/isbn/%s" % isbn
-    else:
-        q = urlencode({'query': work.title + " " + work.author()})
-        url = "https://www.goodreads.com/search?" + q
-    return HttpResponseRedirect(url)
 
 @login_required
 def emailshare(request, action):

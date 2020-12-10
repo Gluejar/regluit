@@ -181,11 +181,10 @@ class EbookForm(forms.ModelForm):
 
 class ProfileForm(forms.ModelForm):
     clear_twitter = forms.BooleanField(required=False)
-    clear_goodreads = forms.BooleanField(required=False)
 
     class Meta:
         model = UserProfile
-        fields = 'tagline', 'librarything_id', 'home_url', 'clear_twitter', 'clear_goodreads', 'avatar_source'
+        fields = 'tagline', 'librarything_id', 'home_url', 'clear_twitter', 'avatar_source'
         widgets = {
             'tagline': forms.Textarea(attrs={'rows': 5, 'onKeyUp': "counter(this, 140)", 'onBlur': "counter(this, 140)"}),
         }
@@ -459,11 +458,6 @@ class CCForm(UserCCMixin, BaseCCForm):
 
 class AccountCCForm( BaseCCMixin, UserCCMixin, forms.Form):
     pass
-
-class GoodreadsShelfLoadingForm(forms.Form):
-    goodreads_shelf_name_number = forms.CharField(widget=forms.Select(choices=(
-                ('all','all'),
-                )))
 
 class LibraryThingForm(forms.Form):
     lt_username = forms.CharField(max_length=30, required=True)
