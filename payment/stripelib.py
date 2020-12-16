@@ -1,32 +1,28 @@
 # https://github.com/stripe/stripe-python
 # https://stripe.com/docs/api?lang=python#top
 
-"""
-external library imports
-"""
+
 import logging
 import json
-
-from datetime import datetime, timedelta
-from itertools import islice
-from pytz import utc
 import re
 import unittest
+
+from datetime import timedelta
 from unittest import TestCase
 
 import stripe
 
-"""
-django imports
-"""
+
+#django imports
+
 from django.conf import settings
 from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.utils.timezone import now
 
-"""
-regluit imports
-"""
+
+#regluit imports
+
 from regluit.payment import baseprocessor
 from regluit.payment.models import Account, Transaction, PaymentResponse
 from regluit.payment.parameters import (
@@ -40,9 +36,6 @@ from regluit.payment.parameters import (
 )
 from regluit.payment.signals import transaction_charged, transaction_failed
 
-# as of 2013.07.15
-# ['charge.disputed', 'coupon.updated'] are legacy events -- don't know whether to
-# include them in list
 
 STRIPE_EVENT_TYPES = [
     'account.updated', 'account.application.deauthorized', 'balance.available',
@@ -67,13 +60,13 @@ logger = logging.getLogger(__name__)
 
 # https://stackoverflow.com/questions/2348317/how-to-write-a-pager-for-python-iterators/2350904#2350904
 def grouper(iterable, page_size):
-    page= []
+    page = []
     for item in iterable:
-        page.append( item )
+        page.append(item)
         if len(page) == page_size:
             yield page
-            page= []
-    if len(page):
+            page = []
+    if len(page) > 0:
         yield page
 
 class StripelibError(baseprocessor.ProcessorError):
@@ -110,19 +103,23 @@ TEST_CARDS = (
     ('30569309025904', "Diner's Club"),
     ('38520000023237', "Diner's Club"),
     ('3530111333300000', 'JCB'),
-    ('3566002020360505','JCB')
+    ('3566002020360505', 'JCB')
 )
 
 ERROR_TESTING = dict((
-    ('ADDRESS1_ZIP_FAIL', ('4000000000000010', 'address_line1_check and address_zip_check will both fail')),
+    ('ADDRESS1_ZIP_FAIL',
+     ('4000000000000010', 'address_line1_check and address_zip_check will both fail')),
     ('ADDRESS1_FAIL', ('4000000000000028', 'address_line1_check will fail.')),
     ('ADDRESS_ZIP_FAIL', ('4000000000000036', 'address_zip_check will fail.')),
     ('CVC_CHECK_FAIL', ('4000000000000101', 'cvc_check will fail.')),
-    ('BAD_ATTACHED_CARD', ('4000000000000341', 'Attaching this card to a Customer object will succeed, but attempts to charge the customer will fail.')),
+    ('BAD_ATTACHED_CARD',
+     ('4000000000000341',
+      'Attaching this card to a Customer object will succeed, but attempts to charge the customer will fail.')),
     ('CHARGE_DECLINE', ('4000000000000002', 'Charges with this card will always be declined.'))
 ))
 
-CARD_FIELDS_TO_COMPARE = ('exp_month', 'exp_year', 'name', 'address_line1', 'address_line2', 'address_zip', 'address_state')
+CARD_FIELDS_TO_COMPARE = ('exp_month', 'exp_year', 'name', 'address_line1', 'address_line2',
+                          'address_zip', 'address_state')
 
 # types of errors / when they can be handled
 
@@ -136,7 +133,8 @@ CARD_FIELDS_TO_COMPARE = ('exp_month', 'exp_year', 'name', 'address_line1', 'add
 def filter_none(d):
     return dict([(k, v) for (k, v) in d.items() if v is not None])
 
-# if you create a Customer object, then you'll be able to charge multiple times. You can create a customer with a token.
+# if you create a Customer object, then you'll be able to charge multiple times.
+# You can create a customer with a token.
 
 # https://en.wikipedia.org/wiki/Luhn_algorithm#Implementation_of_standard_Mod_10
 
@@ -158,8 +156,9 @@ def is_luhn_valid(card_number):
 
 # https://stripe.com/docs/tutorials/charges
 
-def card (number=TEST_CARDS[0][0], exp_month=1, exp_year=2030, cvc=None, name=None,
-          address_line1=None, address_line2=None, address_zip=None, address_state=None, address_country=None):
+def card(number=TEST_CARDS[0][0], exp_month=1, exp_year=2030, cvc=None, name=None,
+         address_line1=None, address_line2=None, address_zip=None, address_state=None,
+         address_country=None):
 
     """Note: there is no place to enter address_city in the API"""
 
@@ -215,7 +214,8 @@ class StripeClient(object):
     def create_token(self, card):
         return stripe.Token(api_key=self.api_key).create(card=card)
 
-    def create_customer(self, card=None, description=None, email=None, account_balance=None, plan=None, trial_end=None):
+    def create_customer(self, card=None, description=None, email=None, account_balance=None,
+                        plan=None, trial_end=None):
         """card is a dictionary or a token"""
         # https://stripe.com/docs/api?lang=python#create_customer
 
@@ -232,7 +232,7 @@ class StripeClient(object):
         return customer
 
 
-    def create_charge(self, amount, currency="usd", customer=None, card=None, description=None ):
+    def create_charge(self, amount, currency="usd", customer=None, card=None, description=None):
     # https://stripe.com/docs/api?lang=python#create_charge
     # customer.id or card required but not both
     # charge the Customer instead of the card
@@ -257,7 +257,8 @@ class StripeClient(object):
     def _all_objs(self, class_type, **kwargs):
         """a generic iterator for all classes of type stripe.ListableAPIResource"""
         # type=None, created=None, count=None, offset=0
-        # obj_type: one of  'Charge','Coupon','Customer', 'Event','Invoice', 'InvoiceItem', 'Plan', 'Transfer'
+        # obj_type: one of  'Charge','Coupon','Customer', 'Event','Invoice',
+        #                   'InvoiceItem', 'Plan', 'Transfer'
         try:
             stripe_class = getattr(stripe, class_type)
         except:
@@ -274,7 +275,7 @@ class StripeClient(object):
                     items = stripe_class(api_key=self.api_key).list(**kwargs2)['data']
                     for item in items:
                         yield item
-                    if len(items):
+                    if len(items) > 0:
                         kwargs2['offset'] += len(items)
                     else:
                         more_items = False
@@ -290,16 +291,14 @@ class StripeClient(object):
                    'list_invoices':"Invoice",
                    'list_invoiceitems':"InvoiceItem",
                    'list_plans':"Plan",
-                   'list_transfers':"Transfer"
-                    }
+                   'list_transfers':"Transfer"}
         if name in mapping.keys():
             class_value = mapping[name]
             def list_events(**kwargs):
                 for e in self._all_objs(class_value, **kwargs):
                     yield e
             return list_events
-        else:
-            return object.__getattribute__(self, name)
+        return object.__getattribute__(self, name)
 
 
 
@@ -307,22 +306,24 @@ class StripeClient(object):
 
 # can't test Transfer in test mode: "There are no transfers in test mode."
 
-#pledge scenario
+# pledge scenario
 # bad card -- what types of erros to handle?
 # https://stripe.com/docs/api#errors
 
 
 # https://stripe.com/docs/api#event_types
-# events of interest -- especially ones that do not directly arise immediately (synchronously) from something we do -- I think
-# especially:  charge.disputed
-# I think following (charge.succeeded, charge.failed, charge.refunded) pretty much sychronous to our actions
-# customer.created, customer.updated, customer.deleted
+# events of interest -- especially ones that do not directly arise immediately (synchronously)
+# from something we do -- I think especially:  charge.disputed
+# I think following (charge.succeeded, charge.failed, charge.refunded) pretty much sychronous
+# to our actions customer.created, customer.updated, customer.deleted
 
 # transfer
-# I expect the ones related to transfers all happen asynchronously: transfer.created, transfer.updated, transfer.failed
+# I expect the ones related to transfers all happen asynchronously:
+#    transfer.created, transfer.updated, transfer.failed
 
 # When will the money I charge with Stripe end up in my bank account?
-# Every day, we transfer the money that you charged seven days previously?that is, you receive the money for your March 1st charges on March 8th.
+# Every day, we transfer the money that you charged seven days previously? that is,
+# you receive the money for your March 1st charges on March 8th.
 
 # pending payments?
 # how to tell whether money transferred to bank account yet
@@ -339,13 +340,14 @@ class StripeClient(object):
 #
 #      * the first 6 digits point to a valid bank
 #
-#      * but the account number (the rest of the digits) doesn't correspond to a credit account with that bank
-#
+#      * but the account number (the rest of the digits) doesn't correspond to a credit account
+#        with that bank
 #      * Brian of stripe.com suggests we could treat it the same way as we'd treat card_declined
 #
 #   * processing_error:
 #
-#      * means: something went wrong when stripe tried to make the charge (it could be that the card's issuing bank is down, or our connection to the bank isn't working properly)
+#      * means: something went wrong when stripe tried to make the charge (it could be that the
+#        card's issuing bank is down, or our connection to the bank isn't working properly)
 #      * we can retry -- e.g.,  a minute later, then 30 minutes, then an hour, 3 hours, a day.
 #      * we shouldn't see processing_error very often
 #
@@ -357,14 +359,16 @@ class StripeErrorTest(TestCase):
     """Make sure the exceptions returned by stripe act as expected"""
 
     def test_cc_test_numbers_luhn_valid(self):
-        """Show that the test CC numbers supplied for testing as valid numbers are indeed Luhn valid"""
+        """Show that the test CC numbers supplied for testing as valid
+        numbers are indeed Luhn valid"""
         self.assertTrue(all([is_luhn_valid(c[0]) for c in ERROR_TESTING.values()]))
 
     def test_good_token(self):
         """ verify normal operation """
         sc = StripeClient()
-        card1 = card(number=TEST_CARDS[0][0], exp_month=1, exp_year='2020', cvc='123', name='Don Giovanni',
-          address_line1="100 Jackson St.", address_line2="", address_zip="94706", address_state="CA", address_country=None)  # good card
+        card1 = card(number=TEST_CARDS[0][0], exp_month=1, exp_year='2020', cvc='123',
+                     name='Don Giovanni', address_line1="100 Jackson St.", address_line2="",
+                     address_zip="94706", address_state="CA", address_country=None)  # good card
         token1 = sc.create_token(card=card1)
         # use the token id -- which is what we get from JavaScript api -- and retrieve the token
         token2 = sc.token.retrieve(id=token1.id)
@@ -412,10 +416,11 @@ class StripeErrorTest(TestCase):
         # bad card
         card1 = card(number=ERROR_TESTING['BAD_ATTACHED_CARD'][0])
         # attaching card should be ok
-        cust1 = sc.create_customer(card=card1, description="test bad customer", email="rdhyee@gluejar.com")
+        cust1 = sc.create_customer(card=card1, description="test bad customer",
+                                   email="rdhyee@gluejar.com")
         # trying to charge the card should fail
         self.assertRaises(stripe.error.CardError, sc.create_charge, 10,
-                          customer = cust1.id, description="$10 for bad cust")
+                          customer=cust1.id, description="$10 for bad cust")
 
     def test_bad_cc_number(self):
         """send a bad cc and should get an error when trying to create a token"""
@@ -426,8 +431,8 @@ class StripeErrorTest(TestCase):
 
         sc = StripeClient()
         card1 = card(number=BAD_CC_NUM, exp_month=1, exp_year=2020, cvc='123', name='Don Giovanni',
-          address_line1="100 Jackson St.", address_line2="", address_zip="94706",
-          address_state="CA", address_country=None)  # good card
+                     address_line1="100 Jackson St.", address_line2="", address_zip="94706",
+                     address_state="CA", address_country=None)  # good card
 
         try:
             token1 = sc.create_token(card=card1)
@@ -440,9 +445,9 @@ class StripeErrorTest(TestCase):
         """Use an invalid month e.g. 13."""
 
         sc = StripeClient()
-        card1 = card(number=TEST_CARDS[0][0], exp_month=13, exp_year=2020, cvc='123', name='Don Giovanni',
-          address_line1="100 Jackson St.", address_line2="", address_zip="94706",
-          address_state="CA", address_country=None)
+        card1 = card(number=TEST_CARDS[0][0], exp_month=13, exp_year=2020, cvc='123',
+                     name='Don Giovanni', address_line1="100 Jackson St.", address_line2="",
+                     address_zip="94706", address_state="CA", address_country=None)
 
         try:
             token1 = sc.create_token(card=card1)
@@ -455,8 +460,9 @@ class StripeErrorTest(TestCase):
         """Use a year in the past e.g. 1970."""
 
         sc = StripeClient()
-        card1 = card(number=TEST_CARDS[0][0], exp_month=12, exp_year=1970, cvc='123', name='Don Giovanni',
-          address_line1="100 Jackson St.", address_line2="", address_zip="94706", address_state="CA", address_country=None)
+        card1 = card(number=TEST_CARDS[0][0], exp_month=12, exp_year=1970, cvc='123',
+                     name='Don Giovanni', address_line1="100 Jackson St.", address_line2="",
+                     address_zip="94706", address_state="CA", address_country=None)
 
         try:
             token1 = sc.create_token(card=card1)
@@ -469,9 +475,9 @@ class StripeErrorTest(TestCase):
         """Use a two digit number e.g. 99."""
 
         sc = StripeClient()
-        card1 = card(number=TEST_CARDS[0][0], exp_month=12, exp_year=2020, cvc='99', name='Don Giovanni',
-          address_line1="100 Jackson St.", address_line2="", address_zip="94706",
-          address_state="CA", address_country=None)
+        card1 = card(number=TEST_CARDS[0][0], exp_month=12, exp_year=2020, cvc='99',
+                     name='Don Giovanni', address_line1="100 Jackson St.", address_line2="",
+                     address_zip="94706", address_state="CA", address_country=None)
 
         try:
             token1 = sc.create_token(card=card1)
@@ -487,7 +493,7 @@ class StripeErrorTest(TestCase):
         # create a Customer with no attached card
         cust1 = sc.create_customer(description="test cust w/ no card")
         try:
-            sc.create_charge(10, customer = cust1.id, description="$10 for cust w/ no card")
+            sc.create_charge(10, customer=cust1.id, description="$10 for cust w/ no card")
         except stripe.error.CardError as e:
             self.assertEqual(e.code, "missing")
             self.assertEqual(e.args[0], "Cannot charge a customer that has no active card")
@@ -499,15 +505,18 @@ class PledgeScenarioTest(TestCase):
 
         # valid card
         card0 = card()
-        cls._good_cust = cls._sc.create_customer(card=card0, description="test good customer", email="raymond.yee@gmail.com")
+        cls._good_cust = cls._sc.create_customer(card=card0, description="test good customer",
+                                                 email="raymond.yee@gmail.com")
 
         # bad card
         test_card_num_to_get_BAD_ATTACHED_CARD = ERROR_TESTING['BAD_ATTACHED_CARD'][0]
         card1 = card(number=test_card_num_to_get_BAD_ATTACHED_CARD)
-        cls._cust_bad_card = cls._sc.create_customer(card=card1, description="test bad customer", email="rdhyee@gluejar.com")
+        cls._cust_bad_card = cls._sc.create_customer(card=card1, description="test bad customer",
+                                                     email="rdhyee@gluejar.com")
 
     def test_charge_good_cust(self):
-        charge = self._sc.create_charge(10, customer=self._good_cust.id, description="$10 for good cust")
+        charge = self._sc.create_charge(10, customer=self._good_cust.id,
+                                        description="$10 for good cust")
         self.assertEqual(type(charge.id), str)
 
         # print out all the pieces of Customer and Charge objects
@@ -542,7 +551,7 @@ class Processor(baseprocessor.Processor):
         """returns a payment.models.Account based on stripe token and user"""
 
         if token is None or len(token) == 0:
-           raise StripelibError("input token is None", None)
+            raise StripelibError("input token is None", None)
 
         sc = StripeClient()
 
@@ -550,13 +559,13 @@ class Processor(baseprocessor.Processor):
         try:
             if user:
                 customer = sc.create_customer(card=token, description=user.username,
-                                      email=user.email)
+                                              email=user.email)
             else:
                 customer = sc.create_customer(card=token, description='anonymous user', email=email)
         except stripe.error.StripeError as e:
             raise StripelibError(e.args, e)
 
-        account = Account(host = PAYMENT_HOST_STRIPE,
+        account = Account(host=PAYMENT_HOST_STRIPE,
                           account_id=customer.id,
                           card_last4=customer.active_card.last4,
                           card_type=customer.active_card.type,
@@ -576,9 +585,10 @@ class Processor(baseprocessor.Processor):
 
     class Preapproval(StripePaymentRequest, baseprocessor.Processor.Preapproval):
 
-        def __init__( self, transaction, amount, expiry=None, return_url=None,  paymentReason=""):
+        def __init__(self, transaction, amount, expiry=None, return_url=None, paymentReason=""):
 
-            # set the expiration date for the preapproval if not passed in.  This is what the paypal library does
+            # set the expiration date for the preapproval if not passed in.
+            # This is what the paypal library does
 
             self.transaction = transaction
 
@@ -591,17 +601,18 @@ class Processor(baseprocessor.Processor):
             # let's figure out what part of transaction can be used to store info
             # try placing charge id in transaction.pay_key
             # need to set amount
-            # how does transaction.max_amount get set? -- coming from /pledge/xxx/ -> manager.process_transaction
+            # how does transaction.max_amount get set?
+            #     -- coming from /pledge/xxx/ -> manager.process_transaction
             # max_amount is set -- but I don't think we need it for stripe
 
             # ASSUMPTION:  a user has any given moment one and only one active payment Account
 
             account = transaction.user.profile.account
             if not account:
-                logger.warning("user {0} has no active payment account".format(transaction.user))
-                raise StripelibError("user {0} has no active payment account".format(transaction.user))
+                logger.warning("user %s has no active payment account", transaction.user)
+                raise StripelibError("user %s has no active payment account" % transaction.user)
 
-            logger.info("user: {0} customer.id is {1}".format(transaction.user, account.account_id))
+            logger.info("user: %s customer.id is %s", transaction.user, account.account_id)
 
             # settings to apply to transaction for TRANSACTION_STATUS_ACTIVE
             # should approved be set to False and wait for a webhook?
@@ -625,72 +636,73 @@ class Processor(baseprocessor.Processor):
             return None
 
     class Pay(StripePaymentRequest, baseprocessor.Processor.Pay):
-
-      '''
+        '''
         The pay function generates a redirect URL to approve the transaction
         If the transaction has a null user (is_anonymous), then a token musr be supplied
-      '''
+        '''
 
-      def __init__( self, transaction, return_url=None, amount=None, paymentReason="", token=None):
-        self.transaction = transaction
-        self.url = return_url
+        def __init__(self, transaction, return_url=None, amount=None, paymentReason="", token=None):
+            self.transaction = transaction
+            self.url = return_url
 
-        now_val = now()
-        transaction.date_authorized = now_val
+            now_val = now()
+            transaction.date_authorized = now_val
 
-        # ASSUMPTION:  a user has any given moment one and only one active payment Account
-        if token:
-            # user is anonymous
-            try:
-                account = transaction.get_payment_class().make_account(token=token, email=transaction.receipt)
-            except StripelibError as e:
-                self.errorMessage = str(e)
-                return
-        else:
-            account = transaction.user.profile.account
+            # ASSUMPTION:  a user has any given moment one and only one active payment Account
+            if token:
+                # user is anonymous
+                try:
+                    account = transaction.get_payment_class().make_account(
+                        token=token, email=transaction.receipt)
+                except StripelibError as e:
+                    self.errorMessage = str(e)
+                    return
+            else:
+                account = transaction.user.profile.account
 
-        if not account:
-            logger.warning("user {0} has no active payment account".format(transaction.user))
-            raise StripelibError("user {0} has no active payment account".format(transaction.user))
+            if not account:
+                logger.warning("user %s has no active payment account", transaction.user)
+                raise StripelibError("user %s has no active payment account" % transaction.user)
 
-        logger.info("user: {0} customer.id is {1}".format(transaction.user, account.account_id))
+            logger.info("user: %s customer.id is %s", transaction.user, account.account_id)
 
-        # settings to apply to transaction for TRANSACTION_STATUS_ACTIVE
-        # should approved be set to False and wait for a webhook?
-        transaction.approved = True
-        transaction.type = PAYMENT_TYPE_INSTANT
-        transaction.host = PAYMENT_HOST_STRIPE
+            # settings to apply to transaction for TRANSACTION_STATUS_ACTIVE
+            # should approved be set to False and wait for a webhook?
+            transaction.approved = True
+            transaction.type = PAYMENT_TYPE_INSTANT
+            transaction.host = PAYMENT_HOST_STRIPE
 
-        transaction.preapproval_key = account.account_id
+            transaction.preapproval_key = account.account_id
 
-        transaction.currency = 'USD'
-        transaction.amount = amount
+            transaction.currency = 'USD'
+            transaction.amount = amount
 
-        transaction.save()
-
-        # execute the transaction
-        p = transaction.get_payment_class().Execute(transaction)
-
-        if p.success() and not p.error():
-            transaction.pay_key = p.key()
             transaction.save()
-        else:
-            self.errorMessage = p.errorMessage #pass error message up
-            logger.info("execute_transaction Error: {}".format(p.error_string()))
 
-      def amount(self):
-          return self.transaction.amount
+            # execute the transaction
+            p = transaction.get_payment_class().Execute(transaction)
 
-      def key(self):
-          return self.transaction.pay_key
+            if p.success() and not p.error():
+                transaction.pay_key = p.key()
+                transaction.save()
+            else:
+                self.errorMessage = p.errorMessage #pass error message up
+                logger.info("execute_transaction Error: %s", p.error_string())
 
-      def next_url(self):
-          return self.url
+        def amount(self):
+            return self.transaction.amount
+
+        def key(self):
+            return self.transaction.pay_key
+
+        def next_url(self):
+            return self.url
 
     class Execute(StripePaymentRequest):
 
         '''
-            The Execute function attempts to charge the credit card of stripe Customer associated with user connected to transaction.
+            The Execute function attempts to charge the credit card of stripe Customer associated
+            with user connected to transaction.
         '''
 
         def __init__(self, transaction=None):
@@ -702,7 +714,11 @@ class Processor(baseprocessor.Processor):
                 return
             # make sure we are dealing with a stripe transaction
             if transaction.host != PAYMENT_HOST_STRIPE:
-                raise StripelibError("transaction.host {0} is not the expected {1}".format(transaction.host, PAYMENT_HOST_STRIPE))
+                raise StripelibError(
+                    "transaction.host %s is not the expected %s".format(
+                        transaction.host,
+                        PAYMENT_HOST_STRIPE)
+                )
 
             sc = StripeClient()
 
@@ -714,33 +730,41 @@ class Processor(baseprocessor.Processor):
 
             if customer_id is not None:
                 try:
-                    # useful things to put in description: transaction.id, transaction.user.id,  customer_id, transaction.amount
-                    charge = sc.create_charge(transaction.amount, customer=customer_id,
-                                              description=json.dumps({"t.id":transaction.id,
-                                                                      "email":transaction.user.email if transaction.user else transaction.receipt,
-                                                                      "cus.id":customer_id,
-                                                                      "tc.id": transaction.campaign.id if transaction.campaign else '0',
-                                                                      "amount": float(transaction.amount)}))
+                    # useful things to put in description: transaction.id, transaction.user.id,
+                    # customer_id, transaction.amount
+                    charge = sc.create_charge(
+                        transaction.amount, customer=customer_id,
+                        description=json.dumps(
+                            {"t.id": transaction.id,
+                             "email": transaction.user.email if transaction.user else transaction.receipt,
+                             "cus.id":customer_id,
+                             "tc.id": transaction.campaign.id if transaction.campaign else '0',
+                             "amount": float(transaction.amount)}
+                        )
+                    )
                 except stripe.error.StripeError as e:
                     # what to record in terms of errors?  (error log?)
                     # use PaymentResponse to store error
 
                     r = PaymentResponse.objects.create(api="stripelib.Execute", correlation_id=None,
                                                        timestamp=now(), info=e.args[0],
-                                                       status=TRANSACTION_STATUS_ERROR, transaction=transaction)
+                                                       status=TRANSACTION_STATUS_ERROR,
+                                                       transaction=transaction)
 
                     transaction.status = TRANSACTION_STATUS_ERROR
                     self.errorMessage = e.args # manager puts this on transaction
                     transaction.save()
 
-                    # fire off the fact that transaction failed -- should actually do so only if not a transient error
+                    # fire off the fact that transaction failed -- should actually do so
+                    # only if not a transient error
                     # if card_declined or expired card, ask user to update account
-                    if isinstance(e, stripe.error.CardError) and e.code in ('card_declined', 'expired_card', 'incorrect_number', 'processing_error'):
+                    if isinstance(e, stripe.error.CardError) and e.code in (
+                            'card_declined', 'expired_card', 'incorrect_number',
+                            'processing_error'):
                         transaction_failed.send(sender=self, transaction=transaction)
                     # otherwise, report exception to us
                     else:
-                        logger.exception("transaction id {0}, exception: {1}".format(transaction.id,  e.args))
-
+                        logger.exception("transaction id %s, exception: %s", transaction.id, e.args)
 
                 else:
                     self.charge = charge
@@ -756,14 +780,17 @@ class Processor(baseprocessor.Processor):
 
             else:
                 # nothing to charge
-                raise StripelibError("No customer id available to charge for transaction {0}".format(transaction.id), None)
+                raise StripelibError(
+                    "No customer id available to charge for transaction {0}".format(transaction.id),
+                    None)
 
 
         def api(self):
             return "Base Pay"
 
         def key(self):
-            # IN paypal land, our key is updated from a preapproval to a pay key here, just return the existing key
+            # IN paypal land, our key is updated from a preapproval to a pay key here,
+            # just return the existing key
             return self.transaction.pay_key
 
     class PreapprovalDetails(StripePaymentRequest):
@@ -787,7 +814,8 @@ class Processor(baseprocessor.Processor):
             else:
                 self.approved = True
 
-            # Set the other fields that are expected.  We don't have values for these now, so just copy the transaction
+            # Set the other fields that are expected.  We don't have values for these now,
+            # so just copy the transaction
             self.currency = transaction.currency
             self.amount = transaction.amount
 
@@ -797,7 +825,7 @@ class Processor(baseprocessor.Processor):
             event_json = json.loads(request.body)
         except ValueError as e:
             # not able to parse request.body -- throw a "Bad Request" error
-            logger.warning("Non-json being sent to Stripe IPN: {0}".format(e))
+            logger.warning("Non-json being sent to Stripe IPN: %s", e)
             return HttpResponse(status=400)
         else:
             # now parse out pieces of the webhook
@@ -808,27 +836,28 @@ class Processor(baseprocessor.Processor):
             try:
                 event = sc.event.retrieve(event_id)
             except stripe.error.InvalidRequestError:
-                logger.warning("Invalid Event ID: {0}".format(event_id))
+                logger.warning("Invalid Event ID: %s", event_id)
                 return HttpResponse(status=400)
             else:
                 event_type = event.get("type")
                 if event_type not in STRIPE_EVENT_TYPES:
-                    logger.warning("Unrecognized Stripe event type {0} for event {1}".format(event_type, event_id))
+                    logger.warning("Unrecognized Stripe event type %s for event %s",
+                                   event_type, event_id)
                     # is this the right code to respond with?
                     return HttpResponse(status=400)
                 # https://stripe.com/docs/api?lang=python#event_types -- type to delegate things
                 # parse out type as resource.action
 
                 try:
-                    (resource, action) = re.match("^(.+)\.([^\.]*)$", event_type).groups()
+                    (resource, action) = re.match(r"^(.+)\.([^\.]*)$", event_type).groups()
                 except Exception as e:
-                    logger.warning("Parsing of event_type into resource, action failed: {0}".format(e))
+                    logger.warning("Parsing of event_type into resource, action failed: %s", e)
                     return HttpResponse(status=400)
 
                 try:
                     ev_object = event.data.object
                 except Exception as e:
-                    logger.warning("attempt to retrieve event object failed: {0}".format(e))
+                    logger.warning("attempt to retrieve event object failed: %s", e)
                     return HttpResponse(status=400)
 
                 if event_type == 'account.updated':
@@ -839,34 +868,39 @@ class Processor(baseprocessor.Processor):
                     # we need to handle: succeeded, failed, refunded, disputed
 
                     if action == 'succeeded':
-                        # TO DO:  delete this logic since we don't do anything but look up transaction.
-                        logger.info("charge.succeeded webhook for {0}".format(ev_object.get("id")))
+                        # TO DO:  delete this logic since we don't do anything
+                        # but look up transaction.
+                        logger.info("charge.succeeded webhook for %s", ev_object.get("id"))
                         # try to parse description of object to pull related transaction if any
-                        # wrapping this in a try statement because it possible that we have a charge.succeeded outside context of unglue.it
+                        # wrapping this in a try statement because it possible that we have a
+                        # charge.succeeded outside context of unglue.it
                         try:
                             charge_meta = json.loads(ev_object["description"])
                             transaction = Transaction.objects.get(id=charge_meta["t.id"])
                             # now check that account associated with the transaction matches
                             # ev.data.object.id, t.pay_key
                             if ev_object.id == transaction.pay_key:
-                                logger.info("ev_object.id == transaction.pay_key: {0}".format(ev_object.id))
+                                logger.info("ev_object.id == transaction.pay_key: %s", ev_object.id)
                             else:
-                                logger.warning("ev_object.id {0} != transaction.pay_key {1}".format(ev_object.id, transaction.pay_key))
+                                logger.warning("ev_object.id %s != transaction.pay_key %s",
+                                               ev_object.id, transaction.pay_key)
                         except Exception as e:
                             logger.warning(e)
 
                     elif action == 'failed':
-                        # TO DO:  delete this logic since we don't do anything but look up transaction.
-                        logger.info("charge.failed webhook for {0}".format(ev_object.get("id")))
+                        # TO DO:  delete this logic since we don't do anything but
+                        # look up transaction.
+                        logger.info("charge.failed webhook for %s", ev_object.get("id"))
                         try:
                             charge_meta = json.loads(ev_object["description"])
                             transaction = Transaction.objects.get(id=charge_meta["t.id"])
                             # now check that account associated with the transaction matches
                             # ev.data.object.id, t.pay_key
                             if ev_object.id == transaction.pay_key:
-                                logger.info("ev_object.id == transaction.pay_key: {0}".format(ev_object.id))
+                                logger.info("ev_object.id == transaction.pay_key: %s", ev_object.id)
                             else:
-                                logger.warning("ev_object.id {0} != transaction.pay_key {1}".format(ev_object.id, transaction.pay_key))
+                                logger.warning("ev_object.id %s != transaction.pay_key %s",
+                                               ev_object.id, transaction.pay_key)
 
                         except Exception as e:
                             logger.warning(e)
@@ -880,15 +914,19 @@ class Processor(baseprocessor.Processor):
                 elif resource == 'customer':
                     if action == 'created':
                         # test application: email support
-                        # do we have a flag to indicate production vs non-production? -- or does it matter?
-                        # email support whenever a new Customer created -- we probably want to replace this with some other
+                        # do we have a flag to indicate production vs non-production?
+                        #  -- or does it matter?
+                        # email support whenever a new Customer created
+                        # -- we probably want to replace this with some other
                         # more useful long tem action.
-                        send_mail(u"Stripe Customer (id {0};  description: {1}) created".format(ev_object.get("id"),
-                                                                        ev_object.get("description")),
-                                  u"Stripe Customer email: {0}".format(ev_object.get("email")),
-                                  "notices@gluejar.com",
-                                  ["unglueit@ebookfoundation.org"])
-                        logger.info("email sent for customer.created for {0}".format(ev_object.get("id")))
+                        send_mail(
+                            "Stripe Customer (id {0};  description: {1}) created".format(
+                                ev_object.get("id"),
+                                ev_object.get("description")),
+                            "Stripe Customer email: {0}".format(ev_object.get("email")),
+                            "notices@gluejar.com",
+                            ["unglueit@ebookfoundation.org"])
+                        logger.info("email sent for customer.created for %s", ev_object.get("id"))
                     # handle updated, deleted
                     else:
                         pass
@@ -902,9 +940,10 @@ def suite():
 
     testcases = [PledgeScenarioTest, StripeErrorTest]
     #testcases = [StripeErrorTest]
-    suites = unittest.TestSuite([unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases])
-    #suites.addTest(LibraryThingTest('test_cache'))
-    #suites.addTest(SettingsTest('test_dev_me_alignment'))  # give option to test this alignment
+    suites = unittest.TestSuite([
+        unittest.TestLoader().loadTestsFromTestCase(testcase) for testcase in testcases
+    ])
+
     return suites
 
 
