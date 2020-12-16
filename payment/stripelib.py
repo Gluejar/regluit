@@ -59,7 +59,8 @@ STRIPE_EVENT_TYPES = [
     'invoice.payment_succeeded', 'invoice.payment_failed', 'invoiceitem.created',
     'invoiceitem.updated', 'invoiceitem.deleted', 'plan.created', 'plan.updated',
     'plan.deleted', 'coupon.created', 'coupon.deleted', 'transfer.created',
-    'transfer.updated', 'transfer.paid', 'transfer.failed', 'payment_method.attached', 'ping',
+    'transfer.updated', 'transfer.paid', 'transfer.failed', 'payment_method.attached',
+    'payment_method.card_automatically_updated', 'ping',
 ]
 
 logger = logging.getLogger(__name__)
