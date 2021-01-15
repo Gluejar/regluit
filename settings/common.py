@@ -422,6 +422,12 @@ SAVE_INFO_PAGE = {
     "args": ()    
 }
 
+SAVE_INFO_PAGE_TEST = {
+        "task": "regluit.frontend.tasks.save_info_page",
+        "schedule": crontab(minute='1,11,21,31,41,51'),
+        "args": ()    
+    }
+
 PERIODIC_CLEANUP = {
     "task": "regluit.core.tasks.periodic_cleanup",
     "schedule": crontab(day_of_month='1,11,21', hour=0, minute=35),
