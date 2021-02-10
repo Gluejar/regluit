@@ -32,7 +32,6 @@ ID_CHOICES = (
     ('doi', 'Digital Object Identifier'),
     ('oclc', 'OCLC Number'),
     ('goog', 'Google Books ID'),
-    ('gdrd', 'Goodreads ID'),
     ('thng', 'Library Thing ID'),
     ('olwk', 'Open Library Work ID'),
     ('ltwk', 'Library Thing Work ID'),
