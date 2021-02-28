@@ -24,8 +24,8 @@ ID_VALIDATION = {
              "The Web Address must be a valid http(s) URL."),
     'isbn':  (u'^([\\dxX \\-–—‐,;]+|delete)$', #includes unicode hyphen, endash and emdash
               "The ISBN must be a valid ISBN-13."),
-    'doab': (r'^(\d{1,6}|delete)$',
-             "The value must be 1-6 digits."),
+    'doab': (r'^20.500.12854/(\d{5,8}|delete)$',
+             "The value must be a handle, starting with 20.500.12854/, followed by 5-8 digits."),
     'gtbg': (r'^(\d{1,6}|delete)$',
              "The Gutenberg number must be 1-6 digits."),
     'doi': (r'^(https?://dx\.doi\.org/|https?://doi\.org/)?(10\.\d+/\S+|delete)$',

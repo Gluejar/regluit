@@ -27,7 +27,7 @@ TEXT_RELATION_CHOICES = (
 ID_CHOICES = (
     ('http', 'Web Address'),    
     ('isbn', 'ISBN'),
-    ('doab', 'DOABooks ID'),
+    ('doab', 'DOABooks handle'),
     ('gtbg', 'Project Gutenberg Number'),
     ('doi', 'Digital Object Identifier'),
     ('oclc', 'OCLC Number'),
@@ -43,7 +43,7 @@ OTHER_ID_CHOICES = (
     ('edid', 'pragmatic edition ID'),
 )
 
-WORK_IDENTIFIERS = ('doi','olwk','glue','ltwk', 'http', 'doab')
+WORK_IDENTIFIERS = ('doi', 'olwk', 'glue', 'ltwk', 'http', 'doab')
 
 ID_CHOICES_MAP = dict(ID_CHOICES)
 
