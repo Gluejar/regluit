@@ -11,8 +11,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('limit', nargs='?', type=int, default=0, help="max to harvest")
         parser.add_argument('--ebook', nargs='?', type=int, default=0, help="ebook to harvest")
-        parser.add_argument('--provider', nargs='?', type=str, default='', help="provider to harvest")
-        parser.add_argument('--format', nargs='?', type=str, default='online', help="format to harvest")
+        parser.add_argument('--provider', nargs='?', default='', help="provider to harvest")
+        parser.add_argument('--format', nargs='?', default='online', help="format to harvest")
 
     def handle(self, limit=0, **options):
         limit = int(limit) if limit else 0

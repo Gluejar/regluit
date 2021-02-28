@@ -6,7 +6,7 @@ class Command(BaseCommand):
     help = "load doab books by doab_id via oai"
 
     def add_arguments(self, parser):
-        parser.add_argument('doab_ids', nargs='+', type=str, default=1, help="doab ids to add")    
+        parser.add_argument('doab_ids', nargs='+', default=1, help="doab ids to add")    
     
     def handle(self, doab_ids, **options):
         for doab_id in doab_ids:

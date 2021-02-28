@@ -12,7 +12,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('from_date', nargs='?', type=timefromiso,
                             default=None, help="YYYY-MM-DD to start")
-        parser.add_argument('--from_id', nargs='?', type=str, default='', help="handle to start with")    
+        parser.add_argument('--from_id', nargs='?', default='', help="handle to start with")    
         parser.add_argument('--max', nargs='?', type=int, default=None, help="max desired records")    
     
     def handle(self, **options):

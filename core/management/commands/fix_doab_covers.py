@@ -12,7 +12,7 @@ class Command(BaseCommand):
     help = "fix bad covers for doab"
     
     def add_arguments(self, parser):
-        parser.add_argument('doab', nargs='?', type=str, default='', help="doab to fix")
+        parser.add_argument('doab', nargs='?', default='', help="doab to fix")
 
     def handle(self, doab, **options):
         if doab == 'list':
