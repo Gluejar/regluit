@@ -11,14 +11,14 @@ def timefromiso(datestring):
 
 class Command(BaseCommand):
     help = "load doab books via oai"
-    
+
     def add_arguments(self, parser):
         parser.add_argument('from_date', nargs='?', type=timefromiso,
-                            default=None, help="YYYY-MM-DD to start")            
+                            default=None, help="YYYY-MM-DD to start")
         parser.add_argument('--until', nargs='?', type=timefromiso,
                             default=None, help="YYYY-MM-DD to end")
-        parser.add_argument('--max', nargs='?', type=int, default=None, help="max desired records")    
-    
+        parser.add_argument('--max', nargs='?', type=int, default=None, help="max desired records")
+
     def handle(self, from_date, **options):
         until_date = options['until']
         max = options['max']

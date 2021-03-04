@@ -1,8 +1,10 @@
 (REWARDS, BUY2UNGLUE, THANKS) = (1, 2, 3)
 (INDIVIDUAL, LIBRARY, BORROWED, RESERVE, THANKED) = (1, 2, 3, 4, 5)
 TESTING = 0
-OFFER_CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'))
-ACQ_CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'),(BORROWED,'Borrowed from Library'), (TESTING,'Just for Testing'), (RESERVE,'On Reserve'),(THANKED,'Already Thanked'),)
+OFFER_CHOICES = ((INDIVIDUAL, 'Individual license'),(LIBRARY, 'Library License'))
+ACQ_CHOICES = ((INDIVIDUAL, 'Individual license'), (LIBRARY, 'Library License'),
+               (BORROWED, 'Borrowed from Library'), (TESTING, 'Just for Testing'),
+               (RESERVE, 'On Reserve'), (THANKED, 'Already Thanked'),)
 
 AGE_LEVEL_CHOICES = (
     ('', 'No Rating'),
@@ -25,7 +27,7 @@ TEXT_RELATION_CHOICES = (
 )
 
 ID_CHOICES = (
-    ('http', 'Web Address'),    
+    ('http', 'Web Address'),
     ('isbn', 'ISBN'),
     ('doab', 'DOABooks handle'),
     ('gtbg', 'Project Gutenberg Number'),
@@ -100,6 +102,5 @@ ORDER_BY_KEYS = {
     'featured':['-featured', '-num_wishes'],
     'popular':['-num_wishes'],
     'title':['title'],
-    'none':[], #no ordering 
-}   
-
+    'none':[], #no ordering
+}

@@ -5,7 +5,7 @@ doab_utils.py
 import logging
 import re
 from ssl import SSLError
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urljoin
 
 import requests
 
@@ -80,7 +80,7 @@ def online_to_download(url):
                 urls.append(obj['data'].split('#')[0])
     elif url.find(u'books.scielo.org/') >= 0:
         if url[-4:] in ['epub', '.pdf']:
-            return [url] 
+            return [url]
         doc = get_soup(url)
         if doc:
             obj = doc.find('a', class_='pdf_file')
@@ -118,8 +118,7 @@ def get_streamdata(handle):
     except SSLError as e:
         logger.error(e)
 
+COVER_FSTRING = "https://directory.doabooks.org/bitstream/handle/{handle}/{name}?sequence={sequenceId}&isAllowed=y"
 def doab_cover(doab_id):
-    url = "https://directory.doabooks.org/bitstream/handle/{handle}/{name}?sequence={sequenceId}&isAllowed=y"
-    url = url.format(**get_streamdata(doab_id))
-    return url
+    return COVER_FSTRING.format(**get_streamdata(doab_id))
 
