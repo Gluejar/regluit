@@ -1,8 +1,10 @@
 (REWARDS, BUY2UNGLUE, THANKS) = (1, 2, 3)
 (INDIVIDUAL, LIBRARY, BORROWED, RESERVE, THANKED) = (1, 2, 3, 4, 5)
 TESTING = 0
-OFFER_CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'))
-ACQ_CHOICES = ((INDIVIDUAL,'Individual license'),(LIBRARY,'Library License'),(BORROWED,'Borrowed from Library'), (TESTING,'Just for Testing'), (RESERVE,'On Reserve'),(THANKED,'Already Thanked'),)
+OFFER_CHOICES = ((INDIVIDUAL, 'Individual license'),(LIBRARY, 'Library License'))
+ACQ_CHOICES = ((INDIVIDUAL, 'Individual license'), (LIBRARY, 'Library License'),
+               (BORROWED, 'Borrowed from Library'), (TESTING, 'Just for Testing'),
+               (RESERVE, 'On Reserve'), (THANKED, 'Already Thanked'),)
 
 AGE_LEVEL_CHOICES = (
     ('', 'No Rating'),
@@ -25,9 +27,9 @@ TEXT_RELATION_CHOICES = (
 )
 
 ID_CHOICES = (
-    ('http', 'Web Address'),    
+    ('http', 'Web Address'),
     ('isbn', 'ISBN'),
-    ('doab', 'DOABooks ID'),
+    ('doab', 'DOABooks handle'),
     ('gtbg', 'Project Gutenberg Number'),
     ('doi', 'Digital Object Identifier'),
     ('oclc', 'OCLC Number'),
@@ -43,7 +45,7 @@ OTHER_ID_CHOICES = (
     ('edid', 'pragmatic edition ID'),
 )
 
-WORK_IDENTIFIERS = ('doi','olwk','glue','ltwk', 'http', 'doab')
+WORK_IDENTIFIERS = ('doi', 'olwk', 'glue', 'ltwk', 'http', 'doab')
 
 ID_CHOICES_MAP = dict(ID_CHOICES)
 
@@ -100,6 +102,5 @@ ORDER_BY_KEYS = {
     'featured':['-featured', '-num_wishes'],
     'popular':['-num_wishes'],
     'title':['title'],
-    'none':[], #no ordering 
-}   
-
+    'none':[], #no ordering
+}

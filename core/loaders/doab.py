@@ -12,8 +12,8 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 
 from oaipmh.client import Client
-from oaipmh.error import IdDoesNotExistError
-from oaipmh.metadata import MetadataRegistry, oai_dc_reader
+from oaipmh.error import IdDoesNotExistError, NoRecordsMatchError
+from oaipmh.metadata import MetadataRegistry
 
 from regluit.core import bookloader, cc
 from regluit.core import models, tasks
@@ -22,7 +22,7 @@ from regluit.core.models.loader import type_for_url
 from regluit.core.validation import identifier_cleaner, valid_subject
 
 from . import scrape_language
-from .doab_utils import doab_lang_to_iso_639_1, online_to_download
+from .doab_utils import doab_lang_to_iso_639_1, doab_cover, doab_reader, online_to_download
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,6 @@ def unlist(alist):
     if not alist:
         return None
     return alist[0]
-
 
 SPRINGER_COVER = re.compile(r'ftp.+springer\.de.+(\d{13}\.jpg)$', flags=re.U)
 SPRINGER_IMAGE = u'https://images.springer.com/sgw/books/medium/{}.jpg'
@@ -40,7 +39,7 @@ def store_doab_cover(doab_id, redo=False):
     returns tuple: 1) cover URL, 2) whether newly created (boolean)
     """
 
-    cover_file_name = '/doab/%s/cover' % (doab_id)
+    cover_file_name = '/doab/%s' % doab_id
 
     # if we don't want to redo and the cover exists, return the URL of the cover
 
@@ -48,7 +47,7 @@ def store_doab_cover(doab_id, redo=False):
         return (default_storage.url(cover_file_name), False)
 
     # download cover image to cover_file
-    url = "https://www.doabooks.org/doab?func=cover&rid={0}".format(doab_id)
+    url = doab_cover(doab_id)
     try:
         r = requests.get(url, allow_redirects=False) # requests doesn't handle ftp redirects.
         if r.status_code == 302:
@@ -65,7 +64,7 @@ def store_doab_cover(doab_id, redo=False):
         cover_file = ContentFile(r.content)
         content_type = r.headers.get('content-type', '')
         if not 'image/' in content_type:
-            logger.warning('Non-image returned for doab_id={}'.format(doab_id))
+            logger.warning('Non-image returned for doab_id=%s', doab_id)
             return (None, False)
         cover_file.content_type = content_type
 
@@ -74,7 +73,7 @@ def store_doab_cover(doab_id, redo=False):
         return (default_storage.url(cover_file_name), True)
     except Exception as e:
         # if there is a problem, return None for cover URL
-        logger.warning('Failed to make cover image for doab_id={}: {}'.format(doab_id, e))
+        logger.warning('Failed to make cover image for doab_id=%s: %s', doab_id, e)
         return (None, False)
 
 def update_cover_doab(doab_id, edition, store_cover=True, redo=True):
@@ -85,7 +84,7 @@ def update_cover_doab(doab_id, edition, store_cover=True, redo=True):
     if store_cover:
         (cover_url, new_cover) = store_doab_cover(doab_id, redo=redo)
     else:
-        cover_url = "https://www.doabooks.org/doab?func=cover&rid={0}".format(doab_id)
+        cover_url = doab_cover(doab_id)
 
     if cover_url is not None:
         edition.cover_image = cover_url
@@ -93,15 +92,15 @@ def update_cover_doab(doab_id, edition, store_cover=True, redo=True):
         good = edition.cover_image_small() and edition.cover_image_thumbnail()
         if not good:
             # oh well
-            logger.warning("Couldn't make thumbnails for %s using %s" % (doab_id, cover_url))
+            logger.warning("Couldn't make thumbnails for %s using %s", doab_id, cover_url)
             edition.cover_image = None
             edition.save()
         return cover_url
     return None
 
 def attach_more_doab_metadata(edition, description, subjects,
-                              publication_date, publisher_name=None, language=None, 
-                              dois=[], authors=u''):
+                              publication_date, publisher_name=None, language=None,
+                              dois=None, authors=None, editors=None):
 
     """
     for given edition, attach description, subjects, publication date to
@@ -135,15 +134,15 @@ def attach_more_doab_metadata(edition, description, subjects,
         work.language = language
     work.save()
 
-    if authors and authors == authors: # test for authors != NaN
-        authlist = creator_list(authors)
+    if authors or editors:
+        authlist = creator_list(authors, editors)
         if edition.authors.all().count() < len(authlist):
             edition.authors.clear()
             if authlist is not None:
                 for [rel, auth] in authlist:
                     edition.add_author(auth, rel)
 
-    for doi in dois:
+    for doi in dois if dois else []:
         if not edition.work.doi:
             models.Identifier.set('doi', doi, work=edition.work)
             break
@@ -166,12 +165,11 @@ def add_all_isbns(isbns, work, language=None, title=None):
     return work, first_edition
 
 def load_doab_edition(title, doab_id, url, format, rights,
-                      language, isbns, provider, dois=[], **kwargs):
-
+                      language, isbns, provider, dois=None, **kwargs):
     """
     load a record from doabooks.org represented by input parameters and return an ebook
     """
-    logger.info('load doab {} {} {} {} {}'.format(doab_id, format, rights, language, provider))
+    logger.info('load doab %s %s %s %s %s', doab_id, format, rights, language, provider)
     url = url.strip()
     if language and isinstance(language, list):
         language = language[0]
@@ -195,16 +193,16 @@ def load_doab_edition(title, doab_id, url, format, rights,
     ebook = None
     if len(ebooks) > 1:
         raise Exception("There is more than one Ebook matching url {0}".format(url))
-    elif len(ebooks) == 1:
+    if len(ebooks) == 1:
         ebook = ebooks[0]
-        doab_identifer = models.Identifier.get_or_add(type='doab', value=doab_id,
-                                                      work=ebook.edition.work)
+        models.Identifier.get_or_add(type='doab', value=doab_id, work=ebook.edition.work)
+
         if not ebook.rights:
             ebook.rights = rights
             ebook.save()
 
         # update the cover id
-        cover_url = update_cover_doab(doab_id, ebook.edition, redo=False)
+        update_cover_doab(doab_id, ebook.edition, redo=False)
 
         # attach more metadata
         attach_more_doab_metadata(
@@ -301,6 +299,7 @@ def load_doab_edition(title, doab_id, url, format, rights,
         publication_date=unlist(kwargs.get('date')),
         publisher_name=unlist(kwargs.get('publisher')),
         authors=kwargs.get('creator'),
+        editors=kwargs.get('editor'),
         dois=dois,
     )
     if rights:
@@ -316,7 +315,8 @@ def load_doab_edition(title, doab_id, url, format, rights,
 #
 
 au = re.compile(r'\(Authors?\)', flags=re.U)
-ed = re.compile(r'\([^\)]*(dir.|[Eeé]ds?.|org.|coord.|Editor|a cura di|archivist)[^\)]*\)', flags=re.U)
+ed = re.compile(r'\([^\)]*(dir.|[Eeé]ds?.|org.|coord.|Editor|a cura di|archivist)[^\)]*\)',
+                flags=re.U)
 tr = re.compile(r'\([^\)]*([Tt]rans.|tr.|translated by)[^\)]*\)', flags=re.U)
 ai = re.compile(r'\([^\)]*(Introduction|Foreword)[^\)]*\)', flags=re.U)
 ds = re.compile(r'\([^\)]*(designer)[^\)]*\)', flags=re.U)
@@ -333,12 +333,11 @@ def fnf(auth):
     parts = re.sub(r' +', u' ', auth).split(u',')
     if len(parts) == 1:
         return  parts[0].strip()
-    elif len(parts) == 2:
+    if len(parts) == 2:
         return u'{} {}'.format(parts[1].strip(), parts[0].strip())
-    else:
-        if parts[1].strip() in ('der', 'van', 'von', 'de', 'ter'):
-            return u'{} {} {}'.format(parts[2].strip(), parts[1].strip(), parts[0].strip())
-        return u'{} {}, {}'.format(parts[2].strip(), parts[0].strip(), parts[1].strip())
+    if parts[1].strip() in ('der', 'van', 'von', 'de', 'ter'):
+        return u'{} {} {}'.format(parts[2].strip(), parts[1].strip(), parts[0].strip())
+    return u'{} {}, {}'.format(parts[2].strip(), parts[0].strip(), parts[1].strip())
 
 
 def creator(auth, editor=False):
@@ -359,26 +358,30 @@ def creator(auth, editor=False):
     auth = au.sub('', auth)
     return ['aut', fnf(auth)]
 
-def creator_list(creators):
+def creator_list(creators, editors):
     auths = []
-    for auth in creators:
-        auths.append(creator(auth))
+    if creators:
+        for auth in creators:
+            auths.append(creator(auth))
+    if editors:
+        for auth in editors:
+            auths.append(creator(auth, editor=True))
     return auths
 
-DOAB_OAIURL = 'https://www.doabooks.org/oai'
-DOAB_PATT = re.compile(r'[\./]doabooks\.org/doab\?.*rid:(\d{1,8}).*')
+DOAB_OAIURL = 'https://directory.doabooks.org/oai/request'
+DOAB_PATT = re.compile(r'oai:directory\.doabooks\.org:(.*)')
 mdregistry = MetadataRegistry()
-mdregistry.registerReader('oai_dc', oai_dc_reader)
+mdregistry.registerReader('oai_dc', doab_reader)
 doab_client = Client(DOAB_OAIURL, mdregistry)
 isbn_cleaner = identifier_cleaner('isbn', quiet=True)
 doi_cleaner = identifier_cleaner('doi', quiet=True)
-ISBNSEP = re.compile(r'[/]+')
+ISBNSEP = re.compile(r'[/;]+')
 
 def add_by_doab(doab_id, record=None):
     try:
         record = record if record else doab_client.getRecord(
             metadataPrefix='oai_dc',
-            identifier='oai:doab-books:{}'.format(doab_id)
+            identifier='oai:directory.doabooks.org:{}'.format(doab_id)
         )
         if not record[1]:
             logger.error('No content in record %s', record)
@@ -386,26 +389,28 @@ def add_by_doab(doab_id, record=None):
         metadata = record[1].getMap()
         isbns = []
         dois = []
-        url = None
+        urls = []
+        for ident in metadata.pop('isbn', []):
+            isbn_strings = ISBNSEP.split(ident[6:].strip())
+            for isbn_string in isbn_strings:
+                isbn = isbn_cleaner(isbn_string)
+                if isbn:
+                    isbns.append(isbn)
+        for ident in metadata.pop('doi', []):
+            ident = doi_cleaner(ident)
+            if ident:
+                dois.append(ident)
         for ident in metadata.pop('identifier', []):
-            if ident.startswith('ISBN: '):
-                isbn_strings = ISBNSEP.split(ident[6:].strip())
-                for isbn_string in isbn_strings:
-                    isbn = isbn_cleaner(isbn_string)
-                    if isbn:
-                        isbns.append(isbn)
-            elif ident.find('doabooks.org') >= 0:
+            if ident.find('doabooks.org') >= 0:
                 # should already know the doab_id
                 continue
-            elif ident.startswith('DOI: '):
-                ident = ident[5:].strip()
-                ident = doi_cleaner(ident)
-                if ident:
-                    dois.append(ident)
-            else:
-                url = ident
+            if ident.startswith('http'):
+                urls.append(ident)
         language = doab_lang_to_iso_639_1(unlist(metadata.pop('language', None)))
-        urls = online_to_download(url)
+        xurls = []
+        for url in urls:
+            xurls += online_to_download(url)
+        urls = xurls
         edition = None
         title = unlist(metadata.pop('title', None))
         license = cc.license_from_cc_url(unlist(metadata.pop('rights', None)))
@@ -413,7 +418,7 @@ def add_by_doab(doab_id, record=None):
             format = type_for_url(dl_url)
             if 'format' in metadata:
                 del metadata['format']
-            edition = load_doab_edition(
+            added_edition = load_doab_edition(
                 title,
                 doab_id,
                 dl_url,
@@ -425,6 +430,7 @@ def add_by_doab(doab_id, record=None):
                 dois=dois,
                 **metadata
             )
+            edition = added_edition if added_edition else edition
         return edition
     except IdDoesNotExistError as e:
         logger.error(e)
@@ -437,7 +443,7 @@ def getdoab(url):
         return id_match.group(1)
     return False
 
-def load_doab_oai(from_date, from_id=0, limit=100):
+def load_doab_oai(from_date, until_date, limit=100):
     '''
     use oai feed to get oai updates
     '''
@@ -447,32 +453,34 @@ def load_doab_oai(from_date, from_id=0, limit=100):
     else:
         # last 15 days
         from_ = datetime.datetime.now() - datetime.timedelta(days=15)
-    doab_id = None
     num_doabs = 0
-    new_doabs = 0 
-    for record in doab_client.listRecords(metadataPrefix='oai_dc', from_=from_):
-        if not record[1]:
-            continue
-        item_type = unlist(record[1].getMap().get('type', None))
-        if item_type != 'book':
-            continue
-        idents = record[1].getMap()['identifier']
-        if idents:
-            for ident in idents:
-                doab = getdoab(ident)
-                if doab and int(doab) < from_id:
+    new_doabs = 0
+    lasttime = datetime.datetime(2000, 1, 1)
+    try:
+        for record in doab_client.listRecords(metadataPrefix='oai_dc', from_=from_,
+                                              until=until_date):
+            if not record[1]:
+                continue
+            item_type = unlist(record[1].getMap().get('type', None))
+            if item_type != 'book':
+                continue
+            ident = record[0].identifier()
+            datestamp = record[0].datestamp()
+            lasttime = datestamp if datestamp > lasttime else lasttime
+            doab = getdoab(ident)
+            if doab:
+                num_doabs += 1
+                e = add_by_doab(doab, record=record)
+                if not e:
+                    logger.error('null edition for doab #%s', doab)
                     continue
-                if doab:
-                    doab_id = doab
-                    num_doabs += 1
-                    e = add_by_doab(doab, record=record)
-                    if not e:
-                        logger.error('null edition for doab #%s', doab)
-                        continue
-                    if e.created > start:
-                        new_doabs += 1
-                    title = e.title if e else None
-                    logger.info(u'updated:\t{}\t{}'.format(doab, title))
-        if num_doabs >= limit:
-            break
-    return num_doabs, new_doabs, doab_id
+                if e.created > start:
+                    new_doabs += 1
+                title = e.title if e else None
+                logger.info(u'updated:\t%s\t%s', doab, title)
+            if num_doabs >= limit:
+                break
+    except NoRecordsMatchError:
+        pass
+    return num_doabs, new_doabs, lasttime
+    

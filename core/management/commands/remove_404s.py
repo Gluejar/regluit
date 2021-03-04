@@ -10,8 +10,8 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('limit', nargs='?', type=int, default=50, help="max to check")
         parser.add_argument('--ebook', nargs='?', type=int, default=0, help="ebook to check")
-        parser.add_argument('--provider', nargs='?', type=str, default='', help="provider to check")
-        parser.add_argument('--format', nargs='?', type=str, default='online', help="format to check")
+        parser.add_argument('--provider', nargs='?', default='', help="provider to check")
+        parser.add_argument('--format', nargs='?', default='online', help="format to check")
 
     def handle(self, limit=0, **options):
         limit = int(limit) if limit else 0
