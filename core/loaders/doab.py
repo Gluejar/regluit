@@ -38,6 +38,8 @@ def store_doab_cover(doab_id, redo=False):
     """
     returns tuple: 1) cover URL, 2) whether newly created (boolean)
     """
+    if not doab_id:
+        return (None, False)    
 
     cover_file_name = '/doab/%s' % doab_id
 
