@@ -15,6 +15,8 @@ class Command(BaseCommand):
         parser.add_argument('doab', nargs='?', default='', help="doab to fix")
 
     def handle(self, doab, **options):
+        if doab == 'mangled':
+            self.fix_mangled_covers()
         if doab == 'list':
             for doab_id in to_fix:
                 self.fix_doab_cover(doab_id)
@@ -41,6 +43,14 @@ class Command(BaseCommand):
             e.cover_image = None
             e.save()
         return False
+
+    def fix_mangled_covers(self):
+        eds = Edition.objects.filter(cover_image__contains='amazonaws.comdoab')
+        for ed in eds:
+            cover_url = ed.cover_image.replace('amazonaws.comdoab', 'amazonaws.com/doab')
+            ed.cover_image = cover_url
+            ed.save()
+        self.stdout.write('fixed %s covers' % eds.count())
 
     def refresh_cover(self, doab):
         return False

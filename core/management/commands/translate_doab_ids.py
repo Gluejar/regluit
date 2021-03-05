@@ -51,9 +51,9 @@ class Command(BaseCommand):
     def move_cover(self, old_name, new_name):
         if old_name == new_name:
             return
-        old_url = "https://{}.s3.amazonaws.com{}".format(
+        old_url = "https://{}.s3.amazonaws.com/{}".format(
             settings.AWS_STORAGE_BUCKET_NAME, old_name)
-        new_url = "https://{}.s3.amazonaws.com{}".format(
+        new_url = "https://{}.s3.amazonaws.com/{}".format(
             settings.AWS_STORAGE_BUCKET_NAME, new_name)
         copy_source = {
             'Bucket': settings.AWS_STORAGE_BUCKET_NAME,
