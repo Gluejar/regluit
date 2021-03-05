@@ -48,6 +48,8 @@ def store_doab_cover(doab_id, redo=False):
 
     # download cover image to cover_file
     url = doab_cover(doab_id)
+    if not url:
+        return (None, False)
     try:
         r = requests.get(url, allow_redirects=False) # requests doesn't handle ftp redirects.
         if r.status_code == 302:
