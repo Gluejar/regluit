@@ -116,7 +116,7 @@ def get_streamdata(handle):
                     stream['handle'] = handle
                     return stream
         else:
-            logger.error("No items in streamdata for %s, handle)
+            logger.error("No items in streamdata for %s", handle)
     except requests.exceptions.RequestException as e:
         logger.error(e)
     except SSLError as e:
