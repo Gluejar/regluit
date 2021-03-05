@@ -109,10 +109,14 @@ def get_streamdata(handle):
     url = STREAM_QUERY.format(handle)
     try:
         response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
-        for stream in response.json()[0]['bitstreams']:
-            if stream['bundleName'] == "THUMBNAIL":
-                stream['handle'] = handle
-                return stream
+        items = response.json()
+        if items:
+            for stream in items[0]['bitstreams']:
+                if stream['bundleName'] == "THUMBNAIL":
+                    stream['handle'] = handle
+                    return stream
+        else:
+            logger.error("No items in streamdata for %s, handle)
     except requests.exceptions.RequestException as e:
         logger.error(e)
     except SSLError as e:
