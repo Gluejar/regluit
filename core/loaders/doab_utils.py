@@ -123,5 +123,6 @@ def doab_cover(doab_id):
     stream_data = get_streamdata(doab_id)
     if not stream_data:
         logger.error('get_streamdata failed for %s', doab_id)
+        return None
     return COVER_FSTRING.format(**stream_data)
 
