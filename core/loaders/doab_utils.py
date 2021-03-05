@@ -120,5 +120,8 @@ def get_streamdata(handle):
 
 COVER_FSTRING = "https://directory.doabooks.org/bitstream/handle/{handle}/{name}?sequence={sequenceId}&isAllowed=y"
 def doab_cover(doab_id):
-    return COVER_FSTRING.format(**get_streamdata(doab_id))
+    stream_data = get_streamdata(doab_id)
+    if not stream_data:
+        logger.error('get_streamdata failed for %s', doab_id)
+    return COVER_FSTRING.format(**stream_data)
 
