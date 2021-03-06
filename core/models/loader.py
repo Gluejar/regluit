@@ -86,9 +86,9 @@ class ContentTyper(object):
 
     def calc_type(self, url):
         logger.info(url)
-        delay = 1
         # is there a delay associated with the url
         netloc = urlparse(url).netloc
+        delay = 0.1 if 'oapen.org' in netloc else 1
 
         # wait if necessary
         last_call = self.last_call.get(netloc)
