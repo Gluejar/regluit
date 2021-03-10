@@ -95,6 +95,7 @@ DONT_HARVEST = [
     'Project Gutenberg',
     'Google Books',
     'OpenEdition Books',
+    'OAPEN Library',
 ]
 
 def harvesters(ebook):
@@ -109,7 +110,6 @@ def harvesters(ebook):
     yield ebook.provider == 'nomos-elibrary.de', harvest_nomos
     yield ebook.provider == 'frontiersin.org', harvest_frontiersin
     yield ebook.provider in ['Palgrave Connect', 'Springer', 'springer.com'], harvest_springerlink
-    yield ebook.provider == 'OAPEN Library', harvest_oapen
     yield ebook.provider == 'pulp.up.ac.za', harvest_pulp
     yield ebook.provider == 'bloomsburycollections.com', harvest_bloomsbury
     yield ebook.provider == 'Athabasca University Press', harvest_athabasca
@@ -486,36 +486,6 @@ def harvest_springerlink(ebook):
     def selector(doc):
         return doc.find_all('a', title=SPRINGERDL)
     return harvest_multiple_generic(ebook, selector)
-
-OAPENPDF = re.compile('^/bitstream.*\.pdf')
-
-def harvest_oapen(ebook):
-    for old_ebook in ebook.edition.work.ebooks():
-        if (old_ebook.id != ebook.id and
-                old_ebook.provider == ebook.provider and
-                old_ebook.format == 'pdf'):            
-            ebook.delete()
-            return None, 0
-
-    harvested = None
-    made = 0
-    if ebook.url.find('oapen.org/record') < 0:
-        return None, 0
-
-    doc = get_soup(ebook.url)
-    try:
-        base = doc.find('base')['href']
-    except:
-        base = ebook.url
-    
-    if doc:
-        obj = doc.find('a', href=OAPENPDF)
-        if obj:
-            dl_url =  urljoin(base, obj['href'])
-            harvested, made = make_dl_ebook(dl_url, ebook)
-    if made == 0:
-        logger.warning('couldn\'t get any dl_url for %s', ebook.url)
-    return harvested, made
 
 
 EDOCMAN = re.compile('component/edocman/')
