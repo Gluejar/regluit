@@ -42,6 +42,10 @@ rl = RateLimiter()
 def dl_online(ebook, limiter=rl.delay, format='online', force=False):
     if ebook.format != format or (not force and ebook.provider in DONT_HARVEST):
         return None, 0
+    if ebook.provider in STOREPROVIDERS:
+        ebook.format = 'bookshop'
+        ebook.save()
+        return None, 0
     if ebook.ebook_files.exists():
         return ebook.ebook_files.first(), 0
     for do_harvest, harvester in harvesters(ebook):
@@ -76,6 +80,18 @@ def archive_dl(ebook, limiter=rl.delay, format='all', force=False):
             status = -1
     return status
     
+STOREPROVIDERS = [
+    "bod.de",
+    "checkout.sas.ac.uk",
+    "amazon.de",
+    "play.google.com",
+    "amazon.ca",
+    "amzn.to",
+    "amazon.co.uk",
+    "amazon.com",
+    "cdcshoppingcart.uchicago.edu",
+    "librumstore.com",
+]
 
 CMPPROVIDERS = [
     'editorial.uniagustiniana.edu.co',
