@@ -86,7 +86,7 @@ def clean_archive(ebf):
     if not fsize or ebf.asking == 1:
         return
     # find duplicate files by looking at filesize
-    old_ebooks = Ebook.objects.filter(filesize=fsize, provider=ebf.ebook.provider,
+    old_ebooks = models.Ebook.objects.filter(filesize=fsize, provider=ebf.ebook.provider,
         edition__work=ebf.edition.work, format=ebf.format
     ).exclude(id=ebf.ebook.id)
     for old_ebook in old_ebooks:
