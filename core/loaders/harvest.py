@@ -42,6 +42,10 @@ rl = RateLimiter()
 def dl_online(ebook, limiter=rl.delay, format='online', force=False):
     if ebook.format != format or (not force and ebook.provider in DONT_HARVEST):
         return None, 0
+    if ebook.provider in STOREPROVIDERS:
+        ebook.format = 'bookshop'
+        ebook.save()
+        return None, 0
     if ebook.ebook_files.exists():
         return ebook.ebook_files.first(), 0
     for do_harvest, harvester in harvesters(ebook):
@@ -68,6 +72,7 @@ def archive_dl(ebook, limiter=rl.delay, format='all', force=False):
         dl_cf, fmt = loader.load_ebookfile(ebook.url, ebook.format)
         if dl_cf:
             ebf, num =  make_harvested_ebook(dl_cf, ebook, fmt, filesize=dl_cf.size)
+            clean_archive(ebf)
             status = 1
         else:
             logger.warning('download format %s for %s is not ebook', ebook.format, ebook.url)
@@ -75,7 +80,36 @@ def archive_dl(ebook, limiter=rl.delay, format='all', force=False):
         if not ebf:
             status = -1
     return status
-    
+
+def clean_archive(ebf):
+    fsize = ebf.ebook.filesize
+    if not fsize or ebf.asking == 1:
+        return
+    # find duplicate files by looking at filesize
+    old_ebooks = Ebook.objects.filter(filesize=fsize, provider=ebf.ebook.provider,
+        edition__work=ebf.edition.work, format=ebf.format
+    ).exclude(id=ebf.ebook.id)
+    for old_ebook in old_ebooks:
+        old_ebook.active = False
+        for oldebf in old_ebook.ebook_files.exclude(id=ebf.id):
+            # save storage by deleting redundant files
+            oldebf.file.delete()
+            oldebf.file = ebf.file
+            oldebf.save()
+        old_ebook.save()
+
+STOREPROVIDERS = [
+    "bod.de",
+    "checkout.sas.ac.uk",
+    "amazon.de",
+    "play.google.com",
+    "amazon.ca",
+    "amzn.to",
+    "amazon.co.uk",
+    "amazon.com",
+    "cdcshoppingcart.uchicago.edu",
+    "librumstore.com",
+]
 
 CMPPROVIDERS = [
     'editorial.uniagustiniana.edu.co',
@@ -95,6 +129,7 @@ DONT_HARVEST = [
     'Project Gutenberg',
     'Google Books',
     'OpenEdition Books',
+    'OAPEN Library',
 ]
 
 def harvesters(ebook):
@@ -109,7 +144,6 @@ def harvesters(ebook):
     yield ebook.provider == 'nomos-elibrary.de', harvest_nomos
     yield ebook.provider == 'frontiersin.org', harvest_frontiersin
     yield ebook.provider in ['Palgrave Connect', 'Springer', 'springer.com'], harvest_springerlink
-    yield ebook.provider == 'OAPEN Library', harvest_oapen
     yield ebook.provider == 'pulp.up.ac.za', harvest_pulp
     yield ebook.provider == 'bloomsburycollections.com', harvest_bloomsbury
     yield ebook.provider == 'Athabasca University Press', harvest_athabasca
@@ -486,36 +520,6 @@ def harvest_springerlink(ebook):
     def selector(doc):
         return doc.find_all('a', title=SPRINGERDL)
     return harvest_multiple_generic(ebook, selector)
-
-OAPENPDF = re.compile('^/bitstream.*\.pdf')
-
-def harvest_oapen(ebook):
-    for old_ebook in ebook.edition.work.ebooks():
-        if (old_ebook.id != ebook.id and
-                old_ebook.provider == ebook.provider and
-                old_ebook.format == 'pdf'):            
-            ebook.delete()
-            return None, 0
-
-    harvested = None
-    made = 0
-    if ebook.url.find('oapen.org/record') < 0:
-        return None, 0
-
-    doc = get_soup(ebook.url)
-    try:
-        base = doc.find('base')['href']
-    except:
-        base = ebook.url
-    
-    if doc:
-        obj = doc.find('a', href=OAPENPDF)
-        if obj:
-            dl_url =  urljoin(base, obj['href'])
-            harvested, made = make_dl_ebook(dl_url, ebook)
-    if made == 0:
-        logger.warning('couldn\'t get any dl_url for %s', ebook.url)
-    return harvested, made
 
 
 EDOCMAN = re.compile('component/edocman/')
