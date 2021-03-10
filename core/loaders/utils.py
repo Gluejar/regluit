@@ -222,11 +222,17 @@ def load_from_books(books):
         if url:
             Identifier.set(type='http', value=url, edition=edition, work=work)
 
+        # get language
+        lang = get_language(book)
+        lang = lang if lang else 'en'
+        
         # make sure each isbn is represented by an Edition
         # also associate authors, publication date, cover, publisher
         for isbn in isbns:
             edition = add_by_isbn_from_google(isbn, work=work)
             if edition and edition.work != work:
+                work.language = lang
+                edition.work = lang
                 work = merge_works(work, edition.work)
             if not edition:
                 edition = Edition(title=title, work=work)
@@ -248,10 +254,8 @@ def load_from_books(books):
             work.save()
 
         # set language
-        lang = get_language(book)
-        if lang:
-            work.language = lang
-            work.save()
+        work.language = lang
+        work.save()
 
         # add a bisac subject (and ancestors) to work
         for bisacsh in get_subjects(book):
