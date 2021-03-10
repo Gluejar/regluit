@@ -256,7 +256,7 @@ def load_from_books(books):
         # add a bisac subject (and ancestors) to work
         for bisacsh in get_subjects(book):
             while bisacsh:
-                add_subject(bisacsh.full_label, work, authority="bisacsh")
+                Subject.set_by_name(bisacsh.full_label, work, authority="bisacsh")
                 bisacsh = bisacsh.parent
 
         logging.info(u'loaded work %s', work.title)
