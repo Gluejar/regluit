@@ -19,7 +19,7 @@ from regluit.core import bookloader, cc
 from regluit.core import models, tasks
 from regluit.core.bookloader import merge_works
 from regluit.core.models.loader import type_for_url
-from regluit.core.validation import identifier_cleaner, valid_subject
+from regluit.core.validation import identifier_cleaner, valid_subject, explode_bics
 
 from . import scrape_language
 from .doab_utils import doab_lang_to_iso_639_1, doab_cover, doab_reader, online_to_download
@@ -126,6 +126,7 @@ def attach_more_doab_metadata(edition, description, subjects,
         work.description = description.replace('\r\n', '\n')
 
     # update subjects
+    subjects = explode_bics(subjects)
     for s in subjects:
         if valid_subject(s):
             models.Subject.set_by_name(s, work=work)

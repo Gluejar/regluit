@@ -155,6 +155,25 @@ def valid_subject(subject_name):
         return False
     return True
 
+def explode_bic(subject_name):
+    subjects = []
+    if subject_name.startswith('bic Book Industry Communication::'):
+        for sub in subject_name.split('::')[1:]:
+            try:
+                subjects.append(sub.strip().split(maxsplit=1)[1])
+            except IndexError:
+                continue
+    else:
+        subjects = [subject_name]
+    return subjects
+            
+def explode_bics(subjects):
+    exploded = []
+    for s in subjects:
+        exploded.extend(explode_bic(s))
+    return exploded
+
+
 reverse_name_comma = re.compile(r',(?! *Jr[\., ])')
 
 def unreverse_name(name):
