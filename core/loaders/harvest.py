@@ -72,6 +72,7 @@ def archive_dl(ebook, limiter=rl.delay, format='all', force=False):
         dl_cf, fmt = loader.load_ebookfile(ebook.url, ebook.format)
         if dl_cf:
             ebf, num =  make_harvested_ebook(dl_cf, ebook, fmt, filesize=dl_cf.size)
+            clean_archive(ebf)
             status = 1
         else:
             logger.warning('download format %s for %s is not ebook', ebook.format, ebook.url)
@@ -79,7 +80,24 @@ def archive_dl(ebook, limiter=rl.delay, format='all', force=False):
         if not ebf:
             status = -1
     return status
-    
+
+def clean_archive(ebf):
+    fsize = ebf.ebook.filesize
+    if not fsize or ebf.asking == 1:
+        return
+    # find duplicate files by looking at filesize
+    old_ebooks = Ebook.objects.filter(filesize=fsize, provider=ebf.ebook.provider,
+        edition__work=ebf.edition.work, format=ebf.format
+    ).exclude(id=ebf.ebook.id)
+    for old_ebook in old_ebooks:
+        old_ebook.active = False
+        for oldebf in old_ebook.ebook_files.exclude(id=ebf.id):
+            # save storage by deleting redundant files
+            oldebf.file.delete()
+            oldebf.file = ebf.file
+            oldebf.save()
+        old_ebook.save()
+
 STOREPROVIDERS = [
     "bod.de",
     "checkout.sas.ac.uk",
