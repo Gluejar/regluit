@@ -17,8 +17,9 @@ class Command(BaseCommand):
         parser.add_argument('--ebook', nargs='?', type=int, default=0, help="ebook to harvest")
         parser.add_argument('--provider', nargs='?', default='', help="provider to harvest")
         parser.add_argument('--format', nargs='?', default='all', help="format to harvest")
+        parser.add_argument('--trace', action='store_true', help="trace")
 
-    def handle(self, limit=0, **options):
+    def handle(self, limit=0, trace=False, **options):
         limit = int(limit) if limit else 0
         rl = RateLimiter()
         format = options.get('format')
@@ -40,6 +41,7 @@ class Command(BaseCommand):
         failed = {}
         done = 0
         for online in onlines:
+            self.stdout.write(str(online.id))
             status = archive_dl(online, limiter=rl.delay, format=format)
             if status ==  1:
                 done += 1
