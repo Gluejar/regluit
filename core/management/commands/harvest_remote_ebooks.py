@@ -41,7 +41,8 @@ class Command(BaseCommand):
         failed = {}
         done = 0
         for online in onlines:
-            self.stdout.write(str(online.id))
+            if trace:
+                self.stdout.write(str(online.id))
             status = archive_dl(online, limiter=rl.delay, format=format)
             if status ==  1:
                 done += 1
@@ -53,7 +54,7 @@ class Command(BaseCommand):
                 online.format = 'online'
                 online.active = False
                 online.save()
-            if done >= limit or done >= 500:
+            if done >= limit or done >= 2000:
                 break
         self.stdout.write("archived")
         for result in [archived, failed]:
