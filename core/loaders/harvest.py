@@ -64,9 +64,9 @@ def archive_dl(ebook, limiter=rl.delay, format='all', force=False):
     """
     status = -1
     ebf = None
-    if ebook.ebook_files.filter(asking=False):
+    if ebook.ebook_files.filter(asking=False).exists():
         status = 0
-    elif models.EbookFile.objects.filter(source=ebook.url, format=ebook.format):
+    elif models.EbookFile.objects.filter(source=ebook.url, format=ebook.format).exists():
         status = 0
     else:
         dl_cf, fmt = loader.load_ebookfile(ebook.url, ebook.format)
