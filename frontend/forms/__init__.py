@@ -347,7 +347,7 @@ class CampaignThanksForm(forms.Form):
     )
     preapproval_amount = forms.DecimalField(
         required = True,
-        min_value=D('1.00'),
+        min_value=D('5.00'),
         max_value=D('2000.00'),
         decimal_places=2,
         label="Pledge Amount",
@@ -359,7 +359,7 @@ class CampaignThanksForm(forms.Form):
 class DonationForm(forms.Form):
     amount = forms.DecimalField(
         required = True,
-        min_value=D('1.00'),
+        min_value=D('5.00'),
         max_value=D('20000.00'),
         decimal_places=2,
         label="Donation Amount",
@@ -369,7 +369,7 @@ class DonationForm(forms.Form):
 class CampaignPledgeForm(forms.Form):
     preapproval_amount = forms.DecimalField(
         required = False,
-        min_value=D('1.00'),
+        min_value=D('2.00'),
         max_value=D('5000.00'),
         decimal_places=2,
         label="Support Amount",
