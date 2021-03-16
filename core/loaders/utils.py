@@ -232,7 +232,7 @@ def load_from_books(books):
             edition = add_by_isbn_from_google(isbn, work=work)
             if edition and edition.work != work:
                 work.language = lang
-                edition.work = lang
+                edition.work.language = lang
                 work = merge_works(work, edition.work)
             if not edition:
                 edition = Edition(title=title, work=work)
