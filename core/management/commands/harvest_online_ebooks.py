@@ -41,6 +41,6 @@ class Command(BaseCommand):
                 if done >= limit or done >= 500:
                     break
         self.stdout.write('harvested {} ebooks'.format(done))
-        self.stdout.write(providers)
+        self.stdout.write(str(providers))
         if done >= 500:
             self.stdout.write('500 is the maximum; repeat to do more')
