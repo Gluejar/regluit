@@ -142,7 +142,7 @@ def harvesters(ebook):
     yield ebook.provider == 'ksp.kit.edu', harvest_ksp
     yield ebook.provider == 'digitalis.uc.pt', harvest_digitalis
     yield ebook.provider == 'nomos-elibrary.de', harvest_nomos
-    yield ebook.provider == 'frontiersin.org', harvest_frontiersin
+    yield 'frontiersin.org' in ebook.provider, harvest_frontiersin
     yield ebook.provider in ['Palgrave Connect', 'Springer', 'springer.com'], harvest_springerlink
     yield ebook.provider == 'pulp.up.ac.za', harvest_pulp
     yield ebook.provider == 'bloomsburycollections.com', harvest_bloomsbury
@@ -531,6 +531,15 @@ def harvest_nomos(ebook):
     return None, 0
 
 def harvest_frontiersin(ebook): 
+    if 'GetFile.aspx' in ebook.url:
+        ebook.delete()
+        rl.last.pop(ebook.provider, 0)
+        return None, 0
+    
+    if ebook.provider == 'journal.frontiersin.org':
+        ebook, status = redirect_ebook(ebook)
+        if status < 1:
+            return None, -1 if status < 0 else 0
     num = 0
     harvested = None
     doc = get_soup(ebook.url)
