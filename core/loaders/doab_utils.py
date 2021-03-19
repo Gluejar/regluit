@@ -25,8 +25,6 @@ def doab_lang_to_iso_639_1(lang):
     return lang if lang else 'xx'
 
 
-FRONTIERSIN = re.compile(r'frontiersin.org/books/[^/]+/(\d+)')
-
 doab_reader = MetadataReader(
     fields={
         'title': ('textList', 'oai_dc:dc/datacite:title/text()'),
@@ -89,10 +87,6 @@ def online_to_download(url):
             obj = doc.find('a', class_='epub_file')
             if obj:
                 urls.append(urljoin(url, obj['href']))
-    elif FRONTIERSIN.search(url):
-        booknum = FRONTIERSIN.search(url).group(1)
-        urls.append(u'https://www.frontiersin.org/GetFile.aspx?ebook={}&fileformat=EPUB'.format(booknum))
-        urls.append(u'https://www.frontiersin.org/GetFile.aspx?ebook={}&fileformat=PDF'.format(booknum))
     elif url.find(u'edp-open.org/books-in-') >= 0:
         # pages needing multi-scrape
         return urls
