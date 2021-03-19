@@ -212,6 +212,39 @@ def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET'):
         logger.warning('download format %s for %s is not ebook', ebook.format, url)
     return None, 0
 
+def redirect_ebook(ebook):
+    """ returns an ebook and status :
+        -3 : bad return code or problem
+        -1 : deleted
+        -2 : dead, but we need to keep items
+         0 : replaced with existing
+         1 : url updated
+         
+    """
+    try:
+        r = requests.head(ebook.url, allow_redirects=True)
+    except requests.exceptions.ConnectionError as e:
+        logger.error("Connection refused for %s", url)
+        logger.error(e)
+        return ebook, -3
+    
+    if r.status_code == 404:
+        if not models.Ebook.ebook_files.exists():
+            logger.info('deleting ebook for dead url', ebook.url)
+            ebook.delete()
+            return None, -1
+        return ebook, -2
+    elif r.status_code == 200:
+        if ebook.url != r.url:
+            if models.Ebook.objects.exclude(id=ebook.id).filter(url=r.url).exists():
+                return models.Ebook.objects.filter(url=r.url)[0], 0
+            ebook.url = r.url
+            ebook.set_provider()
+            ebook.save()
+            return ebook, 1
+    logger.error("status code %s for %s", r.status_code, url)
+    return ebook, -3
+
 def make_stapled_ebook(urllist, ebook, user_agent=settings.USER_AGENT, strip_covers=False):
     pdffile = staple_pdf(urllist, user_agent, strip_covers=strip_covers)
     if not pdffile:
@@ -770,17 +803,10 @@ def harvest_brill(ebook):
     
 def harvest_doi(ebook):
     # usually a 404.
-    r = requests.get(ebook.url)
-    if r.status_code == 404 and not ebook.ebook_files.exists():
-        logger.info('deleting ebook for dead doi %s', ebook.url)
-        ebook.delete()
+    ebook, status = redirect_ebook(ebook)
+    if status == -2:
         return None, -1
-    else:
-        ebook.url = r.url
-        ebook.set_provider()
-        logger.info('reset provider to %s', ebook.provider)
-        ebook.save()
-        return None, 0
+    return None, 0
 
 GUID = re.compile(r'FBInit\.GUID = \"([0-9a-z]+)\"')
 LIBROSID = re.compile(r'(\d+)$')
