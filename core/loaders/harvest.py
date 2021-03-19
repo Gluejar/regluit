@@ -175,6 +175,7 @@ def harvesters(ebook):
     yield ebook.provider == 'DOI Resolver', harvest_doi
     yield ebook.provider == 'ispf-lab.cnr.it', harvest_ipsflab 
     yield ebook.provider == 'libros.uchile.cl', harvest_libroschile
+    yield ebook.provider == 'fupress.com', harvest_fupress
 
 
 def ebf_if_harvested(url):
@@ -855,4 +856,9 @@ def harvest_ipsflab(ebook):
     return harvest_multiple_generic(ebook, selector)
 
 
-        
+def harvest_fupress(ebook):    
+    def selector(doc):
+        return doc.select_one('#ctl00_contenuto_pdf a.btn-open[href]')
+    return harvest_one_generic(ebook, selector)
+
+       
