@@ -1,7 +1,7 @@
 from random import shuffle
 from django.core.management.base import BaseCommand
 
-from regluit.core.loaders.harvest import dl_online, RateLimiter
+from regluit.core.loaders.harvest import dl_online, rl
 from regluit.core.models import Ebook
 
 class Command(BaseCommand):
@@ -17,7 +17,7 @@ class Command(BaseCommand):
 
     def handle(self, limit=0, trace=False, **options):
         limit = int(limit) if limit else 0
-        rl = RateLimiter()
+        #rl = RateLimiter()
         format = options.get('format')
         trace = options.get('trace')
         if options.get('ebook'):
