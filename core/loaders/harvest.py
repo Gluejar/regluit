@@ -425,9 +425,9 @@ def harvest_degruyter(ebook):
         if obj:
             dl_url = urljoin(base, obj['href'])
             harvested, madepdf = make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
-
-        if made + madepdf:
-            return harvested, made + madepdf
+            made = made + madepdf
+        if made:
+            return harvested, made
 
         # none yet, check for complete ebook
         obj = doc.find('a', string=COMPLETE)
