@@ -401,21 +401,35 @@ DEGRUYTERCHAP = re.compile(r'/downloadpdf/book/.*')
 COMPLETE = re.compile(r'complete ebook', flags=re.I)
 
 def harvest_degruyter(ebook):
+    ebook, status = redirect_ebook(ebook)
+    if status < 1:
+        return None, -1 if status < 0 else 0
+
     doc = get_soup(ebook.url, settings.GOOGLEBOT_UA)
     if doc:
         try:
             base = doc.find('base')['href']
         except:
             base = ebook.url
-        made = None
-        
-        # check for epubs
-        obj = doc.select_one('a.epub-link')
+        made = 0
+        harvested = None
+
+        # check for epub
+        obj = doc.select_one('a.downloadEpub')
         if obj:
             dl_url = urljoin(base, obj['href'])
-            made = make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
+            harvested, made = make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
+        
+        # check for pdf
+        obj = doc.select_one('a.downloadPdf')
+        if obj:
+            dl_url = urljoin(base, obj['href'])
+            harvested, madepdf = make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
 
-        # check for complete ebook
+        if made + madepdf:
+            return harvested, made + madepdf
+
+        # none yet, check for complete ebook
         obj = doc.find('a', string=COMPLETE)
         if obj:
             obj = obj.parent.parent.parent.select_one('a.pdf-link')
@@ -423,8 +437,7 @@ def harvest_degruyter(ebook):
             obj = doc.find('a', href=DEGRUYTERFULL)
         if obj:
             dl_url = urljoin(base, obj['href'])
-            made = make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
-            return made
+            return make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
 
         # staple the chapters
         pdflinks = [urljoin(base, a['href']) for a in doc.find_all('a', href=DEGRUYTERCHAP)]
@@ -433,10 +446,7 @@ def harvest_degruyter(ebook):
             stapled = make_stapled_ebook(pdflinks, ebook, user_agent=settings.GOOGLEBOT_UA)
         if stapled:
             return stapled
-        elif made:
-            return made
-        else:
-            logger.warning('couldn\'t get dl_url for %s', ebook.url)
+        logger.warning('couldn\'t get dl_url for %s', ebook.url)
     else:
         logger.warning('couldn\'t get soup for %s', ebook.url)
     return None, 0
