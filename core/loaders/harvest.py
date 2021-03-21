@@ -243,7 +243,7 @@ def redirect_ebook(ebook):
             ebook.set_provider()
             ebook.save()
             return ebook, 1
-    logger.error("status code %s for %s", r.status_code, url)
+    logger.error("status code %s for %s", r.status_code, ebook.url)
     return ebook, -3
 
 def make_stapled_ebook(urllist, ebook, user_agent=settings.USER_AGENT, strip_covers=False):
