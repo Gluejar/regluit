@@ -23,7 +23,7 @@ class Command(BaseCommand):
         i = 0
         n_bad = 0
         for work in epubs:
-            if not work.ebooks().filter(format="mobi"):
+            if not work.ebooks().filter(format="mobi").exists():
                 for ebook in work.ebooks().filter(format="epub"):
                     ebf = ebook.get_archive_ebf()
                     if ebf and ebf.mobied >= 0:
