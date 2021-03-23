@@ -111,6 +111,12 @@ STOREPROVIDERS = [
     "librumstore.com",
     "publicacions.ub.edu",
     "logos-verlag.de",
+    "publicacions.urv.cat",
+    "palgrave.com",
+    "universitetsforlaget.no",
+    "iospress.nl",
+    "epubli.de",
+    "apress.com",
 ]
 
 CMPPROVIDERS = [
@@ -179,6 +185,7 @@ def harvesters(ebook):
     yield ebook.provider == 'libros.uchile.cl', harvest_libroschile
     yield ebook.provider == 'fupress.com', harvest_fupress
     yield ebook.provider == 'elibrary.duncker-humblot.com', harvest_dunckerhumblot
+    yield ebook.provider == 'cornellopen.org', harvest_cornellopen
 
 
 def ebf_if_harvested(url):
@@ -880,4 +887,9 @@ def harvest_dunckerhumblot(ebook):
         return doc.select_one('section.index-card a[href$="download"]')
     return harvest_one_generic(ebook, selector)
 
+
+def harvest_cornellopen(ebook): 
+    def selector(doc):
+        return doc.select('div.sp-product__buy-btn-container li a[href]')
+    return harvest_multiple_generic(ebook, selector)
        
