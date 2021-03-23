@@ -109,6 +109,8 @@ STOREPROVIDERS = [
     "amazon.com",
     "cdcshoppingcart.uchicago.edu",
     "librumstore.com",
+    "publicacions.ub.edu",
+    "logos-verlag.de",
 ]
 
 CMPPROVIDERS = [
@@ -176,6 +178,7 @@ def harvesters(ebook):
     yield ebook.provider == 'ispf-lab.cnr.it', harvest_ipsflab 
     yield ebook.provider == 'libros.uchile.cl', harvest_libroschile
     yield ebook.provider == 'fupress.com', harvest_fupress
+    yield ebook.provider == 'elibrary.duncker-humblot.com', harvest_dunckerhumblot
 
 
 def ebf_if_harvested(url):
@@ -869,6 +872,12 @@ def harvest_ipsflab(ebook):
 def harvest_fupress(ebook):    
     def selector(doc):
         return doc.select_one('#ctl00_contenuto_pdf a.btn-open[href]')
+    return harvest_one_generic(ebook, selector)
+
+
+def harvest_dunckerhumblot(ebook):    
+    def selector(doc):
+        return doc.select_one('section.index-card a[href$="download"]')
     return harvest_one_generic(ebook, selector)
 
        
