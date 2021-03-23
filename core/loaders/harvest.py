@@ -117,6 +117,7 @@ STOREPROVIDERS = [
     "iospress.nl",
     "epubli.de",
     "apress.com",
+    "cabi.org",
 ]
 
 CMPPROVIDERS = [
@@ -186,6 +187,7 @@ def harvesters(ebook):
     yield ebook.provider == 'fupress.com', harvest_fupress
     yield ebook.provider == 'elibrary.duncker-humblot.com', harvest_dunckerhumblot
     yield ebook.provider == 'cornellopen.org', harvest_cornellopen
+    yield ebook.provider == 'esv.info', harvest_esv
 
 
 def ebf_if_harvested(url):
@@ -892,4 +894,20 @@ def harvest_cornellopen(ebook):
     def selector(doc):
         return doc.select('div.sp-product__buy-btn-container li a[href]')
     return harvest_multiple_generic(ebook, selector)
+
+
+def harvest_esv(ebook):
+    doc = get_soup(ebook.url.replace('details', 'download'))
+    if doc:
+        obj = doc.select_one('div.content-box a[href$=".pdf"]')
+        if obj:
+            return make_dl_ebook(obj['href'], ebook)
+        else:
+            logger.warning('couldn\'t get link for %s', ebook.url)
+    else:
+        logger.warning('couldn\'t get soup for %s', ebook.url)
+    return None, 0
+
+
+
        
