@@ -118,6 +118,7 @@ STOREPROVIDERS = [
     "epubli.de",
     "apress.com",
     "cabi.org",
+    "karolinum.cz",
 ]
 
 CMPPROVIDERS = [
