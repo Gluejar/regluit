@@ -106,9 +106,11 @@ class SpringerScraper(BaseScraper):
     def get_pubdate(self):
         pubinfo = self.doc.select_one('#copyright-info')
         if pubinfo:
-            yearmatch = HAS_YEAR.search(pubinfo.string)
-            if yearmatch:
-                self.set('publication_date', yearmatch.group(0))
+            for yearstring in pubinfo.stripped_strings:
+                yearmatch = HAS_YEAR.search(yearstring)
+                if yearmatch:
+                    self.set('publication_date', yearmatch.group(0))
+                    return
 
     def get_publisher(self):
         self.set('publisher', 'Springer')
