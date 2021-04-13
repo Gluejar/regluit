@@ -3,7 +3,7 @@ from django.core.management.base import BaseCommand
 import re
 import requests
 from regluit.core.models import Edition
-from regluit.core.loaders.doab_utils import doab_cover
+from regluit.core.loaders.doab import store_doab_cover
 
 to_fix = [
 "20.500.12854/25941",
@@ -45,7 +45,7 @@ class Command(BaseCommand):
         self.fix_doab_cover(doab)
 
     def fix_doab_cover(self, doab):
-        eds = Edition.objects.filter(cover_image__contains='amazonaws.com/doab/%s' % doab)
+        eds = Edition.objects.filter(cover_image__contains=doab)
     
         cover_url = self.refresh_cover(doab)
         if cover_url:
@@ -57,7 +57,7 @@ class Command(BaseCommand):
                 else:
                     self.stdout.write('bad thumbnails for %s' % cover_url)
                     return False
-        return True
+            return True
         self.stdout.write('removing bad cover for %s' % doab)
 
         for e in eds:
@@ -74,4 +74,5 @@ class Command(BaseCommand):
         self.stdout.write('fixed %s covers' % eds.count())
 
     def refresh_cover(self, doab):
-        return doab_cover(doab)
+        new_cover, created = store_doab_cover(doab, redo=True)
+        return new_cover
