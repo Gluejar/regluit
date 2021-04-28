@@ -200,30 +200,32 @@ def load_doab_edition(title, doab_id, url, format, rights,
         raise Exception("There is more than one Ebook matching url {0}".format(url))
     if len(ebooks) == 1:
         ebook = ebooks[0]
-        models.Identifier.get_or_add(type='doab', value=doab_id, work=ebook.edition.work)
+        if not ebook.edition.work.doab or ebook.edition.work.doab == doab_id:
+            models.Identifier.get_or_add(type='doab', value=doab_id, work=ebook.edition.work)
 
-        if not ebook.rights:
-            ebook.rights = rights
-            ebook.save()
+            if not ebook.rights:
+                ebook.rights = rights
+                ebook.save()
 
-        # update the cover id
-        update_cover_doab(doab_id, ebook.edition, redo=False)
+            # update the cover id
+            update_cover_doab(doab_id, ebook.edition, redo=False)
 
-        # attach more metadata
-        attach_more_doab_metadata(
-            ebook.edition,
-            description=unlist(kwargs.get('description')),
-            subjects=kwargs.get('subject'),
-            publication_date=unlist(kwargs.get('date')),
-            publisher_name=unlist(kwargs.get('publisher')),
-            language=language,
-            authors=kwargs.get('creator'),
-            dois=dois,
-        )
-        # make sure all isbns are added
-        add_all_isbns(isbns, ebook.edition.work, language=language, title=title)
-        return ebook.edition
-
+            # attach more metadata
+            attach_more_doab_metadata(
+                ebook.edition,
+                description=unlist(kwargs.get('description')),
+                subjects=kwargs.get('subject'),
+                publication_date=unlist(kwargs.get('date')),
+                publisher_name=unlist(kwargs.get('publisher')),
+                language=language,
+                authors=kwargs.get('creator'),
+                dois=dois,
+            )
+            # make sure all isbns are added
+            add_all_isbns(isbns, ebook.edition.work, language=language, title=title)
+            return ebook.edition
+        # don't add a second doab to an existing Work
+        return None
     # remaining case --> no ebook, load record, create ebook if there is one.
     assert not ebooks
 
