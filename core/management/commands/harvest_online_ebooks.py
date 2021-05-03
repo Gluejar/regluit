@@ -19,7 +19,6 @@ class Command(BaseCommand):
         limit = int(limit) if limit else 0
         #rl = RateLimiter()
         format = options.get('format')
-        trace = options.get('trace')
         if options.get('ebook'):
             onlines = Ebook.objects.filter(id=options.get('ebook'))
         elif options.get('provider'):
