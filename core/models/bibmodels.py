@@ -1101,7 +1101,7 @@ class EbookFile(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     asking = models.BooleanField(default=False)
     ebook = models.ForeignKey('Ebook', on_delete=models.CASCADE, related_name='ebook_files', null=True)
-    source = models.URLField(null=True, blank=True)
+    source = models.URLField(max_length=1024, null=True, blank=True)
     mobied = models.IntegerField(default=0) #-1 indicates a failed conversion attempt
     version = None
     def check_file(self):
