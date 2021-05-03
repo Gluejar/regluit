@@ -51,6 +51,7 @@ def dl_online(ebook, limiter=rl.delay, format='online', force=False):
     for do_harvest, harvester in harvesters(ebook):
         if do_harvest:
             for ebf in ebf_if_harvested(ebook.url):
+                clean_archive(ebf)
                 return ebf, 0
             limiter(ebook.provider)
             return harvester(ebook)
