@@ -450,6 +450,14 @@ def getdoab(url):
         return id_match.group(1)
     return False
 
+
+def get_doab_record(doab_id):
+    record_id = 'oai:directory.doabooks.org:%s' % doab_id
+    try:
+        return doab_client.getRecord(metadataPrefix='oai_dc', identifier=record_id)
+    except IdDoesNotExistError:
+        return None
+
 def load_doab_oai(from_date, until_date, limit=100):
     '''
     use oai feed to get oai updates
