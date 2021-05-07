@@ -18,6 +18,8 @@ AGE_LEVEL_CHOICES = (
     ('18-', 'Adult/Advanced Reader')
 )
 
+DOWNLOADABLE = ('pdf', 'epub', 'mobi')
+
 TEXT_RELATION_CHOICES = (
     ('translation', 'translation'),
     ('revision', 'revision'),

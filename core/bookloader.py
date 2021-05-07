@@ -35,7 +35,7 @@ from regluit.utils.lang import lang_to_language_code
 
 from . import cc
 from . import models
-from .parameters import WORK_IDENTIFIERS
+from .parameters import WORK_IDENTIFIERS, DOWNLOADABLE
 from .validation import identifier_cleaner, unreverse_name
 from .models import loader
 
@@ -991,7 +991,7 @@ class BasePandataLoader(object):
     def load_ebooks(self, metadata, edition, test_mode=False, user=None):
         default_edition = edition
         license = cc.license_from_cc_url(metadata.rights_url)
-        for key in ['epub', 'pdf', 'mobi']:
+        for key in DOWNLOADABLE:
             url = metadata.metadata.get('download_url_{}'.format(key), None)
             if url:
                 edition = edition_for_etype(key, metadata, default=default_edition)
