@@ -13,7 +13,7 @@ from django.core.files.base import ContentFile
 
 from regluit.core import models
 from regluit.core.models import loader
-from regluit.core.parameters import GOOD_PROVIDERS
+from regluit.core.parameters import GOOD_PROVIDERS, DOWNLOADABLE
 from regluit.core.pdf import staple_pdf
 
 from .soup import get_soup
@@ -88,7 +88,7 @@ def archive_dl(ebook, limiter=rl.delay, format='all', force=False):
 
 def clean_archive(ebf):
     fsize = ebf.ebook.filesize
-    if not fsize or ebf.asking == 1:
+    if not fsize or ebf.asking == 1 or ebf.ebook.format not in DOWNLOADABLE:
         return
     # find duplicate files by looking at filesize
     old_ebooks = models.Ebook.objects.filter(filesize=fsize, provider=ebf.ebook.provider,
