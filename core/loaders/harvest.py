@@ -39,13 +39,17 @@ class RateLimiter(object):
 
 rl = RateLimiter()
 
+def set_bookshop(ebook):
+    ebook.format = 'bookshop'
+    ebook.save()
+    return None, 0
+
+
 def dl_online(ebook, limiter=rl.delay, format='online', force=False):
     if ebook.format != format or (not force and ebook.provider in DONT_HARVEST):
         return None, 0
     if ebook.provider in STOREPROVIDERS:
-        ebook.format = 'bookshop'
-        ebook.save()
-        return None, 0
+        return set_bookshop(ebook)
     if ebook.ebook_files.exists():
         return ebook.ebook_files.first(), 0
     for do_harvest, harvester in harvesters(ebook):
@@ -140,7 +144,6 @@ DONT_HARVEST = [
     'Project Gutenberg',
     'Google Books',
     'OpenEdition Books',
-    'OAPEN Library',
 ]
 
 def harvesters(ebook):
@@ -302,8 +305,16 @@ def make_harvested_ebook(content, ebook, format, filesize=0):
     new_ebf.save()
     return new_ebf, 1
 
+def is_bookshop_url(url):
+    if '/prodotto/' in url:
+        return True
+    if url.startswith('https://library.oapen.org/handle/'):
+        return True
+    return False
 
 def harvest_generic(ebook):
+    if is_bookshop_url(ebook.url):
+        return set_bookshop(ebook)        
     return make_dl_ebook(ebook.url, ebook)
 
 
@@ -586,6 +597,17 @@ SPRINGERDL = re.compile(r'(EPUB|PDF|MOBI)')
 def harvest_springerlink(ebook): 
     def selector(doc):
         return doc.find_all('a', title=SPRINGERDL)
+    if ebook.provider == "springer.com":
+        doc = get_soup(ebook.url)
+        if  doc:
+            obj = doc.select_one(".extra-materials a.btn-secondary[href]")
+            if obj:
+                url = obj['href']
+                if models.Ebook.objects.exclude(id=ebook.id).filter(url=url).exists():
+                    set_bookshop(ebook)
+                    return models.Ebook.objects.filter(url=url)[0], 0
+                ebook.url = url
+                ebook.save()
     return harvest_multiple_generic(ebook, selector)
 
 
