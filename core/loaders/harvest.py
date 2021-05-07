@@ -21,7 +21,7 @@ from .soup import get_soup
 logger = logging.getLogger(__name__)
 
 DROPBOX_DL = re.compile(r'"(https://dl.dropboxusercontent.com/content_link/[^"]+)"')
-DELAY = 5.0
+DELAY = 1.0
 OPENBOOKPUB =  re.compile(r'openbookpublishers.com/+(reader|product|/?download/book)/(\d+)')
 
 class RateLimiter(object):
@@ -198,7 +198,7 @@ def harvesters(ebook):
 
 def ebf_if_harvested(url):
     onlines = models.EbookFile.objects.filter(source=url)
-    if onlines:
+    if onlines.exists():
         return onlines
     return  models.EbookFile.objects.none()
 
@@ -211,6 +211,7 @@ def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET'):
 
     # check to see if url already harvested
     for ebf in ebf_if_harvested(url):
+        # these ebookfiles are created to short-circuit dl_online to avoid re-harvest
         if ebf.ebook == ebook:
             return ebf, 0
         new_ebf = models.EbookFile.objects.create(
@@ -309,7 +310,7 @@ def make_harvested_ebook(content, ebook, format, filesize=0):
 def is_bookshop_url(url):
     if '/prodotto/' in url:
         return True
-    if url.startswith('https://library.oapen.org/handle/'):
+    if ':' in url and url.split(':')[1].startswith('//library.oapen.org/handle/'):
         return True
     return False
 
