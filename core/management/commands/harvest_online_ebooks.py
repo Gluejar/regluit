@@ -29,6 +29,7 @@ class Command(BaseCommand):
             onlines = (Ebook.objects.get(id=id) for id in online_ids)
         done = 0
         providers = {}
+        self.stdout.write('%s onlines to check' % onlines.count())
         for online in onlines:
             if trace:
                 self.stdout.write(str(online.id))

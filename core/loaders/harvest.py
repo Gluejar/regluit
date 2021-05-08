@@ -13,7 +13,7 @@ from django.core.files.base import ContentFile
 
 from regluit.core import models
 from regluit.core.models import loader
-from regluit.core.parameters import GOOD_PROVIDERS
+from regluit.core.parameters import GOOD_PROVIDERS, DOWNLOADABLE
 from regluit.core.pdf import staple_pdf
 
 from .soup import get_soup
@@ -21,7 +21,7 @@ from .soup import get_soup
 logger = logging.getLogger(__name__)
 
 DROPBOX_DL = re.compile(r'"(https://dl.dropboxusercontent.com/content_link/[^"]+)"')
-DELAY = 5.0
+DELAY = 1.0
 OPENBOOKPUB =  re.compile(r'openbookpublishers.com/+(reader|product|/?download/book)/(\d+)')
 
 class RateLimiter(object):
@@ -88,7 +88,7 @@ def archive_dl(ebook, limiter=rl.delay, format='all', force=False):
 
 def clean_archive(ebf):
     fsize = ebf.ebook.filesize
-    if not fsize or ebf.asking == 1:
+    if not fsize or ebf.asking == 1 or ebf.ebook.format not in DOWNLOADABLE:
         return
     # find duplicate files by looking at filesize
     old_ebooks = models.Ebook.objects.filter(filesize=fsize, provider=ebf.ebook.provider,
@@ -97,33 +97,35 @@ def clean_archive(ebf):
     for old_ebook in old_ebooks:
         old_ebook.active = False
         for oldebf in old_ebook.ebook_files.exclude(id=ebf.id):
-            # save storage by deleting redundant files
-            oldebf.file.delete()
-            oldebf.file = ebf.file
-            oldebf.save()
+            if old_ebf.file != ebf.file:
+                # save storage by deleting redundant files
+                oldebf.file.delete()
+                oldebf.file = ebf.file
+                oldebf.save()
         old_ebook.save()
 
 STOREPROVIDERS = [
-    "bod.de",
-    "checkout.sas.ac.uk",
-    "amazon.de",
-    "play.google.com",
     "amazon.ca",
-    "amzn.to",
     "amazon.co.uk",
     "amazon.com",
-    "cdcshoppingcart.uchicago.edu",
-    "librumstore.com",
-    "publicacions.ub.edu",
-    "logos-verlag.de",
-    "publicacions.urv.cat",
-    "palgrave.com",
-    "universitetsforlaget.no",
-    "iospress.nl",
-    "epubli.de",
+    "amazon.de",
+    "amzn.to",
     "apress.com",
+    "bod.de",
     "cabi.org",
+    "cdcshoppingcart.uchicago.edu",
+    "checkout.sas.ac.uk",
+    "epubli.de",
+    "iospress.nl",
     "karolinum.cz",
+    "librumstore.com",
+    "logos-verlag.de",
+    "palgrave.com",
+    "play.google.com",
+    "press.umich.edu",
+    "publicacions.ub.edu",
+    "publicacions.urv.cat",
+    "universitetsforlaget.no",
 ]
 
 CMPPROVIDERS = [
@@ -197,7 +199,7 @@ def harvesters(ebook):
 
 def ebf_if_harvested(url):
     onlines = models.EbookFile.objects.filter(source=url)
-    if onlines:
+    if onlines.exists():
         return onlines
     return  models.EbookFile.objects.none()
 
@@ -210,6 +212,7 @@ def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET'):
 
     # check to see if url already harvested
     for ebf in ebf_if_harvested(url):
+        # these ebookfiles are created to short-circuit dl_online to avoid re-harvest
         if ebf.ebook == ebook:
             return ebf, 0
         new_ebf = models.EbookFile.objects.create(
@@ -308,7 +311,7 @@ def make_harvested_ebook(content, ebook, format, filesize=0):
 def is_bookshop_url(url):
     if '/prodotto/' in url:
         return True
-    if url.startswith('https://library.oapen.org/handle/'):
+    if ':' in url and url.split(':')[1].startswith('//library.oapen.org/handle/'):
         return True
     return False
 

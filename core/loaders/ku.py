@@ -10,6 +10,7 @@ from regluit.core.validation import (
 )
 from regluit.core.bookloader import add_from_bookdatas
 from regluit.core.models import EbookFile
+from regluit.core.parameters import DOWNLOADABLE
 
 from .multiscrape import BaseMultiScraper, multiscrape
 from .utils import ids_from_urls
@@ -103,7 +104,7 @@ class KUMultiScraper(BaseMultiScraper):
         self.set('creator', {'{}s'.format(role): creator_list })
 
     def get_downloads(self):
-        fts = ['pdf', 'epub', 'mobi']
+        fts = DOWNLOADABLE
         dls = self.doc.find_all('Document')
         for dl in dls:
             dlft = dl.Type.text

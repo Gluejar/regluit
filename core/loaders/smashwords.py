@@ -1,6 +1,7 @@
 import re
 from urllib.parse import urljoin
 from regluit.core.loaders.scrape import BaseScraper
+from regluit.core.parameters import DOWNLOADABLE
 
 SWCAT = re.compile(r'^https://www\.smashwords\.com/books/category.*')
 class SmashwordsScraper(BaseScraper):
@@ -22,7 +23,7 @@ class SmashwordsScraper(BaseScraper):
     def get_downloads(self):
         dldiv =  self.doc.select_one('#download')
         if dldiv:
-            for dl_type in ['epub', 'mobi', 'pdf']:
+            for dl_type in DOWNLOADABLE:
                 dl_link = dldiv.find('a', href=re.compile(r'.*\.{}'.format(dl_type)))
                 if dl_link:
                     url = urljoin(self.base,dl_link['href'])

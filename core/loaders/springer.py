@@ -8,6 +8,7 @@ from django.conf import settings
 
 from regluit.core.validation import identifier_cleaner
 from regluit.core.bookloader import add_from_bookdatas
+from regluit.core.parameters import DOWNLOADABLE
 
 from .scrape import BaseScraper, CONTAINS_CC
 
@@ -17,7 +18,7 @@ HAS_YEAR = re.compile(r'(19|20)\d\d')
 class SpringerScraper(BaseScraper):
     can_scrape_strings =['10.1007', '10.1057']
     def get_downloads(self):
-        for dl_type in ['epub', 'mobi', 'pdf']:
+        for dl_type in DOWNLOADABLE:
             download_el = self.doc.find('a', title=re.compile(dl_type.upper()))
             if download_el:
                 value = download_el.get('href')
