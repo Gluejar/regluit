@@ -97,7 +97,7 @@ def clean_archive(ebf):
     for old_ebook in old_ebooks:
         old_ebook.active = False
         for oldebf in old_ebook.ebook_files.exclude(id=ebf.id):
-            if old_ebf.file != ebf.file:
+            if oldebf.file != ebf.file:
                 # save storage by deleting redundant files
                 oldebf.file.delete()
                 oldebf.file = ebf.file
