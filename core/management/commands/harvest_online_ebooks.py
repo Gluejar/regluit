@@ -23,13 +23,15 @@ class Command(BaseCommand):
             onlines = Ebook.objects.filter(id=options.get('ebook'))
         elif options.get('provider'):
             onlines = Ebook.objects.filter(provider=options.get('provider'), format=format)
+            self.stdout.write('%s onlines to check' % onlines.count())
         else:
             online_ids = [ebook.id for ebook in Ebook.objects.filter(format=format)]
+            self.stdout.write('%s onlines to check' % len(online_ids))
             shuffle(online_ids)
             onlines = (Ebook.objects.get(id=id) for id in online_ids)
         done = 0
         providers = {}
-        self.stdout.write('%s onlines to check' % onlines.count())
+        
         for online in onlines:
             if trace:
                 self.stdout.write(str(online.id))
