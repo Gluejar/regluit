@@ -197,6 +197,7 @@ def harvesters(ebook):
     yield ebook.provider == 'cornellopen.org', harvest_cornellopen
     yield ebook.provider == 'esv.info', harvest_esv
     yield ebook.provider == 'fulcrum.org', harvest_fulcrum
+    yield ebook.provider in ('epress.lib.uts.edu.au', 'utsepress.lib.uts.edu.au'), harvest_ubiquity
 
 
 def ebf_if_harvested(url):
@@ -974,5 +975,9 @@ def harvest_fulcrum(ebook):
         return doc.select('ul.monograph-catalog-rep-downloads a[href]')
     return harvest_multiple_generic(ebook, selector)
 
+def harvest_ubiquity(ebook):    
+    def selector(doc):
+        return doc.find_all('a', attrs={'data-category': re.compile('(epub|mobi|pdf) download')})
+    return harvest_multiple_generic(ebook, selector)
 
        
