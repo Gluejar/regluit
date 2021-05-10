@@ -4,7 +4,7 @@ code for harvesting 'online' ebooks
 import logging
 import re
 import time
-from urllib.parse import urljoin
+from urllib.parse import urljoin, quote
 
 import requests
 
@@ -189,12 +189,14 @@ def harvesters(ebook):
     yield ebook.provider == 'meson.press', harvest_meson    
     yield 'brillonline' in ebook.provider, harvest_brill
     yield ebook.provider == 'DOI Resolver', harvest_doi
+    yield ebook.provider == 'apps.crossref.org', harvest_doi_coaccess
     yield ebook.provider == 'ispf-lab.cnr.it', harvest_ipsflab 
     yield ebook.provider == 'libros.uchile.cl', harvest_libroschile
     yield ebook.provider == 'fupress.com', harvest_fupress
     yield ebook.provider == 'elibrary.duncker-humblot.com', harvest_dunckerhumblot
     yield ebook.provider == 'cornellopen.org', harvest_cornellopen
     yield ebook.provider == 'esv.info', harvest_esv
+    yield ebook.provider == 'fulcrum.org', harvest_fulcrum
 
 
 def ebf_if_harvested(url):
@@ -867,6 +869,38 @@ def harvest_doi(ebook):
         return None, -1
     return None, 0
 
+def harvest_doi_coaccess(ebook):
+    # make a new ebook for the "main pub" and ignore the "related pub"
+    if ebook.url.startswith('https://doi.org/'):
+        api_url = 'https://apps.crossref.org/search/coaccess?doi=%s' % quote(
+            ebook.url[16:], safe='')
+        r = requests.get(api_url)
+        if r.status_code == 200:
+            data = r.json()
+            url = data.get('url', '')
+            if not url:
+                return None, 0
+            if models.Ebook.objects.exclude(id=ebook.id).filter(url=url).exists():
+                # already taken care of
+                return set_bookshop(ebook)
+
+            # a new ebook
+            format = loader.type_for_url(url)
+            if format in ('pdf', 'epub', 'mobi', 'html', 'online'):
+                new_ebook = models.Ebook()
+                new_ebook.format = format
+                new_ebook.url = url
+                new_ebook.rights = ebook.rights
+                new_ebook.edition = ebook.edition
+                new_ebook.set_provider()
+                if format == "online":
+                    new_ebook.active = False
+                new_ebook.save()
+                set_bookshop(ebook)
+                if format in DOWNLOADABLE:
+                    return make_dl_ebook(url, ebook)
+    return None, 0 
+
 GUID = re.compile(r'FBInit\.GUID = \"([0-9a-z]+)\"')
 LIBROSID = re.compile(r'(\d+)$')
 LIBROSROOT = 'https://libros.uchile.cl/files/presses/1/monographs/%s/submission/proof/'
@@ -935,6 +969,10 @@ def harvest_esv(ebook):
         logger.warning('couldn\'t get soup for %s', ebook.url)
     return None, 0
 
+def harvest_fulcrum(ebook):    
+    def selector(doc):
+        return doc.select('ul.monograph-catalog-rep-downloads a[href]')
+    return harvest_multiple_generic(ebook, selector)
 
 
        
