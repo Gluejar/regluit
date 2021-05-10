@@ -115,6 +115,7 @@ STOREPROVIDERS = [
     "cabi.org",
     "cdcshoppingcart.uchicago.edu",
     "checkout.sas.ac.uk",
+    "dykinson.com",
     "epubli.de",
     "iospress.nl",
     "karolinum.cz",
@@ -198,7 +199,7 @@ def harvesters(ebook):
     yield ebook.provider == 'esv.info', harvest_esv
     yield ebook.provider == 'fulcrum.org', harvest_fulcrum
     yield ebook.provider in ('epress.lib.uts.edu.au', 'utsepress.lib.uts.edu.au'), harvest_ubiquity
-
+    yield ebook.provider == 'orkana.no', harvest_orkana
 
 def ebf_if_harvested(url):
     onlines = models.EbookFile.objects.filter(source=url)
@@ -980,4 +981,12 @@ def harvest_ubiquity(ebook):
         return doc.find_all('a', attrs={'data-category': re.compile('(epub|mobi|pdf) download')})
     return harvest_multiple_generic(ebook, selector)
 
-       
+def harvest_orkana(ebook):    
+    def selector(doc):
+        for obj in doc.find_all('p', string=re.compile(r'\((PDF|E-BOK)\)')):
+            div = obj.find_parent('div')
+            if div and div.find_next_sibling('div') and div.find_next_sibling('div').find('a'):
+                yield div.find_next_sibling('div').find('a')
+    return harvest_multiple_generic(ebook, selector)
+
+    
