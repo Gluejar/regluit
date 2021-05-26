@@ -625,9 +625,10 @@ def merge_works(w1, w2, user=None):
 
 def detach_editions(eds):
     """
-    will detach edition from its work, creating a new stub work. if remerge=true, will see if
-    there's another work to attach to
+    will detach edition from its work, creating a new stub work. 
     """
+    if not len(eds):
+        return
     e = eds[0]
     from_work = e.work
     logger.info(u"splitting edition %s from %s", e, e.work)
