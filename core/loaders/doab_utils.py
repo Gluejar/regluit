@@ -115,6 +115,9 @@ def get_streamdata(handle):
         logger.error(e)
     except SSLError as e:
         logger.error(e)
+    except ValueError as e:
+        # decoder error
+        logger.error(e)
 
 COVER_FSTRING = "https://directory.doabooks.org/bitstream/handle/{handle}/{name}?sequence={sequenceId}&isAllowed=y"
 def doab_cover(doab_id):
