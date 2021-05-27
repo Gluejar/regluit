@@ -57,6 +57,7 @@ EXTRA_LANG_MAP = dict([
     (u'slovene', 'sl'),
     (u'spa', 'es'),
     (u'spagnolo', 'es'),
+    (u'un', 'xx'),
 ])
 
 def lang_to_language_code(lang):
