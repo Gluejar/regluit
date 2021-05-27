@@ -324,8 +324,9 @@ def work(request, work_id, action='display'):
             formset = EditionFormSet(data=request.POST, instance=work)
             if formset.is_valid():
                 to_split = [form.instance for form in formset.deleted_forms]
-                detach_editions(to_split)
-                alert = 'editions have been split'
+                if to_split:
+                    detach_editions(to_split)
+                    alert = 'editions have been split'
             if 'select_edition' in request.POST:
                 selected_id = request.POST['select_edition']
                 try:

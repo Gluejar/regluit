@@ -198,7 +198,7 @@ def update_edition(edition):
         title = edition.work.title
 
     # check for language change
-    language = d['language']
+    language = fix_lang(d['language'])
     # allow variants in main language (e.g., 'zh-tw')
     if len(language) > 5:
         language = language[0:5]
@@ -308,6 +308,15 @@ def get_edition_by_id(type, value):
         except models.Identifier.DoesNotExist:
             return None
 
+def fix_lang(language):
+    if len(language) > 5:
+        language = language[0:5]
+    if language == 'un':
+        # 5/28/21 language coding is broken in google books
+        # hope they fix it
+        language = 'xx'
+    return language
+
 
 def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
     """add a book to the UnglueIt database based on the GoogleBooks ID. The
@@ -359,10 +368,7 @@ def add_by_googlebooks_id(googlebooks_id, work=None, results=None, isbn=None):
             return None
 
     # don't add the edition to a work with a different language
-    # https://www.pivotaltracker.com/story/show/17234433
-    language = d['language']
-    if len(language) > 5:
-        language = language[0:5]
+    language = fix_lang(d['language'])
     if work and work.language != language:
         logger.info(u"not connecting %s since it is %s instead of %s",
                     googlebooks_id, language, work.language)
@@ -625,9 +631,10 @@ def merge_works(w1, w2, user=None):
 
 def detach_editions(eds):
     """
-    will detach edition from its work, creating a new stub work. if remerge=true, will see if
-    there's another work to attach to
+    will detach edition from its work, creating a new stub work. 
     """
+    if not len(eds):
+        return
     e = eds[0]
     from_work = e.work
     logger.info(u"splitting edition %s from %s", e, e.work)
