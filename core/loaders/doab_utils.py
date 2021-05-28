@@ -75,7 +75,7 @@ def online_to_download(url):
         if doc:
             obj = doc.find('object', type='application/pdf')
             if obj:
-                urls.append(obj['data'].split('#')[0])
+                urls.append(obj['data'].split('?')[0])
     elif url.find(u'books.scielo.org/') >= 0:
         if url[-4:] in ['epub', '.pdf']:
             return [url]
