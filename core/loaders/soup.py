@@ -7,9 +7,10 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-def get_soup(url, user_agent=settings.USER_AGENT):
+def get_soup(url, user_agent=settings.USER_AGENT, follow_redirects=False):
     try:
-        response = requests.get(url, headers={"User-Agent": user_agent})
+        response = requests.get(url, headers={"User-Agent": user_agent},
+                                allow_redirects=follow_redirects)
     except requests.exceptions.MissingSchema:
         response = requests.get('http://%s' % url, headers={"User-Agent": user_agent})
     except requests.exceptions.ConnectionError as e:

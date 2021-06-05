@@ -542,7 +542,7 @@ def harvest_digitalis(ebook):
 
 NOMOSPDF = re.compile('download_full_pdf')
 def harvest_nomos(ebook): 
-    doc = get_soup(ebook.url)
+    doc = get_soup(ebook.url, follow_redirects=True)
     if doc:
         obj = doc.find('a', href=NOMOSPDF)
         if obj:
