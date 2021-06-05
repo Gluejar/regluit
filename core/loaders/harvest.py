@@ -542,7 +542,7 @@ def harvest_digitalis(ebook):
 
 NOMOSPDF = re.compile('download_full_pdf')
 def harvest_nomos(ebook): 
-    doc = get_soup(ebook.url)
+    doc = get_soup(ebook.url, follow_redirects=True)
     if doc:
         obj = doc.find('a', href=NOMOSPDF)
         if obj:
@@ -717,6 +717,13 @@ def harvest_mdpi(ebook):
         return None, 0
     elif 'img.mdpi.org' in ebook.url:
         return harvest_generic(ebook)
+    elif ebook.url.find(u'mdpi.com/books/pdfview/book/') >= 0:
+        doc = get_soup(ebook.url)
+        if doc:
+            obj = doc.find('object', type='application/pdf')
+            if obj and 'data' in obj:
+                return make_dl_ebook(obj['data'], ebook)
+            return None, 0   
     return harvest_one_generic(ebook, selector)
 
 
