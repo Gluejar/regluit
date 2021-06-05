@@ -70,13 +70,7 @@ def online_to_download(url):
     urls = []
     if not url or models.Ebook.infer_provider(url) in BOOKSHOP_PROVIDERS:
         return urls
-    if url.find(u'mdpi.com/books/pdfview/book/') >= 0:
-        doc = get_soup(url)
-        if doc:
-            obj = doc.find('object', type='application/pdf')
-            if obj:
-                urls.append(obj['data'].split('?')[0])
-    elif url.find(u'books.scielo.org/') >= 0:
+    if url.find(u'books.scielo.org/') >= 0:
         if url[-4:] in ['epub', '.pdf']:
             return [url]
         doc = get_soup(url)
