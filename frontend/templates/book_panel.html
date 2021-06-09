@@ -196,17 +196,29 @@
 
 		</div>
     </div>
+    {% if workid %}
     {% cache 3600 bookpanel workid %}
     <div class="listview panelfront side1 book-thumb">
-         <a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}" target="_top"><img src="{{ work.cover_image_thumbnail  }}" alt="Book cover" title="book cover" /></a>
+         <a href="{% url 'work' workid %}" target="_top"><img src="{{ work.cover_image_thumbnail }}" alt="Book cover" title="book cover" /></a>
     </div>
     <div class="listview panelfront side1 book-name">
         <div class="title">
-            <a href="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">{{ work.title }}</a>
+            <a href="{% url 'work' workid %}">{{ work.title }}</a>
         </div>
         <div class="listview author">{{ work.authors_short }}</div>
     </div>
     {% endcache %}
+    {% else %}
+    <div class="listview panelfront side1 book-thumb">
+         <a href="{% url 'googlebooks' googlebooks_id %}" target="_top"><img src="{{ work.cover_image_thumbnail }}" alt="Book cover" title="book cover" /></a>
+    </div>
+    <div class="listview panelfront side1 book-name">
+        <div class="title">
+            <a href="{% url 'googlebooks' googlebooks_id %}">{{ work.title }}</a>
+        </div>
+        <div class="listview author">{{ work.authors_short }}</div>
+    </div>
+    {% endif %}
     {% comment %}same logic as above{% endcomment %}
     {% if setkw %}
         {% if setkw in work.subjects.all %}
