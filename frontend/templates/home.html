@@ -196,9 +196,6 @@ function put_un_in_cookie2(){
                             <div class="google_signup" style="padding-bottom: 10px;">
                                <a  class="btn btn-social btn-google-plus" href="{% url 'social:begin' "google-oauth2" %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}/next/{% endif %}" ><i class="fa fa-google"></i>Sign Up with Google</a>
                             </div>
-                            <div class="google_signup">
-                               <a  class="btn btn-social btn-yahoo" href="{% url 'social:begin' "yahoo" %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}/next/{% endif %}" ><i class="fa fa-yahoo"></i>Sign Up with Yahoo!</a>
-                            </div>
                           </form>
                         </div>
                     </div>

@@ -22,7 +22,7 @@ class LoaderTests(TestCase):
         dropbox_ebf, new_ebf = dl_online(dropbox_ebook)
         self.assertTrue(dropbox_ebf.ebook.filesize)
 
-        jbe_url = 'http://www.jbe-platform.com/content/books/9789027295958'
+        jbe_url = 'https://www.jbe-platform.com/content/books/9789027295958'
         jbe_ebook = Ebook.objects.create(format='online', url=jbe_url, edition=edition, 
                                          provider='jbe-platform.com')
         jbe_ebf, new_ebf = dl_online(jbe_ebook)
