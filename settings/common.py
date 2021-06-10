@@ -265,13 +265,10 @@ SESSION_COOKIE_AGE = 3628800 # 6 weeks
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',
     'social_core.backends.twitter.TwitterOAuth',
-    'social_core.backends.yahoo.YahooOpenId',
     'social_core.backends.open_id.OpenIdAuth',
     'django.contrib.auth.backends.ModelBackend',
 )
 
-SOCIAL_AUTH_ENABLED_BACKENDS = ['google', 'twitter']
-#SOCIAL_AUTH_ASSOCIATE_BY_MAIL = True
 SOCIAL_AUTH_NEW_USER_REDIRECT_URL = '/'
 SOCIAL_AUTH_SLUGIFY_USERNAMES = True
 SOCIAL_AUTH_NONCE_SERVER_URL_LENGTH = 200
