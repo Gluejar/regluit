@@ -1,6 +1,6 @@
 -i https://pypi.org/simple
 -e git+git://github.com/EbookFoundation/fef-questionnaire.git@6672fa575b2d93b1353f926e9894ae88b4251892#egg=fef-questionnaire
--e git+git://github.com/eshellman/django-email-change.git@da14d434e9c84c55075ba31578ac49aa5fbb99d6#egg=django-email-change
+-e git+git://github.com/eshellman/django-email-change.git@fb063296cbf4e4a6d8a93d34d98fe0c7739c2e0d#egg=django-email-change
 -e git+git://github.com/eshellman/django-notification.git@1ad2be4adf3551a3471d923380368341452e178a#egg=django-notification
 amqp==2.6.1
 appdirs==1.4.4
@@ -26,7 +26,7 @@ django-js-asset==1.2.2
 django-jsonfield==1.0.0
 django-mptt==0.8.6
 django-registration==2.4.1
-django-sass-processor==0.8
+django-sass-processor==0.8.2
 django-selectable==1.1.0
 django-storages==1.5.2
 django-tastypie==0.14.1
