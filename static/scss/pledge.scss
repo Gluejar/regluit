@@ -343,3 +343,12 @@ span.level2.menu.answer {
     }
 
 }
+
+.clearpfix p:after {
+    content: ".";
+    display: block;
+    height: 0;
+    clear: both;
+    visibility: hidden;
+}
+
