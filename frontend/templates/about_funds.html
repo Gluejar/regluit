@@ -1,0 +1,66 @@
+{% extends 'basedocumentation.html' %}
+{% load sass_tags %}
+{% block title %} Free Ebook Foundation Donations {% endblock %}
+{% block extra_css %}
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/pledge.scss' %}" />
+{% endblock %}
+
+{% block topsection %}
+{% endblock %}
+
+{% block doccontent %}
+
+<h2> Donating to Unglue.it </h2>
+<p>
+Unglue.it is a program of the <a href="https://ebookfoundation.org">Free Ebook Foundation</a> (FEF), which is a charitable, not-for-profit corporation. 
+Donations to the Free Ebook Foundation are tax-deductible in the United States.
+</p>
+<p>
+When you donate to the Free Ebook Foundation, you can specify how you would like your donation to be used. There are currently two options:
+</p>
+<ul class="bullets">
+<li> <a href="#monographs">The FEF Open Access Monographs Fund</a>: to support the Ungluing of peer-reviewed monographs that advance scholarship, science and learning </li>
+<li> <a href="#general">The FEF General Fund</a>: to support the operation and maintenance of the Foundation's programs, including Unglue.it.
+</ul>
+<h3 id="monographs">The FEF Open Access Monograph Fund</h3>
+<p>
+Scholars write books to spread their ideas, so it makes sense to make them free and available. 
+We refer to these books as "monographs" because they usually embody the scholarship of a single author.
+Already, over 30,000 of these books are available to download from the Unglue.it database.
+Sadly, many more books are locked up behind paywalls - not because their authors want to make money, but because the publishers of these books need to recoup the cost of editorial work and design.
+Many new books will remain unpublished because publishers committed to Open Access have insufficient resources to publish all the books deserving of wider audiences.
+</p>
+<p>
+As a small step towards addressing these needs, we're offering donors a chance to help us unglue more of these monographs by donating to a special fund.
+The fund will be used to match contributions to qualified ungluing campaigns on Unglue.it. 
+To participate, authors should first work with a publisher to establish a campaign target, and then create an ungluing campaign. 
+To get started, follow the steps at our <a href="{% url 'rightsholders' %}">right holder tools page</a>.
+Our staff will verify that the book has been or will be peer-reviewed and advances scholarship, science and learning. 
+Resources from the fund will be allocated to maximize the success of the eligible campaigns.
+If you want to donate to a specific campaign, just donate to the campaign directly. 
+</p>
+<h3 id="general">The FEF General Fund</h3>
+<p>
+If you prefer to support all the work of the Free Ebook Foundation, including Unglue.it, Free-Programming-Books, and our work supporting Project Gutenberg, just use the General Fund.
+</p>
+
+<h2 id="donationform">Donate Now!</h2>
+                    <div id="authorize" class="jsmod-content" >
+            <form class="askform" method="POST" action="{% url 'newdonation' %}">  
+                <p class=" form-row clearfix">
+                    <input id="id_reason_monographs" checked type="radio" value="monographs" name="reason"><label for="id_reason_monographs">FEF Open Access Monographs Fund</label>              
+                </p> <p class=" form-row clearfix">
+                    <input id="id_reason_general" type="radio" value="general" name="reason"><label for="id_reason_general">FEF General Fund</label>
+                </p> 
+                    <div class="donate_amount clearfix">
+                    <label>Amount ($): </label><input id="amount" max="20000.00" min="5.00" name="amount" step="0.01" type="number" value="10.00" class="donate"></div>
+                    <div class="button">
+                        <input name="pledge" type="submit" value="Donate" id="donatesubmit" class="donate" />
+                    </div>
+                    
+            </form> 
+
+                    </div>
+
+
+{% endblock %}

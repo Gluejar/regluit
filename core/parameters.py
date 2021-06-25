@@ -106,3 +106,9 @@ ORDER_BY_KEYS = {
     'title':['title'],
     'none':[], #no ordering
 }
+
+DONATION_CHOICES = (
+    ('general', 'The FEF General Fund'),
+    ('monographs', 'The FEF Open Access Monographs Fund'),
+)
+

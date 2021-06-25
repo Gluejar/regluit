@@ -1,6 +1,6 @@
 {% load humanize %}{% ifequal transaction.host 'credit' %}Your Unglue.it transaction has completed and ${{transaction.max_amount|default:"0"}} has been deducted from your Unglue.it credit balance. You have ${{transaction.user.credit.available|default:"0"}} of credit left. {% else %}{% if transaction.max_amount > transaction.amount %}Your transaction for ${{transaction.max_amount|default:"0"}} has completed. Your credit card has been charged ${{transaction.amount}} and the rest has been deducted from your unglue.it credit balance. You have ${{transaction.user.credit.available|default:"0"}} of credit left. {% else %}Your Unglue.it credit card transaction has completed and your credit card has been charged ${{ transaction.amount|default:"0" }}. {% endif %}{% endifequal %}
 
-Your donation of ${{transaction.max_amount|default:"0"}} to the Free Ebook Foundation will help us make free ebooks of all types more accessible for those that need them.  The Free Ebook Foundation is a US 501(c)3 non-profit organization. Our tax ID number is 61-1767266. Your gift is tax deductible to the full extent provided by the law.
+Your donation of ${{transaction.max_amount|default:"0"}} to the Free Ebook Foundation {{ transaction.fund.name }} will help us make free ebooks  more accessible for those that need them.  The Free Ebook Foundation is a US 501(c)3 non-profit organization. Our tax ID number is 61-1767266. Your gift is tax deductible to the full extent provided by the law.
 
 For more information about the Free Ebook Foundation, visit https://ebookfoundation.org/
 

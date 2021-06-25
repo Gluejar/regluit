@@ -46,6 +46,7 @@ from regluit.core.parameters import (
     REWARDS,
     BUY2UNGLUE,
     THANKS,
+    DONATION_CHOICES,
 )
 from regluit.core.lookups import (
     OwnerLookup,
@@ -347,7 +348,7 @@ class CampaignThanksForm(forms.Form):
     )
     preapproval_amount = forms.DecimalField(
         required = True,
-        min_value=D('5.00'),
+        min_value=D('2.00'),
         max_value=D('2000.00'),
         decimal_places=2,
         label="Pledge Amount",
@@ -357,6 +358,7 @@ class CampaignThanksForm(forms.Form):
         pe = PledgeExtra( anonymous=self.cleaned_data['anonymous'] )
 
 class DonationForm(forms.Form):
+    # used only for validation; not currently used for display
     amount = forms.DecimalField(
         required = True,
         min_value=D('5.00'),
@@ -364,6 +366,7 @@ class DonationForm(forms.Form):
         decimal_places=2,
         label="Donation Amount",
     )
+    reason = forms.ChoiceField(choices=DONATION_CHOICES, required=False)
 
 
 class CampaignPledgeForm(forms.Form):
@@ -434,6 +437,7 @@ class TokenCCMixin(forms.Form):
 
 class BaseCCMixin(forms.Form):
     work_id = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    reason = forms.CharField(required=False, widget=forms.HiddenInput())
     preapproval_amount = forms.DecimalField(
         required=False,
         min_value=D('1.00'),

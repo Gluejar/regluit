@@ -119,6 +119,8 @@ urlpatterns = [
     url(r"^feedback/thanks/$", TemplateView.as_view(template_name="thanks.html")),
     url(r"^about/$", TemplateView.as_view(template_name="about_main.html"),
         name="about"),
+    url(r"^about/funds/$", TemplateView.as_view(template_name="about_funds.html"),
+        name="about_funds"),
     url(r"^comments/$", views.comment, name="comment"),
     url(r"^info/(?P<template_name>[\w\.]*)$", views.InfoPageView.as_view()), 
     url(r"^info/languages/(?P<template_name>[\w\.]*)$", views.InfoLangView.as_view()), 

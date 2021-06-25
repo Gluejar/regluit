@@ -23,7 +23,7 @@
 {% endblock %}
 
 {% block comments_textual %}
-<p>Your donation of ${{transaction.max_amount|default:"0"}} to the Free Ebook Foundation will help us make free ebooks of all types more accessible for those that need them.  The Free Ebook Foundation is a US 501(c)3 non-profit organization. Our tax ID number is 61-1767266. Your gift is tax deductible to the full extent provided by the law.<p>
+<p>Your donation of ${{transaction.max_amount|default:"0"}} to the Free Ebook Foundation {{ transaction.fund.name }} will help us make free ebooks more accessible for those that need them.  The Free Ebook Foundation is a US 501(c)3 non-profit organization. Our tax ID number is 61-1767266. Your gift is tax deductible to the full extent provided by the law.<p>
 		<p>For more information about the Free Ebook Foundation, visit <a href="https://ebookfoundation.org/ ">our website</a>.
 		</p>
 		<p>Thank you again for your support.

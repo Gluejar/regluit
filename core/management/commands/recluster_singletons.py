@@ -42,7 +42,7 @@ class Command(BaseCommand):
                 work.id,
                 work.editions.count(),
                 work.first_isbn_13(),
-            )
+            ))
             work_id = work.id
             if work.editions.count() != 1:
                 self.stdout.write()
