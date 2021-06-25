@@ -1153,14 +1153,16 @@ class NewDonationView(FormView):
     def form_valid(self, form):
         p = PaymentManager()
         t, url = p.process_transaction('USD',  form.cleaned_data["amount"],
-                user = self.request.user,
-                paymentReason="Donation to {}".format(COMPANY_TITLE),
-                )
+                                       user=self.request.user,
+                                       paymentReason=form.cleaned_data.get("reason", ""),
+                                      )
         if url:
             return HttpResponseRedirect(url)
         else:
-            logger.error("Attempt to produce transaction id {0} failed".format(t.id))
-            return HttpResponse("Our attempt to set up your donation failed. We have logged this problem.")
+            logger.error("Attempt to produce transaction id %s failed", t.id)
+            return HttpResponse(
+                "Our attempt to set up your donation failed.  We have logged this problem."
+            )
 
 
 class FundView(FormView):

@@ -28,18 +28,16 @@ from notification import models as notification
 ## regluit imports
 
 from regluit.payment.parameters import (
-    PAYMENT_TYPE_NONE,
-    PAYMENT_TYPE_AUTHORIZATION,
-
-    PAYMENT_HOST_NONE,
-
-    PAYMENT_HOST_CREDIT,
-
     EXECUTE_TYPE_NONE,
-    TRANSACTION_STATUS_NONE,
+    FUNDS,
+    PAYMENT_HOST_CREDIT,
+    PAYMENT_HOST_NONE,
+    PAYMENT_TYPE_AUTHORIZATION,
+    PAYMENT_TYPE_NONE,
     TRANSACTION_STATUS_ACTIVE,
     TRANSACTION_STATUS_ERROR,
     TRANSACTION_STATUS_FAILED,
+    TRANSACTION_STATUS_NONE,
 )
 
 from regluit.payment.signals import credit_balance_added, pledge_created
@@ -97,7 +95,7 @@ class Transaction(models.Model):
     # error message from a transaction
     error = models.CharField(max_length=256, null=True)
 
-    # IPN.reason_code
+    # reason_code - originally an IPN thing, now used for fund identification
     reason = models.CharField(max_length=64, null=True)
 
     # creation and last modified timestamps
@@ -232,7 +230,7 @@ class Transaction(models.Model):
     @classmethod
     def create(cls, amount=0.00, host=PAYMENT_HOST_NONE, max_amount=0.00, currency='USD',
                status=TRANSACTION_STATUS_NONE, campaign=None, user=None, pledge_extra=None,
-               donation=False):
+               donation=False, reason=''):
         if user and user.is_anonymous:
             user = None
         t = cls.objects.create(
@@ -244,10 +242,15 @@ class Transaction(models.Model):
             campaign=campaign,
             user=user,
             donation=donation,
+            reason=reason,
         )
         if pledge_extra:
             t.set_pledge_extra(pledge_extra)
         return t
+
+    def fund(self):
+        val = "general" if not self.reason else self.reason
+        return FUNDS.get(self.reason, {"name": ""})
 
 class PaymentResponse(models.Model):
     # The API used

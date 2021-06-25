@@ -7,9 +7,9 @@
 
 {% block extra_extra_head %}
 <link type="text/css" rel="stylesheet" href="{% sass_src 'scss/searchandbrowse2.scss' %}"  />
-<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/book_panel2.scss' %}"  />
 <link type="text/css" rel="stylesheet" href="{% sass_src 'scss/pledge.scss' %}" />
-
+{% if campaign %}
+<link type="text/css" rel="stylesheet" href="{% sass_src 'scss/book_panel2.scss' %}"  />
 <script src="/static/js/slides.min.jquery.js"></script>
 <script src="/static/js/slideshow.js"></script>
 <script src="/static/js/greenpanel.js"></script>
@@ -24,6 +24,7 @@
 <script type="text/javascript" src="/static/js/wishlist.js"></script>
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
 <script type="text/javascript" src="/static/js/embed.js"></script>
+{% endif %}
 {% endblock %}
 
 {% block doccontent %}
@@ -31,7 +32,7 @@
 
     <h2 class="thank-you">Thank you!</h2>
     {% if not campaign %}
-	    <p class="pledge_complete">You've just donated ${{ transaction.amount|floatformat:2|intcomma }} to the <a href="https://ebookfoundation.org">Free Ebook Foundation</a></p>
+	    <p class="pledge_complete">You've just donated ${{ transaction.amount|floatformat:2|intcomma }} to the <a href="{% url 'about_funds' %}#{{ transaction.reason }}">Free Ebook Foundation {{ transaction.fund.name }}</a></p>
     {% elif campaign.type == 1 %}
         {% if campaign.donation %}
 	    <p class="pledge_complete">You've just donated ${{ transaction.amount|floatformat:2|intcomma }} in support of <I><a href="{% url 'work' work.id %}">{{ work.title }}</a></I>.  If it reaches its goal of ${{ campaign.target|intcomma }} by {{ campaign.deadline|date:"M d Y"}}, it will be unglued for all to enjoy. Otherwise, your donation will be used to support qualifying ungluing campaigns. Your donation to the Free Ebook Foundation is tax-deductible in the US.</p>

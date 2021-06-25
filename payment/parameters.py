@@ -53,3 +53,8 @@ TRANSACTION_STATUS_FAILED = 'Failed'
 TRANSACTION_STATUS_WRITTEN_OFF = 'Written-Off'
 
 COMPANY_TITLE = 'Free Ebook Foundation'
+
+FUNDS = {
+    "general": {"name": "General Fund"},
+    "monographs": {"name": "Monographs Fund"},
+}

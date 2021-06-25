@@ -734,6 +734,7 @@ class PaymentManager(object):
             user=user,
             pledge_extra=pledge_extra,
             donation=donation,
+            reason=paymentReason,
         )
         t.save()
         # does user have enough credit to transact now?
