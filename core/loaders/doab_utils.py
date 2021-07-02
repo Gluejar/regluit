@@ -64,6 +64,8 @@ BOOKSHOP_PROVIDERS = [
     'bloomsbury.com',
     'usu.edu',
     'sci.fo',
+    'e-elgar.com',
+    'nomos-shop.de',
 ]
 
 def online_to_download(url):

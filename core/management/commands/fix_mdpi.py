@@ -66,14 +66,9 @@ class Command(BaseCommand):
                     continue
                 bookno = match_eb.group(1)
                 eb.active = False
-                if bookno not in done:
-                    done.append(bookno)
-                    eb.url = 'https://www.mdpi.com/books/pdfview/book/' + bookno
-                    eb.provider = 'MDPI Books'
-                    eb.format =  'online'
-                else:
-                    eb.url = eb.url.split('?')[0]
-                eb.active = False
+                if bookno  in done:
+                    eb.active = False
+                eb.url = eb.url.split('?')[0]
                 eb.save()
     
         
