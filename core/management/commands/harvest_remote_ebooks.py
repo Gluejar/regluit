@@ -43,7 +43,7 @@ class Command(BaseCommand):
         for online in onlines:
             if trace:
                 self.stdout.write(str(online.id))
-            status = archive_dl(online, limiter=rl.delay, format=format)
+            status = archive_dl(online, limiter=rl.delay)
             if status ==  1:
                 done += 1
                 archived[online.provider] = archived.get(online.provider, 0) + 1

@@ -61,7 +61,7 @@ def dl_online(ebook, limiter=rl.delay, format='online', force=False):
             return harvester(ebook)
     return None, 0
 
-def archive_dl(ebook, limiter=rl.delay, format='all', force=False):
+def archive_dl(ebook, limiter=rl.delay, force=False):
     """ status codes
         0 : archive exists
         1 : archive made
@@ -88,7 +88,8 @@ def archive_dl(ebook, limiter=rl.delay, format='all', force=False):
 
 def clean_archive(ebf):
     fsize = ebf.ebook.filesize
-    if not fsize or ebf.asking == 1 or ebf.ebook.format not in DOWNLOADABLE:
+    ebook = ebf.ebook
+    if not fsize or ebf.asking == 1 or ebook.format not in DOWNLOADABLE or not ebook.active:
         return
     # find duplicate files by looking at filesize
     old_ebooks = models.Ebook.objects.filter(filesize=fsize, provider=ebf.ebook.provider,
