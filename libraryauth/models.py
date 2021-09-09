@@ -233,7 +233,7 @@ class Block(models.Model):
     upper = IPAddressModelField(db_index=True, blank=True, null=True)
 
     def clean(self):
-        if self.upper and self.upper.int:
+        if self.upper:
             try:
                 if self.lower > self.upper:
                     raise ValidationError('Lower end of the Block must be less '
@@ -243,9 +243,15 @@ class Block(models.Model):
 
 
     def __str__(self):
-        if self.upper and self.upper.int:
-            return u'%s %s-%s' % (self.library, self.lower, self.upper)
+        if self.upper:
+            return u'%s    %s - %s' % (self.library, IP(self.lower), IP(self.upper))
         return u'%s %s' % (self.library, self.lower)
+
+    def upper_IP(self):
+        return IP(self.upper)
+
+    def lower_IP(self):
+        return IP(self.lower)
 
     class Meta:
         ordering = ['lower',]

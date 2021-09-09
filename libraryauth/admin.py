@@ -38,7 +38,7 @@ class LibraryAdmin(ModelAdmin):
 
 @register(models.Block)
 class BlockAdmin(ModelAdmin):
-    list_display = ('library', 'lower', 'upper',)
+    list_display = ('library', 'lower_IP', 'upper_IP',)
     search_fields = ('library__name', 'lower', 'upper',)
 
 @register(models.CardPattern)
