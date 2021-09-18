@@ -21,6 +21,7 @@ from django.forms import ValidationError
 from django.utils.timezone import now
 
 from django_comments.models import Comment
+import github3
 from github3 import (login, GitHub)
 from github3.repos.release import Release
 
@@ -1079,21 +1080,6 @@ def git_download_from_yaml_url(yaml_url, version, edition_name='book', format_='
         return ebook_url
 
 
-def release_from_tag(repo, tag_name):
-    """Get a release by tag name.
-    release_from_tag() returns a release with specified tag
-    while release() returns a release with specified release id
-    :param str tag_name: (required) name of tag
-    :returns: :class:`Release <github3.repos.release.Release>`
-    """
-    # release_from_tag adapted from
-    # https://github.com/sigmavirus24/github3.py/blob/38de787e465bffc63da73d23dc51f50d86dc903d/github3/repos/repo.py#L1781-L1793
-
-    url = repo._build_url('releases', 'tags', tag_name,
-                          base_url=repo._api)
-    json_obj = repo._json(repo._get(url), 200)
-    return Release(json_obj, repo) if json_obj else None
-
 def ebooks_in_github_release(repo_owner, repo_name, tag, token=None):
     """
     returns a list of (book_type, book_name) for a given GitHub release (specified by
@@ -1111,11 +1097,15 @@ def ebooks_in_github_release(repo_owner, repo_name, tag, token=None):
         gh = GitHub()
 
     repo = gh.repository(repo_owner, repo_name)
-    release = release_from_tag(repo, tag)
+    try:
+        release = repo.release_from_tag(tag)
+        return [(EBOOK_FORMATS.get(asset.content_type), asset.name)
+                for asset in release.assets()
+                if EBOOK_FORMATS.get(asset.content_type) is not None]
+    except github3.exceptions.NotFoundError:
+        logger.error('No rleases available for %s/%s', repo_owner, repo_name)
+        return []
 
-    return [(EBOOK_FORMATS.get(asset.content_type), asset.name)
-            for asset in release.assets()
-            if EBOOK_FORMATS.get(asset.content_type) is not None]
 
 def add_from_bookdatas(bookdatas):
     ''' bookdatas  are iterators of scrapers '''
