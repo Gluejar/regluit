@@ -891,7 +891,7 @@ class PaymentManager(object):
             )
             t.save()
             credit.Processor.CancelPreapproval(transaction)
-            return t, reverse('fund_%s' % transaction.campaign.type, args=[t.id])
+            return t, reverse('fund', args=[t.id])
 
         elif requires_explicit_preapprovals and (amount > transaction.max_amount or expiry != transaction.date_expired):
 
