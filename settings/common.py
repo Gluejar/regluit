@@ -373,25 +373,25 @@ SEND_TEST_EMAIL_JOB = {
 
 UPDATE_ACTIVE_CAMPAIGN_STATUSES = {
     "task": "regluit.core.tasks.update_active_campaign_status",
-    "schedule": crontab(day_of_month='*', hour=0, minute=1),
+    "schedule": crontab(hour=0, minute=1),
     "args": ()
 }
 
 EBOOK_NOTIFICATIONS_JOB = {
     "task": "regluit.core.tasks.report_new_ebooks",
-    "schedule": crontab(day_of_month='*', hour=0, minute=30),
+    "schedule": crontab(hour=0, minute=30),
     "args": ()    
 }
 
 NOTIFY_ENDING_SOON_JOB = {
     "task": "regluit.core.tasks.notify_ending_soon",
-    "schedule": crontab(day_of_month='*', hour=1, minute=0),
+    "schedule": crontab(hour=1, minute=0),
     "args": ()
 }
 
 REFRESH_ACQS_JOB = {
     "task": "regluit.core.tasks.refresh_acqs",
-    "schedule": datetime.timedelta(day_of_month='*', hour='*', minutes=10),
+    "schedule": datetime.timedelta(minutes=10),
     "args": ()
 }
 
@@ -409,7 +409,7 @@ NOTIFY_EXPIRING_ACCOUNTS = {
 
 NOTIFY_UNCLAIMED_GIFTS = {
     "task": "regluit.core.tasks.notify_unclaimed_gifts",
-    "schedule": crontab(day_of_month='*', hour=2, minute=15),
+    "schedule": crontab(hour=2, minute=15),
     "args": ()    
 }
 
