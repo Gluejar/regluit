@@ -64,8 +64,8 @@ class IdentifierForm(forms.ModelForm):
         if not make_new:
             if id_value:
                 self.cleaned_data['id_value'] = identifier_cleaner(id_type)(id_value)
-            else:
-                self.add_error('id_value', forms.ValidationError('The identifier must have a value'))
+            if not self.cleaned_data['id_value']:
+                self.add_error('id_value', forms.ValidationError('The identifier was not valid'))
         return self.cleaned_data
                         
     class Meta:
