@@ -122,6 +122,7 @@ STOREPROVIDERS = [
     "karolinum.cz",
     "librumstore.com",
     "logos-verlag.de",
+    "nomos-shop.de",
     "palgrave.com",
     "play.google.com",
     "press.umich.edu",
@@ -201,6 +202,7 @@ def harvesters(ebook):
     yield ebook.provider == 'fulcrum.org', harvest_fulcrum
     yield ebook.provider in ('epress.lib.uts.edu.au', 'utsepress.lib.uts.edu.au'), harvest_ubiquity
     yield ebook.provider == 'orkana.no', harvest_orkana
+    yield ebook.provider == 'euna.una.ac.cr', harvest_euna
 
 def ebf_if_harvested(url):
     onlines = models.EbookFile.objects.filter(source=url)
@@ -544,10 +546,15 @@ def harvest_digitalis(ebook):
 NOMOSPDF = re.compile('download_full_pdf')
 def harvest_nomos(ebook): 
     doc = get_soup(ebook.url, follow_redirects=True)
+    try:
+        base = doc.find('base')['href']
+    except:
+        base = ebook.url
+
     if doc:
         obj = doc.find('a', href=NOMOSPDF)
         if obj:
-            dl_url = urljoin(ebook.url, obj['href'])
+            dl_url = urljoin(base, obj['href'])
             return make_dl_ebook(dl_url, ebook)
         else:
             logger.warning('will try stapling a book for %s', ebook.url)
@@ -996,5 +1003,12 @@ def harvest_orkana(ebook):
             if div and div.find_next_sibling('div') and div.find_next_sibling('div').find('a'):
                 yield div.find_next_sibling('div').find('a')
     return harvest_multiple_generic(ebook, selector)
+
+def harvest_euna(ebook):
+    if '/view/' in ebook.url:
+        return make_dl_ebook(ebook.url.replace('view', 'download'), ebook)
+    set_bookshop(ebook)
+    return None, 0
+
 
     
