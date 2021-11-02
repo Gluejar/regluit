@@ -202,6 +202,7 @@ def harvesters(ebook):
     yield ebook.provider == 'fulcrum.org', harvest_fulcrum
     yield ebook.provider in ('epress.lib.uts.edu.au', 'utsepress.lib.uts.edu.au'), harvest_ubiquity
     yield ebook.provider == 'orkana.no', harvest_orkana
+    yield ebook.provider == 'euna.una.ac.cr', harvest_euna
 
 def ebf_if_harvested(url):
     onlines = models.EbookFile.objects.filter(source=url)
@@ -1002,5 +1003,12 @@ def harvest_orkana(ebook):
             if div and div.find_next_sibling('div') and div.find_next_sibling('div').find('a'):
                 yield div.find_next_sibling('div').find('a')
     return harvest_multiple_generic(ebook, selector)
+
+def harvest_euna(ebook):
+    if '/view/' in ebook.url:
+        return make_dl_ebook(ebook.url.replace('view', 'download'), ebook)
+    set_bookshop(ebook)
+    return None, 0
+
 
     
