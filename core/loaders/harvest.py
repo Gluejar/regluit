@@ -122,6 +122,7 @@ STOREPROVIDERS = [
     "karolinum.cz",
     "librumstore.com",
     "logos-verlag.de",
+    "nomos-shop.de",
     "palgrave.com",
     "play.google.com",
     "press.umich.edu",
@@ -544,10 +545,15 @@ def harvest_digitalis(ebook):
 NOMOSPDF = re.compile('download_full_pdf')
 def harvest_nomos(ebook): 
     doc = get_soup(ebook.url, follow_redirects=True)
+    try:
+        base = doc.find('base')['href']
+    except:
+        base = ebook.url
+
     if doc:
         obj = doc.find('a', href=NOMOSPDF)
         if obj:
-            dl_url = urljoin(ebook.url, obj['href'])
+            dl_url = urljoin(base, obj['href'])
             return make_dl_ebook(dl_url, ebook)
         else:
             logger.warning('will try stapling a book for %s', ebook.url)
