@@ -203,6 +203,7 @@ def harvesters(ebook):
     yield ebook.provider in ('epress.lib.uts.edu.au', 'utsepress.lib.uts.edu.au'), harvest_ubiquity
     yield ebook.provider == 'orkana.no', harvest_orkana
     yield ebook.provider == 'euna.una.ac.cr', harvest_euna
+    yield ebook.provider == 'openresearchlibrary.org', harvest_orl
 
 def ebf_if_harvested(url):
     onlines = models.EbookFile.objects.filter(source=url)
@@ -1008,6 +1009,14 @@ def harvest_euna(ebook):
     if '/view/' in ebook.url:
         return make_dl_ebook(ebook.url.replace('view', 'download'), ebook)
     set_bookshop(ebook)
+    return None, 0
+
+def harvest_orl(ebook):
+    if ebook.url.startswith('https://openresearchlibrary.org/viewer/'):
+        orl_id = ebook.url[39:]
+        return make_dl_ebook(
+            f'https://openresearchlibrary.org/ext/api/media/{orl_id}/assets/external_content.pdf',
+            ebook)
     return None, 0
 
 
