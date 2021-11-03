@@ -136,7 +136,6 @@ CMPPROVIDERS = [
     'llibres.urv.cat',
     'fedoabooks.unina.it',
     'Scholars Portal',
-    'pressesagro.be',
     'ebooks.epublishing.ekt.gr',
     'teiresias-supplements.mcgill.ca',
     'humanities-digital-library.org',
@@ -204,6 +203,7 @@ def harvesters(ebook):
     yield ebook.provider == 'orkana.no', harvest_orkana
     yield ebook.provider == 'euna.una.ac.cr', harvest_euna
     yield ebook.provider == 'openresearchlibrary.org', harvest_orl
+    yield ebook.provider == 'pressesagro.be', harvest_pressesagro
 
 def ebf_if_harvested(url):
     onlines = models.EbookFile.objects.filter(source=url)
@@ -1018,6 +1018,11 @@ def harvest_orl(ebook):
             f'https://openresearchlibrary.org/ext/api/media/{orl_id}/assets/external_content.pdf',
             ebook)
     return None, 0
+
+def harvest_pressesagro(ebook):
+    def selector(doc):
+        return doc.select_one('#sidebar ul li span a[href]')
+    return harvest_one_generic(ebook, selector)
 
 
     
