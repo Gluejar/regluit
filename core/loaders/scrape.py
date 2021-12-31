@@ -52,8 +52,8 @@ class BaseScraper(object):
         except requests.exceptions.RequestException as e:
             logger.error(e)
 
-    def __init__(self, url):
-        self.metadata = {}
+    def __init__(self, url, initial={}):
+        self.metadata = initial
         self.identifiers = {'http': url}
         self.doc = None
         self.base = url
@@ -80,7 +80,9 @@ class BaseScraper(object):
     def set(self, name, value):
         if isinstance(value, str):
             value= value.strip()
-        self.metadata[name] = value
+        if value or name not in self.metadata:
+            self.metadata[name] = value
+ 
 
     def fetch_one_el_content(self, el_name):
         data_el = self.doc.find(el_name)
