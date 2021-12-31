@@ -159,9 +159,14 @@ class BaseScraper(object):
         self.get_cover()
         self.get_downloads()
         self.get_license()
+        self.cleanup()
 
     def setup(self):
         # use this method to get auxiliary resources based on doc
+        pass
+
+    def cleanup(self):
+        # use this method to process collected data
         pass
     #
     # getters
