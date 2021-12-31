@@ -45,14 +45,10 @@ def scrape_sitemap(url, maxnum=None):
     except SSLError as e:
         logger.error(e)
 
-def add_by_webpage(url, work=None, user=None):
-    if not url:
-        return None
-    edition = None
-    scraper = get_scraper(url)
-    loader = BasePandataLoader(url)
+def add_by_metadata(metadata, url='', work=None, user=None):
     pandata = Pandata()
-    pandata.metadata = scraper.metadata
+    loader = BasePandataLoader(url)
+    pandata.metadata = metadata
     for metadata in pandata.get_edition_list():
         edition = loader.load_from_pandata(metadata, work)
         if hasattr(edition, 'work'):
@@ -62,7 +58,14 @@ def add_by_webpage(url, work=None, user=None):
     loader.load_ebooks(pandata, edition, user=user)
     return edition if edition else None
 
-        
+def add_by_webpage(url, work=None, user=None):
+    if not url:
+        return None
+    edition = None
+    scraper = get_scraper(url)
+    return add_by_metadata(metadata, url=url, work=None, user=None)
+
+       
 def add_by_sitemap(url, maxnum=None):
     return add_from_bookdatas(scrape_sitemap(url, maxnum=maxnum))
     
