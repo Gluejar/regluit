@@ -26,7 +26,7 @@ class Command(BaseCommand):
             from_date = datetime.strptime(options['from_date'], '%m-%d-%Y')
         except ValueError:
             from_date = datetime.strptime('1-1-2000', '%m-%d-%Y')
-        for record in pb_metadata[50:51]:
+        for record in pb_metadata:
             if 'updated' in record:
                 updated = datetime.strptime(record['updated'], '%m-%d-%Y')
             if updated < from_date:
