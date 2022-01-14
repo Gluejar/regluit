@@ -961,6 +961,8 @@ class BasePandataLoader(object):
 
         #be careful about overwriting the work description
         if metadata.description and len(metadata.description) > len(work.description):
+            if isinstance(metadata.description, list):
+                metadata.description = '\n'.join(metadata.description)
             # don't over-write reasonably long descriptions
             if len(work.description) < 500:
                 work.description = metadata.description.replace('\r\n', '\n')
