@@ -205,6 +205,7 @@ def harvesters(ebook):
     yield ebook.provider == 'openresearchlibrary.org', harvest_orl
     yield ebook.provider == 'pressesagro.be', harvest_pressesagro
     yield ebook.provider == 'buponline.com',  harvest_buponline
+    yield ebook.provider == 'intechopen.com',  harvest_intech
 
 def ebf_if_harvested(url):
     onlines = models.EbookFile.objects.filter(source=url)
@@ -653,7 +654,7 @@ def harvest_pulp(ebook):
 
 
 def harvest_bloomsbury(ebook):
-    doc = get_soup(ebook.url)
+    doc = get_soup(ebook.url, follow_redirects=True)
     if doc:
         pdflinks = []
         try:
@@ -1031,5 +1032,10 @@ def harvest_buponline(ebook):
         return doc.find('a', string=DOWNLOAD)
     return harvest_one_generic(ebook, selector)
 
-
-    
+INTECH = re.compile(r'\.intechopen\.com/books/(\d+)$')
+def harvest_intech(ebook):
+    booknum = INTECH.search(ebook.url)
+    if booknum:
+        url = (f'https://mts.intechopen.com/storage/books/{booknum.group(1)}/authors_book/authors_book.pdf')
+        return make_dl_ebook(url,  ebook)
+    return None, 0
