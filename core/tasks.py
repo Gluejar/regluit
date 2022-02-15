@@ -2,6 +2,7 @@
 # external library imports
 #
 import logging
+import random
 
 from datetime import timedelta
 from time import sleep
@@ -30,7 +31,7 @@ from regluit.core import (
     librarything,
     mobigen
 )
-from regluit.core.models import Acq, Campaign, EbookFile, Gift, UserProfile
+from regluit.core.models import Acq, Campaign, EbookFile, Gift, UserProfile, Work
 from regluit.core.signals import deadline_impending
 from regluit.core.parameters import RESERVE, REWARDS, THANKS
 from regluit.utils.localdatetime import date_today
@@ -233,3 +234,11 @@ def notify_unclaimed_gifts():
 def periodic_cleanup():
     call_command('clearsessions')
     call_command('cleanupregistration')
+
+@task
+def feature_new_work():
+    works = Work.objects.filter(is_free=True, featured__isnull=True).order_by('-num_wishes')
+    work = works[random.randrange(0, 50)]
+    work.featured = now()
+    work.save()
+

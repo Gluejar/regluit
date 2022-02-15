@@ -431,6 +431,12 @@ EMIT_NOTICES = {
     "args": ()    
 }
 
+FEATURE_NEW_WORK = {
+    "task": "regluit.core.tasks.featur_new_work",
+    "schedule": crontab(day_of_week=1, hour=9, minute=30),
+    "args": ()    
+}
+
 # by default, in common, we don't turn any of the celerybeat jobs on -- turn them on in the local settings file
 
 # set notification queueing on
