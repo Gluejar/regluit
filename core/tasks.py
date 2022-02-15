@@ -238,7 +238,7 @@ def periodic_cleanup():
 @task
 def feature_new_work():
     works = Work.objects.filter(is_free=True, featured__isnull=True).order_by('-num_wishes')
-    work = works[random.randrange(0,50)]
+    work = works[random.randrange(0, 50)]
     work.featured = now()
     work.save()
-       
+
