@@ -243,7 +243,12 @@ LOGGING = {
             'handlers': ['file'],
             'level': 'INFO',
         },
-    }
+# uncomment to do SQL logging
+#       'django.db.backends': {
+#           'level': 'DEBUG',
+#           'handlers': ['file'],
+#        },
+    },
 }
 
 CACHES = {
@@ -447,6 +452,8 @@ PAYMENT_PROCESSOR = 'stripelib'
 # allow application code to catch thumbnailing errors
 THUMBNAIL_DEBUG = True
 THUMBNAIL_FORCE_OVERWRITE = True
+# use redis
+# THUMBNAIL_KVSTORE = 'sorl.thumbnail.kvstores.redis_kvstore.KVStore'
 
 # we should suppress Google Analytics outside of production
 SHOW_GOOGLE_ANALYTICS = False
