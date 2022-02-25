@@ -12,7 +12,7 @@ import requests
 
 from botocore.exceptions import ClientError
 from PIL import ImageFile
-from sorl.thumbnail import get_thumbnail
+
 
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -52,6 +52,7 @@ from regluit.core.parameters import (
     WORK_IDENTIFIERS,
     DOMAIN_TO_PROVIDER,
 )
+from regluit.core.thumbnail import get_thumbnail
 
 # fix truncated file problems per https://stackoverflow.com/questions/12984426/python-pil-ioerror-image-file-truncated-with-big-images
 ImageFile.LOAD_TRUNCATED_IMAGES = True

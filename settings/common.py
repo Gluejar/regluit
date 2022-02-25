@@ -243,7 +243,12 @@ LOGGING = {
             'handlers': ['file'],
             'level': 'INFO',
         },
-    }
+# uncomment to do SQL logging
+#       'django.db.backends': {
+#           'level': 'DEBUG',
+#           'handlers': ['file'],
+#        },
+    },
 }
 
 CACHES = {
@@ -432,7 +437,7 @@ EMIT_NOTICES = {
 }
 
 FEATURE_NEW_WORK = {
-    "task": "regluit.core.tasks.featur_new_work",
+    "task": "regluit.core.tasks.feature_new_work",
     "schedule": crontab(day_of_week=1, hour=9, minute=30),
     "args": ()    
 }
@@ -447,6 +452,8 @@ PAYMENT_PROCESSOR = 'stripelib'
 # allow application code to catch thumbnailing errors
 THUMBNAIL_DEBUG = True
 THUMBNAIL_FORCE_OVERWRITE = True
+# use redis
+# THUMBNAIL_KVSTORE = 'sorl.thumbnail.kvstores.redis_kvstore.KVStore'
 
 # we should suppress Google Analytics outside of production
 SHOW_GOOGLE_ANALYTICS = False
