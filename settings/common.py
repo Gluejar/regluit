@@ -437,7 +437,7 @@ EMIT_NOTICES = {
 }
 
 FEATURE_NEW_WORK = {
-    "task": "regluit.core.tasks.featur_new_work",
+    "task": "regluit.core.tasks.feature_new_work",
     "schedule": crontab(day_of_week=1, hour=9, minute=30),
     "args": ()    
 }
