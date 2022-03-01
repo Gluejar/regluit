@@ -27,6 +27,7 @@ from mailchimp3 import MailChimp
 #
 from regluit.core import (
     bookloader,
+    covers,
     models,
     librarything,
     mobigen
@@ -242,3 +243,12 @@ def feature_new_work():
     work.featured = now()
     work.save()
 
+@task
+def make_cover_thumbnail(url, geom_string, **options):
+    success = covers.make_cover_thumbnail(url, geom_string, **options)
+    if not success and url != '':
+        for ed in models.Edition.objects.filter(cover_image=url):
+            logger.error('bad cover image %s for edition: %s', (url, ed.id))
+            #ed.cover_image = ''
+            #ed.save()
+    

@@ -33,6 +33,7 @@ from questionnaire.models import Landing
 from regluit.bisac.models import interpret_notation
 from regluit.core import mobi
 import regluit.core.cc as cc
+from regluit.core.covers import get_thumbnail, DEFAULT_COVER
 from regluit.core.epub import test_epub
 from regluit.core.links import id_url
 from regluit.core.loaders.harvest import dl_online
@@ -52,7 +53,6 @@ from regluit.core.parameters import (
     WORK_IDENTIFIERS,
     DOMAIN_TO_PROVIDER,
 )
-from regluit.core.thumbnail import get_thumbnail
 
 # fix truncated file problems per https://stackoverflow.com/questions/12984426/python-pil-ioerror-image-file-truncated-with-big-images
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -269,12 +269,12 @@ class Work(models.Model):
     def cover_image_large(self):
         if self.preferred_edition and self.preferred_edition.has_cover_image():
             return self.preferred_edition.cover_image_large()
-        return "/static/images/generic_cover_larger.png"
+        return DEFAULT_COVER
 
     def cover_image_small(self):
         if self.preferred_edition and self.preferred_edition.has_cover_image():
             return self.preferred_edition.cover_image_small()
-        return "/static/images/generic_cover_larger.png"
+        return DEFAULT_COVER
 
     def cover_image_thumbnail(self):
         try:
@@ -282,7 +282,7 @@ class Work(models.Model):
                 return self.preferred_edition.cover_image_thumbnail()
         except IndexError:
             pass
-        return "/static/images/generic_cover_larger.png"
+        return DEFAULT_COVER
 
     def authors(self):
         # assumes that they come out in the same order they go in!
@@ -877,51 +877,38 @@ class Edition(models.Model):
     def cover_image_large(self):
         #550 pixel high image
         if self.cover_image:
-            try:
-                im = get_thumbnail(self.cover_image, 'x550', crop='noop', quality=95)
-                if im.exists():
-                    return im.url
-            except (IOError, OSError, CertificateError):
-                pass
-        elif self.googlebooks_id:
+            im = get_thumbnail(self.cover_image, 'x550', crop='noop', quality=95)
+            if not im.is_default:
+                return im.url
+        if self.googlebooks_id:
             url = "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=0" % self.googlebooks_id
-            try:
+            im = get_thumbnail(url, 'x550', crop='noop', quality=95)
+            if im.is_default or im.storage.size(im.name) == 16392: # check for "image not available" image
+                url = "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % self.googlebooks_id
                 im = get_thumbnail(url, 'x550', crop='noop', quality=95)
-                if not im.exists() or im.storage.size(im.name) == 16392: # check for "image not available" image
-                    url = "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % self.googlebooks_id
-                    im = get_thumbnail(url, 'x550', crop='noop', quality=95)
-                if im.exists():
-                    return im.url
-            except (IOError, OSError, CertificateError):
-                pass
-        return ''
+            if not im.is_default:
+                return im.url
+        return DEFAULT_COVER
 
     def cover_image_small(self):
         #80 pixel high image
         if self.cover_image:
-            try:
-                im = get_thumbnail(self.cover_image, 'x80', crop='noop', quality=95)
-                if im.exists():
-                    return im.url
-            except (IOError, OSError, CertificateError):
-                pass
+            im = get_thumbnail(self.cover_image, 'x80', crop='noop', quality=95)
+            if not im.is_default:
+                return im.url
         if self.googlebooks_id:
             return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % self.googlebooks_id
-        return ''
+        return DEFAULT_COVER
 
     def cover_image_thumbnail(self):
         #128 pixel wide image
         if self.cover_image:
-            try:
-                im = get_thumbnail(self.cover_image, '128', crop='noop', quality=95)
-                if im.exists():
-                    return im.url
-            except (IOError, OSError, CertificateError):
-                pass
+            im = get_thumbnail(self.cover_image, '128', crop='noop', quality=95)
+            if not im.is_default:
+                return im.url
         if self.googlebooks_id:
             return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=1" % self.googlebooks_id
-        else:
-            return ''
+        return DEFAULT_COVER
 
     def has_cover_image(self):
         if self.cover_image:
