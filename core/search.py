@@ -4,6 +4,7 @@ import json
 import requests
 from django.conf import settings
 
+from regluit.core.covers import DEFAULT_COVER
 import regluit.core.isbn
 
 def gluejar_search(q, user_ip='69.243.24.29', page=1):
@@ -50,7 +51,7 @@ def gluejar_search(q, user_ip='69.243.24.29', page=1):
                 )
                 r['cover_image_thumbnail'] = url
             else:
-                r['cover_image_thumbnail'] = "/static/images/generic_cover_larger.png"
+                r['cover_image_thumbnail'] = DEFAULT_COVER
 
             access_info = item.get('accessInfo')
             if access_info:

@@ -451,7 +451,7 @@ PAYMENT_PROCESSOR = 'stripelib'
 
 # allow application code to catch thumbnailing errors
 THUMBNAIL_DEBUG = True
-THUMBNAIL_FORCE_OVERWRITE = True
+THUMBNAIL_FORCE_OVERWRITE = False
 # use redis
 # THUMBNAIL_KVSTORE = 'sorl.thumbnail.kvstores.redis_kvstore.KVStore'
 

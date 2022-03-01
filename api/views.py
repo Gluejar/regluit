@@ -26,6 +26,7 @@ import regluit.core.isbn
 from regluit.api import opds, onix, opds_json
 from regluit.api.models import repo_allowed
 from regluit.core.bookloader import load_from_yaml
+from regluit.core.covers import DEFAULT_COVER
 from regluit.core import models
 from regluit.core.parameters import ORDER_BY_KEYS
 
@@ -83,7 +84,7 @@ def widget(request, isbn):
 def featured_cover(request):
     work = featured_work()
     tn = work.cover_image_thumbnail()
-    return HttpResponseRedirect(tn if tn else "/static/images/generic_cover_larger.png")
+    return HttpResponseRedirect(tn if tn else DEFAULT_COVER)
 
 def featured_url(request):
     work = featured_work()

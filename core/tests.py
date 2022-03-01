@@ -37,13 +37,14 @@ from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
 from regluit.utils.localdatetime import date_today
 
 from . import (
-    isbn,
     bookloader,
-    models,
-    search,
+    covers,
+    isbn,
     librarything,
-    tasks,
+    models,
     parameters,
+    search,
+    tasks,
 )
 from .epub import test_epub
 from .loaders.utils import (load_from_books, loaded_book_ok, )
@@ -971,6 +972,24 @@ class MailingListTests(TestCase):
             self.assertEqual(root[u'account_id'], u'15472878790f9faa11317e085')
             self.user = User.objects.create_user('chimp_test', 'eric@gluejar.com', 'chimp_test')
             self.assertTrue(self.user.profile.on_ml)
+
+class CoverTests(TestCase):
+    test_image = 'https://unglue.it/static/images/logo.png'
+    test_bad_image = 'https://example.com/static/images/logo.png'
+    def setUp(self):
+        self.work = Work.objects.create(title="Cover Work")
+        self.edition = Edition.objects.create(title=self.work.title, work=self.work)
+        covers.sorl_get_thumbnail(self.test_image, 'x550', crop='noop', quality=95)
+    
+    def test_cached_cover(self):
+        thumb = covers.get_thumbnail(self.test_image, 'x550', crop='noop', quality=95)
+        self.assertTrue(thumb.exists())
+        self.assertTrue(thumb.width, 550)
+
+    def test_bad_cover(self):
+        thumb = covers.get_thumbnail(self.test_bad_image, 'x550', crop='noop', quality=95)
+        self.assertEqual(thumb.url, covers.DEFAULT_COVER)
+        
 
 @override_settings(LOCAL_TEST=True)
 class EbookFileTests(TestCase):
