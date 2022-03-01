@@ -80,7 +80,7 @@ class ReadOnlyThumbnailBackend(ThumbnailBackend):
         cached = default.kvstore.get(thumbnail)
 
         if cached:
-            setattr(cached, 'is_default', True)
+            setattr(cached, 'is_default', False)
             return cached
 
         regluit.core.tasks.make_cover_thumbnail.delay(file_, geometry_string, **options)
