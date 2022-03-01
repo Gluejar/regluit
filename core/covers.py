@@ -83,6 +83,7 @@ class ReadOnlyThumbnailBackend(ThumbnailBackend):
             setattr(cached, 'is_default', False)
             return cached
 
+        logger.info('tasking a new thumbnail for %s, %s', file_, geometry_string)
         regluit.core.tasks.make_cover_thumbnail.delay(file_, geometry_string, **options)
         return DefaultImageFile()
 
@@ -95,7 +96,8 @@ def make_cover_thumbnail(url, geometry_string, **options):
         im = sorl_get_thumbnail(url, geometry_string, **options)
     except (IOError, OSError):
         return False
-    logger.error('couldnt make thumbnail for %s', url)
+    
     if im.exists():
         return True
+    logger.error('couldnt make thumbnail for %s', url)
     return False
