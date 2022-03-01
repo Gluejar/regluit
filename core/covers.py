@@ -1,18 +1,16 @@
 """ handle caching and thumbnailing of covers """
 
 import logging
-import os
-import re
 
 from django.utils.functional import LazyObject
 
-import sorl.thumbnail.default
+import sorl
 
 from sorl.thumbnail import get_thumbnail as sorl_get_thumbnail
 
 from sorl.thumbnail.base import ThumbnailBackend
 from sorl.thumbnail.conf import settings, defaults as default_settings
-from sorl.thumbnail.helpers import get_module_class, tokey
+from sorl.thumbnail.helpers import get_module_class
 from sorl.thumbnail.images import BaseImageFile, ImageFile
 from sorl.thumbnail import default
 
@@ -37,7 +35,7 @@ class Storage(LazyObject):
         self._wrapped = _storage
 
 sorl.thumbnail.default.storage = Storage()
-        
+
 
 class DefaultImageFile(BaseImageFile):
     url = DEFAULT_COVER
@@ -94,8 +92,8 @@ get_thumbnail = backend.get_thumbnail
 
 def make_cover_thumbnail(url, geometry_string, **options):
     try:
-        im = sorl_get_thumbnail(url, 'x550', crop='noop', quality=95)
-    except (IOError, OSError, CertificateError):
+        im = sorl_get_thumbnail(url, geometry_string, **options)
+    except (IOError, OSError):
         return False
     logger.error('couldnt make thumbnail for %s', url)
     if im.exists():
