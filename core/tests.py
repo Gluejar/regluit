@@ -987,7 +987,7 @@ class CoverTests(TestCase):
         self.assertTrue(thumb.width, 550)
 
     def test_bad_cover(self):
-        thumb = covers.get_thumbnail(self.test_bad_image, 'x550', crop='noop', quality=95)
+        thumb = covers.get_thumbnail(self.test_bad_image, '128', crop='noop', quality=95)
         self.assertEqual(thumb.url, covers.DEFAULT_COVER)
         
 
