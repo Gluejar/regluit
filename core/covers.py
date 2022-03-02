@@ -18,7 +18,9 @@ import regluit
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_COVER_LARGE = '/static/images/generic_cover_full.png'
 DEFAULT_COVER = '/static/images/generic_cover_larger.png'
+DEFAULT_COVER_SMALL = '/static/images/generic_cover_thumb.png'
 
 _storage = None
 
@@ -38,9 +40,22 @@ sorl.thumbnail.default.storage = Storage()
 
 
 class DefaultImageFile(BaseImageFile):
-    url = DEFAULT_COVER
-    size = (131, 192)
     is_default = True
+
+    def __init__(self, geometry_string='x550'):
+        if geometry_string == '128':
+            self._url = DEFAULT_COVER
+            self.size = (131, 192)
+        elif geometry_string == 'x80':
+            self._url = DEFAULT_COVER_SMALL
+            self.size = (55, 80)
+        else:
+            self._url = DEFAULT_COVER_LARGE
+            self.size = (376, 550)
+
+    @property
+    def url(self):
+        return self._url
 
     def exists(self):
         return True
@@ -85,7 +100,7 @@ class ReadOnlyThumbnailBackend(ThumbnailBackend):
 
         logger.info('tasking a new thumbnail for %s, %s', file_, geometry_string)
         regluit.core.tasks.make_cover_thumbnail.delay(file_, geometry_string, **options)
-        return DefaultImageFile()
+        return DefaultImageFile(geometry_string)
 
 
 backend = ReadOnlyThumbnailBackend()

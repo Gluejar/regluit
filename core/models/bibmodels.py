@@ -33,7 +33,8 @@ from questionnaire.models import Landing
 from regluit.bisac.models import interpret_notation
 from regluit.core import mobi
 import regluit.core.cc as cc
-from regluit.core.covers import get_thumbnail, DEFAULT_COVER
+from regluit.core.covers import (get_thumbnail, 
+                                 DEFAULT_COVER, DEFAULT_COVER_LARGE, DEFAULT_COVER_SMALL)
 from regluit.core.epub import test_epub
 from regluit.core.links import id_url
 from regluit.core.loaders.harvest import dl_online
@@ -269,12 +270,12 @@ class Work(models.Model):
     def cover_image_large(self):
         if self.preferred_edition and self.preferred_edition.has_cover_image():
             return self.preferred_edition.cover_image_large()
-        return DEFAULT_COVER
+        return DEFAULT_COVER_LARGE
 
     def cover_image_small(self):
         if self.preferred_edition and self.preferred_edition.has_cover_image():
             return self.preferred_edition.cover_image_small()
-        return DEFAULT_COVER
+        return DEFAULT_COVER_SMALL
 
     def cover_image_thumbnail(self):
         try:
@@ -888,7 +889,7 @@ class Edition(models.Model):
                 im = get_thumbnail(url, 'x550', crop='noop', quality=95)
             if not im.is_default:
                 return im.url
-        return DEFAULT_COVER
+        return DEFAULT_COVER_LARGE
 
     def cover_image_small(self):
         #80 pixel high image
@@ -898,7 +899,7 @@ class Edition(models.Model):
                 return im.url
         if self.googlebooks_id:
             return "https://encrypted.google.com/books?id=%s&printsec=frontcover&img=1&zoom=5" % self.googlebooks_id
-        return DEFAULT_COVER
+        return DEFAULT_COVER_SMALL
 
     def cover_image_thumbnail(self):
         #128 pixel wide image
