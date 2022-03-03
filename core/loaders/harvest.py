@@ -206,6 +206,8 @@ def harvesters(ebook):
     yield ebook.provider == 'pressesagro.be', harvest_pressesagro
     yield ebook.provider == 'buponline.com',  harvest_buponline
     yield ebook.provider == 'intechopen.com',  harvest_intech
+    yield ebook.provider == 'usmcu.edu',  harvest_usmcu
+    yield ebook.provider == 'lalibreria.upv.es',  harvest_upv
 
 def ebf_if_harvested(url):
     onlines = models.EbookFile.objects.filter(source=url)
@@ -1039,3 +1041,14 @@ def harvest_intech(ebook):
         url = (f'https://mts.intechopen.com/storage/books/{booknum.group(1)}/authors_book/authors_book.pdf')
         return make_dl_ebook(url,  ebook)
     return None, 0
+
+def harvest_usmcu(ebook):
+    def selector(doc):
+        return doc.find('a', string='PDF download')
+    return harvest_one_generic(ebook, selector)
+
+def harvest_upv(ebook):
+    def selector(doc):
+        return doc.select_one('a.descargar[href]')
+    return harvest_one_generic(ebook, selector)
+
