@@ -117,6 +117,7 @@ STOREPROVIDERS = [
     "cdcshoppingcart.uchicago.edu",
     "checkout.sas.ac.uk",
     "dykinson.com",
+    "edicions.ub.edu",
     "epubli.de",
     "iospress.nl",
     "karolinum.cz",
@@ -168,7 +169,8 @@ def harvesters(ebook):
     yield 'digitalcommons.usu.edu' in ebook.url, harvest_usu
     yield ebook.provider == 'libros.fahce.unlp.edu.ar', harvest_fahce
     yield ebook.provider in ['digital.library.unt.edu', 'texashistory.unt.edu'], harvest_unt
-    yield ebook.provider in ['diposit.ub.edu', 'orbi.ulg.ac.be'], harvest_dspace
+    yield ebook.provider in ['diposit.ub.edu', 'orbi.ulg.ac.be',
+                             'acikerisim.kapadokya.edu.tr'], harvest_dspace
     yield ebook.provider in CMPPROVIDERS, harvest_cmp
     yield 'mdpi' in ebook.provider.lower(), harvest_mdpi
     yield ebook.provider == 'idunn.no', harvest_idunn
@@ -334,7 +336,7 @@ def harvest_generic(ebook):
 
 
 def harvest_one_generic(ebook, selector, user_agent=settings.USER_AGENT):
-    doc = get_soup(ebook.url, user_agent=user_agent)
+    doc = get_soup(ebook.url, user_agent=user_agent, follow_redirects=True)
     if doc:
         try:
             base = doc.find('base')['href']
