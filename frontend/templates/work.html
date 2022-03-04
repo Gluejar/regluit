@@ -107,8 +107,8 @@
                                                 <span itemprop="publisher"><a href="{% url 'bypubname_list' work.last_campaign.publisher.name.id %}">{{ work.last_campaign.publisher }}</a></span>
                                                 {% endif %}
                                                 <span itemprop="datePublished">{{ work.publication_date }}</span>
-                                                <meta itemprop="inLanguage" content="work.language" />
-                                                <meta itemprop="typicalAgeRange" content="work.age_range" />
+                                                <span itemprop="inLanguage" style="display:none">{{ work.language }}</span>
+                                                <span itemprop="typicalAgeRange" style="display:none">{{ work.work.age_range }}</span>
                                             </h3>
                                         </div>
                                     </div>
