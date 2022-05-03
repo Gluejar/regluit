@@ -8,7 +8,7 @@ from urllib.parse import urlencode, quote_plus
 from urllib.request import urlopen
 from datetime import timedelta, datetime
 from decimal import Decimal
-from tempfile import SpooledTemporaryFile
+from tempfile import TemporaryFile
 
 import requests
 from ckeditor.fields import RichTextField
@@ -921,8 +921,8 @@ class Campaign(models.Model):
             if to_do['ebook'].format == 'pdf':
                 try:
                     added = ask_pdf({'campaign':self, 'work':self.work, 'site':Site.objects.get_current()})
-                    new_file = SpooledTemporaryFile()
-                    old_file = SpooledTemporaryFile()
+                    new_file = TemporaryFile()
+                    old_file = TemporaryFile()
                     old_file.write(to_do['content'])
                     if position == 0:
                         pdf_append(added, old_file, new_file)
@@ -938,7 +938,7 @@ class Campaign(models.Model):
                     logger.error("error appending pdf ask  %s" % (e))
             elif to_do['ebook'].format == 'epub':
                 try:
-                    old_file = SpooledTemporaryFile()
+                    old_file = TemporaryFile()
                     old_file.write(to_do['content'])
                     new_file = ask_epub(old_file, {'campaign':self, 'work':self.work, 'site':Site.objects.get_current()})
                     new_file.seek(0)

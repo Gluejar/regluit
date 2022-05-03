@@ -1,22 +1,22 @@
 -i https://pypi.org/simple
--e git+git://github.com/EbookFoundation/fef-questionnaire.git@6672fa575b2d93b1353f926e9894ae88b4251892#egg=fef-questionnaire
--e git+git://github.com/eshellman/django-email-change.git@fb063296cbf4e4a6d8a93d34d98fe0c7739c2e0d#egg=django-email-change
--e git+git://github.com/eshellman/django-notification.git@1ad2be4adf3551a3471d923380368341452e178a#egg=django-notification
+-e git+https://github.com/EbookFoundation/fef-questionnaire.git@6672fa575b2d93b1353f926e9894ae88b4251892#egg=fef-questionnaire
+-e git+https://github.com/eshellman/django-email-change.git@fb063296cbf4e4a6d8a93d34d98fe0c7739c2e0d#egg=django-email-change
+-e git+https://github.com/eshellman/django-notification.git@1ad2be4adf3551a3471d923380368341452e178a#egg=django-notification
 amqp==2.6.1
 appdirs==1.4.4
-beautifulsoup4==4.9.1
+beautifulsoup4==4.11.1
 billiard==3.6.3.0
 boto3==1.17.91
 botocore==1.20.91
 cairocffi==0.8.0
 celery==4.4.0
-certifi==2020.12.5
-cffi==1.14.0
+certifi==2021.10.8
+cffi==1.15.0
 chardet==3.0.4
 confusable-homoglyphs==3.2.0
-cryptography>=3.4.6
+cryptography==36.0.2
 defusedxml==0.6.0 ; python_version >= '3.0'
-distlib==0.3.0
+distlib==0.3.4
 django-ckeditor==5.6.1
 django-compat==1.0.15
 django-contrib-comments==1.9.2
@@ -33,19 +33,19 @@ django-tastypie==0.14.1
 django-transmeta-eh==0.7.6
 django==1.11.29
 docopt==0.6.2
-docutils==0.15.2
-filelock==3.0.12
-gitberg==0.7.3
-gitdb==4.0.5
-github3.py==1.3.0
-gitpython==3.1.3
+docutils==0.18.1
+filelock==3.6.0
+gitberg==0.8.0
+gitdb==4.0.9
+github3.py==3.2.0
+gitpython==3.1.27
 html5lib==1.0.1
 httplib2>=0.19.0
-idna==2.10
-importlib-metadata==1.6.0 ; python_version < '3.8'
-importlib-resources==1.5.0 ; python_version < '3.7'
-isodate==0.6.0
-jinja2==2.11.3
+idna==3.3
+importlib-metadata==4.11.3 ; python_version < '3.8'
+importlib-resources==1.5.0 ; python_version < '3.8'
+isodate==0.6.1
+jinja2==3.1.1
 jmespath==0.10.0
 jwcrypto==0.7
 kombu==4.6.10
@@ -57,51 +57,49 @@ mock==2.0.0
 mysqlclient==1.4.6
 oauth2==1.9.0.post1
 oauthlib==3.1.0
-packaging==20.4
-pbr==5.4.5
+packaging==21.3
+pbr==5.8.1
 pillow>=8.3.2
-pluggy==0.13.1
-py==1.10.0
-pycparser==2.20
+pluggy==1.0.0
+py==1.11.0
+pycparser==2.21
 pyepub==0.5.0
-pyjwt==1.7.1
+PyJWT==2.3.0
 pymarc==4.0.0
 pyoai==2.5.0
-pyopenssl==19.1.0
-pyparsing==2.4.7
+pyOpenSSL==22.0.0
+pyparsing==3.0.8
 pypdf2==1.26.0
-python-dateutil==2.8.1
+python-dateutil==2.8.2
 python-mimeparse==1.6.0
 python3-openid==3.1.0 ; python_version >= '3.0'
-pytz==2020.1
-pyyaml==5.4.1
-rdflib-jsonld==0.4.0
-rdflib==4.2.2
+pytz==2022.1
+pyyaml==6.0
+rdflib==6.1.1
 redis==3.5.3
-reportlab==3.5.42
 requests-mock==1.8.0
 requests-oauthlib==1.3.0
-requests==2.25.1
+requests==2.27.1
 risparser==0.4.3
 s3transfer==0.4.2
 selenium==3.141.0
 semver==2.2.0
-sh==1.13.1
-six==1.15.0
-smmap==3.0.4
+sh==1.14.2
+six==1.16.0
+smmap==5.0.0
 social-auth-app-django==2.1.0
 social-auth-core==3.3.3
 sorl-thumbnail==12.6.3
-soupsieve==2.0.1
-sparqlwrapper==1.6.4
+soupsieve==2.3.2
+SPARQLWrapper==2.0.0
 stripe==2.48.0
-toml==0.10.1
-tox==3.15.1
-uritemplate==3.0.1
-urllib3==1.26.5
+toml==0.10.2
+tox==3.25.0
+uritemplate==4.1.1
+urllib3==1.26.9
 vine==1.3.0
-virtualenv==20.0.21
+virtualenv==20.14.1
 webencodings==0.5.1
 wikipedia==1.4.0
-xhtml2pdf==0.2.4
-zipp==3.1.0 ; python_version < '3.8'
+xhtml2pdf==0.2.7
+zipp==3.8.0
