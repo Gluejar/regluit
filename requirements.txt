@@ -4,7 +4,7 @@
 -e git+https://github.com/eshellman/django-notification.git@1ad2be4adf3551a3471d923380368341452e178a#egg=django-notification
 amqp==2.6.1
 appdirs==1.4.4
-backports.zoneinfo>0.2.1
+backports.zoneinfo>=0.2.1
 beautifulsoup4==4.11.1
 billiard==3.6.3.0
 boto3==1.17.91
