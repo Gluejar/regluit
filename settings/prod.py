@@ -25,6 +25,9 @@ DATABASES = {
         'PORT': '',
         'TEST': {
             'CHARSET': 'utf8',
+        },
+        'OPTIONS': {
+            'init_command': 'SET max_execution_time=30000'  # In milliseconds; requires MySQL 5.7
         }
     }
 }
