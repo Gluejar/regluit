@@ -10,7 +10,7 @@ billiard==3.6.3.0
 boto3==1.17.91
 botocore==1.20.91
 cairocffi==0.8.0
-celery==4.4.7
+celery==4.4.0
 certifi==2021.10.8
 cffi==1.15.0
 chardet==3.0.4
@@ -49,7 +49,7 @@ isodate==0.6.1
 jinja2==3.1.1
 jmespath==0.10.0
 jwcrypto==0.7
-kombu==4.6.11
+kombu==4.6.10
 lxml>=4.6.2
 mailchimp3==3.0.14
 markupsafe==2.0.1
