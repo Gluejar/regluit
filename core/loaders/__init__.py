@@ -35,7 +35,7 @@ def get_scraper(url):
 def scrape_sitemap(url, maxnum=None):
     try:
         response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
-        doc = BeautifulSoup(response.content, 'lxml')
+        doc = BeautifulSoup(response.content, 'xml')
         for page in doc.find_all('loc')[0:maxnum]:
             scraper = get_scraper(page.text)
             if scraper.metadata.get('genre', None) == 'book':

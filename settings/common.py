@@ -513,7 +513,7 @@ QUESTIONNAIRE_SHOW_ITEM_RESULTS = False
 FIREFOX_PATH = ''
 CHROMEDRIVER_PATH = ''
 GOOGLEBOT_UA = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
-CHROME_UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36"
+CHROME_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15'
 
 try:
     from .keys.common import *
