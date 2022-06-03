@@ -130,6 +130,7 @@ STOREPROVIDERS = [
     "publicacions.ub.edu",
     "publicacions.urv.cat",
     "universitetsforlaget.no",
+    "zalozba.zrc-sazu.si"
 ]
 
 CMPPROVIDERS = [
@@ -142,6 +143,8 @@ CMPPROVIDERS = [
     'humanities-digital-library.org',
     'editorial.uniagustiniana.edu.co',
     'monographs.uc.pt',
+    'omp.zrc-sazu.si',
+    'omp.ub.rub.de',
 ]
 DONT_HARVEST = [
     'Unglue.it',
