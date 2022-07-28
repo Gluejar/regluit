@@ -225,7 +225,7 @@ class EbookFileAdmin(ModelAdmin):
     list_display = ('created', 'format', 'ebook_link', 'asking')
     date_hierarchy = 'created'
     ordering = ('edition__work',)
-    fields = ('file', 'format', 'edition', 'edition_link', 'ebook', 'ebook_link', 'source', 'mobied')
+    fields = ('file', 'format', 'edition', 'edition_link', 'ebook', 'ebook_link', 'source')
     readonly_fields = ('file', 'edition_link', 'ebook_link', 'source')
     def edition_link(self, obj):
         if obj.edition:

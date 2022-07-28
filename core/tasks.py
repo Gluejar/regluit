@@ -29,8 +29,7 @@ from regluit.core import (
     bookloader,
     covers,
     models,
-    librarything,
-    mobigen
+    librarything
 )
 from regluit.core.models import Acq, Campaign, EbookFile, Gift, UserProfile, Work
 from regluit.core.signals import deadline_impending
@@ -157,17 +156,7 @@ def process_ebfs(campaign_id):
             campaign.add_ask_to_ebfs()
         else:
             campaign.revert_asks()
-        campaign.make_mobis()
 
-
-@task
-def make_mobi(ebookfile_id):
-    try:
-        ebookfile = EbookFile.objects.get(ebookfile_id)
-    except EbookFile.DoesNotExist as e:
-        logger.error("error getting EbookFile %s", ebookfile_id)
-        return False
-    return ebookfile.make_mobi()
 
 @task
 def refresh_acqs():
@@ -193,10 +182,6 @@ def refresh_acqs():
             break
         else:
             acq.refreshed = True
-
-@task
-def convert_to_mobi(input_url, input_format="application/epub+zip"):
-    return mobigen.convert_to_mobi(input_url, input_format)
 
 @task
 def ml_subscribe_task(profile_id, **kwargs):

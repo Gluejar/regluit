@@ -13,7 +13,6 @@ from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from pyepub import EPUB
-from regluit.mobi import Mobi
 from .isbn import ISBN
 
 logger = logging.getLogger(__name__)
@@ -112,14 +111,6 @@ def test_file(the_file, fformat):
             except Exception as e:
                 logger.exception(e)
                 raise ValidationError(_('Are you sure this is an EPUB file?: %s' % e))
-        elif fformat == 'mobi':
-            try:
-                book = Mobi(the_file.file)
-                book.parse()
-            except Exception as e:
-                logger.exception(e)
-                #raise ValidationError(_('Are you sure this is a MOBI file?: %s' % e))
-                raise e
         elif fformat == 'pdf':
             try:
                 PdfFileReader(the_file.file)

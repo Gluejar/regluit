@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand
 from regluit.core.loaders.harvest import archive_dl, RateLimiter, DONT_HARVEST
 from regluit.core.models import Ebook
 from regluit.core.parameters import GOOD_PROVIDERS
-DOWNLOADABLE = ['pdf', 'epub', 'mobi']
+DOWNLOADABLE = ['pdf', 'epub']
 
 DONT_CHECK = list(GOOD_PROVIDERS) + DONT_HARVEST
 

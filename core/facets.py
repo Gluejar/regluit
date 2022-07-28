@@ -107,7 +107,7 @@ class FormatFacetGroup(FacetGroup):
     def __init__(self):
         super(FacetGroup,self).__init__()
         self.title = 'Format'
-        self.facets = ['pdf', 'epub', 'mobi']
+        self.facets = ['pdf', 'epub']
         self.label = '{} is ...'.format(self.title)
     
     def get_facet_class(self, facet_name):

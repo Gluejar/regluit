@@ -164,19 +164,13 @@ Please fix the following before launching your campaign:
     {% endif %}
     {% if campaign.work.epubfiles.0 %}
         {% for ebf in campaign.work.epubfiles %}
-        <p>{% if ebf.active %}<span class="yikes">ACTIVE</span> {% elif ebf.ebook.active %} MIRROR {% endif %}EPUB file: <a href="{{ebf.file.url}}">{{ebf.file}}</a> <br />created {{ebf.created}}  for edition <a href="#edition_{{ebf.edition_id}}">{{ebf.edition_id}}</a> {% if ebf.asking %}(This file has had the campaign 'ask' added.){% endif %}<br />{% if ebf.active %}{% if action == 'mademobi' %}<span class="yikes">A MOBI file is being generated. </span> (Takes a minute or two.) {% else %}You can <a href="{% url 'makemobi' campaign.id ebf.id %}">generate a MOBI file.</a> {% endif %}{% endif %}</p>
+        <p>{% if ebf.active %}<span class="yikes">ACTIVE</span> {% elif ebf.ebook.active %} MIRROR {% endif %}EPUB file: <a href="{{ebf.file.url}}">{{ebf.file}}</a> <br />created {{ebf.created}}  for edition <a href="#edition_{{ebf.edition_id}}">{{ebf.edition_id}}</a> {% if ebf.asking %}(This file has had the campaign 'ask' added.){% endif %}</p>
         {% endfor %}
         {% if campaign.work.test_acqs.0 %}
             <ul> 
             <li><a href="{{campaign.work.test_acqs.0.watermarked.download_link_epub}}">Processed epub for testing</a></li>
-            <li><a href="{{campaign.work.test_acqs.0.watermarked.download_link_mobi}}">Processed mobi (kindle) for testing</a></li>
             </ul>
         {% endif %}
-    {% endif %}
-    {% if campaign.work.mobifiles.0 %}
-        {% for ebf in campaign.work.mobifiles %}
-        <p>{% if ebf.active %}<span class="yikes">ACTIVE</span> {% endif %}MOBI file: <a href="{{ebf.file.url}}">{{ebf.file}}</a> <br />created {{ebf.created}}  for edition <a href="#edition_{{ebf.edition_id}}">{{ebf.edition_id}}</a> {% if ebf.asking %}(This file has had the campaign 'ask' added.){% endif %}</p>
-        {% endfor %}
     {% endif %}
     {% if campaign.work.pdffiles.0 %}
         {% for ebf in campaign.work.pdffiles %}

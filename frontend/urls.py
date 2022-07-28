@@ -31,8 +31,6 @@ urlpatterns = [
     url(r"^rightsholders/agree/submitted$", TemplateView.as_view(template_name='agreed.html'), name="agreed"), 
     url(r"^rightsholders/campaign/(?P<id>\d+)/$", views.manage_campaign, name="manage_campaign"), 
     url(r"^rightsholders/campaign/(?P<id>\d+)/results/$", views.manage_campaign, {'action': 'results'}, name="campaign_results"), 
-    url(r"^rightsholders/campaign/(?P<id>\d+)/(?P<ebf>\d+)/makemobi/$", views.manage_campaign, {'action': 'makemobi'}, name="makemobi"),
-    url(r"^rightsholders/campaign/(?P<id>\d+)/mademobi/$", views.manage_campaign, {'action': 'mademobi'}, name="mademobi"),
     url(r"^rightsholders/edition/(?P<work_id>\d*)/(?P<edition_id>\d*)$", views.edit_edition, {'by': 'rh'}, name="rh_edition"),
     url(r"^rightsholders/edition/(?P<edition_id>\d*)/upload/$", views.edition_uploads, name="edition_uploads"),
     url(r"^rightsholders/claim/$", login_required(views.claim), name="claim"), 

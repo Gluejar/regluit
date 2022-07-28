@@ -199,8 +199,7 @@ class BaseScraper(object):
         '''return a dict of edition keys and ISBNs'''
         isbns = {}
         isbn_cleaner = identifier_cleaner('isbn', quiet=True)
-        label_map = {'epub': 'EPUB', 'mobi': 'Mobi',
-            'paper': 'Paperback', 'pdf':'PDF', 'hard':'Hardback'}
+        label_map = {'epub': 'EPUB', 'paper': 'Paperback', 'pdf':'PDF', 'hard':'Hardback'}
         for key in label_map.keys():
             isbn_key = 'isbn_{}'.format(key)
             value = self.check_metas(['citation_isbn'], type=label_map[key])
@@ -332,7 +331,7 @@ class BaseScraper(object):
             self.set('covers', [{'image_url': image_url}])
 
     def get_downloads(self):
-        for dl_type in ['epub', 'mobi', 'pdf']:
+        for dl_type in ['epub', 'pdf']:
             dl_meta = 'citation_{}_url'.format(dl_type)
             value = self.check_metas([dl_meta])
             if value:

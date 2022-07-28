@@ -283,7 +283,7 @@ def load_doab_edition(title, doab_id, url, format, rights,
     work.selected_edition = edition
     work.save()
 
-    if format in ('pdf', 'epub', 'mobi', 'html', 'online') and rights:
+    if format in ('pdf', 'epub', 'html', 'online') and rights:
         ebook = models.Ebook()
         ebook.format = format
         ebook.provider = provider

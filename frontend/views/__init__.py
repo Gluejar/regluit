@@ -2523,7 +2523,7 @@ class DownloadView(PurchaseView):
 
         unglued_ebooks = work.ebooks().filter(edition__unglued=True)
         other_ebooks = work.ebooks().filter(edition__unglued=False)
-        xfer_url = kindle_url = None
+        xfer_url = None
         acq = None
         formats = {}  # a dict of format name and url
         for ebook in work.ebooks().all():
@@ -2546,9 +2546,7 @@ class DownloadView(PurchaseView):
                             watermark_acq.delay(an_acq.id)
                     acq = an_acq
                     formats['epub'] = reverse('download_acq', kwargs={'nonce':acq.nonce, 'format':'epub'})
-                    formats['mobi'] = reverse('download_acq', kwargs={'nonce':acq.nonce, 'format':'mobi'})
                     xfer_url = settings.BASE_URL_SECURE + formats['epub']
-                    kindle_url = settings.BASE_URL_SECURE + formats['mobi']
                     can_kindle = True
                     break
 
@@ -2560,7 +2558,7 @@ class DownloadView(PurchaseView):
             #send to kindle
 
             try:
-                kindle_ebook = non_google_ebooks.filter(format='mobi')[0]
+                kindle_ebook = non_google_ebooks.filter(format='epub')[0]
                 can_kindle = kindle_ebook.kindle_sendable()
             except IndexError:
                 try:
@@ -2584,7 +2582,6 @@ class DownloadView(PurchaseView):
             'other_ebooks': other_ebooks,
             'formats': formats,
             'xfer_url': xfer_url,
-            'kindle_url': kindle_url,
             'dropbox_key': settings.DROPBOX_KEY,
             'can_kindle': can_kindle,
             'base_url': settings.BASE_URL_SECURE,
@@ -2699,8 +2696,6 @@ def download_acq(request, nonce, format):
         acq.borrow()
     if format == 'epub':
         return HttpResponseRedirect(acq.get_epub_url())
-    else:
-        return HttpResponseRedirect(acq.get_mobi_url())
 
 def about(request, facet):
     template = "about_" + facet + ".html"
@@ -2903,7 +2898,7 @@ def send_to_kindle(request, work_id, javascript='0'):
     else:
         non_google_ebooks = work.ebooks().exclude(provider='Google Books')
         try:
-            ebook = non_google_ebooks.filter(format='mobi')[0]
+            ebook = non_google_ebooks.filter(format='epub')[0]
         except IndexError:
             try:
                 ebook = non_google_ebooks.filter(format='pdf')[0]

@@ -65,7 +65,6 @@ from regluit.core.parameters import (
 )
 from regluit.core.epub import personalize, ungluify, ask_epub
 from regluit.core.pdf import ask_pdf, pdf_append
-from regluit.core import mobi
 from regluit.core.signals import (
     successful_campaign,
     unsuccessful_campaign,
@@ -213,8 +212,8 @@ class Acq(models.Model):
 
     class mock_ebook(object):
         def __init__(self, acq):
-            self.url = acq.get_mobi_url()
-            self.format = 'mobi'
+            self.url = acq.get_epub_url()
+            self.format = 'epub'
             self.filesize = 0
         def save(self):
             return True
@@ -247,10 +246,6 @@ class Acq(models.Model):
         else:
             return self.expires < datetime.now()
 
-    def get_mobi_url(self):
-        if self.expired:
-            return ''
-        return self.get_watermarked().download_link_mobi
 
     def get_epub_url(self):
         if self.expired:
@@ -887,17 +882,6 @@ class Campaign(models.Model):
     def latest_ending(cls):
         return timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)) + now()
 
-    def make_mobis(self):
-        # make archive files for ebooks, make mobi files for epubs
-        versions = set()
-        for ebook in self.work.ebooks().filter(provider__in=GOOD_PROVIDERS, format='mobi'):
-            versions.add(ebook.version_label)
-        for ebook in self.work.ebooks_all().exclude(provider='Unglue.it').filter(provider__in=GOOD_PROVIDERS, format='epub'):
-            if not ebook.version_label in versions:
-                # now make the mobi file
-                ebf = ebook.get_archive_ebf()
-                ebf.make_mobi()
-
     def add_ask_to_ebfs(self, position=0):
         if not self.use_add_ask or self.type != THANKS:
             return
@@ -948,17 +932,6 @@ class Campaign(models.Model):
                     new_epub_ebf.version = version
                     new_ebfs.append(new_epub_ebf)
                     
-                    # now make the mobi file
-                    new_mobi_ebf = EbookFile.objects.create(edition=edition, format='mobi', asking=True)
-                    try:
-                        new_mobi_file = ContentFile(mobi.convert_to_mobi(new_epub_ebf.file.url))
-                    except Exception as e:
-                        logger.error("error making mobi  for %s" % (new_epub_ebf.file.url))
-                        raise e
-                    new_mobi_ebf.file.save(path_for_file('ebf', None), new_mobi_file)
-                    new_mobi_ebf.save()
-                    new_mobi_ebf.version = version
-                    new_ebfs.append(new_mobi_ebf)
                 except Exception as e:
                     logger.error("error making epub ask or mobi  %s" % (e))
         for ebf in new_ebfs:
@@ -1047,7 +1020,6 @@ class Campaign(models.Model):
             ungluified.file_obj.seek(0)
             watermarked = watermarker.platform(epubfile=ungluified.file_obj, **params)
             self.make_unglued_ebf('epub', watermarked)
-            self.make_unglued_ebf('mobi', watermarked)
             return True
         return False
 
