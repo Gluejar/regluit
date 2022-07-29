@@ -943,23 +943,14 @@ class DownloadPageTest(TestCase):
         eb1.edition = e1
         eb1.format = 'epub'
 
-        eb2 = models.Ebook()
-        eb2.url = "https://example2.com"
-        eb2.edition = e2
-        eb2.format = 'mobi'
 
         eb1.save()
-        eb2.save()
 
         anon_client = Client()
         response = anon_client.get("/work/%s/download/" % w.id, follow=True)
-        self.assertContains(response, "/download_ebook/%s/"% eb1.id, count=11)
-        self.assertContains(response, "/download_ebook/%s/"% eb2.id, count=5)
+        self.assertContains(response, "/download_ebook/%s/"% eb1.id, count=12)
         self.assertTrue(eb1.edition.work.is_free)
         eb1.delete()
-        self.assertTrue(eb2.edition.work.is_free)
-        eb2.delete()
-        self.assertFalse(eb2.edition.work.is_free)
 
 class MailingListTests(TestCase):
     #mostly to check that MailChimp account is setp correctly
@@ -1057,7 +1048,7 @@ class EbookFileTests(TestCase):
         #flip the campaign to success
         c.cc_date_initial = datetime(2012, 1, 1)
         c.update_status()
-        self.assertEqual(c.work.ebooks().count(), 2)
+        self.assertEqual(c.work.ebooks().count(), 1)
         c.do_watermark = False
         c.save()
         url = acq.get_watermarked().download_link_epub
@@ -1122,15 +1113,12 @@ class EbookFileTests(TestCase):
             ebf.ebook = eb
             ebf.save()
             temp_file.close()
-            ebf.make_mobi()
         finally:
             # make sure we get rid of temp file
             os.remove(temp.name)
         #test the ask-appender
         c.add_ask_to_ebfs()
         self.assertTrue(c.work.ebookfiles().filter(asking=True, format='epub').count() > 0)
-        if settings.MOBIGEN_URL:
-            self.assertTrue(c.work.ebookfiles().filter(asking=True, format='mobi').count() > 0)
         self.assertTrue(c.work.ebookfiles().filter(asking=True, ebook__active=True).count() > 0)
         self.assertTrue(c.work.ebookfiles().filter(asking=False, ebook__active=True).count() == 0)
         #test the unasker
@@ -1154,24 +1142,11 @@ class EbookFileTests(TestCase):
             ebf = EbookFile(format='epub', edition=e, file=dj_file)
             ebf.save()
             temp_file.close()
-            ebf.make_mobi()
         finally:
             # make sure we get rid of temp file
             os.remove(temp.name)
-        self.assertTrue(ebf.mobied < 0)
 
 
-class MobigenTests(TestCase):
-    def test_convert_to_mobi(self):
-        """
-        check the size of the mobi output of a Moby Dick epub
-        """
-        from regluit.core.mobigen import convert_to_mobi
-        if settings.TEST_INTEGRATION:
-            output = convert_to_mobi(
-                "https://github.com/GITenberg/Moby-Dick--Or-The-Whale_2701/releases/download/0.2.0/Moby-Dick-Or-The-Whale.epub"
-            )
-            self.assertTrue(len(output) > 2207877)
 
 @override_settings(LOCAL_TEST=True)
 class LibTests(TestCase):
@@ -1225,11 +1200,11 @@ class GitHubTests(TestCase):
         )
         expected_set = set([
             ('epub', u'Adventures-of-Huckleberry-Finn.epub'),
-            ('mobi', u'Adventures-of-Huckleberry-Finn.mobi'),
             ('pdf', u'Adventures-of-Huckleberry-Finn.pdf')
             ])
 
-        self.assertEqual(set(ebooks), expected_set)
+        self.assertTrue(('epub', 'Adventures-of-Huckleberry-Finn.epub') in set(ebooks))
+        self.assertTrue(('pdf', 'Adventures-of-Huckleberry-Finn.pdf') in set(ebooks))
 
 class OnixLoaderTests(TestCase):
     fixtures = ['initial_data.json']

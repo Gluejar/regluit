@@ -183,12 +183,8 @@ $j(document).ready(function() {
             <h3>Download your ebook{% if acq.lib_acq %}{% if acq.on_reserve %}, on reserve for you at{% else %}, on loan to you at{% endif %} {{ acq.lib_acq.user.library }}{% endif %}</h3>
             <div class="ebook_download">
                     <a href="{{ formats.epub }}"><img src="/static/images/epub32.png" height="32" alt="epub" title="epub" /></a>
-                    <a href="{{ formats.epub }}">EPUB</a> (for iBooks, Nook, Kobo)
+                    <a href="{{ formats.epub }}">EPUB</a> (for Kindle, iBooks, Nook, Kobo)
                     <a class="dropbox-saver" href="{{ xfer_url }}" data-filename="unglueit-{{ work.id }}.epub"></a>
-                    <br /><br />
-                    <a href="{{ formats.mobi }}"><img src="/static/images/mobi32.png" height="32" alt="mobi" title="mobi" /></a>
-                    <a href="{{ formats.mobi }}">MOBI</a> (for Kindle)
-                    <a class="dropbox-saver" href="{{ kindle_url }}" data-filename="unglueit-{{ work.id }}.mobi"></a>
             </div>
             {% endif %}
         {% endif %}
@@ -211,7 +207,7 @@ $j(document).ready(function() {
                 Looks like you're using an embedded browser inside an iOS app. (Maybe you followed a link in Twitter or Facebook?)
             </p>
             <p>
-                {% if formats.epub or formats.mobi %}
+                {% if formats.epub %}
                     To read this ebook you should open this page in safari, or use one of the "One-click" buttons, above. <br />
                     {% if iphone %}<img width="357" height="156" src="/static/images/clickhere.png" alt="how to open in safari" />{% else %}<img width="500" height="403" src="/static/images/open_safari.png" alt="how to open in safari" />{% endif %}<br clear="left" />
                 {% endif %}
@@ -271,10 +267,6 @@ $j(document).ready(function() {
                 <p>
                     Download the <a href="{{ formats.text }}">text version</a>.
                 </p>
-            {% else %}
-                <p>
-                    This ebook is only available in .mobi.  Your best bet is to install the free Amazon Kindle app from the Apple Store and then use the Send-to-Kindle option above.
-                </p>
             {% endif %}
             <p class="other_instructions_paragraph">
                 Not on iOS?  Try the instructions for <a class="android other_instructions">Android</a>, <a class="desktop other_instructions">desktop computers</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
@@ -284,6 +276,7 @@ $j(document).ready(function() {
         <div id="android_div"{% if android %} class="active"{% endif %}>
             <h4>Android devices</h4>
             {% if formats.epub %}
+                You can send EPUB files to your Amazon Kindle using the Send-to-Kindle option above.
                 <p>
                     You may already have an app which reads ebooks.  Download the <a href="{{ formats.epub }}">epub file</a> and see if you're offered an option for opening the file.  If so, you're done!  If not...
                 </p>
@@ -313,10 +306,6 @@ $j(document).ready(function() {
                 <p>
                     Download the <a href="{{ formats.text }}">text version</a>.
                 </p>
-            {% else %}
-                <p>
-                    This ebook is only available in .mobi.  Your best bet is to install the free Amazon Kindle app from Google Play and then use the Send-to-Kindle option above.
-                </p>
             {% endif %}{% endif %}{% endif %}{% endif %}
             <p class="other_instructions_paragraph">
                 Not on Android?  Try the instructions for <a class="ios other_instructions">iPhone/iPad</a>, <a class="desktop other_instructions">desktop computers</a>, or <a class="ereader other_instructions">ereaders (Kindle, Nook, Kobo, etc.)</a>.
@@ -344,14 +333,6 @@ $j(document).ready(function() {
                 <li>Open the file in Calibre.</li>
                 <li>You can <a href="http://blog.marvinapp.com/post/53438723356">use a Calibre plugin</a> to manage files on reader apps.
                 </ul>
-            {% elif formats.mobi %}
-                <p class="ebook_download logo"><img src="/static/images/calibre_logo.png" alt="Calibre Logo" />Calibre</p>
-                <ul>
-                <li><a href="http://calibre-ebook.com/download">Download the free Calibre app.</a></li>
-                <li>Download the <a href="{{ formats.mobi }}">mobi file</a>.</li>
-                <li>Open the file in Calibre.</li>
-                <li>You can <a href="http://blog.marvinapp.com/post/53438723356">use a Calibre plugin</a> to manage files on reader apps.
-                </ul>
             {% elif formats.html %}
                 <p>
                     You can read the <a href="{{ formats.html }}">HTML version</a> right here in your browser.
@@ -372,8 +353,8 @@ $j(document).ready(function() {
             {% if formats.mobi or formats.pdf or formats.epub %}
                 <ul>
                 <li>
-                    {% if formats.mobi %}
-                        <b>Kindle</b>: download the <a href="{{ formats.mobi }}">mobi file</a> to your computer, or use the <i>Send To Kindle</i> button above.
+                    {% if formats.mobi or formats.epub %}
+                        <b>Kindle</b>: download the <a href="{{ formats.epub }}">epub file</a> to your computer, or use the <i>Send To Kindle</i> button above.
                     {% elif formats.pdf %}
                         <b>Kindle</b>: download the <a href="{{ formats.pdf }}">pdf file</a> to your computer, or use the <i>Send To Kindle</i> button above.
                     {% else %}

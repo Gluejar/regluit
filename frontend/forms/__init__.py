@@ -109,7 +109,7 @@ class EbookFileForm(forms.ModelForm):
             self.fields['format'].widget = forms.HiddenInput()
         if campaign_type == THANKS:
             self.fields['format'].widget = forms.Select(
-                choices = (('pdf', 'PDF'), ('epub', 'EPUB'), ('mobi', 'MOBI'))
+                choices = (('pdf', 'PDF'), ('epub', 'EPUB'))
             )
 
     def clean_version_label(self):

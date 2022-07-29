@@ -281,16 +281,6 @@ def manage_campaign(request, id, ebf=None, action='manage'):
             new_premium_form = CustomPremiumForm(data={'campaign': campaign})
             activetab = '#2'
     else:
-        if action == 'makemobi':
-            try:
-                ebookfile = get_object_or_404(models.EbookFile, id=ebf)
-            except ValueError:
-                raise Http404
-
-            tasks.make_mobi.delay(ebookfile.id)
-            return HttpResponseRedirect(reverse('mademobi', args=[campaign.id]))
-        elif action == 'mademobi':
-            alerts.append('A MOBI file is being generated')
         form = ManageCampaignForm(
             instance=campaign,
             initial={'work_description':campaign.work.description}

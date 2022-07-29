@@ -64,7 +64,6 @@ class BooXtream(object):
             # fake it, so you can test other functions without hitting booxtream
             boox = Boox.objects.create(
                 download_link_epub='https://github.com/eshellman/42_ebook/blob/master/download/42.epub?raw=true&extra=download.booxtream.com/',
-                download_link_mobi='https://github.com/eshellman/42_ebook/blob/master/download/42.mobi?raw=true',
                 referenceid= kwargs.get('referenceid', '42'),
                 downloads_remaining=kwargs.get('downloadlimit', 10),
                 expirydays=kwargs.get('expirydays', 30),
@@ -81,12 +80,8 @@ class BooXtream(object):
         download_link_epub = doc.find('.//DownloadLink[@type="epub"]')
         if download_link_epub is not None:
             download_link_epub = download_link_epub.text
-        download_link_mobi = doc.find('.//DownloadLink[@type="mobi"]')
-        if download_link_mobi is not None:
-            download_link_mobi = download_link_mobi.text
         boox = Boox.objects.create(
             download_link_epub=download_link_epub,
-            download_link_mobi=download_link_mobi,
             referenceid=kwargs.get('referenceid'),
             downloads_remaining=kwargs.get('downloadlimit'),
             expirydays=kwargs.get('expirydays'),

@@ -11,7 +11,7 @@ class PressbooksScraper(BaseScraper):
     can_scrape_strings = ['pressbooks']
 
     def get_downloads(self):
-        for dl_type in ['epub', 'mobi', 'pdf']:
+        for dl_type in ['epub', 'pdf']:
             download_el = self.doc.select_one('.{}'.format(dl_type))
             value = None
             if download_el and download_el.find_parent():

@@ -618,7 +618,7 @@ def harvest_frontiersin(ebook):
         logger.warning('couldn\'t get any dl_url for %s', ebook.url)
     return harvested, num
 
-SPRINGERDL = re.compile(r'(EPUB|PDF|MOBI)')
+SPRINGERDL = re.compile(r'(EPUB|PDF)')
 
 def harvest_springerlink(ebook): 
     def selector(doc):
@@ -910,7 +910,7 @@ def harvest_doi_coaccess(ebook):
 
             # a new ebook
             format = loader.type_for_url(url)
-            if format in ('pdf', 'epub', 'mobi', 'html', 'online'):
+            if format in ('pdf', 'epub', 'html', 'online'):
                 new_ebook = models.Ebook()
                 new_ebook.format = format
                 new_ebook.url = url
@@ -1000,7 +1000,7 @@ def harvest_fulcrum(ebook):
 
 def harvest_ubiquity(ebook):    
     def selector(doc):
-        return doc.find_all('a', attrs={'data-category': re.compile('(epub|mobi|pdf) download')})
+        return doc.find_all('a', attrs={'data-category': re.compile('(epub|pdf) download')})
     return harvest_multiple_generic(ebook, selector)
 
 def harvest_orkana(ebook):    

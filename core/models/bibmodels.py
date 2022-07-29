@@ -31,7 +31,6 @@ from regluit.marc.models import MARCRecord as NewMARC
 from questionnaire.models import Landing
 
 from regluit.bisac.models import interpret_notation
-from regluit.core import mobi
 import regluit.core.cc as cc
 from regluit.core.covers import (get_thumbnail, 
                                  DEFAULT_COVER, DEFAULT_COVER_LARGE, DEFAULT_COVER_SMALL)
@@ -1091,7 +1090,6 @@ class EbookFile(models.Model):
     asking = models.BooleanField(default=False)
     ebook = models.ForeignKey('Ebook', on_delete=models.CASCADE, related_name='ebook_files', null=True)
     source = models.URLField(max_length=1024, null=True, blank=True)
-    mobied = models.IntegerField(default=0) #-1 indicates a failed conversion attempt
     version = None
     def check_file(self):
         if self.format == 'epub':
@@ -1104,43 +1102,6 @@ class EbookFile(models.Model):
             return Ebook.objects.filter(url=self.file.url)[0].active
         except:
             return False
-
-    def make_mobi(self):
-        if not self.format == 'epub' or not settings.MOBIGEN_URL:
-            return False
-        if self.mobied < 0:
-            return False
-        try:
-            mobi_cf = ContentFile(mobi.convert_to_mobi(self.file.url))
-        except:
-            self.mobied = -1
-            self.save()
-            return False
-        new_mobi_ebf = EbookFile.objects.create(
-            edition=self.edition,
-            format='mobi',
-            asking=self.asking,
-            source=self.file.url,
-        )
-            
-        new_mobi_ebf.file.save(path_for_file(new_mobi_ebf, None), mobi_cf)
-        new_mobi_ebf.save()
-        if self.ebook:
-            new_ebook = Ebook.objects.create(
-                edition=self.edition,
-                format='mobi',
-                provider='Unglue.it',
-                url=new_mobi_ebf.file.url,
-                rights=self.ebook.rights,
-                version_label=self.ebook.version_label,
-                version_iter=self.ebook.version_iter,
-                filesize=mobi_cf.size,
-            )
-            new_mobi_ebf.ebook = new_ebook
-        new_mobi_ebf.save()
-        self.mobied = 1
-        self.save()
-        return True
 
 send_to_kindle_limit = 7492232
 
