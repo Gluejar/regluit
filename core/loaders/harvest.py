@@ -127,10 +127,11 @@ STOREPROVIDERS = [
     "palgrave.com",
     "play.google.com",
     "press.umich.edu",
+    "pressesuniversitairesdeliege.be",
     "publicacions.ub.edu",
     "publicacions.urv.cat",
     "universitetsforlaget.no",
-    "zalozba.zrc-sazu.si"
+    "zalozba.zrc-sazu.si",
 ]
 
 CMPPROVIDERS = [
@@ -172,8 +173,8 @@ def harvesters(ebook):
     yield 'digitalcommons.usu.edu' in ebook.url, harvest_usu
     yield ebook.provider == 'libros.fahce.unlp.edu.ar', harvest_fahce
     yield ebook.provider in ['digital.library.unt.edu', 'texashistory.unt.edu'], harvest_unt
-    yield ebook.provider in ['diposit.ub.edu', 'orbi.ulg.ac.be',
-                             'acikerisim.kapadokya.edu.tr'], harvest_dspace
+    yield ebook.provider in ['diposit.ub.edu', 'orbi.ulg.ac.be', 'orbi.uliege.be',
+                             'acikerisim.kapadokya.edu.tr',], harvest_dspace
     yield ebook.provider in CMPPROVIDERS, harvest_cmp
     yield 'mdpi' in ebook.provider.lower(), harvest_mdpi
     yield ebook.provider == 'idunn.no', harvest_idunn
@@ -189,6 +190,7 @@ def harvesters(ebook):
     yield ebook.provider == 'edoc.unibas.ch', harvest_unibas
     yield 'pensoft' in ebook.provider, harvest_pensoft
     yield ebook.provider == 'edp-open.org', harvest_edp
+    yield ebook.provider == 'laboutique.edpsciences.fr', harvest_edpsciences
     yield ebook.provider == 'waxmann.com', harvest_waxmann
     yield ebook.provider == 'pbsociety.org.pl', harvest_ojs
     yield ebook.provider == 'content.sciendo.com', harvest_sciendo
@@ -843,6 +845,12 @@ def harvest_pensoft(ebook):
 def harvest_edp(ebook):
     def selector(doc):
         return doc.select_one('a.fulldl[href]')
+    return harvest_one_generic(ebook, selector)
+
+
+def harvest_edpsciences(ebook):
+    def selector(doc):
+        return doc.select_one('.article-open-access-download-cell a[href]')
     return harvest_one_generic(ebook, selector)
 
 
