@@ -123,6 +123,7 @@ STOREPROVIDERS = [
     "karolinum.cz",
     "librumstore.com",
     "logos-verlag.de",
+    "mitpress.mit.edu"
     "nomos-shop.de",
     "palgrave.com",
     "play.google.com",
@@ -182,6 +183,7 @@ def harvesters(ebook):
     yield ebook.provider in ['Ledizioni', 'bibsciences.org',
                              'heiup.uni-heidelberg.de', 'e-archivo.uc3m.es'], harvest_generic
     yield ebook.provider == 'muse.jhu.edu', harvest_muse
+    yield ebook.provider == 'direct.mit.edu', harvest_mitpress
     yield ebook.provider == 'IOS Press Ebooks', harvest_ios
     yield ebook.provider == 'elgaronline.com', harvest_elgar
     yield ebook.provider == 'worldscientific.com', harvest_wsp
@@ -387,7 +389,7 @@ def harvest_multiple_generic(ebook, selector, dl=lambda x:x):
 
 def harvest_stapled_generic(ebook, selector, chap_selector, strip_covers=0,
                             user_agent=settings.GOOGLEBOT_UA, dl=lambda x:x):
-    doc = get_soup(ebook.url, user_agent=user_agent)
+    doc = get_soup(ebook.url, user_agent=user_agent, follow_redirects=True)
     if doc:
         try:
             base = doc.find('base')['href']
@@ -773,6 +775,11 @@ def harvest_muse(ebook):
     def chap_selector(doc):
         return doc.find_all('a', href=re.compile(r'/chapter/\d+/pdf'))
     return harvest_stapled_generic(ebook, None, chap_selector, strip_covers=1)
+
+def harvest_mitpress(ebook):
+    def chap_selector(doc):
+        return doc.select('a.section-pdfLink[href]')
+    return harvest_stapled_generic(ebook, None, chap_selector, strip_covers=0)
 
 
 def harvest_ios(ebook):    
