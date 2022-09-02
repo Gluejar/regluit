@@ -249,13 +249,30 @@ def edit_edition(request, work_id, edition_id, by=None):
                     ebook.rights = rights
                     ebook.save()
                     ebookchange = True
-            for ebook in work.ebooks_all():
-                if 'activate_ebook_%s' % ebook.id in request.POST or activate_all:
-                    ebook.activate()
-                    ebookchange = True
-                elif 'deactivate_ebook_%s' % ebook.id in request.POST or deactivate_all:
-                    ebook.deactivate()
-                    ebookchange = True
+            if 'activate_recent_ebooks' in request.POST:
+                done_fmt = set()
+                for ebook in work.ebooks_all():
+                    for fmt in ['pdf', 'epub', 'mobi']:
+                        if ebook.format == fmt:
+                            if fmt not in done_fmt:
+                                ebook.activate()
+                                done_fmt.add(fmt)
+                            else:
+                                ebook.deactivate()
+                ebookchange = True
+            else:
+                for ebook in work.ebooks_all():
+                    ebook_key = 'activate_ebook_%s' % ebook.id
+                    if ebook_key in request.POST and "activate_selected_ebooks" in request.POST:
+                        ebook_action = request.POST[ebook_key]
+                        if ebook.active :
+                            if ebook_action == 'deactivate':
+                                ebook.deactivate()
+                                ebookchange = True
+                        else:
+                            if ebook_action == 'activate':
+                                ebook.activate()
+                                ebookchange = True
             if ebookchange:
                 keep_editing = True
                 form = EditionForm(instance=edition, data=request.POST, files=request.FILES)
