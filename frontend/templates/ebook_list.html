@@ -1,19 +1,25 @@
 {% if work.ebooks_all %}
 <h3>Manage eBooks</h3>
 <ul>
+<li><span style='display:inline-block;padding-left:1em'>off</span><span style='display:inline-block;padding-left:1em'>on</span></li>
 {% for ebook in work.ebooks_all %}
 <li>
+<span style='display:inline-block;padding-left:0em'>
+<input type="radio" name="activate_ebook_{{ ebook.id }}" value="deactivate"  class="deletebutton" title="deactivate ebook" {% if not ebook.active %}checked{% endif %} />
+</span><span style='display:inline-block;padding-left:0em'>
+<input type="radio" name="activate_ebook_{{ ebook.id }}" value="activate"  class="deletebutton" title="activate ebook"  {% if ebook.active %}checked{% endif %}/>
+</span>
 <a href="{{ ebook.url }}">{{ ebook.format }}{%if ebook.rights %}, {{ ebook.rights }}{% endif %}</a>, created {{ ebook.created }}{% if ebook.user %}, 
 by <a href="{% url 'supporter' ebook.user_id %}">{{ ebook.user }}</a>{% endif %}.
 {% if ebook.filesize %}{{ ebook.filesize }}{% else %}??{% endif %}B 
 {% if ebook.version_label %}{{ ebook.version }}{% endif %}
-{% if ebook.active %}<input type="submit" name="deactivate_ebook_{{ ebook.id }}" value="deactivate"  class="deletebutton" title="deactivate ebook" />{% else %}<input type="submit" name="activate_ebook_{{ ebook.id }}" value="activate"  class="deletebutton" title="activate ebook" />{% endif %}{% if request.user.is_staff %} <a href="{% url 'admin:core_ebook_change' ebook.id %}">admin</a>{% endif %}
+{% if request.user.is_staff %} <a href="{% url 'admin:core_ebook_change' ebook.id %}">admin</a>{% endif %}
 </li>
 {% endfor %}
 </ul>
 <br />
-<input type="submit" name="activate_all_ebooks" value="activate all ebooks"  class="deletebutton" title="activate all ebooks" />
-<input type="submit" name="deactivate_all_ebooks" value="deactivate all ebooks"  class="deletebutton" title="deactivate all ebooks" />
+<input type="submit" name="activate_recent_ebooks" value="activate recent ebooks"  class="deletebutton" title="activate recent ebooks" />
+<input type="submit" name="activate_selected_ebooks" value="activate selected ebooks"  class="deletebutton" title="activate selected ebooks" />
 <br />
 <br />
 {{ form.set_rights}}<input type="submit" name="set_ebook_rights" value="set ebook licenses"  class="deletebutton" title="set ebook licenses" />
