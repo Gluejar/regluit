@@ -14,6 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from pyepub import EPUB
 from .isbn import ISBN
+from regluit.utils.text import remove_author_junk
 
 logger = logging.getLogger(__name__)
 
@@ -207,6 +208,7 @@ def auth_cleaner(auth):
         auth = _and_.sub(',', auth)
         authlist = comma_list_delim.split(auth)
     for auth in authlist:
+        auth = remove_author_junk(auth)
         cleaned.append(spaces.sub(' ', auth.strip()))
     return cleaned
 

@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from django.db import IntegrityError
 
 from regluit.core import models
-from regluit.utils.text import sanitize_line, remove_badxml
+from regluit.utils.text import sanitize_line, remove_author_junk, remove_badxml
 
 
 class Command(BaseCommand):
@@ -36,18 +36,19 @@ class Command(BaseCommand):
                 edition_titles_fixed +=1
         self.stdout.write("edition_titles_fixed = {}".format(edition_titles_fixed))
         for author in models.Author.objects.all():
-            if sanitize_line(author.name) != author.name:
-                author.name = sanitize_line(author.name)
-                try:
-                    author.save()
-                except IntegrityError as e:
-                    # duplicate entry
-                    correct = models.Author.objects.get(name=sanitize_line(author.name))
-                    for relator in author.relator_set.all():
-                        relator.author = correct
-                        relator.save()
-                    author.delete() 
-                author_names_fixed +=1
+            if remove_author_junk(sanitize_line(author.name)) != author.name:
+                author.name = remove_author_junk(sanitize_line(author.name))
+                if author.name:
+                    try:
+                        author.save()
+                    except IntegrityError as e:
+                        # duplicate entry
+                        correct = models.Author.objects.get(name=sanitize_line(author.name))
+                        for relator in author.relator_set.all():
+                            relator.author = correct
+                            relator.save()
+                        author.delete() 
+                    author_names_fixed +=1
         self.stdout.write("author_names_fixed = {}".format(author_names_fixed))
         for publishername in models.PublisherName.objects.all():
             if sanitize_line(publishername.name) != publishername.name:
