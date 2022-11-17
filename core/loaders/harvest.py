@@ -213,10 +213,11 @@ def harvesters(ebook):
     yield ebook.provider == 'euna.una.ac.cr', harvest_euna
     yield ebook.provider == 'openresearchlibrary.org', harvest_orl
     yield ebook.provider == 'pressesagro.be', harvest_pressesagro
-    yield ebook.provider == 'buponline.com',  harvest_buponline
-    yield ebook.provider == 'intechopen.com',  harvest_intech
-    yield ebook.provider == 'usmcu.edu',  harvest_usmcu
-    yield ebook.provider == 'lalibreria.upv.es',  harvest_upv
+    yield ebook.provider == 'buponline.com', harvest_buponline
+    yield ebook.provider == 'intechopen.com', harvest_intech
+    yield ebook.provider == 'usmcu.edu', harvest_usmcu
+    yield ebook.provider == 'lalibreria.upv.es', harvest_upv
+    yield ebook.provider == 'cambridge.org', harvest_cambridge
 
 def ebf_if_harvested(url):
     onlines = models.EbookFile.objects.filter(source=url)
@@ -1076,6 +1077,26 @@ def harvest_una_editions(ebook):
             return make_dl_ebook(obj['href'], ebook)
         else:
             logger.warning('couldn\'t get link for %s', ebook.url)
+    else:
+        logger.warning('couldn\'t get soup for %s', ebook.url)
+    return None, 0
+
+def harvest_cambridge(ebook):
+    ebook, status = redirect_ebook(ebook)
+    doc = get_soup(ebook.url)
+    if doc:
+        pdflinks = []
+        for obj in doc.select('a[data-pdf-content-id]'):
+            if obj and obj['href']:
+                chap = urljoin(ebook.url, obj['href'])
+            pdflinks.append(chap)
+        stapled = None
+        if pdflinks:
+            stapled = make_stapled_ebook(pdflinks, ebook)
+        if stapled:
+            return stapled
+        else:
+            logger.warning('couldn\'t staple %s', pdflinks)
     else:
         logger.warning('couldn\'t get soup for %s', ebook.url)
     return None, 0
