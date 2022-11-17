@@ -1068,3 +1068,14 @@ def harvest_upv(ebook):
         return doc.select_one('a.descargar[href]')
     return harvest_one_generic(ebook, selector)
 
+def harvest_una_editions(ebook):
+    doc = get_soup(ebook.url)
+    if doc:
+        obj = doc.find('a', class_='jet-listing-dynamic-link__link', href=True, string='PDF')
+        if obj:
+            return make_dl_ebook(obj['href'], ebook)
+        else:
+            logger.warning('couldn\'t get link for %s', ebook.url)
+    else:
+        logger.warning('couldn\'t get soup for %s', ebook.url)
+    return None, 0
