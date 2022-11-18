@@ -218,6 +218,7 @@ def harvesters(ebook):
     yield ebook.provider == 'usmcu.edu', harvest_usmcu
     yield ebook.provider == 'lalibreria.upv.es', harvest_upv
     yield ebook.provider == 'cambridge.org', harvest_cambridge
+    yield ebook.provider == 'iupress.istanbul.edu.tr', harvest_iupress
 
 def ebf_if_harvested(url):
     onlines = models.EbookFile.objects.filter(source=url)
@@ -1100,3 +1101,8 @@ def harvest_cambridge(ebook):
     else:
         logger.warning('couldn\'t get soup for %s', ebook.url)
     return None, 0
+
+def harvest_iupress(ebook):    
+    def selector(doc):
+        return doc.find_all('a', string=re.compile(r'(Full Text \(PDF\)|e-PUB)'))
+    return harvest_multiple_generic(ebook, selector)
