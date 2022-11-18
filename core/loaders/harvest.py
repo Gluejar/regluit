@@ -219,6 +219,7 @@ def harvesters(ebook):
     yield ebook.provider == 'lalibreria.upv.es', harvest_upv
     yield ebook.provider == 'cambridge.org', harvest_cambridge
     yield ebook.provider == 'iupress.istanbul.edu.tr', harvest_iupress
+    yield ebook.provider == 'exonpublications.com', harvest_exon
 
 def ebf_if_harvested(url):
     onlines = models.EbookFile.objects.filter(source=url)
@@ -1106,3 +1107,22 @@ def harvest_iupress(ebook):
     def selector(doc):
         return doc.find_all('a', string=re.compile(r'(Full Text \(PDF\)|e-PUB)'))
     return harvest_multiple_generic(ebook, selector)
+
+def harvest_exon(ebook):
+    doc = get_soup(ebook.url)
+    if doc:
+        pdflinks = []
+        for obj in doc.select('a.galley-link.pdf[href]'):
+            if obj and obj['href']:
+                chap = obj['href'].replace('/view/', '/download/')
+            pdflinks.append(chap)
+        stapled = None
+        if pdflinks:
+            stapled = make_stapled_ebook(pdflinks, ebook)
+        if stapled:
+            return stapled
+        else:
+            logger.warning('couldn\'t staple %s', pdflinks)
+    else:
+        logger.warning('couldn\'t get soup for %s', ebook.url)
+    return None, 0
