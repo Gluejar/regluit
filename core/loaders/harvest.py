@@ -131,6 +131,7 @@ STOREPROVIDERS = [
     "pressesuniversitairesdeliege.be",
     "publicacions.ub.edu",
     "publicacions.urv.cat",
+    "una-editions.fr",
     "universitetsforlaget.no",
     "zalozba.zrc-sazu.si",
 ]
@@ -220,6 +221,7 @@ def harvesters(ebook):
     yield ebook.provider == 'cambridge.org', harvest_cambridge
     yield ebook.provider == 'iupress.istanbul.edu.tr', harvest_iupress
     yield ebook.provider == 'exonpublications.com', harvest_exon
+    yield ebook.provider == 'ressources.una-editions.fr', harvest_una
 
 def ebf_if_harvested(url):
     onlines = models.EbookFile.objects.filter(source=url)
@@ -1126,3 +1128,8 @@ def harvest_exon(ebook):
     else:
         logger.warning('couldn\'t get soup for %s', ebook.url)
     return None, 0
+
+def harvest_una(ebook):
+    def selector(doc):
+        return doc.select_one('#header-primary-action a[href]')
+    return harvest_one_generic(ebook, selector)
