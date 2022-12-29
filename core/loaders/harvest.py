@@ -17,6 +17,7 @@ from regluit.core.parameters import GOOD_PROVIDERS, DOWNLOADABLE
 from regluit.core.pdf import staple_pdf
 
 from .soup import get_soup
+from .doab_utils import STOREPROVIDERS
 
 logger = logging.getLogger(__name__)
 
@@ -105,48 +106,23 @@ def clean_archive(ebf):
                 oldebf.save()
         old_ebook.save()
 
-STOREPROVIDERS = [
-    "amazon.ca",
-    "amazon.co.uk",
-    "amazon.com",
-    "amazon.de",
-    "amzn.to",
-    "apress.com",
-    "bod.de",
-    "cabi.org",
-    "cdcshoppingcart.uchicago.edu",
-    "checkout.sas.ac.uk",
-    "dykinson.com",
-    "edicions.ub.edu",
-    "epubli.de",
-    "iospress.nl",
-    "karolinum.cz",
-    "librumstore.com",
-    "logos-verlag.de",
-    "mitpress.mit.edu"
-    "nomos-shop.de",
-    "palgrave.com",
-    "play.google.com",
-    "press.umich.edu",
-    "pressesuniversitairesdeliege.be",
-    "publicacions.ub.edu",
-    "publicacions.urv.cat",
-    "universitetsforlaget.no",
-    "zalozba.zrc-sazu.si",
-]
 
 CMPPROVIDERS = [
-    'editorial.uniagustiniana.edu.co',
-    'llibres.urv.cat',
-    'fedoabooks.unina.it',
-    'Scholars Portal',
+    'books.open.tudelft.nl',
     'ebooks.epublishing.ekt.gr',
-    'teiresias-supplements.mcgill.ca',
-    'humanities-digital-library.org',
+    'editorial.inudi.edu.pe',
+    'editorial.ucatolicaluisamigo.edu.co',
     'editorial.uniagustiniana.edu.co',
+    'fedoabooks.unina.it',
+    'humanities-digital-library.org',
+    'idicap.com',
+    'libri.unimi.it',
+    'llibres.urv.cat',
+    'Scholars Portal',
     'monographs.uc.pt',
-    'omp.zrc-sazu.si',
     'omp.ub.rub.de',
+    'omp.zrc-sazu.si',
+    'teiresias-supplements.mcgill.ca',
 ]
 DONT_HARVEST = [
     'Unglue.it',
@@ -220,6 +196,7 @@ def harvesters(ebook):
     yield ebook.provider == 'cambridge.org', harvest_cambridge
     yield ebook.provider == 'iupress.istanbul.edu.tr', harvest_iupress
     yield ebook.provider == 'exonpublications.com', harvest_exon
+    yield ebook.provider == 'ressources.una-editions.fr', harvest_una
 
 def ebf_if_harvested(url):
     onlines = models.EbookFile.objects.filter(source=url)
@@ -1126,3 +1103,8 @@ def harvest_exon(ebook):
     else:
         logger.warning('couldn\'t get soup for %s', ebook.url)
     return None, 0
+
+def harvest_una(ebook):
+    def selector(doc):
+        return doc.select_one('#header-primary-action a[href]')
+    return harvest_one_generic(ebook, selector)

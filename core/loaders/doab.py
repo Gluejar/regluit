@@ -22,7 +22,8 @@ from regluit.core.models.loader import type_for_url
 from regluit.core.validation import identifier_cleaner, valid_subject, explode_bics
 
 from . import scrape_language
-from .doab_utils import doab_lang_to_iso_639_1, doab_cover, doab_reader, online_to_download
+from .doab_utils import (
+    doab_lang_to_iso_639_1, doab_cover, doab_reader, online_to_download, STOREPROVIDERS)
 
 logger = logging.getLogger(__name__)
 
@@ -285,7 +286,10 @@ def load_doab_edition(title, doab_id, url, format, rights,
 
     if format in ('pdf', 'epub', 'html', 'online') and rights:
         ebook = models.Ebook()
-        ebook.format = format
+        if format == 'online' and provider in STOREPROVIDERS:
+            ebook.format = 'bookstore'
+        else:
+            ebook.format = format
         ebook.provider = provider
         ebook.url = url
         ebook.rights = rights
