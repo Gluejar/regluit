@@ -57,20 +57,47 @@ doab_reader = MetadataReader(
     }
 )
 
-BOOKSHOP_PROVIDERS = [
-    'placedeslibraires.fr',
+STOREPROVIDERS = [
     '7switch.com',
-    'duncker-humblot.de',
+    "amazon.ca",
+    "amazon.co.uk",
+    "amazon.com",
+    "amazon.de",
+    "amzn.to",
+    "apress.com",
     'bloomsbury.com',
-    'usu.edu',
-    'sci.fo',
+    "bod.de",
+    "cabi.org",
+    "cdcshoppingcart.uchicago.edu",
+    "checkout.sas.ac.uk",
+    'duncker-humblot.de',
+    "dykinson.com",
     'e-elgar.com',
-    'nomos-shop.de',
+    "edicions.ub.edu",
+    "epubli.de",
+    "iospress.nl",
+    "karolinum.cz",
+    "librumstore.com",
+    "logos-verlag.de",
+    "mitpress.mit.edu"
+    "nomos-shop.de",
+    "palgrave.com",
+    'placedeslibraires.fr',
+    "play.google.com",
+    "press.umich.edu",
+    "pressesuniversitairesdeliege.be",
+    "publicacions.ub.edu",
+    "publicacions.urv.cat",
+    'sci.fo',
+    "una-editions.fr",
+    "universitetsforlaget.no",
+    'usu.edu',
+    "zalozba.zrc-sazu.si",
 ]
 
 def online_to_download(url):
     urls = []
-    if not url or models.Ebook.infer_provider(url) in BOOKSHOP_PROVIDERS:
+    if not url:
         return urls
     if url.find(u'books.scielo.org/') >= 0:
         if url[-4:] in ['epub', '.pdf']:
