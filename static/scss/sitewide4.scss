@@ -5,7 +5,12 @@
 @import "download.scss";
 @import "buttons.scss";
 @import "bootstrap-social.scss";
-@import "font-awesome.min.css";
+
+// importing core styling file
+@import "./fa/fontawesome.scss";
+@import "./fa/solid.scss";
+@import "./fa/brands.scss";
+@import "./fa/v4-shims.scss";
 
 @mixin preview()
 {
