@@ -46,13 +46,13 @@ The library license gives download access to one library member at a time for 14
 </ol>
 </dd>
 <dt>Stay in touch.</dt>
-<dd>You can follow us on Twitter (<a href="https://twitter.com/unglueit">@unglueit</a>), <a href="https://facebook/com/unglueit">Facebook</a>, and our <a href="https://blog.unglue.it">blog</a>, and <a href="http://eepurl.com/fKLfI">subscribe to our newsletter</a> (1-2 emails per month).</dd>
+<dd>You can follow us on Mastodon (<a href="ttps://digipres.club/@unglueit">@unglueit@digipres.club</a>), <a href="https://facebook/com/unglueit">Facebook</a>, and our <a href="https://blog.unglue.it">blog</a>, and <a href="http://eepurl.com/fKLfI">subscribe to our newsletter</a> (1-2 emails per month).</dd>
 <dt>Spread the word.</dt>
 <dd>There are social media sharing links on most pages on the site.  There are some right here!
 	<div id="widgetcode">Copy/paste this into your site:<br /><textarea rows="7" cols="22">&lt;iframe src="https://{{request.META.HTTP_HOST}}/api/widget/{{work.first_isbn_13}}/" width="152" height="325" frameborder="0"&gt;&lt;/iframe&gt;</textarea></div>
 	<ul class="social menu pledge">
 		<a href="https://www.facebook.com/sharer.php?u=https://{{ site.domain }}"><li class="facebook first"><span>Facebook</span></li></a>
-		<a href="https://twitter.com/intent/tweet?url=https://{{ site.domain }}&amp;text=I%20am%20learning%20about%20unglue%2Eit%20%2E%20Will%20you%20join%20me%3F"><li class="twitter"><span>Twitter</span></li></a>
+		<a href="https://toot.kytta.dev/?text=https://{{ site.domain }}%20I%20am%20learning%20about%20unglue%2Eit%20%2E%20Will%20you%20join%20me%3F"><li class="mastodon"><span>Mastodon</span></li></a>
 		{% if request.user.is_authenticated %}<a href="{% url 'emailshare' '' %}?next={{ request.build_absolute_uri|urlencode:"" }}"><li class="email"><span>Email</span></li></a>{% endif %}
 		<a id="embed"><li class="embed"><span>Embed</span></li></a>
 	</ul>

@@ -134,11 +134,6 @@ function highlightTarget(targetdiv) {
                                            <img src="/static/images/supporter_icons/home_square.png" alt="{{ supporter }}'s homepage" title="{{ supporter }}'s Homepage"  />
                                        </a>
                                     {% endif %}
-                                    {% if supporter.profile.twitter_id %}
-                                        <a href="https://twitter.com/#!/{{ supporter.profile.twitter_id }}" class="nounderline">
-                                            <img src="/static/images/supporter_icons/twitter_square.png" alt="{{ supporter }}'s Twitter" title="{{ supporter }}'s Twitter"  />
-                                        </a>
-                                    {% endif %}
                                     {% if supporter.profile.librarything_id %}
                                         <a href="https://www.librarything.com/profile/{{ supporter.profile.librarything_id }}" class="nounderline">
                                             <img src="/static/images/supporter_icons/librarything_square.png" alt="{{ supporter }}'s profile on LibraryThing" title="{{ supporter }}'s page on LibraryThing"  />
@@ -172,13 +167,6 @@ function highlightTarget(targetdiv) {
                                 <div class="check-list">
                                    <label> {% if supporter.profile.home_url %}Change{% else %}Add{% endif %} your homepage URL:</label>
                                     {{ profile_form.home_url }}{{ profile_form.home_url.errors }}
-                                </div>
-                                <div class="check-list">
-                                    {% if supporter.profile.twitter_id %}
-                                    <a href="{% url 'social:begin' backend='twitter' %}?next={% url 'supporter' supporter %}#edit">Update your Twitter connection</a> <br /> or disconnect Twitter: {{ profile_form.clear_twitter }}                                 
-                                    {% else %}
-                                    <a href="{% url 'social:begin' backend='twitter' %}?next={% url 'supporter' supporter %}#edit">Connect your Twitter account</a> to Unglue.it 
-                                    {% endif %} 
                                 </div>
                                 <div class="check-list" id="connectlt">
                                     <label>{% if supporter.profile.librarything_id %}Change{% else %}Add{% endif %} your LibraryThing User ID:</label>
