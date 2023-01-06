@@ -37,37 +37,11 @@ def pic_storage_url(user, backend, url):
 
 
 def selectively_associate_by_email(backend, details, user=None, *args, **kwargs):
-    """
-    Associate current auth with a user with the same email address in the DB.
-    This pipeline entry is not 100% secure unless you know that the providers
-    enabled enforce email verification on their side, otherwise a user can
-    attempt to take over another user account by using the same (not validated)
-    email address on some provider.
+     return associate_by_email(backend, details, user=None, *args, **kwargs)
 
-    Not using Twitter to authenticate a user.
-    """
-    if backend.name  in ('twitter'):
-        return None
-    return associate_by_email(backend, details, user=None, *args, **kwargs)
-
-def twitter_extra_values(user, extra_data):
-    try:
-        twitter_id = extra_data.get('screen_name')
-        profile_image_url = extra_data.get('profile_image_url_https')
-        user.profile.twitter_id = twitter_id
-        if user.profile.avatar_source is None or user.profile.avatar_source in (TWITTER, PRIVATETAR):
-            user.profile.pic_url = pic_storage_url(user, 'twitter', profile_image_url)
-        if user.profile.avatar_source is None or user.profile.avatar_source is PRIVATETAR:
-            user.profile.avatar_source = TWITTER
-        user.profile.save()
-        return True
-    except Exception as e:
-        logger.error(e)
-        return False
 
 def deliver_extra_data(backend, user, social, response, *args, **kwargs):
-    if backend.name == 'twitter':
-        twitter_extra_values(user, social.extra_data)
+    pass
 
 # following is needed because of length limitations in a unique constrain for MySQL
 def chop_username(username, *args, **kwargs):
@@ -79,9 +53,8 @@ def selective_social_user(backend, uid, user=None, *args, **kwargs):
     social = backend.strategy.storage.user.get_social_auth(provider, uid)
     if social:
         if user and social.user != user:
-            if backend.name not in ('twitter'):
-                msg = 'This {0} account is already in use.'.format(provider)
-                raise AuthAlreadyAssociated(backend, msg)
+            msg = 'This {0} account is already in use.'.format(provider)
+            raise AuthAlreadyAssociated(backend, msg)
         elif not user:
             user = social.user
     return {'social': social,

@@ -58,7 +58,6 @@
     "fields": {
       "created": "2012-10-12T22:58:33", 
       "tagline": "", 
-      "twitter_id": "", 
       "user": 1, 
       "librarything_id": "", 
       "home_url": "", 
@@ -72,7 +71,6 @@
     "fields": {
       "created": "2012-10-14T09:57:15", 
       "tagline": "", 
-      "twitter_id": "", 
       "user": 2, 
       "librarything_id": "", 
       "home_url": "", 
@@ -86,7 +84,6 @@
     "fields": {
       "created": "2012-10-14T10:03:43", 
       "tagline": "", 
-      "twitter_id": "", 
       "user": 3, 
       "librarything_id": "", 
       "home_url": "", 

@@ -1821,12 +1821,6 @@ def supporter(request, supporter_username, template_name, extra_context={}):
         if  request.method == 'POST':
             profile_form = ProfileForm(data=request.POST, instance=profile_obj)
             if profile_form.is_valid():
-                if  profile_form.cleaned_data['clear_twitter']:
-                    if profile_form.cleaned_data['clear_twitter']:
-                        profile_obj.twitter_id = ""
-                        if profile_obj.avatar_source == models.TWITTER:
-                            profile_obj.avatar_source = models.UNGLUEITAR
-                    profile_obj.save()
                 profile_form.save()
 
         else:
@@ -2076,7 +2070,6 @@ class InfoPageView(TemplateView):
         users.month = users.year.filter(date_joined__month = date_today().month)
         users.yesterday = users.filter(date_joined__range = (date_today()-timedelta(days=1), date_today()))
         users.lt = users.exclude(profile__librarything_id = '')
-        users.tw = users.exclude(profile__twitter_id = '')
         users.libtools = users.filter(libpref__isnull = False)
         works = models.Work.objects
         works.today = works.filter(created__range = (date_today(), now()))

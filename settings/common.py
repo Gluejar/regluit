@@ -269,7 +269,6 @@ SESSION_COOKIE_AGE = 3628800 # 6 weeks
 # django-socialauth
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',
-    'social_core.backends.twitter.TwitterOAuth',
     'social_core.backends.open_id.OpenIdAuth',
     'django.contrib.auth.backends.ModelBackend',
 )
@@ -279,7 +278,6 @@ SOCIAL_AUTH_SLUGIFY_USERNAMES = True
 SOCIAL_AUTH_NONCE_SERVER_URL_LENGTH = 200
 SOCIAL_AUTH_ASSOCIATION_SERVER_URL_LENGTH = 135
 SOCIAL_AUTH_ASSOCIATION_HANDLE_LENGTH = 125
-SOCIAL_AUTH_TWITTER_LOGIN_ERROR_URL = '/'
 
 SOCIAL_AUTH_PIPELINE = (
     # Get the information we can about the user and return it in a simple
@@ -312,7 +310,7 @@ SOCIAL_AUTH_PIPELINE = (
     # 'social_core.pipeline.mail.mail_validation',
     
     # Associates the current social details with another user account with
-    # a similar email address. don't use twitter to log in
+    # a similar email address.
     'regluit.libraryauth.auth.selectively_associate_by_email',
 
     # Create a user account if we haven't found one yet.

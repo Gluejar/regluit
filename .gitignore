@@ -14,9 +14,9 @@ logs/*
 celerybeat.pid
 celerybeat-schedule
 .gitignore~
-static/scss/*.css.map
 assets/*
 *.ipynb
 dump.rdb
 Pipfile
 *.lock
+*.css.map

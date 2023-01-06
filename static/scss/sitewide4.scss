@@ -5,7 +5,9 @@
 @import "download.scss";
 @import "buttons.scss";
 @import "bootstrap-social.scss";
-@import "font-awesome.min.css";
+
+// importing core styling file
+@import "./fa/fork-awesome.scss";
 
 @mixin preview()
 {

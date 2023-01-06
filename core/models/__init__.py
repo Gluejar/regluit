@@ -277,7 +277,7 @@ class Acq(models.Model):
         return self.watermarked
 
     def _hash(self):
-        return hashlib.md5(bytes('%s:%s:%s:%s'%(settings.SOCIAL_AUTH_TWITTER_SECRET, self.user_id, self.work_id, self.created), 'utf-8')).hexdigest()
+        return hashlib.md5(bytes('%s:%s:%s'%(self.user_id, self.work_id, self.created), 'utf-8')).hexdigest()
 
     def expire_in(self, delta):
         self.expires = (now() + delta) if delta else now()
@@ -1119,7 +1119,6 @@ class UserProfile(models.Model):
     tagline = models.CharField(max_length=140, blank=True)
     pic_url = models.URLField(blank=True)
     home_url = models.URLField(blank=True)
-    twitter_id = models.CharField(max_length=15, blank=True)
     librarything_id = models.CharField(max_length=31, blank=True)
     badges = models.ManyToManyField('Badge', related_name='holders', blank=True)
     kindle_email = models.EmailField(max_length=254, blank=True)
@@ -1133,7 +1132,6 @@ class UserProfile(models.Model):
         choices=(
             (NO_AVATAR, 'No Avatar, Please'),
             (GRAVATAR, 'Gravatar'),
-            (TWITTER, 'Twitter'),
             (UNGLUEITAR, 'Unglueitar'),
         )
     )
@@ -1254,7 +1252,7 @@ class UserProfile(models.Model):
 
     @property
     def avatar_url(self):
-        if self.avatar_source is None or self.avatar_source in (TWITTER,):
+        if self.avatar_source is None:
             if self.pic_url:
                 return self.pic_url
             else:
