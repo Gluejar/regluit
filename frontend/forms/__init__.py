@@ -37,7 +37,6 @@ from regluit.core.models import (
     Work,
     Press,
     Libpref,
-    TWITTER,
     UNGLUEITAR
 )
 from regluit.libraryauth.models import Library
@@ -185,7 +184,7 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = UserProfile
-        fields = 'tagline', 'librarything_id', 'home_url', 'clear_twitter', 'avatar_source'
+        fields = 'tagline', 'librarything_id', 'home_url',  'avatar_source'
         widgets = {
             'tagline': forms.Textarea(attrs={'rows': 5, 'onKeyUp': "counter(this, 140)", 'onBlur': "counter(this, 140)"}),
         }
@@ -195,10 +194,7 @@ class ProfileForm(forms.ModelForm):
         super(ProfileForm, self).__init__(*args, **kwargs)
         choices = []
         for choice in self.fields['avatar_source'].choices :
-            if choice[0] == TWITTER and not profile.pic_url:
-                pass
-            else:
-                choices.append(choice)
+            choices.append(choice)
         self.fields['avatar_source'].choices = choices
 
 def getTransferCreditForm(maximum, data=None, *args, **kwargs ):
