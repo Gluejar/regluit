@@ -63,7 +63,7 @@ def add_by_webpage(url, work=None, user=None):
         return None
     edition = None
     scraper = get_scraper(url)
-    return add_by_metadata(metadata, url=url, work=None, user=None)
+    return add_by_metadata(scraper.metadata, url=url, work=None, user=None)
 
        
 def add_by_sitemap(url, maxnum=None):
