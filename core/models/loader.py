@@ -105,7 +105,7 @@ class ContentTyper(object):
 
 contenttyper = ContentTyper()
 
-def load_ebookfile(url, format, user_agent=settings.USER_AGENT, method='GET'):
+def load_ebookfile(url, format, user_agent=settings.USER_AGENT, method='GET', verify=True):
     '''
     return a ContentFile, format if a new ebook has been loaded
     '''
@@ -114,9 +114,9 @@ def load_ebookfile(url, format, user_agent=settings.USER_AGENT, method='GET'):
         return None, ''
     try:
         if method == 'POST':
-            response = requests.post(url, headers={"User-Agent": user_agent})
+            response = requests.post(url, headers={"User-Agent": user_agent}, verify=verify)
         else:
-            response = requests.get(url, headers={"User-Agent": user_agent})
+            response = requests.get(url, headers={"User-Agent": user_agent}, verify=verify)
 
     except requests.exceptions.SSLError:
         logger.error('bad certificate? for %s', url)
