@@ -197,6 +197,7 @@ def harvesters(ebook):
     yield ebook.provider == 'iupress.istanbul.edu.tr', harvest_iupress
     yield ebook.provider == 'exonpublications.com', harvest_exon
     yield ebook.provider == 'ressources.una-editions.fr', harvest_una
+    yield ebook.provider == 'wbg-wissenverbindet.de', harvest_wbg
 
 def ebf_if_harvested(url):
     onlines = models.EbookFile.objects.filter(source=url)
@@ -685,7 +686,7 @@ def harvest_fahce(ebook):
         return doc.select_one('div.publicationFormatLink a[href]')
     return harvest_one_generic(ebook, selector)
 
-
+BAD_CERTS = {'libri.unimi.it', 'editorial.ucatolicaluisamigo.edu.co',}
 def harvest_cmp(ebook):
     def selector(doc):
         objs = doc.select('.chapters a.cmp_download_link[href]')
@@ -694,8 +695,9 @@ def harvest_cmp(ebook):
         return doc.select('a.cmp_download_link[href]')
     def dl(url):
         return url.replace('view', 'download') + '?inline=1'
+    verify = ebook.provider not in BAD_CERTS
     if '/view/' in ebook.url:
-        return make_dl_ebook(dl(ebook.url), ebook)
+        return make_dl_ebook(dl(ebook.url), ebook, verify=verify)
     return harvest_multiple_generic(ebook, selector, dl=dl)
 
 
@@ -1109,3 +1111,13 @@ def harvest_una(ebook):
     def selector(doc):
         return doc.select_one('#header-primary-action a[href]')
     return harvest_one_generic(ebook, selector)
+
+def harvest_wbg(ebook):
+    doc = get_soup(ebook.url)
+    if doc:
+        sku_obj = doc.select_one('span[itemprop=sku]')
+        sku = sku_obj.text.strip() if sku_obj else None
+        if sku:
+            url = f'https://files.wbg-wissenverbindet.de/Files/Article/ARTK_ZOA_{sku}_0001.pdf'
+            return make_dl_ebook(url,  ebook)
+    return None, 0
