@@ -205,7 +205,7 @@ def ebf_if_harvested(url):
     return  models.EbookFile.objects.none()
 
 
-def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET'):
+def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET',  verify=True):
     if not url:
         logger.warning('no url for ebook %s', ebook.id)
         return None, 0
@@ -227,7 +227,8 @@ def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET'):
         return new_ebf, 0
 
     
-    dl_cf, fmt = loader.load_ebookfile(url, ebook.format, user_agent=user_agent, method=method)
+    dl_cf, fmt = loader.load_ebookfile(url, ebook.format,
+                                       user_agent=user_agent, method=method, verify=verify)
     if dl_cf:
         return make_harvested_ebook(dl_cf, ebook, fmt, filesize=dl_cf.size)
     else:
