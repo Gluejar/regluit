@@ -198,6 +198,7 @@ def harvesters(ebook):
     yield ebook.provider == 'exonpublications.com', harvest_exon
     yield ebook.provider == 'ressources.una-editions.fr', harvest_una
     yield ebook.provider == 'wbg-wissenverbindet.de', harvest_wbg
+    yield ebook.provider == 'urn.kb.se', harvest_kb
 
 def ebf_if_harvested(url):
     onlines = models.EbookFile.objects.filter(source=url)
@@ -1113,6 +1114,7 @@ def harvest_una(ebook):
     return harvest_one_generic(ebook, selector)
 
 def harvest_wbg(ebook):
+    ''' most of these are archived under files.wbg-wissenverbindet.de '''
     doc = get_soup(ebook.url)
     if doc:
         sku_obj = doc.select_one('span[itemprop=sku]')
@@ -1121,3 +1123,8 @@ def harvest_wbg(ebook):
             url = f'https://files.wbg-wissenverbindet.de/Files/Article/ARTK_ZOA_{sku}_0001.pdf'
             return make_dl_ebook(url,  ebook)
     return None, 0
+
+def harvest_kb(ebook):
+    def selector(doc):
+        return doc.select_one('a[title=fulltext][href]')
+    return harvest_one_generic(ebook, selector)
