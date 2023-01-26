@@ -79,7 +79,8 @@ STOREPROVIDERS = [
     "karolinum.cz",
     "librumstore.com",
     "logos-verlag.de",
-    "mitpress.mit.edu"
+    "mitpress.mit.edu",
+    "munishop.muni.cz",
     "nomos-shop.de",
     "palgrave.com",
     'placedeslibraires.fr',
@@ -92,6 +93,7 @@ STOREPROVIDERS = [
     "una-editions.fr",
     "universitetsforlaget.no",
     'usu.edu',
+    "wbg-wissenverbindet.de",
     "zalozba.zrc-sazu.si",
 ]
 
