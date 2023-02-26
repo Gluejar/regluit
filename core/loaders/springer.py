@@ -38,7 +38,9 @@ class SpringerScraper(BaseScraper):
                     self.set('download_url_{}'.format(dl_type), value)
 
     def get_description(self):
-        desc = self.doc.select_one('#book-description')
+        desc = self.doc.find('div', attrs={'data-component': 'data-unique-selling-points'})
+        if not desc:
+            desc = self.doc.select_one('#book-description')
         if desc:
             value = ''
             for div in desc.contents:
