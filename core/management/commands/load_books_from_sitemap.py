@@ -35,6 +35,19 @@ class Command(BaseCommand):
                 if max and max < 0:
                     break
         else:
-            books = add_by_sitemap(url, maxnum=max)  
+            books = add_by_sitemap(url, maxnum=max)
+        
+        for edition in books:
+            done_fmt = set()
+            for ebook in edition.work.ebooks_all():
+                for fmt in ['pdf', 'epub', 'mobi']:
+                    if ebook.format == fmt:
+                        if fmt not in done_fmt:
+                            ebook.activate()
+                            done_fmt.add(fmt)
+                        else:
+                            ebook.deactivate()
+
+            
               
         self.stdout.write("loaded {} books".format(len(books)))
