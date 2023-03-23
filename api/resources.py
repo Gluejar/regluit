@@ -45,7 +45,7 @@ class EditionResource(ModelResource):
 
 class IdentifierResource(ModelResource):
     work = fields.ForeignKey('regluit.api.resources.WorkResource', 'work')
-    edition = fields.ForeignKey('regluit.api.resources.EditionResource', 'edition')
+    edition = fields.ForeignKey('regluit.api.resources.EditionResource', 'edition', null=True)
     
     class Meta:
         authentication = ApiKeyAuthentication()
