@@ -4,6 +4,7 @@
 from django import forms
 from django.contrib.admin import ModelAdmin, register
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 
 from selectable.forms import (
     AutoCompleteSelectWidget,
@@ -230,16 +231,13 @@ class EbookFileAdmin(ModelAdmin):
     def edition_link(self, obj):
         if obj.edition:
             link = reverse("admin:core_edition_change", args=[obj.edition_id])
-            return u'<a href="%s">%s</a>' % (link, obj.edition)
-        return u''
+            return mark_safe('<a href="%s">%s</a>' % (link, obj.edition))
+        return ''
     def ebook_link(self, obj):
         if obj.ebook:
             link = reverse("admin:core_ebook_change", args=[obj.ebook_id])
-            return u'<a href="%s">%s</a>' % (link, obj.ebook)
-        return u''
-    edition_link.allow_tags = True
-    ebook_link.allow_tags = True
-
+            return mark_safe('<a href="%s">%s</a>' % (link, obj.ebook))
+        return ''
 
 @register(models.Wishlist)
 class WishlistAdmin(ModelAdmin):
@@ -257,8 +255,7 @@ class GiftAdmin(ModelAdmin):
     search_fields = ('giver__username', 'to')
     readonly_fields = ('giver', 'acq',)
     def acq_admin_link(self, gift):
-        return "<a href='/admin/core/acq/%s/'>%s</a>" % (gift.acq_id, gift.acq)
-    acq_admin_link.allow_tags = True
+        return mark_safe("<a href='/admin/core/acq/%s/'>%s</a>" % (gift.acq_id, gift.acq))
 
 @register(models.CeleryTask)
 class CeleryTaskAdmin(ModelAdmin):
