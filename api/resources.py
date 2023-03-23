@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 class EditionResource(ModelResource):
     work = fields.ForeignKey('regluit.api.resources.WorkResource', 'work')
-    identifiers = fields.ToManyField('regluit.api.resources.IdentifierResource', 'identifiers')
+    identifiers = fields.ToManyField('regluit.api.resources.IdentifierResource', 'identifiers', full=True)
     ebooks = fields.ToManyField('regluit.api.resources.EbookResource', 'ebooks')
     class Meta:
         authentication = ApiKeyAuthentication()
@@ -45,10 +45,11 @@ class EditionResource(ModelResource):
 
 class IdentifierResource(ModelResource):
     work = fields.ForeignKey('regluit.api.resources.WorkResource', 'work')
-    edition = fields.ForeignKey('regluit.api.resources.EditionResource', 'edition')
+    edition = fields.ForeignKey('regluit.api.resources.EditionResource', 'edition', null=True)
     
     class Meta:
         authentication = ApiKeyAuthentication()
+        include_resource_uri = False
         queryset = models.Identifier.objects.all()
         resource_name = 'identifier'
         filtering = {
@@ -59,7 +60,7 @@ class IdentifierResource(ModelResource):
   
 class WorkResource(ModelResource):
     editions = fields.ToManyField(EditionResource, 'editions')
-    identifiers = fields.ToManyField(IdentifierResource, 'identifiers')
+    identifiers = fields.ToManyField(IdentifierResource, 'identifiers', full=True)
 
     class Meta:
         authentication = ApiKeyAuthentication()
