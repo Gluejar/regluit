@@ -49,6 +49,7 @@ class IdentifierResource(ModelResource):
     
     class Meta:
         authentication = ApiKeyAuthentication()
+        include_resource_uri = False
         queryset = models.Identifier.objects.all()
         resource_name = 'identifier'
         filtering = {
