@@ -55,24 +55,42 @@
     {% else %}
     <i>(<a href="{% url 'superlogin' %}?next={% firstof request.get_full_path|urlencode '/' %}">Log in</a> to see links)</i>
     {% endif %}</p>
+    
     <h3>Identifier Resolution</h3>
-    <p>Here's how to get work/edition data for an isbn</p>
+    <p>Here's how to get use the api to find related identifiers:</p>
+    <ul>
+    <p> Do a query on your identifier.</p>
+    <p>Here's how to get identifiers for an isbn:</p>
+    <li> 
     <p>{% if user.is_authenticated %}
 JSON: <a href="/api/v1/identifier/?format=json&amp;api_key={{api_key}}&amp;username={{user.username}}&amp;type=isbn&amp;value=9780441012039">{{base_url}}/api/v1/identifier/?format=json&amp;api_key={your_api_key}&amp;username={your_username}&amp;type=isbn&amp;value=9780441012039</a><br />
-XML: <a href="/api/v1/identifier/?format=xml&amp;api_key={{api_key}}&amp;username={{user.username}}&amp;type=isbn&amp;value=9780441012039">{{base_url}}/api/v1/identifier/?format=xml&amp;api_key={your_api_key}&amp;username={your_username}&amp;type=isbn&amp;value=9780441012039</a></p>    {% else %}
+XML: <a href="/api/v1/identifier/?format=xml&amp;api_key={{api_key}}&amp;username={{user.username}}&amp;type=isbn&amp;value=9780441012039">{{base_url}}/api/v1/identifier/?format=xml&amp;api_key={your_api_key}&amp;username={your_username}&amp;type=isbn&amp;value=9780441012039</a></p>  
+    {% else %}
     <i>(<a href="{% url 'superlogin' %}?next={% firstof request.get_full_path|urlencode '/' %}">Log in</a> to see links)</i>
-    {% endif %}</p>
+    <p> In addition to 'isbn', you can use 'goog' if you have a google books id, 'doab' for DOAB handles (like '20.500.12854/97310'), 'doi' for Digital Object identifiers (like '10.3390/books978-3-0365-6176-9', and 'oclc' for oclc numbers.</p>    {% endif %}
+    <p>
+    Now you'll have URIs for an unglue.id work id and (possibly) one or more unglue.it edition ids.
+    </p>
+    </li>
+    <li>
+    <p>Use the work id's (or the edition ids if you're feeling selective) to find all the associated identifiers.:</p>
+    <p>{% if user.is_authenticated %}
+JSON: <a href="/api/v1/work/466685/?format=json&amp;api_key={{api_key}}&amp;username={{user.username}}&amp;type=isbn&amp;value=9780441012039">{{base_url}}/api/v1/work/466685/?format=json&amp;api_key={your_api_key}&amp;username={your_username}</a><br />
+XML: <a href="/api/v1/work/466685/?format=xml&amp;api_key={{api_key}}&amp;username={{user.username}}&amp;type=isbn&amp;value=9780441012039">{{base_url}}/api/v1/work/466685/?format=xml&amp;api_key={your_api_key}&amp;username={your_username}</a></p>  
+    {% else %}
+    <i>(<a href="{% url 'superlogin' %}?next={% firstof request.get_full_path|urlencode '/' %}">Log in</a> to see links)</i>
+    {% endif %}
+    </li>
+    </ul>
+    
+
+    
+
     {% if user.is_authenticated %}
     <h3>Campaign info</h3>
     <p>Here's how to get data on all campaigns. if the user is logged in to Unglue.it, they can tell if the campaign book is on their fave list</p>
     <p>JSON: <a href="/api/v1/campaign/?format=json&amp;api_key={{api_key}}&amp;username={{user.username}}">{{base_url}}/api/v1/campaign/?format=json&amp;api_key={your_api_key}&amp;username={your_username}</a><br />XML: <a href="/api/v1/campaign/?format=xml&amp;api_key={{api_key}}&amp;username={{user.username}}">{{base_url}}/api/v1/campaign/?format=json&amp;api_key={your_api_key}&amp;username={your_username}</a></p>
-    <h3>Identifier Resolution</h3>
-    <p>Here's how to get work/edition data for an isbn</p>
-    <p>JSON: <a href="/api/v1/identifier/?format=json&amp;api_key={{api_key}}&amp;username={{user.username}}&amp;type=isbn&amp;value=9780441012039">{{base_url}}/api/v1/identifier/?format=json&amp;api_key={your_api_key}&amp;username={your_username}&amp;type=isbn&amp;value=9780441012039</a><br />
-    XML: <a href="/api/v1/identifier/?format=xml&amp;api_key={{api_key}}&amp;username={{user.username}}&amp;type=isbn&amp;value=9780441012039">{{base_url}}/api/v1/identifier/?format=xml&amp;api_key={your_api_key}&amp;username={your_username}&amp;type=isbn&amp;value=9780441012039</a></p>
-    <p> In addition to isbn, you can use 'goog' if you have a google books id, and 'oclc' for oclc numbers.</p>
-    {% endif %}
-    
+  {% endif %}  
 
     <h3>OPDS Catalog Feeds</h3>
     <p>We have a basic implementation of <a href="http://opds-spec.org/specs/opds-catalog-1-1-20110627/">OPDS</a> feeds. You don't need a key to use them. The starting point is <code><a href="{% url 'opds' %}">{{base_url}}{% url 'opds' %}</a></code>. Use the <code>page</code> parameter to page through the results.</p>
