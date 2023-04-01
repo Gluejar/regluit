@@ -1218,7 +1218,10 @@ class Ebook(models.Model):
         else:
             netloc = urlparse(url).netloc.lower()
             if netloc in [u'dx.doi.org', u'doi.org', u'hdl.handle.net']:
-                url = requests.get(url).url
+                try:
+                    url = requests.get(url).url
+                except requests.exceptions.SSLError:
+                    url = requests.get(url, verify=False).url
                 netloc = urlparse(url).netloc
             if netloc.startswith('www.'):
                 netloc = netloc[4:]

@@ -122,6 +122,7 @@ CMPPROVIDERS = [
     'monographs.uc.pt',
     'omp.ub.rub.de',
     'omp.zrc-sazu.si',
+    'openpress.mtsu.edu',
     'teiresias-supplements.mcgill.ca',
 ]
 DONT_HARVEST = [
@@ -687,7 +688,7 @@ def harvest_fahce(ebook):
         return doc.select_one('div.publicationFormatLink a[href]')
     return harvest_one_generic(ebook, selector)
 
-BAD_CERTS = {'libri.unimi.it', 'editorial.ucatolicaluisamigo.edu.co',}
+BAD_CERTS = {'libri.unimi.it', 'editorial.ucatolicaluisamigo.edu.co', 'openpress.mtsu.edu'}
 def harvest_cmp(ebook):
     def selector(doc):
         objs = doc.select('.chapters a.cmp_download_link[href]')
