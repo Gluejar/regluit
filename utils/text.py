@@ -26,7 +26,7 @@ _ends_in_num = re.compile(r'\W*\d+$')
 def remove_badxml(s):
     return _illegal_xml_chars_RE.sub('', s)
 
-_ws_runs_RE = re.compile(r'[\r\n\t]+')
+_ws_runs_RE = re.compile(r'([\r\n\t]| \$b)+')
 
 def sanitize_ws(s):
     return _ws_runs_RE.sub(u' ', s)
@@ -39,3 +39,4 @@ def remove_author_junk(authname):
     if 'ORCID:' in authname:
         authname = authname.split('ORCID:')[0].strip()
     return _ends_in_num.sub('', authname)
+
