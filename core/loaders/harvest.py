@@ -195,11 +195,12 @@ def harvesters(ebook):
     yield ebook.provider == 'usmcu.edu', harvest_usmcu
     yield ebook.provider == 'lalibreria.upv.es', harvest_upv
     yield ebook.provider == 'cambridge.org', harvest_cambridge
-    yield ebook.provider == 'iupress.istanbul.edu.tr', harvest_iupress
     yield ebook.provider == 'exonpublications.com', harvest_exon
     yield ebook.provider == 'ressources.una-editions.fr', harvest_una
     yield ebook.provider == 'wbg-wissenverbindet.de', harvest_wbg
     yield ebook.provider == 'urn.kb.se', harvest_kb
+    yield ebook.provider == 'iupress.istanbul.edu.tr', harvest_istanbul
+    yield ebook.provider == 'editorialbonaventuriana.usb.edu.co', harvest_editorialbonaventuriana
 
 def ebf_if_harvested(url):
     onlines = models.EbookFile.objects.filter(source=url)
@@ -685,7 +686,7 @@ def harvest_usu(ebook):
 
 def harvest_fahce(ebook):
     def selector(doc):
-        return doc.select_one('div.publicationFormatLink a[href]')
+        return doc.select_one('div.pub_format_single a[href]')
     return harvest_one_generic(ebook, selector)
 
 BAD_CERTS = {'libri.unimi.it', 'editorial.ucatolicaluisamigo.edu.co', 'openpress.mtsu.edu'}
@@ -787,9 +788,15 @@ def harvest_ios(ebook):
 
 
 def harvest_elgar(ebook):
-    def chap_selector(doc):
-        return doc.select('#toc li.pdfLink a[href]')
-    return harvest_stapled_generic(ebook, None, chap_selector)
+    if 'display' in ebook.url:
+        url = ebook.url.replace('display', 'downloadpdf')[:-3] + 'pdf'
+    elif 'monobook-oa' in ebook.url:
+        url = ebook.url.replace('monobook-oa', 'downloadpdf')[:-3] + 'pdf'
+    elif 'edcollbook-oa' in ebook.url:
+        url = ebook.url.replace('edcollbook-oa', 'downloadpdf')[:-3] + 'pdf'
+    else:
+        return None, 0
+    return make_dl_ebook(url, ebook, user_agent=settings.GOOGLEBOT_UA)
 
 
 def harvest_wsp(ebook):
@@ -966,12 +973,15 @@ def harvest_ipsflab(ebook):
 def harvest_fupress(ebook):    
     def selector(doc):
         return doc.select_one('#ctl00_contenuto_pdf a.btn-open[href]')
+    if 'isbn' in ebook.url:
+        set_bookshop(ebook)
+        return None, 0
     return harvest_one_generic(ebook, selector)
 
 
 def harvest_dunckerhumblot(ebook):    
     def selector(doc):
-        return doc.select_one('section.index-card a[href$="download"]')
+        return doc.select_one('div.section__buttons a[href$="download"]')
     return harvest_one_generic(ebook, selector)
 
 
@@ -979,6 +989,11 @@ def harvest_cornellopen(ebook):
     def selector(doc):
         return doc.select('div.sp-product__buy-btn-container li a[href]')
     return harvest_multiple_generic(ebook, selector)
+
+def harvest_editorialbonaventuriana(ebook):
+    def selector(doc):
+        return doc.select_one('div.djc_fulltext p a[href$=".pdf"]')
+    return harvest_one_generic(ebook, selector)
 
 
 def harvest_esv(ebook):
@@ -1085,11 +1100,6 @@ def harvest_cambridge(ebook):
         logger.warning('couldn\'t get soup for %s', ebook.url)
     return None, 0
 
-def harvest_iupress(ebook):    
-    def selector(doc):
-        return doc.find_all('a', string=re.compile(r'(Full Text \(PDF\)|e-PUB)'))
-    return harvest_multiple_generic(ebook, selector)
-
 def harvest_exon(ebook):
     doc = get_soup(ebook.url)
     if doc:
@@ -1129,3 +1139,29 @@ def harvest_kb(ebook):
     def selector(doc):
         return doc.select_one('a[title=fulltext][href]')
     return harvest_one_generic(ebook, selector)
+
+def harvest_istanbul(ebook):
+    def cdn_url(soup):
+        objs = soup.find_all('a', href=re.compile(r'cdn\.istanbul'))
+        for obj in objs:
+            yield obj['href']
+    def pdf_urls(ebook):
+        doc = get_soup(ebook.url, user_agent=settings.GOOGLEBOT_UA, follow_redirects=True)
+        if doc:
+            for content_url in cdn_url(doc):
+                yield content_url
+            for obj in doc.select('div.post-content h5 a.from-journal[href]'):
+                chap_url = urljoin(ebook.url, obj['href'])
+                chap_doc = get_soup(chap_url, user_agent=settings.GOOGLEBOT_UA, follow_redirects=True)
+                if chap_doc:
+                    for content_url in cdn_url(chap_doc):
+                        yield content_url
+        
+    # staple the chapters
+    stapled = make_stapled_ebook(pdf_urls(ebook), ebook, user_agent=settings.GOOGLEBOT_UA)
+    if stapled:
+        return stapled
+    else:
+        logger.warning('couldn\'t make ebook file for %s', ebook.url)
+    return None, 0
+
