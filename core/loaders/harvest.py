@@ -134,6 +134,7 @@ DONT_HARVEST = [
 ]
 
 def harvesters(ebook):
+    yield ebook.provider == 'OAPEN Library', harvest_oapen
     yield ebook.provider in GOOD_PROVIDERS, harvest_generic
     yield 'dropbox.com/s/' in ebook.url, harvest_dropbox
     yield ebook.provider == 'jbe-platform.com', harvest_jbe
@@ -325,6 +326,13 @@ def harvest_generic(ebook):
     if is_bookshop_url(ebook.url):
         return set_bookshop(ebook)        
     return make_dl_ebook(ebook.url, ebook)
+
+def harvest_oapen(ebook):
+    if is_bookshop_url(ebook.url):
+        return set_bookshop(ebook)        
+    if '/bitstream/' in ebook.url:
+        return make_dl_ebook(ebook.url, ebook, user_agent=settings.GOOGLEBOT_UA)
+    return None, 0
 
 
 def harvest_one_generic(ebook, selector, user_agent=settings.USER_AGENT):
