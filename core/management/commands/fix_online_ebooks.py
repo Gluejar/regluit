@@ -2,29 +2,26 @@ from django.core.management.base import BaseCommand
 
 from regluit.core.loaders.doab_utils import online_to_download
 from regluit.core.models import Ebook
-from regluit.core.models.loader import type_for_url
 
 class Command(BaseCommand):
-    help = "fix 'online' ebooks"
+    help = "deactivate dead oapen ebooks"
     args = "<limit>"
 
     def add_arguments(self, parser):
-        parser.add_argument('limit', nargs='?', type=int, default=0, help="max to harvest")
+        parser.add_argument('limit', nargs='?', type=int, default=0, help="max to fix")
 
     def handle(self, limit=0, **options):
         limit = int(limit) if limit else 0
-        onlines = Ebook.objects.filter(format='online', provider='SciELO')
+        onlines = Ebook.objects.filter(active=1, provider='OAPEN Library',
+            url__contains='/download/')
         done = 0
         for online in onlines:
-            urls = online_to_download(online.url)
-            for url in urls:
-                online.format = type_for_url(url, force=True)
-                online.active = True
-                online.save()
-                done += 1
-                self.stdout.write(online.edition.work.title)
+            online.active = False
+            online.save()
+            done += 1
+            #self.stdout.write(online.edition.work.title)
             if done > limit:
                 break
         self.stdout.write('fixed {} ebooks'.format(done))
-        if done == 100:
-            self.stdout.write('100 is the maximum; repeat to do more')
+        if done >= 1000:
+            self.stdout.write('1000 is the maximum; repeat to do more')
