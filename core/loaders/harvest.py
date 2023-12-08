@@ -595,13 +595,9 @@ def harvest_frontiersin(ebook):
         rl.last.pop(ebook.provider, 0)
         return None, 0
     
-    if ebook.provider == 'journal.frontiersin.org':
-        ebook, status = redirect_ebook(ebook)
-        if status < 1:
-            return None, -1 if status < 0 else 0
     num = 0
     harvested = None
-    doc = get_soup(ebook.url)
+    doc = get_soup(ebook.url, follow_redirects=True)
     if doc:
         for obj in doc.select('button[data-href]'):
             dl_url = obj['data-href']
