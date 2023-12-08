@@ -964,7 +964,10 @@ def harvest_libroschile(ebook):
     if not guid:
         return None, 0
     jsonurl = LIBROSJSON % (booknum, guid)
-    json =  requests.get(jsonurl).json()
+    try:
+        json =  requests.get(jsonurl).json()
+    except:
+        return None, 0
     if not json:
         return None, 0
     filename = json.get('downloads',{}).get('url', None)
