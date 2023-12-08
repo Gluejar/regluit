@@ -176,7 +176,7 @@ def harvesters(ebook):
     yield ebook.provider == 'content.sciendo.com', harvest_sciendo
     yield ebook.provider == 'edition-topoi.org', harvest_topoi
     yield ebook.provider == 'meson.press', harvest_meson    
-    yield 'brillonline' in ebook.provider, harvest_brill
+    yield 'brill' in ebook.provider, harvest_brill
     yield ebook.provider == 'DOI Resolver', harvest_doi
     yield ebook.provider == 'apps.crossref.org', harvest_doi_coaccess
     yield ebook.provider == 'ispf-lab.cnr.it', harvest_ipsflab 
@@ -892,10 +892,16 @@ def harvest_meson(ebook):
 
 def harvest_brill(ebook):
     r = requests.get(ebook.url, headers={'User-Agent': settings.GOOGLEBOT_UA})
-    if not r.url.startswith('https://brill.com/view/title/'):
-        return None, 0
-    dl_url = 'https://brill.com/downloadpdf/title/%s.pdf' % r.url[29:]
-    return make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA) 
+    if r.url.startswith('https://brill.com/view/title/'):
+        dl_url = 'https://brill.com/downloadpdf/title/%s.pdf' % r.url[29:]
+        return make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
+    elif r.url.startswith('https://brill.com/display/title/'):
+        dl_url = 'https://brill.com/downloadpdf/title/%s.pdf' % r.url[32:]
+        return make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
+    elif r.url.startswith('https://brill.com/edcollbook-oa/title/'):
+        dl_url = 'https://brill.com/downloadpdf/title/%s.pdf' % r.url[38:]
+        return make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
+    return None, 0
     
 def harvest_doi(ebook):
     # usually a 404.
