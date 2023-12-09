@@ -93,6 +93,7 @@ STOREPROVIDERS = [
     "una-editions.fr",
     "universitetsforlaget.no",
     'usu.edu',
+    'urldefense.com',
     "wbg-wissenverbindet.de",
     "zalozba.zrc-sazu.si",
 ]

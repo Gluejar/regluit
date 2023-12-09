@@ -176,7 +176,7 @@ def harvesters(ebook):
     yield ebook.provider == 'content.sciendo.com', harvest_sciendo
     yield ebook.provider == 'edition-topoi.org', harvest_topoi
     yield ebook.provider == 'meson.press', harvest_meson    
-    yield 'brillonline' in ebook.provider, harvest_brill
+    yield 'brill' in ebook.provider, harvest_brill
     yield ebook.provider == 'DOI Resolver', harvest_doi
     yield ebook.provider == 'apps.crossref.org', harvest_doi_coaccess
     yield ebook.provider == 'ispf-lab.cnr.it', harvest_ipsflab 
@@ -595,13 +595,9 @@ def harvest_frontiersin(ebook):
         rl.last.pop(ebook.provider, 0)
         return None, 0
     
-    if ebook.provider == 'journal.frontiersin.org':
-        ebook, status = redirect_ebook(ebook)
-        if status < 1:
-            return None, -1 if status < 0 else 0
     num = 0
     harvested = None
-    doc = get_soup(ebook.url)
+    doc = get_soup(ebook.url, follow_redirects=True)
     if doc:
         for obj in doc.select('button[data-href]'):
             dl_url = obj['data-href']
@@ -896,10 +892,16 @@ def harvest_meson(ebook):
 
 def harvest_brill(ebook):
     r = requests.get(ebook.url, headers={'User-Agent': settings.GOOGLEBOT_UA})
-    if not r.url.startswith('https://brill.com/view/title/'):
-        return None, 0
-    dl_url = 'https://brill.com/downloadpdf/title/%s.pdf' % r.url[29:]
-    return make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA) 
+    if r.url.startswith('https://brill.com/view/title/'):
+        dl_url = 'https://brill.com/downloadpdf/title/%s.pdf' % r.url[29:]
+        return make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
+    elif r.url.startswith('https://brill.com/display/title/'):
+        dl_url = 'https://brill.com/downloadpdf/title/%s.pdf' % r.url[32:]
+        return make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
+    elif r.url.startswith('https://brill.com/edcollbook-oa/title/'):
+        dl_url = 'https://brill.com/downloadpdf/title/%s.pdf' % r.url[38:]
+        return make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
+    return None, 0
     
 def harvest_doi(ebook):
     # usually a 404.
@@ -962,7 +964,10 @@ def harvest_libroschile(ebook):
     if not guid:
         return None, 0
     jsonurl = LIBROSJSON % (booknum, guid)
-    json =  requests.get(jsonurl).json()
+    try:
+        json =  requests.get(jsonurl).json()
+    except:
+        return None, 0
     if not json:
         return None, 0
     filename = json.get('downloads',{}).get('url', None)
