@@ -33,6 +33,7 @@ from django.core.mail import EmailMessage
 from django.urls import reverse, reverse_lazy
 from django.core.validators import validate_email
 from django.db.models import Q, Count, Sum
+from django.db.utils import IntegrityError
 from django.forms import Select
 from django.forms.models import inlineformset_factory
 from django.http import (
@@ -567,6 +568,10 @@ def googlebooks(request, googlebooks_id):
         except bookloader.LookupFailure:
             logger.warning("failed to load googlebooks_id %s" % googlebooks_id)
             return HttpResponseNotFound("failed looking up googlebooks id %s" % googlebooks_id)
+        except IntegrityError:
+            logger.warning("duplicate (maybe) googlebooks_id %s" % googlebooks_id)
+            return HttpResponseNotFound("failed adding googlebooks id %s" % googlebooks_id)
+            
     if not edition:
         return HttpResponseNotFound("invalid googlebooks id")
     work_url = reverse('work', kwargs={'work_id': edition.work_id})
