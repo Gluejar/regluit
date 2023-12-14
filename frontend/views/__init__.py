@@ -559,7 +559,7 @@ def googlebooks(request, googlebooks_id):
             return HttpResponseNotFound("failed looking up googlebooks id %s" % googlebooks_id)
         try:
             edition = bookloader.add_by_googlebooks_id(googlebooks_id)
-            if edition.new:
+            if edition and edition.new:
                 # add related editions asynchronously
                 tasks.populate_edition.delay(edition.isbn_13)
                 if request.user.is_authenticated:
