@@ -142,8 +142,10 @@ def harvesters(ebook):
     yield OPENBOOKPUB.search(ebook.url), harvest_obp
     yield ebook.provider == 'Transcript-Verlag', harvest_transcript
     yield ebook.provider == 'ksp.kit.edu', harvest_ksp
-    yield ebook.provider == 'digitalis.uc.pt', harvest_digitalis
+    yield ebook.provider in ['digitalis.uc.pt', 'repositorio.americana.edu.co'], harvest_dspace2
+    yield ebook.provider in ['repositorio.americana.edu.co'], harvest_dspace2
     yield ebook.provider == 'nomos-elibrary.de', harvest_nomos
+    yield ebook.provider == 'digitalis.uc.pt', harvest_digitalis
     yield 'frontiersin.org' in ebook.provider, harvest_frontiersin
     yield ebook.provider in ['Palgrave Connect', 'Springer', 'springer.com'], harvest_springerlink
     yield ebook.provider == 'pulp.up.ac.za', harvest_pulp
@@ -537,19 +539,12 @@ def harvest_ksp(ebook):
         return doc.select_one('p.linkForPDF a')
     return harvest_one_generic(ebook, selector)
 
+
 def harvest_digitalis(ebook): 
-    doc = get_soup(ebook.url)
-    if doc:
-        obj = doc.find('meta', attrs={"name": "citation_pdf_url"})
-        if obj:
-            dl_url = urljoin(ebook.url, obj.get('content', None))
-            if dl_url:
-                return make_dl_ebook(dl_url, ebook)
-        else:
-            logger.warning('couldn\'t get dl_url for %s', ebook.url)
-    else:
-        logger.warning('couldn\'t get soup for %s', ebook.url)
-    return None, 0
+    def selector(doc):
+        return doc.select_one('a.item-download-button')
+    return harvest_one_generic(ebook, selector)
+
 
 NOMOSPDF = re.compile('download_full_pdf')
 def harvest_nomos(ebook): 
@@ -713,6 +708,22 @@ def harvest_dspace(ebook):
     def selector(doc):
         return doc.find(href=DSPACEPDF)
     return harvest_one_generic(ebook, selector)
+
+
+def harvest_dspace2(ebook): 
+    doc = get_soup(ebook.url)
+    if doc:
+        obj = doc.find('meta', attrs={"name": "citation_pdf_url"})
+        if obj:
+            dl_url = urljoin(ebook.url, obj.get('content', None))
+            if dl_url:
+                dl_url = dl_url.replace('http://', 'https://')
+                return make_dl_ebook(dl_url, ebook)
+        else:
+            logger.warning('couldn\'t get dl_url for %s', ebook.url)
+    else:
+        logger.warning('couldn\'t get soup for %s', ebook.url)
+    return None, 0
 
 
 # won't harvest page-image books
