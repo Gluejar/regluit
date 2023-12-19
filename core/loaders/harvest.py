@@ -418,7 +418,9 @@ OPENBOOKPUB =  re.compile(r'openbookpublishers.com/+(reader|product|/?download/b
 def harvest_obp(ebook):    
     match = OPENBOOKPUB.search(ebook.url)
     booknum = None
-    if match and match.group(1) in ('product', 'reader'):
+    if not match:
+        return None, 0
+    if match: and match.group(1) in ('product', 'reader'):
         prodnum = match.group(2)
         prod_url = 'https://www.openbookpublishers.com/product/{}'.format(prodnum)
         doc = get_soup(prod_url, settings.GOOGLEBOT_UA)
