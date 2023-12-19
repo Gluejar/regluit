@@ -23,7 +23,6 @@ logger = logging.getLogger(__name__)
 
 DROPBOX_DL = re.compile(r'"(https://dl.dropboxusercontent.com/content_link/[^"]+)"')
 DELAY = 1.0
-OPENBOOKPUB =  re.compile(r'openbookpublishers.com/+(reader|product|/?download/book)/(\d+)')
 
 class RateLimiter(object):
     def __init__(self):
@@ -139,10 +138,9 @@ def harvesters(ebook):
     yield 'dropbox.com/s/' in ebook.url, harvest_dropbox
     yield ebook.provider == 'jbe-platform.com', harvest_jbe
     yield ebook.provider == u'De Gruyter Online', harvest_degruyter
-    yield OPENBOOKPUB.search(ebook.url), harvest_obp
+    yield ebook.provider == 'Open Book Publishers', harvest_obp
     yield ebook.provider == 'Transcript-Verlag', harvest_transcript
     yield ebook.provider == 'ksp.kit.edu', harvest_ksp
-    yield ebook.provider in ['digitalis.uc.pt', 'repositorio.americana.edu.co'], harvest_dspace2
     yield ebook.provider in ['repositorio.americana.edu.co'], harvest_dspace2
     yield ebook.provider == 'nomos-elibrary.de', harvest_nomos
     yield ebook.provider == 'digitalis.uc.pt', harvest_digitalis
@@ -415,6 +413,7 @@ def harvest_stapled_generic(ebook, selector, chap_selector, strip_covers=0,
         logger.warning('couldn\'t get soup for %s', ebook.url)
     return None, 0
 
+OPENBOOKPUB =  re.compile(r'openbookpublishers.com/+(reader|product|/?download/book|books)/(10\.11647/OBP\.\d+|\d+)')
 
 def harvest_obp(ebook):    
     match = OPENBOOKPUB.search(ebook.url)
@@ -431,6 +430,9 @@ def harvest_obp(ebook):
                     booknum = OPENBOOKPUB.search(booknum).group(2)
         else:
             logger.warning('couldn\'t get soup for %s', prod_url)
+    elif match and match.group(2).startswith('10.'):
+        dl_url = 'https://books.openbookpublishers.com/' + match.group(2).lower() + '.pdf'
+        return make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
     else:
         booknum = match.group(2)
     if not booknum:
@@ -747,7 +749,10 @@ def harvest_mdpi(ebook):
     return harvest_one_generic(ebook, selector)
 
 
-def harvest_idunn(ebook): 
+def harvest_idunn(ebook):
+    # if '/doi/book/' in ebook.url:
+    #    url = ebook.url.replace('/book/', '/pdf/') + '?download=true'
+    #   return make_dl_ebook(url, ebook)'''
     doc = get_soup(ebook.url)
     if doc:
         obj = doc.select_one('#accessinfo[data-product-id]')
@@ -1108,6 +1113,14 @@ def harvest_cambridge(ebook):
     ebook, status = redirect_ebook(ebook)
     doc = get_soup(ebook.url)
     if doc:
+        obj = doc.find('a', string=re.compile('Full book PDF'))
+        if obj and obj['href']:
+            dl_url = urljoin(ebook.url, obj['href'])
+            return make_dl_ebook(dl_url, ebook)
+        obj = doc.find('meta', attrs={"name": re.compile("citation_pdf_url")})
+        if obj and obj['content']:
+            dl_url = obj['content']
+            return make_dl_ebook(dl_url, ebook)
         pdflinks = []
         for obj in doc.select('a[data-pdf-content-id]'):
             if obj and obj['href']:
