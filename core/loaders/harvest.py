@@ -123,6 +123,7 @@ CMPPROVIDERS = [
     'omp.zrc-sazu.si',
     'openpress.mtsu.edu',
     'teiresias-supplements.mcgill.ca',
+    'textbooks.open.tudelft.nl',
 ]
 DONT_HARVEST = [
     'Unglue.it',
@@ -200,6 +201,7 @@ def harvesters(ebook):
     yield ebook.provider == 'ressources.una-editions.fr', harvest_una
     yield ebook.provider == 'wbg-wissenverbindet.de', harvest_wbg
     yield ebook.provider == 'urn.kb.se', harvest_kb
+    yield ebook.provider == 'publikationen.bibliothek.kit.edu', harvest_kit
     yield ebook.provider == 'iupress.istanbul.edu.tr', harvest_istanbul
     yield ebook.provider == 'editorialbonaventuriana.usb.edu.co', harvest_editorialbonaventuriana
 
@@ -547,6 +549,12 @@ def harvest_ksp(ebook):
 def harvest_digitalis(ebook): 
     def selector(doc):
         return doc.select_one('a.item-download-button')
+    return harvest_one_generic(ebook, selector)
+
+
+def harvest_kit(ebook): 
+    def selector(doc):
+        return doc.select_one('a.downloadTextLink')
     return harvest_one_generic(ebook, selector)
 
 
