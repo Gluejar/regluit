@@ -183,6 +183,7 @@ def harvesters(ebook):
     yield ebook.provider == 'ispf-lab.cnr.it', harvest_ipsflab 
     yield ebook.provider == 'libros.uchile.cl', harvest_libroschile
     yield ebook.provider == 'fupress.com', harvest_fupress
+    yield ebook.provider == 'funlam.edu.co', harvest_funlam
     yield ebook.provider == 'elibrary.duncker-humblot.com', harvest_dunckerhumblot
     yield ebook.provider == 'cornellopen.org', harvest_cornellopen
     yield ebook.provider == 'esv.info', harvest_esv
@@ -1016,6 +1017,12 @@ def harvest_fupress(ebook):
         set_bookshop(ebook)
         return None, 0
     return harvest_one_generic(ebook, selector)
+
+def harvest_funlam(ebook):    
+    if '/modules/' in ebook.url:
+        set_bookshop(ebook)
+        return None, 0
+    return make_dl_ebook(ebook.url, ebook)
 
 
 def harvest_dunckerhumblot(ebook):    
