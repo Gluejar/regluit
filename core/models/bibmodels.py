@@ -1080,7 +1080,9 @@ def safe_get_work(work_id):
     return work
 
 def path_for_file(instance, filename):
-    return "ebf/{}.{}".format(uuid.uuid4().hex, instance.format)
+    if filename:
+        return f"mebf/{filename}"
+    return f"ebf/{uuid.uuid4().hex}.{instance.format}"
 
 class EbookFile(models.Model):
     file = models.FileField(upload_to=path_for_file)

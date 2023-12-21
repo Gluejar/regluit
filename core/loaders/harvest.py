@@ -10,6 +10,7 @@ import requests
 
 from django.conf import settings
 from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 
 from regluit.core import models
 from regluit.core.models import loader
@@ -109,6 +110,7 @@ def clean_archive(ebf):
 CMPPROVIDERS = [
     'books.open.tudelft.nl',
     'ebooks.epublishing.ekt.gr',
+    'ebooks.uminho.pt',
     'editorial.inudi.edu.pe',
     'editorial.ucatolicaluisamigo.edu.co',
     'editorial.uniagustiniana.edu.co',
@@ -132,10 +134,17 @@ DONT_HARVEST = [
     'Google Books',
     'OpenEdition Books',
 ]
+MANUAL_HARVEST = [
+    'cabidigitallibrary.org',
+    'books.google.be',
+    'books.google.ch',
+    'books.google.nl',
+]
 
 def harvesters(ebook):
     yield ebook.provider == 'OAPEN Library', harvest_oapen
     yield ebook.provider in GOOD_PROVIDERS, harvest_generic
+    yield ebook.provider in MANUAL_HARVEST, harvest_manual
     yield 'dropbox.com/s/' in ebook.url, harvest_dropbox
     yield ebook.provider == 'jbe-platform.com', harvest_jbe
     yield ebook.provider == u'De Gruyter Online', harvest_degruyter
@@ -329,6 +338,39 @@ def harvest_generic(ebook):
     if is_bookshop_url(ebook.url):
         return set_bookshop(ebook)        
     return make_dl_ebook(ebook.url, ebook)
+
+
+def harvest_manual(ebook):
+    def make_manual_ebf(format):
+        fname = f'mebf/{ebook.id}.{format}'
+        if default_storage.exists(fname):
+            filesize = default_storage.size(fname)
+            new_ebf = models.EbookFile.objects.create(
+                edition=ebook.edition,
+                format=format,
+                source=ebook.url,
+            )
+            new_ebf.file.name = fname
+            harvested_ebook = models.Ebook.objects.create(
+                edition=ebook.edition,
+                format=format,
+                provider='Unglue.it',
+                url=new_ebf.file.url,
+                rights=ebook.rights,
+                filesize=filesize,
+                version_label=ebook.version_label,
+                version_iter=ebook.version_iter,
+            )
+            new_ebf.ebook = harvested_ebook
+            new_ebf.save()
+            return new_ebf
+        else:
+            return None
+    pdf_ebf = make_manual_ebf('pdf')
+    epub_ebf = make_manual_ebf('epub')
+
+    return pdf_ebf or epub_ebf, (1 if pdf_ebf else 0) + (1 if epub_ebf else 0)
+
 
 def harvest_oapen(ebook):
     if is_bookshop_url(ebook.url):
@@ -761,9 +803,9 @@ def harvest_mdpi(ebook):
 
 
 def harvest_idunn(ebook):
-    # if '/doi/book/' in ebook.url:
-    #    url = ebook.url.replace('/book/', '/pdf/') + '?download=true'
-    #   return make_dl_ebook(url, ebook)'''
+    if '/doi/book/' in ebook.url:
+        return harvest_manual(ebook)
+
     doc = get_soup(ebook.url)
     if doc:
         obj = doc.select_one('#accessinfo[data-product-id]')
