@@ -404,7 +404,7 @@ def harvest_one_generic(ebook, selector, user_agent=settings.USER_AGENT):
 def harvest_multiple_generic(ebook, selector, dl=lambda x:x):
     num = 0
     harvested = None
-    doc = get_soup(ebook.url)
+    doc = get_soup(ebook.url, follow_redirects=True)
     if doc:
         found = []
         try:
@@ -743,18 +743,37 @@ def harvest_fahce(ebook):
         return doc.select_one('div.pub_format_single a[href]')
     return harvest_one_generic(ebook, selector)
 
+def get_meta(doc, term):
+    obj = doc.find('meta', attrs={"name": term})
+    if obj:
+        return obj.get('content', None)
+    else:
+        logger.warning(f'no meta for {term}')
+
+
 BAD_CERTS = {'libri.unimi.it', 'editorial.ucatolicaluisamigo.edu.co', 'openpress.mtsu.edu'}
 def harvest_cmp(ebook):
     def selector(doc):
-        objs = doc.select('.chapters a.cmp_download_link[href]')
-        if (len({obj['href'] for obj in objs})) > 1:
-            return []
-        return doc.select('a.cmp_download_link[href]')
+        citation_pdf_url = get_meta(doc, "citation_pdf_url")
+        citation_epub_url = get_meta(doc, "citation_epub_url")
+        if citation_pdf_url or citation_epub_url:
+            if citation_pdf_url:
+                yield {'href': citation_pdf_url}
+            if citation_epub_url:
+                yield {'href': citation_epub_url}
+        else:
+            objs = doc.select('.chapters a.cmp_download_link[href]')
+            if (len({obj['href'] for obj in objs})) > 1:
+                return []
+            return doc.select('a.cmp_download_link[href]')
+
     def dl(url):
         return url.replace('view', 'download') + '?inline=1'
+
     verify = ebook.provider not in BAD_CERTS
     if '/view/' in ebook.url:
         return make_dl_ebook(dl(ebook.url), ebook, verify=verify)
+
     return harvest_multiple_generic(ebook, selector, dl=dl)
 
 
@@ -764,16 +783,14 @@ def harvest_dspace(ebook):
         return doc.find(href=DSPACEPDF)
     return harvest_one_generic(ebook, selector)
 
-
 def harvest_dspace2(ebook): 
     doc = get_soup(ebook.url)
     if doc:
-        obj = doc.find('meta', attrs={"name": "citation_pdf_url"})
-        if obj:
-            dl_url = urljoin(ebook.url, obj.get('content', None))
-            if dl_url:
-                dl_url = dl_url.replace('http://', 'https://')
-                return make_dl_ebook(dl_url, ebook)
+        citation_pdf_url = get_meta(doc, "citation_pdf_url")
+        if citation_pdf_url:
+            dl_url = urljoin(ebook.url, citation_pdf_url)
+            dl_url = dl_url.replace('http://', 'https://')
+            return make_dl_ebook(dl_url, ebook)
         else:
             logger.warning('couldn\'t get dl_url for %s', ebook.url)
     else:
