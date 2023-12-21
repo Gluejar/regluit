@@ -188,7 +188,7 @@ def harvesters(ebook):
     yield ebook.provider == 'meson.press', harvest_meson    
     yield 'brill' in ebook.provider, harvest_brill
     yield ebook.provider == 'DOI Resolver', harvest_doi
-    yield ebook.provider == 'apps.crossref.org', harvest_doi_coaccess
+    yield ebook.provider in ['apps.crossref.org', 'mr.crossref.org'], harvest_doi_coaccess
     yield ebook.provider == 'ispf-lab.cnr.it', harvest_ipsflab 
     yield ebook.provider == 'libros.uchile.cl', harvest_libroschile
     yield ebook.provider == 'fupress.com', harvest_fupress
