@@ -913,7 +913,9 @@ def harvest_mprl(ebook):
 
 
 def harvest_rti(ebook):
-    return make_dl_ebook(ebook.url + "/fulltext.pdf", ebook)
+    def selector(doc):
+        return doc.find('a', href=re.compile('fulltext.pdf'))
+    return harvest_one_generic(ebook, selector)
 
 
 def harvest_unibas(ebook):
