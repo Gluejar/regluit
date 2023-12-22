@@ -151,6 +151,7 @@ def harvesters(ebook):
     yield ebook.provider == u'De Gruyter Online', harvest_degruyter
     yield ebook.provider == 'Open Book Publishers', harvest_obp
     yield ebook.provider == 'Transcript-Verlag', harvest_transcript
+    yield ebook.provider == 'shop.budrich.de', harvest_budrich
     yield ebook.provider == 'ksp.kit.edu', harvest_ksp
     yield ebook.provider in ['repositorio.americana.edu.co'], harvest_dspace2
     yield ebook.provider == 'nomos-elibrary.de', harvest_nomos
@@ -600,6 +601,12 @@ def harvest_digitalis(ebook):
 def harvest_kit(ebook): 
     def selector(doc):
         return doc.select_one('a.downloadTextLink')
+    return harvest_one_generic(ebook, selector)
+
+
+def harvest_budrich(ebook): 
+    def selector(doc):
+        return doc.select_one('a.download_pdf')
     return harvest_one_generic(ebook, selector)
 
 
