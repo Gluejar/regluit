@@ -1,6 +1,7 @@
 """
 code for harvesting 'online' ebooks
 """
+import json
 import logging
 import re
 import time
@@ -183,7 +184,7 @@ def harvesters(ebook):
     yield ebook.provider == 'laboutique.edpsciences.fr', harvest_edpsciences
     yield ebook.provider == 'waxmann.com', harvest_waxmann
     yield ebook.provider == 'pbsociety.org.pl', harvest_ojs
-    yield ebook.provider == 'content.sciendo.com', harvest_sciendo
+    yield 'sciendo.com' in ebook.provider, harvest_sciendo
     yield ebook.provider == 'edition-topoi.org', harvest_topoi
     yield ebook.provider == 'meson.press', harvest_meson    
     yield 'brill' in ebook.provider, harvest_brill
@@ -1278,3 +1279,22 @@ def harvest_istanbul(ebook):
         logger.warning('couldn\'t make ebook file for %s', ebook.url)
     return None, 0
 
+
+def harvest_sciendo(ebook):    
+    def selector(doc):
+        json_obj = doc.find('script', id='__NEXT_DATA__')
+        if json_obj:
+            try:
+                json_data = json.loads(json_obj.string)
+                pdf_url = json_data['props']['pageProps']['product']['pdfLink']
+                epub_url = json_data['props']['pageProps']['product']['epubLink']
+                if pdf_url or epub_url:
+                    if pdf_url:
+                        yield {'href': pdf_url}
+                    if epub_url:
+                        yield {'href': epub_url}
+            except json.JSONDecodeError as je:
+                logger.error(f'Bad json {je.msg}')
+            except KeyError as ke:
+                logger.error('No links in json for {ebook.url}')
+    return harvest_multiple_generic(ebook, selector)
