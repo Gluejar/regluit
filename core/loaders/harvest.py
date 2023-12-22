@@ -215,6 +215,7 @@ def harvesters(ebook):
     yield ebook.provider == 'publikationen.bibliothek.kit.edu', harvest_kit
     yield ebook.provider == 'iupress.istanbul.edu.tr', harvest_istanbul
     yield ebook.provider == 'editorialbonaventuriana.usb.edu.co', harvest_editorialbonaventuriana
+    yield ebook.provider == 'manchesteruniversitypress.co.uk', harvest_manu
 
 def ebf_if_harvested(url):
     onlines = models.EbookFile.objects.filter(source=url)
@@ -1279,6 +1280,21 @@ def harvest_istanbul(ebook):
         logger.warning('couldn\'t make ebook file for %s', ebook.url)
     return None, 0
 
+
+def harvest_manu(ebook):
+    def chap_selector(doc):
+        return doc.select('div.content-box-body div.book-toc a.c-Button--link[href*="/display/"]')
+    def dl(url):
+        return url.replace('/display/', '/downloadpdf/').replace('.xml', '.pdf')
+    doc = get_soup(ebook.url, follow_redirects=True, user_agent=settings.CHROME_UA)
+    if doc:
+        obj = doc.find('a', string=re.compile(r"Open Access"))
+        if not obj or 'href' not in obj.attrs:
+            return None, 0
+        ebook.url = urljoin(ebook.url, obj['href'])
+        return harvest_stapled_generic(ebook, lambda x: None, chap_selector, 
+                            user_agent=settings.CHROME_UA, dl=dl)
+    return None, 0
 
 def harvest_sciendo(ebook):    
     def selector(doc):
