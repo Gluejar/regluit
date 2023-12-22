@@ -115,6 +115,7 @@ CMPPROVIDERS = [
     'editorial.inudi.edu.pe',
     'editorial.ucatolicaluisamigo.edu.co',
     'editorial.uniagustiniana.edu.co',
+    'fcjp.derecho.unap.edu.pe',
     'fedoabooks.unina.it',
     'humanities-digital-library.org',
     'idicap.com',
