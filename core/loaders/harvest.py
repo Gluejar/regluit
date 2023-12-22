@@ -217,6 +217,7 @@ def harvesters(ebook):
     yield ebook.provider == 'publikationen.bibliothek.kit.edu', harvest_kit
     yield ebook.provider == 'iupress.istanbul.edu.tr', harvest_istanbul
     yield ebook.provider == 'editorialbonaventuriana.usb.edu.co', harvest_editorialbonaventuriana
+    yield ebook.provider == 'verlag.gta.arch.ethz.ch', harvest_gta
     yield ebook.provider == 'manchesteruniversitypress.co.uk', harvest_manu
 
 def ebf_if_harvested(url):
@@ -1292,6 +1293,28 @@ def harvest_istanbul(ebook):
         logger.warning('couldn\'t make ebook file for %s', ebook.url)
     return None, 0
 
+def harvest_gta(ebook):
+    # https://verlag.gta.arch.ethz.ch/en/gta:book_978-3-85676-393-0
+    pos = ebook.url.find('_')
+    if pos < 1:
+        return None, 0
+    isbn = ebook.url[pos + 1:]
+    api_host = 'https://api.verlag.gta.arch.ethz.ch'
+    json_url = f'{api_host}/api/v1/graphs/gta/data/gtaapi:PublicRetrieveBook/gta:book_{isbn}/'
+    r = requests.get(json_url)
+    if r.status_code == 200:
+        try:
+            file_url = None
+            graph = r.json()['@graph']           
+            for obj in graph:
+                if "gtaapi:file_url" in obj:
+                    file_url = obj["gtaapi:file_url"]
+                    break
+            if file_url:  
+                return make_dl_ebook(file_url, ebook)
+        except IndexError:
+            logger.error('no item_file for %s', ebook.url)
+    return None, 0
 
 def harvest_manu(ebook):
     def chap_selector(doc):
