@@ -193,6 +193,7 @@ def harvesters(ebook):
     yield ebook.provider in ['apps.crossref.org', 'mr.crossref.org'], harvest_doi_coaccess
     yield ebook.provider == 'ispf-lab.cnr.it', harvest_ipsflab 
     yield ebook.provider == 'libros.uchile.cl', harvest_libroschile
+    yield ebook.provider == 'smithsonian.figshare.com', harvest_figshare
     yield ebook.provider == 'fupress.com', harvest_fupress
     yield ebook.provider == 'funlam.edu.co', harvest_funlam
     yield ebook.provider == 'elibrary.duncker-humblot.com', harvest_dunckerhumblot
@@ -1070,6 +1071,12 @@ def harvest_ipsflab(ebook):
     def selector(doc):
         return doc.find_all('a', href=re.compile(r'/system/files/ispf_lab/quaderni/.*\.(pdf|epub)'))
     return harvest_multiple_generic(ebook, selector)
+
+
+def harvest_figshare(ebook):    
+    def selector(doc):
+        return doc.find('a', href=re.compile(r'/ndownloader/'))
+    return harvest_one_generic(ebook, selector)
 
 
 def harvest_fupress(ebook):    
