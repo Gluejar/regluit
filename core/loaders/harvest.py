@@ -966,12 +966,6 @@ def harvest_ojs(ebook):
     return harvest_multiple_generic(ebook, selector, dl=dl)
 
 
-def harvest_sciendo(ebook):    
-    def selector(doc):
-        return doc.select_one('a[title=PDF]')
-    return harvest_one_generic(ebook, selector, user_agent=settings.GOOGLEBOT_UA)
-
-
 def harvest_topoi(ebook):    
     def selector(doc):
         return doc.select_one('li.pdf a[href]')
