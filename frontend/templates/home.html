@@ -203,9 +203,9 @@ function put_un_in_cookie2(){
                 <div class="jsmodule">
                 	<h3 class="module-title">Donate!</h3>
                     <div class="jsmod-content">
-                                 <div>Please help support Unglue.it by making a tax-deductible donation to the Free Ebook Foundation. Donations are currently directed to our <a href="{% url "about_funds" %}#monographs">Monographs Matching Fund</a>.</div>
+                                 <div>Please help support Unglue.it by making a tax-deductible donation to the Free Ebook Foundation.</div>
             <form class="askform" method="POST" action="{% url 'newdonation' %}">  
-                    <input type="hidden" value="monographs" name="reason">              
+                    <input type="hidden" value="general" name="reason">              
                     <div class="donate_amount">
                     <label>Amount ($): </label><input id="amount" max="20000.00" min="5.00" name="amount" step="0.01" type="number" value="10.00" class="donate"></div>
                     <div class="button">

@@ -18,3 +18,15 @@ class Command(BaseCommand):
         else:
             books = load_springer(int(startpage), int(endpage))       
         self.stdout.write("loaded {} books".format(len(books)))
+        
+        for edition in books:
+            done_fmt = set()
+            for ebook in edition.work.ebooks_all():
+                for fmt in ['pdf', 'epub', 'mobi']:
+                    if ebook.format == fmt:
+                        if fmt not in done_fmt:
+                            ebook.activate()
+                            done_fmt.add(fmt)
+                        else:
+                            ebook.deactivate()
+
