@@ -17,6 +17,6 @@ celerybeat-schedule
 assets/*
 *.ipynb
 dump.rdb
-Pipfile
-*.lock
+Pipfile.lock
+
 *.css.map

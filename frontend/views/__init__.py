@@ -104,7 +104,6 @@ from regluit.frontend.forms import (
     RegiftForm,
     SubjectSelectForm,
     MapSubjectForm,
-    SurveyForm,
     DonationForm,
 )
 
@@ -129,8 +128,6 @@ from regluit.libraryauth.views import Authenticator, superlogin, login_user
 from regluit.libraryauth.models import Library
 from regluit.marc.views import qs_marc_records
 from regluit.utils.localdatetime import date_today
-from questionnaire.models import Landing, Questionnaire
-from questionnaire.views import export_summary as answer_summary, export_csv as export_answers
 
 from .bibedit import edit_edition, user_can_edit_work, safe_get_work, get_edition
 from .rh_views import campaign_results, claim, manage_campaign, rh_admin, RHAgree, rh_tools
@@ -1586,95 +1583,6 @@ def works_user_can_admin(user):
         Q(claim__user = user) | Q(claim__rights_holder__owner = user)
         )
 
-def works_user_can_admin_filter(request, work_id):
-    def work_survey_filter(answers):
-        works = works_user_can_admin(request.user)
-        if work_id == '0' and request.user.is_staff:
-            return answers
-        elif work_id:
-            work = safe_get_work(work_id)
-            if user_can_edit_work(request.user, work):
-                return answers.filter(run__run_info_histories__landing__works=work)
-            else:
-                return answers.none()
-        else:
-            return answers.filter(run__run_info_histories__landing__works__in=works)
-    return work_survey_filter
-
-def export_surveys(request, qid, work_id):
-    def extra_entries(subject, run):
-        landing = completed = None
-        try:
-            landing = run.run_info_histories.all()[0].landing
-            completed = run.run_info_histories.all()[0].completed
-        except IndexError:
-            try:
-                landing = run.run_infos.all()[0].landing
-                completed = run.run_infos.all()[0].created
-            except IndexError:
-                label = wid = "error"
-        if landing:
-            label = landing.label
-            wid = landing.object_id
-        return [wid, subject.ip_address, run.id, completed, label]
-    if not request.user.is_authenticated:
-        return HttpResponseRedirect(reverse('surveys'))
-    extra_headings = [u'work id', u'subject ip address', u'run id', u'date completed', u'landing label']
-    return export_answers(request, qid,
-        answer_filter=works_user_can_admin_filter(request, work_id),
-        extra_entries=extra_entries,
-        extra_headings=extra_headings,
-        filecode=work_id)
-
-def surveys_summary(request, qid, work_id):
-    if not request.user.is_authenticated:
-        return HttpResponseRedirect(reverse('surveys'))
-    return answer_summary(
-        request, 
-        qid,
-        answer_filter=works_user_can_admin_filter(request, work_id),
-    )
-
-
-def new_survey(request, work_id):
-    if not request.user.is_authenticated:
-        return HttpResponseRedirect(reverse('surveys'))
-    my_works = works_user_can_admin( request.user)
-    if work_id:
-        work = safe_get_work(work_id)
-        for my_work in my_works:
-            if my_work == work:
-                form = SurveyForm()
-                break
-        else:
-            return HttpResponseRedirect(reverse('surveys'))
-    else:
-        work = None
-        form = SurveyForm()
-    if  request.method == 'POST':
-        form = SurveyForm(data=request.POST)
-        if form.is_valid():
-            if not work and form.work:
-                for my_work in my_works:
-                    print('{} {}'.format(my_work.id, form.work_id))
-                    if my_work == form.work:
-                        work = form.work
-                        break
-                else:
-                    print('not mine')
-                    return HttpResponseRedirect(reverse('surveys'))
-            print("create landing")
-            landing = Landing.objects.create(label=form.cleaned_data['label'], questionnaire=form.cleaned_data['survey'], content_object=work)
-            return HttpResponseRedirect(reverse('surveys'))
-    return render(request, "manage_survey.html", {"work":work, "form":form})
-
-def surveys(request):
-    if not request.user.is_authenticated:
-        return render(request, "surveys.html")
-    works = works_user_can_admin(request.user)
-    work_ids = [work.id for work in works]
-    surveys = Questionnaire.objects.filter(landings__object_id__in=work_ids).distinct()
-    return render(request, "surveys.html", {"works":works, "surveys":surveys})
 
 def campaign_admin(request):
     if not request.user.is_authenticated:
