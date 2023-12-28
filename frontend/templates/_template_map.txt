@@ -11,7 +11,6 @@ base.html    extra_css(empty)  extra_js(empty)    extra_head(empty)
     about_unglued_empty.html
     about_wishlist.html
     about_wishlist_empty.html
-    base-questionnaire.html
     campaign_list.html  extra_css    extra_head
     cc_list.html    extra_css  extra_head
     comments.html   extra_css    extra_head
@@ -58,7 +57,6 @@ base.html    extra_css(empty)  extra_js(empty)    extra_head(empty)
             manage_account.html    extra_extra_head
             manage_campaign.html    extra_extra_head
             manage_ebooks.html
-            manage_survey.html
             marc.html
             merge.html    extra_extra_head
             metrics.html
@@ -77,7 +75,6 @@ base.html    extra_css(empty)  extra_js(empty)    extra_head(empty)
                 rh_works.html
                 rh_yours.html
             rights_holders.html    extra_extra_head
-            surveys.html
             terms.html   extra_css
             thanks.html
         basepledge.html  extra_css  extra_js    extra_extra_head(empty)

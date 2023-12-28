@@ -28,7 +28,6 @@ from django_comments.models import Comment
 
 import regluit
 from regluit.marc.models import MARCRecord as NewMARC
-from questionnaire.models import Landing
 
 from regluit.bisac.models import interpret_notation
 import regluit.core.cc as cc
@@ -131,7 +130,6 @@ class Work(models.Model):
     publication_range = models.CharField(max_length=50, null=True, blank=True)
     featured = models.DateTimeField(null=True, blank=True, db_index=True,)
     is_free = models.BooleanField(default=False)
-    landings = GenericRelation(Landing, related_query_name='works')
     related = models.ManyToManyField('self', symmetrical=False, blank=True, through='WorkRelation', related_name='reverse_related')
     age_level = models.CharField(max_length=5, choices=AGE_LEVEL_CHOICES, default='', blank=True) 
 
@@ -151,7 +149,7 @@ class Work(models.Model):
     def delete(self, cascade=True, *args, **kwargs):
         if cascade:
             if self.offers.all() or self.claim.all() or self.campaigns.all() or self.acqs.all() \
-                 or self.holds.all() or self.landings.all():
+                 or self.holds.all():
                  return
             for wishlist in self.wishlists.all():
                 wishlist.remove_work(self)

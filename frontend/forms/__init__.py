@@ -68,33 +68,9 @@ from .rh_forms import (
     RightsHolderForm,
     UserClaimForm
 )
-from questionnaire.models import Questionnaire
 
 logger = logging.getLogger(__name__)
 
-class SurveyForm(forms.Form):
-    label = forms.CharField(max_length=64, required=True)
-    survey = forms.ModelChoiceField(Questionnaire.objects.all(), widget=RadioSelect(), empty_label=None, required = True,)
-    isbn = ISBNField(
-        label=_("ISBN"),
-        max_length=17,
-        required = False,
-        help_text = _("13 digits, no dash."),
-        error_messages = {
-            'invalid': _("This must be a valid ISBN-13."),
-        }
-    )
-
-    def clean_isbn(self):
-        isbn = self.cleaned_data['isbn']
-        if not isbn:
-            return ''
-        try:
-            self.work = Identifier.objects.get(type='isbn', value=isbn).work
-            return isbn
-        except Identifier.DoesNotExist:
-            self.work = None
-            raise forms.ValidationError( 'That ISBN is not in our database')
 
 class EbookFileForm(forms.ModelForm):
     file = forms.FileField(max_length=16777216)
