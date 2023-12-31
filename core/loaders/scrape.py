@@ -218,7 +218,7 @@ class BaseScraper(object):
     def get_identifiers(self):
         value = self.check_metas([r'DC\.Identifier\.URI'])
         if not value:
-            value = self.doc.select_one('link[rel=canonical]')
+            value = self.doc.select_one('link[rel=canonical][href]')
             value = value['href'] if value else None
         value = identifier_cleaner('http', quiet=True)(value)
         if value:
