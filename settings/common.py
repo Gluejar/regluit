@@ -105,7 +105,6 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [join(PROJECT_DIR, "frontend", "templates"),
                  join(PROJECT_DIR, "frontend", "templates", "registration"),
-                 join(PROJECT_DIR, "frontend", "questionnaire"),
                  ],
         'OPTIONS':{
             'context_processors':[
@@ -137,7 +136,6 @@ MIDDLEWARE = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'regluit.libraryauth.auth.SocialAuthExceptionMiddlewareWithoutMessages',
     'django.middleware.locale.LocaleMiddleware',
-    'questionnaire.request_cache.RequestCacheMiddleware',
 )
 
 ROOT_URLCONF = 'regluit.urls'
@@ -180,9 +178,7 @@ INSTALLED_APPS = (
     'regluit.booxtream',
     'pyepub',
     'regluit.libraryauth', 
-    'transmeta',
     'questionnaire',
-    'questionnaire.page',  
     'sass_processor',
 )
 
@@ -502,10 +498,6 @@ BOOXTREAM_TEST_EPUB_URL = 'https://github.com/Gluejar/open_access_ebooks_ebook/r
 TEST_PDF_URL = "https://github.com/Gluejar/flatland/raw/master/downloads/Flatland.pdf"
 FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520 #20MB
 
-QUESTIONNAIRE_USE_SESSION = False
-QUESTIONNAIRE_DEBUG = True
-QUESTIONNAIRE_ITEM_MODEL = 'core.Work'
-QUESTIONNAIRE_SHOW_ITEM_RESULTS = False
 
 # Selenium related -- set if Se tests run
 FIREFOX_PATH = ''
