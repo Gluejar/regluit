@@ -171,6 +171,7 @@ def harvesters(ebook):
     yield ebook.provider in ['digital.library.unt.edu', 'texashistory.unt.edu'], harvest_unt
     yield ebook.provider in ['diposit.ub.edu', 'orbi.ulg.ac.be', 'orbi.uliege.be',
                              'acikerisim.kapadokya.edu.tr',], harvest_dspace
+    yield ebook.provider == 'e-publish.uliege.be', harvest_liege
     yield ebook.provider in CMPPROVIDERS, harvest_cmp
     yield 'mdpi' in ebook.provider.lower(), harvest_mdpi
     yield ebook.provider == 'idunn.no', harvest_idunn
@@ -808,11 +809,11 @@ def harvest_cmp(ebook):
     return harvest_multiple_generic(ebook, selector, dl=dl)
 
 
-DSPACEPDF = re.compile(r'/bitstream/.*\.pdf')
+DSPACEPDF = re.compile(r'/bitstream/.*\.(pdf|epub)')
 def harvest_dspace(ebook):
     def selector(doc):
-        return doc.find(href=DSPACEPDF)
-    return harvest_one_generic(ebook, selector)
+        return doc.find_all(href=DSPACEPDF)
+    return harvest_multiple_generic(ebook, selector)
 
 
 def harvest_dspace2(ebook):
@@ -1399,3 +1400,36 @@ def harvest_sciendo(ebook):
                 logger.error('No links in json for {ebook.url}')
     return harvest_multiple_generic(ebook, selector)
 
+def harvest_liege(ebook):
+    def selector(doc):
+        urls = []
+        pages = doc.find_all('a', href=re.compile(r'/(front|back)-matter/'))
+        for page in pages:
+            page_doc = get_soup(page['href'], follow_redirects=True, user_agent=settings.USER_AGENT)
+            if page_doc:
+                links = page_doc.find_all('a', href=re.compile(r'orbi\.uliege\.be/(bitstream|handle)/'))
+                for link in links:
+                    if link['href'] not in urls:
+                        urls.append(link['href'])
+        pdf = epub = repo = None
+        for content_url in urls:
+            if content_url.lower().endswith('.pdf'):
+                pdf = pdf or content_url
+            elif content_url.lower().endswith('.epub'):
+                epub = epub or content_url
+            else:
+                repo = repo or content_url
+            if pdf and epub:
+                break
+        if pdf:
+            yield {'href': pdf}
+        if epub:
+            yield {'href': epub}
+        if repo and not (pdf or epub):
+            repo_doc = get_soup(repo, follow_redirects=True, user_agent=settings.USER_AGENT)
+            if repo_doc:
+                return repo_doc.find_all(href=DSPACEPDF)
+
+    return harvest_multiple_generic(ebook, selector)
+
+    
