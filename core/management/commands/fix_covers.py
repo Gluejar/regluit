@@ -32,8 +32,7 @@ class Command(BaseCommand):
                     for e in work.editions.all():
                         e.cover_image = cover_url
                         e.save()
-                    break
-                    return True
+                    self.stdout.write(f'added cover for {work.doab}')
         else:
             return self.fix_doab_cover(doab)
         return False
