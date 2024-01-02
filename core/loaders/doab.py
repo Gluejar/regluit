@@ -6,6 +6,7 @@ import re
 
 import requests
 
+from django.conf import settings
 from django.db.models import Q
 
 from django.core.files.base import ContentFile
@@ -63,9 +64,9 @@ def store_doab_cover(doab_id, redo=False):
                     redirurl = SPRINGER_IMAGE.format(springerftp.groups(1))
                     r = requests.get(redirurl)
             else:
-                r = requests.get(url)
+                r = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
         else:
-            r = requests.get(url)
+            r = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
         cover_file = ContentFile(r.content)
         content_type = r.headers.get('content-type', '')
         if not 'image/' in content_type:

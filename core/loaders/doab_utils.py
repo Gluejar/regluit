@@ -106,17 +106,7 @@ def online_to_download(url):
     urls = []
     if not url:
         return urls
-    if url.find(u'books.scielo.org/') >= 0:
-        if url[-4:] in ['epub', '.pdf']:
-            return [url]
-        doc = get_soup(url)
-        if doc:
-            obj = doc.find('a', class_='pdf_file')
-            if obj:
-                urls.append(urljoin(url, obj['href']))
-            obj = doc.find('a', class_='epub_file')
-            if obj:
-                urls.append(urljoin(url, obj['href']))
+
     elif url.find(u'edp-open.org/books-in-') >= 0:
         # pages needing multi-scrape
         return urls
@@ -155,5 +145,7 @@ def doab_cover(doab_id):
     if not stream_data:
         logger.error('get_streamdata failed for %s', doab_id)
         return None
+    if 'retrieveLink' in stream_data:
+        return f"https://directory.doabooks.org{stream_data['retrieveLink']}"
     return COVER_FSTRING.format(**stream_data)
 
