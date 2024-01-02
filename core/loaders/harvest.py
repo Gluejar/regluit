@@ -392,7 +392,7 @@ def harvest_oapen(ebook):
     if is_bookshop_url(ebook.url):
         return set_bookshop(ebook)
     if '/bitstream/' in ebook.url:
-        return make_dl_ebook(ebook.url, ebook, user_agent=settings.GOOGLEBOT_UA)
+        return make_dl_ebook(ebook.url, ebook, user_agent=settings.USER_AGENT)
     return None, 0
 
 
