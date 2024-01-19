@@ -345,7 +345,7 @@ def test_relaunch(unglue_it_url = settings.LIVE_SERVER_TEST_URL, do_local=True, 
 
     # now use the transaction manager to make the charge
     w = models.Work.objects.get(id=48)
-    c = w.campaigns.all()[0]
+    c = w.campaigns.first()
     pm = PaymentManager()
     result = pm.execute_campaign(c)
     

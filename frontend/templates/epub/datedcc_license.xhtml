@@ -6,9 +6,9 @@
 </head>
 <body>
 <div class="booksection">
-{% if acq.gifts.all.0 %}
-<p> This ebook is a gift from {{ acq.gifts.all.0.giver }}.</p>
-<p style="margin:2em">{{ acq.gifts.all.0.message }}</p>
+{% if acq.gifts.first %}
+<p> This ebook is a gift from {{ acq.gifts.first.giver }}.</p>
+<p style="margin:2em">{{ acq.gifts.first.message }}</p>
 {% endif %}
 <p class="copyk">
 {% ifequal acq.license 1 %}

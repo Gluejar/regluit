@@ -49,7 +49,7 @@ def onix_feed(facet, max=None, page_number=None):
             p = Paginator(works, WORKS_PER_PAGE)
             works = p.page(page_number)
         except InvalidPage:
-            works = []
+            works = models.Work.objects.none()
 
     for work in works:
         editions = models.Edition.objects.filter(work=work, ebooks__isnull=False)

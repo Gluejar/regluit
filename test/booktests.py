@@ -63,7 +63,7 @@ def ry_wish_list_equal_loadable_lt_books():
     """returnwhether the set of works in the user's wishlist is the same as the works in a user's loadable editions from LT"""
     editions = editions_for_lt(ry_lt_books())
     # assume only one user -- and that we have run a LT book loading process for that user
-    ry = django.contrib.auth.models.User.objects.all()[0]
+    ry = django.contrib.auth.models.User.objects.first()
     return set([ed.work for ed in filter(None, editions)]) == set(ry.wishlist.works.all())
 
 def clear_works_editions_ebooks():

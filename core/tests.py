@@ -128,7 +128,7 @@ class BookLoaderTests(TestCase):
 
         # authors
         self.assertEqual(edition.authors.all().count(), 1)
-        self.assertEqual(edition.authors.all()[0].name, u'Ron Chernow')
+        self.assertEqual(edition.authors.first().name, u'Ron Chernow')
 
         # work
         self.assertTrue(edition.work)
@@ -370,7 +370,7 @@ class BookLoaderTests(TestCase):
         c2.save()
         self.assertEqual(c2.pk, e2.work.last_campaign().pk)
         # comment on the works
-        site = Site.objects.all()[0]
+        site = Site.objects.first()
         wct = ContentType.objects.get_for_model(models.Work)
         comment1 = Comment(
             content_type=wct,
@@ -428,7 +428,7 @@ class BookLoaderTests(TestCase):
             # number can disappear. So if the ebook count is 2 then test
             #if edition is not None and edition.ebooks.count() == 2:
                 self.assertEqual(edition.ebooks.count(), 2)
-                #ebook_epub = edition.ebooks.all()[0]
+                #ebook_epub = edition.ebooks.first()
                 ebook_epub = edition.ebooks.filter(format='epub')[0]
                 self.assertEqual(ebook_epub.format, 'epub')
                 self.assertEqual(parse_qs(urlparse(ebook_epub.url).query).get("id"), ['N1RfAAAAMAAJ'])
@@ -679,7 +679,7 @@ class CampaignTests(TestCase):
         #cloning (note we changed c3 to w2 to make it clonable)
         c7 = c3.clone()
         self.assertEqual(c7.status, 'INITIALIZED')
-        self.assertEqual(c7.premiums.all()[0].description, 'botsnack')
+        self.assertEqual(c7.premiums.first().description, 'botsnack')
 
 
         # SUCCESSFUL

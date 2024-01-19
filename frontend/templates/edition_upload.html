@@ -2,7 +2,7 @@
     {% if ebook_form and show_ebook_form %}
         <div id="add_ebook">
 {% if alert %}<div class="yikes">{{alert}}</div>{% endif %}
-            {% if edition.ebooks.all.0 %}
+            {% if edition.ebooks.first %}
                 <h2>eBooks for this Edition</h2>
         
                 {% for ebook in edition.ebooks.all %}

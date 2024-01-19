@@ -168,8 +168,8 @@ class PledgeTest(TestCase):
         self.assertNotEqual(url, None)
         self.assertNotEqual(t, None)
         self.assertEqual(t.receiver_set.all().count(), count)
-        self.assertEqual(t.receiver_set.all()[0].amount, t.amount)
-        self.assertEqual(t.receiver_set.all()[0].currency, t.currency)
+        self.assertEqual(t.receiver_set.first().amount, t.amount)
+        self.assertEqual(t.receiver_set.first().currency, t.currency)
         # self.assertNotEqual(t.ref1Gerence, None)
         self.assertEqual(t.error, None)
         self.assertEqual(t.status, IPN_PAY_STATUS_CREATED)
@@ -299,7 +299,7 @@ class TransactionTest(TestCase):
         
         #test pledge adders
         user.profile.reset_pledge_badge()
-        self.assertEqual(user.profile.badges.all()[0].name,'pledger')
+        self.assertEqual(user.profile.badges.first().name,'pledger')
         
         p = PaymentManager()
         results = p.query_campaign(c,campaign_total=True, summary=False)
@@ -399,7 +399,7 @@ class AccountTest(TestCase):
         account1 = Account(host='host1', account_id='1', user=user1, status='ACTIVE')
         account1.save()
                 
-        user = User.objects.all()[0]            
+        user = User.objects.first()           
         
         account = user1.profile.account
         self.assertEqual(account.status, 'ACTIVE')

@@ -145,7 +145,7 @@ Please fix the following before launching your campaign:
         <ul style="text-indent:1em">
         <li style="text-indent:2.5em"><a href="{% url 'new_edition' edition.work_id edition.id %}"> Edit </a> this edition</li>
         {% if campaign.type != 1 %}
-            {% if edition.ebook_files.all.0 %}
+            {% if edition.ebook_files.first%}
                 <li style="text-indent:2.5em">You have uploaded ebook files for this edition. You can <a href="{% url 'edition_uploads' edition.id %}"> manage its ebooks or upload another</a></li>
             {% else %}
                 <li style="text-indent:2.5em">You can <a href="{% url 'edition_uploads' edition.id %}"> Manage ebooks</a> for this edition.</li>

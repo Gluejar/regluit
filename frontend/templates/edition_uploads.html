@@ -19,7 +19,7 @@
     <b>LibraryThing ID</b>: {{ edition.librarything_id }}<br />
 
 </div>
-{% if edition.ebooks.all.0 %}
+{% if edition.ebooks.first %}
     <h2>Active eBooks for this Work</h2>
     {% for ebook in edition.work.ebooks %}
         <a href="{% url 'download_ebook' ebook.id %}">{{ ebook.format }}</a> {{ebook.rights}} at {{ebook.provider}}. 
