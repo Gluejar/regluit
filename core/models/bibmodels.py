@@ -1003,7 +1003,7 @@ class Edition(models.Model):
     @property
     def license(self):
         try:
-            return self.ebooks.all()[0].rights
+            return self.ebooks.first().rights
         except:
             return None
 

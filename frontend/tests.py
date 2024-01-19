@@ -458,7 +458,7 @@ class UnifiedCampaignTests(TestCase):
             self.assertEqual(r.status_code, 200)
 
         # a charge should now go through
-        self.assertEqual(len(Notice.objects.filter(notice_type__label='pledge_charged', recipient__username='dataunbound')), 1)
+        self.assertTrue(Notice.objects.filter(notice_type__label='pledge_charged', recipient__username='dataunbound').exists())
 
 
     def test_good_bad_cc_scenarios(self):

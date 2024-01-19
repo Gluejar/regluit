@@ -276,7 +276,7 @@ def load_doab_edition(title, doab_id, url, format, rights,
         if editions_with_ebooks:
             edition = editions_with_ebooks[0]
         elif work.editions.all():
-            edition = work.editions.all()[0]
+            edition = work.editions.first()
         else:
             edition = models.Edition(work=work, title=title)
             edition.save()
