@@ -10,7 +10,7 @@
             {% if edition.title != work.title %}
                 Title: {{edition.title}}<br />
             {% endif %}
-            {% if edition.authors.all.0 %}
+            {% if edition.authors.first %}
                 Contributors: 
                 {% for author in edition.authors.all %}
                     {{author}}, 

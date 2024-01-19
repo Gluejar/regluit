@@ -54,7 +54,7 @@ def featured_work():
         work = models.Work.objects.filter(featured__isnull=False).distinct().order_by('-featured')[0]
     except:
         #shouldn't occur except in tests
-        work = models.Work.objects.all()[0]
+        work = models.Work.objects.first()
     return work
 
 def widget(request, isbn):

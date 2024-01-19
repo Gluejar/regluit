@@ -8,7 +8,7 @@
 
 <!--- editions --->
 
-    {% if editions %}
+    {% if editions.exists %}
         <ul>
         {% for edition in editions %}
             <li> <img src="https://covers.openlibrary.org/b/isbn/{{edition.isbn_10}}-S.jpg" /> {{edition.id}} | {{edition.title}} |

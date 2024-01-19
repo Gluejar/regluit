@@ -82,7 +82,7 @@
 
                 </div>
                 <div id="content-block-content">
-                    {% if not work_list.0 %}
+                    {% if not work_list.exists %}
                     {% block noworks %}
                     There aren't any {{ pub_lang|ez_lang_name }} works in this list yet.  {% block add_more %}Why not add your favorite books to your list, so we can feature them here?{% endblock %}
 					{% endblock %}

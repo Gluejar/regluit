@@ -219,7 +219,7 @@ def home(request, landing=False):
         featured = models.Work.objects.filter(featured__isnull=False).distinct().order_by('-featured')[0]
     except:
         #shouldn't occur except in tests
-        featured = models.Work.objects.all()[0]
+        featured = models.Work.objects.first()
     top_pledge = models.Campaign.objects.filter(status="ACTIVE", type=REWARDS).order_by('left')[:4]
     top_b2u = models.Campaign.objects.filter(status="ACTIVE", type=BUY2UNGLUE).order_by('-work__num_wishes')[:4]
     top_t4u = models.Campaign.objects.exclude(id = featured.id).filter(status="ACTIVE", type=THANKS).order_by('-work__num_wishes')[:4]
@@ -737,7 +737,7 @@ class ByPubView(WorkListView):
 
     def set_publisher(self):
         if self.publisher_name.key_publisher.exists():
-            self.publisher = self.publisher_name.key_publisher.all()[0]
+            self.publisher = self.publisher_name.key_publisher.first()
         elif self.publisher_name.publisher:
             self.publisher = self.publisher_name.publisher
             self.publisher_name = self.publisher.name

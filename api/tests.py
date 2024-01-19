@@ -46,7 +46,7 @@ class ApiTests(TestCase):
 
     def test_user(self):
         self.assertEqual(User.objects.all().count(), 1)
-        self.assertTrue(User.objects.all()[0].api_key.key)
+        self.assertTrue(User.objects.first().api_key.key)
 
     def test_no_auth(self):
         r = self.client.get('/api/v1/campaign/', data={'format': 'json'})

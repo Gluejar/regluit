@@ -1003,7 +1003,7 @@ class Edition(models.Model):
     @property
     def license(self):
         try:
-            return self.ebooks.all()[0].rights
+            return self.ebooks.first().rights
         except:
             return None
 
@@ -1014,7 +1014,7 @@ class Edition(models.Model):
         if self.unglued:
             return 'The book is available as a free download thanks to the generous support of interested readers and organizations, who made donations using the crowd-funding website Unglue.it.'
         else:
-            if self.ebooks.all()[0].rights in cc.LICENSE_LIST:
+            if self.ebooks.first().rights in cc.LICENSE_LIST:
                 return 'The book is available as a free download thanks to a Creative Commons license.'
             else:
                 return 'The book is available as a free download because it is in the Public Domain.'

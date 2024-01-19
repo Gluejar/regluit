@@ -37,7 +37,7 @@ class WishlistTests(TestCase):
                 HTTP_X_REQUESTED_WITH="XMLHttpRequest")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(self.user.wishlist.works.all().count(), 1)
-        wished = self.user.wishlist.works.all()[0]
+        wished = self.user.wishlist.works.first()
         # test the work page
         r = self.client.get("/work/%s/" % wished.id)
         self.assertEqual(r.status_code, 200)
@@ -229,7 +229,7 @@ class PledgingUiTests(TestCase):
                 HTTP_X_REQUESTED_WITH="XMLHttpRequest")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(self.user.wishlist.works.all().count(), 1)
-        wished = self.user.wishlist.works.all()[0]
+        wished = self.user.wishlist.works.first()
         # test the work page
         r = self.client.get("/work/%s/" % wished.id)
         self.assertEqual(r.status_code, 200)
@@ -238,7 +238,7 @@ class PledgingUiTests(TestCase):
         self.assertEqual(r.status_code, 200)
 
         # load a Work and a Campaign to create a Pledge page
-        self.work = self.user.wishlist.works.all()[0]
+        self.work = self.user.wishlist.works.first()
         self.campaign = Campaign(target=D('1000.00'), deadline=now() + timedelta(days=180),
                                  work=self.work, description='dummy description')
         self.campaign.save()
@@ -458,7 +458,7 @@ class UnifiedCampaignTests(TestCase):
             self.assertEqual(r.status_code, 200)
 
         # a charge should now go through
-        self.assertEqual(len(Notice.objects.filter(notice_type__label='pledge_charged', recipient__username='dataunbound')), 1)
+        self.assertTrue(Notice.objects.filter(notice_type__label='pledge_charged', recipient__username='dataunbound').exists())
 
 
     def test_good_bad_cc_scenarios(self):

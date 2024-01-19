@@ -205,7 +205,7 @@ class ManageCampaignForm(CCDateForm, forms.ModelForm):
             required=False,
         )
         if self.initial and not self.initial.get('edition', None) and not instance.edition:
-            self.initial['edition'] = instance.work.editions.all()[0]
+            self.initial['edition'] = instance.work.editions.first()
 
     paypal_receiver = forms.EmailField(
         label=_("contact email address for this campaign"),

@@ -4,7 +4,7 @@
   xsi:noNamespaceSchemaLocation="http://www.kbcafe.com/rss/atom.xsd.xml">
   <title>Unglue.it Catalog</title>
   <id>https://unglue.it{% url 'opds' %}</id>
-  <updated>2014-06-13T21:48:34Z</updated>
+  <updated>{{ feed.updated }}</updated>
   <author>
     <name>unglue.it</name>
     <uri>https://unglue.it/</uri>

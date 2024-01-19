@@ -174,7 +174,7 @@ def work_node(work, facet=None):
 
 class Facet:
     title = ''
-    works = None
+    works = models.Work.objects.none()
     feed_path = ''
     description = ''
 
@@ -184,9 +184,14 @@ class Facet:
 
     def updated(self):
         # return the creation date for most recently added item
-        if not self.works:
+        key = f"{self.feed_path.replace(' ', '_')}_updated"
+        if not self.works.exists():
             return pytz.utc.localize(datetime.datetime.utcnow()).isoformat()
-        return pytz.utc.localize(self.works[0].created).isoformat()
+        value = cache.get(key)
+        if value is None:
+            value = pytz.utc.localize(self.works.latest('created').created).isoformat()
+            cache.set(key, value, 100000)
+        return value
 
 def get_facet_facet(facet_path):
     class Facet_Facet(Facet):
@@ -197,7 +202,7 @@ def get_facet_facet(facet_path):
             self.title = "Unglue.it"
             for facet in self.facet_object.facets():
                 self.title = self.title + " " + facet.title
-            self.works = self.facet_object.get_query_set().distinct()
+            self.works = self.facet_object.get_query_set()
             self.description = self.facet_object.description
     return Facet_Facet
 
@@ -226,7 +231,7 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
         order_by = 'newest'
     else:
         books_per_page = 50
-    works = the_facet.works
+    works = the_facet.works.distinct()
     feed_path = the_facet.feed_path
     title = the_facet.title
     metadata = {"title": title}

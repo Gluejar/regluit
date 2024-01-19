@@ -118,22 +118,22 @@ class BookLoaderTests(TestCase):
         if not (mocking or settings.TEST_INTEGRATION):
             return
         # edition
-        edition = bookloader.add_by_isbn('9780143034759')
+        edition = bookloader.add_by_isbn('9781101200858')
         self.assertEqual(edition.title, u'Alexander Hamilton')
-        self.assertTrue(edition.publication_date in (u'2004', u'2005'))
+        self.assertTrue('2005' in edition.publication_date)
         self.assertEqual(edition.publisher, u'Penguin')
-        self.assertEqual(edition.isbn_10, '0143034758')
-        self.assertEqual(edition.isbn_13, '9780143034759')
-        self.assertTrue(edition.googlebooks_id in ('4PeiDwAAQBAJ', '4iafgTEhU3QC'))
+        self.assertEqual(edition.isbn_10, '1101200855')
+        self.assertEqual(edition.isbn_13, '9781101200858')
+        self.assertTrue(edition.googlebooks_id in ('4z5eL5SGjEoC', '4iafgTEhU3QC'))
 
         # authors
         self.assertEqual(edition.authors.all().count(), 1)
-        self.assertEqual(edition.authors.all()[0].name, u'Ron Chernow')
+        self.assertEqual(edition.authors.first().name, u'Ron Chernow')
 
         # work
         self.assertTrue(edition.work)
-        self.assertTrue(edition.googlebooks_id in ('4PeiDwAAQBAJ', '4iafgTEhU3QC'))
-        self.assertEqual(edition.work.first_isbn_13(), '9780143034759')
+        self.assertTrue(edition.googlebooks_id in ('4z5eL5SGjEoC', '4iafgTEhU3QC'))
+        self.assertEqual(edition.work.first_isbn_13(), '9781101200858')
 
         # test duplicate pubname
         ed2 = Edition.objects.create(work=edition.work)
@@ -160,7 +160,7 @@ class BookLoaderTests(TestCase):
     def test_language_locale(self, mocking=False):
         if not (mocking or settings.TEST_INTEGRATION):
             return
-        edition = bookloader.add_by_isbn('9787999076179')
+        edition = bookloader.add_by_isbn('9787115401519')
         self.assertEqual(edition.work.language, u'zh-CN')
 
     def test_update_edition_mock(self):
@@ -370,7 +370,7 @@ class BookLoaderTests(TestCase):
         c2.save()
         self.assertEqual(c2.pk, e2.work.last_campaign().pk)
         # comment on the works
-        site = Site.objects.all()[0]
+        site = Site.objects.first()
         wct = ContentType.objects.get_for_model(models.Work)
         comment1 = Comment(
             content_type=wct,
@@ -428,7 +428,7 @@ class BookLoaderTests(TestCase):
             # number can disappear. So if the ebook count is 2 then test
             #if edition is not None and edition.ebooks.count() == 2:
                 self.assertEqual(edition.ebooks.count(), 2)
-                #ebook_epub = edition.ebooks.all()[0]
+                #ebook_epub = edition.ebooks.first()
                 ebook_epub = edition.ebooks.filter(format='epub')[0]
                 self.assertEqual(ebook_epub.format, 'epub')
                 self.assertEqual(parse_qs(urlparse(ebook_epub.url).query).get("id"), ['N1RfAAAAMAAJ'])
@@ -679,7 +679,7 @@ class CampaignTests(TestCase):
         #cloning (note we changed c3 to w2 to make it clonable)
         c7 = c3.clone()
         self.assertEqual(c7.status, 'INITIALIZED')
-        self.assertEqual(c7.premiums.all()[0].description, 'botsnack')
+        self.assertEqual(c7.premiums.first().description, 'botsnack')
 
 
         # SUCCESSFUL

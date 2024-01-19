@@ -241,7 +241,7 @@ function highlightTarget(targetdiv) {
                 {% endif %}
                 
                 <div id="content-block-content">
-                    {% if not wishlist.works.all.0 %}
+                    {% if not wishlist.works.first %}
                         {% ifequal request.user supporter %}
                         <div class="empty-wishlist">
                         
