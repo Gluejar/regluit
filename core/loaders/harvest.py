@@ -881,8 +881,13 @@ def harvest_calgary(ebook):
 
 
 def harvest_muse(ebook):
+    def selector(doc):
+        return doc.select('a.btn_download_full[href]')
     def chap_selector(doc):
         return doc.find_all('a', href=re.compile(r'/chapter/\d+/pdf'))
+    harvested, made = harvest_multiple_generic(ebook, selector)
+    if harvested:
+        return harvested, made
     return harvest_stapled_generic(ebook, None, chap_selector, strip_covers=1)
 
 
