@@ -225,6 +225,7 @@ def harvesters(ebook):
     yield ebook.provider == 'editorialbonaventuriana.usb.edu.co', harvest_editorialbonaventuriana
     yield ebook.provider == 'verlag.gta.arch.ethz.ch', harvest_gta
     yield ebook.provider == 'manchesteruniversitypress.co.uk', harvest_manu
+    yield ebook.provider == 'tectum-elibrary.de', harvest_tecnum
 
 
 def ebf_if_harvested(url):
@@ -527,13 +528,13 @@ def harvest_degruyter(ebook):
         harvested = None
 
         # check for epub
-        obj = doc.select_one('a.downloadEpub')
+        obj = doc.select_one('a.ga_download_dropdown_epub_book')
         if obj:
             dl_url = urljoin(base, obj['href'])
             harvested, made = make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
 
         # check for pdf
-        obj = doc.select_one('a.downloadPdf')
+        obj = doc.select_one('a.downloadCompletePdfBook')
         if obj:
             dl_url = urljoin(base, obj['href'])
             harvested, madepdf = make_dl_ebook(dl_url, ebook, user_agent=settings.GOOGLEBOT_UA)
@@ -991,6 +992,13 @@ def harvest_edpsciences(ebook):
 def harvest_waxmann(ebook):
     if ebook.url.startswith('https://www.waxmann.com/buch'):
         return make_dl_ebook(ebook.url.replace('buch', 'index.php?eID=download&buchnr='), ebook)
+    return None, 0
+
+
+def harvest_tecnum(ebook):
+    if ebook.url.startswith('https://doi.org/10.5771/'):
+        url = 'https://www.tectum-elibrary.de/10.5771/' + ebook.url[24:] + '-I.pdf'
+        return make_dl_ebook(url, ebook)
     return None, 0
 
 
