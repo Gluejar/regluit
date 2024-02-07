@@ -149,6 +149,7 @@ MANUAL_HARVEST = [
 
 def harvesters(ebook):
     yield ebook.provider == 'OAPEN Library', harvest_oapen
+    yield ebook.provider == 'SciELO', harvest_scielo
     yield ebook.provider in GOOD_PROVIDERS, harvest_generic
     yield ebook.provider in MANUAL_HARVEST, harvest_manual
     yield 'dropbox.com/s/' in ebook.url, harvest_dropbox
@@ -295,6 +296,8 @@ def redirect_ebook(ebook):
             ebook.set_provider()
             ebook.save()
             return ebook, 1
+        return ebook, 0
+            
     logger.error("status code %s for %s", r.status_code, ebook.url)
     return ebook, -3
 
@@ -418,10 +421,10 @@ def harvest_one_generic(ebook, selector, user_agent=settings.USER_AGENT):
     return None, 0
 
 
-def harvest_multiple_generic(ebook, selector, dl=lambda x:x):
+def harvest_multiple_generic(ebook, selector, dl=lambda x:x, user_agent=settings.USER_AGENT):
     num = 0
     harvested = None
-    doc = get_soup(ebook.url, follow_redirects=True)
+    doc = get_soup(ebook.url, follow_redirects=True, user_agent=user_agent)
     if doc:
         found = []
         try:
@@ -692,23 +695,20 @@ def harvest_frontiersin(ebook):
     return harvested, num
 
 
-SPRINGERDL = re.compile(r'(EPUB|PDF)')
+def harvest_scielo(ebook):
+    def selector(doc):
+        return doc.select('a.pdf_file,a.epub_file')
+    if ebook.url.startswith('http;'):
+        ebook, status = redirect_ebook(ebook)
+        if status < 0:
+            return None, 0
+    return harvest_multiple_generic(ebook, selector)
+
 
 def harvest_springerlink(ebook):
     def selector(doc):
-        return doc.find_all('a', title=SPRINGERDL)
-    if ebook.provider == "springer.com":
-        doc = get_soup(ebook.url)
-        if  doc:
-            obj = doc.select_one(".extra-materials a.btn-secondary[href]")
-            if obj:
-                url = obj['href']
-                if models.Ebook.objects.exclude(id=ebook.id).filter(url=url).exists():
-                    set_bookshop(ebook)
-                    return models.Ebook.objects.filter(url=url)[0], 0
-                ebook.url = url
-                ebook.save()
-    return harvest_multiple_generic(ebook, selector)
+        return doc.select('a[data-book-epub],a[data-book-pdf]')
+    return harvest_multiple_generic(ebook, selector, user_agent=settings.CHROME_UA)
 
 
 EDOCMAN = re.compile('component/edocman/')
@@ -795,10 +795,16 @@ def harvest_cmp(ebook):
             if citation_epub_url:
                 yield {'href': citation_epub_url}
         else:
-            objs = doc.select('.chapters a.cmp_download_link[href]')
-            if (len({obj['href'] for obj in objs})) > 1:
-                return []
-            return doc.select('a.cmp_download_link[href]')
+            found = False
+            for obj in  doc.select('div.entry_details a.cmp_download_link[href]'):
+                found = True
+                yield obj
+            
+            if not found: 
+                objs = doc.select('.chapters a.cmp_download_link[href]')
+                if (len({obj['href'] for obj in objs})) > 1:
+                    return []
+                return doc.select('a.cmp_download_link[href]')
 
     def dl(url):
         return url.replace('view', 'download') + '?inline=1'
