@@ -149,6 +149,7 @@ MANUAL_HARVEST = [
 
 def harvesters(ebook):
     yield ebook.provider == 'OAPEN Library', harvest_oapen
+    yield ebook.provider == 'SciELO', harvest_scielo
     yield ebook.provider in GOOD_PROVIDERS, harvest_generic
     yield ebook.provider in MANUAL_HARVEST, harvest_manual
     yield 'dropbox.com/s/' in ebook.url, harvest_dropbox
@@ -295,6 +296,8 @@ def redirect_ebook(ebook):
             ebook.set_provider()
             ebook.save()
             return ebook, 1
+        return ebook, 0
+            
     logger.error("status code %s for %s", r.status_code, ebook.url)
     return ebook, -3
 
@@ -690,6 +693,16 @@ def harvest_frontiersin(ebook):
     if num == 0:
         logger.warning('couldn\'t get any dl_url for %s', ebook.url)
     return harvested, num
+
+
+def harvest_scielo(ebook):
+    def selector(doc):
+        return doc.select('a.pdf_file,a.epub_file')
+    if ebook.url.startswith('http;'):
+        ebook, status = redirect_ebook(ebook)
+        if status < 0:
+            return None, 0
+    return harvest_multiple_generic(ebook, selector)
 
 
 def harvest_springerlink(ebook):
