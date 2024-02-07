@@ -795,10 +795,16 @@ def harvest_cmp(ebook):
             if citation_epub_url:
                 yield {'href': citation_epub_url}
         else:
-            objs = doc.select('.chapters a.cmp_download_link[href]')
-            if (len({obj['href'] for obj in objs})) > 1:
-                return []
-            return doc.select('a.cmp_download_link[href]')
+            found = False
+            for obj in  doc.select('div.entry_details a.cmp_download_link[href]'):
+                found = True
+                yield obj
+            
+            if not found: 
+                objs = doc.select('.chapters a.cmp_download_link[href]')
+                if (len({obj['href'] for obj in objs})) > 1:
+                    return []
+                return doc.select('a.cmp_download_link[href]')
 
     def dl(url):
         return url.replace('view', 'download') + '?inline=1'
