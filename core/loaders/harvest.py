@@ -357,7 +357,7 @@ def is_bookshop_url(url):
 def harvest_generic(ebook):
     if is_bookshop_url(ebook.url):
         return set_bookshop(ebook)
-    return make_dl_ebook(ebook.url, ebook)
+    return make_dl_ebook(ebook.url, ebook, user_agent=settings.USER_AGENT)
 
 
 def harvest_manual(ebook):
@@ -985,8 +985,8 @@ def harvest_edp(ebook):
     def selector(doc):
         return doc.select_one('a.fulldl[href]')
     if ebook.url.endswith('.pdf'):
-        return harvest_generic(ebook)
-    return harvest_one_generic(ebook, selector)
+        return harvest_generic(ebook, user_agent=settings.CHROME_UA)
+    return harvest_one_generic(ebook, selector, user_agent=settings.CHROME_UA)
 
 
 def harvest_edpsciences(ebook):
