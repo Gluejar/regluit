@@ -354,10 +354,10 @@ def is_bookshop_url(url):
     return False
 
 
-def harvest_generic(ebook):
+def harvest_generic(ebook, user_agent=settings.USER_AGENT):
     if is_bookshop_url(ebook.url):
         return set_bookshop(ebook)
-    return make_dl_ebook(ebook.url, ebook, user_agent=settings.USER_AGENT)
+    return make_dl_ebook(ebook.url, ebook, user_agent=user_agent)
 
 
 def harvest_manual(ebook):
