@@ -527,7 +527,7 @@ def thingisbn(isbn):
     which come back as isbn_13')
     """
     logger.info(u"looking up %s at ThingISBN", isbn)
-    url = "https://www.librarything.com/api/thingISBN/%s" % isbn
+    url = f"https://www.librarything.com/api/{settings.LIBRARYTHING_KEY}/thingISBN/{isbn}"
     xml = requests.get(url, headers={"User-Agent": settings.USER_AGENT}).content
     try:
         doc = ElementTree.fromstring(xml)

@@ -118,6 +118,7 @@ CMPPROVIDERS = [
     'editorial.inudi.edu.pe',
     'editorial.ucatolicaluisamigo.edu.co',
     'editorial.uniagustiniana.edu.co',
+    'editorialgrupo-aea.com',
     'fcjp.derecho.unap.edu.pe',
     'fedoabooks.unina.it',
     'humanities-digital-library.org',
@@ -127,6 +128,7 @@ CMPPROVIDERS = [
     'Scholars Portal',
     'monographs.uc.pt',
     'omp.ub.rub.de',
+    'openuctpress.uct.ac.za',
     'omp.zrc-sazu.si',
     'openpress.mtsu.edu',
     'teiresias-supplements.mcgill.ca',
@@ -179,6 +181,7 @@ def harvesters(ebook):
     yield ebook.provider == 'press.ucalgary.ca', harvest_calgary
     yield ebook.provider in ['Ledizioni', 'bibsciences.org',
                              'heiup.uni-heidelberg.de', 'e-archivo.uc3m.es'], harvest_generic
+    yield ebook.provider in ['funlam.edu.co'], harvest_generic_chrome
     yield ebook.provider == 'muse.jhu.edu', harvest_muse
     yield ebook.provider == 'direct.mit.edu', harvest_mitpress
     yield ebook.provider == 'IOS Press Ebooks', harvest_ios
@@ -291,7 +294,9 @@ def redirect_ebook(ebook):
     elif r.status_code == 200:
         if ebook.url != r.url:
             if models.Ebook.objects.exclude(id=ebook.id).filter(url=r.url).exists():
-                return models.Ebook.objects.filter(url=r.url)[0], 0
+                existing = models.Ebook.objects.filter(url=r.url)[0]
+                logger.error(f'ebook {ebook.id} redirects to existing {existing.id}')
+                return existing, 0
             ebook.url = r.url
             ebook.set_provider()
             ebook.save()
@@ -358,6 +363,9 @@ def harvest_generic(ebook, user_agent=settings.USER_AGENT):
     if is_bookshop_url(ebook.url):
         return set_bookshop(ebook)
     return make_dl_ebook(ebook.url, ebook, user_agent=user_agent)
+
+def harvest_generic_chrome(ebook, ):
+    return make_dl_ebook(ebook.url, ebook, user_agent=settings.CHROME_UA)
 
 
 def harvest_manual(ebook):
@@ -520,7 +528,6 @@ def harvest_degruyter(ebook):
     ebook, status = redirect_ebook(ebook)
     if status < 1:
         return None, -1 if status < 0 else 0
-
     doc = get_soup(ebook.url, settings.GOOGLEBOT_UA)
     if doc:
         try:

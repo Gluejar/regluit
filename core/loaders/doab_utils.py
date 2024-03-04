@@ -56,7 +56,6 @@ doab_reader = MetadataReader(
         'doc': 'http://www.lyncode.com/xoai'
     }
 )
-
 STOREPROVIDERS = [
     '7switch.com',
     'amazon.ca',
@@ -67,6 +66,7 @@ STOREPROVIDERS = [
     'apress.com',
     'bloomsbury.com',
     'bod.de',
+    'booksdirect.co.za',
     'cabi.org',
     'cdcshoppingcart.uchicago.edu',
     'checkout.sas.ac.uk',
@@ -76,11 +76,13 @@ STOREPROVIDERS = [
     'edicions.ub.edu',
     'epubli.de',
     'eurekaselect.com',
+    'fondazionecafoscari.storeden.com',
     'global.oup.com',
     'iospress.nl',
     'karolinum.cz',
     'librumstore.com',
     'logos-verlag.de',
+    'manchesteruniversitypress.co.uk',
     'mitpress.mit.edu',
     'munishop.muni.cz',
     'nomos-shop.de',

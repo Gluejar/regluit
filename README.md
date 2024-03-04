@@ -127,4 +127,12 @@ MARC Records
     * if you have records with both DIRECT and UNGLUE links, you'll need two MARCRecord instances
     * if you have both kinds of link, put them in _separate_ records, as marc_format can only take one value
 
+MySQL Migration
+---------------
+
+## 5.7 - 8.0 Notes
+
+* Many migration blockers were removed by by dumping, then restoring the database.
+* After that, RDS was able to migrate
+* needed to create the unglueit user from the mysql client
 
