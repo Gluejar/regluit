@@ -124,6 +124,7 @@ CMPPROVIDERS = [
     'humanities-digital-library.org',
     'idicap.com',
     'libri.unimi.it',
+    'libros.unad.edu.co',
     'llibres.urv.cat',
     'Scholars Portal',
     'monographs.uc.pt',
