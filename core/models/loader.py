@@ -2,7 +2,7 @@ import logging
 import re
 import requests
 import time
-from urllib.parse import urlparse
+from urllib.parse import quote, unquote, urlparse, urlsplit, urlunsplit
 
 from django.apps import apps
 from django.conf import settings
@@ -73,16 +73,41 @@ class ContentTyper(object):
         self.last_call = dict()
 
     def content_type(self, url):
+        def handle_ude(url, ude):
+            # fallback for non-ascii, non-utf8 bytes in redirect location
+            (scheme, netloc, path, query, fragment) = urlsplit(url)
+            newpath = quote(unquote(path), encoding='latin1')
+            url = urlunsplit((scheme, netloc, newpath, query, fragment))
+            try:
+                r = requests.get(url, allow_redirects=True)
+            except:
+                logger.error('Error processing %s after unicode error', url)
+                return '', ''
         try:
-            r = requests.head(url, allow_redirects=True)
-            if r.status_code == 405:
-                r =  requests.get(url)
-            elif r.status_code == 404:
-                logger.error('File not found (404) for %s', url)
-                return '404', ''
-            return r.headers.get('content-type', ''), r.headers.get('content-disposition', '')
+            try:
+                r = requests.head(url, allow_redirects=True)
+                if r.status_code == 405:
+                    try:
+                        r =  requests.get(url)
+                    except UnicodeDecodeError as ude:
+                        if 'utf-8' in str(ude):
+                            return handle_ude(url, ude)
+            except UnicodeDecodeError as ude:
+                if 'utf-8' in str(ude):
+                    return handle_ude(url, ude)
+        except requests.exceptions.SSLError:
+            try:
+                r = requests.get(url, verify=False)
+            except:
+                logger.error('Error processing %s verification off', url)
+                return '', ''
         except:
+            logger.error('Error processing %s', url)
             return '', ''
+        if r.status_code == 404:
+            logger.error('File not found (404) for %s', url)
+            return '404', ''
+        return r.headers.get('content-type', ''), r.headers.get('content-disposition', '')
 
     def calc_type(self, url):
         logger.info(url)
