@@ -333,7 +333,7 @@ LOGIN_REDIRECT_URL = "/"
 LOGOUT_URL = "/accounts/logout/"
 LOGIN_ERROR_URL    = '/accounts/login-error/'
 
-USER_AGENT = "unglue.it.bot v0.0.1 <https://unglue.it>"
+USER_AGENT = "unglue.it.bot v0.0.1 (https://unglue.it)"
 
 # The amount of the transaction that Gluejar takes 
 GLUEJAR_COMMISSION = 0.06

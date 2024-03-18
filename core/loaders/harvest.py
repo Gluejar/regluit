@@ -5,7 +5,7 @@ import json
 import logging
 import re
 import time
-from urllib.parse import urljoin, quote
+from urllib.parse import quote, unquote, urljoin, urlparse, urlsplit, urlunsplit
 
 import requests
 
@@ -405,6 +405,10 @@ def harvest_oapen(ebook):
     if is_bookshop_url(ebook.url):
         return set_bookshop(ebook)
     if '/bitstream/' in ebook.url:
+        if "%" in ebook.url:
+            (scheme, netloc, path, query, fragment) = urlsplit(ebook.url)
+            newpath = quote(unquote(path), encoding='latin1')
+            ebook.url = urlunsplit((scheme, netloc, newpath, query, fragment))
         return make_dl_ebook(ebook.url, ebook, user_agent=settings.USER_AGENT)
     return None, 0
 
