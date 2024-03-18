@@ -70,7 +70,10 @@ def type_for_url(url, content_type=None, force=False, disposition=''):
 def requote(url):
     # fallback for non-ascii, non-utf8 bytes in redirect location
     (scheme, netloc, path, query, fragment) = urlsplit(url)
-    newpath = quote(unquote(path), encoding='latin1')
+    try:
+        newpath = quote(unquote(path), encoding='latin1')
+    except UnicodeEncodeError as uee:
+        return ''
     return urlunsplit((scheme, netloc, newpath, query, fragment))
     
 class ContentTyper(object):
