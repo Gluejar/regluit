@@ -67,6 +67,12 @@ def type_for_url(url, content_type=None, force=False, disposition=''):
 
     return "other"
 
+def requote(url):
+    # fallback for non-ascii, non-utf8 bytes in redirect location
+    (scheme, netloc, path, query, fragment) = urlsplit(url)
+    newpath = quote(unquote(path), encoding='latin1')
+    return urlunsplit((scheme, netloc, newpath, query, fragment))
+    
 class ContentTyper(object):
     """ """
     def __init__(self):
@@ -74,10 +80,7 @@ class ContentTyper(object):
 
     def content_type(self, url):
         def handle_ude(url, ude):
-            # fallback for non-ascii, non-utf8 bytes in redirect location
-            (scheme, netloc, path, query, fragment) = urlsplit(url)
-            newpath = quote(unquote(path), encoding='latin1')
-            url = urlunsplit((scheme, netloc, newpath, query, fragment))
+            url = requote(url)
             try:
                 r = requests.get(url, allow_redirects=True)
             except:
@@ -151,7 +154,11 @@ def load_ebookfile(url, format, user_agent=settings.USER_AGENT, method='GET', ve
         return None, ''
     except UnicodeDecodeError as e:
         logger.error('decoding error for %s', url)
-        return None, ''
+        url = requote(url)
+        try:
+            response = requests.get(url, headers={"User-Agent": user_agent}, verify=verify)
+        except:
+            return None, ''
 
     if response.status_code == 200:
         logger.debug(response.headers.get('content-type', ''))
