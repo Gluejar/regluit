@@ -31,7 +31,10 @@ class TestLibraryAuth(TestCase):
                                 data={'username': 'bob',
                                       'email': 'bob@example.com',
                                       'password1': 'secret',
-                                      'password2': 'secret'})
+                                      'password2': 'secret',
+                                      'notarobot': '11',
+                                      'tries': '11',
+                                      })
         self.assertRedirects(resp, reverse('registration_complete'))
 
         new_user = User.objects.get(username='bob')

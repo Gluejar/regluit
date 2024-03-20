@@ -317,7 +317,11 @@ class CustomRegistrationView(RegistrationView):
             logger.info('special login from %s' % self.request.META['REMOTE_ADDR'])
             return self.pretend_success()
         try:
-            return super(CustomRegistrationView, self).form_valid(form)
+            if form.cleaned_data['password1']:
+                return super(CustomRegistrationView, self).form_valid(form)
+            else:
+                # it's just the user and password
+                return self.render_to_response({'form':form})
         except IntegrityError:
             # probably rapid double click
             return self.pretend_success()

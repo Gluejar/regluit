@@ -42,14 +42,31 @@ class UserNamePass(UserData):
         help_text=_("Enter the same password as above, for verification.")
     )
     allow_same = True
+    notarobot = forms.IntegerField(
+        label="Please show you're not a robot.",
+        error_messages={
+            'required': "",
+        },   
+        widget=forms.TextInput(attrs={'style': 'width: 2em'}),
+    )
+
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1", "")
         password2 = self.cleaned_data["password2"]
         if password1 != password2:
             raise forms.ValidationError(_("The two passwords don't match."))
+
         return password2
 
-class RegistrationFormNoDisposableEmail(RegistrationFormUniqueEmail):
+    def clean_notarobot(self):
+        notarobot = str(self.data["notarobot"])
+        tries = str(self.data.get("tries", 'zzz'))
+        if notarobot != tries:
+            raise forms.ValidationError("(Hint: it's addition)")
+
+        return notarobot
+
+class RegistrationFormNoDisposableEmail(RegistrationFormUniqueEmail, UserNamePass):
     def clean_email(self):
         """
         Check the supplied email address against a list of known disposable
