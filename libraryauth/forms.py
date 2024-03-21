@@ -1,8 +1,11 @@
 import logging
+from random import randint
+
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -29,6 +32,19 @@ from .emailcheck import is_disposable
 from .models import Library
 
 logger = logging.getLogger(__name__)
+
+rands = [randint(0,99) for i in range(0, 21)]
+encoder = {k:v for (k,v) in zip(range(0, 21), rands)}
+decoder = {v:k for (k,v) in zip(range(0, 21), rands)}
+
+encode_answers = cache.get('encode_answers')
+decode_answers = cache.get('decode_answers')
+if not encode_answers:
+    cache.set('encode_answers', encoder, None)
+if not decode_answers:
+    cache.set('decode_answers', decoder, None)
+    decode_answers = decoder
+
 
 class UserData(forms.Form):
     username = forms.RegexField(
@@ -69,6 +85,7 @@ class UserNamePass(UserData):
         },   
         widget=forms.TextInput(attrs={'style': 'width: 2em'}),
     )
+    encode_answers = cache.get('encode_answers')
 
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1", "")
@@ -79,9 +96,10 @@ class UserNamePass(UserData):
         return password2
 
     def clean_notarobot(self):
-        notarobot = str(self.data["notarobot"])
-        tries = str(self.data.get("tries", 'zzz'))
-        if notarobot != tries:
+        notarobot = int(self.data["notarobot"])
+        encoded_answer = self.encode_answers.get(notarobot, 'miss')
+        tries = self.data.get("tries", -1)
+        if str(encoded_answer) != tries:
             raise forms.ValidationError("(Hint: it's addition)")
 
         return notarobot
