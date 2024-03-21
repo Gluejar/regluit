@@ -1,4 +1,5 @@
 {% extends "registration/registration_base.html" %}
+{% load puzzle %}
 
 {% block title %}Register for an account{% endblock %}
 {% block extra_js %}
@@ -11,6 +12,7 @@ function put_un_in_cookie(){
 </script>
 {% endblock %}
 {% block doccontent %}
+{% puzz %}
 {% if not user.is_authenticated %}
 
 <h3>Sign up for a Unglue.it account:</h3>
@@ -20,6 +22,11 @@ function put_un_in_cookie(){
         <div>{{ form.email.label }}: {{ form.email.errors }}<br />{{ form.email }}</div>
         <div>{{ form.password1.label }}: {{ form.password1.errors }}<br />{{ form.password1 }}</div>
         <div>{{ form.password2.label }}: {{ form.password2.errors }}<br />{{ form.password2 }}</div>
+		
+		{{ form.notarobot.label }}{{ form.notarobot.errors }}: {{puzznum1}} + {{puzznum2}} =
+		{{ form.notarobot }}</br />
+		{{ form.non_field_errors }}<br />
+		<input type="hidden" name="tries" value="{{ puzzans }}" />
         <input type="submit" value="Send activation email"  onclick="this.disabled=true,this.form.submit();" />
     </form>
 

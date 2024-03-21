@@ -1,14 +1,50 @@
 import logging
+from random import randint
+
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.utils.translation import ugettext_lazy as _
+
+
+# hack to fix bug in old version of django-registration
+from registration.validators import CONFUSABLE_EMAIL
+from confusable_homoglyphs import confusables
+def validate_confusables_email(value):
+    if '@' not in value:
+        return
+    parts = value.split('@')
+    if len(parts) != 2:
+        raise forms.ValidationError(CONFUSABLE_EMAIL, code='invalid')
+    local_part, domain = value.split('@')
+    if confusables.is_dangerous(local_part) or \
+       confusables.is_dangerous(domain):
+        raise forms.ValidationError(CONFUSABLE_EMAIL, code='invalid')
+
+import registration
+registration.validators.validate_confusables_email = validate_confusables_email
+# end hack
+
 from registration.forms import RegistrationFormUniqueEmail
 from .emailcheck import is_disposable
 from .models import Library
 
 logger = logging.getLogger(__name__)
+
+rands = [randint(0,99) for i in range(0, 21)]
+encoder = {k:v for (k,v) in zip(range(0, 21), rands)}
+decoder = {v:k for (k,v) in zip(range(0, 21), rands)}
+
+encode_answers = cache.get('encode_answers')
+decode_answers = cache.get('decode_answers')
+if not encode_answers:
+    cache.set('encode_answers', encoder, None)
+if not decode_answers:
+    cache.set('decode_answers', decoder, None)
+    decode_answers = decoder
+
 
 class UserData(forms.Form):
     username = forms.RegexField(
@@ -42,14 +78,33 @@ class UserNamePass(UserData):
         help_text=_("Enter the same password as above, for verification.")
     )
     allow_same = True
+    notarobot = forms.IntegerField(
+        label="Please show you're not a robot.",
+        error_messages={
+            'required': "",
+        },   
+        widget=forms.TextInput(attrs={'style': 'width: 2em'}),
+    )
+    encode_answers = cache.get('encode_answers')
+
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1", "")
         password2 = self.cleaned_data["password2"]
         if password1 != password2:
             raise forms.ValidationError(_("The two passwords don't match."))
+
         return password2
 
-class RegistrationFormNoDisposableEmail(RegistrationFormUniqueEmail):
+    def clean_notarobot(self):
+        notarobot = int(self.data["notarobot"])
+        encoded_answer = self.encode_answers.get(notarobot, 'miss')
+        tries = self.data.get("tries", -1)
+        if str(encoded_answer) != tries:
+            raise forms.ValidationError("(Hint: it's addition)")
+
+        return notarobot
+
+class RegistrationFormNoDisposableEmail(RegistrationFormUniqueEmail, UserNamePass):
     def clean_email(self):
         """
         Check the supplied email address against a list of known disposable

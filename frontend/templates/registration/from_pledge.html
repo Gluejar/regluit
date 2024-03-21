@@ -1,6 +1,7 @@
 {% extends "registration/registration_base.html" %}
 
 {% load humanize %}
+{% load puzzle %}
 
 {% block title %}Pledge Step 1: Login or Create an Account{% endblock %}
 
@@ -32,7 +33,8 @@ function put_un_in_cookie(){
 </script>
 {% endblock %}
 
-{% block content %}   
+{% block content %}
+{% puzz %}  
 <div class="jsmodule rounded clearfix widecolumn">
     {% block login_pitch %}<h3>You'll need an account, since we won't charge your card unless the campaign succeeds!</h3>{% endblock %}
         <div class="halfcolumn2 login_box">
@@ -54,6 +56,11 @@ function put_un_in_cookie(){
                 <div class="password">
                 <label>Password (again):</label>
                 <input id="id_password2_main" type="password" class="required" name="password2" size="30" />
+                </div>
+                <div>
+                {{puzznum1}} + {{puzznum2}} =
+		<input type="text" name="notarobot" style="width: 2em" required="" id="id_notarobot">
+		<input type="hidden" name="tries" value="{{ puzzans }}" />
                 </div>
                 <div class="button">
                     <input type="submit" class="signup" value="Sign Up"  onclick="this.disabled=true,this.form.submit();" />
