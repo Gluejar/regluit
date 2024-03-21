@@ -1,6 +1,8 @@
 from django.urls import reverse
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.core.cache import cache
+
 
 class TestLibraryAuth(TestCase):
     fixtures = ['initial_data.json']
@@ -27,13 +29,14 @@ class TestLibraryAuth(TestCase):
         sends an activation email.
 
         """
+        encode_answers = cache.get('encode_answers')
         resp = self.client.post(reverse('registration_register'),
                                 data={'username': 'bob',
                                       'email': 'bob@example.com',
                                       'password1': 'secret',
                                       'password2': 'secret',
                                       'notarobot': '11',
-                                      'tries': '11',
+                                      'tries': str(encode_answers.get(11)),
                                       })
         self.assertRedirects(resp, reverse('registration_complete'))
 
