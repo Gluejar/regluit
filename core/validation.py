@@ -7,7 +7,7 @@ import datetime
 import logging
 
 from dateutil.parser import parse
-from PyPDF2 import PdfFileReader
+from pypdf import PdfReader
 
 from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _
@@ -114,7 +114,7 @@ def test_file(the_file, fformat):
                 raise ValidationError(_('Are you sure this is an EPUB file?: %s' % e))
         elif fformat == 'pdf':
             try:
-                PdfFileReader(the_file.file)
+                PdfReader(the_file.file)
             except Exception as e:
                 logger.exception(e)
                 raise ValidationError(_('%s is not a valid PDF file' % the_file.name))
