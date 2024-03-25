@@ -7,9 +7,9 @@ from tempfile import NamedTemporaryFile
 
 import requests
 from xhtml2pdf import pisa             # import python module
-from PyPDF2 import PdfFileMerger, PdfFileReader
-from PyPDF2.utils import PdfReadError
-from PyPDF2.pagerange import PageRange
+from pypdf import PdfMerger, PdfReader
+from pypdf.errors import PdfReadError
+from pypdf import PageRange
 from django.template.loader import render_to_string
 from django.conf import settings
 
@@ -31,7 +31,7 @@ def ask_pdf(context={}):
     return resultFile
 
 def pdf_append(file1, file2, file_out):
-    merger = PdfFileMerger(strict=False)
+    merger = PdfMerger(strict=False)
     merger.append(file1)
     merger.append(file2)
     merger.write(file_out)
@@ -53,7 +53,7 @@ def test_pdf(pdf_file):
             pdf_file.seek(0)
             temp = pdf_file
         try:
-            PdfFileReader(temp)
+            PdfReader(temp)
             success = True
         except:
             success = False
@@ -66,7 +66,7 @@ def test_pdf(pdf_file):
 def staple_pdf(urllist, user_agent=settings.USER_AGENT, strip_covers=0):
     pages = None
     all_but_cover = PageRange('%s:' % int(strip_covers))
-    merger = PdfFileMerger(strict=False)
+    merger = PdfMerger(strict=False)
     s = requests.Session()
     for url in urllist:
         try:
