@@ -675,7 +675,7 @@ def despam_description(description):
 def add_openlibrary(work, hard_refresh=False):
     if (not hard_refresh) and work.openlibrary_lookup is not None:
         # don't hit OL if we've visited in the past month or so
-        if now()- work.openlibrary_lookup < timedelta(days=30):
+        if now()- work.openlibrary_lookup < timedelta(days=90):
             return
     work.openlibrary_lookup = now()
     work.save()
@@ -690,7 +690,7 @@ def add_openlibrary(work, hard_refresh=False):
     url = "https://openlibrary.org/api/books"
     params = {"format": "json", "jscmd": "details"}
     subjects = []
-    for edition in work.editions.all():
+    for edition in work.editions.all()[:10]:
         isbn_key = "ISBN:%s" % edition.isbn_13
         params['bibkeys'] = isbn_key
         try:

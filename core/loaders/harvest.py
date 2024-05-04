@@ -114,6 +114,7 @@ def clean_archive(ebf):
 CMPPROVIDERS = [
     'books.open.tudelft.nl',
     'ebooks.epublishing.ekt.gr',
+    'ebooks.marilia.unesp.br',
     'ebooks.uminho.pt',
     'editorial.inudi.edu.pe',
     'editorial.ucatolicaluisamigo.edu.co',
@@ -297,6 +298,8 @@ def redirect_ebook(ebook):
             if models.Ebook.objects.exclude(id=ebook.id).filter(url=r.url).exists():
                 existing = models.Ebook.objects.filter(url=r.url)[0]
                 logger.error(f'ebook {ebook.id} redirects to existing {existing.id}')
+                ebook.format='redirect'
+                ebook.save()
                 return existing, 0
             ebook.url = r.url
             ebook.set_provider()
@@ -818,6 +821,10 @@ def harvest_cmp(ebook):
         return url.replace('view', 'download') + '?inline=1'
 
     verify = ebook.provider not in BAD_CERTS
+    if 'doi.org' in ebook.url:
+        ebook, status = redirect_ebook(ebook)
+        if status < 0:
+            return None, 0
     if '/view/' in ebook.url:
         return make_dl_ebook(dl(ebook.url), ebook, verify=verify)
 

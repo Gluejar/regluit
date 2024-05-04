@@ -2204,23 +2204,10 @@ def work_librarything(request, work_id):
 
 def work_openlibrary(request, work_id):
     work = safe_get_work(work_id)
-    isbns = ["ISBN:" + i.value for i in work.identifiers.filter(type='isbn')]
     url = None
 
     if work.openlibrary_id:
         url = work.openlibrary_url
-    elif len(isbns) > 0:
-        isbns = ",".join(isbns)
-        u = 'https://openlibrary.org/api/books?bibkeys=%s&jscmd=data&format=json' % isbns
-        try:
-            j = json.loads(requests.get(u).content)
-            # as long as there were some matches get the first one and route to it
-            for first in j.keys():
-                url = "https://openlibrary.org" + j[first]['key']
-                break
-        except ValueError:
-            # fail at openlibrary
-            logger.warning("failed to get OpenLibrary json at %s" % u)
     # fall back to doing a search on openlibrary
     if not url:
         q = urlencode({'q': work.title + " " + work.author()})
