@@ -126,13 +126,16 @@ CMPPROVIDERS = [
     'idicap.com',
     'libri.unimi.it',
     'libros.unad.edu.co',
+    'libros.usc.edu.co',
     'llibres.urv.cat',
-    'Scholars Portal',
+    'monografias.editorial.upv.es',
     'monographs.uc.pt',
     'omp.ub.rub.de',
     'openuctpress.uct.ac.za',
     'omp.zrc-sazu.si',
     'openpress.mtsu.edu',
+    'omp.ub.rub.de',
+    'Scholars Portal',
     'teiresias-supplements.mcgill.ca',
     'textbooks.open.tudelft.nl',
 ]
@@ -232,6 +235,7 @@ def harvesters(ebook):
     yield ebook.provider == 'verlag.gta.arch.ethz.ch', harvest_gta
     yield ebook.provider == 'manchesteruniversitypress.co.uk', harvest_manu
     yield ebook.provider == 'tectum-elibrary.de', harvest_tecnum
+    yield ebook.provider == 'unicapress.unica.it', harvest_unicapress
 
 
 def ebf_if_harvested(url):
@@ -271,7 +275,7 @@ def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET',  ver
     return None, 0
 
 
-def redirect_ebook(ebook):
+def redirect_ebook(ebook, verify=True):
     """ returns an ebook and status :
         -3 : bad return code or problem
         -1 : deleted
@@ -281,9 +285,9 @@ def redirect_ebook(ebook):
 
     """
     try:
-        r = requests.head(ebook.url, allow_redirects=True)
+        r = requests.head(ebook.url, allow_redirects=True, verify=verify)
     except requests.exceptions.ConnectionError as e:
-        logger.error("Connection refused for %s", url)
+        logger.error("Connection refused for %s", ebook.url)
         logger.error(e)
         return ebook, -3
 
@@ -433,10 +437,11 @@ def harvest_one_generic(ebook, selector, user_agent=settings.USER_AGENT):
     return None, 0
 
 
-def harvest_multiple_generic(ebook, selector, dl=lambda x:x, user_agent=settings.USER_AGENT):
+def harvest_multiple_generic(ebook, selector, dl=lambda x:x,
+                             user_agent=settings.USER_AGENT, verify=True):
     num = 0
     harvested = None
-    doc = get_soup(ebook.url, follow_redirects=True, user_agent=user_agent)
+    doc = get_soup(ebook.url, follow_redirects=True, user_agent=user_agent, verify=verify)
     if doc:
         found = []
         try:
@@ -450,7 +455,7 @@ def harvest_multiple_generic(ebook, selector, dl=lambda x:x, user_agent=settings
                 continue
             else:
                 found.append(dl_url)
-            harvested, made = make_dl_ebook(dl_url, ebook)
+            harvested, made = make_dl_ebook(dl_url, ebook, verify=verify)
             num += made
     if num == 0:
         logger.warning('couldn\'t get any dl_url for %s', ebook.url)
@@ -795,7 +800,14 @@ def get_meta(doc, term):
         logger.warning(f'no meta for {term}')
 
 
-BAD_CERTS = {'libri.unimi.it', 'editorial.ucatolicaluisamigo.edu.co', 'openpress.mtsu.edu'}
+BAD_CERTS = {
+    'ebooks.marilia.unesp.br',
+    'editorial.ucatolicaluisamigo.edu.co',
+    'libri.unimi.it',
+    'monografias.editorial.upv.es',
+    'openpress.mtsu.edu',
+}
+
 def harvest_cmp(ebook):
     def selector(doc):
         citation_pdf_url = get_meta(doc, "citation_pdf_url")
@@ -816,19 +828,16 @@ def harvest_cmp(ebook):
                 if (len({obj['href'] for obj in objs})) > 1:
                     return []
                 return doc.select('a.cmp_download_link[href]')
-
+    
     def dl(url):
         return url.replace('view', 'download') + '?inline=1'
 
     verify = ebook.provider not in BAD_CERTS
-    if 'doi.org' in ebook.url:
-        ebook, status = redirect_ebook(ebook)
-        if status < 0:
-            return None, 0
     if '/view/' in ebook.url:
-        return make_dl_ebook(dl(ebook.url), ebook, verify=verify)
-
-    return harvest_multiple_generic(ebook, selector, dl=dl)
+        (ebf, num) = make_dl_ebook(dl(ebook.url), ebook, verify=verify)
+    if num > 0:
+        return (ebf, num)
+    return harvest_multiple_generic(ebook, selector, dl=dl, verify=verify)
 
 
 DSPACEPDF = re.compile(r'/bitstream/.*\.(pdf|epub)')
@@ -1026,6 +1035,13 @@ def harvest_tecnum(ebook):
 def harvest_ojs(ebook):
     def selector(doc):
         return doc.select('#articleFullText a[href]')
+    def dl(url):
+        return url.replace('view', 'download') + '?inline=1'
+    return harvest_multiple_generic(ebook, selector, dl=dl)
+
+def harvest_unicapress(ebook):
+    def selector(doc):
+        return doc.find_all('a', href=re.compile('catalog/view/'))
     def dl(url):
         return url.replace('view', 'download') + '?inline=1'
     return harvest_multiple_generic(ebook, selector, dl=dl)
