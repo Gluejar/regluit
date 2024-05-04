@@ -835,8 +835,8 @@ def harvest_cmp(ebook):
     verify = ebook.provider not in BAD_CERTS
     if '/view/' in ebook.url:
         (ebf, num) = make_dl_ebook(dl(ebook.url), ebook, verify=verify)
-    if num > 0:
-        return (ebf, num)
+        if num > 0:
+            return (ebf, num)
     return harvest_multiple_generic(ebook, selector, dl=dl, verify=verify)
 
 
