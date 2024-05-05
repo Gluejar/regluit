@@ -129,16 +129,29 @@ CMPPROVIDERS = [
     'libros.usc.edu.co',
     'llibres.urv.cat',
     'monografias.editorial.upv.es',
+    'monograph.com.ua',
     'monographs.uc.pt',
     'omp.ub.rub.de',
     'openuctpress.uct.ac.za',
     'omp.zrc-sazu.si',
     'openpress.mtsu.edu',
     'omp.ub.rub.de',
+    'penerbit.brin.go.id',
     'Scholars Portal',
     'teiresias-supplements.mcgill.ca',
     'textbooks.open.tudelft.nl',
+    'unicapress.unica.it',
 ]
+
+DSPACEPROVIDERS = [
+    'acikerisim.kapadokya.edu.tr',
+    'diposit.ub.edu',
+    'orbi.ulg.ac.be',
+    'orbi.uliege.be',
+    'publikationen.uni-tuebingen.de',
+    '',
+]
+
 DONT_HARVEST = [
     'Unglue.it',
     'Github',
@@ -177,8 +190,7 @@ def harvesters(ebook):
     yield 'digitalcommons.usu.edu' in ebook.url, harvest_usu
     yield ebook.provider == 'libros.fahce.unlp.edu.ar', harvest_fahce
     yield ebook.provider in ['digital.library.unt.edu', 'texashistory.unt.edu'], harvest_unt
-    yield ebook.provider in ['diposit.ub.edu', 'orbi.ulg.ac.be', 'orbi.uliege.be',
-                             'acikerisim.kapadokya.edu.tr',], harvest_dspace
+    yield ebook.provider in DSPACEPROVIDERS, harvest_dspace
     yield ebook.provider == 'e-publish.uliege.be', harvest_liege
     yield ebook.provider in CMPPROVIDERS, harvest_cmp
     yield 'mdpi' in ebook.provider.lower(), harvest_mdpi
@@ -235,7 +247,6 @@ def harvesters(ebook):
     yield ebook.provider == 'verlag.gta.arch.ethz.ch', harvest_gta
     yield ebook.provider == 'manchesteruniversitypress.co.uk', harvest_manu
     yield ebook.provider == 'tectum-elibrary.de', harvest_tecnum
-    yield ebook.provider == 'unicapress.unica.it', harvest_unicapress
 
 
 def ebf_if_harvested(url):
@@ -824,7 +835,7 @@ def harvest_cmp(ebook):
                 yield obj
             
             if not found: 
-                objs = doc.select('.chapters a.cmp_download_link[href]')
+                objs = doc.select('.chapters a.cmp_download_link[href], .files a.cmp_download_link[href]')
                 if (len({obj['href'] for obj in objs})) > 1:
                     return []
                 return doc.select('a.cmp_download_link[href]')
@@ -1035,13 +1046,6 @@ def harvest_tecnum(ebook):
 def harvest_ojs(ebook):
     def selector(doc):
         return doc.select('#articleFullText a[href]')
-    def dl(url):
-        return url.replace('view', 'download') + '?inline=1'
-    return harvest_multiple_generic(ebook, selector, dl=dl)
-
-def harvest_unicapress(ebook):
-    def selector(doc):
-        return doc.find_all('a', href=re.compile('catalog/view/'))
     def dl(url):
         return url.replace('view', 'download') + '?inline=1'
     return harvest_multiple_generic(ebook, selector, dl=dl)
