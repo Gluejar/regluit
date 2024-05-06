@@ -1,7 +1,7 @@
 from random import shuffle
 from django.core.management.base import BaseCommand
 
-from regluit.core.loaders.harvest import dl_online, rl
+from regluit.core.loaders.harvest import dl_online, rl, CMPPROVIDERS
 from regluit.core.models import Ebook
 
 class Command(BaseCommand):
@@ -22,7 +22,11 @@ class Command(BaseCommand):
         if options.get('ebook'):
             onlines = Ebook.objects.filter(id=options.get('ebook'))
         elif options.get('provider'):
-            onlines = Ebook.objects.filter(provider=options.get('provider'), format=format)
+            provider = options.get('provider')
+            if provider == 'CMPPROVIDERS':
+                onlines = Ebook.objects.filter(provider__in=CMPPROVIDERS)
+            else:
+                onlines = Ebook.objects.filter(provider=provider, format=format)
             self.stdout.write('%s onlines to check' % onlines.count())
         else:
             online_ids = [ebook.id for ebook in Ebook.objects.filter(format=format)]
