@@ -247,6 +247,8 @@ def harvesters(ebook):
     yield ebook.provider == 'verlag.gta.arch.ethz.ch', harvest_gta
     yield ebook.provider == 'manchesteruniversitypress.co.uk', harvest_manu
     yield ebook.provider == 'tectum-elibrary.de', harvest_tecnum
+    yield ebook.provider == 'benjamins.com', harvest_benjamins
+    yield ebook.provider == 'macau.uni-kiel.de', harvest_citation_meta_generic
 
 
 def ebf_if_harvested(url):
@@ -1454,6 +1456,7 @@ def harvest_sciendo(ebook):
                 logger.error('No links in json for {ebook.url}')
     return harvest_multiple_generic(ebook, selector)
 
+# 2step
 def harvest_liege(ebook):
     def selector(doc):
         urls = []
@@ -1486,4 +1489,28 @@ def harvest_liege(ebook):
 
     return harvest_multiple_generic(ebook, selector)
 
+# 2step
+def harvest_benjamins(ebook):
+    def selector(doc):
+        urls = []
+        page = doc.find('a', href=re.compile(r'jbe-platform.com'))
+        if page:
+            base = page['href']
+            base_doc = get_soup(base, follow_redirects=True)
+            if base_doc:
+                links = base_doc.select('.access-options a[href]')
+                for link in links:
+                    dl_url = urljoin(base, link['href'])
+                    yield {'href': dl_url}
+    return harvest_multiple_generic(ebook, selector)
     
+def harvest_citation_meta_generic(ebook):
+    def selector(doc):
+        citation_pdf_url = get_meta(doc, "citation_pdf_url")
+        citation_epub_url = get_meta(doc, "citation_epub_url")
+        if citation_pdf_url or citation_epub_url:
+            if citation_pdf_url:
+                yield {'href': citation_pdf_url}
+            if citation_epub_url:
+                yield {'href': citation_epub_url}
+    return harvest_multiple_generic(ebook, selector)    
