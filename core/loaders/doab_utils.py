@@ -82,6 +82,7 @@ STOREPROVIDERS = [
     'karolinum.cz',
     'librumstore.com',
     'logos-verlag.de',
+    'universitaetsverlag.uni-kiel.de',
     'manchesteruniversitypress.co.uk',
     'mitpress.mit.edu',
     'munishop.muni.cz',

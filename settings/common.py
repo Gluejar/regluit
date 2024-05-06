@@ -503,7 +503,8 @@ FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520 #20MB
 FIREFOX_PATH = ''
 CHROMEDRIVER_PATH = ''
 GOOGLEBOT_UA = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"
-CHROME_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36'
+CHROME_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.5 Safari/605.1.15'
+
 
 try:
     from .keys.common import *
