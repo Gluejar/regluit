@@ -68,7 +68,6 @@ class BaseFacet(object):
     _stash_others = None
     def get_other_groups(self):
         used = self.facets()
-        print(used)
         if len(used) >= MAX_FACETS:
             # don't show more facets
             return []
