@@ -2,7 +2,7 @@ from django.apps import apps
 from django.contrib.auth.models import User
 from django.db.models import Q
 from regluit.core import cc
-from regluit.core.parameters import ORDER_BY_KEYS
+from regluit.core.parameters import MAX_FACETS, ORDER_BY_KEYS
 
 class BaseFacet(object):
     facet_name = 'all'
@@ -67,10 +67,16 @@ class BaseFacet(object):
     
     _stash_others = None
     def get_other_groups(self):
+        used = self.facets()
+        print(used)
+        if len(used) >= MAX_FACETS:
+            # don't show more facets
+            return []
+
         if self._stash_others != None:
             return self._stash_others
+ 
         others = []
-        used = self.facets()
         for group in facet_groups:
             in_use = False
             for facet in used:
@@ -79,7 +85,7 @@ class BaseFacet(object):
                     break
             if not in_use:
                 others.append(group)
-        self._stash_others=others
+        self._stash_others = others
         return others
 
     @property
@@ -389,7 +395,7 @@ def get_all_facets(group='all'):
 def get_facet_object(facet_path):
     facets = facet_path.replace('//','/').strip('/').split('/')
     facet_object = None
-    for facet in facets:
+    for facet in facets[:MAX_FACETS]:
         facet_object = get_facet(facet)(facet_object)
     return facet_object
 
