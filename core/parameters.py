@@ -107,6 +107,8 @@ ORDER_BY_KEYS = {
     'none':[], #no ordering
 }
 
+MAX_FACETS = 2
+
 DONATION_CHOICES = (
     ('general', 'The FEF General Fund'),
     ('monographs', 'The FEF Open Access Monographs Fund'),
