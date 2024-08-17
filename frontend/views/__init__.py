@@ -1839,7 +1839,7 @@ def search(request):
     start = (page - 1) * 10
     end = page * 10 
 
-    our_stuff =  Q(is_free=True) | Q(campaigns__isnull=False)
+    our_stuff =  Q(is_free=True)
     out = []
     if len(q) > 1 and gbo == '0':
         isbnq = ISBN(q)
@@ -1848,7 +1848,7 @@ def search(request):
         elif ty == 'au':
             work_query =  Q(editions__authors__name=q)
         else:
-            work_query = Q(title__icontains=q) | Q(editions__authors__name__icontains=q) | Q(subjects__name__iexact=q)
+            work_query = Q(title__istartswith=q)
         ug_works = models.Work.objects.filter(our_stuff).filter(work_query).distinct()
         out = ug_works[start:end]
 
