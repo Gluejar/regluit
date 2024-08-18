@@ -1227,7 +1227,8 @@ class Ebook(models.Model):
         return provider
 
     def increment(self):
-        Ebook.objects.filter(id=self.id).update(download_count=F('download_count') +1)
+        #Ebook.objects.filter(id=self.id).update(download_count=F('download_count') +1)
+        logger.info(f'download:\t{self.id}')
 
     @property
     def download_url(self):
