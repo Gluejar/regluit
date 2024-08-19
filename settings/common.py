@@ -198,6 +198,9 @@ LOGGING = {
             '()': 'django.utils.log.ServerFormatter',
             'format': '[%(server_time)s] %(message)s',
         },
+        'dl': {
+            'format': '%(asctime)s : %(message)s',
+        },
     },
     'filters': {
          'require_debug_false': {
@@ -223,6 +226,14 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'django.server',
         },
+        'downloads': {
+            'level': 'INFO',
+            'class': 'logging.handlers.GroupWriteRotatingFileHandler',
+            'filename': join(PROJECT_DIR, 'logs', 'downloads.log'),
+            'maxBytes': 1024*1024*10, # 10 MB
+            'backupCount': 5,
+            'formatter': 'dl',
+        },
     },
     'loggers': {
         'django.request': {
@@ -233,6 +244,10 @@ LOGGING = {
         'django.server': {
             'handlers': ['django.server'],
             'level': 'INFO',
+            'propagate': False,
+        },
+        'regluit.downloads': {
+            'handlers': ['downloads'],
             'propagate': False,
         },
         '': {
