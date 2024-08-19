@@ -57,6 +57,7 @@ from regluit.core.parameters import (
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 logger = logging.getLogger(__name__)
+dllogger = logging.getLogger('regluit.downloads')
 
 def id_for(obj, type):
     if not obj.pk:
@@ -1228,7 +1229,7 @@ class Ebook(models.Model):
 
     def increment(self):
         #Ebook.objects.filter(id=self.id).update(download_count=F('download_count') +1)
-        logger.info(f'download:\t{self.id}')
+        dllogger.info(f'{self.id}')
 
     @property
     def download_url(self):
