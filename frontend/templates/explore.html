@@ -25,8 +25,8 @@
                                             <li><a href="{% url 'faceted_list' 'id/gtbg' %}?order_by=popular">Books in Project Gutenberg</a></li>
                                         {% endif %}
                                         {% for subject in work.subjects.all %}
-                                            {% if subject.is_visible and subject.free_works.1 %}
-                                                <li><a href="{% url 'faceted_list' subject.kw %}"><span>{{ subject }}</span></a></li>
+                                            {% if subject.is_visible and subject.num_free > 1 %}
+                                                <li><a href="{% url 'faceted_list' subject.kw %}"><span>{{ subject }}</span></a> ({{ subject.num_free }})</li>
                                             {% endif %}
                                         {% endfor %}
                                     </ul>
