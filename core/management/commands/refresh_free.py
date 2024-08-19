@@ -14,4 +14,6 @@ class Command(BaseCommand):
         for free in qs.filter(is_free=False):
             self.stdout.write('freeing %s' % free.title)
             free.is_free = True
+            for subject in free.subjects.all():
+                subject.count_free()
             free.save()

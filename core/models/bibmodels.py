@@ -21,7 +21,7 @@ from django.core.files.base import ContentFile
 from django.urls import reverse
 from django.db import models
 from django.db.models import F
-from django.db.models.signals import post_save, pre_delete
+from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.utils.timezone import now
 
 from django_comments.models import Comment
@@ -794,6 +794,7 @@ class Subject(models.Model):
     works = models.ManyToManyField("Work", related_name="subjects")
     is_visible = models.BooleanField(default=True)
     authority = models.CharField(max_length=10, blank=False, default="")
+    num_free = models.IntegerField(default=0) 
 
     class Meta:
         ordering = ['name']
@@ -830,9 +831,9 @@ class Subject(models.Model):
             (subject_obj, created) = cls.objects.get_or_create(name=subject)
             if not subject_obj.authority and authority:
                 subject_obj.authority = authority
-                subject_obj.save()
         
             subject_obj.works.add(work)
+            subject_obj.count_free()
             return subject_obj   
         else:
             return None
@@ -847,6 +848,10 @@ class Subject(models.Model):
 
     def free_works(self):
         return self.works.filter(is_free=True)
+    
+    def count_free(self):
+        self.num_free = self.works.filter(is_free=True).count()
+        self.save()
 
 class Edition(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -1254,20 +1259,42 @@ def set_free_flag(sender, instance, created, **kwargs):
         if not instance.edition.work.is_free and instance.active:
             instance.edition.work.is_free = True
             instance.edition.work.save()
+            for subject in instance.edition.work.subjects.all():
+                subject.count_free()
     elif not instance.active and instance.edition.work.is_free and not instance.edition.work.ebooks().exists():
         instance.edition.work.is_free = False
         instance.edition.work.save()
+        for subject in instance.edition.work.subjects.all():
+            subject.count_free()
+
     elif instance.active and not instance.edition.work.is_free and instance.edition.work.ebooks().exists():
         instance.edition.work.is_free = True
         instance.edition.work.save()
+        for subject in instance.edition.work.subjects.all():
+            subject.count_free()
 
 post_save.connect(set_free_flag, sender=Ebook)
 
 def reset_free_flag(sender, instance, **kwargs):
     # if the Work associated with the instance Ebook currenly has only 1 Ebook, then it's no longer a free Work
     # once the instance Ebook is deleted.
-    if instance.edition.work.ebooks().count() == 1:
+    if instance.active and instance.edition.work.ebooks().count() == 1:
         instance.edition.work.is_free = False
         instance.edition.work.save()
+        for subject in instance.edition.work.subjects.all():
+            if subject.num_free > 0:
+                Subject.objects.filter(id=subject.id).update(num_free=F('num_free') - 1)
 
 pre_delete.connect(reset_free_flag, sender=Ebook)
+
+def check_free(sender, instance, action, model, pk_set, reverse, **kwargs):
+    if action in ['post_add', 'post_delete']:
+        if reverse:
+            for pk in pk_set:
+                subject = model.objects.get(pk=pk)
+                subject.count_free()
+        else:
+            instance.count_free()
+
+m2m_changed.connect(check_free, sender=Work.subjects.through)
+m2m_changed.connect(check_free, sender=Subject.works.through)
