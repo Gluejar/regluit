@@ -849,9 +849,11 @@ class Subject(models.Model):
     def free_works(self):
         return self.works.filter(is_free=True)
     
-    def count_free(self):
-        self.num_free = self.works.filter(is_free=True).count()
-        self.save()
+    def count_free(self, force=False):
+        if self.is_visible or force:
+            self.num_free = self.works.filter(is_free=True).count()
+            self.save()
+
 
 class Edition(models.Model):
     created = models.DateTimeField(auto_now_add=True)
