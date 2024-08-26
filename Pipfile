@@ -36,6 +36,7 @@ selenium = "==3.141.0"
 requests-mock = "==1.8.0"
 redis = "==3.5.3"
 xhtml2pdf = ">=0.2.15"
+pillow = "==9.5.0"
 
 [requires]
 python_version = "3.9"

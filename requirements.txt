@@ -58,7 +58,7 @@ oauthlib==3.2.2; python_version >= '3.6'
 oscrypto==1.3.0
 packaging==23.2; python_version >= '3.7'
 pbr==6.0.0; python_version >= '2.6'
-pillow==10.1.0; python_version >= '3.8'
+pillow==9.5.0; python_version >= '3.8'
 platformdirs==4.1.0; python_version >= '3.8'
 pluggy==1.3.0; python_version >= '3.8'
 pycparser==2.21
