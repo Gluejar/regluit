@@ -110,9 +110,10 @@ def make_cover_thumbnail(url, geometry_string, **options):
     try:
         im = sorl_get_thumbnail(url, geometry_string, **options)
     except (IOError, OSError):
+        logger.error('couldnt make thumbnail for %s, probably UnidentifiedImageError', url)
         return False
     
     if im.exists():
         return True
-    logger.error('couldnt make thumbnail for %s', url)
+    logger.error('couldnt make thumbnail for %s, got non-existent im', url)
     return False
