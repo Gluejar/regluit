@@ -14,6 +14,9 @@ from sorl.thumbnail.helpers import get_module_class
 from sorl.thumbnail.images import BaseImageFile, ImageFile
 from sorl.thumbnail import default
 
+from celery.utils.log import get_logger
+celerylogger = get_logger(__name__)
+
 import regluit
 
 logger = logging.getLogger(__name__)
@@ -99,7 +102,13 @@ class ReadOnlyThumbnailBackend(ThumbnailBackend):
             return cached
 
         logger.info('tasking a new thumbnail for %s, %s', file_, geometry_string)
-        regluit.core.tasks.make_cover_thumbnail.delay(file_, geometry_string, **options)
+        args = [file_, geometry_string]
+        try:
+            regluit.core.tasks.make_cover_thumbnail.apply_async(
+                args=args, kwargs=options, retry=False)
+        except regluit.core.tasks.make_cover_thumbnail.OperationalError as exc:
+            logger.error('failed new thumbnail for %s, %s', file_, geometry_string)
+            celerylogger.exception('Sending task raised: %r', exc)
         return DefaultImageFile(geometry_string)
 
 
