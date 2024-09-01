@@ -462,6 +462,7 @@ PAYMENT_PROCESSOR = 'stripelib'
 THUMBNAIL_DEBUG = True
 THUMBNAIL_FORCE_OVERWRITE = False
 THUMBNAIL_REMOVE_URL_ARGS = False
+THUMBNAIL_URL_TIMEOUT = 60
 # use redis
 # THUMBNAIL_KVSTORE = 'sorl.thumbnail.kvstores.redis_kvstore.KVStore'
 
