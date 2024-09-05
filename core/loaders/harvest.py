@@ -137,6 +137,7 @@ CMPPROVIDERS = [
     'openpress.mtsu.edu',
     'omp.ub.rub.de',
     'penerbit.brin.go.id',
+    'press.uni.lodz.pl',
     'Scholars Portal',
     'teiresias-supplements.mcgill.ca',
     'textbooks.open.tudelft.nl',
@@ -890,9 +891,8 @@ def harvest_mdpi(ebook):
         return None, 0
     elif 'img.mdpi.org' in ebook.url:
         return harvest_generic(ebook)
-    elif ebook.url.find('mdpi.com/books/pdfview/book/') >= 0:
-        url = ebook.url.replace('pdfview', 'pdfdownload')
-        return make_dl_ebook(url, ebook)
+    elif re.search(r'mdpi\.com/books/pdfview/(book|topic)/', ebook.url):
+        return harvest_citation_meta_generic(ebook)
     return harvest_one_generic(ebook, selector)
 
 

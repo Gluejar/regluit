@@ -541,3 +541,5 @@ if AWS_SECRET_ACCESS_KEY:
 else:
     DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage' 
 
+# we wond't record downloads for an ebook if their more than this in a month
+DOWNLOAD_LOGS_MAX = 499
