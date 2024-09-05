@@ -7,14 +7,13 @@ from django.db.models import F, Sum
 
 from regluit.core.models import Ebook
 
-
+DOWNLOAD_LOGFILE = settings.LOGGING['handlers']['downloads']['filename']
 
 class Command(BaseCommand):
     '''add logged downloads to ebook objects'''
     help = "add logged downloads to ebook objects"
     
     def handle(self, **options):
-        fn = os.path.join(settings.SERVER_LOG_DIR, 'downloads.log')
         dls = {}
         date_format = "%Y-%m-%d"
 
@@ -24,7 +23,7 @@ class Command(BaseCommand):
         if last_month <= 0:
             last_month = last_month + 12
         total = 0
-        with open(fn,'r') as logfile:
+        with open(DOWNLOAD_LOGFILE,'r') as logfile:
             for line in logfile.readlines():
                 (date, time, colon, ebook) = line.split()
                 month = datetime.strptime(date, date_format).date().month
