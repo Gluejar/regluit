@@ -1033,6 +1033,7 @@ def harvest_edpsciences(ebook):
 
 
 def harvest_waxmann(ebook):
+    ebook.url = ebook.url.replace('http://', 'https://')
     if ebook.url.startswith('https://www.waxmann.com/buch'):
         return make_dl_ebook(ebook.url.replace('buch', 'index.php?eID=download&buchnr='), ebook)
     return None, 0
