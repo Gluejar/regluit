@@ -915,13 +915,15 @@ def harvest_idunn(ebook):
             return make_dl_ebook(dl_url, ebook)
     return None, 0
 
-
+# some failures are caused by 
 def harvest_calgary(ebook):
     def selector(doc):
+        # some failures are caused by a fulltext link that points to another html page
         return doc.find('a', string=re.compile('Full Text'))
     def chap_selector(doc):
-        return doc.find_all('a', href=re.compile('/bitstream/'))
-    return harvest_stapled_generic(ebook, selector, chap_selector, strip_covers=2)
+        return doc.find_all('a', href=re.compile('/bitstream/.+\.pdf'))
+    return harvest_stapled_generic(ebook, selector, chap_selector, 
+        user_agent=settings.CHROME_UA, strip_covers=2)
 
 
 def harvest_muse(ebook):
