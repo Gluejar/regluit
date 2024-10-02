@@ -23,17 +23,20 @@ class Command(BaseCommand):
         if last_month <= 0:
             last_month = last_month + 12
         total = 0
-        with open(DOWNLOAD_LOGFILE,'r') as logfile:
-            for line in logfile.readlines():
-                (date, time, colon, ebook) = line.split()
-                month = datetime.strptime(date, date_format).date().month
-                if month == last_month:
-                    dls[ebook] = dls.get(ebook, 0) + 1
-                    total += 1
+        for suffix in ['', '.1','.2','.3','.4','.5',]:
+            fn = DOWNLOAD_LOGFILE + suffix
+            if os.path.exists(fn):
+                with open(fn,'r') as logfile:
+                    for line in logfile.readlines():
+                        (date, time, colon, ebook) = line.split()
+                        month = datetime.strptime(date, date_format).date().month
+                        if month == last_month:
+                            dls[ebook] = dls.get(ebook, 0) + 1
+                            total += 1
 
         downloads = Ebook.objects.aggregate(total=Sum('download_count'))['total']
         self.stdout.write(f'old count: {downloads} downloads')
-        self.stdout.write(f'logging {total} downloads for len(dls) ebooks')
+        self.stdout.write(f'logging {total} downloads for {len(dls)} ebooks')
         
         for key in dls.keys():
             if dls[key] > settings.DOWNLOAD_LOGS_MAX:
