@@ -1022,7 +1022,7 @@ def harvest_pensoft(ebook):
 
 def harvest_edp(ebook):
     def selector(doc):
-        return doc.select_one('a.fulldl[href]')
+        return doc.select_one('a.book-dl[href]')
     if ebook.url.endswith('.pdf'):
         return harvest_generic(ebook, user_agent=settings.CHROME_UA)
     return harvest_one_generic(ebook, selector, user_agent=settings.CHROME_UA)
