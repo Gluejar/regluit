@@ -673,6 +673,8 @@ def despam_description(description):
     return description.replace('\r\n', '\n')
 
 def add_openlibrary(work, hard_refresh=False):
+    if not settings.USE_OPENLIBRARY and not settings.DEBUG:
+        return
     if (not hard_refresh) and work.openlibrary_lookup is not None:
         # don't hit OL if we've visited in the past month or so
         if now()- work.openlibrary_lookup < timedelta(days=90):

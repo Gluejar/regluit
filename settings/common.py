@@ -514,6 +514,7 @@ BOOXTREAM_TEST_EPUB_URL = 'https://github.com/Gluejar/open_access_ebooks_ebook/r
 TEST_PDF_URL = "https://github.com/Gluejar/flatland/raw/master/downloads/Flatland.pdf"
 FILE_UPLOAD_MAX_MEMORY_SIZE = 20971520 #20MB
 
+USE_OPENLIBRARY = False
 
 # Selenium related -- set if Se tests run
 FIREFOX_PATH = ''
