@@ -70,7 +70,7 @@ def store_doab_cover(doab_id, redo=False):
             else:
                 r = requests.get(url, headers=headers)
         if not r.content:
-            logger.warning('No image content for doab_id=%s: %s', doab_id, e)
+            logger.warning('No image content for doab_id=%s', doab_id)
             return (None, False)
             
         #test that cover is good
@@ -78,7 +78,7 @@ def store_doab_cover(doab_id, redo=False):
         try:
             image = Image.open(image_bytes)
         except UnidentifiedImageError:
-            warning(f'No image found for {doab_id}')
+            logger.warning(f'No image found for {doab_id}')
             return (None, False)
 
         cover_file = ContentFile(r.content)
