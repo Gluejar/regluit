@@ -6,6 +6,9 @@ import re
 
 import requests
 
+from io import BytesIO
+from PIL import Image, UnidentifiedImageError
+
 from django.conf import settings
 from django.db.models import Q
 
@@ -52,21 +55,32 @@ def store_doab_cover(doab_id, redo=False):
 
     # download cover image to cover_file
     url = doab_cover(doab_id)
+    headers = {"User-Agent": settings.USER_AGENT}
     if not url:
         return (None, False)
     try:
-        r = requests.get(url, allow_redirects=False) # requests doesn't handle ftp redirects.
+        r = requests.get(url, allow_redirects=False, headers=headers) # requests doesn't handle ftp redirects.
         if r.status_code == 302:
             redirurl = r.headers['Location']
             if redirurl.startswith(u'ftp'):
                 springerftp = SPRINGER_COVER.match(redirurl)
                 if springerftp:
                     redirurl = SPRINGER_IMAGE.format(springerftp.groups(1))
-                    r = requests.get(redirurl)
+                    r = requests.get(redirurl, headers=headers)
             else:
-                r = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
-        else:
-            r = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
+                r = requests.get(url, headers=headers)
+        if not r.content:
+            logger.warning('No image content for doab_id=%s: %s', doab_id, e)
+            return (None, False)
+            
+        #test that cover is good
+        image_bytes = BytesIO(r.content)
+        try:
+            image = Image.open(image_bytes)
+        except UnidentifiedImageError:
+            warning(f'No image found for {doab_id}')
+            return (None, False)
+
         cover_file = ContentFile(r.content)
         content_type = r.headers.get('content-type', '')
         if not 'image/' in content_type:
@@ -74,6 +88,7 @@ def store_doab_cover(doab_id, redo=False):
             return (None, False)
         cover_file.content_type = content_type
 
+        
 
         default_storage.save(cover_file_name, cover_file)
         return (default_storage.url(cover_file_name), True)
