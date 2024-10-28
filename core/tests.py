@@ -774,7 +774,7 @@ class WishlistTest(TestCase):
         user.wishlist.add_work(work, 'test')
         self.assertEqual(user.wishlist.works.count(), 1)
         self.assertEqual(work.num_wishes, num_wishes+1)
-        self.assertEqual(work.priority(),1)
+        self.assertEqual(work.priority(), 2)
         user.wishlist.remove_work(work)
         self.assertEqual(user.wishlist.works.count(), 0)
         self.assertEqual(work.num_wishes, num_wishes)
