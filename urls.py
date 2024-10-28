@@ -6,12 +6,11 @@ from django.views.decorators.cache import never_cache
 from ckeditor_uploader import views as ckedit_views
 
 from regluit.admin import site
-from regluit.core.sitemaps import WorkSitemap, PublisherSitemap
+from regluit.core.sitemaps import WorkSitemap
 from regluit.frontend.views import static_redirect_view
 
 sitemaps = {
     'works': WorkSitemap,
-    'publishers': PublisherSitemap,
 }
 
 urlpatterns = [

@@ -518,11 +518,8 @@ class Work(models.Model):
         self.save()
 
     def priority(self):
-        if self.last_campaign():
-            return 5
-        freedom = 1 if self.is_free else 0
         wishing = int(math.log(self.num_wishes)) + 1 if self.num_wishes else 0
-        return min(freedom + wishing, 5)
+        return min(1 + wishing, 5)
 
     def first_oclc(self):
         if self.preferred_edition is None:
