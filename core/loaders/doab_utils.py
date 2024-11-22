@@ -85,6 +85,7 @@ STOREPROVIDERS = [
     'manchesteruniversitypress.co.uk',
     'mitpress.mit.edu',
     'munishop.muni.cz',
+    'nai010.com',
     'nomos-shop.de',
     'palgrave.com',
     'placedeslibraires.fr',

@@ -146,9 +146,9 @@ class SpringerScraper(BaseScraper):
             self.set('rights_url', lic_url)
 
     def get_pubdate(self):
-        pubinfo = self.doc.select_one('#copyright-info')
+        pubinfo = self.doc.find(attrs={"data-test": "electronic_isbn_publication_date"})
         if not pubinfo:
-            pubinfo = self.doc.select_one('header .c-article-identifiers')
+            pubinfo = self.doc.find(attrs={"data-test": "softcover_isbn_publication_date"})
         if pubinfo:
             for yearstring in pubinfo.stripped_strings:
                 yearmatch = HAS_YEAR.search(yearstring)

@@ -138,6 +138,7 @@ CMPPROVIDERS = [
     'omp.ub.rub.de',
     'penerbit.brin.go.id',
     'press.uni.lodz.pl',
+    'redliclibros.com',
     'Scholars Portal',
     'teiresias-supplements.mcgill.ca',
     'textbooks.open.tudelft.nl',
@@ -938,9 +939,11 @@ def harvest_muse(ebook):
 
 
 def harvest_mitpress(ebook):
+    def selector(doc):
+        return doc.select('a.book-pdfLink[href]')
     def chap_selector(doc):
         return doc.select('a.section-pdfLink[href]')
-    return harvest_stapled_generic(ebook, None, chap_selector, strip_covers=0)
+    return harvest_stapled_generic(ebook, selector, chap_selector, strip_covers=0)
 
 
 def harvest_ios(ebook):
