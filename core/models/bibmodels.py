@@ -130,7 +130,7 @@ class Work(models.Model):
     # repurposed earliest_publication to actually be publication range
     publication_range = models.CharField(max_length=50, null=True, blank=True)
     featured = models.DateTimeField(null=True, blank=True, db_index=True,)
-    is_free = models.BooleanField(default=False)
+    is_free = models.BooleanField(default=False, db_index=True)
     related = models.ManyToManyField('self', symmetrical=False, blank=True, through='WorkRelation', related_name='reverse_related')
     age_level = models.CharField(max_length=5, choices=AGE_LEVEL_CHOICES, default='', blank=True) 
 
@@ -787,7 +787,7 @@ AUTHMATCH = re.compile(r'\s*!([a-z]+):?\s+(.*)')
 
 class Subject(models.Model):
     created = models.DateTimeField(auto_now_add=True)
-    name = models.CharField(max_length=200, unique=True)
+    name = models.CharField(max_length=200, unique=True, db_index=True)
     works = models.ManyToManyField("Work", related_name="subjects")
     is_visible = models.BooleanField(default=True)
     authority = models.CharField(max_length=10, blank=False, default="")
