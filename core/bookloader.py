@@ -1113,13 +1113,14 @@ def add_from_bookdatas(bookdatas):
     editions = []
     for bookdata in bookdatas:
         edition = work = None
-        loader = BasePandataLoader(bookdata.base)
-        pandata = Pandata()
-        pandata.metadata = bookdata.metadata
-        for metadata in pandata.get_edition_list():
-            edition = loader.load_from_pandata(metadata, work)
-            work = edition.work
-        loader.load_ebooks(pandata, edition)
-        if edition:
-            editions.append(edition)
+        if bookdata and bookdata.metadata:
+            loader = BasePandataLoader(bookdata.base)
+            pandata = Pandata()
+            pandata.metadata = bookdata.metadata
+            for metadata in pandata.get_edition_list():
+                edition = loader.load_from_pandata(metadata, work)
+                work = edition.work
+            loader.load_ebooks(pandata, edition)
+            if edition:
+                editions.append(edition)
     return editions

@@ -65,13 +65,16 @@ class BaseScraper(object):
                 for review in self.doc.find_all(itemtype="http://schema.org/Review"):
                     review.clear()
                 self.get_all()
-            if not self.metadata.get('title', None):
-                self.set('title', '!!! missing title !!!')
-            if not self.metadata.get('language', None):
-                self.set('language', 'en')
+                if not self.metadata.get('title', None):
+                    self.set('title', '!!! missing title !!!')
+                if not self.metadata.get('language', None):
+                    self.set('language', 'en')
+                self.metadata['identifiers'] = self.identifiers
+            else:
+                self.metadata = None
         else:
-            self.metadata = {}
-        self.metadata['identifiers'] = self.identifiers
+            self.metadata = None
+        
 
     #
     # utilities
