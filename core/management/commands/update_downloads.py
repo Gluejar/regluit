@@ -28,7 +28,11 @@ class Command(BaseCommand):
             if os.path.exists(fn):
                 with open(fn,'r') as logfile:
                     for line in logfile.readlines():
-                        (date, time, colon, ebook) = line.split()
+                        try:
+                            (date, time, colon, ebook) = line.split()
+                        except ValueError:
+                            # garbage line
+                            continue
                         month = datetime.strptime(date, date_format).date().month
                         if month == last_month:
                             dls[ebook] = dls.get(ebook, 0) + 1

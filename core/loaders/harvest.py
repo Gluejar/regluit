@@ -112,6 +112,7 @@ def clean_archive(ebf):
 
 
 CMPPROVIDERS = [
+    'books.atla.com',
     'books.open.tudelft.nl',
     'ebooks.epublishing.ekt.gr',
     'ebooks.marilia.unesp.br',
@@ -134,8 +135,10 @@ CMPPROVIDERS = [
     'omp.ub.rub.de',
     'openuctpress.uct.ac.za',
     'omp.zrc-sazu.si',
+    'openbooks.uct.ac.za',
     'openpress.mtsu.edu',
     'omp.ub.rub.de',
+    'ozguryayinlari.com',
     'penerbit.brin.go.id',
     'press.uni.lodz.pl',
     'redliclibros.com',
