@@ -67,7 +67,7 @@ pyhanko==0.21.0; python_version >= '3.8'
 pyhanko-certvalidator==0.26.3; python_version >= '3.7'
 pyjwt[crypto]==2.8.0; python_version >= '3.7'
 pymarc==4.2.1; python_version >= '3.6'
-pyoai==2.5.0
+-e git+https://github.com/infrae/pyoai.git@5ff2f15e869869e70d8139e4c37b7832854d7049#egg=pyoai
 pyopenssl==23.3.0; python_version >= '3.7'
 pyparsing==3.1.1; python_full_version >= '3.6.8'
 pypdf>=5.0.0

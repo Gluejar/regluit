@@ -126,6 +126,7 @@ CMPPROVIDERS = [
     'humanities-digital-library.org',
     'idicap.com',
     'libri.unimi.it',
+    'libros.fahce.unlp.edu.ar',
     'libros.unad.edu.co',
     'libros.usc.edu.co',
     'llibres.urv.cat',
@@ -193,7 +194,6 @@ def harvesters(ebook):
     yield ebook.provider == 'bloomsburycollections.com', harvest_bloomsbury
     yield ebook.provider == 'Athabasca University Press', harvest_athabasca
     yield 'digitalcommons.usu.edu' in ebook.url, harvest_usu
-    yield ebook.provider == 'libros.fahce.unlp.edu.ar', harvest_fahce
     yield ebook.provider in ['digital.library.unt.edu', 'texashistory.unt.edu'], harvest_unt
     yield ebook.provider in DSPACEPROVIDERS, harvest_dspace
     yield ebook.provider == 'e-publish.uliege.be', harvest_liege
@@ -254,6 +254,7 @@ def harvesters(ebook):
     yield ebook.provider == 'tectum-elibrary.de', harvest_tecnum
     yield ebook.provider == 'benjamins.com', harvest_benjamins
     yield ebook.provider == 'macau.uni-kiel.de', harvest_citation_meta_generic
+    yield ebook.provider == 'tabedizioni.it', harvest_tabedizioni
 
 
 def ebf_if_harvested(url):
@@ -1374,9 +1375,14 @@ def harvest_wbg(ebook):
     return None, 0
 
 
-def harvest_kb(ebook):
+def harvest_kb(ebook):    
     def selector(doc):
         return doc.select_one('a[title=fulltext][href]')
+    return harvest_one_generic(ebook, selector)
+
+def harvest_tabedizioni(ebook):
+    def selector(doc):
+        return doc.find(href=re.compile("/web/content/"))
     return harvest_one_generic(ebook, selector)
 
 
