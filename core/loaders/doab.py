@@ -441,6 +441,9 @@ def add_by_doab(doab_id, record=None):
         edition = None
         title = unlist(metadata.pop('title', None))
         license = cc.license_from_cc_url(unlist(metadata.pop('rights', None)))
+        if title == None:
+            logger.error(f'doab record {doab_id} has no title')
+            return None
         for dl_url in urls:
             format = type_for_url(dl_url)
             if 'format' in metadata:
