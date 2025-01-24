@@ -27,13 +27,13 @@ def doab_lang_to_iso_639_1(lang):
 
 doab_reader = MetadataReader(
     fields={
-        'title': ('textList', 'oai_dc:dc/datacite:title/text()'),
-        'creator': ('textList', 'oai_dc:dc/datacite:creator/text()'),
-        'subject': ('textList', 'oai_dc:dc/datacite:subject/text()'),
+        'title': ('textList', 'oai_dc:dc/dc:title/text()'),
+        'creator': ('textList', 'oai_dc:dc/dc:creator/text()'),
+        'subject': ('textList', 'oai_dc:dc/dc:subject/text()'),
         'description': ('textList', 'oai_dc:dc/dc:description/text()'),
         'publisher': ('textList', 'oai_dc:dc/dc:publisher/text()'),
-        'editor': ('textList', 'oai_dc:dc/datacite:contributor[@type="Editor"]/text()'),
-        'date': ('textList', 'oai_dc:dc/datacite:date[@type="Issued"]/text()'),
+        'editor': ('textList', 'oai_dc:dc/dc:contributor[@type="Editor"]/text()'),
+        'date': ('textList', 'oai_dc:dc/dc:date[@type="Issued"]/text()'),
         'type': ('textList', 'oai_dc:dc/oaire:resourceType/text()'),
         'format': ('textList', 'oai_dc:dc/dc:format/text()'),
         'identifier': ('textList', 'oai_dc:dc/dc:identifier/text()'),
@@ -42,8 +42,8 @@ doab_reader = MetadataReader(
         'relation': ('textList', 'oai_dc:dc/dc:relation/text()'),
         'coverage': ('textList', 'oai_dc:dc/dc:coverage/text()'),
         'rights': ('textList', 'oai_dc:dc/oaire:licenseCondition/@uri'),
-        'isbn': ('textList', 'oai_dc:dc/datacite:alternateIdentifier[@type="ISBN"]/text()'),
-        'doi': ('textList', 'oai_dc:dc/datacite:alternateIdentifier[@type="DOI"]/text()'),
+        'isbn': ('textList', 'oai_dc:dc/dc:alternateIdentifier[@type="ISBN"]/text()'),
+        'doi': ('textList', 'oai_dc:dc/dc:alternateIdentifier[@type="DOI"]/text()'),
     },
     namespaces={
         'oai_dc': 'http://www.openarchives.org/OAI/2.0/oai_dc/',
