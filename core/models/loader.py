@@ -85,10 +85,10 @@ class ContentTyper(object):
         def handle_ude(url, ude):
             url = requote(url)
             try:
-                r = requests.get(url, allow_redirects=True)
+                return requests.get(url, allow_redirects=True)
             except:
                 logger.error('Error processing %s after unicode error', url)
-                return '', ''
+
         try:
             try:
                 r = requests.head(url, allow_redirects=True)
@@ -97,10 +97,10 @@ class ContentTyper(object):
                         r =  requests.get(url)
                     except UnicodeDecodeError as ude:
                         if 'utf-8' in str(ude):
-                            return handle_ude(url, ude)
+                            r = handle_ude(url, ude)
             except UnicodeDecodeError as ude:
                 if 'utf-8' in str(ude):
-                    return handle_ude(url, ude)
+                    r = handle_ude(url, ude)
         except requests.exceptions.SSLError:
             try:
                 r = requests.get(url, verify=False)
@@ -109,6 +109,8 @@ class ContentTyper(object):
                 return '', ''
         except:
             logger.error('Error processing %s', url)
+            return '', ''
+        if not r:
             return '', ''
         if r.status_code == 404:
             logger.error('File not found (404) for %s', url)
