@@ -196,7 +196,7 @@ def load_doab_edition(title, doab_id, url, format, rights,
     if language and isinstance(language, list):
         language = language[0]
     if language == 'xx' and format == 'online':
-        language = scrape_language(url)
+        language = doab_lang_to_iso_639_1(scrape_language(url))
     # check to see whether the Edition hasn't already been loaded first
     # search by url
     ebooks = models.Ebook.objects.filter(url=url)
