@@ -23,7 +23,7 @@ class Command(BaseCommand):
         if last_month <= 0:
             last_month = last_month + 12
         total = 0
-        for suffix in ['', '.1','.2','.3','.4','.5',]:
+        for suffix in ['', '.1','.2','.3','.4','.5', '.6', '.7', '.8',]:
             fn = DOWNLOAD_LOGFILE + suffix
             if os.path.exists(fn):
                 with open(fn,'r') as logfile:

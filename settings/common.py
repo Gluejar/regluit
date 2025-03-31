@@ -231,7 +231,7 @@ LOGGING = {
             'class': 'logging.handlers.GroupWriteRotatingFileHandler',
             'filename': join(PROJECT_DIR, 'logs', 'downloads.log'),
             'maxBytes': 1024*1024*10, # 10 MB
-            'backupCount': 5,
+            'backupCount': 8,
             'formatter': 'dl',
         },
     },
