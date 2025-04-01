@@ -47,6 +47,11 @@ def set_bookshop(ebook):
     ebook.save()
     return None, 0
 
+def set_broken(ebook):
+    ebook.format = 'broken'
+    ebook.save()
+    return None, 0
+
 
 def dl_online(ebook, limiter=rl.delay, format='online', force=False):
     if ebook.format != format or (not force and ebook.provider in DONT_HARVEST):
@@ -85,6 +90,8 @@ def archive_dl(ebook, limiter=rl.delay, force=False):
             status = 1
         else:
             logger.warning('download format %s for %s is not ebook', ebook.format, ebook.url)
+            if fmt == 404:
+                set_broken(ebook)
         limiter(ebook.provider)
         if not ebf:
             status = -1
@@ -264,7 +271,8 @@ def ebf_if_harvested(url):
     return  models.EbookFile.objects.none()
 
 
-def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET',  verify=True):
+def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET',
+        verify=True, fallback=None):
     if not url:
         logger.warning('no url for ebook %s', ebook.id)
         return None, 0
@@ -290,7 +298,11 @@ def make_dl_ebook(url, ebook, user_agent=settings.USER_AGENT, method='GET',  ver
     if dl_cf:
         return make_harvested_ebook(dl_cf, ebook, fmt, filesize=dl_cf.size)
     else:
+        if fmt == 404:
+            return set_broken(ebook)
         logger.warning('download format %s for %s is not ebook', ebook.format, url)
+        if fallback:
+            return fallback(url, ebook)
     return None, 0
 
 
@@ -428,10 +440,20 @@ def harvest_manual(ebook):
 
 
 def harvest_oapen(ebook):
+    def detect_requestcopy(url, ebook):
+        doc = get_soup(url, follow_redirects=True)
+        try:
+            doc_title =  doc.find('title').text
+            if 'Request a copy' in doc_title:
+                set_broken(ebook)
+        except:
+            pass
+        return None, 0
     if is_bookshop_url(ebook.url):
         return set_bookshop(ebook)
     if '/bitstream/' in ebook.url:
-        return make_dl_ebook(ebook.url, ebook, user_agent=settings.USER_AGENT)
+        return make_dl_ebook(ebook.url, ebook, user_agent=settings.USER_AGENT,
+            fallback=detect_requestcopy)
     return None, 0
 
 

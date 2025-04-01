@@ -175,7 +175,7 @@ def load_ebookfile(url, format, user_agent=settings.USER_AGENT, method='GET', ve
             return None, resp_format
     else:
         logger.warning('couldn\'t get %s', url)
-        return None, ''
+        return None, response.status_code
 
     contentfile = ContentFile(response.content)
     try:
