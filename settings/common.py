@@ -275,7 +275,7 @@ DEFAULT_FROM_EMAIL = 'notices@gluejar.com'
 SERVER_EMAIL = 'notices@gluejar.com'
 SUPPORT_EMAIL = 'unglueit@ebookfoundation.org'
 ACCOUNT_ACTIVATION_DAYS = 30
-SESSION_COOKIE_AGE = 3628800 # 6 weeks
+SESSION_COOKIE_AGE = 604800 # 7 days
 
 # django-socialauth
 AUTHENTICATION_BACKENDS = (
@@ -435,7 +435,7 @@ SAVE_INFO_PAGE = {
 
 PERIODIC_CLEANUP = {
     "task": "regluit.core.tasks.periodic_cleanup",
-    "schedule": crontab(day_of_month='1,11,21', hour=0, minute=35),
+    "schedule": crontab(hour=0, minute=35),
     "args": ()    
 }
 
