@@ -3,13 +3,17 @@
 
 {% block title %}Welcome to Unglue.It{% endblock %}
 {% block doccontent %}
+{% load cf %}
 <div id="welcomesearch">
 <p>Welcome, {{user.username}}!</p><p id="link-to-next"></p>
-                        	<label>Search and add free-licenced books! </label>
-				                <form action="{% url 'search' %}" method="get">
-                				    <input type="text" onfocus="imgfocus()" onblur="imgblur(0)" size="25" class="inputbox" name="q" value="{{ q }}">
-                				    <input type="submit" class="greenbutton" value="Search">
-               					</form>
+    <label>Search and add free-licenced books! </label>
+    <form action="{% url 'search' %}" method="get">
+        <div class="cf-turnstile" data-sitekey="{% cf_site %}"  data-callback="enableSubmit"></div>
+        <div class="inputalign">
+        <input type="text" id="nowatermark" size="25" class="inputbox" name="q" value="{{ q }}" required>
+        <input type="submit" class="button" id="search-button" disabled>
+        </div>
+    </form>
 </div>
 <br />
 <div class="welcomealternatives">

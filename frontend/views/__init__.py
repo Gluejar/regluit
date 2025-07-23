@@ -131,6 +131,7 @@ from regluit.utils.localdatetime import date_today
 
 from .bibedit import edit_edition, user_can_edit_work, safe_get_work, get_edition
 from .rh_views import campaign_results, claim, manage_campaign, rh_admin, RHAgree, rh_tools
+from . import cf
 
 logger = logging.getLogger(__name__)
 
@@ -1823,6 +1824,16 @@ def search(request):
     """
     q = request.GET.get('q', '').strip()
     ty = request.GET.get('ty', 'g')  # ge= 'general, au= 'author'
+    if not cf.validate(request):
+        context = {
+            "q": q,
+            "ty": ty,
+            "results": [],
+            "ug_works": [],
+            "ug_more": 'no',
+        }
+        return render(request, 'search.html', context)
+
     request.session['q'] = q
     gbo = request.GET.get('gbo', '0') # gbo says where to start
     try:

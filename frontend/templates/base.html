@@ -15,6 +15,12 @@
 	<script type="text/javascript" src="{{ jquery_home }}"></script>
     <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
 	<script type="text/javascript" src="/static/js/sitewide1.js"></script>
+	<script>
+        function enableSubmit() {
+            document.getElementById("search-button").disabled = false;
+        }
+    </script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     {% block extra_js %}
     {% endblock %}
 	{% if show_langs %}
@@ -50,17 +56,20 @@
                 <a href="{% url 'landing' %}"><img src="/static/images/logo.png" alt="unglue.it" title="unglue.it"  /></a>
             </div>
             {% block search_box %}
+            {% load cf %}
             {% if not suppress_search_box %}
-            <div class="js-search">
-            <div class="js-search-inner">
-                <form action="{% url 'search' %}" method="get">
-                	<div class="inputalign">
-                    <input type="text" id="nowatermark" size="25" onfocus="imgfocus()" onblur="imgblur(15)" class="inputbox" name="q" value="{{ q }}">
-                    <input type="submit" class="button">
-					</div>
-                </form>
-            </div>
-            </div>
+            
+            <form action="{% url 'search' %}" method="get">
+                <div class="js-search">
+                    <div class="js-search-inner">
+                    <div class="inputalign">
+                        <input type="text" id="nowatermark" size="25" class="inputbox" name="q" value="{{ q }}" required>
+                        <input type="submit" class="button" id="search-button" disabled>
+                    </div>
+                    </div>
+                </div>
+                <div class="cf-turnstile" data-sitekey="{% cf_site %}"  data-callback="enableSubmit"></div>
+            </form>
             {% endif %}
             {% endblock %}
             {% block signin %}
