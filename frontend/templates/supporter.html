@@ -16,7 +16,11 @@
 <script type="text/javascript" src="/static/js/greenpanel.js"></script>
 <script type="text/javascript" src="/static/js/import_books.js"></script>
 <script type="text/javascript" src="/static/js/counter.js"></script>
-
+<script>
+    function enableSubmit2() {
+        document.getElementById("search-button-2").disabled = false;
+    }
+</script>
 {% ifequal supporter request.user %}
 <!-- we only need to be able to toggle the profile edit area in this case -->
 <script type="text/javascript">
@@ -200,7 +204,7 @@ function highlightTarget(targetdiv) {
 {% endblock %}
 
 {% block content %}
-
+    {% load cf %}
     <div id="main-container">
     <div class="js-main">
         <div id="js-leftcol">
@@ -244,27 +248,27 @@ function highlightTarget(targetdiv) {
                     {% if not wishlist.works.first %}
                         {% ifequal request.user supporter %}
                         <div class="empty-wishlist">
-                        
-                        	<div><h2 style="padding-left:35px;">Add a book to your list to get started.</h2><br /><br /></div>
-                        	
-                		    <div id="js-slide">
- 	   							<div class="js-main">
-        							<div class="jsmodule">
-        							{% include "slideshow.html" %}
-            						</div>
-        						</div>
-    						</div>
+                        <div><h2 style="padding-left:35px;">Add a book to your list to get started.</h2><br /><br /></div>
+                            <div id="js-slide">
+                                <div class="js-main">
+                                    <div class="jsmodule">
+                                    {% include "slideshow.html" %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="js-maincontainer-bot-block">
+                                <div id="js-search">
+                                    <label>Search and add free-licenced books! </label>
+                                    <form action="{% url 'search' %}" method="get">
+                                        <div class="cf-turnstile" data-sitekey="{% cf_site %}"  data-callback="enableSubmit2"></div>
+                                        <div class="inputalign">
+                                        <input type="text" id="nowatermark" size="25" class="inputbox" name="q" value="{{ q }}" required>
+                                        <input type="submit" class="button" id="search-button-2" disabled>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
 
-		                    <div id="js-maincontainer-bot-block">
-        		                <div id="js-search">
-                		        	<label>Search and add free-licenced books! </label>
-				        		        <form action="{% url 'search' %}" method="get">
-                						    <input type="text"  onfocus="imgfocus()" onblur="imgblur(0)" size="25" class="inputbox" name="q" value="{{ q }}">
-                						    <input type="submit" class="greenbutton" value="Search">
-               							</form>
-                		        </div>
-                		    </div>
-                		    
                             <br /><br /><hr />We'd also love to hear your <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">feedback</a>.
                         </div>
                         {% else %}

@@ -1,12 +1,14 @@
+{% load cf %}
 	<script type="text/javascript" src="/static/js/watermark_init.js"></script>
 	<script type="text/javascript" src="/static/js/watermark_change.js"></script>
 	<p id="add_your_books"><b>Claiming a work</b></p>
 	<p>If your book is indexed in Google books, we can add it to our database automagically. Click on the result list to add your book to our database.</p>
 	<form action="{% url 'search' %}" method="get">
-		<div class="inputalign">
-		<input type="text" id="watermark" size="25" onfocus="imgfocus()" onblur="imgblur(15)" class="inputbox" name="q" value="{{ q }}"><input type="hidden" name="page" value="2">
-		<input type="submit" class="button">
-		</div>
+        <div class="cf-turnstile" data-sitekey="{% cf_site %}"  data-callback="enableSubmit"></div>
+        <div class="inputalign">
+            <input type="text" id="nowatermark" size="25" class="inputbox" name="q" value="{{ q }}" required>
+            <input type="submit" class="button" id="search-button" disabled>
+        </div>
 	</form>
 	<ul class="bullets">
 	    <li>Use the Claim option on the More... tab of each book's page.</li>
