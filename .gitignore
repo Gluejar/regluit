@@ -3,6 +3,9 @@
 *.log
 settings/me.*
 settings/keys/*
+settings/local.py
+settings/aws.py
+settings/log_config.py
 *.dot
 reports
 ENV
@@ -16,7 +19,92 @@ celerybeat-schedule
 .gitignore~
 assets/*
 *.ipynb
+*.ipynb~
 dump.rdb
 Pipfile.lock
 
 *.css.map
+
+# IDE
+.idea/
+
+# Credentials / keys (NEVER commit)
+auth.json
+awskeys.py
+iam_keys
+id_rsa.der
+ec2_id_rsa.pub
+possible_keys.txt
+my.cnf_save
+ry-dev-unglueit.json
+s3-just-unglueit.json
+s3-ry-dev-unglueit.json
+
+# SQL dumps
+*.sql
+*.sql.gz
+
+# Old sysadmin playbook builds (64k+ files)
+sysadmin/playbooks/
+
+# Historical / scratch
+experimental/
+degruyter/
+pivotal/
+notebooks/
+ryscratch/
+test-data/
+vagrant/
+
+# Old scripts / artifacts
+fabfile.py
+hello.js
+hello.py
+unicode.py
+dpla_query.py
+my_librarything_books.py
+ssh_fingerprint.py
+*.html
+*.txt
+!README.md
+!requirements*.txt
+!CREDITS.txt
+!LICENSE
+drop_tables.sh
+dump.sh
+dj18_migrate.sh
+dj18postdj18_migrate.sh
+pre_dj18*.sh
+pyclean.sh
+django_background*.sh
+kill_chromed.sh
+test_account_creation.sh
+test_relaunch.sh
+run_selenium.sh
+loadspeed.js
+screen.png
+out
+out.mobi
+turtle
+unglue.it.json
+emails
+emails.txt
+
+# Test selenium/chromedriver binaries
+test/chromedriver*
+test/geckodriver*
+test/selenium-server*
+
+# Deploy artifacts
+deploy/public_keys/
+
+# Misc old artifacts
+*.komodoproject
+*-e
+oapen.marc.xml
+oclc_mac
+oclc_web2dj14
+sysadmin/sshpub_to_rsa.py
+sysadmin/unglue.it.wildcard.csr
+requirements_versioned_mac.pip
+requirements_versioned_sorted.pip
