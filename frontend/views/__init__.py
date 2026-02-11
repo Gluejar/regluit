@@ -40,6 +40,7 @@ from django.http import (
     HttpResponseRedirect,
     Http404,
     HttpResponse,
+    HttpResponseForbidden,
     HttpResponseNotFound
 )
 from django.shortcuts import render, get_object_or_404
@@ -538,9 +539,34 @@ def manage_ebooks(request, edition_id, by=None):
         })
 
 
-BAD_ROBOTS = [u'memoryBot']
+BAD_ROBOTS = [
+    u'memoryBot',
+    # AI crawlers
+    u'GPTBot',
+    u'ChatGPT-User',
+    u'OAI-SearchBot',
+    u'ClaudeBot',
+    u'anthropic-ai',
+    u'claude-web',
+    u'PerplexityBot',
+    u'Perplexity-User',
+    u'Google-Extended',
+    u'Amazonbot',
+    u'Bytespider',
+    u'meta-externalagent',
+    u'FacebookBot',
+    u'CCBot',
+    u'Applebot-Extended',
+    u'cohere-ai',
+    u'Diffbot',
+    u'ImagesiftBot',
+    u'Omgilibot',
+    u'Timpibot',
+]
 def is_bad_robot(request):
     user_agent = request.META.get('HTTP_USER_AGENT', '')
+    if not user_agent:
+        return True
     for robot in BAD_ROBOTS:
         try:
             if robot in user_agent:
@@ -548,7 +574,7 @@ def is_bad_robot(request):
         except UnicodeDecodeError:
             # user agent is sending illegal header
             return True
-    return False        
+    return False
 
 def googlebooks(request, googlebooks_id):
     try:
@@ -2562,6 +2588,9 @@ def reserve(request, work_id):
     return PurchaseView.as_view()(request, work_id=work_id)
 
 def download_ebook(request, ebook_id):
+    if is_bad_robot(request):
+        logger.info("blocked bot download: ebook {0}, ua: {1}".format(ebook_id, request.META.get('HTTP_USER_AGENT', '')))
+        return HttpResponseForbidden("Automated downloads are not permitted.")
     try:
         ebook = get_object_or_404(models.Ebook, id=ebook_id)
     except ValueError:
@@ -2576,6 +2605,9 @@ def download_purchased(request, work_id):
     return DownloadView.as_view()(request, work_id=work_id)
 
 def download_campaign(request, work_id, format):
+    if is_bad_robot(request):
+        logger.info("blocked bot download: campaign {0}, ua: {1}".format(work_id, request.META.get('HTTP_USER_AGENT', '')))
+        return HttpResponseForbidden("Automated downloads are not permitted.")
     work = safe_get_work(work_id)
 
     # Raise 404 unless there is a SUCCESSFUL BUY2UNGLUE campaign associated with work
@@ -2595,6 +2627,9 @@ def download_campaign(request, work_id, format):
     raise Http404
 
 def download_acq(request, nonce, format):
+    if is_bad_robot(request):
+        logger.info("blocked bot download: acq {0}, ua: {1}".format(nonce, request.META.get('HTTP_USER_AGENT', '')))
+        return HttpResponseForbidden("Automated downloads are not permitted.")
     acq = get_object_or_404(models.Acq, nonce=nonce)
     if acq.on_reserve:
         acq.borrow()
