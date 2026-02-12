@@ -784,6 +784,7 @@ class UngluedListView(FilterableListView):
             context['activetab'] = "#1"
         return context
 FACET_LABELS = {
+    'newest': "Active",
     't4u': "Thanks for Ungluing",
     'unglued': "Successful",
 }
@@ -796,20 +797,12 @@ class CampaignListView(FilterableListView):
         facet = self.kwargs['facet']
         if (facet == 'newest'):
             return models.Campaign.objects.filter(status='ACTIVE').order_by('-activated')
-        elif (facet == 'pledged'):
-            return models.Campaign.objects.filter(status='ACTIVE').annotate(total_pledge=Sum('transaction__amount')).order_by('-total_pledge')
-        elif (facet == 'pledges'):
-            return models.Campaign.objects.filter(status='ACTIVE').annotate(pledges=Count('transaction')).order_by('-pledges')
-        elif (facet == 'almost'):
-            return models.Campaign.objects.filter(status='ACTIVE').all() # STUB: will need to make db changes to make this work
-        elif (facet == 'soon'):
-            return models.Campaign.objects.filter(status='INITIALIZED').order_by('-work__num_wishes')
         elif (facet == 't4u'):
             return models.Campaign.objects.filter(status='ACTIVE', type=THANKS).annotate(pledges=Count('transaction')).order_by('-pledges')
         elif (facet == 'unglued'):
             return models.Campaign.objects.filter(status='SUCCESSFUL').annotate(pledges=Count('transaction')).order_by('-pledges')
         else:
-            return models.Campaign.objects.all()
+            raise Http404("Unknown campaign facet: %s" % facet)
 
     def get_context_data(self, **kwargs):
         context = super(CampaignListView, self).get_context_data(**kwargs)
