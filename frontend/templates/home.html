@@ -105,19 +105,6 @@ function put_un_in_cookie2(){
                     </div>
                     
         	    {% endif %}
-        	    {% if top_pledge %}
-                    <div class="spacer"></div>
-                    <h3 class="featured_books">Pledge to Make These eBooks Free</h3>
-                    <div>
-                        {% for campaign in top_pledge %}
-                            {% with campaign.work as work %}
-                            {% with work.googlebooks_id as googlebooks_id %}
-                                {% include "book_panel.html" %}
-                            {% endwith %}{% endwith %}
-                        {% endfor %}
-                        <a class="more_featured_books" href="{% url 'campaign_list' 'pledge' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
-                    </div>
-                {% endif %}
                 <div class="spacer"></div>
         	    <h3 class="featured_books">Read These Free Licensed eBooks</h3>
         	    <div>
@@ -128,19 +115,6 @@ function put_un_in_cookie2(){
                     {% endfor %}
                     <a class="more_featured_books" href="{% url 'cc_list' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
                 </div>
-                <div class="spacer"></div>
-        	    {% if top_b2u %}
-                    <h3 class="featured_books">Buy and Read These eBooks to Make Them Free</h3>
-                    <div>
-                        {% for campaign in top_b2u %}
-                            {% with campaign.work as work %}
-                            {% with work.googlebooks_id as googlebooks_id %}
-                                {% include "book_panel.html" %}
-                            {% endwith %}{% endwith %}
-                        {% endfor %}
-                        <a class="more_featured_books" href="{% url 'campaign_list' 'b2u' %}"><i class="fa fa-arrow-circle-o-right fa-3x"></i></a>
-                    </div>
-                {% endif %}
                 <div class="spacer"></div>
         	    {% if top_t4u %}
                     <h3 class="featured_books">Read These Free eBooks and Thank the Creators</h3>
