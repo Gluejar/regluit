@@ -5,5 +5,5 @@
     {% if not user.is_authenticated %}
     <div class="signuptoday"><a class="btn btn-signup" href="{% url 'registration_register' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Sign up today <i class="fa fa-chevron-right"></i></a></div>
     {% else %}
-    <div class="signuptoday"><a href="{% url 'campaign_list' 'ending' %}">Our campaigns</a></div>
+    <div class="signuptoday"><a href="{% url 'campaign_list' 't4u' %}">Our campaigns</a></div>
     {% endif %}

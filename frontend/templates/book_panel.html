@@ -118,15 +118,7 @@
                         {% include "book_panel_addbutton.html" %}	
                     </div>		
                     <div class="white_text bottom_button" >
-                        {% if work.last_campaign.type == 1 %}
-                            <a href="{% url 'pledge' work_id=workid %}"><span class="read_itbutton pledge button_text"><span>Support</span></span></a>
-                        {% elif work.last_campaign.type == 2 %}
-                            {% if in_library %}
-                                <a href="{% url 'purchase' work_id=workid %}"><span class="read_itbutton pledge button_text"><span>Reserve It</span></span></a>                           
-                            {% else %}
-                                <a href="{% url 'purchase' work_id=workid %}" title="${{ work.last_campaign.individual_offer.price|floatformat:2 }}"><span class="read_itbutton pledge button_text"><span>Purchase</span></span></a>
-                            {% endif %}
-                        {% elif work.last_campaign.type == 3 %}
+                        {% if work.last_campaign.type == 3 %}
                             <a href="{% url 'thank' workid %}" class="hijax"><span class="read_itbutton button_text"><span>Read it Now</span></span></a>
                         {% endif %}
                     </div>
@@ -230,14 +222,6 @@
                 <span class="kw_id" id="l{{ workid }}" data-kw="{{setkw}}">Set <i>{{setkw}}</i></span>
             </div>
         {% endif %}
-    {% elif show_pledge %}
-        <div class="listview panelfront side1 add-wishlist">
-            <span class="booklist_pledge"><a href="{% url 'pledge' work_id=workid %}" class="fakeinput">Support</a></span>
-        </div>
-    {% elif show_purchase %}
-        <div class="listview panelfront side1 add-wishlist">
-            <span class="booklist_pledge"><a href="{% url 'purchase' work_id=workid %}" class="fakeinput" title="${{ work.last_campaign.individual_offer.price|floatformat:2 }}">Purchase</a></span>
-        </div>
     {% elif request.user.is_anonymous %}
         <div class="listview panelfront side1 create-account">
             <span title="{% if workid %}{% url 'work' workid %}{% else %}{% url 'googlebooks' googlebooks_id %}{% endif %}">Login to Fave</span>
@@ -323,8 +307,6 @@
             <a href="{% url 'download' workid %}" class="hijax" title="Download this work"><div class="read_itbutton"><span>Read it Now</span></div></a>
         {% elif borrowable %}
             <a href="{% url 'borrow' workid %}?library={{library}}" class="hijax" title="Borrow this work"><div class="read_itbutton"><span>Borrow It</span></div></a>
-        {% elif in_library %}
-            <a href="{% url 'purchase' work_id=workid %}" title="Reserve or buy this work"><div class="read_itbutton"><span>Reserve It</span></div></a>
         {% elif status == 'ACTIVE' or status == 'SUCCESSFUL' %}
 			{% if not library or not in_library %}
 			<div class="booklist-status-img">
