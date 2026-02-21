@@ -42,6 +42,7 @@ from django.http import (
     HttpResponseRedirect,
     Http404,
     HttpResponse,
+    HttpResponseForbidden,
     HttpResponseNotFound
 )
 from django.shortcuts import render, get_object_or_404
@@ -517,17 +518,49 @@ def manage_ebooks(request, edition_id, by=None):
         })
 
 
-BAD_ROBOTS = [u'memoryBot']
+BAD_ROBOTS = [
+    u'memorybot',
+    # AI crawlers
+    u'gptbot',
+    u'chatgpt-user',
+    u'oai-searchbot',
+    u'claudebot',
+    u'anthropic-ai',
+    u'claude-web',
+    u'perplexitybot',
+    u'perplexity-user',
+    u'google-extended',
+    u'amazonbot',
+    u'bytespider',
+    u'meta-externalagent',
+    u'facebookbot',
+    u'ccbot',
+    u'applebot-extended',
+    u'cohere-ai',
+    u'diffbot',
+    u'imagesiftbot',
+    u'omgilibot',
+    u'timpibot',
+]
+
+def _sanitize_ua(user_agent):
+    """Sanitize user-agent for safe logging (strip control chars, cap length)."""
+    clean = ''.join(c for c in user_agent if c >= ' ' and c != '\x7f')
+    return clean[:200]
+
 def is_bad_robot(request):
     user_agent = request.META.get('HTTP_USER_AGENT', '')
+    if not user_agent:
+        logger.info("empty user-agent from {0}".format(request.META.get('REMOTE_ADDR', '?')))
+        return False
+    try:
+        ua_lower = user_agent.lower()
+    except UnicodeDecodeError:
+        return True
     for robot in BAD_ROBOTS:
-        try:
-            if robot in user_agent:
-                return True
-        except UnicodeDecodeError:
-            # user agent is sending illegal header
+        if robot in ua_lower:
             return True
-    return False        
+    return False
 
 def googlebooks(request, googlebooks_id):
     try:
@@ -2173,6 +2206,11 @@ def _generate_signed_s3_url(s3_key, expiry=SIGNED_URL_EXPIRY):
         return None
 
 def download_ebook(request, ebook_id):
+    if is_bad_robot(request):
+        logger.info("blocked bot download: ebook {0}, ua: {1}".format(ebook_id, _sanitize_ua(request.META.get('HTTP_USER_AGENT', ''))))
+        return HttpResponseForbidden("Automated downloads are not permitted.")
+    if not cf.validate(request):
+        return HttpResponseForbidden("Please complete the human verification on the download page.")
     try:
         ebook = get_object_or_404(models.Ebook, id=ebook_id)
     except ValueError:
@@ -2193,6 +2231,9 @@ def download_ebook(request, ebook_id):
 
 
 def download_acq(request, nonce, format):
+    if is_bad_robot(request):
+        logger.info("blocked bot download: acq {0}, ua: {1}".format(nonce, _sanitize_ua(request.META.get('HTTP_USER_AGENT', ''))))
+        return HttpResponseForbidden("Automated downloads are not permitted.")
     acq = get_object_or_404(models.Acq, nonce=nonce)
     if acq.on_reserve:
         acq.borrow()
