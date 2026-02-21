@@ -20,3 +20,44 @@ dump.rdb
 Pipfile.lock
 
 *.css.map
+
+# Local dev settings — Ansible-generated or personal overrides, never commit
+settings/local.py
+settings/log_config.py
+settings/prod.py
+settings/aws.py
+
+# AWS credential symlinks / key files
+awskeys.py
+iam_keys
+auth.json
+*.pem
+id_rsa*
+*.der
+my.cnf*
+*credentials*.csv
+*credentials*.json
+
+# Local scratch / personal directories
+ryscratch/
+experimental/
+notebooks/
+
+# IDE
+.idea/
+*.komodoproject
+
+# Test drivers and binaries
+test/chromedriver*
+test/geckodriver*
+test/selenium-server*
+test/*.jar
+test/*.zip
+
+# Misc local artifacts
+venv/
+deploy/prod.wsgi
+deploy/public_keys/
+test-data/
+test/campaign_starter.sql
+test/*.log
