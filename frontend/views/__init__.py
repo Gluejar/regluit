@@ -7,6 +7,8 @@ import sys
 import json
 import logging
 from urllib.parse import unquote
+import boto3
+from botocore.exceptions import ClientError
 import requests
 
 from datetime import timedelta, date, datetime
@@ -2147,6 +2149,29 @@ def reserve(request, work_id):
     models.Hold.objects.get_or_create(library=library, work=work, user=request.user)
     return DownloadView.as_view()(request, work_id=work_id)
 
+SIGNED_URL_EXPIRY = 300  # 5 minutes
+
+def _generate_signed_s3_url(s3_key, expiry=SIGNED_URL_EXPIRY):
+    """Generate a short-lived signed S3 URL for the given key.
+    Returns None on failure so callers can fall back to the stored URL."""
+    try:
+        client = boto3.client(
+            's3',
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        )
+        return client.generate_presigned_url(
+            'get_object',
+            Params={
+                'Bucket': settings.AWS_STORAGE_BUCKET_NAME,
+                'Key': s3_key,
+            },
+            ExpiresIn=expiry,
+        )
+    except (ClientError, Exception) as e:
+        logger.warning("Failed to generate signed S3 URL for key %s: %s", s3_key, e)
+        return None
+
 def download_ebook(request, ebook_id):
     try:
         ebook = get_object_or_404(models.Ebook, id=ebook_id)
@@ -2154,6 +2179,16 @@ def download_ebook(request, ebook_id):
         raise Http404
     ebook.increment()
     logger.info("ebook: {0}, user_ip: {1}".format(ebook_id, request.META['REMOTE_ADDR']))
+
+    # For S3-hosted ebooks, generate a short-lived signed URL instead of
+    # redirecting to a permanent public URL. This prevents bots from caching
+    # download URLs indefinitely.
+    ebf = ebook.ebook_files.filter(asking=False).last()
+    if ebf and ebf.file and ebf.file.name:
+        signed_url = _generate_signed_s3_url(ebf.file.name)
+        if signed_url:
+            return HttpResponseRedirect(signed_url)
+
     return HttpResponseRedirect(ebook.url)
 
 
