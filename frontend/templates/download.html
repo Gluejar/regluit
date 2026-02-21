@@ -2,6 +2,7 @@
 
 {% load humanize %}
 {% load sass_tags %}
+{% load cf %}
 
 {% with work.title as title %}
 {% block title %}
@@ -18,7 +19,19 @@ $j(document).ready(function() {
     // actually trigger the download_page function
     $j(document).trigger('prettifyDownload');
 });
+
+function enableDownloads(token) {
+    // Append Turnstile token to all download_ebook links so the view can validate
+    $j('a[href*="/download_ebook/"]').each(function() {
+        var href = $j(this).attr('href');
+        if (href.indexOf('cf-turnstile-response') === -1) {
+            var sep = href.indexOf('?') === -1 ? '?' : '&';
+            $j(this).attr('href', href + sep + 'cf-turnstile-response=' + encodeURIComponent(token));
+        }
+    });
+}
 </script>
+<div class="cf-turnstile" data-sitekey="{% cf_site %}" data-callback="enableDownloads" data-appearance="interaction-only"></div>
 {% endblock %}
 
 {% block avatar %}
