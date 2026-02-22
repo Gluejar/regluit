@@ -31,7 +31,6 @@ function enableDownloads(token) {
     });
 }
 </script>
-<div class="cf-turnstile" data-sitekey="{% cf_site %}" data-callback="enableDownloads" data-appearance="interaction-only"></div>
 {% endblock %}
 
 {% block avatar %}
@@ -42,6 +41,8 @@ function enableDownloads(token) {
 <div class="download_container">
 <div id="lightbox_content">
 <span id="dropboxjs" data-app-key="{{ dropbox_key }}"></span>
+{# Turnstile widget: runs invisibly, fires enableDownloads(token) when challenge passes #}
+<div class="cf-turnstile" data-sitekey="{% cf_site %}" data-callback="enableDownloads" data-appearance="interaction-only"></div>
 {% if show_beg %}
     {% if work.last_campaign.ask_money %}
     <div class="border" style="padding: 10px; min-height: 18em">

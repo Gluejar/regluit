@@ -2209,12 +2209,13 @@ def download_ebook(request, ebook_id):
     if is_bad_robot(request):
         logger.info("blocked bot download: ebook {0}, ua: {1}".format(ebook_id, _sanitize_ua(request.META.get('HTTP_USER_AGENT', ''))))
         return HttpResponseForbidden("Automated downloads are not permitted.")
-    if not cf.validate(request):
-        return HttpResponseForbidden("Please complete the human verification on the download page.")
     try:
         ebook = get_object_or_404(models.Ebook, id=ebook_id)
     except ValueError:
         raise Http404
+    if not cf.validate(request):
+        # Redirect to the download page so the Turnstile widget can run
+        return HttpResponseRedirect(reverse('download', kwargs={'work_id': ebook.edition.work_id}))
     ebook.increment()
     logger.info("ebook: {0}, user_ip: {1}".format(ebook_id, request.META['REMOTE_ADDR']))
 
