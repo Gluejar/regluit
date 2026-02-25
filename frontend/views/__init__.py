@@ -519,29 +519,40 @@ def manage_ebooks(request, edition_id, by=None):
 
 
 BAD_ROBOTS = [
-    u'memorybot',
-    # AI crawlers
+    # Officially documented AI training crawlers (authoritative sources from each company):
+    # OpenAI: https://platform.openai.com/docs/bots
     u'gptbot',
     u'chatgpt-user',
     u'oai-searchbot',
+    # Anthropic: https://support.claude.com/en/articles/8896518-does-anthropic-crawl-data-from-the-web
     u'claudebot',
-    u'anthropic-ai',
-    u'claude-web',
+    # Perplexity: https://docs.perplexity.ai/guides/bots
     u'perplexitybot',
     u'perplexity-user',
-    u'google-extended',
+    # Amazon: https://developer.amazon.com/amazonbot
     u'amazonbot',
-    u'bytespider',
+    # Meta: https://developers.facebook.com/docs/sharing/webmasters/crawler
     u'meta-externalagent',
     u'facebookbot',
+    # Common Crawl: https://commoncrawl.org/ccbot
     u'ccbot',
-    u'applebot-extended',
-    u'cohere-ai',
+    # Diffbot: https://docs.diffbot.com/docs/does-crawl-respect-robotstxt
     u'diffbot',
-    u'imagesiftbot',
-    u'omgilibot',
-    u'timpibot',
+
+    # Real crawlers, not formally documented by operator:
+    u'bytespider',       # ByteDance/TikTok — widely observed, no official docs page
+    u'cohere-ai',        # Cohere — appears in logs, no official crawler docs
+    u'timpibot',         # Timpi decentralized search — no formal docs page
+    u'imagesiftbot',     # Hive/ImageSift — documented on imagesift.com/about
+
+    # Deprecated Anthropic UA strings (replaced by claudebot, but kept for residual traffic):
+    u'anthropic-ai',
+    u'claude-web',
 ]
+# Removed (not actual UA strings — robots.txt tokens only, never appear in request headers):
+#   google-extended, applebot-extended
+# Removed (defunct/inactive operators):
+#   omgilibot (replaced by Webzio), memorybot (Internet Memory Foundation, ~2015)
 
 def _sanitize_ua(user_agent):
     """Sanitize user-agent for safe logging (strip control chars, cap length)."""
