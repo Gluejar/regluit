@@ -2197,7 +2197,7 @@ SIGNED_URL_EXPIRY = 300  # 5 minutes
 
 def _generate_signed_s3_url(s3_key, expiry=SIGNED_URL_EXPIRY):
     """Generate a short-lived signed S3 URL for the given key.
-    Returns None on failure so callers can fall back to the stored URL."""
+    Returns None on failure."""
     try:
         client = boto3.client(
             's3',
@@ -2238,6 +2238,10 @@ def download_ebook(request, ebook_id):
         signed_url = _generate_signed_s3_url(ebf.file.name)
         if signed_url:
             return HttpResponseRedirect(signed_url)
+        # Signing failed — send user back to download page with an explanation
+        # rather than redirecting to a raw S3 URL that may be inaccessible.
+        messages.error(request, "We're having trouble preparing your download. Please try again in a moment.")
+        return HttpResponseRedirect(reverse('download', kwargs={'work_id': ebook.edition.work_id}))
 
     return HttpResponseRedirect(ebook.url)
 

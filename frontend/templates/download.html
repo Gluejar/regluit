@@ -40,6 +40,9 @@ function enableDownloads(token) {
 
 <div class="download_container">
 <div id="lightbox_content">
+{% if messages %}
+<ul class="messages">{% for message in messages %}<li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>{% endfor %}</ul>
+{% endif %}
 <span id="dropboxjs" data-app-key="{{ dropbox_key }}"></span>
 {# Turnstile widget: runs invisibly, fires enableDownloads(token) when challenge passes #}
 <div class="cf-turnstile" data-sitekey="{% cf_site %}" data-callback="enableDownloads" data-appearance="interaction-only"></div>
