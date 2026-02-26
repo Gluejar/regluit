@@ -21,13 +21,12 @@ $j(document).ready(function() {
 });
 
 function enableDownloads(token) {
-    // Append Turnstile token to all download_ebook links so the view can validate
+    // Set (or replace) Turnstile token on all download_ebook links so the view can validate.
+    // Always replace rather than skip-if-present so a refreshed token overwrites a stale one.
     $j('a[href*="/download_ebook/"]').each(function() {
-        var href = $j(this).attr('href');
-        if (href.indexOf('cf-turnstile-response') === -1) {
-            var sep = href.indexOf('?') === -1 ? '?' : '&';
-            $j(this).attr('href', href + sep + 'cf-turnstile-response=' + encodeURIComponent(token));
-        }
+        var href = $j(this).attr('href').replace(/[?&]cf-turnstile-response=[^&]*/g, '');
+        var sep = href.indexOf('?') === -1 ? '?' : '&';
+        $j(this).attr('href', href + sep + 'cf-turnstile-response=' + encodeURIComponent(token));
     });
 }
 </script>

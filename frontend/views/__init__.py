@@ -2197,13 +2197,14 @@ SIGNED_URL_EXPIRY = 300  # 5 minutes
 
 def _generate_signed_s3_url(s3_key, expiry=SIGNED_URL_EXPIRY):
     """Generate a short-lived signed S3 URL for the given key.
-    Returns None on failure."""
+    Returns None on failure.
+
+    Uses boto3's default credential chain (env vars, IAM role, ~/.aws/credentials)
+    rather than hardcoding settings values, so this works with both static keys
+    and instance/task roles.
+    """
     try:
-        client = boto3.client(
-            's3',
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-        )
+        client = boto3.client('s3')
         return client.generate_presigned_url(
             'get_object',
             Params={
