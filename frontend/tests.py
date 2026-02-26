@@ -1,6 +1,7 @@
 #external library imports
 import re
 import mimetypes
+from unittest.mock import patch
 
 #django imports
 from django.contrib.auth.models import User
@@ -8,7 +9,7 @@ from django.test import TestCase
 from django.test.client import Client
 
 #regluit imports
-from regluit.core.models import Work, RightsHolder, Claim, Subject
+from regluit.core.models import Work, Edition, Ebook, RightsHolder, Claim, Subject
 
 class WishlistTests(TestCase):
     fixtures = ['initial_data.json', 'neuromancer.json']
@@ -159,5 +160,95 @@ class GoogleBooksTest(TestCase):
         self.assertEqual(r.status_code, 302)
         work_url = r['location']
         self.assertTrue(re.match(r'.*/work/\d+/$', work_url))
+
+
+class DownloadProtectionTest(TestCase):
+    """
+    Tests for PR #1091: bot UA blocking + Cloudflare Turnstile + signed S3 URLs.
+
+    Server-side logic is tested here using mocks for cf.validate() so no real
+    Cloudflare network calls are made. See test/playwright_download_protection.py
+    for browser-based integration tests against a live server.
+    """
+
+    fixtures = ['initial_data.json']
+
+    def setUp(self):
+        self.client = Client()
+        work = Work.objects.create(title='Test Work', language='en')
+        edition = Edition.objects.create(work=work, title='Test Work')
+        self.ebook = Ebook.objects.create(
+            edition=edition,
+            url='https://tieulgnu.s3.amazonaws.com/test/test.epub',
+            format='epub',
+            rights='https://creativecommons.org/licenses/by/4.0/',
+        )
+        self.download_url = '/download_ebook/{}/'.format(self.ebook.id)
+        self.download_page_url = '/work/{}/download/'.format(work.id)
+
+    # --- Bot UA blocking (Test 5) ---
+
+    def test_known_bot_ua_blocked(self):
+        """Known AI crawler UAs should get 403 immediately."""
+        bot_uas = [
+            'GPTBot/1.0',
+            'Mozilla/5.0 (compatible; ClaudeBot/1.0)',
+            'Mozilla/5.0 (compatible; PerplexityBot/1.0)',
+            'Mozilla/5.0 (compatible; Amazonbot/0.1)',
+            'Mozilla/5.0 (compatible; CCBot/2.0)',
+        ]
+        for ua in bot_uas:
+            r = self.client.get(self.download_url, HTTP_USER_AGENT=ua)
+            self.assertEqual(r.status_code, 403,
+                msg='Expected 403 for bot UA: {}'.format(ua))
+
+    def test_normal_ua_not_hard_blocked(self):
+        """Normal browser UAs should not get 403 (Test 6 equivalent)."""
+        normal_ua = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+        with patch('regluit.frontend.views.cf.validate', return_value=False):
+            r = self.client.get(self.download_url, HTTP_USER_AGENT=normal_ua)
+        self.assertNotEqual(r.status_code, 403)
+
+    # --- Turnstile redirect (Tests 2 & 3) ---
+
+    def test_no_token_redirects_to_download_page(self):
+        """Direct access with no Turnstile token should redirect to download page (Test 2)."""
+        with patch('regluit.frontend.views.cf.validate', return_value=False):
+            r = self.client.get(self.download_url)
+        self.assertEqual(r.status_code, 302)
+        self.assertIn('/download/', r['Location'])
+
+    def test_invalid_token_redirects_to_download_page(self):
+        """Fake/invalid token should redirect back to download page (Test 3)."""
+        with patch('regluit.frontend.views.cf.validate', return_value=False):
+            r = self.client.get(self.download_url + '?cf-turnstile-response=FAKEFAKE')
+        self.assertEqual(r.status_code, 302)
+        self.assertIn('/download/', r['Location'])
+
+    # --- Valid token → download (Test 4) ---
+
+    def test_valid_token_proceeds_to_download(self):
+        """Valid Turnstile token with no EbookFile should redirect to ebook URL."""
+        with patch('regluit.frontend.views.cf.validate', return_value=True):
+            r = self.client.get(
+                self.download_url + '?cf-turnstile-response=VALIDTOKEN'
+            )
+        self.assertEqual(r.status_code, 302)
+        self.assertIn('s3.amazonaws.com', r['Location'])
+
+    def test_valid_token_with_s3_ebookfile_returns_signed_url(self):
+        """Valid token with an EbookFile should return a signed S3 URL."""
+        from regluit.core.models import EbookFile
+        from django.core.files.base import ContentFile
+        ebf = EbookFile(ebook=self.ebook, format='epub')
+        ebf.file.save('test/test.epub', ContentFile(b'fake epub content'), save=True)
+        fake_signed = 'https://tieulgnu.s3.amazonaws.com/test/test.epub?X-Amz-Signature=abc'
+        with patch('regluit.frontend.views.cf.validate', return_value=True), \
+             patch('regluit.frontend.views._generate_signed_s3_url', return_value=fake_signed):
+            r = self.client.get(
+                self.download_url + '?cf-turnstile-response=VALIDTOKEN'
+            )
+        self.assertEqual(r.status_code, 302)
+        self.assertIn('X-Amz-Signature', r['Location'])
 
 
