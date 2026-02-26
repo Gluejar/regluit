@@ -1,4 +1,5 @@
 import logging
+import time
 
 import requests
 
@@ -10,6 +11,10 @@ site_key = settings.CF_TURNSTILE_SITE_KEY
 secret_key = settings.CF_TURNSTILE_SECRET_KEY
 cf_url = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
 
+# Re-validate with Cloudflare after this many seconds (avoids CAPTCHA on every
+# download click in a session while still expiring stale validations).
+SESSION_CF_EXPIRY = 3600  # 1 hour
+
 
 def validate(request):
     token = request.GET.get('cf-turnstile-response', None)
@@ -17,7 +22,10 @@ def validate(request):
     if not token:
         return False
 
-    if request.session.get('token') and request.session.get('token') == token:
+    # Accept cached validation if it's recent and matches the same token
+    cached_token = request.session.get('cf_token')
+    cached_at = request.session.get('cf_validated_at', 0)
+    if cached_token == token and (time.time() - cached_at) < SESSION_CF_EXPIRY:
         return True
 
     ip = request.META.get('REMOTE_ADDR', None)
@@ -27,19 +35,20 @@ def validate(request):
         "remoteip": ip,
     }
     try:
-        response = requests.post(cf_url, json=data)
+        response = requests.post(cf_url, json=data, timeout=5)
         response.raise_for_status()
-        print( response.json())
-        success = response.json().get("success", None)
-        error_codes = response.json().get("error_codes", [])
-        
+        result = response.json()
+        success = result.get("success", False)
+        error_codes = result.get("error-codes", [])
+
     except requests.exceptions.RequestException as e:
-        logger.error(f"An error occurred: {e}")
+        logger.error(f"Cloudflare Turnstile request failed: {e}")
         return False
-    
+
     if success:
-        request.session['token'] = token
+        request.session['cf_token'] = token
+        request.session['cf_validated_at'] = time.time()
         return True
 
-    logger.info(f"validation failed due to: {error_codes}")
+    logger.info(f"Turnstile validation failed: {error_codes}")
     return False
