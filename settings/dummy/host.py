@@ -31,3 +31,8 @@ AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY", '') # 40 chars
 DATABASE_USER = os.environ.get("DATABASE_USER", 'root')
 DATABASE_PASSWORD = os.environ.get("DATABASE_PASSWORD", '')
 DATABASE_HOST = os.environ.get("DATABASE_HOST", '')
+
+# Cloudflare Turnstile — test keys (always pass, safe for local dev and CI)
+# https://developers.cloudflare.com/turnstile/troubleshooting/testing/
+CF_TURNSTILE_SITE_KEY = os.environ.get("CF_TURNSTILE_SITE_KEY", "1x00000000000000000000BB")
+CF_TURNSTILE_SECRET_KEY = os.environ.get("CF_TURNSTILE_SECRET_KEY", "1x0000000000000000000000000000000AA")
