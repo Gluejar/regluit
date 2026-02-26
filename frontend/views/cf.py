@@ -44,6 +44,9 @@ def validate(request):
     except requests.exceptions.RequestException as e:
         logger.error(f"Cloudflare Turnstile request failed: {e}")
         return False
+    except ValueError as e:
+        logger.error(f"Cloudflare Turnstile returned invalid JSON: {e}")
+        return False
 
     if success:
         request.session['cf_token'] = token

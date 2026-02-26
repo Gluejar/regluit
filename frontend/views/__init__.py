@@ -2195,7 +2195,7 @@ def reserve(request, work_id):
 
 SIGNED_URL_EXPIRY = 300  # 5 minutes
 
-def _generate_signed_s3_url(s3_key, expiry=SIGNED_URL_EXPIRY):
+def _generate_signed_s3_url(s3_key, bucket_name, expiry=SIGNED_URL_EXPIRY):
     """Generate a short-lived signed S3 URL for the given key.
     Returns None on failure.
 
@@ -2208,7 +2208,7 @@ def _generate_signed_s3_url(s3_key, expiry=SIGNED_URL_EXPIRY):
         return client.generate_presigned_url(
             'get_object',
             Params={
-                'Bucket': settings.AWS_STORAGE_BUCKET_NAME,
+                'Bucket': bucket_name,
                 'Key': s3_key,
             },
             ExpiresIn=expiry,
@@ -2233,16 +2233,19 @@ def download_ebook(request, ebook_id):
 
     # For S3-hosted ebooks, generate a short-lived signed URL instead of
     # redirecting to a permanent public URL. This prevents bots from caching
-    # download URLs indefinitely.
+    # download URLs indefinitely. Skip signing for non-S3 storage backends
+    # (e.g. local FileSystemStorage in dev) which have no bucket_name.
     ebf = ebook.ebook_files.filter(asking=False).last()
     if ebf and ebf.file and ebf.file.name:
-        signed_url = _generate_signed_s3_url(ebf.file.name)
-        if signed_url:
-            return HttpResponseRedirect(signed_url)
-        # Signing failed — send user back to download page with an explanation
-        # rather than redirecting to a raw S3 URL that may be inaccessible.
-        messages.error(request, "We're having trouble preparing your download. Please try again in a moment.")
-        return HttpResponseRedirect(reverse('download', kwargs={'work_id': ebook.edition.work_id}))
+        s3_bucket = getattr(ebf.file.storage, 'bucket_name', None)
+        if s3_bucket:
+            signed_url = _generate_signed_s3_url(ebf.file.name, s3_bucket)
+            if signed_url:
+                return HttpResponseRedirect(signed_url)
+            # Signing failed — send user back to download page with an explanation
+            # rather than redirecting to a raw S3 URL that may be inaccessible.
+            messages.error(request, "We're having trouble preparing your download. Please try again in a moment.")
+            return HttpResponseRedirect(reverse('download', kwargs={'work_id': ebook.edition.work_id}))
 
     return HttpResponseRedirect(ebook.url)
 

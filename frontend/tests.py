@@ -240,8 +240,12 @@ class DownloadProtectionTest(TestCase):
         """Valid token with an EbookFile should return a signed S3 URL."""
         from regluit.core.models import EbookFile
         from django.core.files.base import ContentFile
-        ebf = EbookFile(ebook=self.ebook, format='epub')
+        ebf = EbookFile(ebook=self.ebook, edition=self.ebook.edition, format='epub')
         ebf.file.save('test/test.epub', ContentFile(b'fake epub content'), save=True)
+        # Simulate S3 storage by setting bucket_name on the FileSystemStorage instance
+        # used in tests (S3Boto3Storage has this; FileSystemStorage does not).
+        ebf.file.storage.bucket_name = 'tieulgnu'
+        ebf.save()
         fake_signed = 'https://tieulgnu.s3.amazonaws.com/test/test.epub?X-Amz-Signature=abc'
         with patch('regluit.frontend.views.cf.validate', return_value=True), \
              patch('regluit.frontend.views._generate_signed_s3_url', return_value=fake_signed):
