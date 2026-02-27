@@ -129,6 +129,7 @@ TEMPLATES = [
 
 
 MIDDLEWARE = (
+    'regluit.frontend.middleware.BotBlockingMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

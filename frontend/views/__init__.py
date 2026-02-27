@@ -515,17 +515,7 @@ def manage_ebooks(request, edition_id, by=None):
         })
 
 
-BAD_ROBOTS = [u'memoryBot']
-def is_bad_robot(request):
-    user_agent = request.META.get('HTTP_USER_AGENT', '')
-    for robot in BAD_ROBOTS:
-        try:
-            if robot in user_agent:
-                return True
-        except UnicodeDecodeError:
-            # user agent is sending illegal header
-            return True
-    return False        
+from regluit.frontend.middleware import BAD_ROBOTS, is_bad_robot  # noqa: F401
 
 def googlebooks(request, googlebooks_id):
     try:
