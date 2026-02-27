@@ -50,8 +50,9 @@ def _sanitize_ua(user_agent):
 def is_bad_robot(request):
     user_agent = request.META.get('HTTP_USER_AGENT', '')
     if not user_agent:
-        logger.info("empty user-agent from {0}".format(request.META.get('REMOTE_ADDR', '?')))
-        return False
+        # Empty UA is almost never a legitimate browser; block it.
+        logger.debug("empty user-agent from %s", request.META.get('REMOTE_ADDR', '?'))
+        return True
     try:
         ua_lower = user_agent.lower()
     except UnicodeDecodeError:
@@ -77,7 +78,7 @@ class BotBlockingMiddleware:
     def __call__(self, request):
         if is_bad_robot(request):
             ua = _sanitize_ua(request.META.get('HTTP_USER_AGENT', ''))
-            logger.info(
+            logger.debug(
                 "Bot blocked by middleware: %s from %s",
                 ua,
                 request.META.get('REMOTE_ADDR', '?'),
