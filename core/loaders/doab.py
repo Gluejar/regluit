@@ -3,6 +3,7 @@
 import datetime
 import logging
 import re
+import urllib.error
 
 import requests
 
@@ -520,5 +521,15 @@ def load_doab_oai(from_date, until_date, limit=100):
                 break
     except NoRecordsMatchError:
         pass
+    except urllib.error.HTTPError as e:
+        if e.code == 429:
+            retry_after = e.headers.get('Retry-After', 'unknown')
+            logger.error(
+                'DOAB OAI rate-limited (HTTP 429). '
+                'Retry-After: %s seconds. Harvest stopped after %s records.',
+                retry_after, num_doabs
+            )
+        else:
+            raise
     return num_doabs, new_doabs, lasttime
     
