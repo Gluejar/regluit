@@ -10,12 +10,15 @@ logger = logging.getLogger(__name__)
 def get_soup(url, user_agent=settings.USER_AGENT, follow_redirects=False, verify=True):
     try:
         response = requests.get(url, headers={"User-Agent": user_agent},
-                                allow_redirects=follow_redirects, verify=verify)
+                                allow_redirects=follow_redirects, verify=verify, timeout=(10, 30))
     except requests.exceptions.MissingSchema:
-        response = requests.get('http://%s' % url, headers={"User-Agent": user_agent})
+        response = requests.get('http://%s' % url, headers={"User-Agent": user_agent}, timeout=(10, 30))
     except requests.exceptions.ConnectionError as e:
         logger.error("Connection refused for %s", url)
         logger.error(e)
+        return None
+    except requests.exceptions.Timeout:
+        logger.error("Request timed out for %s", url)
         return None
     if response.status_code == 200:
         soup = BeautifulSoup(response.content, 'lxml')
