@@ -508,7 +508,11 @@ def load_doab_oai(from_date, until_date, limit=100):
             doab = getdoab(ident)
             if doab:
                 num_doabs += 1
-                e = add_by_doab(doab, record=record)
+                try:
+                    e = add_by_doab(doab, record=record)
+                except Exception as ex:
+                    logger.exception('unexpected error processing doab #%s: %s', doab, ex)
+                    continue
                 if not e:
                     logger.error('null edition for doab #%s', doab)
                     continue

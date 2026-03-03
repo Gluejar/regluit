@@ -128,6 +128,10 @@ def get_streamdata(handle):
     url = STREAM_QUERY.format(handle)
     try:
         response = requests.get(url, headers={"User-Agent": settings.USER_AGENT}, timeout=(5, 60))
+        if response.status_code == 429:
+            retry_after = response.headers.get('Retry-After', 'unknown')
+            logger.error('DOAB bitstream API rate-limited (HTTP 429) for %s. Retry-After: %s', handle, retry_after)
+            return None
         items = response.json()
         if items:
             for stream in items[0]['bitstreams']:
