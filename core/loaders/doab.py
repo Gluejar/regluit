@@ -516,7 +516,7 @@ def load_doab_oai(from_date, until_date, limit=100):
                     new_doabs += 1
                 title = e.title if e else None
                 logger.info(u'updated:\t%s\t%s', doab, title)
-            if num_doabs >= limit:
+            if limit is not None and num_doabs >= limit:
                 break
     except NoRecordsMatchError:
         pass
