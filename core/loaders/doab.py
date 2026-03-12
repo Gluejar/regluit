@@ -66,10 +66,10 @@ def store_doab_cover(doab_id, redo=False):
             if redirurl.startswith(u'ftp'):
                 springerftp = SPRINGER_COVER.match(redirurl)
                 if springerftp:
-                    redirurl = SPRINGER_IMAGE.format(springerftp.groups(1))
+                    redirurl = SPRINGER_IMAGE.format(springerftp.group(1))
                     r = requests.get(redirurl, headers=headers, timeout=(5, 60))
             else:
-                r = requests.get(url, headers=headers, timeout=(5, 60))
+                r = requests.get(redirurl, headers=headers, timeout=(5, 60))
         if not r.content:
             logger.warning('No image content for doab_id=%s', doab_id)
             return (None, False)
@@ -500,8 +500,8 @@ def load_doab_oai(from_date, until_date, limit=100):
                                               until=until_date):
             if not record[1]:
                 continue
-            item_type = unlist(record[1].getMap().get('type', None))
-            if item_type != 'book':
+            item_types = [str(t).strip().lower() for t in (record[1].getMap().get('type') or [])]
+            if 'book' not in item_types:
                 continue
             ident = record[0].identifier()
             datestamp = record[0].datestamp()
