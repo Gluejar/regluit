@@ -127,7 +127,7 @@ STREAM_QUERY = 'https://directory.doabooks.org/rest/search?query=handle:{}&expan
 def get_streamdata(handle):
     url = STREAM_QUERY.format(handle)
     try:
-        response = requests.get(url, headers={"User-Agent": settings.USER_AGENT})
+        response = requests.get(url, headers={"User-Agent": settings.USER_AGENT}, timeout=(5, 60))
         items = response.json()
         if items:
             for stream in items[0]['bitstreams']:

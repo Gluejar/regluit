@@ -59,16 +59,16 @@ def store_doab_cover(doab_id, redo=False):
     if not url:
         return (None, False)
     try:
-        r = requests.get(url, allow_redirects=False, headers=headers) # requests doesn't handle ftp redirects.
+        r = requests.get(url, allow_redirects=False, headers=headers, timeout=(5, 60)) # requests doesn't handle ftp redirects.
         if r.status_code == 302:
             redirurl = r.headers['Location']
             if redirurl.startswith(u'ftp'):
                 springerftp = SPRINGER_COVER.match(redirurl)
                 if springerftp:
                     redirurl = SPRINGER_IMAGE.format(springerftp.groups(1))
-                    r = requests.get(redirurl, headers=headers)
+                    r = requests.get(redirurl, headers=headers, timeout=(5, 60))
             else:
-                r = requests.get(url, headers=headers)
+                r = requests.get(url, headers=headers, timeout=(5, 60))
         if not r.content:
             logger.warning('No image content for doab_id=%s', doab_id)
             return (None, False)
