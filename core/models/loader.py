@@ -85,16 +85,16 @@ class ContentTyper(object):
         def handle_ude(url, ude):
             url = requote(url)
             try:
-                return requests.get(url, allow_redirects=True)
+                return requests.get(url, allow_redirects=True, timeout=(5, 60))
             except:
                 logger.error('Error processing %s after unicode error', url)
 
         try:
             try:
-                r = requests.head(url, allow_redirects=True)
+                r = requests.head(url, allow_redirects=True, timeout=(5, 60))
                 if r.status_code == 405:
                     try:
-                        r =  requests.get(url)
+                        r = requests.get(url, timeout=(5, 60))
                     except UnicodeDecodeError as ude:
                         if 'utf-8' in str(ude):
                             r = handle_ude(url, ude)
@@ -103,7 +103,7 @@ class ContentTyper(object):
                     r = handle_ude(url, ude)
         except requests.exceptions.SSLError:
             try:
-                r = requests.get(url, verify=False)
+                r = requests.get(url, verify=False, timeout=(5, 60))
             except:
                 logger.error('Error processing %s verification off', url)
                 return '', ''
@@ -147,9 +147,9 @@ def load_ebookfile(url, format, user_agent=settings.USER_AGENT, method='GET', ve
         return None, ''
     try:
         if method == 'POST':
-            response = requests.post(url, headers={"User-Agent": user_agent}, verify=verify)
+            response = requests.post(url, headers={"User-Agent": user_agent}, verify=verify, timeout=(10, 60))
         else:
-            response = requests.get(url, headers={"User-Agent": user_agent}, verify=verify)
+            response = requests.get(url, headers={"User-Agent": user_agent}, verify=verify, timeout=(10, 60))
 
     except requests.exceptions.SSLError:
         logger.error('bad certificate? for %s', url)
@@ -161,7 +161,7 @@ def load_ebookfile(url, format, user_agent=settings.USER_AGENT, method='GET', ve
         logger.error('decoding error for %s', url)
         url = requote(url)
         try:
-            response = requests.get(url, headers={"User-Agent": user_agent}, verify=verify)
+            response = requests.get(url, headers={"User-Agent": user_agent}, verify=verify, timeout=(10, 60))
         except:
             return None, ''
 
