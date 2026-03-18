@@ -31,9 +31,8 @@ from registration.signals import user_activated
 regluit imports
 """
 from regluit.payment.signals import transaction_charged, transaction_failed, pledge_modified, pledge_created
-from regluit.core.parameters import REWARDS, BUY2UNGLUE, THANKS, LIBRARY, RESERVE, THANKED
-from regluit.libraryauth.models import Library, LibraryUser
-from regluit.utils.localdatetime import date_today
+from regluit.core.parameters import REWARDS, THANKS, THANKED
+from regluit.libraryauth.models import LibraryUser
 
 logger = logging.getLogger(__name__)
 
@@ -175,36 +174,6 @@ def handle_transaction_charged(sender,transaction=None, **kwargs):
             send_mail_task.delay('unglue.it donation confirmation', message, 'notices@gluejar.com', [transaction.receipt])
     elif transaction.campaign.type is REWARDS:
         notification.send([transaction.user], "pledge_charged", context, True)
-    elif transaction.campaign.type is BUY2UNGLUE:
-        # provision the book
-        Acq = apps.get_model('core', 'Acq')
-        if transaction.offer.license == LIBRARY:
-            library = Library.objects.get(id=transaction.extra['library_id'])
-            new_acq = Acq.objects.create(user=library.user,work=transaction.campaign.work,license= LIBRARY)
-            if transaction.user_id != library.user_id:  # don't put it on reserve if purchased by the library
-                reserve_acq =  Acq.objects.create(user=transaction.user,work=transaction.campaign.work,license= RESERVE, lib_acq = new_acq)
-                reserve_acq.expire_in(datetime.timedelta(hours=2))
-            copies = int(transaction.extra.get('copies',1))
-            while copies > 1:
-                Acq.objects.create(user=library.user,work=transaction.campaign.work,license= LIBRARY)
-                copies -= 1
-        else:
-            if transaction.extra.get('give_to', False):
-                # it's a gift!
-                Gift = apps.get_model('core', 'Gift')
-                giftee = Gift.giftee(transaction.extra['give_to'], str(transaction.id))
-                new_acq = Acq.objects.create(user=giftee, work=transaction.campaign.work, license= transaction.offer.license)
-                gift = Gift.objects.create(acq=new_acq, message=transaction.extra.get('give_message',''), giver=transaction.user , to = transaction.extra['give_to'])
-                context['gift'] = gift
-                notification.send([giftee], "purchase_gift", context, True)
-            else:
-                new_acq = Acq.objects.create(user=transaction.user,work=transaction.campaign.work,license= transaction.offer.license)
-        transaction.campaign.update_left()
-        notification.send([transaction.user], "purchase_complete", context, True)
-        from regluit.core.tasks import watermark_acq
-        watermark_acq.delay(new_acq.id)
-        if transaction.campaign.cc_date < date_today() :
-            transaction.campaign.update_status(send_notice=True)
     elif transaction.campaign.type is THANKS:
         if transaction.user:
             Acq = apps.get_model('core', 'Acq')

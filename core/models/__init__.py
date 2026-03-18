@@ -63,7 +63,7 @@ from regluit.core.parameters import (
     ACQ_CHOICES,
     GOOD_PROVIDERS,
 )
-from regluit.core.epub import personalize, ungluify, ask_epub
+from regluit.core.epub import personalize, ask_epub
 from regluit.core.pdf import ask_pdf, pdf_append
 from regluit.core.signals import (
     successful_campaign,
@@ -545,7 +545,7 @@ class Campaign(models.Model):
                 self.save()
                 action = CampaignAction(campaign=self, type='succeeded', comment=self.current_total)
                 action.save()
-                self.watermark_success()
+                # B2U watermark_success() removed (#1093); entire B2U branch is dead code (#1081)
                 if send_notice:
                     successful_campaign.send(sender=None, campaign=self)
 
@@ -974,54 +974,6 @@ class Campaign(models.Model):
             else:
                 ebf.ebook.activate()
                 format_versions.append(format_version)
-
-    def make_unglued_ebf(self, format, watermarked):
-        r = urlopen(watermarked.download_link(format))
-        ebf = EbookFile.objects.create(edition=self.work.preferred_edition, format=format)
-        ebf.file.save(path_for_file(ebf, None), ContentFile(r.read()))
-        ebf.file.close()
-        ebf.save()
-        ebook = Ebook.objects.create(
-            edition=self.work.preferred_edition,
-            format=format,
-            rights=self.license,
-            provider="Unglue.it",
-            url=settings.BASE_URL_SECURE + reverse('download_campaign', args=[self.work_id, format]),
-            version_label='unglued',
-            filesize=ebf.file.size,
-        )
-        old_ebooks = Ebook.objects.exclude(pk=ebook.pk).filter(
-            edition=self.work.preferred_edition,
-            format=format,
-            rights=self.license,
-            provider="Unglue.it",
-        )
-        for old_ebook in old_ebooks:
-            old_ebook.deactivate()
-        return ebook.pk
-
-
-    def watermark_success(self):
-        if self.status == 'SUCCESSFUL' and self.type == BUY2UNGLUE:
-            params = {
-                'customeremailaddress': self.license,
-                'customername': 'The Public',
-                'languagecode':'1033',
-                'expirydays': 1,
-                'downloadlimit': 7,
-                'exlibris':0,
-                'chapterfooter':0,
-                'disclaimer':0,
-                'referenceid': '%s:%s:%s' % (self.work_id, self.id, self.license),
-                'kf8mobi': True,
-                'epub': True,
-            }
-            ungluified = ungluify(self.work.epubfiles()[0].file, self)
-            ungluified.file_obj.seek(0)
-            watermarked = watermarker.platform(epubfile=ungluified.file_obj, **params)
-            self.make_unglued_ebf('epub', watermarked)
-            return True
-        return False
 
     def is_pledge(self):
         return  self.type == REWARDS
