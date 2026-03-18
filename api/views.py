@@ -1,5 +1,3 @@
-from tastypie.models import ApiKey
-
 import json as json_module
 import logging
 
@@ -152,12 +150,6 @@ class ApiHelpView(TemplateView):
         # base_url passed in to allow us to write absolute URLs for this site
         base_url = self.request.build_absolute_uri("/")[:-1]
         context["base_url"] = base_url
-
-        # if user is logged in, pass in the user's API key
-        u = auth.get_user(self.request)
-        if u.is_authenticated:
-            api_key = ApiKey.objects.filter(user=u)[0].key
-            context['api_key'] = api_key
 
         # pass in a sample Campaign whose widget can be displayed
         campaigns = models.Campaign.objects.all()

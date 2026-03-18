@@ -5,8 +5,6 @@ import datetime
 import itertools
 import logging
 
-from tastypie.models import create_api_key
-
 """
 django imports
 """
@@ -57,10 +55,6 @@ def create_user_objects(sender, created, instance, **kwargs):
             return
 
 post_save.connect(create_user_objects, sender=User)
-
-
-# create API key for new User
-post_save.connect(create_api_key, sender=User)
 
 
 # create notification types (using django-notification) -- tie to syncdb

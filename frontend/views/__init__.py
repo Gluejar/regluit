@@ -14,8 +14,6 @@ from decimal import Decimal as D
 from itertools import chain
 from notification import models as notification
 from random import randint
-from tastypie.models import ApiKey
-
 #django imports
 
 from django.apps import apps

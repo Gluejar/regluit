@@ -1,32 +1,18 @@
-from tastypie.api import Api
-
-from django.conf.urls import url, include
+from django.conf.urls import url
 from django.views.generic.base import TemplateView
 
-from regluit.api import resources
 from regluit.api.views import ApiHelpView
 from regluit.api.views import OPDSNavigationView, OPDSAcquisitionView
 from regluit.api.views import OnixView
 from regluit.api.views import (
-    travisci_webhook, 
-    load_yaml, 
-    negotiate_content, 
-    widget, 
+    travisci_webhook,
+    load_yaml,
+    negotiate_content,
+    widget,
     featured_cover,
     featured_url,
     )
 
-
-v1_api = Api(api_name='v1')
-v1_api.register(resources.WorkResource())
-v1_api.register(resources.IdentifierResource())
-v1_api.register(resources.EditionResource())
-v1_api.register(resources.CampaignResource())
-v1_api.register(resources.AuthorResource())
-v1_api.register(resources.SubjectResource())
-v1_api.register(resources.FreeResource())
-v1_api.register(resources.PublisherResource())
-v1_api.register(resources.EbookResource())
 
 urlpatterns = [
     url(r'^help$', ApiHelpView.as_view(), name="api_help"),
@@ -42,5 +28,4 @@ urlpatterns = [
     url(r'^id/work/(?P<work_id>\w+)/$', negotiate_content, name="work_identifier"),
     url(r'^loader/yaml$', load_yaml, name="load_yaml"),
     url(r'^travisci/webhook$', travisci_webhook, name="travisci_webhook"),
-    url(r'^', include(v1_api.urls)),
 ]
