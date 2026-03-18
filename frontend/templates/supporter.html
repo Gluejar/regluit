@@ -260,7 +260,7 @@ function highlightTarget(targetdiv) {
                                 <div id="js-search">
                                     <label>Search and add free-licenced books! </label>
                                     <form action="{% url 'search' %}" method="get">
-                                        <div class="cf-turnstile" data-sitekey="{% cf_site %}"  data-callback="enableSubmit2"></div>
+                                        <div class="cf-turnstile" data-sitekey="{% cf_site %}" data-appearance="interaction-only" data-callback="enableSubmit2"></div>
                                         <div class="inputalign">
                                         <input type="text" id="nowatermark" size="25" class="inputbox" name="q" value="{{ q }}" required>
                                         <input type="submit" class="button" id="search-button-2" disabled>

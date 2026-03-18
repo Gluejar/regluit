@@ -8,7 +8,7 @@
 <p>Welcome, {{user.username}}!</p><p id="link-to-next"></p>
     <label>Search and add free-licenced books! </label>
     <form action="{% url 'search' %}" method="get">
-        <div class="cf-turnstile" data-sitekey="{% cf_site %}"  data-callback="enableSubmit"></div>
+        <div class="cf-turnstile" data-sitekey="{% cf_site %}" data-appearance="interaction-only" data-callback="enableSubmit"></div>
         <div class="inputalign">
         <input type="text" id="nowatermark" size="25" class="inputbox" name="q" value="{{ q }}" required>
         <input type="submit" class="button" id="search-button" disabled>

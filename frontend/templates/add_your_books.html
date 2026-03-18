@@ -4,7 +4,7 @@
 	<p id="add_your_books"><b>Claiming a work</b></p>
 	<p>If your book is indexed in Google books, we can add it to our database automagically. Click on the result list to add your book to our database.</p>
 	<form action="{% url 'search' %}" method="get">
-        <div class="cf-turnstile" data-sitekey="{% cf_site %}"  data-callback="enableSubmit"></div>
+        <div class="cf-turnstile" data-sitekey="{% cf_site %}" data-appearance="interaction-only" data-callback="enableSubmit"></div>
         <div class="inputalign">
             <input type="text" id="nowatermark" size="25" class="inputbox" name="q" value="{{ q }}" required>
             <input type="submit" class="button" id="search-button" disabled>
