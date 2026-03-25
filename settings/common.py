@@ -160,7 +160,6 @@ INSTALLED_APPS = (
     'regluit.utils',
     'registration',
     'social_django',
-    'tastypie',
     'el_pagination',
     'selectable',
     'regluit.frontend.templatetags',
