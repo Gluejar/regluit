@@ -275,11 +275,6 @@ Please fix the following before launching your campaign:
 	<!--{{ form.deadline.errors }}--><!--{{ form.cc_date_initial.errors }}-->
 	{% endif %}
 {% endif %}
-{% if campaign.type == 2 %}
-    <h3>Personalization</h3>
-    <p>If you do not want Unglue.it to use digital watermarking techniques to encode a transaction number into the ebook files, uncheck this box. Either way, ebook files will be personalized; the difference is whether  personalization is easy or hard to remove.</p>
-    <div class="std_form">Use watermarking: {{ form.do_watermark }}</div>
-{% endif %}{{ form.do_watermark.errors }}
 
 
 	<h3>Your Pitch</h3>

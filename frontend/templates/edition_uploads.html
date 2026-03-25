@@ -39,20 +39,6 @@
 {% endif %}
 {% if uploaded %}
     <h2> Your file was successfully loaded. </h2>
-    {% ifequal edition.work.last_campaign.type 2 %}
-        {% if watermarked %}
-            <p> Reference id: <b>{{watermarked.referenceid}}</b></p>
-            <ul> 
-            <li><a href="{{watermarked.download_link_epub}}">Processed epub for testing</a></li>
-            </ul>
-        {% else %}{% if upload_error %}
-            <p>
-            <span class="yikes">Unfortunately, your file failed testing.</span>
-            The error(s) were: <pre>
-            {{ upload_error }}</pre>
-            </p>
-        {% endif %}{% endif %}
-    {% endifequal %}
     {% ifequal edition.work.last_campaign.type 3 %}
         {% if upload_error %}
             <p><span class="yikes">Unfortunately, your file failed testing.</span>
@@ -63,9 +49,6 @@
 {% endif %}
 {{ upload_error }}
 <h2>Upload Ebook files</h2>
-{% ifequal edition.work.last_campaign.type 2 %}
-<p>At this time, we accept only EPUB files for "Buy to Unglue" campaigns. 
-{% endifequal %}
 {% ifequal edition.work.last_campaign.type 3 %}
 <p>You can upload PDF, EPUB and MOBI files for "Thanks for Ungluing" campaigns. 
 {% endifequal %}
