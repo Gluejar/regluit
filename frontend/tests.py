@@ -152,6 +152,27 @@ class PageTests(TestCase):
         r = anon_client.get("/free/epub/gfdl/")
         self.assertEqual(r.status_code, 200)
 
+class AllFacetAliasTests(TestCase):
+    fixtures = ['initial_data.json', 'neuromancer.json']
+
+    def test_all_keyword_alias_matches_keyword_path(self):
+        plain = self.client.get("/free/kw.Fiction/?order_by=newest")
+        alias = self.client.get("/free/all/kw.Fiction/?order_by=newest")
+        self.assertEqual(plain.status_code, 200)
+        self.assertEqual(alias.status_code, 200)
+        self.assertContains(plain, "Show me only")
+        self.assertContains(alias, "Show me only")
+        self.assertEqual(plain.context['path'], 'kw.Fiction')
+        self.assertEqual(alias.context['path'], 'kw.Fiction')
+
+    def test_all_non_keyword_alias_matches_compound_path(self):
+        plain = self.client.get("/free/epub/doab/?order_by=newest")
+        alias = self.client.get("/free/all/epub/doab/?order_by=newest")
+        self.assertEqual(plain.status_code, 200)
+        self.assertEqual(alias.status_code, 200)
+        self.assertEqual(plain.context['path'], 'epub/doab')
+        self.assertEqual(alias.context['path'], 'epub/doab')
+
 class GoogleBooksTest(TestCase):
     fixtures = ['initial_data.json', 'neuromancer.json']
     def test_googlebooks_id(self):
@@ -159,5 +180,4 @@ class GoogleBooksTest(TestCase):
         self.assertEqual(r.status_code, 302)
         work_url = r['location']
         self.assertTrue(re.match(r'.*/work/\d+/$', work_url))
-
 

@@ -393,10 +393,13 @@ def get_all_facets(group='all'):
 
 def get_facet_object(facet_path):
     facets = facet_path.replace('//','/').strip('/').split('/')
+    if len(facets) > 1:
+        # `all` is a compatibility alias for the base facet, not a real facet.
+        facets = [facet for facet in facets if facet and facet != 'all']
     facet_object = None
     for facet in facets[:MAX_FACETS]:
         facet_object = get_facet(facet)(facet_object)
-    return facet_object
+    return facet_object if facet_object else BaseFacet(None)
 
 def get_order_by(order_by_key):
     # return the args to use as arguments for order_by
