@@ -69,6 +69,10 @@ class FeedTests(TestCase):
         r = self.client.get('/api/opds/?work=%s' % self.test_work_id)
         self.assertEqual(r.status_code, 200)
 
+    def test_opds_all_keyword_alias_works(self):
+        r = self.client.get('/api/opds/all/kw.Fiction/')
+        self.assertEqual(r.status_code, 200)
+
     def test_nix(self):
         r = self.client.get('/api/onix/by/')
         self.assertEqual(r.status_code, 200)
@@ -77,6 +81,10 @@ class FeedTests(TestCase):
         r = self.client.get('/api/onix/epub/?max=10')
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/api/onix/?work=%s' % self.test_work_id)
+        self.assertEqual(r.status_code, 200)
+
+    def test_onix_all_keyword_alias_works(self):
+        r = self.client.get('/api/onix/all/kw.Fiction/')
         self.assertEqual(r.status_code, 200)
 
 class AllowedRepoTests(TestCase):
