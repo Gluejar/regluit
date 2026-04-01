@@ -70,7 +70,7 @@ from regluit.core.search import gluejar_search
 from regluit.core.signals import supporter_message
 from regluit.core.tasks import send_mail_task, watermark_acq
 from regluit.core.parameters import *
-from regluit.core.facets import get_facet_object, get_order_by
+from regluit.core.facets import get_facet_object, get_order_by, InvalidFacetCombination
 
 from regluit.frontend.forms import (
     ProfileForm,
@@ -663,7 +663,10 @@ class FacetedView(FilterableListView):
     def get_queryset_all(self):
         if not hasattr(self,'vertex'):
             facet_path = self.kwargs.get('path', '')
-            self.vertex = get_facet_object(facet_path)
+            try:
+                self.vertex = get_facet_object(facet_path)
+            except InvalidFacetCombination:
+                raise Http404("Compound keyword facet URLs are not supported.")
 
         order_by = self.request.GET.get('order_by', 'newest')
 
