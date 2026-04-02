@@ -72,9 +72,19 @@ class BaseFacet(object):
             # don't show more facets
             return []
 
+        # Subjects (457K values) × other facets = hundreds of millions of
+        # crawlable URLs that bots exploit. See #1110.
+        # Rule: keyword facets cannot combine with any other facet type.
+        has_keyword = any(f.facet_name.startswith('kw.') for f in used)
+        if has_keyword:
+            # keyword active → no further facets allowed
+            return []
+
+        has_non_base_facet = any(f.facet_name != 'all' for f in used)
+
         if self._stash_others != None:
             return self._stash_others
- 
+
         others = []
         for group in facet_groups:
             in_use = False
@@ -83,6 +93,9 @@ class BaseFacet(object):
                     in_use = True
                     break
             if not in_use:
+                # If a non-keyword facet is already active, exclude keywords
+                if has_non_base_facet and isinstance(group, KeywordFacetGroup):
+                    continue
                 others.append(group)
         self._stash_others = others
         return others
@@ -391,11 +404,22 @@ def get_all_facets(group='all'):
             facets = facets + facet_group.facets
     return facets
 
+class InvalidFacetCombination(Exception):
+    """Raised when a keyword facet is combined with other facets (#1110)."""
+    pass
+
 def get_facet_object(facet_path):
     facets = facet_path.replace('//','/').strip('/').split('/')
     if len(facets) > 1:
         # `all` is a compatibility alias for the base facet, not a real facet.
         facets = [facet for facet in facets if facet and facet != 'all']
+    # Block keyword + other facet compounds (#1110)
+    # 457K subjects × other facets = hundreds of millions of bot-crawlable URLs
+    real_facets = [f for f in facets if f]
+    if len(real_facets) > 1:
+        has_keyword = any(f.startswith('kw.') for f in real_facets)
+        if has_keyword:
+            raise InvalidFacetCombination(facet_path)
     facet_object = None
     for facet in facets[:MAX_FACETS]:
         facet_object = get_facet(facet)(facet_object)

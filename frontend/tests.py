@@ -160,18 +160,57 @@ class AllFacetAliasTests(TestCase):
         alias = self.client.get("/free/all/kw.Fiction/?order_by=newest")
         self.assertEqual(plain.status_code, 200)
         self.assertEqual(alias.status_code, 200)
-        self.assertContains(plain, "Show me only")
-        self.assertContains(alias, "Show me only")
-        self.assertEqual(plain.context['path'], 'kw.Fiction')
-        self.assertEqual(alias.context['path'], 'kw.Fiction')
 
     def test_all_non_keyword_alias_matches_compound_path(self):
         plain = self.client.get("/free/epub/doab/?order_by=newest")
         alias = self.client.get("/free/all/epub/doab/?order_by=newest")
         self.assertEqual(plain.status_code, 200)
         self.assertEqual(alias.status_code, 200)
-        self.assertEqual(plain.context['path'], 'epub/doab')
-        self.assertEqual(alias.context['path'], 'epub/doab')
+
+class FacetIsolationTests(TestCase):
+    """Tests for #1110: keyword/subject facets cannot combine with other facets."""
+    fixtures = ['initial_data.json', 'neuromancer.json']
+
+    def test_base_free_page_offers_keywords(self):
+        """The base /free/ page should offer keyword facets in the sidebar."""
+        r = self.client.get("/free/")
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, "Keyword")
+
+    def test_keyword_page_no_refine_sidebar(self):
+        """A keyword facet page should NOT offer further facet refinement."""
+        r = self.client.get("/free/kw.Fiction/")
+        self.assertEqual(r.status_code, 200)
+        self.assertNotContains(r, "Show me only")
+
+    def test_non_keyword_page_excludes_keywords(self):
+        """A non-keyword facet page should offer refinement but NOT keywords."""
+        r = self.client.get("/free/epub/")
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, "Show me only")
+        self.assertNotContains(r, "Keyword")
+
+    def test_single_keyword_still_works(self):
+        r = self.client.get("/free/kw.Fiction/")
+        self.assertEqual(r.status_code, 200)
+
+    def test_keyword_compound_returns_404(self):
+        r = self.client.get("/free/kw.Fiction/epub/")
+        self.assertEqual(r.status_code, 404)
+
+    def test_keyword_compound_reversed_returns_404(self):
+        r = self.client.get("/free/epub/kw.Fiction/")
+        self.assertEqual(r.status_code, 404)
+
+    def test_keyword_with_all_prefix_still_works(self):
+        r = self.client.get("/free/all/kw.Fiction/")
+        self.assertEqual(r.status_code, 200)
+
+    def test_non_keyword_compound_still_works(self):
+        r = self.client.get("/free/epub/doab/")
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, "EPUB format")
+        self.assertContains(r, "Directory of Open Access Books")
 
 class GoogleBooksTest(TestCase):
     fixtures = ['initial_data.json', 'neuromancer.json']

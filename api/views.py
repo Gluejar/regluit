@@ -26,6 +26,7 @@ from regluit.api.models import repo_allowed
 from regluit.core.bookloader import load_from_yaml
 from regluit.core.covers import DEFAULT_COVER
 from regluit.core import models
+from regluit.core.facets import InvalidFacetCombination
 from regluit.core.parameters import ORDER_BY_KEYS
 
 logger = logging.getLogger(__name__)
@@ -204,14 +205,17 @@ class OPDSAcquisitionView(View):
             page = int(page)
         except:
             page = None
-        if self.json:
-            facet_class = opds_json.get_facet_class(facet)()
-            return StreamingHttpResponse(facet_class.feed(page,order_by),
-                        content_type="application/opds+json; charset=utf-8")
-        else:
-            facet_class = opds.get_facet_class(facet)()
-            return StreamingHttpResponse(facet_class.feed(page,order_by),
-                        content_type=opds.ACQUISITION)
+        try:
+            if self.json:
+                facet_class = opds_json.get_facet_class(facet)()
+                return StreamingHttpResponse(facet_class.feed(page,order_by),
+                            content_type="application/opds+json; charset=utf-8")
+            else:
+                facet_class = opds.get_facet_class(facet)()
+                return StreamingHttpResponse(facet_class.feed(page,order_by),
+                            content_type=opds.ACQUISITION)
+        except InvalidFacetCombination:
+            raise Http404("Compound keyword facet URLs are not supported.")
 
 class OnixView(View):
     def get(self, request, *args, **kwargs):
@@ -238,7 +242,10 @@ class OnixView(View):
             
         max_records = max_records if request.user.is_authenticated else ANONYMOUS_MAX_RECORDS
 
-        facet_class = opds.get_facet_class(facet)()
+        try:
+            facet_class = opds.get_facet_class(facet)()
+        except InvalidFacetCombination:
+            raise Http404("Compound keyword facet URLs are not supported.")
         page = request.GET.get('page', None)
         try:
             page = int(page)
