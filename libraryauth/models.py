@@ -230,7 +230,9 @@ class IPAddressModelField(models.PositiveIntegerField):
     def formfield(self, **kwargs):
         defaults = {'form_class': IPAddressFormField}
         defaults.update(kwargs)
-        return super().formfield(**defaults)
+        # Skip PositiveIntegerField/IntegerField chain which adds min_value/max_value
+        # that IPAddressFormField (a GenericIPAddressField form field) doesn't accept.
+        return models.Field.formfield(self, **defaults)
 
 
 class Block(models.Model):
