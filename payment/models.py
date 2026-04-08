@@ -15,7 +15,7 @@ from django.db import models
 from django.db.models import Q
 from django.contrib.sites.models import Site
 from django.db.models.signals import post_save, post_delete
-from django.utils.http import urlquote
+from urllib.parse import quote as urlquote
 from django.utils.timezone import now
 
 ## django module imports

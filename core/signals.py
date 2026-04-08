@@ -18,7 +18,7 @@ from django.db.models import signals
 from django.db.models.signals import post_save
 from django.db.utils import DatabaseError
 from django.dispatch import Signal
-from django.utils.translation import ugettext_noop as _
+from django.utils.translation import gettext_noop as _
 from django.template.loader import render_to_string
 from django.utils.timezone import now
 

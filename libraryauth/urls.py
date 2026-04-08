@@ -1,4 +1,4 @@
-from django.conf.urls import url, include
+from django.urls import re_path as url, include
 from django.contrib.auth.views import PasswordResetView
 from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView
