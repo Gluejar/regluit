@@ -193,24 +193,33 @@ class IPAddressFormField(BaseIPAddressField):
             raise ValidationError(self.default_error_messages['invalid'],
                                   code='invalid')
 
-class IPAddressModelField(models.GenericIPAddressField):
+class IPAddressModelField(models.PositiveIntegerField):
+    """Stores IPv4 addresses as positive integers with IP object conversion.
+
+    Replaces the previous GenericIPAddressField-based implementation that lied
+    about its internal type. Now properly extends PositiveIntegerField, which
+    matches the actual database column type. This fixes Django migration
+    framework compatibility for Django 2.x+.
+    """
     empty_strings_allowed = False
-
-    def __init__(self, *args, **kwargs):
-        models.Field.__init__(self, *args, **kwargs)
-
-    def get_internal_type(self):
-        return "PositiveIntegerField"
 
     def get_prep_value(self, value):
         if not value:
             return value
-
         if isinstance(value, IP):
             return value.int
+        return value
+
+    def from_db_value(self, value, expression, connection, *args):
+        # *args handles Django 1.8-1.11 (passes context) vs 2.0+ (no context)
+        if value is None:
+            return value
+        return IP(value)
 
     def to_python(self, value):
         if isinstance(value, IP):
+            return value
+        if value is None:
             return value
         try:
             return IP(value)
@@ -220,11 +229,7 @@ class IPAddressModelField(models.GenericIPAddressField):
     def formfield(self, **kwargs):
         defaults = {'form_class': IPAddressFormField}
         defaults.update(kwargs)
-        return super(models.GenericIPAddressField, self).formfield(**defaults)
-
-    def deconstruct(self):
-        name, path, args, kwargs = super(models.GenericIPAddressField, self).deconstruct()
-        return name, path, args, kwargs
+        return super().formfield(**defaults)
 
 
 class Block(models.Model):
