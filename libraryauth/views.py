@@ -14,7 +14,7 @@ from django.urls import reverse
 
 from django.views.generic.edit import CreateView, UpdateView
 
-from registration.backends.model_activation.views import RegistrationView
+from django_registration.backends.activation.views import RegistrationView
 
 from . import backends
 from .models import Library, BadUsernamePattern, get_special

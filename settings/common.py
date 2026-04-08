@@ -158,7 +158,7 @@ INSTALLED_APPS = (
     'regluit.marc',
     'regluit.payment',
     'regluit.utils',
-    'registration',
+    'django_registration',
     'social_django',
     'el_pagination',
     'selectable',

@@ -31,7 +31,7 @@ django-js-asset==1.2.3
 # django-jsonfield removed — using Django 3.2+ native models.JSONField
 django-mptt==0.14.0
 -e git+https://github.com/eshellman/django-notification.git@1ad2be4adf3551a3471d923380368341452e178a#egg=django-notification
-django-registration==2.4.1
+django-registration==3.4
 django-sass-processor==0.8.2
 django-selectable==1.5.0
 django-storages==1.5.2

@@ -78,6 +78,6 @@ urlpatterns = [
 
     url(r'^socialauth/', include('social_django.urls', namespace='social')),
     url('accounts/', include('email_change.urls')),
-    url(r'^accounts/', include('registration.backends.model_activation.urls')),
+    url(r'^accounts/', include('django_registration.backends.activation.urls')),
     url(r'^accounts/', include('django.contrib.auth.urls')),
 ]

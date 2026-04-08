@@ -23,7 +23,7 @@ from django.template.loader import render_to_string
 from django.utils.timezone import now
 
 from notification import models as notification
-from registration.signals import user_activated
+from django_registration.signals import user_activated
 
 """
 regluit imports
@@ -316,7 +316,7 @@ def notify_join_library(sender, created, instance, **kwargs):
 
 post_save.connect(notify_join_library, sender=LibraryUser)
 
-from registration.signals import user_activated
+from django_registration.signals import user_activated
 
 def ml_subscribe(user, request, **kwargs):
     user.profile.ml_subscribe()
