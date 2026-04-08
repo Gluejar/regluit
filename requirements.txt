@@ -21,7 +21,7 @@ cryptography==41.0.7; python_version >= '3.7'
 cssselect2==0.7.0; python_version >= '3.7'
 defusedxml==0.8.0rc2; python_version >= '3.6'
 distlib==0.3.8
-django==3.2.25
+django==4.2.21
 django-ckeditor==5.6.1
 django-contrib-comments==2.0.0
 django-el-pagination==4.1.2
