@@ -125,7 +125,8 @@ class IP(object):
 
     def _set_int(self, value):
         if isinstance(value, IP):
-            self._int = IP.int
+            self._int = value._int
+            return
 
         try:
             self._int = int(value)
@@ -248,15 +249,16 @@ class Block(models.Model):
 
 
     def __str__(self):
+        # lower/upper are already IP objects via from_db_value
         if self.upper:
-            return u'%s    %s - %s' % (self.library, IP(self.lower), IP(self.upper))
+            return u'%s    %s - %s' % (self.library, self.lower, self.upper)
         return u'%s %s' % (self.library, self.lower)
 
     def upper_IP(self):
-        return IP(self.upper)
+        return self.upper
 
     def lower_IP(self):
-        return IP(self.lower)
+        return self.lower
 
     class Meta:
         ordering = ['lower',]
