@@ -7,8 +7,6 @@ import logging
 
 from decimal import Decimal
 
-from jsonfield import JSONField
-
 ## django imports
 
 from django.conf import settings
@@ -117,7 +115,7 @@ class Transaction(models.Model):
     campaign = models.ForeignKey('core.Campaign', on_delete=models.CASCADE, null=True)
     premium = models.ForeignKey('core.Premium', on_delete=models.CASCADE, null=True)
     offer = models.ForeignKey('core.Offer', on_delete=models.CASCADE, null=True)
-    extra = JSONField(null=True, default={})
+    extra = models.JSONField(null=True, default=dict)
 
     # whether the user wants to be not listed publicly
     anonymous = models.BooleanField(default=False)

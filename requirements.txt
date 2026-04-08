@@ -28,7 +28,7 @@ django-el-pagination==3.2.4
 -e git+https://github.com/eshellman/django-email-change.git@fb063296cbf4e4a6d8a93d34d98fe0c7739c2e0d#egg=django-email-change
 django-extensions==3.1.1; python_version >= '3.6'
 django-js-asset==1.2.3
-django-jsonfield==1.0.0
+# django-jsonfield removed — using Django 3.2+ native models.JSONField
 django-mptt==0.14.0
 -e git+https://github.com/eshellman/django-notification.git@1ad2be4adf3551a3471d923380368341452e178a#egg=django-notification
 django-registration==2.4.1
