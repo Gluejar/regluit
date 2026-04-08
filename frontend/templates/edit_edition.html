@@ -171,11 +171,11 @@ ul.fancytree-container {
 		<p><b>Description</b>: <br />
 		{{ form.description.errors }}{{ form.description }}<br />
 		(<i>{% if work.last_campaign %}
-		        {% ifequal work.last_campaign.type 3 %}
+		        {% if work.last_campaign.type == 3 %}
 		        This will appear in the Description tab on the book page.  
 		        {% else %}
 		        The campaign pitch will override this description.
-		        {% endifequal %}
+		        {% endif %}
 		    {% else %}
 		    This will appear in the Description tab on the book page. 
 		    {% endif %}

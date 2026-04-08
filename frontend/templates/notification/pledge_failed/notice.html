@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block comments_graphical %}
-			{% ifequal transaction.campaign.type 1 %}The campaign for <a href="{% url 'work' transaction.campaign.work_id %}">{{ transaction.campaign.work.title }}</a> has succeeded.  However, our attempt to charge your pledge for ${{ transaction.amount|floatformat:2|intcomma }} to your credit card failed ({{transaction.error}}).  Will you help us fix that?{% else %}Our attempt to charge a purchase of ${{ transaction.amount|floatformat:2|intcomma }} to your credit card failed ({{transaction.error}}).{% endifequal %}
+			{% if transaction.campaign.type == 1 %}The campaign for <a href="{% url 'work' transaction.campaign.work_id %}">{{ transaction.campaign.work.title }}</a> has succeeded.  However, our attempt to charge your pledge for ${{ transaction.amount|floatformat:2|intcomma }} to your credit card failed ({{transaction.error}}).  Will you help us fix that?{% else %}Our attempt to charge a purchase of ${{ transaction.amount|floatformat:2|intcomma }} to your credit card failed ({{transaction.error}}).{% endif %}
 {% endblock %}
 
 {% block comments_textual %}
@@ -15,7 +15,7 @@
 		
 		<p>}We tried to process your transaction for  "{{ transaction.campaign.work.title }}". 
         However, our attempt to charge your credit card for ${{ transaction.amount|floatformat:2|intcomma }} failed.</p>
-        {% ifequal transaction.campaign.type 1 %}
+        {% if transaction.campaign.type == 1 %}
         <p>Don't worry - normally this just means the card we have on file for you is expired.  Once you've updated your card information we'll be able to collect your pledge on behalf of {{ transaction.campaign.rightsholder }}.  Please update your credit card information at
         <a href="{% url 'manage_account' %}">your account management page</a> by {{ recharge_deadline }} so that you can fulfill your pledge.  Thank you!</p>
 		
@@ -32,7 +32,7 @@
 		<p><b>Transaction Summary</b><br />
 		Amount of purchase: {{ transaction.amount|floatformat:2|intcomma }}<br />
 		</p>
-		{% endifequal %}
+		{% endif %}
 		<p>For more information, visit the <a href="{% url 'work' transaction.campaign.work_id %}">campaign page</a>.
 		
 		</p>

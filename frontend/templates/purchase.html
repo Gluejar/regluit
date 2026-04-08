@@ -68,7 +68,7 @@
         </div>
     </div>
 </div>
-{% ifequal work.last_campaign.status "ACTIVE" %}
+{% if work.last_campaign.status == "ACTIVE" %}
 {% lib_acqs %}{% purchased %}
 <div class="jsmodule rounded clearfix">
     <div class="jsmod-content">
@@ -111,7 +111,7 @@
                             <span class="menu-item-desc">Individual license already {% if user_license.purchased.gifts.all.count %}a gift to you!{% else %}purchased!{% endif %}</span>
                         {% else %}
                             <label for="offer_{{offer.id}}">
-                                <input type="radio" name="offer_id" id="offer_{{offer.id}}" value="{{offer.id}}" {% if not give %}{% ifequal offer_id offer.id|stringformat:"s" %}checked="checked"{% endifequal %}{% endif %} />
+                                <input type="radio" name="offer_id" id="offer_{{offer.id}}" value="{{offer.id}}" {% if not give %}{% if offer_id == offer.id|stringformat:"s" %}checked="checked"{% endif %}{% endif %} />
                                 <span class="menu-item-price">
                                     ${{ offer.price|floatformat:2|intcomma }}
                                 </span>
@@ -143,7 +143,7 @@
                     <li class="last">
                     {% if request.user.profile.libraries %}
                         <label for="offer_{{offer.id}}">
-                            <input type="radio" name="offer_id" id="offer_{{offer.id}}" value="{{offer.id}}" {% ifequal offer_id offer.id|stringformat:"s"  %}checked="checked"{% else %} {% if user.library %}checked="checked"{% endif %}{% endifequal %} />
+                            <input type="radio" name="offer_id" id="offer_{{offer.id}}" value="{{offer.id}}" {% if offer_id == offer.id|stringformat:"s" %}checked="checked"{% else %} {% if user.library %}checked="checked"{% endif %}{% endif %} />
                             <span class="menu-item-price">
                                 ${{ offer.price|floatformat:2|intcomma }}
                             </span>
@@ -184,7 +184,7 @@
 </div>
 {% else %}
 <div>Campaign is not ACTIVE. </div>
-{% endifequal %}
+{% endif %}
 {% endblock %}
 
 

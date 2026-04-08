@@ -40,9 +40,9 @@
                         <li class="parent">
                             <span class="show_langs">Languages...</span>
                             <ul class="menu level3" id="lang_list">
-                                <li class="first{% ifequal pub_lang '' %} active_lang{% endifequal %}"><a href="?">ALL</a></li>
+                                <li class="first{% if pub_lang == '' %} active_lang{% endif %}"><a href="?">ALL</a></li>
                                 {% for wished_lang in WISHED_LANGS %}
-                                <li{% ifequal pub_lang wished_lang %} class="active_lang"{% endifequal %}><a href="?pub_lang={{wished_lang}}">{{wished_lang|ez_lang_name_local}}</a></li>
+                                <li{% if pub_lang == wished_lang %} class="active_lang"{% endif %}><a href="?pub_lang={{wished_lang}}">{{wished_lang|ez_lang_name_local}}</a></li>
                                 {% endfor %}
                             </ul>
                         </li>

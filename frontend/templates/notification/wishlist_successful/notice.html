@@ -10,11 +10,11 @@ The campaign to unglue <a href="{% url 'work' campaign.work_id %}">{{ campaign.w
 {% endblock %}
 
 {% block comments_textual %}
-{% ifequal campaign.type 1 %}
+{% if campaign.type == 1 %}
 A book on your ungluing list, {{ campaign.work.title }}, has met its goal price of {{ campaign.target }}, thanks to the support of ungluers like you.  Unglue.it and the book's rights holder, {{ campaign.rightsholder }}, will be converting it to an unglued ebook edition and making it available for all the world to enjoy.  We'll let you know you when the unglued ebook is ready.<br /><br />
 {% else %}
 A book on your ungluing list, {{ campaign.work.title }}, has met its revenue target, thanks to the support of ungluers like you.  The book is now unglued - available for all the world to enjoy.  <br /><br />
 
-{% endifequal %}
+{% endif %}
 Thank you again!
 {% endblock %}

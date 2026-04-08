@@ -15,7 +15,7 @@
 {% if active_claims.count %}
 
     {% for otherclaim in active_claims %}
-        {% ifequal rights_holder.id otherclaim.rights_holder.id %} 
+        {% if rights_holder.id == otherclaim.rights_holder.id %} 
         <p><a href="{% url 'work' work.id %}">This work</a> has already been claimed by {{ rights_holder.rights_holder_name }}</p>
         {% else %}
         <p><a href="{% url 'work' work.id %}">This work</a> has previously been claimed by {{ otherclaim.rights_holder.rights_holder_name }}.
@@ -27,7 +27,7 @@
             {% include "claim_terms.html" %}
             <input type="submit" name="submit" value="Confirm Claim">
         </form>        
-        {% endifequal %}
+        {% endif %}
     {% endfor %}
 
     <h3> Interfering claims  </h3>
