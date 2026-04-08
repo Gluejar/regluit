@@ -13,6 +13,9 @@ logging.handlers.GroupWriteRotatingFileHandler = custom_logging.GroupWriteRotati
 
 PROJECT_DIR = dirname(dirname(realpath(__file__)))
 
+# Django 3.2+: preserve existing auto-field behavior for legacy models
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 LANGUAGE_CODE = 'en-us'
 LANGUAGES = (
     ('en', 'English'),

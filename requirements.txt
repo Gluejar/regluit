@@ -24,7 +24,7 @@ distlib==0.3.8
 django==3.2.25
 django-ckeditor==5.6.1
 django-contrib-comments==2.0.0
-django-el-pagination==3.2.4
+django-el-pagination==4.1.2
 -e git+https://github.com/eshellman/django-email-change.git@fb063296cbf4e4a6d8a93d34d98fe0c7739c2e0d#egg=django-email-change
 django-extensions==3.1.1; python_version >= '3.6'
 django-js-asset==1.2.3
