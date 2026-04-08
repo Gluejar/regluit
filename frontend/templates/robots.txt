@@ -1,5 +1,5 @@
 # Hi Robot, welcome to UnglueIt :-)
-{% ifequal request.META.HTTP_HOST "unglue.it" %}
+{% if request.META.HTTP_HOST == "unglue.it" %}
 User-agent: *
 Disallow: /accounts/
 Disallow: /feedback/
@@ -9,4 +9,4 @@ Disallow: /googlebooks/
 {% else %}
 User-agent: *
 Disallow: /
-{% endifequal %}
+{% endif %}

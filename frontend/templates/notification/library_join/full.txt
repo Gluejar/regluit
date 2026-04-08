@@ -1,4 +1,4 @@
-{% ifequal user recipient %}{{ user.username }},
+{% if user == recipient %}{{ user.username }},
 
 Your request to join {{ library }} has been accepted. Welcome!
 
@@ -17,4 +17,4 @@ Manage your users at
 https://{{ current_site.domain }}{% url 'library_users' library.id %}
 
 the Unglue.it team
-{% endifequal %}
+{% endif %}
