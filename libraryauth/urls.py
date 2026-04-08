@@ -1,8 +1,8 @@
 from django.conf.urls import url, include
+from django.contrib.auth.views import PasswordResetView
 from django.urls import reverse_lazy
 from django.views.generic.base import TemplateView
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import password_reset
 from . import views, forms
 from .views import superlogin
 
@@ -70,9 +70,10 @@ urlpatterns = [
         {'post_change_redirect': reverse_lazy('password_change_done')},
         name='libraryauth_password_change'),
     url(r'^password/reset/$',
-        password_reset,
-        {'post_reset_redirect': reverse_lazy('password_reset_done'),
-        'password_reset_form': forms.SocialAwarePasswordResetForm},
+        PasswordResetView.as_view(
+            success_url=reverse_lazy('password_reset_done'),
+            form_class=forms.SocialAwarePasswordResetForm,
+        ),
         name='libraryauth_password_reset'),
 
     url(r'^socialauth/', include('social_django.urls', namespace='social')),

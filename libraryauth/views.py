@@ -6,7 +6,7 @@ from django.contrib.auth import load_backend
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.models import User
-from django.contrib.auth.views import password_change, LoginView
+from django.contrib.auth.views import LoginView, PasswordChangeView
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, redirect, render
@@ -80,9 +80,15 @@ def superlogin(request, extra_context={}, **kwargs):
 
 
 def social_aware_password_change(request, **kwargs):
-    if request.user.has_usable_password():
-        return password_change(request, **kwargs)
-    return password_change(request, password_change_form=SetPasswordForm, **kwargs)
+    form_class = SetPasswordForm if not request.user.has_usable_password() else None
+    view_kwargs = {}
+    if form_class:
+        view_kwargs['form_class'] = form_class
+    # Accept post_change_redirect from URL config for backwards compat
+    if 'post_change_redirect' in kwargs:
+        view_kwargs['success_url'] = kwargs.pop('post_change_redirect')
+    view_kwargs.update(kwargs)
+    return PasswordChangeView.as_view(**view_kwargs)(request)
 
 class Authenticator:
     request = None
