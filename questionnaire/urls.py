@@ -1,6 +1,6 @@
 # vim: set fileencoding=utf-8
 
-from django.conf.urls import *
+from django.urls import re_path as url
 from django.conf import settings
 from .views import to_model
 

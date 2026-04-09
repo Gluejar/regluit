@@ -112,7 +112,7 @@
                         </span>
                         {% endif %}
                         <span class="menu-item-desc">
-                            {{ premium_item.description }} {% ifnotequal premium_item.limit 0 %}<br /> Only  {{ premium_item.premium_remaining }} remaining! {% endifnotequal %}
+                            {{ premium_item.description }} {% if premium_item.limit != 0 %}<br /> Only  {{ premium_item.premium_remaining }} remaining! {% endif %}
                         </span>
                     </label></li>
                     {% endif %}

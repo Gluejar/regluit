@@ -41,11 +41,11 @@
         <div>{{ field }}</div>
       {% else %}
       {% if field.errors %}{{ field.errors }}{% endif %}
-      {% ifequal field.name "honeypot" %}<p style="display:none;"{% if field.errors %} class="error"{% endif %}>{{ field.label_tag }} {{ field }}</p>{% endifequal %}
-      {% ifequal field.name "name" %}<div><input id="id_name" type="hidden" name="name" value="" /></div>{% endifequal %}
-      {% ifequal field.name "email" %}<div><input id="id_email" type="hidden" name="email" value="" /></div>{% endifequal %}
-      {% ifequal field.name "url" %}<div><input id="id_url" type="hidden" name="url" value="" /></div>{% endifequal %}
-      {% ifequal field.name "comment" %}<p{% if field.errors %} class="error"{% endif %}>Add your comment (<span id="count_display">3000</span> characters remaining):<br /> <textarea style="width:95%" id="id_comment" rows="4" name="comment" onKeyUp="counter(this, 3000)" onBlur="counter(this,3000)">{{comment}}</textarea></p>{% endifequal %}
+      {% if field.name == "honeypot" %}<p style="display:none;"{% if field.errors %} class="error"{% endif %}>{{ field.label_tag }} {{ field }}</p>{% endif %}
+      {% if field.name == "name" %}<div><input id="id_name" type="hidden" name="name" value="" /></div>{% endif %}
+      {% if field.name == "email" %}<div><input id="id_email" type="hidden" name="email" value="" /></div>{% endif %}
+      {% if field.name == "url" %}<div><input id="id_url" type="hidden" name="url" value="" /></div>{% endif %}
+      {% if field.name == "comment" %}<p{% if field.errors %} class="error"{% endif %}>Add your comment (<span id="count_display">3000</span> characters remaining):<br /> <textarea style="width:95%" id="id_comment" rows="4" name="comment" onKeyUp="counter(this, 3000)" onBlur="counter(this,3000)">{{comment}}</textarea></p>{% endif %}
       {% endif %}
     {% endfor %}
     <p class="submit">

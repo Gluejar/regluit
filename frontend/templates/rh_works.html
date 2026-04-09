@@ -17,7 +17,7 @@
 			<form method="POST" action="#managed_campaigns">
 				{% csrf_token %}
 				{{ claim.campaign_form.name }}{{ claim.campaign_form.name.errors }}
-					{% ifequal claim.can_open_new 1 %}
+					{% if claim.can_open_new == 1 %}
 					<p>Choose the Campaign Type: {{ claim.campaign_form.type }}{{ claim.campaign_form.type.errors }}</p>
 					<ol>
 					<li> <i>Pledge-To-Unglue</i>: These campaigns have a fixed end date. When your pledges reach the target you set, the campaign succeeds and the ebook is released in an open-access <i>unglued</i> edition.</li>
@@ -27,7 +27,7 @@
 					{% else %}
 					Your previous campaign succeeded, but you can open a new <i>Thanks-For-Ungluing</i> campaign. <input type="hidden" id="cl_{{ claim.id }}-type" name="cl_{{ claim.id }}-type" value="3" />
 					{{ claim.campaign_form.type.errors }}
-					{% endifequal %}
+					{% endif %}
 				<p>Add another Campaign Manager(s) by their Unglue.it username: </p>
 				<div style="width:220px; padding-left:20px" >{{ claim.campaign_form.managers }}{{ claim.campaign_form.managers.errors }}
 				<br />
@@ -68,11 +68,11 @@
 						Created: {{ campaign.created }}<br />
 						Manager(s): {% for user in campaign.managers.all %} <a href="{% url 'supporter' user.username %}">{{ user.username }} </a> {% endfor %}
 						<br />
-						{% ifequal campaign.type 1 %}
+						{% if campaign.type == 1 %}
 						${{ campaign.current_total }} pledged of ${{ campaign.target }}, {{ campaign.supporters_count }} supporters
 						{% else %}
 						${{ campaign.current_total }} sold. ${{ campaign.target }} to go, Ungluing Date: {{ campaign.cc_date }}
-						{% endifequal %}
+						{% endif %}
 						<br /> <a href="{% url 'campaign_results' campaign.id %}">Transaction Details</a>
 					</div>
 				{% endif %}

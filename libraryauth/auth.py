@@ -3,7 +3,7 @@ import logging
 import requests
 
 from django.shortcuts import redirect
-from django.utils.http import urlquote
+from urllib.parse import quote as urlquote
 
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
