@@ -25,12 +25,12 @@ django==4.2.21
 django-ckeditor==6.7.3
 django-contrib-comments==2.0.0
 django-el-pagination==4.1.2
--e git+https://github.com/eshellman/django-email-change.git@fb063296cbf4e4a6d8a93d34d98fe0c7739c2e0d#egg=django-email-change
+-e git+https://github.com/Gluejar/django-email-change.git@0d66aa1#egg=django-email-change
 django-extensions==3.1.1; python_version >= '3.6'
 django-js-asset==1.2.3
 # django-jsonfield removed — using Django 3.2+ native models.JSONField
 django-mptt==0.14.0
--e git+https://github.com/eshellman/django-notification.git@1ad2be4adf3551a3471d923380368341452e178a#egg=django-notification
+-e git+https://github.com/Gluejar/django-notification.git@83cd5bb#egg=django-notification
 django-registration==3.4
 django-sass-processor==0.8.2
 django-selectable==1.5.0
