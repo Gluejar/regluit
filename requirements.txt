@@ -30,7 +30,7 @@ django-extensions==3.1.1; python_version >= '3.6'
 django-js-asset==1.2.3
 # django-jsonfield removed — using Django 3.2+ native models.JSONField
 django-mptt==0.14.0
--e git+https://github.com/Gluejar/django-notification.git@83cd5bb#egg=django-notification
+-e git+https://github.com/Gluejar/django-notification.git@c6665c8#egg=django-notification
 django-registration==3.4
 django-sass-processor==0.8.2
 django-selectable==1.5.0
