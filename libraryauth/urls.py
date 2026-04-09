@@ -1,7 +1,7 @@
 from django.urls import re_path as url, include
 from django.contrib.auth.views import PasswordResetView
 from django.urls import reverse_lazy
-from django.views.generic.base import TemplateView
+from django.views.generic.base import RedirectView, TemplateView
 from django.contrib.auth.decorators import login_required
 from . import views, forms
 from .views import superlogin
@@ -75,6 +75,10 @@ urlpatterns = [
             form_class=forms.SocialAwarePasswordResetForm,
         ),
         name='libraryauth_password_reset'),
+
+    # Redirect old Django 1.11 password reset URL to Django 4.2 URL
+    url(r'^accounts/password/reset/$',
+        RedirectView.as_view(url='/accounts/password_reset/', permanent=True)),
 
     url(r'^socialauth/', include('social_django.urls', namespace='social')),
     url('accounts/', include('email_change.urls')),
