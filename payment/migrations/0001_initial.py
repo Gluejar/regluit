@@ -2,7 +2,7 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
-import jsonfield.fields
+import django.db.models
 from decimal import Decimal
 from django.conf import settings
 
@@ -105,7 +105,7 @@ class Migration(migrations.Migration):
                 ('pay_key', models.CharField(max_length=128, null=True)),
                 ('preapproval_key', models.CharField(max_length=128, null=True)),
                 ('receipt', models.CharField(max_length=256, null=True)),
-                ('approved', models.NullBooleanField()),
+                ('approved', models.BooleanField(null=True)),
                 ('error', models.CharField(max_length=256, null=True)),
                 ('reason', models.CharField(max_length=64, null=True)),
                 ('date_created', models.DateTimeField(auto_now_add=True, db_index=True)),
@@ -114,7 +114,7 @@ class Migration(migrations.Migration):
                 ('date_executed', models.DateTimeField(null=True)),
                 ('date_authorized', models.DateTimeField(null=True)),
                 ('date_expired', models.DateTimeField(null=True)),
-                ('extra', jsonfield.fields.JSONField(default={}, null=True)),
+                ('extra', models.JSONField(default=dict, null=True)),
                 ('anonymous', models.BooleanField(default=False)),
                 ('campaign', models.ForeignKey(on_delete=models.CASCADE, to='core.Campaign', null=True)),
                 ('offer', models.ForeignKey(on_delete=models.CASCADE, to='core.Offer', null=True)),

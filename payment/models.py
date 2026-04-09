@@ -88,7 +88,7 @@ class Transaction(models.Model):
     receipt = models.CharField(max_length=256, null=True)
 
     # whether a Preapproval has been approved or not
-    approved = models.NullBooleanField(null=True)
+    approved = models.BooleanField(null=True)
 
     # error message from a transaction
     error = models.CharField(max_length=256, null=True)
