@@ -56,6 +56,7 @@ test/*.zip
 
 # Misc local artifacts
 venv/
+src/
 deploy/prod.wsgi
 deploy/public_keys/
 test-data/
