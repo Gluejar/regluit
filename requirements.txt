@@ -97,7 +97,7 @@ social-auth-core==4.5.1; python_version >= '3.8'
 sorl-thumbnail==12.11.0; python_version >= '3.4'
 soupsieve==2.5; python_version >= '3.8'
 sparqlwrapper==2.0.0; python_version >= '3.7'
-stripe==2.76.0
+stripe==5.5.0
 svglib==1.5.1; python_version >= '3.7'
 tinycss2==1.2.1; python_version >= '3.7'
 tomli==2.0.1; python_version < '3.11'
