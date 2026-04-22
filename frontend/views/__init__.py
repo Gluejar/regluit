@@ -2150,12 +2150,17 @@ def reserve(request, work_id):
     models.Hold.objects.get_or_create(library=library, work=work, user=request.user)
     return DownloadView.as_view()(request, work_id=work_id)
 
-SIGNED_URL_EXPIRY = 300  # 5 minutes
 S3_BUCKET_HOST = '{}.s3.amazonaws.com'.format(settings.AWS_STORAGE_BUCKET_NAME)
 
-def _generate_signed_s3_url(s3_key, expiry=SIGNED_URL_EXPIRY):
+def _generate_signed_s3_url(s3_key, expiry=None):
     """Generate a short-lived signed S3 URL for the given key.
-    Returns None on failure so callers can fall back to the stored URL."""
+
+    Expiry (seconds) defaults to settings.EBOOK_DOWNLOAD_SIGNED_URL_EXPIRY_SECONDS
+    (see settings/common.py). Returns None on failure so callers can fall back
+    to the stored URL.
+    """
+    if expiry is None:
+        expiry = getattr(settings, 'EBOOK_DOWNLOAD_SIGNED_URL_EXPIRY_SECONDS', 3600)
     try:
         client = boto3.client(
             's3',
