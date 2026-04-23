@@ -181,6 +181,20 @@ INSTALLED_APPS = (
     'sass_processor',
 )
 
+# Override migration modules for third-party apps that ship with incomplete
+# migration state.
+#
+# - django_comments: upstream migrations were generated under Django 1.x and
+#   never recorded explicit on_delete values for ForeignKey fields. Django 4.x
+#   introspection then reports state drift on every `makemigrations --check`.
+#   Our overlay copies the 3 upstream migrations verbatim and adds a 4th
+#   (0004_alter_comment_content_type_alter_comment_user) that records the
+#   on_delete values the model has always declared. The overlay migration
+#   is a state-tracker no-op — no SQL executes (verified via sqlmigrate).
+MIGRATION_MODULES = {
+    'django_comments': 'regluit.migrations_overlays.django_comments',
+}
+
 SASS_PROCESSOR_INCLUDE_DIRS = [
     os.path.join(PROJECT_DIR, 'static', 'scss'),
 ]
