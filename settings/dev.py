@@ -69,7 +69,6 @@ INTERNAL_IPS = ('127.0.0.1',)
 CELERY_BEAT_SCHEDULE = {}
 
 # decide which of the period tasks to add to the schedule
-#CELERY_BEAT_SCHEDULE['send_test_email'] = SEND_TEST_EMAIL_JOB
 #CELERY_BEAT_SCHEDULE['refresh_acqs'] = REFRESH_ACQS_JOB
 
 # if you're doing development work, you'll want this to be zero
