@@ -204,12 +204,19 @@ LOGGING = {
     'filters': {
          'require_debug_false': {
              '()': 'django.utils.log.RequireDebugFalse'
-         }
+         },
+         # Dedupe AdminEmailHandler records by (module, func, line, exc_type)
+         # within a time window. Prevents bot-amplified floods — see
+         # EbookFoundation/security-private#11 (2026-04-23 incident).
+         'mail_admins_rate_limit': {
+             '()': 'regluit.utils.custom_logging.RateLimitFilter',
+             'rate_seconds': 60,
+         },
      },
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
-            'filters': ['require_debug_false'],
+            'filters': ['require_debug_false', 'mail_admins_rate_limit'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
         'file': {
