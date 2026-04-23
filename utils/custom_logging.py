@@ -42,10 +42,22 @@ class RateLimitFilter(logging.Filter):
             },
         },
 
-    The signature is derived from (module, funcName, lineno, exc_type) —
-    so the same exception type from the same location is considered a
-    duplicate. First occurrence in the window passes; subsequent copies
-    are suppressed.
+    Signature (for dedupe) combines:
+      1. Exception type name (e.g. "TemplateDoesNotExist")
+      2. Traceback leaf frame (filename, lineno) — the actual user-code
+         location that raised, NOT the logging call site
+      3. Request path, if the record has a request attribute (Django's
+         django.request logger sets this)
+
+    We deliberately do NOT use (record.module, record.funcName,
+    record.lineno) as the signature, because for django.request errors
+    those identify Django's shared log_response call site — every 500
+    from every view would collide on one signature and only the first
+    would ever get through the filter. Walking to the traceback leaf
+    gives the distinct application frame.
+
+    First occurrence of a signature in the window passes; subsequent
+    copies are suppressed.
 
     State is per-process. With multiple mod_wsgi workers, each holds its
     own rate-limit state, so the effective rate is (n_workers × 1/window).
@@ -61,18 +73,52 @@ class RateLimitFilter(logging.Filter):
         self._lock = threading.Lock()
         self._last_sent = {}
 
+    @staticmethod
+    def _signature_from_exc_info(exc_info):
+        """Return (exc_type_name, (leaf_file, leaf_lineno)) or (None, None)."""
+        if not exc_info or exc_info[0] is None:
+            return None, None
+        exc_type_name = exc_info[0].__name__
+        tb = exc_info[2]
+        # Walk to the deepest frame — that's where the exception actually
+        # originated, as opposed to where it was caught/logged.
+        while tb is not None and tb.tb_next is not None:
+            tb = tb.tb_next
+        leaf = None
+        if tb is not None:
+            try:
+                leaf = (tb.tb_frame.f_code.co_filename, tb.tb_lineno)
+            except Exception:
+                leaf = None
+        return exc_type_name, leaf
+
     def filter(self, record):
-        # Key on location + exception type so distinct errors are not
-        # conflated but repeated instances of the same error are.
-        exc_type_name = None
-        if record.exc_info and record.exc_info[0] is not None:
-            exc_type_name = record.exc_info[0].__name__
-        signature = (
-            getattr(record, "module", None),
-            getattr(record, "funcName", None),
-            getattr(record, "lineno", None),
-            exc_type_name,
+        exc_type_name, leaf = self._signature_from_exc_info(
+            getattr(record, "exc_info", None)
         )
+
+        # If no exception info, fall back to the record's own module/lineno.
+        # Most mail_admins records carry exc_info (django.request sets it
+        # on 500s), but this keeps the filter well-defined for logger.error
+        # calls without exceptions.
+        if leaf is None:
+            leaf = (
+                getattr(record, "module", None),
+                getattr(record, "lineno", None),
+            )
+
+        # Include request.path if available. django.request attaches the
+        # request object to records. Distinct paths hitting the same bug
+        # will each get one email per window — slight amplification, but
+        # bounded, and preserves the signal "this bug affects multiple
+        # URLs" while still cutting bot-hammer floods by orders of
+        # magnitude.
+        path = None
+        request = getattr(record, "request", None)
+        if request is not None:
+            path = getattr(request, "path", None)
+
+        signature = (exc_type_name, leaf, path)
 
         now = time.monotonic()
         with self._lock:
