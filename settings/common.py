@@ -378,12 +378,6 @@ CELERY_LOG_DIR = ""
 from celery.schedules import crontab
 # define some periodic tasks
 
-SEND_TEST_EMAIL_JOB = {
-    "task": "regluit.core.tasks.send_mail_task",
-    "schedule": crontab(minute='0,5,10'),
-    "args": ('hi there 20,25,30', 'testing 1, 2, 3', 'notices@gluejar.com', ['unglueit@ebookfoundation.org'])
-}
-
 UPDATE_ACTIVE_CAMPAIGN_STATUSES = {
     "task": "regluit.core.tasks.update_active_campaign_status",
     "schedule": crontab(day_of_month='*', hour=0, minute=1),
