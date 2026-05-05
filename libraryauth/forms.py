@@ -96,7 +96,10 @@ class UserNamePass(UserData):
         return password2
 
     def clean_notarobot(self):
-        notarobot = int(self.data["notarobot"])
+        try:
+            notarobot = int(self.data["notarobot"])
+        except (ValueError, TypeError, KeyError):
+            raise forms.ValidationError("(Hint: it's addition)")
         encoded_answer = self.encode_answers.get(notarobot, 'miss')
         tries = self.data.get("tries", -1)
         if str(encoded_answer) != tries:
