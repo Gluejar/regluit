@@ -24,6 +24,13 @@ class Command(BaseCommand):
         max = options['max']
         self.stdout.write('starting at date:{} until:{}, max: {}'.format(
                           from_date, until_date, max))
-        records, new_doabs, last_time = doab.load_doab_oai(from_date, until_date, limit=max)
+        records, new_doabs, last_time, error = doab.load_doab_oai(from_date, until_date, limit=max)
+        if error is not None:
+            self.stdout.write(
+                'ERROR: DOAB OAI rate-limited (HTTP 429), '
+                'retry-after={}s (raw={!r})'.format(
+                    error.retry_after_seconds, error.retry_after_raw,
+                )
+            )
         self.stdout.write('loaded {} records ({} new), ending at {}'.format(
             records, new_doabs, last_time))
