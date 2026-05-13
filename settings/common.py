@@ -351,6 +351,7 @@ SOCIAL_AUTH_TWITTER_EXTRA_DATA = [('profile_image_url_https', 'profile_image_url
 
 LOGIN_URL = "/accounts/superlogin/"
 LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
 LOGOUT_URL = "/accounts/logout/"
 LOGIN_ERROR_URL    = '/accounts/login-error/'
 
