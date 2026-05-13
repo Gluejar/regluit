@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
+import collections
 import datetime
+import email.utils
 import logging
 import re
 import urllib.error
@@ -495,6 +497,7 @@ def load_doab_oai(from_date, until_date, limit=100):
     num_doabs = 0
     new_doabs = 0
     lasttime = datetime.datetime(2000, 1, 1)
+    error = None
     try:
         for record in doab_client.listRecords(metadataPrefix='oai_dc', from_=from_,
                                               until=until_date):
@@ -527,13 +530,72 @@ def load_doab_oai(from_date, until_date, limit=100):
         pass
     except urllib.error.HTTPError as e:
         if e.code == 429:
-            retry_after = e.headers.get('Retry-After', 'unknown')
-            logger.error(
-                'DOAB OAI rate-limited (HTTP 429). '
-                'Retry-After: %s seconds. Harvest stopped after %s records.',
-                retry_after, num_doabs
-            )
+            error = _build_rate_limited_error(e.headers, num_doabs)
         else:
             raise
-    return num_doabs, new_doabs, lasttime
+    return num_doabs, new_doabs, lasttime, error
+
+
+# Structured error returned by load_doab_oai when DOAB OAI rate-limits us.
+# Callers (the load_doab management command) read retry_after_seconds to set
+# a deadline; retry_after_raw is the unmodified header value for diagnostics.
+RateLimitedError = collections.namedtuple(
+    'RateLimitedError',
+    ['kind', 'retry_after_seconds', 'retry_after_raw'],
+)
+
+# Conservative fallback if Retry-After is missing or unparseable (RFC 9110
+# allows either delta-seconds or HTTP-date; in the wild DOAB sends seconds).
+_RATE_LIMITED_FALLBACK_SECONDS = 3600  # 1 hour
+
+
+def _build_rate_limited_error(headers, num_doabs):
+    raw = headers.get('Retry-After')
+    seconds = _parse_retry_after(raw)
+    if seconds is None:
+        logger.error(
+            'DOAB OAI rate-limited (HTTP 429); Retry-After missing or unparseable '
+            '(raw=%r). Falling back to %s seconds. Harvest stopped after %s records.',
+            raw, _RATE_LIMITED_FALLBACK_SECONDS, num_doabs,
+        )
+        seconds = _RATE_LIMITED_FALLBACK_SECONDS
+    else:
+        logger.error(
+            'DOAB OAI rate-limited (HTTP 429). Retry-After: %s seconds '
+            '(raw=%r). Harvest stopped after %s records.',
+            seconds, raw, num_doabs,
+        )
+    return RateLimitedError(
+        kind='rate_limited',
+        retry_after_seconds=seconds,
+        retry_after_raw=raw,
+    )
+
+
+def _parse_retry_after(raw):
+    """Parse a Retry-After header value per RFC 9110 §10.2.3.
+
+    Returns an int number of seconds (>= 0), or None if the value is missing
+    or cannot be parsed. Accepts both forms:
+      - delta-seconds: "86400"
+      - HTTP-date:     "Wed, 21 Oct 2026 07:28:00 GMT"
+    """
+    if not raw:
+        return None
+    raw = raw.strip()
+    try:
+        seconds = int(raw)
+        return max(0, seconds)
+    except ValueError:
+        pass
+    try:
+        target = email.utils.parsedate_to_datetime(raw)
+    except (TypeError, ValueError):
+        return None
+    if target is None:
+        return None
+    if target.tzinfo is None:
+        target = target.replace(tzinfo=datetime.timezone.utc)
+    now = datetime.datetime.now(datetime.timezone.utc)
+    return max(0, int((target - now).total_seconds()))
     
