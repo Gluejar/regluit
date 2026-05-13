@@ -2,7 +2,6 @@
 # encoding: utf-8
 import collections
 import datetime
-import email.utils
 import logging
 import re
 import urllib.error
@@ -30,7 +29,10 @@ from regluit.core.validation import identifier_cleaner, valid_subject, explode_b
 
 from . import scrape_language
 from .doab_utils import (
-    doab_lang_to_iso_639_1, doab_cover, doab_reader, online_to_download, STOREPROVIDERS)
+    bitstream_breaker_open, bitstream_breaker_trip,
+    doab_lang_to_iso_639_1, doab_cover, doab_reader, online_to_download,
+    parse_retry_after, STOREPROVIDERS,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +49,7 @@ def store_doab_cover(doab_id, redo=False):
     returns tuple: 1) cover URL, 2) whether newly created (boolean)
     """
     if not doab_id:
-        return (None, False)    
+        return (None, False)
 
     cover_file_name = '/doab/%s' % doab_id
 
@@ -56,13 +58,29 @@ def store_doab_cover(doab_id, redo=False):
     if not redo and default_storage.exists(cover_file_name):
         return (default_storage.url(cover_file_name), False)
 
+    # When the DOAB bitstream breaker is open, skip new downloads. Note: the
+    # default_storage.exists() check above still serves cached covers from
+    # our S3 bucket even while DOAB is banning us.
+    if bitstream_breaker_open():
+        return (None, False)
+
     # download cover image to cover_file
     url = doab_cover(doab_id)
     headers = {"User-Agent": settings.USER_AGENT}
     if not url:
         return (None, False)
     try:
+        # First request is to directory.doabooks.org — a 429 here trips the
+        # DOAB breaker. Subsequent requests after a redirect may go to other
+        # hosts (e.g. images.springer.com), where 429 should NOT be attributed
+        # to DOAB's rate limit.
         r = requests.get(url, allow_redirects=False, headers=headers, timeout=(5, 60)) # requests doesn't handle ftp redirects.
+        if r.status_code == 429:
+            bitstream_breaker_trip(
+                r.headers.get('Retry-After'),
+                'store_doab_cover({})'.format(doab_id),
+            )
+            return (None, False)
         if r.status_code == 302:
             redirurl = r.headers['Location']
             if redirurl.startswith(u'ftp'):
@@ -551,7 +569,7 @@ _RATE_LIMITED_FALLBACK_SECONDS = 3600  # 1 hour
 
 def _build_rate_limited_error(headers, num_doabs):
     raw = headers.get('Retry-After')
-    seconds = _parse_retry_after(raw)
+    seconds = parse_retry_after(raw)
     if seconds is None:
         logger.error(
             'DOAB OAI rate-limited (HTTP 429); Retry-After missing or unparseable '
@@ -570,32 +588,4 @@ def _build_rate_limited_error(headers, num_doabs):
         retry_after_seconds=seconds,
         retry_after_raw=raw,
     )
-
-
-def _parse_retry_after(raw):
-    """Parse a Retry-After header value per RFC 9110 §10.2.3.
-
-    Returns an int number of seconds (>= 0), or None if the value is missing
-    or cannot be parsed. Accepts both forms:
-      - delta-seconds: "86400"
-      - HTTP-date:     "Wed, 21 Oct 2026 07:28:00 GMT"
-    """
-    if not raw:
-        return None
-    raw = raw.strip()
-    try:
-        seconds = int(raw)
-        return max(0, seconds)
-    except ValueError:
-        pass
-    try:
-        target = email.utils.parsedate_to_datetime(raw)
-    except (TypeError, ValueError):
-        return None
-    if target is None:
-        return None
-    if target.tzinfo is None:
-        target = target.replace(tzinfo=datetime.timezone.utc)
-    now = datetime.datetime.now(datetime.timezone.utc)
-    return max(0, int((target - now).total_seconds()))
     
