@@ -316,6 +316,7 @@ class Command(BaseCommand):
                 # 7c. Remote fetch (DB-free)
                 remote_calls += 1
                 record = None
+                stop_after_this_record = False  # set True on 429-recovered path
                 try:
                     record = doab.get_doab_record(doab_id)
                 except _PyOAIRateLimitedError as e:
@@ -323,10 +324,14 @@ class Command(BaseCommand):
                         e, doab_id, state, opt['max_retry_after']
                     )
                     if exit_reason == 'recovered':
-                        # Single courtesy retry succeeded; fall through to try fetch again
+                        # Slept the Retry-After, attempt one final fetch, then
+                        # exit regardless of outcome — DOAB asked us to slow
+                        # down; we honor the wait but don't keep probing.
                         try:
                             record = doab.get_doab_record(doab_id)
                             remote_calls += 1
+                            exit_reason = '429_recovered_single_record'
+                            stop_after_this_record = True
                         except Exception:
                             mark_retry(state, doab_id, '429_after_wait')
                             recompute_totals(state)
@@ -383,9 +388,37 @@ class Command(BaseCommand):
                     processed_in_run += 1
                     recompute_totals(state)
                     save_state(opt['state_file'], state)
+                    if stop_after_this_record:
+                        break
                     continue
 
-                # 7e. Local DB write — narrowly scoped transaction
+                # Detect deleted-or-empty OAI record: header marks it deleted
+                # OR has no metadata content. add_by_doab() would return None
+                # in both cases, but we'd lose the gone/error_review distinction;
+                # categorize as gone here before the loader call.
+                if record[0].isDeleted() or not record[1]:
+                    mark_terminal(state, doab_id, 'gone',
+                                  note='oai_marked_deleted')
+                    gone_in_run += 1
+                    processed_in_run += 1
+                    recompute_totals(state)
+                    save_state(opt['state_file'], state)
+                    if stop_after_this_record:
+                        break
+                    continue
+
+                # 7e. Local DB write. Note: add_by_doab() makes its own
+                # downstream HTTP calls (cover image fetch via doab_utils, plus
+                # the bitstream API path guarded by its own circuit breaker).
+                # transaction.atomic() therefore *does* hold a DB transaction
+                # during those HTTP calls — the "scoped to local writes only"
+                # framing was aspirational. We accept the trade-off here: the
+                # per-record atomicity (one bad record can't taint adjacent
+                # writes via mid-add_by_doab failure) is more valuable than
+                # the in-transaction HTTP cost, and add_by_doab is idempotent
+                # so a partial-state retry is safe. A future refactor of
+                # add_by_doab to separate fetch-vs-write phases would let us
+                # tighten this scope.
                 try:
                     with transaction.atomic():
                         edition = doab.add_by_doab(doab_id, record=record)
@@ -398,6 +431,8 @@ class Command(BaseCommand):
                         processed_in_run += 1
                         recompute_totals(state)
                         save_state(opt['state_file'], state)
+                        if stop_after_this_record:
+                            break
                         continue
                     logger.exception('IntegrityError but ID still absent: %s', doab_id)
                     unknown_errors += 1
@@ -415,6 +450,8 @@ class Command(BaseCommand):
                     processed_in_run += 1
                     recompute_totals(state)
                     save_state(opt['state_file'], state)
+                    if stop_after_this_record:
+                        break
                     continue
                 except Exception as e:
                     # Unknown — HALT, do NOT mark terminal
@@ -426,7 +463,9 @@ class Command(BaseCommand):
                     exit_reason = 'unknown_exception_halt'
                     break
 
-                # 7f. Categorize write result
+                # 7f. Categorize write result. Active-record fetches that
+                # still return None from add_by_doab indicate a real loader
+                # anomaly (not the deleted case — that's already handled above).
                 if edition is None:
                     mark_terminal(state, doab_id, 'error_review',
                                   last_error='add_by_doab returned None')
@@ -436,6 +475,8 @@ class Command(BaseCommand):
                 processed_in_run += 1
                 recompute_totals(state)
                 save_state(opt['state_file'], state)
+                if stop_after_this_record:
+                    break
         finally:
             state['last_run'] = {
                 'started_at': run_started,
