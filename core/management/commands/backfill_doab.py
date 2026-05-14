@@ -344,20 +344,27 @@ class Command(BaseCommand):
                         break
                 except urllib.error.HTTPError as e:
                     if e.code == 429:
-                        # Stock pyoai path: build pseudo-event and route through same handler
+                        # Stock-pyoai fallback path. The patched
+                        # EbookFoundation/pyoai fork (pinned in
+                        # requirements_versioned.pip) raises
+                        # _PyOAIRateLimitedError instead, handled above with
+                        # the courtesy retry. If we're here, we're running
+                        # against an unpatched pyoai — be conservative: write
+                        # the shared sentinel and exit cleanly, no retry. The
+                        # next run will honor the sentinel.
                         retry_after = e.headers.get('Retry-After') if e.headers else None
                         try:
-                            secs = int(retry_after) if retry_after else None
+                            secs = int(retry_after) if retry_after else DEFAULT_RETRY_AFTER_SECS
                         except (TypeError, ValueError):
-                            secs = None
-                        pseudo = _PyOAIRateLimitedError()
-                        pseudo.retry_after_seconds = secs
-                        pseudo.retry_after_raw = retry_after
-                        exit_reason = self._handle_rate_limit(
-                            pseudo, doab_id, state, opt['max_retry_after']
-                        )
+                            secs = DEFAULT_RETRY_AFTER_SECS
+                        deadline = _now_utc() + datetime.timedelta(seconds=secs)
+                        write_block_deadline(deadline, stderr=self.stderr)
+                        mark_retry(state, doab_id,
+                                   f'HTTPError 429 (stock pyoai fallback); '
+                                   f'Retry-After={secs}s')
                         recompute_totals(state)
                         save_state(opt['state_file'], state)
+                        exit_reason = 'stock_pyoai_429_fallback'
                         break
                     if 500 <= e.code < 600:
                         mark_retry(state, doab_id, f'HTTPError {e.code}')
