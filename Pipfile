@@ -118,7 +118,7 @@ wikipedia = "==1.4.0"
 django-email-change = {editable = true, ref = "fb063296cbf4e4a6d8a93d34d98fe0c7739c2e0d", git = "git+https://github.com/eshellman/django-email-change.git"}
 django-notification = {editable = true, ref = "1ad2be4adf3551a3471d923380368341452e178a", git = "git+https://github.com/eshellman/django-notification.git"}
 pyjwt = {extras = ["crypto"], version = "==2.8.0"}
-pyoai = {editable = true, ref = "5ff2f15e869869e70d8139e4c37b7832854d7049", git = "git+https://github.com/infrae/pyoai.git"}
+pyoai = {editable = true, ref = "bf709d26ae6e4b34b9b0ca726e0f032d97f0bd38", git = "git+https://github.com/EbookFoundation/pyoai.git"}
 
 [requires]
 python_version = "3.9"
