@@ -20,6 +20,16 @@ from django.core.files.storage import default_storage
 from oaipmh.client import Client
 from oaipmh.error import IdDoesNotExistError, NoRecordsMatchError
 from oaipmh.metadata import MetadataRegistry
+try:
+    # The patched pyoai (EbookFoundation/pyoai fix/expose-429-as-rate-limited-error,
+    # pending upstream to eth-library/oaipmh) surfaces 429 cleanly as
+    # RateLimitedError with parsed Retry-After. Stock pyoai (<= 2.5.1)
+    # re-raises urllib HTTPError, handled below as a fallback.
+    from oaipmh.client import RateLimitedError as _PyOAIRateLimitedError
+except ImportError:
+    class _PyOAIRateLimitedError(Exception):
+        """Never-raised placeholder for stock (unpatched) pyoai."""
+        pass
 
 from regluit.core import bookloader, cc
 from regluit.core import models, tasks
@@ -546,12 +556,41 @@ def load_doab_oai(from_date, until_date, limit=100):
                 break
     except NoRecordsMatchError:
         pass
+    except _PyOAIRateLimitedError as e:
+        # Patched pyoai: 429 surfaced as structured exception with parsed
+        # Retry-After. Build our local namedtuple from its attributes so
+        # the mgmt command sees the same shape regardless of pyoai version.
+        error = _build_rate_limited_error_from_pyoai(e, num_doabs)
     except urllib.error.HTTPError as e:
         if e.code == 429:
+            # Older pyoai re-raised HTTPError; parse Retry-After ourselves.
             error = _build_rate_limited_error(e.headers, num_doabs)
         else:
             raise
     return num_doabs, new_doabs, lasttime, error
+
+
+def _build_rate_limited_error_from_pyoai(exc, num_doabs):
+    """Wrap a pyoai RateLimitedError into our structured-error namedtuple."""
+    seconds = exc.retry_after_seconds
+    if seconds is None:
+        logger.error(
+            'DOAB OAI rate-limited (HTTP 429); Retry-After missing or unparseable '
+            '(raw=%r). Falling back to %s seconds. Harvest stopped after %s records.',
+            exc.retry_after_raw, _RATE_LIMITED_FALLBACK_SECONDS, num_doabs,
+        )
+        seconds = _RATE_LIMITED_FALLBACK_SECONDS
+    else:
+        logger.error(
+            'DOAB OAI rate-limited (HTTP 429). Retry-After: %s seconds '
+            '(raw=%r). Harvest stopped after %s records.',
+            seconds, exc.retry_after_raw, num_doabs,
+        )
+    return RateLimitedError(
+        kind='rate_limited',
+        retry_after_seconds=seconds,
+        retry_after_raw=exc.retry_after_raw,
+    )
 
 
 # Structured error returned by load_doab_oai when DOAB OAI rate-limits us.
