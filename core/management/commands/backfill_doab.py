@@ -54,6 +54,19 @@ logger = logging.getLogger(__name__)
 TERMINAL = ('ok', 'gone', 'present_locally', 'error_review')
 # Non-terminal: 'retry' (will re-attempt on next run); absent = not yet attempted
 
+# Process exit codes — consumed by the orchestration runner so it can tell
+# "done" from "safe to re-invoke next tick" from "stop, a human must look".
+#   0  drained / nothing-to-do  -> runner writes .done
+#   3  benign checkpoint (rate-limit, max-remote-calls, transient) -> re-fire
+#   4  circuit-breaker halt (error/gone rate, unknown) -> runner freezes
+EXIT_OK = 0
+EXIT_CHECKPOINT = 3
+EXIT_HALT = 4
+HALT_REASONS = frozenset({
+    'error_rate_halt', 'gone_rate_halt',
+    'unknown_http_error_halt', 'unknown_exception_halt',
+})
+
 # Default fallback when DOAB sends 429 without a parseable Retry-After.
 DEFAULT_RETRY_AFTER_SECS = 60
 
@@ -380,7 +393,7 @@ class Command(BaseCommand):
                     f"(shared sentinel); cannot discover. "
                     f"Use --ignore-retry-after to override."
                 )
-                return
+                sys.exit(EXIT_CHECKPOINT)
             else:
                 self.stdout.write(
                     "[backfill] no --ids-file; discovering missing IDs via "
@@ -458,7 +471,7 @@ class Command(BaseCommand):
                 f"SKIP: DOAB OAI rate-limited until {deadline.isoformat()} "
                 f"(shared sentinel). Use --ignore-retry-after to override."
             )
-            return
+            sys.exit(EXIT_CHECKPOINT)
         if deadline and now >= deadline:
             live = clear_sentinel()
             if live and not opt['ignore_retry_after']:
@@ -466,7 +479,7 @@ class Command(BaseCommand):
                     f"SKIP: DOAB OAI rate-limited until {live.isoformat()} "
                     f"(concurrent writer; shared sentinel)."
                 )
-                return
+                sys.exit(EXIT_CHECKPOINT)
 
         # --- 7. Per-record loop -----------------------------------------------
         run_started = _now_iso()
@@ -726,8 +739,9 @@ class Command(BaseCommand):
             f"remote_calls_this_run={remote_calls}"
         )
         # Nonzero exit if we stopped for a reason other than draining
-        if exit_reason != 'drained':
-            sys.exit(1)
+        if exit_reason == 'drained':
+            return  # EXIT_OK — worklist fully terminal; runner writes .done
+        sys.exit(EXIT_HALT if exit_reason in HALT_REASONS else EXIT_CHECKPOINT)
 
     # --- helpers -------------------------------------------------------------
 
