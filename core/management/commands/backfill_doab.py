@@ -3,12 +3,15 @@ backfill_doab — gentle, resumable, observable DOAB ID-list backfill.
 
 One-off catch-up command for IDs the nightly `load_doab` cron missed (because
 its 3-day rolling window can't self-heal records modified during a stretch of
-HTTP 429s). Reads a static list of DOAB IDs, processes them with rate-limited,
-ID-keyed state, and a 4-way per-record outcome taxonomy.
+HTTP 429s). The worklist is auto-discovered (DOAB OAI ListIdentifiers diffed
+against the local DB) when --ids-file is omitted, or supplied explicitly for
+targeted re-runs. IDs are processed with rate-limited, ID-keyed state and a
+4-way per-record outcome taxonomy.
 
-Design context: Gluejar/regluit#1151. Reuses `add_by_doab` (idempotent) and the
-shared Retry-After sentinel from `load_doab.py` so a 429 hit by either command
-suppresses the other for the duration of the ban.
+Design context: Gluejar/regluit#1151. Reuses `add_by_doab` (idempotent), the
+existing pyoai client / OAI-prefix stripper, and the shared Retry-After
+sentinel from `load_doab.py` so a 429 hit by discovery, the per-record loop,
+or the nightly cron suppresses the others for the duration of the ban.
 """
 
 import argparse
@@ -25,7 +28,7 @@ import traceback
 import urllib.error
 
 from django.core.management.base import BaseCommand, CommandError
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError
 
 from regluit.core.loaders import doab
 from regluit.core.management.commands.load_doab import (
@@ -43,6 +46,8 @@ except ImportError:
         retry_after_seconds = None
         retry_after_raw = None
 
+from oaipmh.error import NoRecordsMatchError
+
 logger = logging.getLogger(__name__)
 
 # Terminal statuses (won't re-attempt)
@@ -56,16 +61,6 @@ ID_RE = re.compile(r'^20\.500\.12854/(\d+)(?:\.\d+)?$')
 
 
 # --- ID parsing ---------------------------------------------------------------
-
-def parse_id_line(line):
-    """Validate and return a normalized DOAB ID, or None if malformed."""
-    s = line.strip()
-    if not s or s.startswith('#'):
-        return None
-    if not ID_RE.match(s):
-        return s if s else None  # caller decides whether to reject
-    return s
-
 
 def numeric_suffix(doab_id):
     """Parse the integer suffix after `20.500.12854/` for sorting."""
@@ -177,14 +172,131 @@ def jittered_sleep(rate, jitter):
     time.sleep(random.uniform(lo, hi))
 
 
+# --- Worklist discovery (Option B) -------------------------------------------
+
+# Conservative fallback if a 429 during discovery carries no parseable
+# Retry-After. Larger than the per-record DEFAULT_RETRY_AFTER_SECS because a
+# discovery 429 means DOAB wants us off the OAI endpoint entirely for a while.
+DISCOVERY_RATE_LIMIT_FALLBACK_SECS = 3600
+
+
+def derive_cache_paths(state_file):
+    """Worklist + side-report paths, co-located with the state file."""
+    return (state_file + '.ids',
+            state_file + '.stale',
+            state_file + '.orphans')
+
+
+def atomic_write_lines(path, lines):
+    """Same crash-safe tmp+replace discipline as save_state()."""
+    tmp = f"{path}.tmp.{os.getpid()}"
+    with open(tmp, 'w') as f:
+        for line in lines:
+            f.write(line + '\n')
+    os.replace(tmp, path)
+
+
+def discover_missing_ids(ids_out, stale_out, orphan_out, stdout, stderr):
+    """Crawl DOAB OAI ListIdentifiers, diff against the local DB, write 3
+    sorted artifacts; return the count of missing IDs (0 = local in sync).
+
+    Single-pass (B1/B3): a 429 mid-crawl writes the *shared* sentinel and
+    aborts via CommandError; the next invocation re-crawls from scratch.
+    The completed .ids file is then SHA-pinned by the normal load path, so
+    discovery runs once and a resumed backfill never re-crawls.
+
+    Reuses the existing pyoai client, the OAI-prefix stripper, and the same
+    Retry-After sentinel as load_doab — no parallel crawler.
+    """
+    from regluit.core.models import Identifier
+
+    active, deleted = set(), set()
+    raw_seen = 0
+    try:
+        for header in doab.doab_client.listIdentifiers(metadataPrefix='oai_dc'):
+            raw_seen += 1
+            bare = doab.getdoab(header.identifier())
+            if not bare:
+                continue
+            (deleted if header.isDeleted() else active).add(bare)
+    except NoRecordsMatchError:
+        raise CommandError(
+            "DOAB OAI returned no identifiers — refusing to write an empty "
+            "worklist. Check the OAI endpoint before retrying."
+        )
+    except _PyOAIRateLimitedError as e:
+        secs = e.retry_after_seconds or DISCOVERY_RATE_LIMIT_FALLBACK_SECS
+        deadline = _now_utc() + datetime.timedelta(seconds=secs)
+        write_block_deadline(deadline, stderr=stderr)
+        raise CommandError(
+            f"DOAB OAI rate-limited (429) during discovery; "
+            f"Retry-After={secs}s. Shared sentinel set to "
+            f"{deadline.isoformat()}. Re-run after the deadline "
+            f"(discovery restarts from scratch)."
+        )
+    except urllib.error.HTTPError as e:
+        if e.code != 429:
+            raise
+        raw = e.headers.get('Retry-After') if e.headers else None
+        # Reuse the shared RFC 9110 parser (delta-seconds OR HTTP-date) so
+        # discovery and load_doab interpret Retry-After identically.
+        secs = doab.parse_retry_after(raw) or DISCOVERY_RATE_LIMIT_FALLBACK_SECS
+        deadline = _now_utc() + datetime.timedelta(seconds=secs)
+        write_block_deadline(deadline, stderr=stderr)
+        raise CommandError(
+            f"DOAB OAI rate-limited (429, stock-pyoai path) during "
+            f"discovery; Retry-After={secs}s. Shared sentinel set to "
+            f"{deadline.isoformat()}. Re-run after the deadline."
+        )
+
+    # Namespace-drift guard: if DOAB changes its OAI identifier namespace,
+    # doab.getdoab() returns falsy for every header and we'd silently produce
+    # a worklist of 0 (and an orphan list of the ENTIRE local DB). Refuse
+    # rather than write a misleading "in sync" / mass-orphan result.
+    recognized = len(active) + len(deleted)
+    if raw_seen > 0 and recognized == 0:
+        raise CommandError(
+            f"discovery crawled {raw_seen} OAI headers but recognized 0 DOAB "
+            f"IDs — doab.getdoab() namespace mismatch? Refusing to write a "
+            f"worklist. Inspect a raw ListIdentifiers header before retrying."
+        )
+
+    local = set(
+        Identifier.objects.filter(type='doab').values_list('value', flat=True)
+    )
+
+    backfill = sorted(active - local, key=numeric_suffix)
+    stale = sorted(local & deleted, key=numeric_suffix)
+    orphan = sorted(local - active - deleted, key=numeric_suffix)
+
+    atomic_write_lines(ids_out, backfill)
+    atomic_write_lines(stale_out, stale)
+    atomic_write_lines(orphan_out, orphan)
+
+    stdout.write(
+        f"[discovery] DOAB active={len(active)} deleted={len(deleted)} "
+        f"local={len(local)} -> backfill={len(backfill)} "
+        f"stale={len(stale)} (DOAB-deleted, still local) "
+        f"orphan={len(orphan)} (local, absent from OAI)"
+    )
+    stdout.write(
+        f"[discovery] wrote worklist={ids_out} "
+        f"stale_report={stale_out} orphan_report={orphan_out}"
+    )
+    return len(backfill)
+
+
 # --- Main command -------------------------------------------------------------
 
 class Command(BaseCommand):
     help = "Slow, resumable backfill for DOAB IDs missing from the local DB."
 
     def add_arguments(self, parser):
-        parser.add_argument('--ids-file', required=True,
-                            help='Path to newline-delimited DOAB IDs (one per line)')
+        parser.add_argument('--ids-file', required=False, default=None,
+                            help='Path to newline-delimited DOAB IDs (one per '
+                                 'line). Optional: if omitted, the worklist is '
+                                 'auto-discovered via DOAB OAI ListIdentifiers '
+                                 'and cached next to --state-file.')
         parser.add_argument('--state-file', required=True,
                             help='Path to JSON state file (created if missing)')
         parser.add_argument('--rate', type=float, default=3.0,
@@ -204,12 +316,87 @@ class Command(BaseCommand):
                             help='Processing order (default: newest-first)')
         parser.add_argument('--id-range',
                             help='Optional numeric range filter, e.g. 170000-179999')
+        parser.add_argument('--refresh-ids', action='store_true',
+                            help='Force re-discovery even if a cached worklist '
+                                 'exists (requires a fresh --state-file, since '
+                                 'the SHA changes)')
         parser.add_argument('--dry-run', action='store_true',
                             help='Validate inputs + state; do not call DOAB')
         parser.add_argument('--ignore-retry-after', action='store_true',
                             help='Bypass the shared Retry-After sentinel')
 
     def handle(self, **opt):
+        dry = opt['dry_run']
+
+        # Shared Retry-After sentinel — gates ALL DOAB traffic, including
+        # discovery (not just the per-record loop, which step 6 still guards
+        # independently). A dry run makes zero DOAB calls, so it stays allowed
+        # even during a ban (operators need to inspect state during bans).
+        deadline = read_block_deadline()
+        now = _now_utc()
+        if deadline and now >= deadline:
+            # None if cleared; the live deadline if a concurrent writer left a
+            # fresh future ban between our read and the clear (must honor it).
+            deadline = clear_sentinel()
+        ban_active = bool(deadline and not opt['ignore_retry_after'])
+
+        # --- 0. Resolve worklist: explicit --ids-file, cached, or discover ----
+        if not opt['ids_file']:
+            ids_out, stale_out, orphan_out = derive_cache_paths(opt['state_file'])
+            state_exists = load_state(opt['state_file']) is not None
+            cache_exists = os.path.exists(ids_out)
+            # Prove compatibility with any existing resumable run BEFORE we
+            # crawl DOAB or overwrite any artifact.
+            if state_exists and opt['refresh_ids']:
+                raise CommandError(
+                    f"REFUSE: --refresh-ids would overwrite the SHA-pinned "
+                    f"worklist, but a state file already exists at "
+                    f"{opt['state_file']} and its run could no longer resume. "
+                    f"Use a fresh --state-file with --refresh-ids."
+                )
+            if state_exists and not cache_exists:
+                raise CommandError(
+                    f"REFUSE: state file {opt['state_file']} exists but its "
+                    f"SHA-pinned worklist {ids_out} is missing. A resumed run "
+                    f"needs the original worklist — restore {ids_out}, pass "
+                    f"the original --ids-file, or start over with a fresh "
+                    f"--state-file. (Not crawling DOAB until this is resolved.)"
+                )
+            if cache_exists and not opt['refresh_ids']:
+                self.stdout.write(
+                    f"[backfill] reusing cached worklist {ids_out} "
+                    f"(--refresh-ids + a fresh --state-file to rediscover)"
+                )
+            elif dry:
+                self.stdout.write(
+                    "[backfill] --dry-run with no --ids-file and no cached "
+                    "worklist: discovery (ListIdentifiers) is skipped under "
+                    "--dry-run — it makes no DOAB calls. Nothing to validate."
+                )
+                return
+            elif ban_active:
+                self.stdout.write(
+                    f"SKIP: DOAB OAI rate-limited until {deadline.isoformat()} "
+                    f"(shared sentinel); cannot discover. "
+                    f"Use --ignore-retry-after to override."
+                )
+                return
+            else:
+                self.stdout.write(
+                    "[backfill] no --ids-file; discovering missing IDs via "
+                    "DOAB OAI ListIdentifiers (single-pass, ~125k headers, "
+                    "~17 min)..."
+                )
+                missing = discover_missing_ids(ids_out, stale_out, orphan_out,
+                                               self.stdout, self.stderr)
+                if missing == 0:
+                    self.stdout.write(
+                        "[backfill] discovery found 0 missing IDs — local DB "
+                        "is in sync with the DOAB active set. Nothing to do."
+                    )
+                    return
+            opt['ids_file'] = ids_out
+
         # --- 1. Load + validate input -----------------------------------------
         ids, sha256, malformed = load_input_ids(opt['ids_file'])
         if malformed:
@@ -273,7 +460,13 @@ class Command(BaseCommand):
             )
             return
         if deadline and now >= deadline:
-            clear_sentinel()
+            live = clear_sentinel()
+            if live and not opt['ignore_retry_after']:
+                self.stdout.write(
+                    f"SKIP: DOAB OAI rate-limited until {live.isoformat()} "
+                    f"(concurrent writer; shared sentinel)."
+                )
+                return
 
         # --- 7. Per-record loop -----------------------------------------------
         run_started = _now_iso()
@@ -300,11 +493,23 @@ class Command(BaseCommand):
                     exit_reason = 'gone_rate_halt'
                     break
 
-                # 7a. Local precheck (no DOAB call, no sleep)
+                # 7a. Local precheck (no DOAB call, no sleep). Only short-
+                # circuit IDs we have NEVER attempted: a bare doab Identifier
+                # for an untouched ID means the nightly cron loaded it fully.
+                # For an ID we previously attempted (state entry exists, only
+                # non-terminal ones survive the step-5 filter), the Identifier
+                # may be from our OWN partially-committed write — autocommit
+                # (no transaction.atomic, see 7e) means add_by_doab can commit
+                # the Identifier before cover/metadata/ISBN follow-up, then
+                # crash. Re-run the idempotent loader to heal rather than
+                # freezing a partial load as 'present_locally' forever.
                 from regluit.core.models import Identifier
-                if Identifier.objects.filter(type='doab', value=doab_id).exists():
+                if (doab_id not in state['ids']
+                        and Identifier.objects.filter(
+                            type='doab', value=doab_id).exists()):
                     mark_terminal(state, doab_id, 'present_locally',
-                                  checked_at=_now_iso())
+                                  checked_at=_now_iso(),
+                                  note='preexisting_untouched')
                     recompute_totals(state)
                     save_state(opt['state_file'], state)
                     processed_in_run += 1
@@ -332,8 +537,15 @@ class Command(BaseCommand):
                             remote_calls += 1
                             exit_reason = '429_recovered_single_record'
                             stop_after_this_record = True
-                        except Exception:
-                            mark_retry(state, doab_id, '429_after_wait')
+                        except Exception as e2:
+                            # The courtesy retry itself failed. If it is another
+                            # rate-limit, DOAB may now want a LONGER wait than
+                            # the first Retry-After — extend the shared sentinel
+                            # (monotonic) so the next run honors the new ban
+                            # instead of re-hitting a still-banned endpoint.
+                            self._extend_sentinel_from_exc(e2)
+                            mark_retry(state, doab_id,
+                                       f'429_after_wait: {type(e2).__name__}')
                             recompute_totals(state)
                             save_state(opt['state_file'], state)
                             exit_reason = '429_after_wait_still_failing'
@@ -353,10 +565,12 @@ class Command(BaseCommand):
                         # the shared sentinel and exit cleanly, no retry. The
                         # next run will honor the sentinel.
                         retry_after = e.headers.get('Retry-After') if e.headers else None
-                        try:
-                            secs = int(retry_after) if retry_after else DEFAULT_RETRY_AFTER_SECS
-                        except (TypeError, ValueError):
-                            secs = DEFAULT_RETRY_AFTER_SECS
+                        # RFC 9110 §10.2.3: Retry-After is delta-seconds OR an
+                        # HTTP-date. Bare int() collapses a multi-hour date ban
+                        # to DEFAULT_RETRY_AFTER_SECS. Reuse the shared parser
+                        # so discovery, the fork path, and this stock fallback
+                        # all interpret Retry-After identically.
+                        secs = doab.parse_retry_after(retry_after) or DEFAULT_RETRY_AFTER_SECS
                         deadline = _now_utc() + datetime.timedelta(seconds=secs)
                         write_block_deadline(deadline, stderr=self.stderr)
                         mark_retry(state, doab_id,
@@ -414,21 +628,22 @@ class Command(BaseCommand):
                         break
                     continue
 
-                # 7e. Local DB write. Note: add_by_doab() makes its own
-                # downstream HTTP calls (cover image fetch via doab_utils, plus
-                # the bitstream API path guarded by its own circuit breaker).
-                # transaction.atomic() therefore *does* hold a DB transaction
-                # during those HTTP calls — the "scoped to local writes only"
-                # framing was aspirational. We accept the trade-off here: the
-                # per-record atomicity (one bad record can't taint adjacent
-                # writes via mid-add_by_doab failure) is more valuable than
-                # the in-transaction HTTP cost, and add_by_doab is idempotent
-                # so a partial-state retry is safe. A future refactor of
-                # add_by_doab to separate fetch-vs-write phases would let us
-                # tighten this scope.
+                # 7e. Local DB write. Deliberately NOT wrapped in
+                # transaction.atomic(): add_by_doab() interleaves DB writes
+                # with its own downstream HTTP calls — online_to_download()
+                # (timeout up to 60s) and the cover fetch via store_doab_cover()
+                # (a redirect chain of requests.get(timeout=(5,60)) calls, up
+                # to ~120s). An atomic() wrapper would hold an RDS transaction
+                # open across minutes of network I/O per record — undo-log
+                # growth and connection-pool pressure against the live site,
+                # ~20.6k times. The production nightly cron (load_doab_oai)
+                # has called add_by_doab with no transaction wrapper for years;
+                # autocommit + add_by_doab's idempotency (a partial-state retry
+                # re-heals) is the loader's established safety model. The
+                # backfill processes the same records the same way — matching
+                # the cron is both safer here and consistent with prod.
                 try:
-                    with transaction.atomic():
-                        edition = doab.add_by_doab(doab_id, record=record)
+                    edition = doab.add_by_doab(doab_id, record=record)
                 except IntegrityError:
                     # Race with nightly cron between precheck (7a) and write
                     from regluit.core.models import Identifier
@@ -515,6 +730,24 @@ class Command(BaseCommand):
             sys.exit(1)
 
     # --- helpers -------------------------------------------------------------
+
+    def _extend_sentinel_from_exc(self, exc):
+        """Persist a Retry-After carried by exc (fork RateLimitedError or
+        stock HTTPError 429). write_block_deadline is monotonic, so this only
+        ever lengthens an active ban, never shortens it. Non-rate-limit
+        exceptions fall back to DEFAULT_RETRY_AFTER_SECS so a failed courtesy
+        retry still imposes a brief cool-off rather than zero."""
+        secs = None
+        if isinstance(exc, _PyOAIRateLimitedError):
+            secs = getattr(exc, 'retry_after_seconds', None)
+        elif isinstance(exc, urllib.error.HTTPError) and exc.code == 429:
+            raw = exc.headers.get('Retry-After') if exc.headers else None
+            secs = doab.parse_retry_after(raw)
+        if not secs:
+            secs = DEFAULT_RETRY_AFTER_SECS
+        write_block_deadline(
+            _now_utc() + datetime.timedelta(seconds=secs), stderr=self.stderr
+        )
 
     def _handle_rate_limit(self, exc, doab_id, state, max_retry_after):
         """Apply Retry-After policy. Returns exit_reason or 'recovered'."""
