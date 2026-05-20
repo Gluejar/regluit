@@ -8,6 +8,13 @@ against the local DB) when --ids-file is omitted, or supplied explicitly for
 targeted re-runs. IDs are processed with rate-limited, ID-keyed state and a
 4-way per-record outcome taxonomy.
 
+Discovery also emits the *raw* OAI active + deleted sets as `.active` and
+`.deleted` artifacts alongside the per-host worklist. A sister host can
+consume these via `--use-active-file [--use-deleted-file]` to skip the
+~17-min OAI crawl and diff the snapshot against its own local DB. This lets
+the regluit fleet (test, dj42, prod) share one DOAB OAI crawl instead of
+running three.
+
 Design context: Gluejar/regluit#1151. Reuses `add_by_doab` (idempotent), the
 existing pyoai client / OAI-prefix stripper, and the shared Retry-After
 sentinel from `load_doab.py` so a 429 hit by discovery, the per-record loop,
@@ -194,10 +201,27 @@ DISCOVERY_RATE_LIMIT_FALLBACK_SECS = 3600
 
 
 def derive_cache_paths(state_file):
-    """Worklist + side-report paths, co-located with the state file."""
+    """Worklist + side-report + raw-OAI-snapshot paths, co-located with the
+    state file.
+
+    The 5 paths are:
+      .ids       — per-host backfill worklist (active - local), SHA-pinned
+      .stale     — per-host: local & deleted (DOAB-deleted, still local)
+      .orphans   — per-host: local - active - deleted (absent from OAI)
+      .active    — raw OAI active set, ~125k IDs; reusable across machines
+      .deleted   — raw OAI deleted set; companion to .active for accurate
+                   stale/orphan reports when reused on another host
+
+    The first three are host-specific (they depend on the local Identifier
+    table). The last two are universal — the same DOAB OAI snapshot regardless
+    of which machine crawled it — and exist so a sister host can reuse the
+    expensive crawl via --use-active-file / --use-deleted-file.
+    """
     return (state_file + '.ids',
             state_file + '.stale',
-            state_file + '.orphans')
+            state_file + '.orphans',
+            state_file + '.active',
+            state_file + '.deleted')
 
 
 def atomic_write_lines(path, lines):
@@ -209,9 +233,14 @@ def atomic_write_lines(path, lines):
     os.replace(tmp, path)
 
 
-def discover_missing_ids(ids_out, stale_out, orphan_out, stdout, stderr):
-    """Crawl DOAB OAI ListIdentifiers, diff against the local DB, write 3
+def discover_missing_ids(ids_out, stale_out, orphan_out, active_out, deleted_out,
+                         stdout, stderr):
+    """Crawl DOAB OAI ListIdentifiers, diff against the local DB, write 5
     sorted artifacts; return the count of missing IDs (0 = local in sync).
+
+    Three of the artifacts are host-specific (worklist, stale, orphan) and two
+    are the raw OAI snapshot (active, deleted) so a sister host can reuse the
+    crawl work via --use-active-file (see discover_via_active_file).
 
     Single-pass (B1/B3): a 429 mid-crawl writes the *shared* sentinel and
     aborts via CommandError; the next invocation re-crawls from scratch.
@@ -225,11 +254,23 @@ def discover_missing_ids(ids_out, stale_out, orphan_out, stdout, stderr):
 
     active, deleted = set(), set()
     raw_seen = 0
+    malformed = []  # Per Codex: catch producer/consumer strictness drift
+                    # — see ID_RE validation below.
     try:
         for header in doab.doab_client.listIdentifiers(metadataPrefix='oai_dc'):
             raw_seen += 1
             bare = doab.getdoab(header.identifier())
             if not bare:
+                continue
+            # Producer strictness must match consumer strictness:
+            # load_input_ids() (used both by --ids-file and --use-active-file)
+            # validates against ID_RE. Emitting an artifact line that won't
+            # round-trip through load_input_ids() is silent waste at best,
+            # and a hidden DOAB OAI namespace drift at worst. Refuse rather
+            # than emit such records into the universal snapshot.
+            if not ID_RE.match(bare):
+                if len(malformed) < 10:  # cap memory; first 10 is enough to diagnose
+                    malformed.append((header.identifier(), bare))
                 continue
             (deleted if header.isDeleted() else active).add(bare)
     except NoRecordsMatchError:
@@ -274,6 +315,19 @@ def discover_missing_ids(ids_out, stale_out, orphan_out, stdout, stderr):
             f"worklist. Inspect a raw ListIdentifiers header before retrying."
         )
 
+    # Producer/consumer strictness drift: discovery and load_input_ids() must
+    # agree on what a valid DOAB ID looks like, or the .active snapshot won't
+    # round-trip through --use-active-file on a sister host.
+    if malformed:
+        sample = ', '.join(f'{raw!r}->{bare!r}' for raw, bare in malformed[:3])
+        raise CommandError(
+            f"discovery saw {len(malformed)}+ DOAB OAI identifier(s) that "
+            f"strip-to a value rejected by ID_RE={ID_RE.pattern!r}. First: "
+            f"{sample}. Refusing to write a snapshot a sister host couldn't "
+            f"consume. (Likely cause: DOAB introduced a new ID shape; "
+            f"either ID_RE needs widening or getdoab() needs tightening.)"
+        )
+
     local = set(
         Identifier.objects.filter(type='doab').values_list('value', flat=True)
     )
@@ -282,9 +336,24 @@ def discover_missing_ids(ids_out, stale_out, orphan_out, stdout, stderr):
     stale = sorted(local & deleted, key=numeric_suffix)
     orphan = sorted(local - active - deleted, key=numeric_suffix)
 
-    atomic_write_lines(ids_out, backfill)
+    # Write order matters: each atomic_write_lines() is per-file atomic
+    # (tmp+rename) but the group is not. A crash between writes could leave
+    # an inconsistent set of files. The `.ids` worklist is the cache marker
+    # (`cache_exists` checks for it), so by writing `.ids` LAST we guarantee
+    # that whenever `cache_exists` is True, all four sibling artifacts are
+    # fresh and mutually consistent.
+    #
+    # Universal raw-OAI snapshot — reusable across sister hosts via
+    # --use-active-file / --use-deleted-file. Sorted by numeric suffix so
+    # the snapshot file is byte-stable across runs that see the same OAI
+    # state (helpful for `diff` between crawls).
+    atomic_write_lines(active_out, sorted(active, key=numeric_suffix))
+    atomic_write_lines(deleted_out, sorted(deleted, key=numeric_suffix))
+    # Per-host reports
     atomic_write_lines(stale_out, stale)
     atomic_write_lines(orphan_out, orphan)
+    # Per-host worklist LAST (acts as the cache_exists marker)
+    atomic_write_lines(ids_out, backfill)
 
     stdout.write(
         f"[discovery] DOAB active={len(active)} deleted={len(deleted)} "
@@ -294,7 +363,107 @@ def discover_missing_ids(ids_out, stale_out, orphan_out, stdout, stderr):
     )
     stdout.write(
         f"[discovery] wrote worklist={ids_out} "
-        f"stale_report={stale_out} orphan_report={orphan_out}"
+        f"stale_report={stale_out} orphan_report={orphan_out} "
+        f"active_snapshot={active_out} deleted_snapshot={deleted_out}"
+    )
+    return len(backfill)
+
+
+def discover_via_active_file(active_file, deleted_file, ids_out, stale_out,
+                             orphan_out, stdout, stderr, dry_run=False):
+    """Cross-host alternative to discover_missing_ids: read a previously-
+    emitted .active (and optional .deleted) snapshot from another machine's
+    discovery, diff against THIS host's local DB, and write the same 3
+    per-host artifacts (worklist, stale, orphan). Makes **zero DOAB calls**.
+
+    Contract: the .active / .deleted snapshots are the universal halves of a
+    prior discover_missing_ids() output. The diff against the local DB is
+    fast (in-memory set ops + one Identifier query), so this lets the regluit
+    fleet pay the ~17-min DOAB OAI crawl once, not once per host.
+
+    If --use-deleted-file is omitted, `deleted` is treated as empty: the
+    stale report is empty, and the orphan report becomes (local - active),
+    conflating "DOAB-deleted, still local" with "absent from OAI" — still a
+    useful diagnostic, just less precise. The backfill worklist itself is
+    unaffected.
+    """
+    from regluit.core.models import Identifier
+
+    active_ids, _, malformed = load_input_ids(active_file)
+    if malformed:
+        raise CommandError(
+            f"--use-active-file has {len(malformed)} malformed line(s); "
+            f"first: line {malformed[0][0]}: {malformed[0][1]!r}"
+        )
+    if not active_ids:
+        raise CommandError(
+            f"--use-active-file {active_file} parsed to 0 valid DOAB IDs — "
+            f"refusing to write an empty worklist."
+        )
+    active = set(active_ids)
+
+    deleted = set()
+    if deleted_file:
+        deleted_ids, _, dmalformed = load_input_ids(deleted_file)
+        if dmalformed:
+            raise CommandError(
+                f"--use-deleted-file has {len(dmalformed)} malformed line(s); "
+                f"first: line {dmalformed[0][0]}: {dmalformed[0][1]!r}"
+            )
+        deleted = set(deleted_ids)
+        # Per Codex round-2: catch mismatched snapshot pairs early. A well-
+        # formed pair has active ∩ deleted = ∅ (DOAB headers are either
+        # active or deleted, not both). Overlap suggests the operator paired
+        # an .active from one crawl with a .deleted from a different crawl.
+        overlap = active & deleted
+        if overlap:
+            sample = ', '.join(sorted(overlap, key=numeric_suffix)[:3])
+            raise CommandError(
+                f"--use-active-file and --use-deleted-file overlap in "
+                f"{len(overlap)} ID(s) (first: {sample}). Active and deleted "
+                f"sets from the same crawl are disjoint by construction; "
+                f"this pair appears to come from different crawls."
+            )
+
+    local = set(
+        Identifier.objects.filter(type='doab').values_list('value', flat=True)
+    )
+
+    backfill = sorted(active - local, key=numeric_suffix)
+    stale = sorted(local & deleted, key=numeric_suffix)
+    orphan = sorted(local - active - deleted, key=numeric_suffix)
+
+    if dry_run:
+        # Per Codex round-3: a validation run must not seed a real cache.
+        # Report the diff for the operator and return without touching disk.
+        stdout.write(
+            f"[discovery/reuse,dry-run] active={len(active)} from "
+            f"{active_file}; deleted={len(deleted)}"
+            f"{' from ' + deleted_file if deleted_file else ' (not provided)'}; "
+            f"local={len(local)} -> backfill={len(backfill)} "
+            f"stale={len(stale)} orphan={len(orphan)} "
+            f"(no files written under --dry-run)"
+        )
+        return len(backfill)
+
+    # Same write-order discipline as discover_missing_ids: `.ids` is the
+    # cache marker, written LAST so its presence implies all siblings are
+    # fresh and mutually consistent.
+    atomic_write_lines(stale_out, stale)
+    atomic_write_lines(orphan_out, orphan)
+    atomic_write_lines(ids_out, backfill)
+
+    stdout.write(
+        f"[discovery/reuse] active={len(active)} from {active_file}; "
+        f"deleted={len(deleted)}"
+        f"{' from ' + deleted_file if deleted_file else ' (not provided)'}; "
+        f"local={len(local)} -> backfill={len(backfill)} "
+        f"stale={len(stale)} orphan={len(orphan)}"
+    )
+    stdout.write(
+        f"[discovery/reuse] wrote worklist={ids_out} "
+        f"stale_report={stale_out} orphan_report={orphan_out} "
+        f"(no DOAB OAI calls)"
     )
     return len(backfill)
 
@@ -330,9 +499,24 @@ class Command(BaseCommand):
         parser.add_argument('--id-range',
                             help='Optional numeric range filter, e.g. 170000-179999')
         parser.add_argument('--refresh-ids', action='store_true',
-                            help='Force re-discovery even if a cached worklist '
-                                 'exists (requires a fresh --state-file, since '
-                                 'the SHA changes)')
+                            help='Force re-discovery (OAI crawl) or re-diff '
+                                 '(from --use-active-file) even if a cached '
+                                 'worklist exists. Requires a fresh '
+                                 '--state-file, since the SHA changes.')
+        parser.add_argument('--use-active-file', default=None,
+                            help='Path to a previously-emitted .active file '
+                                 '(raw DOAB OAI active set from a sister '
+                                 'host\'s discovery). When provided, skips '
+                                 'the DOAB OAI crawl entirely and diffs this '
+                                 'snapshot against THIS host\'s local DB. '
+                                 'Mutually exclusive with --ids-file.')
+        parser.add_argument('--use-deleted-file', default=None,
+                            help='Optional companion to --use-active-file: '
+                                 'path to the matching .deleted snapshot. '
+                                 'Without it, the stale report is empty and '
+                                 'the orphan report conflates DOAB-deleted '
+                                 'with absent-from-OAI; the backfill '
+                                 'worklist itself is unaffected.')
         parser.add_argument('--dry-run', action='store_true',
                             help='Validate inputs + state; do not call DOAB')
         parser.add_argument('--ignore-retry-after', action='store_true',
@@ -341,10 +525,26 @@ class Command(BaseCommand):
     def handle(self, **opt):
         dry = opt['dry_run']
 
+        # Mutual-exclusion guards for the cross-host reuse flags.
+        if opt['use_active_file'] and opt['ids_file']:
+            raise CommandError(
+                "--use-active-file and --ids-file are mutually exclusive: "
+                "the former feeds discovery (then diff against local DB); "
+                "the latter bypasses discovery with a pre-built worklist."
+            )
+        if opt['use_deleted_file'] and not opt['use_active_file']:
+            raise CommandError(
+                "--use-deleted-file is a companion to --use-active-file; "
+                "specify both or neither."
+            )
+
         # Shared Retry-After sentinel — gates ALL DOAB traffic, including
         # discovery (not just the per-record loop, which step 6 still guards
         # independently). A dry run makes zero DOAB calls, so it stays allowed
         # even during a ban (operators need to inspect state during bans).
+        # --use-active-file also makes zero DOAB calls during the diff phase,
+        # but the per-record load loop downstream still hits DOAB and is
+        # gated independently by the same sentinel.
         deadline = read_block_deadline()
         now = _now_utc()
         if deadline and now >= deadline:
@@ -353,9 +553,10 @@ class Command(BaseCommand):
             deadline = clear_sentinel()
         ban_active = bool(deadline and not opt['ignore_retry_after'])
 
-        # --- 0. Resolve worklist: explicit --ids-file, cached, or discover ----
+        # --- 0. Resolve worklist: explicit --ids-file, cached, reuse, or discover ---
         if not opt['ids_file']:
-            ids_out, stale_out, orphan_out = derive_cache_paths(opt['state_file'])
+            (ids_out, stale_out, orphan_out,
+             active_out, deleted_out) = derive_cache_paths(opt['state_file'])
             state_exists = load_state(opt['state_file']) is not None
             cache_exists = os.path.exists(ids_out)
             # Prove compatibility with any existing resumable run BEFORE we
@@ -375,11 +576,51 @@ class Command(BaseCommand):
                     f"the original --ids-file, or start over with a fresh "
                     f"--state-file. (Not crawling DOAB until this is resolved.)"
                 )
+            # Per Codex review: don't let an existing local cache silently
+            # shadow an explicit cross-host reuse snapshot the operator just
+            # passed in. Force them to be explicit.
+            if opt['use_active_file'] and cache_exists and not opt['refresh_ids']:
+                raise CommandError(
+                    f"REFUSE: --use-active-file was given but a cached "
+                    f"worklist already exists at {ids_out}. The cached "
+                    f"worklist would silently win and your snapshot would be "
+                    f"ignored. Either pass --refresh-ids with a fresh "
+                    f"--state-file to force a re-diff from your snapshot, or "
+                    f"drop --use-active-file to deliberately reuse the cache."
+                )
             if cache_exists and not opt['refresh_ids']:
                 self.stdout.write(
                     f"[backfill] reusing cached worklist {ids_out} "
                     f"(--refresh-ids + a fresh --state-file to rediscover)"
                 )
+            elif opt['use_active_file']:
+                # Cross-host reuse: no DOAB calls during discovery. The
+                # shared sentinel doesn't gate this branch (it only gates
+                # DOAB traffic; the per-record load loop below remains
+                # independently gated by the same sentinel).
+                self.stdout.write(
+                    f"[backfill] no --ids-file; reusing active snapshot from "
+                    f"{opt['use_active_file']} (no DOAB OAI crawl)..."
+                )
+                missing = discover_via_active_file(
+                    opt['use_active_file'], opt['use_deleted_file'],
+                    ids_out, stale_out, orphan_out,
+                    self.stdout, self.stderr,
+                    dry_run=dry,
+                )
+                if missing == 0:
+                    self.stdout.write(
+                        "[backfill] reuse-diff found 0 missing IDs — local "
+                        "DB is in sync with the supplied active set. "
+                        "Nothing to do."
+                    )
+                    return
+                if dry:
+                    self.stdout.write(
+                        "[backfill] --dry-run with --use-active-file: diff "
+                        "complete, no files written, skipping load loop."
+                    )
+                    return
             elif dry:
                 self.stdout.write(
                     "[backfill] --dry-run with no --ids-file and no cached "
@@ -400,8 +641,10 @@ class Command(BaseCommand):
                     "DOAB OAI ListIdentifiers (single-pass, ~125k headers, "
                     "~17 min)..."
                 )
-                missing = discover_missing_ids(ids_out, stale_out, orphan_out,
-                                               self.stdout, self.stderr)
+                missing = discover_missing_ids(
+                    ids_out, stale_out, orphan_out, active_out, deleted_out,
+                    self.stdout, self.stderr,
+                )
                 if missing == 0:
                     self.stdout.write(
                         "[backfill] discovery found 0 missing IDs — local DB "
