@@ -553,28 +553,31 @@ class Work(models.Model):
     def publication_date(self):
         if self.publication_range:
             return  self.publication_range
-        for edition in Edition.objects.filter(work=self, publication_date__isnull=False).order_by('publication_date'):
-            if edition.publication_date:
-                try:
-                    earliest_publication = edition.publication_date[:4]
-                except IndexError:
-                    continue
-                latest_publication = None
-                for edition in Edition.objects.filter(work=self, publication_date__isnull=False).order_by('-publication_date'):
-                    if edition.publication_date:
-                        try:
-                            latest_publication = edition.publication_date[:4]
-                        except IndexError:
-                            continue
-                        break
-                if earliest_publication == latest_publication:
-                    publication_range = earliest_publication
-                else:
-                    publication_range = earliest_publication + "-" + latest_publication
-                self.publication_range = publication_range
-                self.save()
-                return publication_range
-        return ''
+        # Derive the range from a single, consistently-evaluated result set.
+        # The previous implementation ran two separate queries (asc + desc); when
+        # the dated-edition set changed between them (e.g. concurrent edition
+        # loading) the second query could find no rows, leaving the "latest" year
+        # None and crashing on `earliest + "-" + None`. See issue #1155.
+        years = [
+            date[:4]
+            for date in Edition.objects
+                .filter(work=self, publication_date__isnull=False)
+                .order_by('publication_date')
+                .values_list('publication_date', flat=True)
+            if date
+        ]
+        if not years:
+            return ''
+        earliest_publication, latest_publication = years[0], years[-1]
+        if earliest_publication == latest_publication:
+            publication_range = earliest_publication
+        else:
+            publication_range = earliest_publication + "-" + latest_publication
+        self.publication_range = publication_range
+        # update_fields avoids clobbering other (possibly stale) in-memory fields
+        # during what is nominally a read.
+        self.save(update_fields=['publication_range'])
+        return publication_range
 
     @property
     def has_unglued_edition(self):
