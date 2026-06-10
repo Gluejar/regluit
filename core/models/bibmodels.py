@@ -562,6 +562,7 @@ class Work(models.Model):
             date[:4]
             for date in Edition.objects
                 .filter(work=self, publication_date__isnull=False)
+                .exclude(publication_date='')
                 .order_by('publication_date')
                 .values_list('publication_date', flat=True)
             if date
