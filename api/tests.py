@@ -50,6 +50,19 @@ class ApiTests(TestCase):
         r = self.client.get('/api/widget/%s/'%self.work_id)
         self.assertEqual(r.status_code, 200)
 
+    def test_widget_unknown_ids_return_empty_widget(self):
+        # Regression for #1156: bad identifiers must render an empty widget (200),
+        # not raise an uncaught exception (500).
+        # non-numeric token (length != 10/13) -> safe_get_work raises Work.DoesNotExist
+        r = self.client.get('/api/widget/featured4iL7gEXx/')
+        self.assertEqual(r.status_code, 200)
+        # numeric but no such work
+        r = self.client.get('/api/widget/999999999/')
+        self.assertEqual(r.status_code, 200)
+        # invalid ISBN-10 -> convert_10_to_13 returns None (was len(None) TypeError)
+        r = self.client.get('/api/widget/ABCDEFGHIJ/')
+        self.assertEqual(r.status_code, 200)
+
 class FeedTests(TestCase):
     fixtures = ['initial_data.json', 'neuromancer.json']
     def setUp(self):
