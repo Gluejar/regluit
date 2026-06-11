@@ -65,19 +65,29 @@ def widget(request, isbn):
         work = featured_work()
     else :
         if len(isbn)==10:
+            # convert_10_to_13 returns None for an invalid ISBN-10; guard the
+            # len() below and fall through to the empty-widget response.
             isbn = regluit.core.isbn.convert_10_to_13(isbn)
-        if len(isbn)==13:
+        if isbn and len(isbn)==13:
             try:
                 identifier = models.Identifier.objects.get(type = 'isbn', value = isbn )
                 work = identifier.work
             except models.Identifier.DoesNotExist:
                 return render(request, 'widget.html',
-                     { 'work':None,},
+                     { 'work':None, 'isbn':isbn, },
                     )
         else:
-            work= models.safe_get_work(isbn)
+            # isbn may be a work_id, a non-numeric token, or None (invalid
+            # ISBN-10). safe_get_work raises Work.DoesNotExist for unknown or
+            # non-numeric ids; render an empty widget instead of a 500.
+            try:
+                work = models.safe_get_work(isbn)
+            except models.Work.DoesNotExist:
+                return render(request, 'widget.html',
+                     { 'work':None, 'isbn':isbn, },
+                    )
     return render(request, 'widget.html',
-         {'work':work, },
+         {'work':work, 'isbn':isbn, },
      )
 
 def featured_cover(request):
