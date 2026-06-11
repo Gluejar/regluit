@@ -908,6 +908,47 @@ class WorkTests(TestCase):
         self.assertEqual(e2, self.w1.preferred_edition)
         self.assertEqual(e2, self.w2.preferred_edition)
 
+    def test_publication_date_no_editions(self):
+        self.assertEqual(self.w1.publication_date, '')
+
+    def test_publication_date_single_year(self):
+        models.Edition.objects.create(work=self.w1, publication_date='2007')
+        models.Edition.objects.create(work=self.w1, publication_date='2007-08-22')
+        self.assertEqual(self.w1.publication_date, '2007')
+
+    def test_publication_date_range(self):
+        models.Edition.objects.create(work=self.w1, publication_date='2007')
+        models.Edition.objects.create(work=self.w1, publication_date='2017-08-23')
+        self.assertEqual(self.w1.publication_date, '2007-2017')
+
+    def test_publication_date_ignores_blank_and_null(self):
+        # Regression for #1155: editions with NULL/blank publication_date pass the
+        # isnull=False filter (blank) or are simply absent (NULL) and must not
+        # produce a None "latest" year that crashes the range concatenation.
+        models.Edition.objects.create(work=self.w1, publication_date=None)
+        models.Edition.objects.create(work=self.w1, publication_date='')
+        models.Edition.objects.create(work=self.w1, publication_date='2007')
+        models.Edition.objects.create(work=self.w1, publication_date='2017')
+        # Must not raise TypeError, and blanks must not pollute the range.
+        self.assertEqual(self.w1.publication_date, '2007-2017')
+
+    def test_publication_date_only_blank_editions(self):
+        models.Edition.objects.create(work=self.w1, publication_date=None)
+        models.Edition.objects.create(work=self.w1, publication_date='')
+        self.assertEqual(self.w1.publication_date, '')
+
+    def test_publication_date_uses_single_edition_query(self):
+        # Regression for #1155: the uncached path must evaluate the editions once
+        # (1 SELECT) and persist the cache (1 UPDATE) -- not the old two-query
+        # (asc + desc) shape whose inconsistent reads caused the crash.
+        models.Edition.objects.create(work=self.w1, publication_date='2007')
+        models.Edition.objects.create(work=self.w1, publication_date='2017')
+        with self.assertNumQueries(2):
+            self.assertEqual(self.w1.publication_date, '2007-2017')
+        # Now cached: no further queries.
+        with self.assertNumQueries(0):
+            self.assertEqual(self.w1.publication_date, '2007-2017')
+
     def test_valid_subject(self):
         self.assertTrue(valid_subject(u'A, valid, suj\xc3t'))
         self.assertFalse(valid_subject(u'A, valid, suj\xc3t, '))
