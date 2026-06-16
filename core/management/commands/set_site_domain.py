@@ -30,8 +30,24 @@ class Command(BaseCommand):
 
     def handle(self, domain, name, **options):
         site_id = settings.SITE_ID
-        site = Site.objects.get(pk=site_id)
         display_name = name if name else domain
+
+        # Use get_or_create so a fresh / scrubbed DB without a SITE_ID row is
+        # created correctly rather than hard-failing the deploy with
+        # Site.DoesNotExist (Codex review 2026-06-16).
+        site, created = Site.objects.get_or_create(
+            pk=site_id,
+            defaults={"domain": domain, "name": display_name},
+        )
+        if created:
+            Site.objects.clear_cache()
+            self.stdout.write(
+                self.style.SUCCESS(
+                    f"Updated Site (pk={site_id}): created with "
+                    f"domain={site.domain!r}  name={site.name!r}"
+                )
+            )
+            return
 
         self.stdout.write(
             f"Current Site (pk={site_id}): domain={site.domain!r}  name={site.name!r}"
