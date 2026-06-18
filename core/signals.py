@@ -18,12 +18,12 @@ from django.db.models import signals
 from django.db.models.signals import post_save
 from django.db.utils import DatabaseError
 from django.dispatch import Signal
-from django.utils.translation import ugettext_noop as _
+from django.utils.translation import gettext_noop as _
 from django.template.loader import render_to_string
 from django.utils.timezone import now
 
 from notification import models as notification
-from registration.signals import user_activated
+from django_registration.signals import user_activated
 
 """
 regluit imports
@@ -122,7 +122,7 @@ comment_was_posted.connect(notify_comment)
 # Successful campaign signal
 # https://code.djangoproject.com/browser/django/tags/releases/1.3.1/django/db/models/signals.py
 
-successful_campaign = Signal(providing_args=["campaign"])
+successful_campaign = Signal()
 
 def notify_successful_campaign(campaign, **kwargs):
     """send notification in response to successful campaign"""
@@ -138,7 +138,7 @@ def notify_successful_campaign(campaign, **kwargs):
 # successful_campaign -> send notices    
 successful_campaign.connect(notify_successful_campaign)
 
-unsuccessful_campaign = Signal(providing_args=["campaign"])
+unsuccessful_campaign = Signal()
 
 def notify_unsuccessful_campaign(campaign, **kwargs):
     """send notification in response to unsuccessful campaign"""
@@ -236,7 +236,7 @@ def handle_you_have_pledged(sender, transaction=None, **kwargs):
     
 pledge_created.connect(handle_you_have_pledged)
 
-amazon_suspension = Signal(providing_args=["campaign"])
+amazon_suspension = Signal()
 
 def handle_wishlist_unsuccessful_amazon(campaign, **kwargs):
     """send notification in response to campaign shutdown following Amazon suspension"""
@@ -251,7 +251,7 @@ def handle_wishlist_unsuccessful_amazon(campaign, **kwargs):
     
 amazon_suspension.connect(handle_wishlist_unsuccessful_amazon)
 
-wishlist_added = Signal(providing_args=["supporter", "work"])
+wishlist_added = Signal()
 
 def handle_wishlist_added(supporter, work, **kwargs):
     """send notification to confirmed rights holder when someone wishes for their work"""
@@ -268,7 +268,7 @@ def handle_wishlist_added(supporter, work, **kwargs):
 
 wishlist_added.connect(handle_wishlist_added)
 
-deadline_impending = Signal(providing_args=["campaign"])
+deadline_impending = Signal()
 
 def handle_wishlist_near_deadline(campaign, **kwargs):
     """
@@ -295,7 +295,7 @@ def handle_wishlist_near_deadline(campaign, **kwargs):
     
 deadline_impending.connect(handle_wishlist_near_deadline)
 
-supporter_message = Signal(providing_args=["supporter", "work", "msg"])
+supporter_message = Signal()
 
 def notify_supporter_message(sender, work, supporter, msg, **kwargs):
     """send notification in of supporter message"""
@@ -316,7 +316,7 @@ def notify_join_library(sender, created, instance, **kwargs):
 
 post_save.connect(notify_join_library, sender=LibraryUser)
 
-from registration.signals import user_activated
+from django_registration.signals import user_activated
 
 def ml_subscribe(user, request, **kwargs):
     user.profile.ml_subscribe()

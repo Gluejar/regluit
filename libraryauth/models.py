@@ -125,7 +125,8 @@ class IP(object):
 
     def _set_int(self, value):
         if isinstance(value, IP):
-            self._int = IP.int
+            self._int = value._int
+            return
 
         try:
             self._int = int(value)
@@ -193,24 +194,33 @@ class IPAddressFormField(BaseIPAddressField):
             raise ValidationError(self.default_error_messages['invalid'],
                                   code='invalid')
 
-class IPAddressModelField(models.GenericIPAddressField):
+class IPAddressModelField(models.PositiveIntegerField):
+    """Stores IPv4 addresses as positive integers with IP object conversion.
+
+    Replaces the previous GenericIPAddressField-based implementation that lied
+    about its internal type. Now properly extends PositiveIntegerField, which
+    matches the actual database column type. This fixes Django migration
+    framework compatibility for Django 2.x+.
+    """
     empty_strings_allowed = False
-
-    def __init__(self, *args, **kwargs):
-        models.Field.__init__(self, *args, **kwargs)
-
-    def get_internal_type(self):
-        return "PositiveIntegerField"
 
     def get_prep_value(self, value):
         if not value:
             return value
-
         if isinstance(value, IP):
             return value.int
+        return value
+
+    def from_db_value(self, value, expression, connection, *args):
+        # *args handles Django 1.8-1.11 (passes context) vs 2.0+ (no context)
+        if value is None:
+            return value
+        return IP(value)
 
     def to_python(self, value):
         if isinstance(value, IP):
+            return value
+        if value is None:
             return value
         try:
             return IP(value)
@@ -220,11 +230,9 @@ class IPAddressModelField(models.GenericIPAddressField):
     def formfield(self, **kwargs):
         defaults = {'form_class': IPAddressFormField}
         defaults.update(kwargs)
-        return super(models.GenericIPAddressField, self).formfield(**defaults)
-
-    def deconstruct(self):
-        name, path, args, kwargs = super(models.GenericIPAddressField, self).deconstruct()
-        return name, path, args, kwargs
+        # Skip PositiveIntegerField/IntegerField chain which adds min_value/max_value
+        # that IPAddressFormField (a GenericIPAddressField form field) doesn't accept.
+        return models.Field.formfield(self, **defaults)
 
 
 class Block(models.Model):
@@ -243,15 +251,16 @@ class Block(models.Model):
 
 
     def __str__(self):
+        # lower/upper are already IP objects via from_db_value
         if self.upper:
-            return u'%s    %s - %s' % (self.library, IP(self.lower), IP(self.upper))
+            return u'%s    %s - %s' % (self.library, self.lower, self.upper)
         return u'%s %s' % (self.library, self.lower)
 
     def upper_IP(self):
-        return IP(self.upper)
+        return self.upper
 
     def lower_IP(self):
-        return IP(self.lower)
+        return self.lower
 
     class Meta:
         ordering = ['lower',]

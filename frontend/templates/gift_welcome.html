@@ -8,7 +8,7 @@
     <div><p>From {{ gift.giver.username }}:</p>
     <p style="margin:1em">{{ gift.message|linebreaksbr }}</p>
     </div>
-{% ifequal message 'newuser' %}
+{% if message == 'newuser' %}
     {% if passmessage %}
     <p> Thanks for setting your password and username. Your new book is on your <a href="{% url 'supporter' request.user %}">favorites list</a> for you.</p>
     {% else %}    
@@ -23,10 +23,10 @@
     </form>
     </div>
     {% endif %}
-{% endifequal %}
-{% ifequal message 'existing' %}
+{% endif %}
+{% if message == 'existing' %}
 <p> Your new book has been put on your <a href="{% url 'supporter' request.user %}">favorites list</a> for you.</p>
-{% endifequal %}
+{% endif %}
 <br />
 <div class="welcomealternatives">
 Or you can <a href="{% url 'edit_user' %}">change your username</a> &#151; <a href="{% url 'free' %}">browse free books</a>   &#151; <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">send us feedback</a> &#151; <a href="{% url 'notification_notice_settings' %}">manage your contact preferences</a>

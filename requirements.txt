@@ -1,15 +1,15 @@
 -i https://pypi.org/simple
-amqp==2.6.1; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4'
+amqp==5.2.0; python_version >= '3.6'
 appdirs==1.4.4
 arabic-reshaper==3.0.0
 asn1crypto==1.5.1
 beautifulsoup4==4.11.1; python_full_version >= '3.6.0'
-billiard==3.6.4.0
-boto3==1.17.91; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4, 3.5'
-botocore==1.20.112; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4, 3.5'
+billiard==4.2.1; python_version >= '3.7'
+boto3>=1.28.0,<2; python_version >= '3.8'
+botocore>=1.31.0,<2; python_version >= '3.8'
 cachetools==5.3.2; python_version >= '3.7'
 cairocffi==0.8.0
-celery==4.4.7; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4'
+celery==5.4.0; python_version >= '3.8'
 certifi==2023.11.17; python_version >= '3.6'
 cffi==1.16.0; python_version >= '3.8'
 chardet==5.2.0; python_version >= '3.7'
@@ -21,20 +21,20 @@ cryptography==41.0.7; python_version >= '3.7'
 cssselect2==0.7.0; python_version >= '3.7'
 defusedxml==0.8.0rc2; python_version >= '3.6'
 distlib==0.3.8
-django==1.11.29
-django-ckeditor==5.6.1
+django==4.2.21
+django-ckeditor==6.7.3
 django-contrib-comments==2.0.0
-django-el-pagination==3.2.4
--e git+https://github.com/eshellman/django-email-change.git@fb063296cbf4e4a6d8a93d34d98fe0c7739c2e0d#egg=django-email-change
+django-el-pagination==4.1.2
+-e git+https://github.com/Gluejar/django-email-change.git@7cef40e#egg=django-email-change
 django-extensions==3.1.1; python_version >= '3.6'
-django-js-asset==1.2.3
-django-jsonfield==1.0.0
-django-mptt==0.8.6
--e git+https://github.com/eshellman/django-notification.git@1ad2be4adf3551a3471d923380368341452e178a#egg=django-notification
-django-registration==2.4.1
+django-js-asset==2.2.0
+# django-jsonfield removed — using Django 3.2+ native models.JSONField
+django-mptt==0.14.0
+-e git+https://github.com/Gluejar/django-notification.git@2a7c138#egg=django-notification
+django-registration==3.4
 django-sass-processor==0.8.2
-django-selectable==1.1.0
-django-storages==1.5.2
+django-selectable==1.5.0
+django-storages==1.14.6
 docopt==0.6.2
 filelock==3.13.1; python_version >= '3.8'
 gitberg==0.8.7
@@ -46,7 +46,7 @@ idna==3.6; python_version >= '3.5'
 isodate==0.6.1
 jinja2==3.1.2; python_version >= '3.7'
 jmespath==0.10.0; python_version >= '2.6' and python_version not in '3.0, 3.1, 3.2, 3.3'
-kombu==4.6.11; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4'
+kombu==5.4.2; python_version >= '3.8'
 lxml==4.9.4; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4'
 mailchimp3==3.0.14
 markupsafe==2.1.3; python_version >= '3.7'
@@ -79,24 +79,25 @@ pytz==2023.3.post1
 pyyaml==6.0.1; python_version >= '3.6'
 qrcode==7.4.2; python_version >= '3.7'
 rdflib==7.0.0; python_full_version >= '3.8.1' and python_full_version < '4.0.0'
-redis==3.5.3; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4'
+redis==5.0.8; python_version >= '3.7'
 reportlab==4.0.8; python_version >= '3.7' and python_version < '4'
 requests>=2.31.0; python_version >= '3.7'
 requests-mock==1.8.0
 requests-oauthlib==1.3.1; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
 risparser==0.4.3
-s3transfer==0.4.2
+s3transfer>=0.6.0,<1; python_version >= '3.8'
 selenium==3.141.0
+setuptools>=70.0.0,<71; python_version >= '3.12'
 semver==2.2.0
 sh==2.0.6; python_version < '4.0' and python_full_version >= '3.8.1'
 six==1.16.0; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
 smmap==5.0.1; python_version >= '3.7'
-social-auth-app-django==2.1.0
+social-auth-app-django==5.4.2
 social-auth-core==4.5.1; python_version >= '3.8'
-sorl-thumbnail==12.6.3; python_version >= '3.4'
+sorl-thumbnail==12.11.0; python_version >= '3.4'
 soupsieve==2.5; python_version >= '3.8'
 sparqlwrapper==2.0.0; python_version >= '3.7'
-stripe==2.76.0
+stripe==5.5.0
 svglib==1.5.1; python_version >= '3.7'
 tinycss2==1.2.1; python_version >= '3.7'
 tomli==2.0.1; python_version < '3.11'
@@ -107,7 +108,7 @@ tzlocal==5.2; python_version >= '3.8'
 uritemplate==4.1.1; python_version >= '3.6'
 uritools==4.0.2; python_version >= '3.7'
 urllib3==1.26.18; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4, 3.5'
-vine==1.3.0; python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'
+vine==5.1.0; python_version >= '3.6'
 virtualenv==20.25.0; python_version >= '3.7'
 webencodings==0.5.1
 wikipedia==1.4.0

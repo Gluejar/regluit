@@ -60,16 +60,16 @@ REDIRECT_IS_HTTPS = False
 BASE_URL_SECURE = 'https://0.0.0.0'
 
 # send celery log to Python logging
-WORKER_HIJACK_ROOT_LOGGER = False
+CELERY_WORKER_HIJACK_ROOT_LOGGER = False
 
 # a debug_toolbar setting
 INTERNAL_IPS = ('127.0.0.1',)
 
 # start out with nothing scheduled
-CELERYBEAT_SCHEDULE = {}
+CELERY_BEAT_SCHEDULE = {}
 
 # decide which of the period tasks to add to the schedule
-#CELERYBEAT_SCHEDULE['refresh_acqs'] = REFRESH_ACQS_JOB
+#CELERY_BEAT_SCHEDULE['refresh_acqs'] = REFRESH_ACQS_JOB
 
 # if you're doing development work, you'll want this to be zero
 IS_PREVIEW = False

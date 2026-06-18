@@ -21,7 +21,7 @@
         document.getElementById("search-button-2").disabled = false;
     }
 </script>
-{% ifequal supporter request.user %}
+{% if supporter == request.user %}
 <!-- we only need to be able to toggle the profile edit area in this case -->
 <script type="text/javascript">
     var $j = jQuery.noConflict();
@@ -41,7 +41,7 @@
         });
     });
 </script>
-{% endifequal %}
+{% endif %}
 
 {% if slidelist %}
 <!-- when the user's wishlist is empty, views.py gives us works for a slideshow -->
@@ -114,7 +114,7 @@ function highlightTarget(targetdiv) {
 
                             <div class="user-block3">
                                 <div class="badges">
-                                {% ifequal request.user supporter %}
+                                {% if request.user == supporter %}
                                     <span class="rounded"><span class="blue tabs1" title="I've unglued {{ backed }} {% if backed == 1 %}book{% else %}books{% endif %}."><span class="hovertext">I've unglued&nbsp;</span>{{ backed }}</span></span>
                                     <span class="rounded"><span class="orange tabs2" title="I'm supporting {{ backing }} {% if backing == 1 %}book{% else %}books{% endif %}."><span class="hovertext">I'm ungluing&nbsp;</span>{{ backing }}</span></span>
                                     <span class="rounded"><span class="grey tabs3" title="I'm wishing for {{ wished }} {% if wished == 1 %}book{% else %}books{% endif %}."><span class="hovertext">I'm wishing for&nbsp;</span>{{ wished }}</span></span>
@@ -122,16 +122,16 @@ function highlightTarget(targetdiv) {
                                     <span class="rounded"><span class="blue tabs1" title="{{ supporter }} has unglued {{ backed }} {% if backed == 1 %}book{% else %}books{% endif %}."><span class="hovertext">has unglued&nbsp;</span>{{ backed }}</span></span>
                                     <span class="rounded"><span class="orange tabs2" title="{{ supporter }} is supporting {{ backing }} {% if backing == 1 %}book{% else %}books{% endif %}."><span class="hovertext">is ungluing&nbsp;</span>{{ backing }}</span></span>
                                     <span class="rounded"><span class="grey tabs3" title="{{ supporter }} is wishing for {{ wished }} {% if wished == 1 %}book{% else %}books{% endif %}."><span class="hovertext">is wishing for&nbsp;</span>{{ wished }}</span></span>
-                                {% endifequal %}
+                                {% endif %}
                                 </div>
                             </div>
                             <div class="user-block4">
                                 {% if request.user.is_authenticated %}
-                                    {% ifequal request.user supporter %}
+                                    {% if request.user == supporter %}
                                     <div id="edit_profile">
                                         <img src="/static/images/header/icon-edit.png" alt="Edit Your Profile" title="Edit Your Profile" />
                                     </div>
-                                    {% endifequal %}
+                                    {% endif %}
                                     <div class="social">
                                     {% if supporter.profile.home_url %}
                                        <a href="{{ supporter.profile.home_url }}" class="nounderline">
@@ -147,14 +147,14 @@ function highlightTarget(targetdiv) {
                                </div>
                             </div>
                         </div>
-                        {% ifequal supporter request.user %}
+                        {% if supporter == request.user %}
                         <div id="user-block-hide" class="user-block-hide">
                         <form method="POST" action="#">
                             {% csrf_token %}
                             <div class="block block1">
                             <div class="block-inner">
                                 {{ profile_form.avatar_source.errors }}
-                                Your profile pic: {{ profile_form.avatar_source }} {% ifequal supporter.profile.avatar_source 1 %} <br /><a href="http://en.gravatar.com/">Set your Gravatar</a><br /><br />{% endifequal %}
+                                Your profile pic: {{ profile_form.avatar_source }} {% if supporter.profile.avatar_source == 1 %} <br /><a href="http://en.gravatar.com/">Set your Gravatar</a><br /><br />{% endif %}
                             </div>
                             <div class="block-inner">
                                 <p>Your Tagline</p>
@@ -192,7 +192,7 @@ function highlightTarget(targetdiv) {
                                 <a href="{% url 'marc_config' %}">Librarian Settings</a>
                             </div>
                         </div>
-                      {% endifequal %}
+                      {% endif %}
                     </div>
                 </div>
             </div>
@@ -246,7 +246,7 @@ function highlightTarget(targetdiv) {
                 
                 <div id="content-block-content">
                     {% if not wishlist.works.first %}
-                        {% ifequal request.user supporter %}
+                        {% if request.user == supporter %}
                         <div class="empty-wishlist">
                         <div><h2 style="padding-left:35px;">Add a book to your list to get started.</h2><br /><br /></div>
                             <div id="js-slide">
@@ -274,7 +274,7 @@ function highlightTarget(targetdiv) {
                         {% else %}
                         <div class="empty-wishlist">
                             It looks like {{ supporter.username }} is just getting started, and hasn't added books just yet.<br /><br />
-                        {% endifequal %}
+                        {% endif %}
                     {% else %}
                     
                     {% if request.user.is_anonymous %}

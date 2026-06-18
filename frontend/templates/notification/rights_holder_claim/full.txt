@@ -1,4 +1,4 @@
-{% ifequal claim.status 'active' %}
+{% if claim.status == 'active' %}
 {{ claim.rights_holder }}'s claim to {{ claim.work.title }} on Unglue.it has been registered.
 
 You are now free to start a campaign to sell or unglue your work.  If you're logged in, you will see the option to open a campaign at https://{{ current_site.domain }}/rightsholders .  (You can also find this page by clicking on "Rights Holder Tools" at the bottom of any Unglue.it page.)
@@ -11,12 +11,12 @@ If you're running a Pledge Campaign, you need to decide on a funding target, and
 
 Finally, think about how you're going to publicize your campaign: social media, newsletters, media contacts, professional organizations, et cetera.  Have a plan for how to reach out to these potential supporters before you launch your campaign.  Your supporters' sense of connection with you and your book is key to your campaign's success.  Again, email us if you'd like help.
 
-{% endifequal %}
-{% ifequal claim.status 'pending' %}
+{% endif %}
+{% if claim.status == 'pending' %}
 {{ claim.rights_holder }}'s claim to {{ claim.work.title }} (https://{{ current_site.domain }}{% url 'work' claim.work_id %}) on Unglue.it has been entered. 
-{% endifequal %}
-{% ifequal claim.status 'release' %}
+{% endif %}
+{% if claim.status == 'release' %}
 {{ claim.rights_holder }}'s claim to {{ claim.work.title }} (https://{{ current_site.domain }}{% url 'work' claim.work_id %}) on Unglue.it has been released. email us (rights@ebookfoundation.org) if you have any questions about this.
-{% endifequal %}
+{% endif %}
 
 The Unglue.it team

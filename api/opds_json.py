@@ -6,7 +6,7 @@ import json
 import pytz
 
 from django.urls import reverse
-from django.utils.http import urlquote
+from urllib.parse import quote as urlquote
 
 from regluit.core import models, facets
 import regluit.core.cc as cc
