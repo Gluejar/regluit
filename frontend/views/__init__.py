@@ -969,6 +969,13 @@ class FundView(FormView):
         if not self.transaction.campaign:
             if self.request.user.is_authenticated:
                 self.transaction.user = self.request.user
+            elif self.transaction.user is not None:
+                # Ownership guard (#1125): now that make_account receives
+                # transaction.user, an anonymous request must NOT be allowed to pay a
+                # transaction owned by a logged-in user -- that would deactivate the
+                # owner's Stripe account and recharge their failed transactions.
+                return render(self.request, "pledge_user_error.html",
+                              {'transaction': self.transaction, 'action': self.action})
             # if there's an email address, put it in the receipt column, so far unused.
             self.transaction.receipt = form.cleaned_data.get("email", None)
             t, url = p.charge(self.transaction, return_url = return_url, token=stripe_token)
