@@ -52,6 +52,13 @@ def write_block_deadline(deadline, path=SENTINEL_PATH, stderr=None):
     Silent failures here would mask permission/path bugs and reintroduce the
     ban-extension loop this whole patch exists to prevent.
     """
+    # Monotonic: never shorten an active ban. cron and backfill co-own this
+    # file; without this, a short 429 racing a long one (or a stale writer)
+    # could replace a longer deadline with a shorter one and let us hit a
+    # still-banned endpoint early. Only ever move the deadline later.
+    existing = read_block_deadline(path)
+    if existing is not None and existing >= deadline:
+        return True
     try:
         with open(path, 'w') as f:
             f.write(deadline.isoformat())
@@ -66,10 +73,23 @@ def write_block_deadline(deadline, path=SENTINEL_PATH, stderr=None):
 
 
 def clear_sentinel(path=SENTINEL_PATH):
-    try:
-        os.remove(path)
-    except OSError:
-        pass
+    """Intentionally NEVER deletes the sentinel file.
+
+    An expired deadline is already harmless: every caller compares it to
+    `now` and proceeds, and the next 429 overwrites it (write is monotonic).
+    Deleting introduces an unavoidable read-then-remove TOCTOU — a fresh
+    future deadline written by another process (cron vs backfill) between the
+    read and os.remove() would be erased, dropping an active DOAB ban. Not
+    deleting eliminates that race entirely; the file is a single tiny value
+    that is overwritten, never appended.
+
+    Returns the still-active deadline if one is present (caller must honor
+    it); returns None if absent or expired (caller may proceed).
+    """
+    deadline = read_block_deadline(path)
+    if deadline is not None and _now_utc() < deadline:
+        return deadline  # still-active ban — caller must honor it
+    return None
 
 
 class Command(BaseCommand):
@@ -98,7 +118,13 @@ class Command(BaseCommand):
             )
             return
         if deadline and now >= deadline:
-            clear_sentinel()
+            live = clear_sentinel()
+            if live and not ignore:
+                self.stdout.write(
+                    'SKIP: DOAB OAI rate-limited until {} (concurrent writer; '
+                    'honoring Retry-After).'.format(live.isoformat())
+                )
+                return
 
         self.stdout.write('starting at date:{} until:{}, max: {}'.format(
                           from_date, until_date, max))
