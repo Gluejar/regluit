@@ -28,7 +28,7 @@ from django.db.models import F, Q
 from django.db.models.signals import post_save
 from django.urls import reverse
 from django.utils.timezone import now
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 #regluit imports
 
@@ -108,7 +108,7 @@ class CeleryTask(models.Model):
     description = models.CharField(max_length=2048, null=True)  # a description of what the task is
     function_name = models.CharField(max_length=1024) # used to reconstitute the AsyncTask with which to get status
     function_args = models.IntegerField(null=True)  # not full generalized here -- takes only a single arg for now.
-    active = models.NullBooleanField(default=True)
+    active = models.BooleanField(default=True, null=True)
 
     def __str__(self):
         return "Task %s arg:%s ID# %s %s: State %s " % (self.function_name, self.function_args, self.task_id, self.description, self.state)

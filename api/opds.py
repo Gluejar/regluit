@@ -8,7 +8,7 @@ import pytz
 
 from django.core.cache import cache
 from django.urls import reverse
-from django.utils.http import urlquote
+from urllib.parse import quote as urlquote
 
 
 

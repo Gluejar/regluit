@@ -63,17 +63,17 @@
     {% endif %}
     <li> Go to <a href="{% url 'library' library.user %}">{{ library }}'s page</a></li>
     <li> Go to <a href="{% url 'supporter' library.user %}"><i>{{ library.user }}</i>'s user page</a></li>
-    {% ifequal request.user library.user %}
+    {% if request.user == library.user %}
         <li> <i>You are logged in as the library user ( {{ library.user }} ).</i> You can...</li>
         <li> ... edit the <a href="{% url 'supporter' library.user %}#edit">Profile Settings</a> or ... </li>
         <li> ... <a href="{% url 'manage_account' %}">configure</a> the library's account</li>
     {% else %}
-        {% ifequal request.user library.owner %}
+        {% if request.user == library.owner %}
             <li> To set links and tagline, configure the account, and build book lists for {{ library }}, first <br /> <br /><a class="fakeinput" href="{% url 'library_login' library.id %}">log in as {{ library.user }}</a></li>
         {% else %}
             <li> <i>{{ library.owner }}</i> is authorized to set links and tagline, configure the account, and build book lists for {{ library }}.</li>
-        {% endifequal %}
-    {% endifequal %}
+        {% endif %}
+    {% endif %}
     </ul>
 {% endif %}
 {% if backend_admin_forms %}

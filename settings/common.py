@@ -13,6 +13,13 @@ logging.handlers.GroupWriteRotatingFileHandler = custom_logging.GroupWriteRotati
 
 PROJECT_DIR = dirname(dirname(realpath(__file__)))
 
+# Django 3.2+: preserve existing auto-field behavior for legacy models
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+# Django 4.x defaults to JSONSerializer; make this explicit so existing sessions
+# aren't broken during the upgrade. Flush sessions during production cutover.
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
+
 LANGUAGE_CODE = 'en-us'
 LANGUAGES = (
     ('en', 'English'),
@@ -158,7 +165,7 @@ INSTALLED_APPS = (
     'regluit.marc',
     'regluit.payment',
     'regluit.utils',
-    'registration',
+    'django_registration',
     'social_django',
     'el_pagination',
     'selectable',
@@ -344,6 +351,7 @@ SOCIAL_AUTH_TWITTER_EXTRA_DATA = [('profile_image_url_https', 'profile_image_url
 
 LOGIN_URL = "/accounts/superlogin/"
 LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
 LOGOUT_URL = "/accounts/logout/"
 LOGIN_ERROR_URL    = '/accounts/login-error/'
 
@@ -370,7 +378,7 @@ MAX_CC_DATE = datetime.date( 2099,12,31)
 CAMPAIGN_ARCHIVE_JS = "http://us2.campaign-archive1.com/generate-js/?u=15472878790f9faa11317e085&fid=28161&show=10"
 
 # use redis for production queue and results
-BROKER_URL = "redis://127.0.0.1:6379/0"
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
 CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/1"
 CELERY_LOG_DIR = ""
 

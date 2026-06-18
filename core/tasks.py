@@ -6,7 +6,7 @@ import random
 
 from datetime import timedelta
 from time import sleep
-from celery.task import task
+from celery import shared_task as task
 
 #
 # django imports

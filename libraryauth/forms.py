@@ -6,11 +6,11 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 
 # hack to fix bug in old version of django-registration
-from registration.validators import CONFUSABLE_EMAIL
+from django_registration.validators import CONFUSABLE_EMAIL
 from confusable_homoglyphs import confusables
 def validate_confusables_email(value):
     if '@' not in value:
@@ -23,11 +23,11 @@ def validate_confusables_email(value):
        confusables.is_dangerous(domain):
         raise forms.ValidationError(CONFUSABLE_EMAIL, code='invalid')
 
-import registration
-registration.validators.validate_confusables_email = validate_confusables_email
+import django_registration
+django_registration.validators.validate_confusables_email = validate_confusables_email
 # end hack
 
-from registration.forms import RegistrationFormUniqueEmail
+from django_registration.forms import RegistrationFormUniqueEmail
 from .emailcheck import is_disposable
 from .models import Library
 

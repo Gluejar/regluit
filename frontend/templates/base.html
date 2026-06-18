@@ -102,7 +102,7 @@
                             {% if user.rights_holder.all %}
                             <li><a class="notbutton" href="{% url 'rightsholders' %}">Rights Holder Tools</a></li>
                             {% endif %}
-                            <li><a class="notbutton" href="{% url 'auth_logout' %}"><span>Sign Out</span></a></li>
+                            <li><a class="notbutton" href="{% url 'logout' %}"><span>Sign Out</span></a></li>
                         </ul>
                 </div>
             {% else %}
