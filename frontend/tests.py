@@ -226,8 +226,8 @@ from unittest.mock import patch as _patch
 from django.test import TestCase as _TestCase, Client as _Client
 from django.urls import reverse as _reverse
 from django.contrib.auth.models import User as _User
-from payment.models import Transaction as _Transaction
-from payment.parameters import PAYMENT_HOST_NONE as _PAYMENT_HOST_NONE
+from regluit.payment.models import Transaction as _Transaction
+from regluit.payment.parameters import PAYMENT_HOST_NONE as _PAYMENT_HOST_NONE
 
 
 class FundViewOwnershipTest(_TestCase):
@@ -244,13 +244,13 @@ class FundViewOwnershipTest(_TestCase):
         self.txn = _Transaction.create(amount=5.00, max_amount=5.00,
                                        host=_PAYMENT_HOST_NONE, user=self.owner, campaign=None)
 
-    @_patch('frontend.views.PaymentManager')
+    @_patch('regluit.frontend.views.PaymentManager')
     def test_anonymous_cannot_pay_owned_transaction(self, mock_pm):
         r = _Client().post(_reverse('fund', args=[self.txn.id]), {'stripe_token': 'tok_test'})
         self.assertTemplateUsed(r, 'pledge_user_error.html')
         mock_pm.return_value.charge.assert_not_called()
 
-    @_patch('frontend.views.PaymentManager')
+    @_patch('regluit.frontend.views.PaymentManager')
     def test_other_user_cannot_pay_owned_transaction(self, mock_pm):
         c = _Client()
         c.login(username='other1125', password='pw')
