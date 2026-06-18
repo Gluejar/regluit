@@ -650,10 +650,13 @@ class Processor(baseprocessor.Processor):
 
             # ASSUMPTION:  a user has any given moment one and only one active payment Account
             if token:
-                # user is anonymous
+                # A token is present whenever the donor entered card details on the
+                # form -- for BOTH anonymous AND logged-in donors. Pass the
+                # (possibly None) transaction.user so a logged-in donor is linked to
+                # their account instead of being mislabeled "anonymous user" (#1125).
                 try:
                     account = transaction.get_payment_class().make_account(
-                        token=token, email=transaction.receipt)
+                        user=transaction.user, token=token, email=transaction.receipt)
                 except StripelibError as e:
                     self.errorMessage = str(e)
                     return
