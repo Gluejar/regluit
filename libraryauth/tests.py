@@ -67,3 +67,28 @@ class TestLibraryAuth(TestCase):
         from .emailcheck import is_disposable
         self.assertFalse(is_disposable('eric@hellman.net'))
         self.assertTrue(is_disposable('eric@mailnesia.com'))
+
+
+class TestAppConfigSignalsWired(TestCase):
+    """Regression guard for issue #1175.
+
+    Django 4.1 removed `default_app_config`, and an AppConfig defined in an app's
+    __init__.py is NOT auto-discovered (Django only scans <app>/apps.py). When that
+    regression bit during the 4.2 cutover, LibraryAuthConfig.ready() stopped running
+    and signals.py was never imported. These tests fail if the config ever moves back
+    out of apps.py or otherwise stops being the active config.
+    """
+
+    def test_appconfig_is_discovered(self):
+        from django.apps import apps
+        from regluit.libraryauth.apps import LibraryAuthConfig
+        self.assertIsInstance(apps.get_app_config('libraryauth'), LibraryAuthConfig)
+
+    def test_user_activated_receiver_connected(self):
+        # ready() must have imported signals.py and connected the dedup receiver.
+        from django_registration.signals import user_activated
+        names = []
+        for _key, ref in user_activated.receivers:
+            fn = ref if getattr(ref, '__name__', None) else (ref() if callable(ref) else None)
+            names.append(getattr(fn, '__name__', None))
+        self.assertIn('handle_same_email_account', names)
