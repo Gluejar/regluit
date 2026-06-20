@@ -646,7 +646,7 @@ class WorkListView(FilterableListView):
             return models.Work.objects.exclude(num_wishes=0).order_by('-num_wishes')
         elif facet == 'recommended':
             self.template_name = "recommended.html"
-            return models.Work.objects.filter(wishlists__user=recommended_user).order_by('-num_wishes')
+            return models.Work.objects.filter(wishlists__user__in=recommended_user).order_by('-num_wishes')
         else:
             return models.Work.objects.all().order_by('-created')
 
