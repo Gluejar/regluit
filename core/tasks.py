@@ -138,7 +138,7 @@ def notify_ending_soon():
 @task
 def watermark_acq(acq_id):
     try:
-        acq = Acq.objects.get(acq_id)
+        acq = Acq.objects.get(id=acq_id)
     except Acq.DoesNotExist as e:
         logger.error("error getting acq %s", acq_id)
         return False
@@ -147,7 +147,7 @@ def watermark_acq(acq_id):
 @task
 def process_ebfs(campaign_id):
     try:
-        campaign = Campaign.objects.get(campaign_id)
+        campaign = Campaign.objects.get(id=campaign_id)
     except Campaign.DoesNotExist as e:
         logger.error("error getting acq %s", campaign_id)
         return False
@@ -186,7 +186,7 @@ def refresh_acqs():
 @task
 def ml_subscribe_task(profile_id, **kwargs):
     try:
-        profile = UserProfile.objects.get(profile_id)
+        profile = UserProfile.objects.get(id=profile_id)
     except UserProfile.DoesNotExist as e:
         logger.error("error getting profile %s", profile_id)
         return False
