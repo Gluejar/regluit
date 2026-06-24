@@ -6,6 +6,43 @@ Disallow: /feedback/
 Disallow: /socialauth/
 Disallow: /search/
 Disallow: /googlebooks/
+
+# --- AI crawler load management (see issue #1172) ---
+# On 2026-06-18 ClaudeBot was 26% of all traffic (124k req) + GPTBot 5%, saturating the box.
+# ClaudeBot documents Crawl-delay support -> throttle (stays discoverable).
+# DECISION FOR REVIEW: throttle vs full Disallow for ClaudeBot.
+User-agent: ClaudeBot
+Crawl-delay: 30
+
+# GPTBot does NOT document Crawl-delay -> Disallow the training crawl.
+User-agent: GPTBot
+Disallow: /
+
+# Other training/scraping crawlers (no reliable Crawl-delay) -> Disallow.
+User-agent: CCBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: Amazonbot
+Disallow: /
+
+User-agent: meta-externalagent
+Disallow: /
+
+User-agent: Diffbot
+Disallow: /
+
+User-agent: cohere-ai
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /
+
+# NOTE: AI *search* agents (OAI-SearchBot, Claude-SearchBot, ChatGPT-User, Perplexity-User)
+# are intentionally LEFT ALLOWED for discoverability. DECISION FOR REVIEW.
+# Googlebot is deliberately untouched (SEO).
 {% else %}
 User-agent: *
 Disallow: /
