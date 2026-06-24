@@ -967,6 +967,16 @@ class FundView(FormView):
         return_url = "%s?tid=%s" % (reverse('pledge_complete'), self.transaction.id)
 
         if not self.transaction.campaign:
+            if self.transaction.user is not None and (
+                    self.request.user.is_anonymous
+                    or self.transaction.user_id != self.request.user.id):
+                # Ownership guard (#1125): a no-campaign transaction owned by a user
+                # may only be paid by that user. Otherwise an anonymous OR different
+                # requester could take over the transaction and -- via
+                # make_account(user=transaction.user) -- mutate the owner's Stripe
+                # account / recharge their failed transactions.
+                return render(self.request, "pledge_user_error.html",
+                              {'transaction': self.transaction, 'action': self.action})
             if self.request.user.is_authenticated:
                 self.transaction.user = self.request.user
             # if there's an email address, put it in the receipt column, so far unused.
