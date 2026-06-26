@@ -16,6 +16,10 @@ PROJECT_DIR = dirname(dirname(realpath(__file__)))
 # Django 3.2+: preserve existing auto-field behavior for legacy models
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
+# Mask secrets the default filter misses (STRIPE_SK, EMAIL_HOST_USER, ...) in the
+# settings dump emailed on every 500. See EbookFoundation/security-private#22.
+DEFAULT_EXCEPTION_REPORTER_FILTER = 'regluit.utils.exception_filter.RegluitSafeExceptionReporterFilter'
+
 # Django 4.x defaults to JSONSerializer; make this explicit so existing sessions
 # aren't broken during the upgrade. Flush sessions during production cutover.
 SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
