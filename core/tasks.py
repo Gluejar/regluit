@@ -231,5 +231,6 @@ def feature_new_work():
 @task
 def make_cover_thumbnail(url, geom_string, **options):
     success = covers.make_cover_thumbnail(url, geom_string, **options)
-    logger.error('bad cover image %s: %s', url)
+    if not success:
+        logger.error('bad cover image %s: %s', url, geom_string)
     
