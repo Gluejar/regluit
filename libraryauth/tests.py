@@ -88,7 +88,9 @@ class TestAppConfigSignalsWired(TestCase):
         # ready() must have imported signals.py and connected the dedup receiver.
         from django_registration.signals import user_activated
         names = []
-        for _key, ref in user_activated.receivers:
+        for entry in user_activated.receivers:
+            # Django <5.0: (lookup_key, receiver); Django >=5.0: (lookup_key, receiver, is_async)
+            ref = entry[1]
             fn = ref if getattr(ref, '__name__', None) else (ref() if callable(ref) else None)
             names.append(getattr(fn, '__name__', None))
         self.assertIn('handle_same_email_account', names)
