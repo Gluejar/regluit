@@ -44,6 +44,13 @@ USE_I18N = True
 # USE_L10N was removed in Django 5.0 (localized formatting is always on), so it
 # is intentionally not set here.
 
+# Django 5.0 flipped the USE_TZ default from False to True. This codebase (and
+# the production database contents) use naive local datetimes throughout, so we
+# pin the pre-5.0 behavior. Migrating to timezone-aware datetimes is a separate
+# project (data migration + audit of every datetime comparison), not part of the
+# 4.2 -> 5.2 upgrade.
+USE_TZ = False
+
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
 MEDIA_ROOT = ''
