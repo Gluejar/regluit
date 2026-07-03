@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% load cache %}
+{% load sanitizer %}
 {% load comments %}
 {% load humanize %}
 {% load lib_acqs %}
@@ -273,14 +274,14 @@
                                     <div  itemprop="description">
                                     {% if status == 'ACTIVE'  %}
                                         {% if work.last_campaign.type != 3 %}
-                                            {{ work.last_campaign.description|safe }}
+                                            {{ work.last_campaign.description|sanitize }}
                                         {% else %}
-                                            {{ work.description|safe }}
+                                            {{ work.description|sanitize }}
                                         {% endif %}
                                     {% elif  work.description %}
-                                        {{ work.description|safe }}
+                                        {{ work.description|sanitize }}
                                     {% else %} 
-                                        {{ work.last_campaign.description|safe }}
+                                        {{ work.last_campaign.description|sanitize }}
                                     {% endif %}
                                     </div>
                                     <div>
@@ -402,7 +403,7 @@
                                                 You can help us say "Thank You!" so that other creators will do the same.</p>
                                             {% endif %}
                                             <h4>Campaign details: the fine print</h4>
-                                            {{ work.last_campaign.details|safe }}
+                                            {{ work.last_campaign.details|sanitize }}
                                         {% endif %}
                                     
                                         {% if status == 'SUCCESSFUL' %}
@@ -414,7 +415,7 @@
                                             {% endfor %}
                                             , has agreed to release <i>{{work.title}}</i> to the world as a Creative Commons licensed ebook (<a href="{{ work.last_campaign.license_url }}">{{ work.last_campaign.license }}</a>) thanks to the efforts of ungluers like you.</p>
                                             <h4>Campaign details: the fine print</h4>
-                                            {{ work.last_campaign.details|safe }}
+                                            {{ work.last_campaign.details|sanitize }}
                                         {% endif %}
                                         {% if status != 'ACTIVE' and status != 'SUCCESSFUL' %}
                                             <h4> Rights Information </h4>

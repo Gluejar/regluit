@@ -220,3 +220,47 @@ class GoogleBooksTest(TestCase):
         work_url = r['location']
         self.assertTrue(re.match(r'.*/work/\d+/$', work_url))
 
+
+
+from django.test import SimpleTestCase
+from django.template import Template, Context
+from regluit.utils.html import sanitize_html
+
+
+class SanitizeRichTextTests(SimpleTestCase):
+    """Server-side sanitization of CKEditor rich text (security-private#26)."""
+
+    def test_strips_script(self):
+        self.assertEqual(sanitize_html('<script>alert(1)</script>hi'), 'hi')
+
+    def test_strips_event_handlers(self):
+        self.assertNotIn('onerror', sanitize_html(
+            '<img src="https://s3/c.jpg" alt="c" onerror="alert(1)">'))
+
+    def test_strips_javascript_url(self):
+        self.assertNotIn('javascript:', sanitize_html(
+            '<a href="javascript:alert(1)">x</a>'))
+
+    def test_keeps_allowed_formatting(self):
+        out = sanitize_html('<p>Hello <strong>world</strong> <em>ok</em></p>'
+                            '<blockquote>q</blockquote><ul><li>a</li></ul>')
+        for frag in ('<strong>world</strong>', '<em>ok</em>',
+                     '<blockquote>q</blockquote>', '<li>a</li>'):
+            self.assertIn(frag, out)
+
+    def test_keeps_safe_links_and_images(self):
+        out = sanitize_html('<a href="https://x.com">l</a>'
+                            '<img src="https://s3/c.jpg" alt="c">')
+        self.assertIn('href="https://x.com"', out)
+        self.assertIn('src="https://s3/c.jpg"', out)
+
+    def test_none_passthrough(self):
+        self.assertIsNone(sanitize_html(None))
+
+    def test_template_filter_strips_and_marks_safe(self):
+        rendered = Template(
+            '{% load sanitizer %}{{ body|sanitize }}'
+        ).render(Context({'body': '<b>ok</b><script>alert(1)</script>'}))
+        self.assertIn('<b>ok</b>', rendered)
+        self.assertNotIn('<script>', rendered)  # not escaped, actually removed
+        self.assertNotIn('&lt;script&gt;', rendered)
