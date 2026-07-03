@@ -41,9 +41,8 @@ SITE_ID = 1
 # to load the internationalization machinery.
 USE_I18N = True
 
-# If you set this to False, Django will not format dates, numbers and
-# calendars according to the current locale
-USE_L10N = True
+# USE_L10N was removed in Django 5.0 (localized formatting is always on), so it
+# is intentionally not set here.
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
@@ -542,10 +541,18 @@ except ImportError:
     TEST_INTEGRATION = False
     LOCAL_TEST = True
 
+# DEFAULT_FILE_STORAGE / STATICFILES_STORAGE were removed in Django 5.1 in favor of
+# the STORAGES dict. STORAGES is available since Django 4.2, so this is forward-
+# compatible and behaves identically on the current 4.2 runtime.
 if AWS_SECRET_ACCESS_KEY:
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    _default_file_backend = 'storages.backends.s3boto3.S3Boto3Storage'
 else:
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage' 
+    _default_file_backend = 'django.core.files.storage.FileSystemStorage'
+
+STORAGES = {
+    'default': {'BACKEND': _default_file_backend},
+    'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
+}
 
 # we wond't record downloads for an ebook if their more than this in a month
 DOWNLOAD_LOGS_MAX = 499
