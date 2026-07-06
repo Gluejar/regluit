@@ -1,5 +1,4 @@
 import datetime
-from itertools import islice
 import logging
 from urllib.parse import urlparse, urlunparse
 
@@ -365,7 +364,11 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
                               None, order_by, group=other_group.title,
                               title=facet_object.title).prettify()
 
-    works = islice(works, 10 * page, 10 * page + 10)
+    # SQL-side slice (LIMIT/OFFSET). itertools.islice looked lazy but iterating
+    # a QuerySet runs _fetch_all(): every free work in the catalog (292k+) was
+    # materialized to serve 10 — ~360 MB per request, the memory high-water
+    # behind #1078/#1189 under OPDS crawler traffic.
+    works = works[10 * page:10 * page + 10]
     if page > 0:
         yield navlink('previous', feed_path, page-1, order_by, title="Previous 10").prettify()
 

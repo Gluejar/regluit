@@ -1,5 +1,4 @@
 import datetime
-from itertools import islice
 import logging
 import json
 
@@ -279,7 +278,8 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
                 group=other_group.title, title=facet_object.title
             )
 
-    works = islice(works, books_per_page * page, books_per_page * page + books_per_page)
+    # SQL-side slice (LIMIT/OFFSET), not islice — see api/opds.py / #1189.
+    works = works[books_per_page * page:books_per_page * page + books_per_page]
     if page > 0:
         append_navlink(links, 'previous', feed_path, page-1, order_by,
                        title="Previous {}".format(books_per_page))
