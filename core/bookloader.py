@@ -25,7 +25,7 @@ import github3
 from github3 import (login, GitHub)
 from github3.repos.release import Release
 
-from gitenberg.metadata.pandata import Pandata
+from regluit.core.pandata import Pandata
 
 # regluit imports
 
