@@ -37,7 +37,6 @@ django-selectable==1.5.0
 django-storages==1.14.6
 docopt==0.6.2
 filelock==3.13.1; python_version >= '3.8'
-gitberg==0.8.7
 gitdb==4.0.11; python_version >= '3.7'
 github3.py==4.0.1; python_version >= '3.7'
 gitpython==3.1.40; python_version >= '3.7'
