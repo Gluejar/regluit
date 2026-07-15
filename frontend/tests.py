@@ -220,3 +220,94 @@ class GoogleBooksTest(TestCase):
         work_url = r['location']
         self.assertTrue(re.match(r'.*/work/\d+/$', work_url))
 
+class FeedbackSelfLinkTests(TestCase):
+    """Regression: the feedback page must not link back to itself with a
+    ?page=<current-url> parameter. That self-reference (emitted by the base
+    template's footer/nav on every page, including /feedback/ itself) created
+    an infinite, self-encoding URL space that crawler fleets walked at tens of
+    thousands of requests per hour on 2026-07-10, saturating the web workers.
+    See INCIDENT_2026-07-10_crawler_trap_flood.md."""
+
+    def test_feedback_page_has_no_self_referencing_link(self):
+        r = Client().get("/feedback/")
+        self.assertEqual(r.status_code, 200)
+        self.assertNotIn("/feedback/?page=", str(r.content, 'utf-8'))
+
+    def test_feedback_page_with_page_param_has_no_self_referencing_link(self):
+        # Even a crawler-style request that already carries an encoded
+        # feedback URL must not be handed a deeper level of nesting.
+        r = Client().get("/feedback/", {"page": "https://testserver/feedback/?page=x"})
+        self.assertEqual(r.status_code, 200)
+        # Assert on hrefs specifically: the form legitimately echoes the
+        # incoming page value in a hidden field / subject line, but no LINK
+        # (the crawlable surface) may carry a parameterized feedback URL.
+        self.assertNotIn('href="/feedback/?page=', str(r.content, 'utf-8'))
+
+    def test_other_pages_carry_exact_current_url(self):
+        # The footer feedback link on non-feedback pages must embed the exact
+        # current URL (urlencoded) so the form records where the user came from.
+        from urllib.parse import quote
+        r = Client().get("/privacy/")
+        self.assertEqual(r.status_code, 200)
+        content = str(r.content, 'utf-8')
+        self.assertIn("/feedback/?page=", content)
+        self.assertIn(quote("http://testserver/privacy/", safe=''), content)
+
+    def test_pagination_state_is_preserved_in_recorded_url(self):
+        # A page= query parameter on a non-feedback page is legitimate
+        # pagination state and must survive into the recorded URL
+        # (regression guard: an earlier draft of this fix stripped it).
+        from urllib.parse import quote
+        r = Client().get("/privacy/", {"q": "sverige", "page": "2"})
+        self.assertEqual(r.status_code, 200)
+        content = str(r.content, 'utf-8')
+        self.assertIn(quote("page=2", safe=''), content)
+        self.assertIn(quote("q=sverige", safe=''), content)
+
+    def test_feedback_login_chain_reaches_fixed_point(self):
+        # Codex round-2 finding: on /feedback/ the Sign In link's ?next=
+        # embedded the full feedback URL, so a crawler alternating
+        # feedback -> superlogin -> feedback -> superlogin got ever-growing
+        # URLs. With auth_next using the bare path on the feedback route,
+        # the chain must reach a fixed point instead.
+        import re
+        c = Client()
+
+        def signin_href(html):
+            m = re.search(r'href="(/accounts/superlogin/\?next=[^"]*)"', html)
+            self.assertIsNotNone(m, "no sign-in link found")
+            return m.group(1)
+
+        def feedback_href(html):
+            m = re.search(r'href="(/feedback/[^"]*)"', html)
+            self.assertIsNotNone(m, "no feedback link found")
+            return m.group(1)
+
+        url = "/feedback/?page=https%3A%2F%2Ftestserver%2Fwork%2F1%2F"
+        seen = set()
+        for _ in range(4):
+            r = c.get(url)
+            self.assertEqual(r.status_code, 200)
+            html = str(r.content, 'utf-8')
+            login = signin_href(html)
+            # next must be the bare feedback path, never a growing URL
+            self.assertEqual(login, "/accounts/superlogin/?next=%2Ffeedback%2F")
+            r2 = c.get(login)
+            self.assertEqual(r2.status_code, 200)
+            url = feedback_href(str(r2.content, 'utf-8'))
+            self.assertLess(len(url), 300, "chain URL should not grow")
+            if url in seen:
+                break
+            seen.add(url)
+        else:
+            self.fail("feedback/login chain did not reach a fixed point in 4 rounds")
+
+    def test_feedback_url_tag_without_request_in_context(self):
+        # Rendering outside a request cycle (e.g. error pages, emails) must
+        # degrade to the bare feedback URL, not raise.
+        from django.template import Context, Template
+        rendered = Template(
+            "{% load feedback_link %}{% feedback_url %}"
+        ).render(Context({}))
+        self.assertEqual(rendered, "/feedback/")
+
