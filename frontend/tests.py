@@ -238,7 +238,10 @@ class FeedbackSelfLinkTests(TestCase):
         # feedback URL must not be handed a deeper level of nesting.
         r = Client().get("/feedback/", {"page": "https://testserver/feedback/?page=x"})
         self.assertEqual(r.status_code, 200)
-        self.assertNotIn("/feedback/?page=", str(r.content, 'utf-8'))
+        # Assert on hrefs specifically: the form legitimately echoes the
+        # incoming page value in a hidden field / subject line, but no LINK
+        # (the crawlable surface) may carry a parameterized feedback URL.
+        self.assertNotIn('href="/feedback/?page=', str(r.content, 'utf-8'))
 
     def test_other_pages_carry_exact_current_url(self):
         # The footer feedback link on non-feedback pages must embed the exact
