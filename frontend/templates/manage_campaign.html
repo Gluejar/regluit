@@ -1,4 +1,5 @@
 {% extends 'basedocumentation.html' %}
+{% load feedback_link %}
 
 {% load humanize %}
 {% load sass_tags %}
@@ -97,7 +98,7 @@ Please fix the following before launching your campaign:
             </div>
         {% elif campaign.type == 1 %}
             <div class="pledged-group">
-            If you believe your campaign meets <a href="{% url 'faq_sublocation' 'rightsholders' 'campaigns' %}#donation_support">the criteria for charitable donation support</a>, use <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">the feedback form</a> to request a review by Free Ebook Foundation staff.
+            If you believe your campaign meets <a href="{% url 'faq_sublocation' 'rightsholders' 'campaigns' %}#donation_support">the criteria for charitable donation support</a>, use <a href="{% feedback_url %}">the feedback form</a> to request a review by Free Ebook Foundation staff.
             </div>
         {% endif %}
     </div>
@@ -474,7 +475,7 @@ Please fix the following before launching your campaign:
             <li>Have you <a href="{% url 'work_preview' campaign.work_id %}">previewed your campaign</a>? Does it look how you want it to?</li>
         </ul>
         
-        <p>If it doesn't look exactly the way you like, or you're having any trouble with your description, we're happy to help; please <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">contact us</a>.</p>
+        <p>If it doesn't look exactly the way you like, or you're having any trouble with your description, we're happy to help; please <a href="{% feedback_url %}">contact us</a>.</p>
     
         <p>If you're happy with your campaign, here's your moment of truth!</p>
     

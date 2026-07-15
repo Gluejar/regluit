@@ -220,3 +220,23 @@ class GoogleBooksTest(TestCase):
         work_url = r['location']
         self.assertTrue(re.match(r'.*/work/\d+/$', work_url))
 
+class FeedbackSelfLinkTests(TestCase):
+    """Regression: the feedback page must not link back to itself with a
+    ?page=<current-url> parameter. That self-reference (emitted by the base
+    template's footer/nav on every page, including /feedback/ itself) created
+    an infinite, self-encoding URL space that crawler fleets walked at tens of
+    thousands of requests per hour on 2026-07-10, saturating the web workers.
+    See INCIDENT_2026-07-10_crawler_trap_flood.md."""
+
+    def test_feedback_page_has_no_self_referencing_link(self):
+        r = Client().get("/feedback/")
+        self.assertEqual(r.status_code, 200)
+        self.assertNotIn("/feedback/?page=", str(r.content, 'utf-8'))
+
+    def test_other_pages_still_carry_page_param(self):
+        # The footer feedback link on non-feedback pages must keep the ?page=
+        # parameter so the form can record where the user came from.
+        r = Client().get("/privacy/")
+        self.assertEqual(r.status_code, 200)
+        self.assertIn("/feedback/?page=", str(r.content, 'utf-8'))
+

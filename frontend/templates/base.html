@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load sass_tags %}
+{% load feedback_link %}
 
 <html>
 <head>
@@ -39,7 +40,7 @@
 
 <body>
 <div id="feedback">
-<p><a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}" class="nounderline">Feedback</a></p>
+<p><a href="{% feedback_url %}" class="nounderline">Feedback</a></p>
 </div>
 
 <div id="about_expandable">
@@ -163,7 +164,7 @@
             <li><a href="{% url 'faq' %}">General FAQ</a></li>
             <li><a href="{% url 'faq_location' 'rightsholders' %}">Author/Publisher FAQ</a></li>
             <li><a href="{% url 'api_help' %}">API</a></li>
-            <li><a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">Support</a>
+            <li><a href="{% feedback_url %}">Support</a>
             <li><a href="{% url 'libraries' %}">Unglue.it for Libraries</a>
         </ul>
     </div>

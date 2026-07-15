@@ -1,4 +1,5 @@
 {% extends 'basedocumentation.html' %}
+{% load feedback_link %}
 
 {% block title %} FAQ {% endblock %}
 {% block topsection %}
@@ -12,7 +13,7 @@
 <dl>
 <dt class="background: #8dc63f; color: white; font-weight: bold;">Help! My question isn't covered in the FAQs!</dt>
 
-<dd><a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">Let us know!</a>.  We want to make sure everything on the site runs as smoothly as possible.  Thanks for helping us do that.</dd>
+<dd><a href="{% feedback_url %}">Let us know!</a>.  We want to make sure everything on the site runs as smoothly as possible.  Thanks for helping us do that.</dd>
 </dl>
 {% endif %}
 {% if location == 'basics' or location == 'faq' %}
@@ -229,7 +230,7 @@ Start by visiting the <a href="{% url 'rightsholders' %}">Rights Holders Tools</
 	<ul class="bullets">
 	    <li>Use <a href="{% url 'new_edition' '' '' %}">this form</a> to enter the metadata.</li>
 	    <li>Your metadata should have title, identifiers, authors, language, description.</li>
-	    <li>If you have a lot of books to enter, <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">contact us</a> to load ONIX or CSV files for you.</li>
+	    <li>If you have a lot of books to enter, <a href="{% feedback_url %}">contact us</a> to load ONIX or CSV files for you.</li>
 	</ul>
 <br /><br />If you expect to see a "Claim" button and do not, either we do not have a RHA from you yet, or we have not yet verified and filed it.  Please contact us at <a href="mailto:rights@ebookfoundation.org">rights@ebookfoundation.org</a>.</dd>
 
