@@ -233,10 +233,40 @@ class FeedbackSelfLinkTests(TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertNotIn("/feedback/?page=", str(r.content, 'utf-8'))
 
-    def test_other_pages_still_carry_page_param(self):
-        # The footer feedback link on non-feedback pages must keep the ?page=
-        # parameter so the form can record where the user came from.
+    def test_feedback_page_with_page_param_has_no_self_referencing_link(self):
+        # Even a crawler-style request that already carries an encoded
+        # feedback URL must not be handed a deeper level of nesting.
+        r = Client().get("/feedback/", {"page": "https://testserver/feedback/?page=x"})
+        self.assertEqual(r.status_code, 200)
+        self.assertNotIn("/feedback/?page=", str(r.content, 'utf-8'))
+
+    def test_other_pages_carry_exact_current_url(self):
+        # The footer feedback link on non-feedback pages must embed the exact
+        # current URL (urlencoded) so the form records where the user came from.
+        from urllib.parse import quote
         r = Client().get("/privacy/")
         self.assertEqual(r.status_code, 200)
-        self.assertIn("/feedback/?page=", str(r.content, 'utf-8'))
+        content = str(r.content, 'utf-8')
+        self.assertIn("/feedback/?page=", content)
+        self.assertIn(quote("http://testserver/privacy/", safe=''), content)
+
+    def test_pagination_state_is_preserved_in_recorded_url(self):
+        # A page= query parameter on a non-feedback page is legitimate
+        # pagination state and must survive into the recorded URL
+        # (regression guard: an earlier draft of this fix stripped it).
+        from urllib.parse import quote
+        r = Client().get("/privacy/", {"q": "sverige", "page": "2"})
+        self.assertEqual(r.status_code, 200)
+        content = str(r.content, 'utf-8')
+        self.assertIn(quote("page=2", safe=''), content)
+        self.assertIn(quote("q=sverige", safe=''), content)
+
+    def test_feedback_url_tag_without_request_in_context(self):
+        # Rendering outside a request cycle (e.g. error pages, emails) must
+        # degrade to the bare feedback URL, not raise.
+        from django.template import Context, Template
+        rendered = Template(
+            "{% load feedback_link %}{% feedback_url %}"
+        ).render(Context({}))
+        self.assertEqual(rendered, "/feedback/")
 

@@ -10,10 +10,14 @@ one before (%2F -> %252F -> %25252F). Crawler fleets walked that space at tens
 of thousands of requests per hour on 2026-07-10 and saturated the web workers
 (see INCIDENT_2026-07-10_crawler_trap_flood.md).
 
-Any existing page= parameter is also stripped from the recorded URL, so other
-query strings can't reintroduce a level of nesting.
+The guard alone terminates the recursive chain: a feedback URL can only be
+embedded into a ?page= parameter by a page that is not the feedback page, so
+nesting can never exceed one level. On all other pages the recorded URL is
+passed through exactly as the browser requested it -- including any page=
+query parameter, which is legitimate pagination state there (e.g.
+/search/?q=...&page=2).
 """
-from urllib.parse import parse_qsl, quote, urlencode, urlsplit, urlunsplit
+from urllib.parse import quote
 
 from django import template
 from django.urls import reverse
@@ -28,17 +32,10 @@ def _on_feedback_page(request):
     return request.path == reverse('feedback')
 
 
-def _strip_page_param(url):
-    parts = urlsplit(url)
-    query = [(k, v) for k, v in parse_qsl(parts.query, keep_blank_values=True) if k != 'page']
-    return urlunsplit(parts._replace(query=urlencode(query)))
-
-
 @register.simple_tag(takes_context=True)
 def feedback_url(context):
     feedback = reverse('feedback')
     request = context.get('request')
     if request is None or _on_feedback_page(request):
         return feedback
-    page = _strip_page_param(request.build_absolute_uri())
-    return '%s?page=%s' % (feedback, quote(page, safe=''))
+    return '%s?page=%s' % (feedback, quote(request.build_absolute_uri(), safe=''))
