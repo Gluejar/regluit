@@ -261,6 +261,44 @@ class FeedbackSelfLinkTests(TestCase):
         self.assertIn(quote("page=2", safe=''), content)
         self.assertIn(quote("q=sverige", safe=''), content)
 
+    def test_feedback_login_chain_reaches_fixed_point(self):
+        # Codex round-2 finding: on /feedback/ the Sign In link's ?next=
+        # embedded the full feedback URL, so a crawler alternating
+        # feedback -> superlogin -> feedback -> superlogin got ever-growing
+        # URLs. With auth_next using the bare path on the feedback route,
+        # the chain must reach a fixed point instead.
+        import re
+        c = Client()
+
+        def signin_href(html):
+            m = re.search(r'href="(/accounts/superlogin/\?next=[^"]*)"', html)
+            self.assertIsNotNone(m, "no sign-in link found")
+            return m.group(1)
+
+        def feedback_href(html):
+            m = re.search(r'href="(/feedback/[^"]*)"', html)
+            self.assertIsNotNone(m, "no feedback link found")
+            return m.group(1)
+
+        url = "/feedback/?page=https%3A%2F%2Ftestserver%2Fwork%2F1%2F"
+        seen = set()
+        for _ in range(4):
+            r = c.get(url)
+            self.assertEqual(r.status_code, 200)
+            html = str(r.content, 'utf-8')
+            login = signin_href(html)
+            # next must be the bare feedback path, never a growing URL
+            self.assertEqual(login, "/accounts/superlogin/?next=%2Ffeedback%2F")
+            r2 = c.get(login)
+            self.assertEqual(r2.status_code, 200)
+            url = feedback_href(str(r2.content, 'utf-8'))
+            self.assertLess(len(url), 300, "chain URL should not grow")
+            if url in seen:
+                break
+            seen.add(url)
+        else:
+            self.fail("feedback/login chain did not reach a fixed point in 4 rounds")
+
     def test_feedback_url_tag_without_request_in_context(self):
         # Rendering outside a request cycle (e.g. error pages, emails) must
         # degrade to the bare feedback URL, not raise.
