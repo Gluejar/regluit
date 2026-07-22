@@ -373,7 +373,11 @@ class Campaign(models.Model):
     # status: INITIALIZED, ACTIVE, SUSPENDED, WITHDRAWN, SUCCESSFUL, UNSUCCESSFUL
     status = models.CharField( max_length=15, null=True, blank=False, default="INITIALIZED", 
         db_index=True, choices=STATUS_CHOICES)
-    type = models.PositiveSmallIntegerField(null=False, default=REWARDS,
+    # Pledge (REWARDS) and Buy-to-unglue campaigns are retired (#1195): new
+    # campaigns default to THANKS and only THANKS campaigns can be launched.
+    # The legacy choices are kept so that existing REWARDS/BUY2UNGLUE campaigns
+    # continue to validate and display correctly.
+    type = models.PositiveSmallIntegerField(null=False, default=THANKS,
                                             choices=((REWARDS, 'Pledge-to-unglue campaign'),
                                                      (BUY2UNGLUE, 'Buy-to-unglue campaign'),
                                                      (THANKS, 'Thanks-for-ungluing campaign'),
@@ -433,8 +437,13 @@ class Campaign(models.Model):
             return None
 
     def clonable(self):
-        """campaign clonable if it's UNSUCCESSFUL and is the last campaign associated with a Work"""
+        """campaign clonable if it's UNSUCCESSFUL and is the last campaign associated with a Work
 
+        Cloning a retired-type (Pledge/Buy-to-unglue) campaign would create a new
+        campaign of a retired type, so only THANKS campaigns are clonable (#1195).
+        """
+        if self.type != THANKS:
+            return False
         if self.status == 'UNSUCCESSFUL' and self.work.last_campaign().id == self.id:
             return True
         else:
@@ -453,38 +462,16 @@ class Campaign(models.Model):
             if not self.description:
                 self.problems.append(_('A campaign must have a description'))
                 may_launch = False
-            if self.type == REWARDS:
-                if self.deadline:
-                    if self.deadline.date()- date_today() > timedelta(days=int(settings.UNGLUEIT_LONGEST_DEADLINE)):
-                        self.problems.append(_('The chosen closing date is more than %s days from now' % settings.UNGLUEIT_LONGEST_DEADLINE))
-                        may_launch = False
-                else:
-                    self.problems.append(_('A pledge campaign must have a closing date'))
-                    may_launch = False
-                if self.target:
-                    if self.target < Decimal(settings.UNGLUEIT_MINIMUM_TARGET):
-                        self.problems.append(_('A pledge campaign may not be launched with a target less than $%s' % settings.UNGLUEIT_MINIMUM_TARGET))
-                        may_launch = False
-                else:
-                    self.problems.append(_('A campaign must have a target'))
-                    may_launch = False
-            if self.type == BUY2UNGLUE:
-                if not self.work.offers.filter(price__gt=0, active=True).exists():
-                    self.problems.append(_('You can\'t launch a buy-to-unglue campaign before setting a price for your ebooks'))
-                    may_launch = False
-                if not EbookFile.objects.filter(edition__work=self.work).exists():
-                    self.problems.append(_('You can\'t launch a buy-to-unglue campaign if you don\'t have any ebook files uploaded'))
-                    may_launch = False
-                if (self.cc_date_initial is None) or (self.cc_date_initial > datetime.combine(settings.MAX_CC_DATE, datetime.min.time())) or (self.cc_date_initial < now()):
-                    self.problems.append(_('You must set an initial Ungluing Date that is in the future and not after %s' % settings.MAX_CC_DATE))
-                    may_launch = False
-                if self.target:
-                    if self.target < Decimal(settings.UNGLUEIT_MINIMUM_TARGET):
-                        self.problems.append(_('A buy-to-unglue campaign may not be launched with a target less than $%s' % settings.UNGLUEIT_MINIMUM_TARGET))
-                        may_launch = False
-                else:
-                    self.problems.append(_('A buy-to-unglue campaign must have a target'))
-                    may_launch = False
+            if self.type in {REWARDS, BUY2UNGLUE}:
+                # Pledge and Buy-to-unglue campaigns are retired (#1195).
+                # A problem message MUST be appended here: activate() reports
+                # self.problems[0], so blocking launch without a message would
+                # crash with IndexError instead of a clean UnglueitError.
+                self.problems.append(_(
+                    'Unglue.it no longer offers Pledge or Buy-to-unglue campaigns; '
+                    'new campaigns must be Thanks-for-Ungluing campaigns'
+                ))
+                may_launch = False
             if self.type == THANKS:
                 # the case in which there is no EbookFile and no Ebook associated with work (We have ebooks without ebook files.)
                 if not EbookFile.objects.filter(edition__work=self.work).exists() and not self.work.ebooks().exists():
