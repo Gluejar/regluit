@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load cache %}
+{% load sanitizer %}
 {% load sass_tags %}
 {% block title %}&#151; Support Free eBooks{% endblock %}
 
@@ -84,7 +85,7 @@ function put_un_in_cookie2(){
                                             {% endif %}
                                             <span>{{ work.publication_date }}</span>
                                         </div>
-                                        <div class="book-description" style="max-height:200px;overflow:scroll"> {{ work.description|safe }}</div>
+                                        <div class="book-description" style="max-height:200px;overflow:scroll"> {{ work.description|sanitize }}</div>
                                     </div>
                                 </div>
                             </div>
