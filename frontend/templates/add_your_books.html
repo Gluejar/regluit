@@ -1,4 +1,5 @@
 {% load cf %}
+{% load feedback_link %}
 	<script type="text/javascript" src="/static/js/watermark_init.js"></script>
 	<script type="text/javascript" src="/static/js/watermark_change.js"></script>
 	<p id="add_your_books"><b>Claiming a work</b></p>
@@ -20,5 +21,5 @@
 	<ul class="bullets">
 	    <li>Use <a href="{% url 'new_edition' '' '' %}">this form</a> to enter the metadata.</li>
 	    <li>Your metadata should have title, authors, language, description.</li>
-	    <li>If you have a lot of books to enter, <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">contact us</a> to load ONIX or CSV files for you.</li>
+	    <li>If you have a lot of books to enter, <a href="{% feedback_url %}">contact us</a> to load ONIX or CSV files for you.</li>
 	</ul>
