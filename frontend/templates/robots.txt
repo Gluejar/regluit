@@ -6,6 +6,7 @@ Disallow: /feedback/
 Disallow: /socialauth/
 Disallow: /search/
 Disallow: /googlebooks/
+Disallow: /free/kw.
 {% else %}
 User-agent: *
 Disallow: /

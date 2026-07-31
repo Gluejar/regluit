@@ -82,23 +82,17 @@ class FeedTests(TestCase):
         r = self.client.get('/api/opds/?work=%s' % self.test_work_id)
         self.assertEqual(r.status_code, 200)
 
-    def test_opds_all_keyword_alias_works(self):
+    def test_opds_removed_keyword_paths_return_404(self):
         r = self.client.get('/api/opds/all/kw.Fiction/')
-        self.assertEqual(r.status_code, 200)
-
-    def test_opds_keyword_compound_returns_404(self):
-        r = self.client.get('/api/opds/kw.Fiction/epub/')
+        self.assertEqual(r.status_code, 404)
+        r = self.client.get('/api/opds/kw.Fiction/')
         self.assertEqual(r.status_code, 404)
 
-    def test_opds_single_keyword_works(self):
-        r = self.client.get('/api/opds/kw.Fiction/')
-        self.assertEqual(r.status_code, 200)
-
-    def test_opdsjson_keyword_compound_returns_404(self):
+    def test_opdsjson_removed_keyword_returns_404(self):
         r = self.client.get('/api/opdsjson/kw.Fiction/epub/')
         self.assertEqual(r.status_code, 404)
 
-    def test_onix_keyword_compound_returns_404(self):
+    def test_onix_removed_keyword_returns_404(self):
         r = self.client.get('/api/onix/kw.Fiction/epub/')
         self.assertEqual(r.status_code, 404)
 
@@ -113,9 +107,9 @@ class FeedTests(TestCase):
         r = self.client.get('/api/onix/?work=%s' % self.test_work_id)
         self.assertEqual(r.status_code, 200)
 
-    def test_onix_all_keyword_alias_works(self):
+    def test_onix_all_removed_keyword_returns_404(self):
         r = self.client.get('/api/onix/all/kw.Fiction/')
-        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.status_code, 404)
 
 class AllowedRepoTests(TestCase):
     def setUp(self):
