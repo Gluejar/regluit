@@ -396,15 +396,16 @@ class CampaignRetirementTests(TestCase):
             })
             self.assertFalse(form.is_valid())
             self.assertIn('type', form.errors)
-        # THANKS is still accepted by the type field
+        # a complete THANKS submission is fully valid (managers use the
+        # ajax_select pipe-delimited POST format)
         form = OpenCampaignForm(data={
             'name': self.work.title,
             'work': self.work.id,
             'userid': self.user.id,
+            'managers': '|{}|'.format(self.user.id),
             'type': THANKS,
         })
-        form.is_valid()
-        self.assertNotIn('type', form.errors)
+        self.assertTrue(form.is_valid(), form.errors)
 
     def test_legacy_campaigns_still_render(self):
         from datetime import datetime, timedelta

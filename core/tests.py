@@ -800,6 +800,21 @@ class CampaignTests(TestCase):
         c1.save()
         self.assertEqual(c1.launchable, True)
 
+        # unknown/unsupported numeric types are blocked too (fail-closed):
+        # Django choices are not database-level validation, so an
+        # out-of-range type can be saved -- it must not be launchable
+        c1.type = 99
+        c1.save()
+        self.assertEqual(c1.launchable, False)
+        with self.assertRaises(UnglueitError):
+            c1.activate()
+
+        # and a THANKS campaign actually launches
+        c1.type = parameters.THANKS
+        c1.save()
+        c1.activate()
+        self.assertEqual(c1.status, 'ACTIVE')
+
 class WishlistTest(TestCase):
     fixtures = ['initial_data.json', 'neuromancer.json']
     def test_add_remove(self):

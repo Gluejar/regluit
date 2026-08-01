@@ -462,8 +462,12 @@ class Campaign(models.Model):
             if not self.description:
                 self.problems.append(_('A campaign must have a description'))
                 may_launch = False
-            if self.type in {REWARDS, BUY2UNGLUE}:
-                # Pledge and Buy-to-unglue campaigns are retired (#1195).
+            if self.type != THANKS:
+                # Pledge (REWARDS) and Buy-to-unglue campaigns are retired
+                # (#1195), and no other campaign type is supported, so the
+                # gate is fail-closed: anything that is not THANKS may not
+                # launch (Django choices are not database-level validation,
+                # so an out-of-range type could otherwise slip through).
                 # A problem message MUST be appended here: activate() reports
                 # self.problems[0], so blocking launch without a message would
                 # crash with IndexError instead of a clean UnglueitError.
