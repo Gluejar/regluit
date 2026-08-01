@@ -26,6 +26,7 @@ from django.utils.timezone import now
 regluit imports
 """
 from regluit.core.models import Campaign, Wishlist, Work
+from regluit.core.parameters import REWARDS
 from regluit.core.signals import handle_transaction_charged
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction, Account
@@ -285,7 +286,9 @@ class TransactionTest(TestCase):
 
         w = Work()
         w.save()
-        c = Campaign(target=D('1000.00'),deadline=now() + timedelta(days=180),work=w)
+        c = Campaign(target=D('1000.00'),deadline=now() + timedelta(days=180),work=w,
+                     # legacy pledge transaction: pin type now that the default is THANKS (#1195)
+                     type=REWARDS)
         c.save()
         
         t = Transaction()
@@ -329,7 +332,9 @@ class TransactionTest(TestCase):
         w = Work()
         w.save()
         
-        c = Campaign(target=D('1000.00'),deadline=now() + timedelta(days=180),work=w)
+        c = Campaign(target=D('1000.00'),deadline=now() + timedelta(days=180),work=w,
+                     # legacy pledge transaction: pin type now that the default is THANKS (#1195)
+                     type=REWARDS)
         c.save()
         
         t = Transaction(host='stripelib')
