@@ -396,13 +396,13 @@ class CampaignRetirementTests(TestCase):
             })
             self.assertFalse(form.is_valid())
             self.assertIn('type', form.errors)
-        # a complete THANKS submission is fully valid (managers use the
-        # ajax_select pipe-delimited POST format)
+        # a complete THANKS submission is fully valid (django-selectable's
+        # multiple field takes a list of pks)
         form = OpenCampaignForm(data={
             'name': self.work.title,
             'work': self.work.id,
             'userid': self.user.id,
-            'managers': '|{}|'.format(self.user.id),
+            'managers': [str(self.user.id)],
             'type': THANKS,
         })
         self.assertTrue(form.is_valid(), form.errors)
