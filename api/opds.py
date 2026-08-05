@@ -173,12 +173,6 @@ def work_node(work, facet=None):
             try:
                 category_node["term"] = subject.name
                 node.append(category_node)
-                try:
-                    subject.works.filter(is_free=True)[1]
-                    # Subject categories remain metadata, but are no longer
-                    # advertised as crawlable browse facets.
-                except:
-                    pass
             except ValueError:
                 # caused by control chars in subject.name
                 logger.warning('Deleting subject: %s' % subject.name)

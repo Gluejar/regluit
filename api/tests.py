@@ -87,13 +87,19 @@ class FeedTests(TestCase):
         self.assertEqual(r.status_code, 404)
         r = self.client.get('/api/opds/kw.Fiction/')
         self.assertEqual(r.status_code, 404)
+        r = self.client.get('/api/opds/kw.Fiction/?work=%s' % self.test_work_id)
+        self.assertEqual(r.status_code, 404)
 
     def test_opdsjson_removed_keyword_returns_404(self):
         r = self.client.get('/api/opdsjson/kw.Fiction/epub/')
         self.assertEqual(r.status_code, 404)
+        r = self.client.get('/api/opdsjson/kw.Fiction/epub/?work=%s' % self.test_work_id)
+        self.assertEqual(r.status_code, 404)
 
     def test_onix_removed_keyword_returns_404(self):
         r = self.client.get('/api/onix/kw.Fiction/epub/')
+        self.assertEqual(r.status_code, 404)
+        r = self.client.get('/api/onix/kw.Fiction/epub/?work=%s' % self.test_work_id)
         self.assertEqual(r.status_code, 404)
 
 
