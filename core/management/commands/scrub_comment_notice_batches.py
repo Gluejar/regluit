@@ -7,7 +7,7 @@ Run this ONCE, immediately after the phase-1 (comments-removal) restart:
 Why: pending NoticeQueueBatch rows embed pickled django_comments.Comment
 instances that the comment-free code can neither unpickle nor render, and
 notification.engine.send_all() blocks on the first failing batch. Migration
-core.0030 scrubs these at migrate time, but a comment posted between that
+core.0031 scrubs these at migrate time, but a comment posted between that
 migration and the restart (old code still accepts comment POSTs) can create
 one more poisoned batch. Comment ingress ends permanently at the restart, so
 a scrub run *after* the restart is definitive.
@@ -16,10 +16,10 @@ A wedge in the brief window before this command runs is transient: failed
 batches are not consumed, so once the poison batch is deleted here, the next
 send_all() run drains the queue normally.
 
-Same restricted-unpickler inspection as migrations core.0030/core.0031
+Same restricted-unpickler inspection as migrations core.0031/core.0032
 (duplicated deliberately — migration files must stay frozen/self-contained).
 This command is interphase tooling and can be removed after phase 2
-(core.0031) has run everywhere.
+(core.0032) has run everywhere.
 """
 
 import io

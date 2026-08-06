@@ -25,7 +25,7 @@
 # (same logic as this migration; see the command's docstring). Any wedge in
 # the seconds before that command runs is transient — failed batches are not
 # consumed, so deleting the poison batch lets the next send_all() drain the
-# queue normally. The phase-2 migration (0031) re-runs the scrub once more
+# queue normally. The phase-2 migration (0032) re-runs the scrub once more
 # before deleting the notice types, as a final belt.
 #
 # Batch inspection: a restricted unpickler resolves every class to an inert
@@ -117,7 +117,7 @@ def scrub_queued_comment_batches(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0029_auto_20241122_1525'),
+        ('core', '0030_retire_pledge_b2u'),
         ('notification', '0002_auto_20200215_1821'),
     ]
 
