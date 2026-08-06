@@ -15,10 +15,18 @@
 # without, and the tables / notice types it leaves alone are still intact.
 # So the deploy guide's §5 flow (migrate before restart) applies unchanged.
 #
-# Residual window: a comment posted between this migration running and the
-# app restart creates one more poisoned batch. Ingress ends at the restart
-# (the comment URLs are gone), and the phase-2 migration (0031) re-runs this
-# same scrub before deleting the notice types, cleaning any straggler.
+# Residual window and how it is closed: a comment posted between this
+# migration running and the app restart creates one more poisoned batch.
+# Ingress ends at the restart (the comment URLs are gone), so the deploy
+# sequence for this release finishes with a definitive post-restart scrub:
+#
+#     manage.py scrub_comment_notice_batches
+#
+# (same logic as this migration; see the command's docstring). Any wedge in
+# the seconds before that command runs is transient — failed batches are not
+# consumed, so deleting the poison batch lets the next send_all() drain the
+# queue normally. The phase-2 migration (0031) re-runs the scrub once more
+# before deleting the notice types, as a final belt.
 #
 # Batch inspection: a restricted unpickler resolves every class to an inert
 # stub (django_comments must not and often cannot be imported) and validates
