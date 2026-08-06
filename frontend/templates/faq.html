@@ -122,6 +122,10 @@ If you receive our newsletter, there's a link at the bottom of every message to 
 {% if sublocation == 'all' or sublocation == 't4u' %}
 {% include "faq_t4u.html" %}
 {% endif %}
+{% if sublocation == 'b2u' %}
+{# legacy-program FAQ: reachable only by direct link (e.g. from rh_intro), deliberately not shown on the main FAQ page (#1195) #}
+{% include "faq_b2u.html" %}
+{% endif %}
 {% if sublocation == 'supporting' or sublocation == 'all' %}
 <h4>Donations &amp; Tax Deductibility</h4>
 <dl>
