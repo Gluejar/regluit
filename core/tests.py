@@ -19,8 +19,6 @@ from pyepub import EPUB
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.sites.models import Site
 from django.core.files import File as DjangoFile
 from django.db import IntegrityError
 from django.db import transaction
@@ -29,8 +27,6 @@ from django.test import TestCase
 from django.test.client import Client
 from django.test.utils import override_settings
 from django.utils.timezone import now
-
-from django_comments.models import Comment
 
 from regluit.payment.models import Transaction
 from regluit.payment.parameters import PAYMENT_TYPE_AUTHORIZATION
@@ -372,34 +368,6 @@ class BookLoaderTests(TestCase):
         c2.managers.add(manager)
         c2.save()
         self.assertEqual(c2.pk, e2.work.last_campaign().pk)
-        # comment on the works
-        site = Site.objects.first()
-        wct = ContentType.objects.get_for_model(models.Work)
-        comment1 = Comment(
-            content_type=wct,
-            object_pk=e1.work.pk,
-            comment="test comment1",
-            user=user,
-            site=site
-        )
-        comment1.save()
-        comment2 = Comment(
-            content_type=wct,
-            object_pk=e2.work.pk,
-            comment="test comment2",
-            user=user,
-            site=site
-        )
-        comment2.save()
-        comment3 = Comment(
-            content_type=wct,
-            object_pk=e2.work.pk,
-            comment="test comment3",
-            user=manager,
-            site=site
-        )
-        comment3.save()
-
 
         # now add related edition to make sure Works get merged
         bookloader.add_related(isbn1)
@@ -413,7 +381,6 @@ class BookLoaderTests(TestCase):
 
         self.assertEqual(c1.work, c2.work)
         self.assertEqual(user.wishlist.works.all().count(), 1)
-        self.assertEqual(Comment.objects.for_model(w3).count(), 3)
 
         anon_client = Client()
         r = anon_client.get("/work/%s/" % w3.pk)

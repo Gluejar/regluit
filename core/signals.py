@@ -59,9 +59,6 @@ post_save.connect(create_user_objects, sender=User)
 # create notification types (using django-notification) -- tie to syncdb
 
 def create_notice_types( **kwargs):
-    notification.create_notice_type("comment_on_commented", _("Comment on Commented Work"), _("A comment has been received on a book that you've commented on."))
-    notification.create_notice_type("wishlist_comment", _("Book List Comment"), _("A comment has been received on one of your books."), default = 1)
-    notification.create_notice_type("wishlist_official_comment", _("Book List Comment"), _("The author or publisher, or and Unglue.it staffer, has commented on one of your faves."))
     notification.create_notice_type("wishlist_work_claimed", _("Rights Holder is Active"), _("A rights holder has shown up for a book that you've faved."), default = 1)
     notification.create_notice_type("wishlist_active", _("New Campaign"), _("A book you've favorited has a newly launched campaign."))
     notification.create_notice_type("wishlist_near_target", _("Campaign Near Target"), _("A book you want is near its ungluing target."))
@@ -99,25 +96,6 @@ def create_notice_types( **kwargs):
 signals.post_migrate.connect(create_notice_types, sender=notification)
 
 # define the notifications and tie them to corresponding signals
-
-from django_comments.signals import comment_was_posted
-
-def notify_comment(comment, request, **kwargs):
-    logger.info('comment %s notifying' % comment.pk)
-    other_commenters = User.objects.filter(comment_comments__content_type=comment.content_type, comment_comments__object_pk=comment.object_pk).distinct().exclude(id=comment.user_id)
-    all_wishers = comment.content_object.wished_by().exclude(id=comment.user_id)
-    other_wishers = all_wishers.exclude(id__in=other_commenters)
-    domain = Site.objects.get_current().domain
-    if comment.content_object.last_campaign() and comment.user in comment.content_object.last_campaign().managers.all():
-        #official
-        notification.queue(all_wishers, "wishlist_official_comment", {'comment':comment, 'domain':domain}, True)
-    else:
-        notification.send(other_commenters, "comment_on_commented", {'comment':comment}, True, sender=comment.user)
-        notification.send(other_wishers, "wishlist_comment", {'comment':comment}, True, sender=comment.user)
-    from regluit.core.tasks import emit_notifications
-    emit_notifications.delay()
-
-comment_was_posted.connect(notify_comment)
 
 # Successful campaign signal
 # https://code.djangoproject.com/browser/django/tags/releases/1.3.1/django/db/models/signals.py
