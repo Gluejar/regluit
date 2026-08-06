@@ -1,12 +1,20 @@
 # Remove django-contrib-comments (#1130).
 #
-# ⚠️ DEPLOY ORDER: run this migration only AFTER the new code is deployed and
-# ALL Python processes restarted (apache2, celeryd, celerybeat — i.e. after the
-# deploy.yml hotfix flow completes). Old in-memory code still queries the
-# comment tables (homepage feed, work merge/delete); dropping the tables under
-# it would 500 those paths until restart. The provisioning deploy.yml
-# deliberately does not run migrations, so the safe order is natural:
-# deploy + restart first, migrate second.
+# ⚠️ DEPLOY ORDER — the REVERSE of the deploy guide's §5 (migrate-first) flow,
+# which is scoped to additive migrations only. This migration is destructive:
+#
+#   1. deploy.yml with the new SHA (+ run_pip=true) — restarts apache2,
+#      celeryd, celerybeat onto the new code. The new code never references
+#      the comment tables or notice types, so it runs fine against the
+#      un-migrated database; comment ingress ends at this restart.
+#   2. THEN run `manage.py migrate` — no process references what it removes.
+#
+# Do NOT run migrate before the restart (old in-memory code still queries the
+# comment tables on the homepage and in work merge/delete, and still accepts
+# comment POSTs that would re-poison the notification queue after the scrub
+# below). Do NOT ship this release via a full-provision run (setup-*.yml runs
+# migrate as a task while the apache/celery restarts are handlers that fire
+# at end of play — the wrong order for this release).
 #
 # The app has been removed from INSTALLED_APPS, so its tables are orphaned.
 # Per Eric's decision (spam magnet, low-value content), the data is dropped
