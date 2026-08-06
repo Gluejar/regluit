@@ -158,7 +158,6 @@ INSTALLED_APPS = (
     'django.contrib.sitemaps',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_comments',
     'django.contrib.humanize',
     'django_extensions',
     'regluit.frontend',
