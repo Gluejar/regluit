@@ -43,7 +43,8 @@ $j(document).ready(function() {
                     {% endfor %}
                 </tr>
                 {% for row in notice_settings.rows %}
-                  {% if row.notice_type.label|truncatechars:12 == 'wishlist_...' %}
+                  {# retired comment notice types (#1130) may linger in the DB until the phase-2 migration deletes them #}
+                  {% if row.notice_type.label|truncatechars:12 == 'wishlist_...' and row.notice_type.label != 'wishlist_comment' and row.notice_type.label != 'wishlist_official_comment' %}
                     <tr class="{% cycle 'row1' 'row2' %}">
                         <td>
                             <span class="notice_type_description">{% trans row.notice_type.description %}</span>
