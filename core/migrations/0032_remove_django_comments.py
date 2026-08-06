@@ -35,7 +35,8 @@
 #    cascades to NoticeSetting / Notice / ObservedItem rows (RESTRICT FKs at
 #    the MySQL level; the ORM collector deletes children first).
 #
-# 3. Deletes the stale django_comments ContentType rows (cascades to their
+# 3. Deletes the stale ContentType rows for app labels django_comments and
+#    (ancient pre-1.6) comments (cascades to their
 #    auth_permission rows) so no dead metadata lingers in the admin.
 #
 # 4. Drops django_comment_flags then django_comments (FK ordering).
@@ -133,7 +134,12 @@ def delete_comment_notice_types(apps, schema_editor):
 
 def delete_comment_content_types(apps, schema_editor):
     ContentType = apps.get_model("contenttypes", "ContentType")
-    for content_type in ContentType.objects.filter(app_label="django_comments"):
+    # 'django_comments' is the modern app label; 'comments' rows are ancient
+    # django.contrib.comments (pre-Django-1.6) leftovers observed on the
+    # rehearsal box, still carrying add/change/delete permissions.
+    for content_type in ContentType.objects.filter(
+        app_label__in=["django_comments", "comments"]
+    ):
         content_type.delete()
 
 
