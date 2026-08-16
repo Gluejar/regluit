@@ -164,7 +164,6 @@ registration/password_reset_email.html
 registration/registration_closed.html
 registration/test_template_name.html
 rights_holder_agreement.html
-sidebar_pledge_complete.html
 slideshow.html
 split.html
 stripe_stuff.html
