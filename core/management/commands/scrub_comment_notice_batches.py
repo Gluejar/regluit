@@ -66,17 +66,33 @@ class _StubbedUnpickler(pickle.Unpickler):
 
 
 def _queues_comment_labels(pickled_data):
-    """True/False from label-slot inspection; None if uninspectable."""
+    """True/False from label-slot inspection; None if uninspectable.
+
+    "Uninspectable" MUST include any batch whose shape is not exactly what
+    queue() writes, not merely one that fails to unpickle. Returning False for a
+    non-conforming batch would suppress the caller's byte-scan fallback and
+    silently leave a poisoned batch behind; a byte-scan false positive costs one
+    pending batch, a false negative wedges the whole notification queue.
+    """
     try:
         notices = _StubbedUnpickler(io.BytesIO(pickled_data)).load()
-        labels = set()
-        for entry in notices:
-            # queue() writes (user_pk, label, extra_context, on_site, sender)
-            if isinstance(entry, (tuple, list)) and len(entry) >= 2:
-                labels.add(entry[1])
-        return bool(labels & set(COMMENT_NOTICE_TYPES))
     except Exception:
         return None
+
+    # queue() pickles a list of (user_pk, label, extra_context, on_site, sender)
+    if not isinstance(notices, list):
+        return None
+
+    for entry in notices:
+        if not isinstance(entry, tuple) or len(entry) != 5:
+            return None
+        label = entry[1]
+        if not isinstance(label, str):
+            return None
+        if label in COMMENT_NOTICE_TYPES:
+            return True
+
+    return False
 
 
 class Command(BaseCommand):
