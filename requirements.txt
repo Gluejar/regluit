@@ -23,7 +23,6 @@ defusedxml==0.8.0rc2; python_version >= '3.6'
 distlib==0.3.8
 django==4.2.21
 django-ckeditor==6.7.3
-django-contrib-comments==2.0.0
 nh3==0.3.6  # server-side HTML sanitization of CKEditor rich text (security-private#26)
 django-el-pagination==4.1.2
 -e git+https://github.com/Gluejar/django-email-change.git@7cef40e#egg=django-email-change

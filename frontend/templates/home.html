@@ -227,15 +227,6 @@ function put_un_in_cookie2(){
                                             <a class="user-book-name" href="{% url 'work' object.campaign.work_id %}">{{ object.campaign.work.title }}</a>
                                         </span>
                                         {% endif %}
-                                    {% elif event.2 == "comment" %}
-                                        <span class="user-avatar">
-                                            <a href="{% url 'supporter' object.user.username %}"><img src="{{ object.user.profile.avatar_url }}" width="43" height="43" title="{{ object.user.username }}" alt="Avatar for {{ object.user.username }}" /></a>
-                                        </span>
-                                        <span class="user-book-info">
-                                            <a href="{% url 'supporter' object.user.username %}">{{ object.user.username }}</a><br />
-                                            commented on<br />
-                                            <a class="user-book-name" href="{% url 'work' object.content_object.id %}?tab=2">{{ object.content_object.title }}</a>
-                                        </span>                                    
                                     {% elif event.2 == "wish" %}
                                         <span class="user-avatar">
                                             <a href="{% url 'supporter' object.wishlist.user.username %}"><img src="{{ object.wishlist.user.profile.avatar_url }}" width="43" height="43" title="{{ object.wishlist.user.username }}" alt="Avatar for {{ object.wishlist.user.username }}" /></a>

@@ -22,7 +22,6 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.views import redirect_to_login
-from django_comments.models import Comment
 from django.contrib.sites.models import Site
 from django.core import signing
 from django.core.exceptions import ValidationError
@@ -229,9 +228,6 @@ def home(request, landing=False):
     """
     get various recent types of site activity
     """
-    latest_comments = Comment.objects.order_by(
-            '-submit_date'
-        )[:10]
     latest_pledges = Transaction.objects.filter(
             anonymous=False, campaign__isnull=False
         ).exclude(
@@ -249,11 +245,6 @@ def home(request, landing=False):
     for each event, we'll be passing its object and type to the template
     (and preserving its date for sorting purposes)
     """
-    latest_comments_tuple = map(
-        lambda x: (x.submit_date, x, 'comment'),
-        latest_comments
-    )
-
     latest_pledges_tuple = map(
         lambda x: (x.date_created, x, 'pledge'),
         latest_pledges
@@ -268,7 +259,7 @@ def home(request, landing=False):
     merge latest actions into a single list, sorted by date, to loop through in template
     """
     latest_actions = sorted(
-        chain(latest_comments_tuple, latest_pledges_tuple, latest_wishes_tuple),
+        chain(latest_pledges_tuple, latest_wishes_tuple),
         key=lambda instance: instance[0],
         reverse=True
     )
@@ -344,7 +335,8 @@ def work(request, work_id, action='display'):
     else:
         try:
             activetab = request.GET['tab']
-            if activetab not in ['1', '2', '3', '4']:
+            # '2' (the former Comments tab, removed in #1130) falls through to '1'
+            if activetab not in ['1', '3', '4']:
                 activetab = '1'
         except:
             activetab = '1'
@@ -1897,10 +1889,6 @@ def feedback(request, recipient='unglueit@ebookfoundation.org', template='feedba
         form = FeedbackForm(initial=context)
     context['form'] = form
     return render(request, template, context)
-
-def comment(request):
-    latest_comments = Comment.objects.all().order_by('-submit_date')[:20]
-    return render(request, "comments.html", {'latest_comments': latest_comments})
 
 def campaign_archive_js(request):
     """ proxy for mailchimp js"""
