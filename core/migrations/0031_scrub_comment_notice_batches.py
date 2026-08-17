@@ -88,17 +88,35 @@ def _queues_comment_labels(pickled_data):
 
     Returns True/False from precise inspection of the label slot, or None
     if the pickle cannot be inspected.
+
+    "Cannot be inspected" MUST include any batch whose shape is not exactly what
+    queue() writes — not just batches that fail to unpickle. The previous version
+    skipped unexpected entries and then returned False, which silently claimed
+    "no comment notices here" and suppressed the caller's byte-scan fallback.
+    That is the dangerous direction: a byte-scan false positive discards one
+    pending batch, whereas a false negative leaves a poisoned batch in place and
+    wedges the entire notification queue indefinitely. Anything non-conforming
+    now returns None so the fallback runs.
     """
     try:
         notices = _StubbedUnpickler(io.BytesIO(pickled_data)).load()
-        labels = set()
-        for entry in notices:
-            # queue() writes (user_pk, label, extra_context, on_site, sender)
-            if isinstance(entry, (tuple, list)) and len(entry) >= 2:
-                labels.add(entry[1])
-        return bool(labels & set(COMMENT_NOTICE_TYPES))
     except Exception:
         return None
+
+    # queue() pickles a list of (user_pk, label, extra_context, on_site, sender)
+    if not isinstance(notices, list):
+        return None
+
+    for entry in notices:
+        if not isinstance(entry, tuple) or len(entry) != 5:
+            return None
+        label = entry[1]
+        if not isinstance(label, str):
+            return None
+        if label in COMMENT_NOTICE_TYPES:
+            return True
+
+    return False
 
 
 def scrub_queued_comment_batches(apps, schema_editor):
