@@ -33,8 +33,10 @@
 #     the comment_was_posted wiring are gone) and filters the now-unreachable
 #     types out of the notification-settings UI.
 #   * Stale ContentType rows are inert. If they are ever worth cleaning up, that
-#     is `manage.py remove_stale_contenttypes` — a deliberate, separately
-#     reviewable act, not a side effect of dropping two tables.
+#     is `manage.py remove_stale_contenttypes --include-stale-apps` — the plain
+#     form SKIPS apps that have been removed from INSTALLED_APPS, and Django
+#     warns that dependent objects go with them. Either way it is a deliberate,
+#     separately reviewable act, not a side effect of dropping two tables.
 #
 # So this migration destroys the 468 comments (and their 2 flag rows) and
 # nothing else. Everything it does NOT do is recoverable later; what it does do
@@ -53,8 +55,19 @@
 # 1's responsibility and is already closed before this migration can run:
 # migration 0031 clears the backlog, and the post-restart
 # `manage.py scrub_comment_notice_batches` closes the migrate→restart window.
-# After that restart no new comment can be posted, so no new poisoned batch can
-# appear in the days between the two releases.
+# Once every process serving this database has been restarted onto phase-1 code,
+# the comment ingress path is gone and no new poisoned batch can appear in the
+# days between the two releases.
+#
+# That last sentence has three known exceptions, all operational rather than
+# structural — a fresh poisoned batch CAN appear if:
+#   (a) phase-1 code is rolled back and comment-aware code serves again;
+#   (b) some other host sharing this database is still running old code; or
+#   (c) someone calls notification.queue() by hand with a pickled Comment.
+# After any of those, repeat the phase-1 restart + scrub + queue-drain check
+# before running this migration. Note the recovery is cheap either way: the
+# management command still works after the tables are dropped, so a batch that
+# slips through can be cleared without a rollback.
 #
 # Dropping these tables does not change unpickling behaviour one way or the
 # other (the class became unimportable back in phase 1), so a third copy of the
