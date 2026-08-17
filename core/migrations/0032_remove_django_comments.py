@@ -12,9 +12,32 @@
 # by then no running code references the comment tables or notice types, and
 # comment ingress (which could re-poison the notification queue) has ended.
 #
-# The app is gone from INSTALLED_APPS, so its tables are orphaned. Per Eric's
-# decision (spam magnet, low-value content), the data is dropped rather than
-# archived; the pre-deploy RDS snapshot is the recovery path.
+# The app is gone from INSTALLED_APPS, so its tables are orphaned.
+#
+# SCOPE DECISION (2026-08-17): this migration removes comment-derived state
+# broadly — not just the two tables. That is deliberate, made under a
+# simplification goal: the current database should stop carrying weight the site
+# no longer uses. #1220 is the narrow alternative (tables only) for the opposite
+# preference; the two are mutually exclusive (both define core 0032).
+#
+# The wide scope matters because the comments table is NOT where most of the
+# comment content lives. Measured on production 2026-08-17:
+#     comment text in django_comments ..........    127,848 chars (468 rows)
+#     comment text inside Notice.message ....... 23,810,322 chars (22,120 rows)
+# i.e. ~186x more comment-derived text sits in the notification history than in
+# the comments themselves. Removing only the tables would leave nearly all of it.
+#
+# Note also that the original rationale on record was "spam magnet, low-value
+# content". The production data does not support the spam half: 0 anonymous
+# comments, only 4 of 468 ever flagged or removed, 130 distinct authenticated
+# authors, concentrated 2012-2014. The simplification rationale stands on its
+# own; the spam one should not be repeated.
+#
+# The data is dropped rather than archived. RECOVERY is the pre-deploy RDS
+# snapshot — a last-resort preservation mechanism, not an ordinary rollback
+# (separate instance, cutover required, post-snapshot writes lost). Record the
+# snapshot identifier in the deploy log. A file export of django_comments before
+# deploying is cheap insurance at 468 rows.
 #
 # What this migration does, in order:
 #
@@ -31,15 +54,28 @@
 #    on match — a false positive there discards at worst one pending
 #    notification batch; a false negative would wedge the whole queue.
 #
-# 2. Deletes the three comment NoticeType rows via the ORM so the delete
+# 2. Drops django_comment_flags then django_comments (FK ordering). This is the
+#    primary goal and now runs BEFORE the metadata/history steps — see the note
+#    on operation order below.
+#
+# 3. Deletes the 232 django_admin_log rows for the comment ContentTypes.
+#    NOTE: these do NOT cascade. Django declares LogEntry.content_type with
+#    on_delete=SET_NULL (verified on the deployed Django 4.2: LogEntry ->
+#    SET_NULL, Permission -> CASCADE), so deleting the ContentTypes would leave
+#    these rows behind with content_type_id = NULL, still carrying their
+#    object_repr — which for a comment is a truncated copy of its text (232
+#    rows, avg 61 chars). An earlier draft of this file wrongly claimed they
+#    cascaded. Under the simplification goal they are exactly the kind of dead
+#    weight being removed, so they are deleted explicitly.
+#
+# 4. Deletes the stale ContentType rows for app labels django_comments and
+#    (ancient pre-1.6) comments. Their auth_permission rows DO cascade
+#    (on_delete=CASCADE) — 16 rows.
+#
+# 5. Deletes the three comment NoticeType rows via the ORM so the delete
 #    cascades to NoticeSetting / Notice / ObservedItem rows (RESTRICT FKs at
-#    the MySQL level; the ORM collector deletes children first).
-#
-# 3. Deletes the stale ContentType rows for app labels django_comments and
-#    (ancient pre-1.6) comments (cascades to their
-#    auth_permission rows) so no dead metadata lingers in the admin.
-#
-# 4. Drops django_comment_flags then django_comments (FK ordering).
+#    the MySQL level; the ORM collector deletes children first). Deliberately
+#    LAST: it is by far the largest cascade.
 #
 # Notes:
 # - Stale rows for the 'django_comments' app remain in django_migrations;
@@ -149,6 +185,25 @@ def delete_comment_notice_types(apps, schema_editor):
         notice_type.delete()
 
 
+def delete_comment_admin_log(apps, schema_editor):
+    """Delete admin-log rows for the comment ContentTypes.
+
+    These must be deleted EXPLICITLY and BEFORE the ContentTypes: Django
+    declares LogEntry.content_type with on_delete=SET_NULL, so deleting the
+    ContentType would orphan these rows (content_type_id = NULL) while leaving
+    object_repr — a truncated copy of the comment text — in place.
+    """
+    ContentType = apps.get_model("contenttypes", "ContentType")
+    LogEntry = apps.get_model("admin", "LogEntry")
+    ct_ids = list(
+        ContentType.objects.filter(
+            app_label__in=["django_comments", "comments"]
+        ).values_list("id", flat=True)
+    )
+    if ct_ids:
+        LogEntry.objects.filter(content_type_id__in=ct_ids).delete()
+
+
 def delete_comment_content_types(apps, schema_editor):
     ContentType = apps.get_model("contenttypes", "ContentType")
     # 'django_comments' is the modern app label; 'comments' rows are ancient
@@ -166,6 +221,8 @@ class Migration(migrations.Migration):
         ('core', '0031_scrub_comment_notice_batches'),
         ('notification', '0002_auto_20200215_1821'),
         ('contenttypes', '0002_remove_content_type_name'),
+        # required: delete_comment_admin_log uses apps.get_model("admin", "LogEntry")
+        ('admin', '0001_initial'),
     ]
 
     # MySQL cannot roll back DDL, so the DROP statements below implicitly commit
@@ -197,10 +254,15 @@ class Migration(migrations.Migration):
                 "DROP TABLE IF EXISTS django_comments;",
             ],
         ),
-        # 3. Dead metadata: ContentType rows (cascades to 16 auth_permission and
-        #    232 django_admin_log rows on production).
+        # 3. Admin-log rows (232 on production), deleted EXPLICITLY and before
+        #    the ContentTypes: LogEntry.content_type is SET_NULL, not CASCADE,
+        #    so deleting the ContentTypes first would orphan these rows while
+        #    leaving their object_repr comment snippets behind.
+        migrations.RunPython(delete_comment_admin_log),
+        # 4. Dead metadata: ContentType rows. Their auth_permission rows DO
+        #    cascade (16 on production).
         migrations.RunPython(delete_comment_content_types),
-        # 4. Largest cascade, deliberately last. Deleted via the ORM so the
+        # 5. Largest cascade, deliberately last. Deleted via the ORM so the
         #    delete cascades to NoticeSetting / Notice / ObservedItem rows --
         #    the MySQL FKs are RESTRICT, so raw SQL would fail.
         migrations.RunPython(delete_comment_notice_types),
