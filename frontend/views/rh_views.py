@@ -139,7 +139,8 @@ def rh_tools(request, template_name='rh_intro.html'):
                     claim.campaign_form.save_m2m()
                     claim.campaign_form = None
             else:
-                c_type = 2
+                # Pledge/Buy-to-unglue are retired (#1195): new campaigns are THANKS
+                c_type = THANKS
                 claim.campaign_form = OpenCampaignForm(
                     initial={
                         'work': claim.work,

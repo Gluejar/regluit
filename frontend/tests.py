@@ -355,3 +355,89 @@ class FeedbackSelfLinkTests(TestCase):
         ).render(Context({}))
         self.assertEqual(rendered, "/feedback/")
 
+
+
+class CampaignRetirementTests(TestCase):
+    """Pledge (REWARDS) and Buy-to-unglue campaigns are retired (#1195):
+    the rights-holder UI must no longer offer them for new campaigns, while
+    existing legacy campaigns must keep rendering."""
+
+    def setUp(self):
+        from regluit.core.models import RightsHolder, Claim
+        self.user = User.objects.create_user('rhuser', 'rhuser@example.org', 'test')
+        self.rh = RightsHolder.objects.create(
+            rights_holder_name='retirement test rh', owner=self.user, approved=True
+        )
+        self.work = Work.objects.create(title="legacy pledge work", language='en')
+        self.b2u_work = Work.objects.create(title="legacy b2u work", language='en')
+        Claim.objects.create(
+            work=self.work, user=self.user, status='active', rights_holder=self.rh
+        )
+        Claim.objects.create(
+            work=self.b2u_work, user=self.user, status='active', rights_holder=self.rh
+        )
+
+    def test_open_campaign_form_offers_only_thanks(self):
+        from regluit.frontend.forms import OpenCampaignForm
+        from regluit.core.parameters import REWARDS, BUY2UNGLUE, THANKS
+        form = OpenCampaignForm()
+        self.assertEqual(
+            [int(value) for value, label in form.fields['type'].choices],
+            [THANKS],
+        )
+        # POSTs that try to force a retired type are rejected with a clean
+        # form error on 'type'
+        for retired_type in (REWARDS, BUY2UNGLUE):
+            form = OpenCampaignForm(data={
+                'name': self.work.title,
+                'work': self.work.id,
+                'userid': self.user.id,
+                'type': retired_type,
+            })
+            self.assertFalse(form.is_valid())
+            self.assertIn('type', form.errors)
+        # a complete THANKS submission is fully valid (django-selectable's
+        # multiple field takes a list of pks)
+        form = OpenCampaignForm(data={
+            'name': self.work.title,
+            'work': self.work.id,
+            'userid': self.user.id,
+            'managers': [str(self.user.id)],
+            'type': THANKS,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+
+    def test_legacy_campaigns_still_render(self):
+        from datetime import datetime, timedelta
+        from decimal import Decimal as D
+        from django.utils.timezone import now
+        from regluit.core import parameters
+        from regluit.core.models import Campaign
+        pledge = Campaign.objects.create(
+            work=self.work,
+            type=parameters.REWARDS,
+            name='legacy pledge campaign',
+            description='legacy pledge campaign',
+            target=D('1000.00'),
+            deadline=now() + timedelta(days=30),
+        )
+        b2u = Campaign.objects.create(
+            work=self.b2u_work,
+            type=parameters.BUY2UNGLUE,
+            name='legacy b2u campaign',
+            description='legacy b2u campaign',
+            target=D('1000.00'),
+            deadline=datetime(2030, 1, 1),
+            cc_date_initial=datetime(2030, 1, 1),
+        )
+        # legacy campaigns launched before retirement carry ACTIVE status in
+        # the db; retirement must not break their read-only display
+        for campaign in (pledge, b2u):
+            campaign.status = 'ACTIVE'
+            campaign.activated = now()
+            campaign.left = campaign.target
+            campaign.save()
+        anon_client = Client()
+        for work in (self.work, self.b2u_work):
+            r = anon_client.get("/work/{}/".format(work.id))
+            self.assertEqual(r.status_code, 200)
