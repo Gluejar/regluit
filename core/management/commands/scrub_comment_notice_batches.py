@@ -16,10 +16,17 @@ A wedge in the brief window before this command runs is transient: failed
 batches are not consumed, so once the poison batch is deleted here, the next
 send_all() run drains the queue normally.
 
-Same restricted-unpickler inspection as migrations core.0031/core.0032
-(duplicated deliberately — migration files must stay frozen/self-contained).
-This command is interphase tooling and can be removed after phase 2
-(core.0032) has run everywhere.
+Same restricted-unpickler inspection as migration core.0031 (duplicated
+deliberately — migration files must stay frozen/self-contained). Phase 2
+(core.0032_drop_comment_tables, PR #1220) carries no copy of this logic: it
+only drops the two comment tables, so this command is the LAST line of
+defense against a poisoned batch. It keeps working after the tables are
+dropped (it never touches them), so it can also clear a batch that slips in
+via a phase-1 rollback or a stray old-code host. Remove it only once phase 2
+has run everywhere and the queue has been verified clean.
+
+Regression tests: core/test_scrub_comments.py (covers this module's copy of
+the inspection logic and the migration's, plus this command end-to-end).
 """
 
 import io
