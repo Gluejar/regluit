@@ -20,6 +20,11 @@ The scenarios are the synthetic-pickle fixtures from the PR #1217 review
     False here would leave a poisoned batch and wedge the whole queue;
   * corrupt bytes, and a protocol-0 pickle.
 
+Every verdict is exercised at every pickle protocol (0 through highest), and
+the poisoned-batch scenario is covered in both failure shapes: a vanished
+module (ModuleNotFoundError) and the production-shaped Django-model pickle,
+which dies in the app registry (LookupError via model_unpickle) instead.
+
 The command is also tested end-to-end against real NoticeQueueBatch rows.
 """
 
@@ -54,12 +59,12 @@ def _batch(entries, protocol=pickle.DEFAULT_PROTOCOL):
     return pickle.dumps(entries, protocol=protocol)
 
 
-def _unimportable_instance():
+def _unimportable_instance(protocol=pickle.DEFAULT_PROTOCOL):
     """Return pickled bytes embedding a class whose module cannot be imported.
 
-    Simulates a queued batch that froze a django_comments.Comment: the pickle
-    names a module/class that no longer exists in the environment, so a plain
-    pickle.loads() raises — exactly the state that wedges send_all().
+    Simulates a queued batch that froze an object from a removed module: the
+    pickle names a module/class that no longer exists in the environment, so a
+    plain pickle.loads() raises — the state that wedges send_all().
     """
     mod_name = "regluit_test_vanishing_module"
     mod = types.ModuleType(mod_name)
@@ -75,17 +80,59 @@ def _unimportable_instance():
         obj = Frozen()
         obj.__dict__["text"] = "frozen comment body"
         data = pickle.dumps(
-            [(1, "wishlist_comment", {"comment": obj}, True, None)]
+            [(1, "wishlist_comment", {"comment": obj}, True, None)],
+            protocol=protocol,
         )
     finally:
         del sys.modules[mod_name]
-    # Prove the fixture is what it claims to be: genuinely unimportable.
+    # Prove the fixture is what it claims to be: unimportable for the exact
+    # expected reason — the module is gone (not some unrelated failure).
     try:
         pickle.loads(data)
-    except Exception:
-        pass
+    except ModuleNotFoundError as e:
+        if mod_name not in str(e):  # pragma: no cover
+            raise AssertionError("fixture failed for the wrong module: %s" % e)
     else:  # pragma: no cover
         raise AssertionError("fixture is importable; test premise broken")
+    return data
+
+
+def _django_model_poisoned_batch(protocol=pickle.DEFAULT_PROTOCOL):
+    """Production-shaped poisoned batch: how a real pickled Django model dies.
+
+    A pickled Django model instance does not reference its class directly — it
+    references django.db.models.base.model_unpickle plus an (app_label, model)
+    tuple. After the app leaves INSTALLED_APPS, loading fails inside
+    model_unpickle with LookupError("No installed app with label ..."), NOT
+    with ModuleNotFoundError. This fixture reproduces that exact failure mode
+    for the removed 'django_comments' app.
+    """
+    from django.db.models.base import model_unpickle
+
+    class _FrozenComment(object):
+        # __reduce__ makes the pickle reference model_unpickle by name, the
+        # same way Django's Model.__reduce__ does; _FrozenComment itself is
+        # never named in the resulting bytes.
+        def __reduce__(self):
+            return (
+                model_unpickle,
+                (("django_comments", "comment"),),
+                {"comment": "frozen spam"},
+            )
+
+    data = pickle.dumps(
+        [(1, "comment_on_commented", {"comment": _FrozenComment()}, True, None)],
+        protocol=protocol,
+    )
+    # Self-check: dies in Django's app registry, exactly as in production.
+    try:
+        pickle.loads(data)
+    except LookupError as e:
+        if "django_comments" not in str(e):  # pragma: no cover
+            raise AssertionError("fixture failed on the wrong app: %s" % e)
+    else:  # pragma: no cover
+        raise AssertionError(
+            "fixture loaded cleanly; is django_comments installed here?")
     return data
 
 
@@ -143,11 +190,36 @@ class QueuesCommentLabelsTests(SimpleTestCase):
             "poisoned batch (unimportable class) must still be flagged by label",
         )
 
-    def test_protocol_0(self):
+    def test_all_pickle_protocols(self):
+        # queue() uses the interpreter's default protocol, which has changed
+        # across the Python versions this codebase has lived through — queued
+        # batches may exist at any protocol. Every verdict must hold at all
+        # of them (Codex review 2026-08-23: committed matrix required).
+        for proto in range(0, pickle.HIGHEST_PROTOCOL + 1):
+            tag = "protocol %d" % proto
+            self.both(
+                _batch([(1, "comment_on_commented", {}, True, None)],
+                       protocol=proto),
+                True, "comment batch flagged at " + tag)
+            self.both(
+                _batch([(1, "account_active",
+                         {"message": "mentions wishlist_comment only"},
+                         True, None)], protocol=proto),
+                False, "prose false-positive kept at " + tag)
+            self.both(
+                _batch([("bad-arity", "wishlist_comment")], protocol=proto),
+                None, "malformed shape falls to byte scan at " + tag)
+            self.both(
+                _unimportable_instance(protocol=proto),
+                True, "poisoned batch flagged at " + tag)
+
+    def test_django_model_poisoned_batch(self):
+        # The production-shaped failure: LookupError from Django's app
+        # registry, not ModuleNotFoundError. Must still be flagged by label.
         self.both(
-            _batch([(1, "comment_on_commented", {}, True, None)], protocol=0),
+            _django_model_poisoned_batch(),
             True,
-            "protocol-0 pickle must be inspectable",
+            "Django-model-shaped poisoned batch must be flagged",
         )
 
     # --- the 25703468 hardening: non-conforming shapes → None, never False ---
@@ -199,6 +271,7 @@ class ScrubCommandTests(TestCase):
         drop_comment = self._add(
             _batch([(1, "wishlist_comment", {}, True, None)]))
         drop_poisoned = self._add(_unimportable_instance())
+        drop_django_shaped = self._add(_django_model_poisoned_batch())
 
         output = self._run()
 
@@ -207,8 +280,9 @@ class ScrubCommandTests(TestCase):
         self.assertEqual(remaining, {keep_plain.id, keep_prose.id})
         self.assertNotIn(drop_comment.id, remaining)
         self.assertNotIn(drop_poisoned.id, remaining)
-        self.assertIn("batches examined: 4", output)
-        self.assertIn("scrubbed: 2", output)
+        self.assertNotIn(drop_django_shaped.id, remaining)
+        self.assertIn("batches examined: 5", output)
+        self.assertIn("scrubbed: 3", output)
         self.assertIn("remaining: 2", output)
 
     def test_byte_scan_fallback_on_uninspectable_batches(self):
