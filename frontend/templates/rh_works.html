@@ -18,12 +18,8 @@
 				{% csrf_token %}
 				{{ claim.campaign_form.name }}{{ claim.campaign_form.name.errors }}
 					{% if claim.can_open_new == 1 %}
-					<p>Choose the Campaign Type: {{ claim.campaign_form.type }}{{ claim.campaign_form.type.errors }}</p>
-					<ol>
-					<li> <i>Pledge-To-Unglue</i>: These campaigns have a fixed end date. When your pledges reach the target you set, the campaign succeeds and the ebook is released in an open-access <i>unglued</i> edition.</li>
-					<li> <i>Buy-To-Unglue</i>: These campaigns start with a date on which the ebook will become open access. Each sale advances this "ungluing date" an increment based on you funding target.</li>
-					<li> <i>Thanks-For-Ungluing</i>: These campaigns are for books that <i>already</i> have a Creative Commons license.</li>
-					</ol>
+					<p>Campaign Type: {{ claim.campaign_form.type }}{{ claim.campaign_form.type.errors }}</p>
+					<p><i>Thanks-For-Ungluing</i> campaigns are for books that <i>already</i> have a Creative Commons license. (Pledge-To-Unglue and Buy-To-Unglue campaigns are no longer offered.)</p>
 					{% else %}
 					Your previous campaign succeeded, but you can open a new <i>Thanks-For-Ungluing</i> campaign. <input type="hidden" id="cl_{{ claim.id }}-type" name="cl_{{ claim.id }}-type" value="3" />
 					{{ claim.campaign_form.type.errors }}

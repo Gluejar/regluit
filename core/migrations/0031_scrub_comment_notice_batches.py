@@ -25,8 +25,11 @@
 # (same logic as this migration; see the command's docstring). Any wedge in
 # the seconds before that command runs is transient — failed batches are not
 # consumed, so deleting the poison batch lets the next send_all() drain the
-# queue normally. The phase-2 migration (0032) re-runs the scrub once more
-# before deleting the notice types, as a final belt.
+# queue normally. That post-restart command IS the final belt: phase 2
+# (core.0032_drop_comment_tables, PR #1220) deliberately carries no scrub and
+# deletes no notice types — it only drops the two comment tables. (An earlier
+# phase-2 draft, PR #1218, re-scrubbed and deleted the NoticeType rows; it was
+# rejected 2026-08-17 in favor of keeping the notification history.)
 #
 # Batch inspection: a restricted unpickler resolves every class to an inert
 # stub (django_comments must not and often cannot be imported) and validates

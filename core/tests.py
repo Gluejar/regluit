@@ -538,6 +538,20 @@ class SearchTests(TestCase):
         self.assertEqual(len(response['items']), 10)
 
 
+def force_activate(campaign):
+    """Simulate a legacy campaign that launched before Pledge/B2U retirement.
+
+    Campaign.activate() now (correctly) refuses to launch REWARDS/BUY2UNGLUE
+    campaigns (#1195), so status-transition tests for legacy campaigns set
+    ACTIVE state directly, the way live legacy campaigns carry it in the db.
+    """
+    campaign.status = 'ACTIVE'
+    campaign.activated = now()
+    campaign.left = campaign.target
+    campaign.save()
+    return campaign
+
+
 class CampaignTests(TestCase):
     fixtures = ['initial_data.json']
     def test_b2u(self):
@@ -598,12 +612,15 @@ class CampaignTests(TestCase):
         c1 = Campaign(target=D('1000.00'), deadline=Campaign.latest_ending(), work=w)
         c1.save()
         self.assertEqual(c1.status, 'INITIALIZED')
-        # ACTIVATED
+        # new campaigns default to THANKS now that Pledge/B2U are retired (#1195)
+        self.assertEqual(c1.type, parameters.THANKS)
+        # ACTIVATED (legacy pledge campaign)
         c2 = Campaign(
             target=D('1000.00'),
             deadline=datetime(2013, 1, 1),
             work=w,
-            description='dummy description'
+            description='dummy description',
+            type=parameters.REWARDS,
         )
         c2.save()
         self.assertEqual(c2.status, 'INITIALIZED')
@@ -615,7 +632,7 @@ class CampaignTests(TestCase):
         cl.save()
         cl2 = Claim(rights_holder=rh, work=w2, user=u, status='active')
         cl2.save()
-        c2.activate()
+        force_activate(c2)
         self.assertEqual(c2.status, 'ACTIVE')
         # SUSPENDED
         c2.suspend(reason="for testing")
@@ -631,10 +648,11 @@ class CampaignTests(TestCase):
             target=D('1000.00'),
             deadline=now() - timedelta(days=1),
             work=w2,
-            description='dummy description'
+            description='dummy description',
+            type=parameters.REWARDS,
         )
         c3.save()
-        c3.activate()
+        force_activate(c3)
         self.assertEqual(c3.status, 'ACTIVE')
         # at this point, since the deadline has passed,
         # the status should change and be UNSUCCESSFUL
@@ -646,21 +664,21 @@ class CampaignTests(TestCase):
         pr1.save()
         self.assertEqual(pr1.premium_remaining, 1)
 
-        #cloning (note we changed c3 to w2 to make it clonable)
-        c7 = c3.clone()
-        self.assertEqual(c7.status, 'INITIALIZED')
-        self.assertEqual(c7.premiums.first().description, 'botsnack')
-
+        # cloning: retired-type campaigns are no longer clonable (#1195) --
+        # a clone would be a new campaign of a retired type
+        self.assertFalse(c3.clonable())
+        self.assertIsNone(c3.clone())
 
         # SUCCESSFUL
         c4 = Campaign(
             target=D('1000.00'),
             deadline=now() - timedelta(days=1),
             work=w,
-            description='dummy description'
+            description='dummy description',
+            type=parameters.REWARDS,
         )
         c4.save()
-        c4.activate()
+        force_activate(c4)
         t = Transaction()
         t.amount = D('1234.00')
         t.type = PAYMENT_TYPE_AUTHORIZATION
@@ -677,10 +695,11 @@ class CampaignTests(TestCase):
             target=D('1000.00'),
             deadline=datetime(2013, 1, 1),
             work=w,
-            description='dummy description'
+            description='dummy description',
+            type=parameters.REWARDS,
         )
         c5.save()
-        c5.activate().withdraw('testing')
+        force_activate(c5).withdraw('testing')
         self.assertEqual(c5.status, 'WITHDRAWN')
 
         # testing percent-of-goal
@@ -690,12 +709,13 @@ class CampaignTests(TestCase):
             target=D('1000.00'),
             deadline=now() + timedelta(days=1),
             work=w2,
-            description='dummy description'
+            description='dummy description',
+            type=parameters.REWARDS,
         )
         c6.save()
         cl = Claim(rights_holder=rh, work=w2, user=u, status='active')
         cl.save()
-        c6.activate()
+        force_activate(c6)
         t = Transaction()
         t.amount = D('234.00')
         t.type = PAYMENT_TYPE_AUTHORIZATION
@@ -706,20 +726,29 @@ class CampaignTests(TestCase):
         t.save()
         self.assertEqual(w2.percent_of_goal(), 23)
 
+        # no description: not launchable regardless of type
         self.assertEqual(c1.launchable, False)
         c1.description = "description"
-        self.assertEqual(c1.launchable, True)
+
+        # Pledge (REWARDS) and Buy-to-unglue campaigns are retired (#1195):
+        # even a fully-configured campaign of a retired type may not launch;
+        # the block produces a clean problem message, and activate() raises
+        # UnglueitError (not IndexError, the crash #1168 would have shipped).
+        c1.type = parameters.REWARDS
+        c1.save()
+        self.assertEqual(c1.launchable, False)
+        self.assertTrue(any('no longer offers' in str(p) for p in c1.problems))
+        with self.assertRaises(UnglueitError):
+            c1.activate()
+
         c1.work.create_offers()
         self.assertEqual(c1.work.offers.count(), 2)
         self.assertEqual(c1.work.offers.filter(license=2).count(), 1)
-        c1.type = 2
-        c1.save()
-        self.assertEqual(c1.launchable, False)
+        c1.type = parameters.BUY2UNGLUE
         of1 = c1.work.offers.get(license=2)
         of1.price = D(2)
         of1.active = True
         of1.save()
-        self.assertEqual(c1.launchable, False)
         e1 = models.Edition(title="title", work=c1.work)
         e1.save()
         ebf1 = models.EbookFile(edition=e1, format=1)
@@ -728,7 +757,30 @@ class CampaignTests(TestCase):
         self.assertEqual(c1.cc_date, settings.MAX_CC_DATE)
         c1.target = D(settings.UNGLUEIT_MAXIMUM_TARGET)
         c1.save()
+        # fully configured buy-to-unglue campaign: still blocked
+        self.assertEqual(c1.launchable, False)
+        with self.assertRaises(UnglueitError):
+            c1.activate()
+
+        # THANKS campaigns are still launchable
+        c1.type = parameters.THANKS
+        c1.save()
         self.assertEqual(c1.launchable, True)
+
+        # unknown/unsupported numeric types are blocked too (fail-closed):
+        # Django choices are not database-level validation, so an
+        # out-of-range type can be saved -- it must not be launchable
+        c1.type = 99
+        c1.save()
+        self.assertEqual(c1.launchable, False)
+        with self.assertRaises(UnglueitError):
+            c1.activate()
+
+        # and a THANKS campaign actually launches
+        c1.type = parameters.THANKS
+        c1.save()
+        c1.activate()
+        self.assertEqual(c1.status, 'ACTIVE')
 
 class WishlistTest(TestCase):
     fixtures = ['initial_data.json', 'neuromancer.json']
@@ -1054,7 +1106,15 @@ class EbookFileTests(TestCase):
             c.activate()
         off = Offer(price=10.00, work=w, active=True)
         off.save()
-        c.activate()
+        # Buy-to-unglue campaigns are retired (#1195): launch stays cleanly
+        # blocked even when the campaign is fully configured.
+        with self.assertRaises(UnglueitError) as cm:
+            c.activate()
+        # simulate a legacy B2U campaign that launched before retirement
+        c.status = 'ACTIVE'
+        c.activated = now()
+        c.left = c.target
+        c.save()
         #flip the campaign to success
         c.cc_date_initial = datetime(2012, 1, 1)
         c.update_status()
