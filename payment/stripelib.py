@@ -913,20 +913,31 @@ class Processor(baseprocessor.Processor):
                         pass
                 elif resource == 'customer':
                     if action == 'created':
-                        # test application: email support
-                        # do we have a flag to indicate production vs non-production?
-                        #  -- or does it matter?
-                        # email support whenever a new Customer created
-                        # -- we probably want to replace this with some other
-                        # more useful long tem action.
-                        send_mail(
-                            "Stripe Customer (id {0};  description: {1}) created".format(
-                                ev_object.get("id"),
-                                ev_object.get("description")),
-                            "Stripe Customer email: {0}".format(ev_object.get("email")),
-                            "notices@gluejar.com",
-                            ["unglueit@ebookfoundation.org"])
-                        logger.info("email sent for customer.created for %s", ev_object.get("id"))
+                        # Courtesy FYI to support whenever a new Customer is created.
+                        # MUST be fail-safe (#1216): this runs synchronously inside
+                        # the webhook request, and an unhandled mail exception turns
+                        # into a 500, which makes Stripe re-deliver the event on
+                        # backoff for days — each retry re-attempting the same send
+                        # and (before this guard) emailing ADMINS a traceback every
+                        # time. The email is informational; the webhook's job is
+                        # recording the event, and that must succeed regardless.
+                        # (Observed live 2026-08-23: a transient SES failure turned
+                        # one $5 donation into three webhook 500s.)
+                        try:
+                            send_mail(
+                                "Stripe Customer (id {0};  description: {1}) created".format(
+                                    ev_object.get("id"),
+                                    ev_object.get("description")),
+                                "Stripe Customer email: {0}".format(ev_object.get("email")),
+                                "notices@gluejar.com",
+                                ["unglueit@ebookfoundation.org"])
+                            logger.info("email sent for customer.created for %s", ev_object.get("id"))
+                        except Exception:
+                            # keep the traceback in the log; do NOT re-raise
+                            logger.exception(
+                                "courtesy email failed for customer.created %s "
+                                "(webhook still returns 200; see #1216)",
+                                ev_object.get("id"))
                     # handle updated, deleted
                     else:
                         pass
