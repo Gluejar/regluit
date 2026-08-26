@@ -1099,8 +1099,8 @@ class EbookFileTests(TestCase):
         self.assertIsNot(acq.nonce, None)
 
         url = acq.get_watermarked().download_link_epub
-        self.assertRegexpMatches(url, 'github.com/eshellman/42_ebook/blob/master/download/42')
-        #self.assertRegexpMatches(url, 'booxtream.com/')
+        self.assertRegex(url, 'github.com/eshellman/42_ebook/blob/master/download/42')
+        #self.assertRegex(url, 'booxtream.com/')
 
         with self.assertRaises(UnglueitError) as cm:
             c.activate()
