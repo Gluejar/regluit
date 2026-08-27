@@ -62,6 +62,15 @@ function stripeTokenHandler(token) {
     form$.get(0).submit();
 }
 
+function stripeShowError(message) {
+    // re-enable the submit button
+    $j('.submit-button').removeAttr("disabled");
+    // stop the spinny thing
+    $j('.submit-button').removeClass("show-loading");
+    // show the errors on the form
+    $j(".payment-errors").html(message).show();
+}
+
 $j().ready(function() {
   $j("#payment-form").submit(function(event) {
     // disable the submit button to prevent repeated clicks
@@ -74,15 +83,16 @@ $j().ready(function() {
         name: $j('#card_Name').val()
     }).then(function(result) {
         if (result.error) {
-            // re-enable the submit button
-            $j('.submit-button').removeAttr("disabled");
-            // stop the spinny thing
-            $j('.submit-button').removeClass("show-loading");
-            // show the errors on the form
-            $j(".payment-errors").html(result.error.message).show();
+            stripeShowError(result.error.message);
         } else {
             stripeTokenHandler(result.token);
         }
+    }).catch(function() {
+        // createToken() itself rejected (network hiccup, Stripe.js internal
+        // exception) rather than resolving with {error: ...} -- without this,
+        // the button stays disabled and the donor sees nothing: exactly the
+        // silent-failure shape this PR exists to eliminate (#1142).
+        stripeShowError("We couldn't reach Stripe to process your card. Please check your connection and try again.");
     });
 
     // prevent the form from submitting with the default action

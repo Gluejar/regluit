@@ -257,7 +257,9 @@ ul#offers_list li {
                 border-color: white;
             }
 
-            &.address, &#card_Number, &#id_email {
+            // #card_Number dropped (#1142): that input no longer exists,
+            // replaced by the #card-element rule below.
+            &.address, &#id_email {
                 width: 61%;
             }
         }
