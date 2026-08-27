@@ -1,0 +1,14 @@
+.git
+*.pyc
+__pycache__
+*.egg-info
+logs/
+*.log
+*.db
+*.ipynb
+.ipynb_checkpoints/
+settings/keys/
+settings/me.py
+.env
+src/
+vagrant/

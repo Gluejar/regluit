@@ -18,6 +18,15 @@ Develop
 Here are some instructions for setting up regluit for development on
 an Ubuntu system. If you are on OS X see notes below.
 
+Docker development
+
+1. `docker compose up -d`
+1. `docker compose exec web python manage.py migrate --noinput`
+1. `docker compose exec web python manage.py loaddata core/fixtures/initial_data.json core/fixtures/bookloader.json`
+1. Point your browser to http://localhost:8000/
+
+The Docker setup uses `regluit.settings.docker`, starts MySQL and Redis automatically, and keeps the repository bind-mounted into the `web` container for live code edits.
+
 
 - Ensure MySQL 5.7 and Redis are installed & running on your system.
 1. Create a MySQL database and user for unglueit.
@@ -135,4 +144,3 @@ MySQL Migration
 * Many migration blockers were removed by by dumping, then restoring the database.
 * After that, RDS was able to migrate
 * needed to create the unglueit user from the mysql client
-
