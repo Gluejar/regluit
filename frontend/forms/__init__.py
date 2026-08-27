@@ -332,7 +332,6 @@ class CampaignThanksForm(forms.Form):
         pe = PledgeExtra( anonymous=self.cleaned_data['anonymous'] )
 
 class DonationForm(forms.Form):
-    # used only for validation; not currently used for display
     amount = forms.DecimalField(
         required = True,
         min_value=D('5.00'),
@@ -340,7 +339,18 @@ class DonationForm(forms.Form):
         decimal_places=2,
         label="Donation Amount",
     )
-    reason = forms.ChoiceField(choices=DONATION_CHOICES, required=False)
+    # Donations only support the General Fund now (#1230). Historical
+    # transactions with reason="monographs" are unaffected -- FUNDS and
+    # Transaction.reason are untouched -- but new donations can no longer
+    # choose it, on this form or via a crafted POST. Kept as a hidden
+    # field (rather than dropped) so NewDonationView.form_valid's
+    # form.cleaned_data.get("reason", "") keeps working unchanged.
+    reason = forms.ChoiceField(
+        choices=(("general", "The FEF General Fund"),),
+        initial="general",
+        required=False,
+        widget=forms.HiddenInput(),
+    )
 
 
 class CampaignPledgeForm(forms.Form):

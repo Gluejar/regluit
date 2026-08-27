@@ -10,6 +10,11 @@
 
 {% block doccontent %}
 
+<!-- Named anchors kept for old donation-confirmation links (pledge_complete.html
+     links to about_funds#{{ transaction.reason }}) now that there's only one
+     fund: both #general (new donations) and #monographs (historical donations)
+     land here at the top of the page. -->
+<a id="general"></a><a id="monographs"></a>
 <h2> Donating to Unglue.it </h2>
 <p>
 Unglue.it is a program of the <a href="https://ebookfoundation.org">Free Ebook Foundation</a> (FEF), which is a charitable, not-for-profit corporation. 
