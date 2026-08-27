@@ -883,9 +883,12 @@ class NewDonationView(FormView):
     form_class = DonationForm
     def form_valid(self, form):
         p = PaymentManager()
+        # Donations only support the General Fund now (#1230) -- hardcoded
+        # rather than read from POST data, so there's no field to omit or
+        # spoof. Historical "monographs"-reason transactions are unaffected.
         t, url = p.process_transaction('USD',  form.cleaned_data["amount"],
                                        user=self.request.user,
-                                       paymentReason=form.cleaned_data.get("reason", ""),
+                                       paymentReason="general",
                                       )
         if url:
             return HttpResponseRedirect(url)

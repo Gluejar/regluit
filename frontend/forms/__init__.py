@@ -45,7 +45,6 @@ from regluit.core.parameters import (
     REWARDS,
     BUY2UNGLUE,
     THANKS,
-    DONATION_CHOICES,
 )
 from regluit.core.lookups import (
     OwnerLookup,
@@ -332,7 +331,6 @@ class CampaignThanksForm(forms.Form):
         pe = PledgeExtra( anonymous=self.cleaned_data['anonymous'] )
 
 class DonationForm(forms.Form):
-    # used only for validation; not currently used for display
     amount = forms.DecimalField(
         required = True,
         min_value=D('5.00'),
@@ -340,7 +338,11 @@ class DonationForm(forms.Form):
         decimal_places=2,
         label="Donation Amount",
     )
-    reason = forms.ChoiceField(choices=DONATION_CHOICES, required=False)
+    # No `reason`/fund field (#1230): donations only support the General
+    # Fund now, hardcoded in NewDonationView.form_valid rather than read
+    # from POST data, so there's no field here to omit or spoof. Historical
+    # transactions with reason="monographs" are unaffected -- FUNDS and
+    # Transaction.reason are untouched.
 
 
 class CampaignPledgeForm(forms.Form):
