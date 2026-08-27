@@ -262,6 +262,20 @@ ul#offers_list li {
             }
         }
 
+        // Stripe Elements' hosted card field (#1142) -- an iframe, not an
+        // <input>, so it needs its own box styling to match the fields above.
+        #card-element {
+            display: inline-block;
+            width: 61%;
+            font-size: $font-size-larger;
+            padding: 1.2% 1%;
+            margin: 1% 0;
+            border: 2px solid $blue-grey;
+            @include one-border-radius(3px);
+            background: white;
+            box-sizing: border-box;
+        }
+
         label {
             width: 31%;
             float: left;

@@ -1,33 +1,40 @@
 <link href="/static/stripe/tag.css" rel="stylesheet" type="text/css">
 
-<script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+<!-- Stripe.js v3 / Elements (#1142): the card number, CVC, and expiry fields
+     below are rendered by Stripe itself in a hosted iframe (id="card-element"),
+     not by our own <input> markup. This is the fix for the 2026-08-26 incident:
+     the old form used a literal value="MM"/"YYYY" trick to fake grey help text,
+     which had no autocomplete semantics and could get silently overwritten
+     (or skipped) by password managers -- Stripe's Element owns its own field
+     state, so that specific trick isn't possible here. The backend contract
+     is unchanged: this still produces a `stripe_token` id in a hidden field,
+     exactly like the old Stripe.js v2 flow did. -->
+<script type="text/javascript" src="https://js.stripe.com/v3/"></script>
 
 <script type="text/javascript">
-    Stripe.setPublishableKey('{{ STRIPE_PK }}');
+var stripe = Stripe('{{ STRIPE_PK }}');
+var elements = stripe.elements();
+// hidePostalCode: the form already collects address_zip as its own field below.
+var cardElement = elements.create('card', {hidePostalCode: true});
 </script>
 
 <script type="text/javascript">
 var $j = jQuery.noConflict();
 
 $j(document).ready(function() {
-    // provide gently grey help text
-    var inputs = $j('.initial_values input');
-    inputs.css('color', '#D6DDE0');
-
-    // remove help text when input is selected
-    // user-entered text should be in usual text color
-    inputs.on("focus", function() {
-        defaultValue = $j(this).val();
-        $j(this).val('');
-        $j(this).css('color', '#3d4e53')
-    });
-
-    // restore iff user hasn't entered anything
-    inputs.on("blur", function() {
-        if($j(this).val() == '') {
-            $j(this).val(defaultValue).css('color', '#D6DDE0');
-        }
-    });
+    var mountPoint = document.getElementById('card-element');
+    if (mountPoint) {
+        cardElement.mount('#card-element');
+        // real-time validation as the donor types, using the same error box
+        // the old form used on submit failure.
+        cardElement.on('change', function(event) {
+            if (event.error) {
+                $j('.payment-errors').html(event.error.message).show();
+            } else {
+                $j('.payment-errors').hide();
+            }
+        });
+    }
 });
 </script>
 
@@ -48,44 +55,38 @@ $j(document).ready(function() {
 <script>
 var $j = jQuery.noConflict();
 
-function stripeResponseHandler(status, response) {
-    if (response.error) {
-        // re-enable the submit button
-        $j('.submit-button').removeAttr("disabled");
-        // stop the spinny thing
-        $j('.submit-button').removeClass("show-loading");
-        // show the errors on the form
-        $j(".payment-errors").html(response.error.message).show();
-    } else {
-        var form$ = $j("#payment-form");
-        // token contains id, last4, and card type
-        var token = response['id'];
-        
-        // insert the token into the form so it gets submitted to the server
-        form$.append("<input type='hidden' name='stripe_token' value='" + token + "' />");
-        // and submit
-        form$.get(0).submit();
-    }
+function stripeTokenHandler(token) {
+    var form$ = $j("#payment-form");
+    // token.id, like the old response['id'] -- same shape the backend expects.
+    form$.append("<input type='hidden' name='stripe_token' value='" + token.id + "' />");
+    form$.get(0).submit();
 }
-	   
-	    
+
 $j().ready(function() {
   $j("#payment-form").submit(function(event) {
     // disable the submit button to prevent repeated clicks
     $j('.submit-button').attr("disabled", "disabled");
-    
-    Stripe.createToken({
-        number: $j('.card-number').val(),
-        cvc: $j('.card-cvc').val(),
-        exp_month: $j('.card-expiry-month').val(),
-        exp_year: $j('.card-expiry-year').val(),
+
+    stripe.createToken(cardElement, {
         address_state: $j('#card_AddressState').val(),
         address_zip: $j('#card_AddressZip').val(),
         address_country: $j('#card_AddressCountry').val(),
         name: $j('#card_Name').val()
-    }, stripeResponseHandler);
+    }).then(function(result) {
+        if (result.error) {
+            // re-enable the submit button
+            $j('.submit-button').removeAttr("disabled");
+            // stop the spinny thing
+            $j('.submit-button').removeClass("show-loading");
+            // show the errors on the form
+            $j(".payment-errors").html(result.error.message).show();
+        } else {
+            stripeTokenHandler(result.token);
+        }
+    });
 
     // prevent the form from submitting with the default action
+    // (createToken() above is async; this still runs synchronously first)
     return false;
   });
 });
