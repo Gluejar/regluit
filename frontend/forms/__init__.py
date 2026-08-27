@@ -45,7 +45,6 @@ from regluit.core.parameters import (
     REWARDS,
     BUY2UNGLUE,
     THANKS,
-    DONATION_CHOICES,
 )
 from regluit.core.lookups import (
     OwnerLookup,
@@ -339,18 +338,11 @@ class DonationForm(forms.Form):
         decimal_places=2,
         label="Donation Amount",
     )
-    # Donations only support the General Fund now (#1230). Historical
+    # No `reason`/fund field (#1230): donations only support the General
+    # Fund now, hardcoded in NewDonationView.form_valid rather than read
+    # from POST data, so there's no field here to omit or spoof. Historical
     # transactions with reason="monographs" are unaffected -- FUNDS and
-    # Transaction.reason are untouched -- but new donations can no longer
-    # choose it, on this form or via a crafted POST. Kept as a hidden
-    # field (rather than dropped) so NewDonationView.form_valid's
-    # form.cleaned_data.get("reason", "") keeps working unchanged.
-    reason = forms.ChoiceField(
-        choices=(("general", "The FEF General Fund"),),
-        initial="general",
-        required=False,
-        widget=forms.HiddenInput(),
-    )
+    # Transaction.reason are untouched.
 
 
 class CampaignPledgeForm(forms.Form):
