@@ -371,7 +371,7 @@ ul.menu{
 
                 &:hover {
                     background: $call-to-action;
-                    a {
+                    a, button.notbutton {
                         color: white;
                     }
 
@@ -382,7 +382,7 @@ ul.menu{
                     }
                 }
 
-                a {
+                a, button.notbutton {
                     height: auto;
                     line-height: $font-size-larger*1.75;
                 }
@@ -404,7 +404,11 @@ ul.menu{
             }
 
             // <button> counterpart of .notbutton for the logout POST form
-            // (see button.link-button / form.logout-form above).
+            // (see button.link-button / form.logout-form above). Only
+            // font-family/font-size are reset -- NOT the `font` shorthand,
+            // which would silently clobber @include header-text's
+            // font-weight: bold (Codex round 1 caught this: the shorthand
+            // came after the mixin and un-bolded the button).
             button.notbutton {
                 @include header-text;
                 width: 100%;
@@ -412,7 +416,8 @@ ul.menu{
                 border: none;
                 margin: 0;
                 padding: 0;
-                font: inherit;
+                font-family: inherit;
+                font-size: inherit;
                 text-align: left;
                 cursor: pointer;
                 color: $text-blue;
