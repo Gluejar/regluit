@@ -148,10 +148,15 @@ class TestLogoutView(TestCase):
         # a crafted next= pointing off-site. This is Django's own guard
         # (url_has_allowed_host_and_scheme), exercised here through this
         # app's actual settings/URLconf as a regression/documentation test.
+        #
+        # Assert equality with the exact safe fallback (LOGOUT_REDIRECT_URL
+        # = '/'), not just "doesn't contain the evil hostname" -- a looser
+        # substring check would miss a bypass that lands somewhere else
+        # unsafe without literally containing that string (CC review,
+        # 2026-08-29).
         self.client.login(username='logouttester', password='secret')
         resp = self.client.post(reverse('logout'), data={'next': 'https://evil.example.com/phish'})
-        self.assertEqual(302, resp.status_code)
-        self.assertNotIn('evil.example.com', resp.url)
+        self.assertRedirects(resp, '/', fetch_redirect_response=False)
 
     def test_authenticated_nav_sign_out_is_a_post_form_not_a_get_link(self):
         # Renders base.html's authenticated nav and checks the "Sign Out"
