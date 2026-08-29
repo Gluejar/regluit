@@ -132,6 +132,34 @@ a {
     }
 }
 
+// <button> reset so a POST-only form (e.g. the logout form below --
+// LogoutView has been POST-only since Django 5.0) can look and act like
+// the plain-text <a> links above.
+button.link-button {
+    display: inline;
+    background: none;
+    border: none;
+    margin: 0;
+    padding: 0;
+    font: inherit;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+    color: $medium-blue;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+// Forms are block-level by default; keep one from breaking the
+// inline/floated flow it's dropped into (nav <li>, or mid-sentence).
+form.logout-form {
+    display: inline;
+    margin: 0;
+    padding: 0;
+}
+
 h1 {
 	font-size: $font-size-larger*1.5;
 }
@@ -372,6 +400,22 @@ ul.menu{
 
             .notbutton{
                 color:$text-blue;
+                line-height: 36px;
+            }
+
+            // <button> counterpart of .notbutton for the logout POST form
+            // (see button.link-button / form.logout-form above).
+            button.notbutton {
+                @include header-text;
+                width: 100%;
+                background: none;
+                border: none;
+                margin: 0;
+                padding: 0;
+                font: inherit;
+                text-align: left;
+                cursor: pointer;
+                color: $text-blue;
                 line-height: 36px;
             }
 

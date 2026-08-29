@@ -94,3 +94,59 @@ class TestAppConfigSignalsWired(TestCase):
             fn = ref if getattr(ref, '__name__', None) else (ref() if callable(ref) else None)
             names.append(getattr(fn, '__name__', None))
         self.assertIn('handle_same_email_account', names)
+
+
+class TestLogoutView(TestCase):
+    """Regression guard for the logout-405 incident (2026-08-29).
+
+    Django 5.0 removed GET support from django.contrib.auth.views.LogoutView
+    (deprecated in 4.1, flagged as a known follow-up in PR #1145, never
+    fixed). The 5.2 upgrade (PR #1203, live in prod 2026-08-26) exposed it:
+    every "Sign Out" / "log out" link in the site was a plain GET <a>, so
+    /accounts/logout/ started 405ing for real users. Fixed by turning those
+    links into POST forms (base.html's nav, gift_user_error.html,
+    pledge_user_error.html). These tests would have caught it.
+    """
+    fixtures = ['initial_data.json']
+
+    # A bare TemplateView (no view-layer business logic / DB lookups) that
+    # still extends base.html -- lets these tests exercise the real nav
+    # markup without depending on unrelated data (e.g. the homepage's
+    # featured-campaign query).
+    NAV_PAGE = '/accounts/superlogin/welcome/'
+
+    def setUp(self):
+        self.user = User.objects.create_user('logouttester', 'logouttester@example.org', 'secret')
+
+    def test_get_is_405(self):
+        # Documents the Django 5.0 behavior change itself, independent of
+        # any of this app's templates.
+        resp = self.client.get(reverse('logout'))
+        self.assertEqual(405, resp.status_code)
+        self.assertIn('POST', resp['Allow'])
+
+    def test_post_logs_out_and_redirects(self):
+        self.client.login(username='logouttester', password='secret')
+        resp = self.client.post(reverse('logout'))
+        self.assertEqual(302, resp.status_code)
+        # Session should no longer be authenticated.
+        resp = self.client.get(self.NAV_PAGE)
+        self.assertFalse(resp.wsgi_request.user.is_authenticated)
+
+    def test_post_honors_next(self):
+        self.client.login(username='logouttester', password='secret')
+        resp = self.client.post(reverse('logout'), data={'next': '/some/safe/path/'})
+        self.assertRedirects(resp, '/some/safe/path/', fetch_redirect_response=False)
+
+    def test_authenticated_nav_sign_out_is_a_post_form_not_a_get_link(self):
+        # Renders base.html's authenticated nav and checks the "Sign Out"
+        # control POSTs rather than being a plain <a href="/accounts/logout/">
+        # -- the exact shape of the original bug.
+        self.client.login(username='logouttester', password='secret')
+        resp = self.client.get(self.NAV_PAGE)
+        self.assertEqual(200, resp.status_code)
+        content = resp.content.decode('utf-8')
+        logout_url = reverse('logout')
+        self.assertNotIn("href=\"{}\"".format(logout_url), content)
+        self.assertNotIn("href='{}'".format(logout_url), content)
+        self.assertIn('action="{}"'.format(logout_url), content)
