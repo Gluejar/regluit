@@ -329,8 +329,42 @@ class TestGoogleLoginRemoved(TestCase):
     def test_google_oauth_begin_url_no_longer_reaches_google(self):
         # With the backend deregistered, python-social-auth must refuse the
         # begin URL rather than redirect to accounts.google.com -- otherwise
-        # a stale bookmark/crawled link would still complete a login.
+        # a stale bookmark/crawled link would still complete a login. With
+        # no 'google-oauth2' backend registered, /socialauth/ itself has no
+        # matching URL pattern, so this 404s (confirmed directly, not just
+        # "not a redirect" -- a defensive assertNotEqual(302, ...) would
+        # also pass for an unrelated 500, which isn't the guarantee this
+        # test exists to make. CC review, 2026-08-30).
         resp = self.client.get('/socialauth/login/google-oauth2/', follow=False)
-        self.assertNotEqual(302, resp.status_code)
-        if resp.status_code == 302:
-            self.assertNotIn('accounts.google.com', resp['Location'])
+        self.assertEqual(404, resp.status_code)
+
+    def test_gift_login_page_has_no_google_button(self):
+        # gift_login.html is rendered from receive_gift(), which needs a
+        # real Gift/Acquisition/Transaction chain this test doesn't set up.
+        # Render directly with a minimal fake context instead (same
+        # approach TestLogoutFormsInErrorTemplates uses below) -- covers
+        # the template Codex flagged as claimed-but-untested.
+        request = RequestFactory().get('/')
+        request.user = AnonymousUser()
+        html = render_to_string(
+            'gift_login.html',
+            {
+                'work': SimpleNamespace(id=1, title='A Test Work'),
+                'gift': SimpleNamespace(acq=SimpleNamespace(
+                    user=SimpleNamespace(username='giftee'),
+                    nonce='abc123',
+                )),
+            },
+            request=request,
+        )
+        self._assert_no_google_markup(html)
+
+    def test_from_pledge_page_has_no_google_button(self):
+        # Unlike the other four templates, from_pledge.html needed no
+        # Google-specific context (the removed block was the only thing
+        # that used `next`/`socials` here), so this needs nothing beyond
+        # an anonymous request.
+        request = RequestFactory().get('/')
+        request.user = AnonymousUser()
+        html = render_to_string('registration/from_pledge.html', {}, request=request)
+        self._assert_no_google_markup(html)
