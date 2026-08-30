@@ -329,12 +329,14 @@ class TestGoogleLoginRemoved(TestCase):
     def test_google_oauth_begin_url_no_longer_reaches_google(self):
         # With the backend deregistered, python-social-auth must refuse the
         # begin URL rather than redirect to accounts.google.com -- otherwise
-        # a stale bookmark/crawled link would still complete a login. With
-        # no 'google-oauth2' backend registered, /socialauth/ itself has no
-        # matching URL pattern, so this 404s (confirmed directly, not just
-        # "not a redirect" -- a defensive assertNotEqual(302, ...) would
-        # also pass for an unrelated 500, which isn't the guarantee this
-        # test exists to make. CC review, 2026-08-30).
+        # a stale bookmark/crawled link would still complete a login. The
+        # generic /socialauth/login/<backend>/ URL pattern still matches
+        # (that's not Google-specific), but social_django can't load
+        # 'google-oauth2' as a registered backend any more and raises
+        # Http404 -- confirmed directly rather than just asserting "not a
+        # redirect" (a defensive assertNotEqual(302, ...) would also pass
+        # for an unrelated 500, which isn't the guarantee this test exists
+        # to make. Codex review round 2, 2026-08-30).
         resp = self.client.get('/socialauth/login/google-oauth2/', follow=False)
         self.assertEqual(404, resp.status_code)
 
