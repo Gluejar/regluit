@@ -20,10 +20,11 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD",  '012345678901234567
 BOOXTREAM_API_KEY = os.environ.get("BOOXTREAM_API_KEY", None) # 30 chars
 BOOXTREAM_API_USER = os.environ.get("BOOXTREAM_API_USER", 'user')
 
-# https://console.developers.google.com/apis/credentials/oauthclient/
-# unglue.it (prod) SOCIAL_AUTH_GOOGLE_OAUTH2_KEY #2
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get("_KEY", '012345678901-01234567890123456789012345678901.apps.googleusercontent.com')
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get("_SECRET", '012345678901234567890123')
+# Google OAuth2 login removed 2026-08-30 (see settings/common.py) -- the
+# SOCIAL_AUTH_GOOGLE_OAUTH2_KEY/_SECRET this used to define are unused now.
+# The real values on each host's settings/keys/host.py (gitignored, not in
+# this checkout) are likewise dead and can be dropped by whoever manages the
+# ansible vault; not touched here.
 
 AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID", '01234567890123456789')
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY", '') # 40 chars

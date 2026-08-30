@@ -161,9 +161,6 @@ function put_un_in_cookie2(){
                             <div class="button">
                                 <input type="submit" class="signup" value="Sign Up Now"  onclick="this.disabled=true,this.form.submit();" />
                             </div>
-                            <div class="google_signup" style="padding-bottom: 10px;">
-                               <a  class="btn btn-social btn-google-plus" href="{% url 'social:begin' "google-oauth2" %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}/next/{% endif %}" ><i class="fa fa-google"></i>Sign Up with Google</a>
-                            </div>
                           </form>
                         </div>
                     </div>

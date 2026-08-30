@@ -293,8 +293,14 @@ ACCOUNT_ACTIVATION_DAYS = 30
 SESSION_COOKIE_AGE = 604800 # 7 days
 
 # django-socialauth
+# Google OAuth2 login removed 2026-08-30 (Eric: "lets remove the log in with
+# google button" -- Gmail thread 1a04cd3f47fac2a2, in response to Google's
+# unused-OAuth-client notice; client 569579163337-... left inactive to expire
+# ~Sept 25, 2026). social_django / OpenIdAuth stay installed: OpenIdAuth is
+# still a registered (if unused) backend, and existing Google-linked users'
+# UserSocialAuth rows must remain queryable, so the app/pipeline/URLs are
+# untouched -- only the Google-specific backend + its templates/settings go.
 AUTHENTICATION_BACKENDS = (
-    'social_core.backends.google.GoogleOAuth2',
     'social_core.backends.open_id.OpenIdAuth',
     'django.contrib.auth.backends.ModelBackend',
 )

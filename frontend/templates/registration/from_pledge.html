@@ -68,13 +68,6 @@ function put_un_in_cookie(){
               </form>
 
         </div>
-        <div  class="halfcolumn1 login_box">
-            <h3>Use Google to Sign In:</h3> 
-            <div class="google_signup{% if socials %} errorlist{% endif %}">
-   <a  class="btn btn-social btn-google-plus" href="{% url 'social:begin' "google-oauth2" %}?next={{ next }}" ><i class="fa fa-google"></i>Sign in with Google</a>
-            
-            </div>
-        </div>
         <div class="halfcolumn1  login_box">
             <h3>Already Have an Unglue.it Account?</h3>
             <a href="{% url 'libraryauth_password_reset' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Forgot</a> your password?  </li>

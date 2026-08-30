@@ -29,12 +29,6 @@ function put_un_in_cookie(){
 		<input type="hidden" name="tries" value="{{ puzzans }}" />
         <input type="submit" value="Send activation email"  onclick="this.disabled=true,this.form.submit();" />
     </form>
-
-
-<div class="google_signup">
-	<h3>...or</h3>
-   <a  class="btn btn-social btn-google-plus" href="{% url 'social:begin' "google-oauth2" %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}/next/{% endif %}" ><i class="fa fa-google"></i>Sign in with Google</a>
-</div>
 {% else %}
 <div>
 You are already logged in as <a href="{% url 'supporter' user %}">{{ user.username }}</a>.
