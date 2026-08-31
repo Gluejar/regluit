@@ -444,11 +444,13 @@ class CampaignRetirementTests(TestCase):
 
 
 class LoginDoubleSubmitGuardTests(TestCase):
-    """Smoke tests pinning the #1240 double-submit guard in place.
+    """Tests pinning the #1240 double-submit guard in place.
 
-    The guard itself is client-side JS (static/js/sitewide1.js); these tests
-    assert the wiring that makes it effective: the login form posts to the
-    URL the guard watches, and every page loads the script that carries it.
+    The guard itself is client-side JS (static/js/sitewide1.js). Its behavior
+    is exercised by a dependency-free Node test (run here when node is
+    available); the Django-side tests assert the wiring that makes the guard
+    effective: the login form posts to the URL the guard watches, and every
+    page loads the script that carries it.
     """
 
     def test_login_page_wires_up_guard(self):
@@ -460,13 +462,21 @@ class LoginDoubleSubmitGuardTests(TestCase):
         # the login form still posts to the action the guard is scoped to
         self.assertIn('action="/accounts/superlogin/"', content)
 
-    def test_sitewide_js_contains_guard(self):
+    def test_guard_behavior_via_node(self):
         import os
-        path = os.path.join(
+        import shutil
+        import subprocess
+        import unittest
+        if not shutil.which("node"):
+            raise unittest.SkipTest("node not available")
+        test_js = os.path.join(
             os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-            "static", "js", "sitewide1.js",
+            "static", "js", "tests", "login_guard_test.js",
         )
-        with open(path) as f:
-            js = f.read()
-        self.assertIn("data-login-submitted", js)
-        self.assertIn("/accounts/superlogin/", js)
+        result = subprocess.run(
+            ["node", test_js], capture_output=True, text=True, timeout=30,
+        )
+        self.assertEqual(
+            result.returncode, 0,
+            "guard behavioral tests failed:\n%s\n%s" % (result.stdout, result.stderr),
+        )

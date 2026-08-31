@@ -84,6 +84,7 @@ $j(document).ready(function() {
     });
 });
 
+// #1240-guard-start (markers used by the Node behavioral test; keep them)
 // Guard the password login form against duplicate submissions (#1240).
 //
 // Password managers can auto-submit the login form right after autofilling
@@ -91,47 +92,72 @@ $j(document).ready(function() {
 // POST carries the pre-login CSRF token -- Django rotates the CSRF cookie on
 // every successful login -- so the user sees a bare 403 page even though the
 // first POST already logged them in. First submission wins; any further
-// submission of the same form is ignored while the first is in flight.
+// login submission is blocked while it is in flight.
 //
-// A document-level delegated listener is required (not an inline script in
-// login_form.html): the sign-in lightbox is injected via jQuery
-// .load(url + " #lightbox_content"), which strips <script> tags from the
-// loaded fragment.
+// Design notes:
+// - Document-level delegated listeners are required (not an inline script in
+//   login_form.html): the sign-in lightbox is injected via jQuery
+//   .load(url + " #lightbox_content"), which strips <script> tags from the
+//   loaded fragment.
+// - The lock is module-global, not per form node: a page can hold more than
+//   one copy of the login form (standalone page + lightbox), and reopening
+//   the lightbox creates a fresh node. One login in flight locks them all.
+// - Capture phase blocks; bubble phase acquires. Acquiring on bubble means a
+//   submission some other handler already cancelled is not counted as "in
+//   flight"; blocking on capture means a locked submission is stopped before
+//   other handlers run.
+// - No timed unlock: unlocking on a timer while a slow login navigation is
+//   still pending would allow a resubmission with the stale token -- the
+//   exact bug this guards against. If navigation fails outright (network
+//   down), the user reloads; the disabled button makes the state visible.
+// - bfcache: a page restored via back/forward still holds the lock and a
+//   pre-login CSRF token, so reload it for fresh state.
 (function () {
+    var LOGIN_PATH = '/accounts/superlogin/';
+    var loginSubmitInFlight = false;
+
+    function isLoginForm(node) {
+        if (!node || node.nodeName !== 'FORM' || !node.getAttribute) {
+            return false;
+        }
+        var action = node.getAttribute('action') || '';
+        try {
+            return new URL(action, window.location.href).pathname === LOGIN_PATH;
+        } catch (err) {
+            return false;
+        }
+    }
+
+    // Capture phase: block any login submission while one is in flight.
     document.addEventListener('submit', function (event) {
-        var form = event.target;
-        if (!form || !form.getAttribute) {
-            return;
-        }
-        var action = form.getAttribute('action') || '';
-        if (action.indexOf('/accounts/superlogin/') === -1) {
-            return;
-        }
-        // Another handler (or the browser) already cancelled this
-        // submission; don't count it as the one in flight.
-        if (event.defaultPrevented) {
-            return;
-        }
-        if (form.getAttribute('data-login-submitted') === 'true') {
+        if (loginSubmitInFlight && isLoginForm(event.target)) {
             event.preventDefault();
+        }
+    }, true);
+
+    // Bubble phase: acquire the lock, unless another handler cancelled
+    // this submission.
+    document.addEventListener('submit', function (event) {
+        if (!isLoginForm(event.target) || event.defaultPrevented) {
             return;
         }
-        form.setAttribute('data-login-submitted', 'true');
-        // Disable the button only after this submission's form data has been
-        // captured, purely as visual feedback. Re-enable after a while in
-        // case navigation never happens (e.g. network failure), so the form
-        // is not permanently stuck.
+        loginSubmitInFlight = true;
+        var form = event.target;
+        // Disable the button only after this submission's form data has
+        // been captured (a disabled control would be dropped from it);
+        // purely visual feedback.
         window.setTimeout(function () {
             var button = form.querySelector('input[type=submit], button[type=submit]');
             if (button) {
                 button.disabled = true;
             }
-            window.setTimeout(function () {
-                form.removeAttribute('data-login-submitted');
-                if (button) {
-                    button.disabled = false;
-                }
-            }, 8000);
         }, 0);
     });
+
+    window.addEventListener('pageshow', function (event) {
+        if (event.persisted && loginSubmitInFlight) {
+            window.location.reload();
+        }
+    });
 })();
+// #1240-guard-end
