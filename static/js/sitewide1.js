@@ -95,25 +95,28 @@ $j(document).ready(function() {
 // login submission is blocked while it is in flight.
 //
 // Design notes:
-// - Document-level delegated listeners are required (not an inline script in
+// - Document/window-level delegation is required (not an inline script in
 //   login_form.html): the sign-in lightbox is injected via jQuery
 //   .load(url + " #lightbox_content"), which strips <script> tags from the
 //   loaded fragment.
+// - The listener sits on WINDOW in the capture phase -- the earliest point
+//   on the propagation path -- so no document/target/ancestor handler can
+//   stopPropagation() the event away from the guard.
 // - The lock is module-global, not per form node: a page can hold more than
 //   one copy of the login form (standalone page + lightbox), and reopening
 //   the lightbox creates a fresh node. One login in flight locks them all.
-// - Everything happens in ONE document capture-phase listener, which runs
-//   before any target/ancestor handler can stopPropagation() the event away
-//   from us. The lock is acquired provisionally; a deferred (post-dispatch)
-//   check releases it again if some later handler cancelled the submission,
-//   so a cancelled submission never leaves the lock stuck.
-// - A blocked submission is stopped with stopImmediatePropagation() too, so
-//   downstream submit handlers cannot run side effects for it, and the
-//   blocked form's button is disabled so the state is visible.
-// - No timed unlock: unlocking on a timer while a slow login navigation is
-//   still pending would allow a resubmission with the stale token -- the
-//   exact bug this guards against. If navigation fails outright (network
-//   down), the user reloads; the disabled button makes the state visible.
+// - FAIL-CLOSED by design: once acquired, the lock is held until navigation
+//   or bfcache restore. A hypothetical future handler that cancels (or
+//   cancel-and-replaces) a login submission would leave the lock held --
+//   a visibly stuck form fixed by reload -- rather than risk releasing it
+//   while a POST is in flight, which would recreate the CSRF bug this
+//   guards against. (No such handler exists in this codebase today; the
+//   synchronous defaultPrevented check below covers anything that cancelled
+//   the event before the guard saw it.)
+// - A blocked submission is cancelled with preventDefault +
+//   stopImmediatePropagation, so downstream submit handlers cannot run side
+//   effects for it, and the button that triggered it is disabled so the
+//   state is visible.
 // - bfcache: a page restored via back/forward still holds the lock and a
 //   pre-login CSRF token, so reload it for fresh state.
 (function () {
@@ -134,44 +137,40 @@ $j(document).ready(function() {
         }
     }
 
-    function submitButtonOf(form) {
-        return form.querySelector('input[type=submit], button[type=submit]');
+    // The control that actually triggered the submission when the browser
+    // reports it (event.submitter); the form's first submit control as a
+    // fallback (implicit Enter-key submission, older engines).
+    function buttonFor(event, form) {
+        return event.submitter ||
+            form.querySelector('input[type=submit], button[type=submit]');
     }
 
-    document.addEventListener('submit', function (event) {
+    window.addEventListener('submit', function (event) {
         var form = event.target;
         if (!isLoginForm(form)) {
             return;
         }
+        if (event.defaultPrevented) {
+            // Cancelled before the guard saw it; no POST will happen.
+            return;
+        }
         if (loginSubmitInFlight) {
             // A login POST is already pending: cancel this one outright and
-            // keep downstream handlers from acting on it.
+            // keep every later handler from acting on it.
             event.preventDefault();
-            if (event.stopImmediatePropagation) {
-                event.stopImmediatePropagation();
-            } else {
-                event.stopPropagation();
-            }
-            var blockedButton = submitButtonOf(form);
+            event.stopImmediatePropagation();
+            var blockedButton = buttonFor(event, form);
             if (blockedButton) {
                 blockedButton.disabled = true;
             }
             return;
         }
-        // Acquire provisionally; confirm after the dispatch (and the
-        // browser's default action decision) has completed.
         loginSubmitInFlight = true;
+        // Disable the button only after this submission's form data has
+        // been captured (a disabled control would be dropped from it);
+        // purely visual feedback.
         window.setTimeout(function () {
-            if (event.defaultPrevented) {
-                // Some later handler cancelled this submission -- no POST
-                // happened, so release the lock.
-                loginSubmitInFlight = false;
-                return;
-            }
-            // The POST is really in flight. Disable the button only now,
-            // after the submission's form data has been captured (a
-            // disabled control would have been dropped from it).
-            var button = submitButtonOf(form);
+            var button = buttonFor(event, form);
             if (button) {
                 button.disabled = true;
             }
