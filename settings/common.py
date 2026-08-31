@@ -265,6 +265,17 @@ LOGGING = {
             'handlers': ['downloads'],
             'propagate': False,
         },
+        # Without an explicit entry here, LOGGING's disable_existing_loggers
+        # (True, above) disables this logger outright the moment
+        # settings/common.py imports regluit.utils.safe_email_backend --
+        # verified live (Codex review round 2, 2026-08-31): its ERROR calls
+        # (the ones meant to make a Celery-swallowed send refusal visible;
+        # see EMAIL_SAFE_MODE below) silently did nothing without this.
+        'regluit.utils.safe_email_backend': {
+            'handlers': ['file'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
         '': {
             'handlers': ['file'],
             'level': 'INFO',

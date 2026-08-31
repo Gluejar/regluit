@@ -1,3 +1,4 @@
+import logging
 import os
 from unittest import mock
 from unittest.mock import MagicMock
@@ -11,6 +12,20 @@ from regluit.utils.safe_email_backend import (
     _is_allowed,
     resolve_email_backend,
 )
+
+
+class TestLoggerNotDisabled(TestCase):
+    def test_safe_email_backend_logger_is_not_disabled(self):
+        # settings/common.py's LOGGING sets disable_existing_loggers=True;
+        # without an explicit 'regluit.utils.safe_email_backend' entry in
+        # LOGGING['loggers'], that silently disables this module's logger
+        # the moment settings/common.py imports it -- meaning the ERROR
+        # log call in _redirect_if_needed() (the one specifically there to
+        # make a Celery-swallowed send-refusal visible) would do nothing.
+        # Verified live and fixed in settings/common.py (Codex review
+        # round 2, 2026-08-31).
+        log = logging.getLogger('regluit.utils.safe_email_backend')
+        self.assertFalse(log.disabled)
 
 
 class TestIsAllowed(TestCase):
@@ -40,6 +55,15 @@ class TestIsAllowed(TestCase):
         # just because of the display-name wrapper (CC review, 2026-08-31).
         self.assertTrue(_is_allowed(
             'Eric Hellman <eric@ebookfoundation.org>', {'ebookfoundation.org'}, set(),
+        ))
+
+    def test_malformed_compound_value_fails_closed(self):
+        # Real bypass found by Codex review round 2, 2026-08-31:
+        # parseaddr("real@example.com, ok@allowed.org") returns ('', '') --
+        # an unparseable non-empty value used to be treated the same as
+        # "no recipient here" and let through. It must fail closed instead.
+        self.assertFalse(_is_allowed(
+            'real@example.com, ok@ebookfoundation.org', {'ebookfoundation.org'}, set(),
         ))
 
 
@@ -153,9 +177,14 @@ class TestAllowlistEmailBackend(TestCase):
         # loudly so the gap gets noticed and configured, not shipped quiet.
         backend = self._backend_with_fake_real()
         msg = EmailMessage(subject='x', body='y', to=['realuser@example.com'])
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(RuntimeError) as ctx:
             backend.send_messages([msg])
         backend.real_backend.send_messages.assert_not_called()
+        # The exception text itself must not carry the real address either
+        # -- a count is enough to diagnose; whatever catches/logs this
+        # exception elsewhere shouldn't become a second PII leak (Codex
+        # review round 2, 2026-08-31).
+        self.assertNotIn('realuser@example.com', str(ctx.exception))
 
     def test_empty_message_list_is_a_noop(self):
         backend = self._backend_with_fake_real()

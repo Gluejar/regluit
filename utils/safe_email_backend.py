@@ -15,9 +15,9 @@ message:
 - lets it through unchanged if every recipient (To/Cc/Bcc) is on the
   allowlist (``EMAIL_SAFE_MODE_ALLOWED_DOMAINS`` / ``_ADDRESSES``);
 - otherwise redirects the *whole* message to
-  ``EMAIL_SAFE_MODE_REDIRECT_TO``, with the original recipients recorded in
-  the subject and appended to the body, so a tester can still see what
-  *would* have gone out;
+  ``EMAIL_SAFE_MODE_REDIRECT_TO``, with the original recipients appended to
+  the body (subject stays generic), so a tester can still see what *would*
+  have gone out;
 - refuses to send (raises, rather than silently dropping or silently
   delivering to an unknown address) if a message needs redirecting but no
   ``EMAIL_SAFE_MODE_REDIRECT_TO`` is configured.
@@ -81,12 +81,23 @@ def _bare_address(address):
 
 
 def _is_allowed(address, allowed_domains, allowed_addresses):
-    address = _bare_address(address).strip().lower()
-    if not address:
-        return True  # nothing to protect against an empty recipient slot
-    if address in allowed_addresses:
+    raw = (address or '').strip()
+    if not raw:
+        return True  # nothing to protect against an unused recipient slot
+    parsed = _bare_address(raw).strip().lower()
+    if not parsed:
+        # Non-empty input that parseaddr couldn't extract a clean address
+        # from -- e.g. a malformed compound value like
+        # "real@example.com, ok@allowed.org" parses to ('', ''), which
+        # earlier treated the same as "nothing here" and let it through
+        # unredirected (real fail-open bypass, Codex review round 2,
+        # 2026-08-31, verified live: parseaddr() really does return that).
+        # An unparseable-but-nonempty value is suspicious, not harmless --
+        # fail closed.
+        return False
+    if parsed in allowed_addresses:
         return True
-    domain = address.rsplit('@', 1)[-1] if '@' in address else ''
+    domain = parsed.rsplit('@', 1)[-1] if '@' in parsed else ''
     return bool(domain) and domain in allowed_domains
 
 
@@ -142,21 +153,26 @@ class AllowlistEmailBackend(BaseEmailBackend):
             return message
 
         if not self.redirect_to:
+            # Log at ERROR (not just raise) because Celery's send_mail_task
+            # swallows exceptions from backends without re-raising, which
+            # would otherwise make this look like a silently dropped
+            # email. Deliberately does NOT log the actual recipient
+            # addresses -- that would recreate the exact PII-in-logs
+            # exposure the subject/body split above exists to avoid
+            # (Codex review round 2, 2026-08-31); a count is enough to
+            # know something needs fixing.
             logger.error(
-                "AllowlistEmailBackend: refusing to send a message to %r -- "
-                "not fully allowlisted and no EMAIL_SAFE_MODE_REDIRECT_TO "
-                "configured. Logged at ERROR (not just raised) because "
-                "Celery's send_mail_task swallows exceptions from backends "
-                "without re-raising, which would otherwise make this look "
-                "like a silently dropped email.",
-                recipients,
+                "AllowlistEmailBackend: refusing to send a message "
+                "(subject=%r) to %d recipient(s) -- not fully allowlisted "
+                "and no EMAIL_SAFE_MODE_REDIRECT_TO configured.",
+                message.subject, len(recipients),
             )
             raise RuntimeError(
-                "AllowlistEmailBackend: message to {!r} is not fully "
-                "allowlisted (EMAIL_SAFE_MODE_ALLOWED_DOMAINS/_ADDRESSES) "
-                "and EMAIL_SAFE_MODE_REDIRECT_TO is not set, so there's "
-                "nowhere safe to send it. Refusing to send rather than "
-                "guess.".format(recipients)
+                "AllowlistEmailBackend: a message to {} recipient(s) is not "
+                "fully allowlisted (EMAIL_SAFE_MODE_ALLOWED_DOMAINS/"
+                "_ADDRESSES) and EMAIL_SAFE_MODE_REDIRECT_TO is not set, so "
+                "there's nowhere safe to send it. Refusing to send rather "
+                "than guess.".format(len(recipients))
             )
 
         redirected = copy.copy(message)
@@ -186,7 +202,8 @@ class AllowlistEmailBackend(BaseEmailBackend):
             raise RuntimeError(
                 "AllowlistEmailBackend: rewriting recipients to the "
                 "redirect target didn't take effect (message.recipients() "
-                "still returns {!r}) -- this message type can't be safely "
-                "redirected. Refusing to send.".format(actual)
+                "still returns {} address(es), not just the redirect "
+                "target) -- this message type can't be safely redirected. "
+                "Refusing to send.".format(len(actual))
             )
         return redirected
