@@ -441,3 +441,32 @@ class CampaignRetirementTests(TestCase):
         for work in (self.work, self.b2u_work):
             r = anon_client.get("/work/{}/".format(work.id))
             self.assertEqual(r.status_code, 200)
+
+
+class LoginDoubleSubmitGuardTests(TestCase):
+    """Smoke tests pinning the #1240 double-submit guard in place.
+
+    The guard itself is client-side JS (static/js/sitewide1.js); these tests
+    assert the wiring that makes it effective: the login form posts to the
+    URL the guard watches, and every page loads the script that carries it.
+    """
+
+    def test_login_page_wires_up_guard(self):
+        r = Client().get("/accounts/superlogin/")
+        self.assertEqual(r.status_code, 200)
+        content = r.content.decode()
+        # base.html loads the sitewide script that contains the guard
+        self.assertIn("/static/js/sitewide1.js", content)
+        # the login form still posts to the action the guard is scoped to
+        self.assertIn('action="/accounts/superlogin/"', content)
+
+    def test_sitewide_js_contains_guard(self):
+        import os
+        path = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "static", "js", "sitewide1.js",
+        )
+        with open(path) as f:
+            js = f.read()
+        self.assertIn("data-login-submitted", js)
+        self.assertIn("/accounts/superlogin/", js)

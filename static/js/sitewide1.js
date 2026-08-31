@@ -83,3 +83,55 @@ $j(document).ready(function() {
         event.stopPropagation();
     });
 });
+
+// Guard the password login form against duplicate submissions (#1240).
+//
+// Password managers can auto-submit the login form right after autofilling
+// it. If the user then clicks "Sign in with Password" themselves, the second
+// POST carries the pre-login CSRF token -- Django rotates the CSRF cookie on
+// every successful login -- so the user sees a bare 403 page even though the
+// first POST already logged them in. First submission wins; any further
+// submission of the same form is ignored while the first is in flight.
+//
+// A document-level delegated listener is required (not an inline script in
+// login_form.html): the sign-in lightbox is injected via jQuery
+// .load(url + " #lightbox_content"), which strips <script> tags from the
+// loaded fragment.
+(function () {
+    document.addEventListener('submit', function (event) {
+        var form = event.target;
+        if (!form || !form.getAttribute) {
+            return;
+        }
+        var action = form.getAttribute('action') || '';
+        if (action.indexOf('/accounts/superlogin/') === -1) {
+            return;
+        }
+        // Another handler (or the browser) already cancelled this
+        // submission; don't count it as the one in flight.
+        if (event.defaultPrevented) {
+            return;
+        }
+        if (form.getAttribute('data-login-submitted') === 'true') {
+            event.preventDefault();
+            return;
+        }
+        form.setAttribute('data-login-submitted', 'true');
+        // Disable the button only after this submission's form data has been
+        // captured, purely as visual feedback. Re-enable after a while in
+        // case navigation never happens (e.g. network failure), so the form
+        // is not permanently stuck.
+        window.setTimeout(function () {
+            var button = form.querySelector('input[type=submit], button[type=submit]');
+            if (button) {
+                button.disabled = true;
+            }
+            window.setTimeout(function () {
+                form.removeAttribute('data-login-submitted');
+                if (button) {
+                    button.disabled = false;
+                }
+            }, 8000);
+        }, 0);
+    });
+})();
