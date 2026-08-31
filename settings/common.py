@@ -562,3 +562,20 @@ STORAGES = {
 
 # we wond't record downloads for an ebook if their more than this in a month
 DOWNLOAD_LOGS_MAX = 499
+
+# Non-production email safety net (regluit#1238). A staging/test box whose
+# database has been refreshed from a copy of production holds real users'
+# real email addresses -- without this, its normal mail-sending code
+# (password resets, gift notices, campaign emails, ...) would deliver to
+# those real people. Off by default (empty string) so production, and any
+# environment that hasn't explicitly opted in, are unaffected.
+EMAIL_SAFE_MODE = os.environ.get('EMAIL_SAFE_MODE', '').strip().lower() in ('1', 'true', 'yes')
+if EMAIL_SAFE_MODE:
+    SAFE_EMAIL_REAL_BACKEND = os.environ.get(
+        'SAFE_EMAIL_REAL_BACKEND',
+        globals().get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend'),
+    )
+    EMAIL_BACKEND = 'regluit.utils.safe_email_backend.AllowlistEmailBackend'
+    EMAIL_SAFE_MODE_ALLOWED_DOMAINS = os.environ.get('EMAIL_SAFE_MODE_ALLOWED_DOMAINS', '')
+    EMAIL_SAFE_MODE_ALLOWED_ADDRESSES = os.environ.get('EMAIL_SAFE_MODE_ALLOWED_ADDRESSES', '')
+    EMAIL_SAFE_MODE_REDIRECT_TO = os.environ.get('EMAIL_SAFE_MODE_REDIRECT_TO', '')
