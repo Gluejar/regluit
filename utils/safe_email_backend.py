@@ -27,12 +27,22 @@ of behavior that made two earlier staging-email incidents (regluit#1164,
 regluit-provisioning#22) more confusing to diagnose than they needed to be:
 "nothing happened" looks identical to "it's broken" and to "it's working
 correctly," and no one incident is more common than the others.
+
+Deploying this to an actual box (setting EMAIL_SAFE_MODE=true + an
+allowlist/redirect address in its environment, for both the web process AND
+Celery) is a separate, provisioning-side step -- not done by this module
+existing in the codebase. See regluit#1238.
 """
 import copy
+import logging
 import os
+from email.utils import parseaddr
 
 from django.conf import settings
+from django.core.mail.backends.base import BaseEmailBackend
 from django.utils.module_loading import import_string
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_REAL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 ALLOWLIST_BACKEND_PATH = 'regluit.utils.safe_email_backend.AllowlistEmailBackend'
@@ -64,8 +74,14 @@ def resolve_email_backend(email_safe_mode, current_backend, env=None):
     return real_backend, ALLOWLIST_BACKEND_PATH
 
 
+def _bare_address(address):
+    """Extract the bare address from an optional 'Display Name <addr>' form."""
+    _, addr = parseaddr(address or '')
+    return addr
+
+
 def _is_allowed(address, allowed_domains, allowed_addresses):
-    address = (address or '').strip().lower()
+    address = _bare_address(address).strip().lower()
     if not address:
         return True  # nothing to protect against an empty recipient slot
     if address in allowed_addresses:
@@ -74,16 +90,22 @@ def _is_allowed(address, allowed_domains, allowed_addresses):
     return bool(domain) and domain in allowed_domains
 
 
-class AllowlistEmailBackend:
-    """Wraps another EMAIL_BACKEND, redirecting non-allowlisted mail."""
+class AllowlistEmailBackend(BaseEmailBackend):
+    """Wraps another EMAIL_BACKEND, redirecting non-allowlisted mail.
+
+    Subclasses Django's BaseEmailBackend (not a bare object) so it supports
+    everything the real interface promises, including use as a context
+    manager (`with get_connection() as conn: ...`) -- caught missing in CC
+    review, 2026-08-31.
+    """
 
     def __init__(self, fail_silently=False, **kwargs):
+        super().__init__(fail_silently=fail_silently, **kwargs)
         real_backend_path = getattr(
             settings, 'SAFE_EMAIL_REAL_BACKEND', DEFAULT_REAL_BACKEND
         )
         real_backend_cls = import_string(real_backend_path)
         self.real_backend = real_backend_cls(fail_silently=fail_silently, **kwargs)
-        self.fail_silently = fail_silently
 
         self.allowed_domains = {
             d.strip().lower()
@@ -110,11 +132,25 @@ class AllowlistEmailBackend:
         return self.real_backend.send_messages(prepared)
 
     def _redirect_if_needed(self, message):
-        recipients = list(message.to) + list(message.cc) + list(message.bcc)
+        # message.recipients() -- not message.to/.cc/.bcc directly -- is
+        # Django's own authoritative list of who a message actually goes
+        # to; a message subclass can override it to include recipients
+        # that never appear in .to/.cc/.bcc at all. Checking .to/.cc/.bcc
+        # would miss those (CC review, 2026-08-31).
+        recipients = list(message.recipients())
         if all(_is_allowed(r, self.allowed_domains, self.allowed_addresses) for r in recipients):
             return message
 
         if not self.redirect_to:
+            logger.error(
+                "AllowlistEmailBackend: refusing to send a message to %r -- "
+                "not fully allowlisted and no EMAIL_SAFE_MODE_REDIRECT_TO "
+                "configured. Logged at ERROR (not just raised) because "
+                "Celery's send_mail_task swallows exceptions from backends "
+                "without re-raising, which would otherwise make this look "
+                "like a silently dropped email.",
+                recipients,
+            )
             raise RuntimeError(
                 "AllowlistEmailBackend: message to {!r} is not fully "
                 "allowlisted (EMAIL_SAFE_MODE_ALLOWED_DOMAINS/_ADDRESSES) "
@@ -128,12 +164,29 @@ class AllowlistEmailBackend:
         redirected.to = [self.redirect_to]
         redirected.cc = []
         redirected.bcc = []
-        redirected.subject = '[STAGING, would have gone to: {}] {}'.format(
-            original_recipients, message.subject
+        # Deliberately generic subject -- subjects are far more likely than
+        # bodies to end up in SMTP logs, mailbox indexing, or downstream
+        # notifications, so the original recipients (real PII once a box
+        # holds a prod DB copy) go in the body only (CC review, 2026-08-31).
+        redirected.subject = '[STAGING - redirected by AllowlistEmailBackend] {}'.format(
+            message.subject
         )
         redirect_note = (
             '\n\n---\n[Redirected by AllowlistEmailBackend -- this message was '
             'addressed to: {}]\n'.format(original_recipients)
         )
         redirected.body = (message.body or '') + redirect_note
+
+        # Belt-and-suspenders: if message.recipients() is overridden in a
+        # way that setting .to/.cc/.bcc doesn't actually change, refuse to
+        # send rather than assume the rewrite worked (CC review,
+        # 2026-08-31).
+        actual = list(redirected.recipients())
+        if actual != [self.redirect_to]:
+            raise RuntimeError(
+                "AllowlistEmailBackend: rewriting recipients to the "
+                "redirect target didn't take effect (message.recipients() "
+                "still returns {!r}) -- this message type can't be safely "
+                "redirected. Refusing to send.".format(actual)
+            )
         return redirected

@@ -35,6 +35,13 @@ class TestIsAllowed(TestCase):
         # 'ebookfoundation.org' via a loose substring check.
         self.assertFalse(_is_allowed('x@notebookfoundation.org', {'ebookfoundation.org'}, set()))
 
+    def test_display_name_form_is_parsed(self):
+        # "Person <addr>" must match on the bare address, not fail closed
+        # just because of the display-name wrapper (CC review, 2026-08-31).
+        self.assertTrue(_is_allowed(
+            'Eric Hellman <eric@ebookfoundation.org>', {'ebookfoundation.org'}, set(),
+        ))
+
 
 @override_settings(
     EMAIL_SAFE_MODE_ALLOWED_DOMAINS='ebookfoundation.org,gluejar.com',
@@ -71,7 +78,6 @@ class TestAllowlistEmailBackend(TestCase):
         backend.send_messages([msg])
         sent = backend.real_backend.send_messages.call_args[0][0]
         self.assertEqual(['staging-catchall@ebookfoundation.org'], sent[0].to)
-        self.assertIn('realuser@example.com', sent[0].subject)
         self.assertIn('realuser@example.com', sent[0].body)
         # The original message object passed in by calling code is never
         # mutated -- only the copy handed to the real backend is changed.
@@ -87,7 +93,7 @@ class TestAllowlistEmailBackend(TestCase):
         sent = backend.real_backend.send_messages.call_args[0][0]
         self.assertEqual(['staging-catchall@ebookfoundation.org'], sent[0].to)
 
-    def test_cc_and_bcc_are_checked_too(self):
+    def test_cc_is_checked_too(self):
         backend = self._backend_with_fake_real()
         msg = EmailMessage(
             subject='Notice', body='body', to=['someone@ebookfoundation.org'],
@@ -97,6 +103,49 @@ class TestAllowlistEmailBackend(TestCase):
         sent = backend.real_backend.send_messages.call_args[0][0]
         self.assertEqual(['staging-catchall@ebookfoundation.org'], sent[0].to)
         self.assertEqual([], sent[0].cc)
+
+    def test_bcc_is_checked_too(self):
+        backend = self._backend_with_fake_real()
+        msg = EmailMessage(
+            subject='Notice', body='body', to=['someone@ebookfoundation.org'],
+            bcc=['realuser@example.com'],
+        )
+        backend.send_messages([msg])
+        sent = backend.real_backend.send_messages.call_args[0][0]
+        self.assertEqual(['staging-catchall@ebookfoundation.org'], sent[0].to)
+        self.assertEqual([], sent[0].bcc)
+
+    def test_subject_stays_generic_pii_goes_in_body_only(self):
+        # Subjects are far more likely than bodies to end up in SMTP logs
+        # or mailbox indexing -- the real recipient must not appear there
+        # (CC review, 2026-08-31).
+        backend = self._backend_with_fake_real()
+        msg = EmailMessage(subject='Password reset', body='click here', to=['realuser@example.com'])
+        backend.send_messages([msg])
+        sent = backend.real_backend.send_messages.call_args[0][0]
+        self.assertNotIn('realuser@example.com', sent[0].subject)
+        self.assertIn('realuser@example.com', sent[0].body)
+
+    def test_overridden_recipients_that_bypass_to_cc_bcc_are_caught(self):
+        # A message subclass could override recipients() to include an
+        # address that never appears in .to/.cc/.bcc at all -- checking
+        # only .to/.cc/.bcc would let it straight through unredirected.
+        # Real bypass found by CC review, 2026-08-31; fixed by checking
+        # message.recipients() instead.
+        class SneakyMessage(EmailMessage):
+            def recipients(self):
+                return list(super().recipients()) + ['hidden-real@example.com']
+
+        backend = self._backend_with_fake_real()
+        msg = SneakyMessage(subject='Notice', body='body', to=['someone@ebookfoundation.org'])
+        # The hidden hardcoded recipient can't be cleared by setting
+        # .to/.cc/.bcc (recipients() is overridden to always add it back),
+        # so the belt-and-suspenders post-rewrite check must refuse to
+        # send it at all rather than pass it through as if it had been
+        # safely redirected.
+        with self.assertRaises(RuntimeError):
+            backend.send_messages([msg])
+        backend.real_backend.send_messages.assert_not_called()
 
     @override_settings(EMAIL_SAFE_MODE_REDIRECT_TO='')
     def test_refuses_to_send_without_a_redirect_target(self):
@@ -113,6 +162,15 @@ class TestAllowlistEmailBackend(TestCase):
         result = backend.send_messages([])
         self.assertEqual(0, result)
         backend.real_backend.send_messages.assert_not_called()
+
+    def test_usable_as_a_context_manager(self):
+        # Subclassing BaseEmailBackend (not a bare object) is what makes
+        # `with backend:` work at all -- the previous version raised
+        # TypeError here (CC review, 2026-08-31).
+        backend = self._backend_with_fake_real()
+        with backend as conn:
+            self.assertIs(backend, conn)
+        backend.real_backend.close.assert_called()
 
 
 class TestResolveEmailBackend(TestCase):
