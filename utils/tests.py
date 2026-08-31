@@ -1,10 +1,16 @@
+import os
+from unittest import mock
 from unittest.mock import MagicMock
 
-from django.conf import settings
 from django.core.mail import EmailMessage
 from django.test import TestCase, override_settings
 
-from regluit.utils.safe_email_backend import AllowlistEmailBackend, _is_allowed
+from regluit.utils.safe_email_backend import (
+    ALLOWLIST_BACKEND_PATH,
+    AllowlistEmailBackend,
+    _is_allowed,
+    resolve_email_backend,
+)
 
 
 class TestIsAllowed(TestCase):
@@ -109,13 +115,43 @@ class TestAllowlistEmailBackend(TestCase):
         backend.real_backend.send_messages.assert_not_called()
 
 
-class TestEmailSafeModeSettingWiring(TestCase):
-    def test_email_safe_mode_off_by_default(self):
-        # In the test environment EMAIL_SAFE_MODE is not set, so production
-        # (and any environment that hasn't explicitly opted in) must never
-        # accidentally inherit the allowlist backend.
-        self.assertFalse(getattr(settings, 'EMAIL_SAFE_MODE', False))
-        self.assertNotEqual(
-            'regluit.utils.safe_email_backend.AllowlistEmailBackend',
-            settings.EMAIL_BACKEND,
+class TestResolveEmailBackend(TestCase):
+    """Regression guard for settings/common.py's EMAIL_SAFE_MODE wiring.
+
+    This is deliberately NOT a test that imports django.conf.settings and
+    checks EMAIL_BACKEND from inside a TestCase -- Django's test runner
+    (setup_test_environment) unconditionally overwrites
+    settings.EMAIL_BACKEND with the locmem backend before any test body
+    runs, so a check like that would pass even if settings/common.py's
+    conditional were broken (accidentally unconditional, inverted, etc.) --
+    caught in CC review, 2026-08-31. Testing resolve_email_backend()
+    directly, with no settings module involved, is what actually exercises
+    the decision logic settings/common.py delegates to.
+    """
+
+    def test_off_leaves_backend_unchanged(self):
+        real, effective = resolve_email_backend(False, 'some.RealBackend', env={})
+        self.assertEqual('some.RealBackend', real)
+        self.assertEqual('some.RealBackend', effective)
+
+    def test_on_wraps_the_current_backend_by_default(self):
+        real, effective = resolve_email_backend(True, 'some.RealBackend', env={})
+        self.assertEqual('some.RealBackend', real)
+        self.assertEqual(ALLOWLIST_BACKEND_PATH, effective)
+
+    def test_on_honors_an_explicit_real_backend_override(self):
+        real, effective = resolve_email_backend(
+            True, 'some.RealBackend',
+            env={'SAFE_EMAIL_REAL_BACKEND': 'django.core.mail.backends.console.EmailBackend'},
         )
+        self.assertEqual('django.core.mail.backends.console.EmailBackend', real)
+        self.assertEqual(ALLOWLIST_BACKEND_PATH, effective)
+
+    def test_defaults_to_os_environ_when_no_env_passed(self):
+        # settings/common.py calls this with no `env` argument in
+        # production -- confirm that path reads the real process
+        # environment rather than silently doing nothing.
+        with mock.patch.dict(os.environ, {'SAFE_EMAIL_REAL_BACKEND': 'x.RealBackend'}):
+            real, effective = resolve_email_backend(True, 'some.RealBackend')
+        self.assertEqual('x.RealBackend', real)
+        self.assertEqual(ALLOWLIST_BACKEND_PATH, effective)

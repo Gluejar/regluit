@@ -29,11 +29,39 @@ regluit-provisioning#22) more confusing to diagnose than they needed to be:
 correctly," and no one incident is more common than the others.
 """
 import copy
+import os
 
 from django.conf import settings
 from django.utils.module_loading import import_string
 
 DEFAULT_REAL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+ALLOWLIST_BACKEND_PATH = 'regluit.utils.safe_email_backend.AllowlistEmailBackend'
+
+
+def resolve_email_backend(email_safe_mode, current_backend, env=None):
+    """Decide what EMAIL_BACKEND (and, when active, what real backend to
+    wrap) a settings module should use, given whether EMAIL_SAFE_MODE is on.
+
+    Pulled out as a plain function -- not inlined in settings/common.py --
+    specifically so it's directly unit-testable. Django's test runner
+    (setup_test_environment) unconditionally overwrites settings.EMAIL_BACKEND
+    with the locmem backend before any TestCase body runs, which means a
+    test that imports django.conf.settings and checks EMAIL_BACKEND from
+    inside a TestCase can never actually observe what settings/common.py
+    computed -- an assertion like that would pass even if this logic were
+    broken (CC review, 2026-08-31, on the first version of this file that
+    inlined the conditional directly in common.py). Testing this function
+    directly, with no settings module or test runner involved, avoids that
+    trap entirely.
+
+    Returns (real_backend_to_wrap, effective_email_backend).
+    """
+    if env is None:
+        env = os.environ
+    if not email_safe_mode:
+        return current_backend, current_backend
+    real_backend = env.get('SAFE_EMAIL_REAL_BACKEND', current_backend)
+    return real_backend, ALLOWLIST_BACKEND_PATH
 
 
 def _is_allowed(address, allowed_domains, allowed_addresses):
