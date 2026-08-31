@@ -156,16 +156,18 @@ class AllowlistEmailBackend(BaseEmailBackend):
             # Log at ERROR (not just raise) because Celery's send_mail_task
             # swallows exceptions from backends without re-raising, which
             # would otherwise make this look like a silently dropped
-            # email. Deliberately does NOT log the actual recipient
-            # addresses -- that would recreate the exact PII-in-logs
-            # exposure the subject/body split above exists to avoid
-            # (Codex review round 2, 2026-08-31); a count is enough to
-            # know something needs fixing.
+            # email. Deliberately logs neither the actual recipient
+            # addresses nor the subject -- a first pass here logged the
+            # subject as a "safe" identifier, but a subject can itself
+            # carry PII (e.g. "Password reset for real@example.com"),
+            # recreating the exact exposure the subject/body split above
+            # exists to avoid (Codex review round 3, 2026-08-31). A bare
+            # count is enough to know something needs fixing.
             logger.error(
-                "AllowlistEmailBackend: refusing to send a message "
-                "(subject=%r) to %d recipient(s) -- not fully allowlisted "
-                "and no EMAIL_SAFE_MODE_REDIRECT_TO configured.",
-                message.subject, len(recipients),
+                "AllowlistEmailBackend: refusing to send a message to %d "
+                "recipient(s) -- not fully allowlisted and no "
+                "EMAIL_SAFE_MODE_REDIRECT_TO configured.",
+                len(recipients),
             )
             raise RuntimeError(
                 "AllowlistEmailBackend: a message to {} recipient(s) is not "

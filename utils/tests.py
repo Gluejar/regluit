@@ -186,6 +186,26 @@ class TestAllowlistEmailBackend(TestCase):
         # review round 2, 2026-08-31).
         self.assertNotIn('realuser@example.com', str(ctx.exception))
 
+    @override_settings(EMAIL_SAFE_MODE_REDIRECT_TO='')
+    def test_refusal_log_line_carries_no_pii(self):
+        # A first-pass fix logged the subject as a "safe" stand-in for the
+        # actual recipient list -- but a subject can itself carry PII
+        # (e.g. "Password reset for real@example.com"), recreating the
+        # exposure the subject/body split exists to avoid. The log record
+        # must carry neither the recipient address nor the subject text
+        # (Codex review round 3, 2026-08-31).
+        backend = self._backend_with_fake_real()
+        msg = EmailMessage(
+            subject='Reset for realuser@example.com',
+            body='y', to=['realuser@example.com'],
+        )
+        with self.assertLogs('regluit.utils.safe_email_backend', level='ERROR') as logs:
+            with self.assertRaises(RuntimeError):
+                backend.send_messages([msg])
+        self.assertEqual(1, len(logs.output))
+        self.assertNotIn('realuser@example.com', logs.output[0])
+        self.assertNotIn('Reset for', logs.output[0])
+
     def test_empty_message_list_is_a_noop(self):
         backend = self._backend_with_fake_real()
         result = backend.send_messages([])
