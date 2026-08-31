@@ -102,10 +102,14 @@ $j(document).ready(function() {
 // - The lock is module-global, not per form node: a page can hold more than
 //   one copy of the login form (standalone page + lightbox), and reopening
 //   the lightbox creates a fresh node. One login in flight locks them all.
-// - Capture phase blocks; bubble phase acquires. Acquiring on bubble means a
-//   submission some other handler already cancelled is not counted as "in
-//   flight"; blocking on capture means a locked submission is stopped before
-//   other handlers run.
+// - Everything happens in ONE document capture-phase listener, which runs
+//   before any target/ancestor handler can stopPropagation() the event away
+//   from us. The lock is acquired provisionally; a deferred (post-dispatch)
+//   check releases it again if some later handler cancelled the submission,
+//   so a cancelled submission never leaves the lock stuck.
+// - A blocked submission is stopped with stopImmediatePropagation() too, so
+//   downstream submit handlers cannot run side effects for it, and the
+//   blocked form's button is disabled so the state is visible.
 // - No timed unlock: unlocking on a timer while a slow login navigation is
 //   still pending would allow a resubmission with the stale token -- the
 //   exact bug this guards against. If navigation fails outright (network
@@ -122,37 +126,57 @@ $j(document).ready(function() {
         }
         var action = node.getAttribute('action') || '';
         try {
-            return new URL(action, window.location.href).pathname === LOGIN_PATH;
+            var url = new URL(action, window.location.href);
+            return url.origin === window.location.origin &&
+                url.pathname === LOGIN_PATH;
         } catch (err) {
             return false;
         }
     }
 
-    // Capture phase: block any login submission while one is in flight.
-    document.addEventListener('submit', function (event) {
-        if (loginSubmitInFlight && isLoginForm(event.target)) {
-            event.preventDefault();
-        }
-    }, true);
+    function submitButtonOf(form) {
+        return form.querySelector('input[type=submit], button[type=submit]');
+    }
 
-    // Bubble phase: acquire the lock, unless another handler cancelled
-    // this submission.
     document.addEventListener('submit', function (event) {
-        if (!isLoginForm(event.target) || event.defaultPrevented) {
+        var form = event.target;
+        if (!isLoginForm(form)) {
             return;
         }
+        if (loginSubmitInFlight) {
+            // A login POST is already pending: cancel this one outright and
+            // keep downstream handlers from acting on it.
+            event.preventDefault();
+            if (event.stopImmediatePropagation) {
+                event.stopImmediatePropagation();
+            } else {
+                event.stopPropagation();
+            }
+            var blockedButton = submitButtonOf(form);
+            if (blockedButton) {
+                blockedButton.disabled = true;
+            }
+            return;
+        }
+        // Acquire provisionally; confirm after the dispatch (and the
+        // browser's default action decision) has completed.
         loginSubmitInFlight = true;
-        var form = event.target;
-        // Disable the button only after this submission's form data has
-        // been captured (a disabled control would be dropped from it);
-        // purely visual feedback.
         window.setTimeout(function () {
-            var button = form.querySelector('input[type=submit], button[type=submit]');
+            if (event.defaultPrevented) {
+                // Some later handler cancelled this submission -- no POST
+                // happened, so release the lock.
+                loginSubmitInFlight = false;
+                return;
+            }
+            // The POST is really in flight. Disable the button only now,
+            // after the submission's form data has been captured (a
+            // disabled control would have been dropped from it).
+            var button = submitButtonOf(form);
             if (button) {
                 button.disabled = true;
             }
         }, 0);
-    });
+    }, true);
 
     window.addEventListener('pageshow', function (event) {
         if (event.persisted && loginSubmitInFlight) {
