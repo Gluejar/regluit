@@ -6,11 +6,13 @@
 //
 // The guard is extracted from static/js/sitewide1.js between the
 // `#1240-guard-start` / `#1240-guard-end` markers and evaluated against
-// minimal document/window/form fakes. The dispatch fake models real DOM
-// event propagation for a document-level listener: document capture phase,
-// then target listeners, then document bubble phase, honoring
-// preventDefault / stopPropagation / stopImmediatePropagation, with the
-// browser's default action decided after dispatch completes.
+// minimal window/document/form fakes. The dispatch fake models real DOM
+// event propagation for a submit event: window capture, document capture,
+// target listeners, document bubble, window bubble -- honoring
+// preventDefault / stopPropagation / stopImmediatePropagation. (The
+// browser's default-action decision happens after dispatch; the guard is
+// deliberately fail-closed, so the tests assert lock retention, not
+// rollback.)
 
 'use strict';
 
@@ -30,9 +32,10 @@ const guardSource = source.slice(start, end);
 
 // ---- minimal DOM fakes ----------------------------------------------------
 
-function makeEvent(target) {
+function makeEvent(target, submitter) {
     return {
         target: target,
+        submitter: submitter || null,
         defaultPrevented: false,
         _stopProp: false,
         _stopImmediate: false,
@@ -58,6 +61,7 @@ function makeForm(action) {
 }
 
 function makeHarness() {
+    const winListeners = { capture: [], bubble: [] };
     const docListeners = { capture: [], bubble: [] };
     const windowListeners = {};
     const timeouts = [];
@@ -65,7 +69,7 @@ function makeHarness() {
 
     const documentFake = {
         addEventListener(type, fn, capture) {
-            assert.strictEqual(type, 'submit', 'guard only listens for submit on document');
+            assert.strictEqual(type, 'submit', 'only submit listeners expected on document');
             docListeners[capture ? 'capture' : 'bubble'].push(fn);
         },
     };
@@ -76,7 +80,11 @@ function makeHarness() {
             reload() { reloads += 1; },
         },
         setTimeout(fn, ms) { timeouts.push(fn); return timeouts.length; },
-        addEventListener(type, fn) {
+        addEventListener(type, fn, capture) {
+            if (type === 'submit') {
+                winListeners[capture ? 'capture' : 'bubble'].push(fn);
+                return;
+            }
             (windowListeners[type] = windowListeners[type] || []).push(fn);
         },
     };
@@ -88,16 +96,24 @@ function makeHarness() {
     });
 
     return {
-        // Model a real submit dispatch: document capture listeners, then
-        // target listeners, then document bubble listeners. Returns
-        // { event, submitted } where `submitted` is the browser's
-        // default-action decision made after dispatch.
-        dispatchSubmit(form, { targetHandlers = [], docBubbleHandlers = [] } = {}) {
-            const event = makeEvent(form);
+        // Model a real submit dispatch: window capture, document capture,
+        // target, document bubble, window bubble. Returns { event,
+        // submitted } where `submitted` reflects the default-action
+        // decision (not cancelled).
+        dispatchSubmit(form, {
+            submitter = null,
+            preGuardHandlers = [],   // window-capture listeners registered BEFORE sitewide1.js
+            docCaptureHandlers = [],
+            targetHandlers = [],
+            docBubbleHandlers = [],
+        } = {}) {
+            const event = makeEvent(form, submitter);
             const phases = [
-                docListeners.capture,
+                preGuardHandlers.concat(winListeners.capture),
+                docListeners.capture.concat(docCaptureHandlers),
                 targetHandlers,
                 docListeners.bubble.concat(docBubbleHandlers),
+                winListeners.bubble,
             ];
             outer:
             for (const phase of phases) {
@@ -143,23 +159,49 @@ const tests = {
         assert.strictEqual(second.submitted, false, 'other login form nodes must be blocked too');
     },
 
-    'a LATER handler cancelling the submission releases the lock'() {
-        // Round-2 finding 1: sitewide1.js loads first, so other document
-        // listeners run after the guard. If one of them preventDefault()s,
-        // no POST happens and the lock must not stay stuck.
+    'fail-closed: a later handler cancelling the submission leaves the lock held'() {
+        // Round-3 finding 1: a timer-time defaultPrevented check cannot
+        // distinguish "cancelled" from "cancelled and replaced by
+        // form.submit()", so the guard deliberately retains the lock.
         const h = makeHarness();
         h.dispatchSubmit(makeForm(LOGIN_ACTION), {
             docBubbleHandlers: [(e) => e.preventDefault()],
         });
-        h.flushTimeouts(); // deferred rollback runs
+        h.flushTimeouts();
         const retry = h.dispatchSubmit(makeForm(LOGIN_ACTION));
-        assert.strictEqual(retry.submitted, true,
-            'after a cancelled submission, a real retry must still be allowed');
+        assert.strictEqual(retry.submitted, false,
+            'lock must be retained (fail-closed) after a late cancellation');
+    },
+
+    'a submission cancelled BEFORE the guard sees it does not acquire the lock'() {
+        // An earlier window-capture listener (registered before sitewide1.js
+        // loaded) cancels the event; the guard's synchronous defaultPrevented
+        // check must skip acquisition, since no POST will happen.
+        const h = makeHarness();
+        const cancelled = h.dispatchSubmit(makeForm(LOGIN_ACTION), {
+            preGuardHandlers: [(e) => e.preventDefault()],
+        });
+        assert.strictEqual(cancelled.submitted, false);
+        h.flushTimeouts();
+        const real = h.dispatchSubmit(makeForm(LOGIN_ACTION));
+        assert.strictEqual(real.submitted, true,
+            'a later real submission must still be allowed');
+    },
+
+    'document-capture stopPropagation cannot bypass lock acquisition'() {
+        // Round-3 finding 3 analogue: the guard sits on window capture,
+        // ahead of document capture, target, and bubble handlers.
+        const h = makeHarness();
+        const first = h.dispatchSubmit(makeForm(LOGIN_ACTION), {
+            docCaptureHandlers: [(e) => e.stopPropagation()],
+        });
+        assert.strictEqual(first.submitted, true, 'first POST proceeds');
+        h.flushTimeouts();
+        const second = h.dispatchSubmit(makeForm(LOGIN_ACTION));
+        assert.strictEqual(second.submitted, false, 'lock was still acquired');
     },
 
     'target stopPropagation() cannot bypass lock acquisition'() {
-        // Round-2 finding 2: acquisition happens in document capture, which
-        // runs before target handlers can stop propagation.
         const h = makeHarness();
         const first = h.dispatchSubmit(makeForm(LOGIN_ACTION), {
             targetHandlers: [(e) => e.stopPropagation()],
@@ -171,13 +213,12 @@ const tests = {
     },
 
     'a blocked submission stops downstream handlers'() {
-        // Round-2 finding 3: preventDefault alone would still let target
-        // handlers run side effects (AJAX, form.submit()).
         const h = makeHarness();
         h.dispatchSubmit(makeForm(LOGIN_ACTION));
         h.flushTimeouts();
         let downstreamRan = false;
         const blocked = h.dispatchSubmit(makeForm(LOGIN_ACTION), {
+            docCaptureHandlers: [() => { downstreamRan = true; }],
             targetHandlers: [() => { downstreamRan = true; }],
         });
         assert.strictEqual(blocked.submitted, false);
@@ -186,8 +227,6 @@ const tests = {
     },
 
     'a blocked form gets its button disabled (visible stuck-state)'() {
-        // Round-2 finding 4: a fresh lightbox form clicked while locked
-        // must not look silently ignorable.
         const h = makeHarness();
         h.dispatchSubmit(makeForm(LOGIN_ACTION));
         h.flushTimeouts();
@@ -195,6 +234,18 @@ const tests = {
         h.dispatchSubmit(freshForm);
         assert.strictEqual(freshForm._button.disabled, true,
             'blocked form button must be disabled immediately');
+    },
+
+    'the actual submitter control is preferred over the first submit button'() {
+        // Round-3 finding 5.
+        const h = makeHarness();
+        const form = makeForm(LOGIN_ACTION);
+        const submitter = { disabled: false };
+        h.dispatchSubmit(form, { submitter: submitter });
+        h.flushTimeouts();
+        assert.strictEqual(submitter.disabled, true, 'event.submitter must be disabled');
+        assert.strictEqual(form._button.disabled, false,
+            'querySelector fallback must not fire when submitter is known');
     },
 
     'unrelated forms are never touched'() {
@@ -227,7 +278,6 @@ const tests = {
     },
 
     'cross-origin action with the same path is not ours'() {
-        // Round-2 finding 5.
         const h = makeHarness();
         h.dispatchSubmit(makeForm(LOGIN_ACTION));
         h.flushTimeouts();
@@ -244,15 +294,6 @@ const tests = {
             'button must not be disabled synchronously (it would drop from form data)');
         h.flushTimeouts();
         assert.strictEqual(form._button.disabled, true, 'button disabled as visual feedback');
-    },
-
-    'cancelled submission does not disable the button'() {
-        const h = makeHarness();
-        const form = makeForm(LOGIN_ACTION);
-        h.dispatchSubmit(form, { docBubbleHandlers: [(e) => e.preventDefault()] });
-        h.flushTimeouts();
-        assert.strictEqual(form._button.disabled, false,
-            'no POST happened; the form must stay usable');
     },
 
     'bfcache restore with a login in flight reloads the page'() {
