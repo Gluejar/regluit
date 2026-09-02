@@ -37,8 +37,6 @@ def feeds():
         yield globals()[facet]
     for facet_path in facets.get_all_facets('Format'):
         yield get_facet_facet(facet_path)
-    for facet_path in facets.get_all_facets('Keyword'):
-        yield get_facet_facet(facet_path)
 
 def get_facet_class(name):
     if name in old_facets:
@@ -175,13 +173,6 @@ def work_node(work, facet=None):
             try:
                 category_node["term"] = subject.name
                 node.append(category_node)
-                try:
-                    subject.works.filter(is_free=True)[1]
-                    # only show feed if there's another work in it
-                    node.append(navlink('related', 'kw.' + subject.name, 0,
-                                        'popular', title=subject.name))
-                except:
-                    pass
             except ValueError:
                 # caused by control chars in subject.name
                 logger.warning('Deleting subject: %s' % subject.name)

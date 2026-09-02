@@ -72,16 +72,6 @@ class BaseFacet(object):
             # don't show more facets
             return []
 
-        # Subjects (457K values) × other facets = hundreds of millions of
-        # crawlable URLs that bots exploit. See #1110.
-        # Rule: keyword facets cannot combine with any other facet type.
-        has_keyword = any(f.facet_name.startswith('kw.') for f in used)
-        if has_keyword:
-            # keyword active → no further facets allowed
-            return []
-
-        has_non_base_facet = any(f.facet_name != 'all' for f in used)
-
         if self._stash_others != None:
             return self._stash_others
 
@@ -93,9 +83,6 @@ class BaseFacet(object):
                     in_use = True
                     break
             if not in_use:
-                # If a non-keyword facet is already active, exclude keywords
-                if has_non_base_facet and isinstance(group, KeywordFacetGroup):
-                    continue
                 others.append(group)
         self._stash_others = others
         return others
@@ -226,51 +213,11 @@ class LicenseFacetGroup(FacetGroup):
                 return  "These eBooks are available under the %s license." % self.facet_name
         return LicenseFacet
 
-TOPKW = ["Fiction", "Nonfiction", "Literature",  "History", "Classic Literature", 
-    "Children's literature, English", "History and criticism", "Science", "Juvenile fiction", 
-    "Sociology", "Software", "Science Fiction"]
-
-class KeywordFacetGroup(FacetGroup):
-    
-    def __init__(self):
-        super(FacetGroup,self).__init__()
-        self.title = 'Keyword'
-        # make facets in TOPKW available for display
-        self.facets = [('kw.%s' % kw) for kw in TOPKW]
-        self.label = '{} is ...'.format(self.title)
-        
-    def has_facet(self, facet_name):
-    
-        # recognize any facet_name that starts with "kw." as a valid facet name
-        return facet_name.startswith('kw.')
-
-    def get_facet_class(self, facet_name):
-        class KeywordFacet(NamedFacet):
-            def set_name(self):
-                self.facet_name=facet_name
-                # facet_names of the form 'kw.SUBJECT' and SUBJECT is therefore the 4th character on
-                self.keyword=self.facet_name[3:].replace(';', '/')
-            def get_query_set(self):
-                return self._get_query_set().filter(subjects__name=self.keyword)
-            def template(self):
-                return 'facets/keyword.html'
-            @property    
-            def title(self):
-                return self.keyword
-            @property    
-            def label(self):
-                return self.keyword
-            @property
-            def description(self):
-                return  "%s eBooks" % self.keyword
-        return KeywordFacet    
-
 class SearchFacetGroup(FacetGroup):
     
     def __init__(self):
         super(FacetGroup,self).__init__()
         self.title = 'Search Term'
-        # make facets in TOPKW available for display
         self.facets = []
         self.label = '{} is ...'.format(self.title)
         
@@ -280,7 +227,7 @@ class SearchFacetGroup(FacetGroup):
         return facet_name.startswith('s.')
 
     def get_facet_class(self, facet_name):
-        class KeywordFacet(NamedFacet):
+        class SearchFacet(NamedFacet):
             def set_name(self):
                 self.facet_name=facet_name
                 # facet_names of the form 's.SUBJECT' and SUBJECT is therefore the 3rd character on
@@ -303,14 +250,13 @@ class SearchFacetGroup(FacetGroup):
             @property
             def description(self):
                 return  "eBooks for {}".format(self.term)
-        return KeywordFacet    
+        return SearchFacet
 
 class SupporterFacetGroup(FacetGroup):
     
     def __init__(self):
         super(FacetGroup,self).__init__()
         self.title = 'Supporter Faves'
-        # make facets in TOPKW available for display
         self.facets = []
         self.label = '{} are ...'.format(self.title)
         
@@ -389,7 +335,7 @@ class PublisherFacetGroup(FacetGroup):
         return PublisherFacet    
 
 # order of groups in facet_groups determines order of display on /free/    
-facet_groups = [KeywordFacetGroup(), FormatFacetGroup(),  LicenseFacetGroup(), PublisherFacetGroup(), IdFacetGroup(), SearchFacetGroup(), SupporterFacetGroup()]
+facet_groups = [FormatFacetGroup(),  LicenseFacetGroup(), PublisherFacetGroup(), IdFacetGroup(), SearchFacetGroup(), SupporterFacetGroup()]
 
 def get_facet(facet_name):
     for facet_group in facet_groups:
@@ -405,7 +351,7 @@ def get_all_facets(group='all'):
     return facets
 
 class InvalidFacetCombination(Exception):
-    """Raised when a keyword facet is combined with other facets (#1110)."""
+    """Raised when a removed or unsupported facet path is requested."""
     pass
 
 def get_facet_object(facet_path):
@@ -413,13 +359,11 @@ def get_facet_object(facet_path):
     if len(facets) > 1:
         # `all` is a compatibility alias for the base facet, not a real facet.
         facets = [facet for facet in facets if facet and facet != 'all']
-    # Block keyword + other facet compounds (#1110)
-    # 457K subjects × other facets = hundreds of millions of bot-crawlable URLs
+    # Subject facets were removed because their unbounded URL space attracted
+    # bot crawls. Return 404 for old links instead of serving the catalog.
     real_facets = [f for f in facets if f]
-    if len(real_facets) > 1:
-        has_keyword = any(f.startswith('kw.') for f in real_facets)
-        if has_keyword:
-            raise InvalidFacetCombination(facet_path)
+    if any(f.startswith('kw.') for f in real_facets):
+        raise InvalidFacetCombination(facet_path)
     facet_object = None
     for facet in facets[:MAX_FACETS]:
         facet_object = get_facet(facet)(facet_object)

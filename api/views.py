@@ -196,6 +196,15 @@ class OPDSNavigationView(TemplateView):
 class OPDSAcquisitionView(View):
     json = False
     def get(self, request, *args, **kwargs):
+        facet = kwargs.get('facet')
+        if facet:
+            try:
+                if self.json:
+                    opds_json.get_facet_class(facet)()
+                else:
+                    opds.get_facet_class(facet)()
+            except InvalidFacetCombination:
+                raise Http404("Keyword facet URLs are not supported.")
         work = request.GET.get('work', None)
         if work:
             if self.json:
@@ -204,7 +213,6 @@ class OPDSAcquisitionView(View):
             else:
                 return StreamingHttpResponse(opds.opds_feed_for_work(work),
                         content_type=opds.ACQUISITION)
-        facet = kwargs.get('facet')
         page = request.GET.get('page', None)
         order_by =  request.GET.get('order_by', 'newest')
         
@@ -229,6 +237,12 @@ class OPDSAcquisitionView(View):
 
 class OnixView(View):
     def get(self, request, *args, **kwargs):
+        facet = kwargs.get('facet', 'all')
+        if facet:
+            try:
+                opds.get_facet_class(facet)()
+            except InvalidFacetCombination:
+                raise Http404("Keyword facet URLs are not supported.")
         work = request.GET.get('work', None)
 
         if work:
@@ -237,8 +251,6 @@ class OnixView(View):
             except models.Work.DoesNotExist:
                 raise Http404
             return HttpResponse(onix.onix_feed_for_work(work), content_type="text/xml")
-
-        facet = kwargs.get('facet', 'all')
 
         if not facet:
             return HttpResponseBadRequest(content='No facet provided')
