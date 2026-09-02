@@ -38,18 +38,39 @@ Safety, by design, at three independent layers:
 The email copy in ``registration/google_set_password_email*.txt`` is
 DRAFT COPY -- Raymond will rewrite it before this ever ships for real.
 
-Not built here, deliberately out of scope for this pass (see REPORT):
-persistent "already emailed" tracking across runs (so a second run doesn't
-re-email the same person) and batching/rate-limiting for a real send.
-``--limit`` covers rehearsal-scale runs; a real send needs one or both of
-those first.
+Failure handling (Codex round-1 review, 2026-09-02): a single bad
+recipient (malformed address, etc.) is logged and the run continues --
+useful with thousands of legacy addresses. But a *systemic* problem
+(unreachable SMTP host, a broken template, misconfigured mail settings)
+must not be treated the same way, silently working through the whole
+candidate list and reporting "SUCCESS." So: (a) the mail connection is
+opened once, up front, outside the per-recipient try/except -- a
+connection failure aborts immediately, before contacting anyone; (b) the
+first candidate's context is rendered once as a preflight check, so a
+broken template also aborts before anyone is contacted; (c) if
+``--max-consecutive-failures`` isolated failures happen in a row (default
+5), the run aborts rather than grinding through thousands of doomed
+sends; (d) any unresolved failure makes the command exit non-zero
+(``CommandError``), even though partial delivery already happened and is
+reflected in the printed Sent/failed counts -- a monitoring/cron
+consumer should not see exit 0 read as "all clear."
+
+Restart-safety (Codex round-1 review): there is no persistent
+"already emailed" ledger -- rerunning without ``--after-id`` re-emails
+everyone already emailed. ``--after-id ID`` lets an interrupted run
+resume from the last candidate id it successfully processed (candidates
+are always ordered by id) without a new DB table. This is a manual,
+operator-driven checkpoint, not automatic idempotency -- adequate for a
+rehearsal-scale or supervised run; a real unattended bulk campaign would
+still want a durable ledger, which is out of scope here (see REPORT).
 """
+import argparse
 import os
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.mail import send_mail
-from django.core.management.base import BaseCommand
+from django.core.mail import get_connection, send_mail
+from django.core.management.base import BaseCommand, CommandError
 from django.template.loader import render_to_string
 from django.urls import reverse
 
@@ -68,13 +89,34 @@ SEND_ENV_VAR = 'REGLUIT_ALLOW_SET_PASSWORD_EMAIL_SEND'
 SUBJECT_TEMPLATE = 'registration/google_set_password_email_subject.txt'
 BODY_TEMPLATE = 'registration/google_set_password_email.txt'
 
+DEFAULT_MAX_CONSECUTIVE_FAILURES = 5
 
-def find_candidates(providers=GOOGLE_PROVIDERS):
+
+def _non_negative_int(value):
+    """argparse type= validator. Plain int() would silently accept negative
+    values, and Python list slicing treats a negative --limit as "all but
+    the last N" rather than rejecting it (Codex round-1 review, 2026-09-02,
+    reproduced: --limit -1 against 8,457 candidates processes 8,456 of
+    them) -- exactly backwards from what an operator asking for a small,
+    safe batch would expect.
+    """
+    ivalue = int(value)
+    if ivalue < 0:
+        raise argparse.ArgumentTypeError(
+            "must be a non-negative integer, got %r" % value
+        )
+    return ivalue
+
+
+def find_candidates(providers=GOOGLE_PROVIDERS, after_id=None):
     """Active users with a Google social-auth row, an email on file, and no
     usable password. Returns a list of User objects (not a lazy queryset --
     has_usable_password() can't be expressed in SQL, so the final filter
     step is in Python; at prod's current scale (~8.8k Google-auth rows)
     that's a small, one-off cost, not a hot path).
+
+    ``after_id``, when given, restricts to id > after_id -- the restart
+    checkpoint described in the module docstring.
     """
     User = get_user_model()
     qs = (
@@ -84,6 +126,8 @@ def find_candidates(providers=GOOGLE_PROVIDERS):
         .distinct()
         .order_by('id')
     )
+    if after_id is not None:
+        qs = qs.filter(id__gt=after_id)
     return [u for u in qs if not u.has_usable_password()]
 
 
@@ -103,9 +147,19 @@ class Command(BaseCommand):
                  "(1/true/yes)." % SEND_ENV_VAR,
         )
         parser.add_argument(
-            '--limit', type=int, default=None,
-            help="Only process the first N candidates (ordered by id). "
-                 "For rehearsal / rate-controlled batches.",
+            '--limit', type=_non_negative_int, default=None,
+            help="Only process the first N candidates (ordered by id, "
+                 "after --after-id filtering). For rehearsal / "
+                 "rate-controlled batches. Must be >= 0.",
+        )
+        parser.add_argument(
+            '--after-id', type=_non_negative_int, default=None, dest='after_id',
+            help="Only consider candidates with id greater than this. "
+                 "Restart checkpoint: after an interrupted --send run, "
+                 "pass the highest user id it successfully emailed (visible "
+                 "with --verbose-list) to resume without re-emailing "
+                 "earlier candidates. Manual, not automatic -- see module "
+                 "docstring.",
         )
         parser.add_argument(
             '--provider', action='append', dest='providers', default=None,
@@ -116,13 +170,21 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             '--verbose-list', action='store_true',
-            help="Print every candidate's username/email, not just the "
+            help="Print every candidate's id/username/email, not just the "
                  "count. Off by default -- this is bulk PII.",
+        )
+        parser.add_argument(
+            '--max-consecutive-failures', type=_non_negative_int,
+            default=DEFAULT_MAX_CONSECUTIVE_FAILURES, dest='max_consecutive_failures',
+            help="Abort the run if this many attempts in a row fail "
+                 "(likely a systemic problem, not isolated bad addresses). "
+                 "Default %d; 0 disables the breaker (not recommended for "
+                 "a real send)." % DEFAULT_MAX_CONSECUTIVE_FAILURES,
         )
 
     def handle(self, *args, **options):
         providers = tuple(options['providers']) if options['providers'] else GOOGLE_PROVIDERS
-        candidates = find_candidates(providers=providers)
+        candidates = find_candidates(providers=providers, after_id=options['after_id'])
         total_found = len(candidates)
 
         limit = options['limit']
@@ -151,7 +213,7 @@ class Command(BaseCommand):
 
         if options['verbose_list']:
             for user in candidates:
-                self.stdout.write("  %s <%s>" % (user.username, user.email))
+                self.stdout.write("  id=%s %s <%s>" % (user.pk, user.username, user.email))
 
         if not will_send:
             self.stdout.write(self.style.NOTICE(
@@ -160,31 +222,84 @@ class Command(BaseCommand):
             ))
             return
 
-        sent, failed = 0, 0
-        for user in candidates:
-            try:
-                self._send_one(user)
-                sent += 1
-            except Exception as exc:  # pragma: no cover - defensive; surfaced below
-                failed += 1
-                self.stderr.write(self.style.ERROR(
-                    "Failed to email user id=%s: %s" % (user.pk, exc)
-                ))
-        self.stdout.write(self.style.SUCCESS("Sent %d, failed %d." % (sent, failed)))
+        sent, failed = self._send_all(candidates, options['max_consecutive_failures'])
 
-    def _send_one(self, user):
+        summary = "Sent %d, failed %d." % (sent, failed)
+        if failed:
+            self.stdout.write(self.style.ERROR(summary))
+            raise CommandError(
+                "%d of %d send(s) failed -- see errors above. Exiting "
+                "non-zero so a cron/monitoring caller doesn't read this as "
+                "clean." % (failed, sent + failed)
+            )
+        self.stdout.write(self.style.SUCCESS(summary))
+
+    def _send_all(self, candidates, max_consecutive_failures):
         base_url = getattr(settings, 'BASE_URL_SECURE', 'https://unglue.it')
+        sent, failed, consecutive_failures = 0, 0, 0
+
+        # Opening the connection and rendering once, up front and outside
+        # the per-recipient try/except, means a systemic problem (SMTP
+        # unreachable, a broken template) aborts before anyone is
+        # contacted, rather than being swallowed as 8,457 individual
+        # "recipient" failures (Codex round-1 review, 2026-09-02).
+        with get_connection() as connection:
+            if candidates:
+                self._render(candidates[0], base_url)  # preflight; raises on a broken template
+
+            for user in candidates:
+                try:
+                    self._send_one(user, base_url, connection)
+                    sent += 1
+                    consecutive_failures = 0
+                except Exception as exc:
+                    failed += 1
+                    consecutive_failures += 1
+                    self.stderr.write(self.style.ERROR(
+                        "Failed to email user id=%s: %s" % (user.pk, exc)
+                    ))
+                    if max_consecutive_failures and consecutive_failures >= max_consecutive_failures:
+                        self.stderr.write(self.style.ERROR(
+                            "Aborting: %d consecutive failures (>= "
+                            "--max-consecutive-failures=%d) -- this looks "
+                            "systemic, not a run of isolated bad addresses."
+                            % (consecutive_failures, max_consecutive_failures)
+                        ))
+                        break
+        return sent, failed
+
+    def _render(self, user, base_url):
         context = {
             'user': user,
             'site_name': 'unglue.it',
             'reset_url': base_url + reverse('libraryauth_password_reset'),
         }
+        # autoescape off: this is a plain-text email, not HTML. Without it
+        # Django's template engine HTML-escapes context values by default,
+        # so a name like "D'Arcy" or "Smith & Sons" would render as
+        # "D&#x27;Arcy" / "Smith &amp; Sons" in the actual email body
+        # (Codex round-1 review, 2026-09-02, reproduced against the
+        # unmodified template).
         subject = render_to_string(SUBJECT_TEMPLATE, context).strip()
         body = render_to_string(BODY_TEMPLATE, context)
-        send_mail(
+        return subject, body
+
+    def _send_one(self, user, base_url, connection):
+        subject, body = self._render(user, base_url)
+        result = send_mail(
             subject,
             body,
             settings.DEFAULT_FROM_EMAIL,
             [user.email],
             fail_silently=False,
+            connection=connection,
         )
+        # send_mail() returns the number of messages it believes it
+        # delivered. fail_silently=False means most backend failures raise
+        # rather than returning 0, but not treating 0 itself as a failure
+        # would silently miscount any backend that doesn't raise (Codex
+        # round-1 review, 2026-09-02).
+        if result != 1:
+            raise RuntimeError(
+                "send_mail() returned %r (expected 1) for user id=%s" % (result, user.pk)
+            )

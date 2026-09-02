@@ -9,7 +9,10 @@ from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User, AnonymousUser
 from django.core import mail
 from django.core.cache import cache
+from django.core.mail import send_mail as _real_send_mail
 from django.core.management import call_command
+from django.core.management.base import CommandError
+from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
 from social_django.models import UserSocialAuth
 
@@ -331,6 +334,19 @@ class TestFindGoogleUsersWithoutPassword(TestCase):
         UserSocialAuth.objects.create(user=user, provider='google', uid='g-8b')
         self.assertEqual([user], find_candidates())
 
+    def test_after_id_checkpoint_skips_earlier_candidates(self):
+        # The --after-id restart checkpoint (Codex round-1 review,
+        # 2026-09-02): resume after an interrupted run without a
+        # persistent send ledger.
+        first = self._make_user('afterid1', usable_password=False)
+        UserSocialAuth.objects.create(user=first, provider='google-oauth2', uid='g-9a')
+        second = self._make_user('afterid2', usable_password=False)
+        UserSocialAuth.objects.create(user=second, provider='google-oauth2', uid='g-9b')
+
+        self.assertEqual([first, second], find_candidates())
+        self.assertEqual([second], find_candidates(after_id=first.pk))
+        self.assertEqual([], find_candidates(after_id=second.pk))
+
 
 class TestEmailGoogleUsersSetPasswordCommand(TestCase):
     """Behavioral tests for the management command itself -- in particular
@@ -396,6 +412,38 @@ class TestEmailGoogleUsersSetPasswordCommand(TestCase):
             )
         self.assertEqual(2, len(mail.outbox))
 
+    def test_negative_limit_rejected(self):
+        # Codex round-1 review, 2026-09-02: plain int() (the old type=)
+        # accepted negative values, and list[:limit] with a negative limit
+        # means "all but the last N" -- backwards from what an operator
+        # asking for a small, safe batch would expect. Reproduced
+        # independently: --limit -1 against 8,457 candidates processed
+        # 8,456 of them.
+        with self.assertRaises(CommandError):
+            call_command(
+                'email_google_users_set_password', '--limit', '-1',
+                stdout=StringIO(), stderr=StringIO(),
+            )
+
+    def test_limit_zero_processes_nothing(self):
+        self._make_candidate('limitzero1', 'limitzero1@example.com')
+        out = StringIO()
+        call_command('email_google_users_set_password', '--limit', '0', stdout=out)
+        self.assertIn('processing first 0', out.getvalue())
+        self.assertEqual(0, len(mail.outbox))
+
+    def test_after_id_flows_through_to_command(self):
+        first = self._make_candidate('cmdafter1', 'cmdafter1@example.com')
+        second = self._make_candidate('cmdafter2', 'cmdafter2@example.com')
+        out = StringIO()
+        call_command(
+            'email_google_users_set_password', '--after-id', str(first.pk),
+            '--verbose-list', stdout=out,
+        )
+        listed = out.getvalue()
+        self.assertNotIn('cmdafter1@example.com', listed)
+        self.assertIn('cmdafter2@example.com', listed)
+
     def test_users_with_usable_password_are_never_emailed(self):
         user = User.objects.create_user(
             username='haspass', email='haspass@example.com', password=_DUMMY_USABLE_PASSWORD,
@@ -403,6 +451,130 @@ class TestEmailGoogleUsersSetPasswordCommand(TestCase):
         UserSocialAuth.objects.create(user=user, provider='google-oauth2', uid='haspass')
         with mock.patch.dict(os.environ, {SEND_ENV_VAR: 'true'}):
             call_command('email_google_users_set_password', '--send', stdout=StringIO())
+        self.assertEqual(0, len(mail.outbox))
+
+    def test_default_output_has_no_email_addresses(self):
+        self._make_candidate('noleak1', 'noleak1@example.com')
+        out = StringIO()
+        call_command('email_google_users_set_password', stdout=out)
+        self.assertNotIn('noleak1@example.com', out.getvalue())
+
+    def test_two_accounts_sharing_one_email_each_get_their_own_send(self):
+        # Documents accepted behavior (Codex round-1 review, 2026-09-02):
+        # dedup is per-account, not per-mailbox. Two Users that happen to
+        # share an email address are two separate #1237-affected accounts
+        # and each needs its own password set -- both get emailed, even
+        # though that means two messages land in the same inbox.
+        shared_email = 'shared-inbox@example.com'
+        self._make_candidate('shareda', shared_email)
+        self._make_candidate('sharedb', shared_email)
+        with mock.patch.dict(os.environ, {SEND_ENV_VAR: 'true'}):
+            call_command('email_google_users_set_password', '--send', stdout=StringIO())
+        self.assertEqual(2, len(mail.outbox))
+        self.assertEqual([shared_email], mail.outbox[0].to)
+        self.assertEqual([shared_email], mail.outbox[1].to)
+
+    def test_full_name_special_characters_not_html_escaped(self):
+        # Codex round-1 review, 2026-09-02, reproduced against the
+        # unmodified template: "D&Arcy" rendered as "D&amp;Arcy" because
+        # the plain-text template didn't disable autoescape.
+        user = self._make_candidate('ampuser1', 'ampuser1@example.com')
+        user.first_name = 'D&Arcy'
+        user.last_name = "O'Brien & Sons"
+        user.save()
+        with mock.patch.dict(os.environ, {SEND_ENV_VAR: 'true'}):
+            call_command('email_google_users_set_password', '--send', stdout=StringIO())
+        body = mail.outbox[0].body
+        self.assertIn("D&Arcy O'Brien & Sons", body)
+        self.assertNotIn('&amp;', body)
+        self.assertNotIn('&#x27;', body)
+        self.assertNotIn('&#39;', body)
+
+    def test_isolated_recipient_failure_does_not_block_later_success(self):
+        bad = self._make_candidate('badaddr1', 'bad1@example.com')
+        good = self._make_candidate('goodaddr1', 'good1@example.com')
+
+        def flaky_send_mail(subject, body, from_email, recipient_list, **kwargs):
+            if recipient_list == [bad.email]:
+                raise RuntimeError('simulated isolated failure')
+            return _real_send_mail(subject, body, from_email, recipient_list, **kwargs)
+
+        with mock.patch.dict(os.environ, {SEND_ENV_VAR: 'true'}), mock.patch(
+            'regluit.libraryauth.management.commands.email_google_users_set_password.send_mail',
+            side_effect=flaky_send_mail,
+        ):
+            with self.assertRaises(CommandError):
+                call_command(
+                    'email_google_users_set_password', '--send',
+                    stdout=StringIO(), stderr=StringIO(),
+                )
+
+        # The bad recipient's failure didn't stop the good one from going
+        # out -- but the overall command still reports failure (exit
+        # non-zero) rather than a clean "success" with a silent gap.
+        self.assertEqual(1, len(mail.outbox))
+        self.assertEqual([good.email], mail.outbox[0].to)
+
+    def test_send_mail_returning_zero_counts_as_failure(self):
+        # Codex round-1 review, 2026-09-02: send_mail()'s documented return
+        # value (messages actually delivered) was never checked -- a
+        # backend returning 0 without raising would have been silently
+        # counted as sent.
+        self._make_candidate('zeroret1', 'zeroret1@example.com')
+        with mock.patch.dict(os.environ, {SEND_ENV_VAR: 'true'}), mock.patch(
+            'regluit.libraryauth.management.commands.email_google_users_set_password.send_mail',
+            return_value=0,
+        ):
+            with self.assertRaises(CommandError):
+                call_command(
+                    'email_google_users_set_password', '--send',
+                    stdout=StringIO(), stderr=StringIO(),
+                )
+
+    def test_connection_failure_aborts_before_any_send(self):
+        # A systemic problem (can't even open a mail connection) must
+        # abort immediately, not get treated as N individual recipient
+        # failures (Codex round-1 review, 2026-09-02).
+        self._make_candidate('sysfail1', 'sysfail1@example.com')
+        with mock.patch.dict(os.environ, {SEND_ENV_VAR: 'true'}), mock.patch(
+            'regluit.libraryauth.management.commands.email_google_users_set_password.get_connection',
+            side_effect=RuntimeError('smtp host unreachable'),
+        ):
+            with self.assertRaises(RuntimeError):
+                call_command(
+                    'email_google_users_set_password', '--send',
+                    stdout=StringIO(), stderr=StringIO(),
+                )
+        self.assertEqual(0, len(mail.outbox))
+
+    def test_broken_template_aborts_before_any_send(self):
+        self._make_candidate('brokentpl1', 'brokentpl1@example.com')
+        with mock.patch.dict(os.environ, {SEND_ENV_VAR: 'true'}), mock.patch(
+            'regluit.libraryauth.management.commands.email_google_users_set_password.render_to_string',
+            side_effect=TemplateDoesNotExist('gone'),
+        ):
+            with self.assertRaises(TemplateDoesNotExist):
+                call_command(
+                    'email_google_users_set_password', '--send',
+                    stdout=StringIO(), stderr=StringIO(),
+                )
+        self.assertEqual(0, len(mail.outbox))
+
+    def test_circuit_breaker_aborts_after_consecutive_failures(self):
+        for i in range(5):
+            self._make_candidate('breaker%d' % i, 'breaker%d@example.com' % i)
+        with mock.patch.dict(os.environ, {SEND_ENV_VAR: 'true'}), mock.patch(
+            'regluit.libraryauth.management.commands.email_google_users_set_password.send_mail',
+            side_effect=RuntimeError('smtp down'),
+        ) as mock_send_mail:
+            with self.assertRaises(CommandError):
+                call_command(
+                    'email_google_users_set_password', '--send',
+                    '--max-consecutive-failures', '2',
+                    stdout=StringIO(), stderr=StringIO(),
+                )
+        # Aborted after 2 failures, never attempted candidates 3-5.
+        self.assertEqual(2, mock_send_mail.call_count)
         self.assertEqual(0, len(mail.outbox))
 
     def test_email_template_is_marked_draft_copy(self):
