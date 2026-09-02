@@ -27,6 +27,11 @@ settings/log_config.py
 settings/prod.py
 settings/aws.py
 
+# Throwaway local test settings (disposable Docker MySQL, dummy creds only)
+# left by CC sessions running the test suite locally — never commit.
+settings/cc_test_csrf.py
+settings/cc_test_local.py
+
 # AWS credential symlinks / key files
 awskeys.py
 iam_keys
