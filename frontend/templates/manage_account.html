@@ -52,19 +52,11 @@ You can complete your last transaction by <a href="{% url 'fund' user.profile.la
                     {{ form.non_field_errors }}
                     {{ form.as_p }}	
                 </div>
-                <div class="form-row clearfix">
-                    <label>Card Number:</label>
-                    <input id="card_Number" type="text" class="card-number" />
-                </div>
                 <div class="form-row clearfix cvc">
-                    <label>CVC:</label>
-                    <input id="card_CVC" type="text" size="4" autocomplete="off" class="card-cvc" /> <span id="cvc_help">(what is this?)</span>
+                    <label>Card Details:</label>
+                    <div id="card-element"></div>
+                    <span id="cvc_help">(what is CVC?)</span>
                     <div id="cvc_answer"><img src="/static/images/cvcimage.jpeg" alt="a typical credit card with CVC">For most cards, this is a 3-digit number at the end of the signature strip on the back.  For American Express, it's a four-digit number in small print on the front.</div>
-                </div>
-                <div class="form-row clearfix initial_values">
-                    <label>Expiration:</label>
-                    <input id="card_ExpiryMonth" type="text" size="2" value="MM" class="card-expiry-month" />
-                    <input id="card_ExpiryYear" type="text" size="4" value="YYYY" class="card-expiry-year" />
                 </div>
                 <div class="form-row clearfix">
                     <label>Name:</label>
