@@ -518,6 +518,52 @@ class TestEmailGoogleUsersSetPasswordCommand(TestCase):
         # highest id this run *attempted*) would otherwise silently skip
         # ever retrying it.
         self.assertIn('id=%s' % bad.pk, out.getvalue())
+        # Codex round-3 review, 2026-09-02, reproduced: the failure
+        # summary was printing raw email addresses unconditionally,
+        # bypassing --verbose-list as the one explicit PII opt-in (and
+        # opening a log-injection surface via a malformed stored address).
+        self.assertNotIn(bad.email, out.getvalue())
+
+    def test_failed_recipient_email_shown_with_verbose_list(self):
+        bad = self._make_candidate('badaddr2', 'bad2@example.com')
+
+        def always_fail_send_mail(*args, **kwargs):
+            raise RuntimeError('simulated failure')
+
+        out = StringIO()
+        with mock.patch.dict(os.environ, {SEND_ENV_VAR: 'true'}), mock.patch(
+            'regluit.libraryauth.management.commands.email_google_users_set_password.send_mail',
+            side_effect=always_fail_send_mail,
+        ):
+            with self.assertRaises(CommandError):
+                call_command(
+                    'email_google_users_set_password', '--send', '--verbose-list',
+                    stdout=out, stderr=StringIO(),
+                )
+        self.assertIn(bad.email, out.getvalue())
+
+    def test_documented_retry_recipe_targets_the_right_candidate(self):
+        # Codex round-3 review, 2026-09-02: the module docstring's old
+        # retry suggestion ("no --after-id and a tight --limit") was
+        # actually wrong -- --limit always takes from the front of the
+        # ordered candidate list, so it re-selects the FIRST candidate,
+        # not whichever one failed. This test pins the corrected two-step
+        # recipe now documented there: --after-id <N-1> --limit 1
+        # --verbose-list to confirm the target before re-running with the
+        # send gates.
+        a = self._make_candidate('retrya', 'retrya@example.com')
+        b = self._make_candidate('retryb', 'retryb@example.com')
+        c = self._make_candidate('retryc', 'retryc@example.com')
+        out = StringIO()
+        call_command(
+            'email_google_users_set_password',
+            '--after-id', str(a.pk), '--limit', '1', '--verbose-list',
+            stdout=out,
+        )
+        listed = out.getvalue()
+        self.assertIn(b.username, listed)
+        self.assertNotIn(a.username, listed)
+        self.assertNotIn(c.username, listed)
 
     def test_send_mail_returning_zero_counts_as_failure(self):
         # Codex round-1 review, 2026-09-02: send_mail()'s documented return
@@ -603,6 +649,25 @@ class TestEmailGoogleUsersSetPasswordCommand(TestCase):
         with self.assertRaises(CommandError):
             call_command(
                 'email_google_users_set_password', after_id=-1,
+                stdout=StringIO(), stderr=StringIO(),
+            )
+
+    def test_non_integer_after_id_via_call_command_kwarg_rejected(self):
+        # Codex round-3 review, 2026-09-02, reproduced: after_id=1.5 (a
+        # float, not a negative int) was accepted even though the option
+        # is documented as an integer id.
+        with self.assertRaises(CommandError):
+            call_command(
+                'email_google_users_set_password', after_id=1.5,
+                stdout=StringIO(), stderr=StringIO(),
+            )
+
+    def test_bool_limit_via_call_command_kwarg_rejected(self):
+        # bool is a subclass of int in Python -- limit=True would
+        # otherwise silently behave as limit=1.
+        with self.assertRaises(CommandError):
+            call_command(
+                'email_google_users_set_password', limit=True,
                 stdout=StringIO(), stderr=StringIO(),
             )
 

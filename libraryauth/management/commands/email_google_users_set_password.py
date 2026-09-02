@@ -53,7 +53,7 @@ and any unresolved failure makes the command exit non-zero
 (``CommandError``) -- a monitoring/cron consumer should not see exit 0
 read as "all clear."
 
-Restart-safety (Codex rounds 1 and 2): there is no persistent
+Restart-safety (Codex rounds 1-3): there is no persistent
 "already emailed" ledger. ``--after-id ID`` skips every candidate with
 id <= ID, letting an interrupted run resume without a new DB table --
 but (round-2 finding) because isolated failures don't stop the run,
@@ -61,11 +61,21 @@ resuming past a run that had *any* failures can silently skip retrying
 those specific ids: an id cursor can't represent holes. So this command
 prints every failed id at the end of a ``--send`` run and is explicit
 that ``--after-id`` only guarantees "not reprocessed," never "already
-succeeded" -- failed ids in that list need a separate, deliberate retry
-(e.g. a follow-up run with no ``--after-id`` and a tight ``--limit``, or
-a future ``--retry-ids`` option). A real unattended bulk campaign would
-still want a durable delivery ledger; still out of scope here, see
-REPORT.
+succeeded" -- failed ids in that list need a separate, deliberate retry.
+
+To retry a specific failed id N (round-3 finding: a plain low ``--limit``
+does NOT do this -- ``--limit`` always takes from the *front* of the
+ordered candidate list, so e.g. ``--limit 1`` with no ``--after-id``
+retries the very first candidate, not id N):
+
+1. Dry run first to confirm the target: ``--after-id <N-1> --limit 1
+   --verbose-list`` and check the one candidate printed is really id N.
+2. Only then re-run the same flags with ``--send`` (and the environment
+   variable) added.
+
+A real unattended bulk campaign would still want a durable delivery
+ledger (and/or a dedicated ``--retry-id`` option); still out of scope
+here, see REPORT.
 """
 import argparse
 import os
@@ -124,8 +134,16 @@ def _require_non_negative(option_name, value):
     the call_command(**kwargs) bypass described in _non_negative_int's
     docstring -- a caller invoking this command programmatically with a
     negative int never goes through argparse parsing at all.
+
+    Also rejects non-int values outright (Codex round-3 review,
+    2026-09-02: call_command(..., after_id=1.5) was accepted even though
+    every option here is documented as an integer -- bool is deliberately
+    excluded too, since Python's bool is a subclass of int and True/False
+    silently coercing to 1/0 would be a confusing way to invoke this).
     """
-    if value is not None and value < 0:
+    if value is None:
+        return
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
         raise CommandError(
             "%s must be a non-negative integer, got %r" % (option_name, value)
         )
@@ -267,10 +285,19 @@ class Command(BaseCommand):
         )
 
         if failed_records:
+            # ids only by default -- --verbose-list is the one explicit
+            # opt-in to printing PII (Codex round-3 review, 2026-09-02:
+            # this line was printing raw email addresses unconditionally,
+            # bypassing that contract; a malformed stored address could
+            # also inject arbitrary text/newlines into command output).
+            if options['verbose_list']:
+                failed_desc = ', '.join('id=%s <%s>' % (pk, email) for pk, email in failed_records)
+            else:
+                failed_desc = ', '.join('id=%s' % pk for pk, _email in failed_records)
             self.stdout.write(self.style.WARNING(
                 "Failed (NOT covered by a later --after-id resume -- "
-                "retry these individually): %s"
-                % ', '.join('id=%s <%s>' % (pk, email) for pk, email in failed_records)
+                "retry these individually; add --verbose-list for "
+                "addresses): %s" % failed_desc
             ))
 
         if failed or skipped:
