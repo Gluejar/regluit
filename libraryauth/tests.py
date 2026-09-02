@@ -9,6 +9,7 @@ from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User, AnonymousUser
 from django.core import mail
 from django.core.cache import cache
+from django.core.mail import get_connection as _real_get_connection
 from django.core.mail import send_mail as _real_send_mail
 from django.core.management import call_command
 from django.core.management.base import CommandError
@@ -499,21 +500,24 @@ class TestEmailGoogleUsersSetPasswordCommand(TestCase):
                 raise RuntimeError('simulated isolated failure')
             return _real_send_mail(subject, body, from_email, recipient_list, **kwargs)
 
+        out, err = StringIO(), StringIO()
         with mock.patch.dict(os.environ, {SEND_ENV_VAR: 'true'}), mock.patch(
             'regluit.libraryauth.management.commands.email_google_users_set_password.send_mail',
             side_effect=flaky_send_mail,
         ):
             with self.assertRaises(CommandError):
-                call_command(
-                    'email_google_users_set_password', '--send',
-                    stdout=StringIO(), stderr=StringIO(),
-                )
+                call_command('email_google_users_set_password', '--send', stdout=out, stderr=err)
 
         # The bad recipient's failure didn't stop the good one from going
         # out -- but the overall command still reports failure (exit
         # non-zero) rather than a clean "success" with a silent gap.
         self.assertEqual(1, len(mail.outbox))
         self.assertEqual([good.email], mail.outbox[0].to)
+        # Codex round-2 review, 2026-09-02: the failed id must be called
+        # out explicitly, since a later --after-id resume (keyed off the
+        # highest id this run *attempted*) would otherwise silently skip
+        # ever retrying it.
+        self.assertIn('id=%s' % bad.pk, out.getvalue())
 
     def test_send_mail_returning_zero_counts_as_failure(self):
         # Codex round-1 review, 2026-09-02: send_mail()'s documented return
@@ -563,6 +567,7 @@ class TestEmailGoogleUsersSetPasswordCommand(TestCase):
     def test_circuit_breaker_aborts_after_consecutive_failures(self):
         for i in range(5):
             self._make_candidate('breaker%d' % i, 'breaker%d@example.com' % i)
+        out, err = StringIO(), StringIO()
         with mock.patch.dict(os.environ, {SEND_ENV_VAR: 'true'}), mock.patch(
             'regluit.libraryauth.management.commands.email_google_users_set_password.send_mail',
             side_effect=RuntimeError('smtp down'),
@@ -571,11 +576,77 @@ class TestEmailGoogleUsersSetPasswordCommand(TestCase):
                 call_command(
                     'email_google_users_set_password', '--send',
                     '--max-consecutive-failures', '2',
-                    stdout=StringIO(), stderr=StringIO(),
+                    stdout=out, stderr=err,
                 )
         # Aborted after 2 failures, never attempted candidates 3-5.
         self.assertEqual(2, mock_send_mail.call_count)
         self.assertEqual(0, len(mail.outbox))
+        # Codex round-2 review, 2026-09-02: the summary must say so --
+        # "2 of 2 failed" alone reads as "that's everyone," hiding the 3
+        # candidates that were never even attempted.
+        self.assertIn('3 never attempted', out.getvalue())
+
+    def test_negative_limit_via_call_command_kwarg_still_rejected(self):
+        # Codex round-2 review, 2026-09-02, reproduced: Django's
+        # call_command() applies argparse's type= conversion only to
+        # string CLI-style args, not to already-typed keyword arguments --
+        # call_command(..., limit=-1) sailed straight past the argparse
+        # validator added for round 1. Guards the handle()-level re-check.
+        self._make_candidate('kwneg1', 'kwneg1@example.com')
+        with self.assertRaises(CommandError):
+            call_command(
+                'email_google_users_set_password', limit=-1,
+                stdout=StringIO(), stderr=StringIO(),
+            )
+
+    def test_negative_after_id_via_call_command_kwarg_still_rejected(self):
+        with self.assertRaises(CommandError):
+            call_command(
+                'email_google_users_set_password', after_id=-1,
+                stdout=StringIO(), stderr=StringIO(),
+            )
+
+    def test_negative_max_consecutive_failures_via_call_command_kwarg_still_rejected(self):
+        with self.assertRaises(CommandError):
+            call_command(
+                'email_google_users_set_password', max_consecutive_failures=-1,
+                stdout=StringIO(), stderr=StringIO(),
+            )
+
+    def test_connection_close_failure_does_not_lose_accounting(self):
+        # Codex round-2 review, 2026-09-02, reproduced: the prior
+        # `with get_connection() as connection:` form let an exception
+        # from close() propagate past the return statement -- two
+        # already-successful sends and no summary ever printed.
+        user = self._make_candidate('closefail1', 'closefail1@example.com')
+        real_connection = _real_get_connection()
+        real_connection.close = mock.Mock(side_effect=RuntimeError('close blew up'))
+        out, err = StringIO(), StringIO()
+        with mock.patch.dict(os.environ, {SEND_ENV_VAR: 'true'}), mock.patch(
+            'regluit.libraryauth.management.commands.email_google_users_set_password.get_connection',
+            return_value=real_connection,
+        ):
+            # Delivery succeeded; only cleanup failed. That must not be
+            # reported as a send failure.
+            call_command('email_google_users_set_password', '--send', stdout=out, stderr=err)
+        self.assertEqual(1, len(mail.outbox))
+        self.assertEqual([user.email], mail.outbox[0].to)
+        self.assertIn('Sent 1, failed 0', out.getvalue())
+        self.assertIn('close blew up', err.getvalue())
+
+    def test_limit_zero_does_not_open_mail_connection(self):
+        # Codex round-2 review, 2026-09-02, reproduced: --send --limit 0
+        # was still opening (and could still fail on) a mail connection
+        # for a batch that was never going to send anything.
+        self._make_candidate('zerolimitconn1', 'zerolimitconn1@example.com')
+        with mock.patch.dict(os.environ, {SEND_ENV_VAR: 'true'}), mock.patch(
+            'regluit.libraryauth.management.commands.email_google_users_set_password.get_connection',
+        ) as mock_get_connection:
+            call_command(
+                'email_google_users_set_password', '--send', '--limit', '0',
+                stdout=StringIO(), stderr=StringIO(),
+            )
+        mock_get_connection.assert_not_called()
 
     def test_email_template_is_marked_draft_copy(self):
         # The DRAFT COPY marker lives in a {# ... #} Django comment

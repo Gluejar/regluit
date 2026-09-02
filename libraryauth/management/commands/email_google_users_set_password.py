@@ -43,26 +43,29 @@ recipient (malformed address, etc.) is logged and the run continues --
 useful with thousands of legacy addresses. But a *systemic* problem
 (unreachable SMTP host, a broken template, misconfigured mail settings)
 must not be treated the same way, silently working through the whole
-candidate list and reporting "SUCCESS." So: (a) the mail connection is
-opened once, up front, outside the per-recipient try/except -- a
-connection failure aborts immediately, before contacting anyone; (b) the
-first candidate's context is rendered once as a preflight check, so a
-broken template also aborts before anyone is contacted; (c) if
+candidate list and reporting "SUCCESS." So: the mail connection is opened
+once, up front (a connection failure aborts immediately, before contacting
+anyone); the first candidate's context is rendered once as a preflight
+check (a broken template also aborts before anyone is contacted); if
 ``--max-consecutive-failures`` isolated failures happen in a row (default
-5), the run aborts rather than grinding through thousands of doomed
-sends; (d) any unresolved failure makes the command exit non-zero
-(``CommandError``), even though partial delivery already happened and is
-reflected in the printed Sent/failed counts -- a monitoring/cron
-consumer should not see exit 0 read as "all clear."
+5), the run aborts rather than grinding through thousands of doomed sends;
+and any unresolved failure makes the command exit non-zero
+(``CommandError``) -- a monitoring/cron consumer should not see exit 0
+read as "all clear."
 
-Restart-safety (Codex round-1 review): there is no persistent
-"already emailed" ledger -- rerunning without ``--after-id`` re-emails
-everyone already emailed. ``--after-id ID`` lets an interrupted run
-resume from the last candidate id it successfully processed (candidates
-are always ordered by id) without a new DB table. This is a manual,
-operator-driven checkpoint, not automatic idempotency -- adequate for a
-rehearsal-scale or supervised run; a real unattended bulk campaign would
-still want a durable ledger, which is out of scope here (see REPORT).
+Restart-safety (Codex rounds 1 and 2): there is no persistent
+"already emailed" ledger. ``--after-id ID`` skips every candidate with
+id <= ID, letting an interrupted run resume without a new DB table --
+but (round-2 finding) because isolated failures don't stop the run,
+resuming past a run that had *any* failures can silently skip retrying
+those specific ids: an id cursor can't represent holes. So this command
+prints every failed id at the end of a ``--send`` run and is explicit
+that ``--after-id`` only guarantees "not reprocessed," never "already
+succeeded" -- failed ids in that list need a separate, deliberate retry
+(e.g. a follow-up run with no ``--after-id`` and a tight ``--limit``, or
+a future ``--retry-ids`` option). A real unattended bulk campaign would
+still want a durable delivery ledger; still out of scope here, see
+REPORT.
 """
 import argparse
 import os
@@ -99,6 +102,13 @@ def _non_negative_int(value):
     reproduced: --limit -1 against 8,457 candidates processes 8,456 of
     them) -- exactly backwards from what an operator asking for a small,
     safe batch would expect.
+
+    Note this only guards the command-line parsing path. Django's
+    call_command() applies type= to string CLI-style args but NOT to
+    already-typed keyword arguments (Codex round-2 review, 2026-09-02,
+    reproduced: call_command(..., limit=-1) bypasses this entirely) -- see
+    the explicit re-check in Command.handle() below for the path this
+    function can't cover.
     """
     ivalue = int(value)
     if ivalue < 0:
@@ -106,6 +116,19 @@ def _non_negative_int(value):
             "must be a non-negative integer, got %r" % value
         )
     return ivalue
+
+
+def _require_non_negative(option_name, value):
+    """Re-validate a --limit/--after-id/--max-consecutive-failures-shaped
+    option inside handle() itself, not just via argparse's type=. Closes
+    the call_command(**kwargs) bypass described in _non_negative_int's
+    docstring -- a caller invoking this command programmatically with a
+    negative int never goes through argparse parsing at all.
+    """
+    if value is not None and value < 0:
+        raise CommandError(
+            "%s must be a non-negative integer, got %r" % (option_name, value)
+        )
 
 
 def find_candidates(providers=GOOGLE_PROVIDERS, after_id=None):
@@ -155,11 +178,12 @@ class Command(BaseCommand):
         parser.add_argument(
             '--after-id', type=_non_negative_int, default=None, dest='after_id',
             help="Only consider candidates with id greater than this. "
-                 "Restart checkpoint: after an interrupted --send run, "
-                 "pass the highest user id it successfully emailed (visible "
-                 "with --verbose-list) to resume without re-emailing "
-                 "earlier candidates. Manual, not automatic -- see module "
-                 "docstring.",
+                 "Restart checkpoint: safe against reprocessing anyone "
+                 "this command has already ATTEMPTED (success or "
+                 "failure) -- NOT a guarantee those ids succeeded. Any "
+                 "failed ids from a prior --send run are printed at the "
+                 "end and need a separate, deliberate retry; they will "
+                 "not be swept up by a later --after-id resume.",
         )
         parser.add_argument(
             '--provider', action='append', dest='providers', default=None,
@@ -183,6 +207,15 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        # Re-validated here, not just via argparse's type= on --limit/
+        # --after-id/--max-consecutive-failures: call_command(**kwargs)
+        # bypasses argparse type conversion for already-typed values
+        # (Codex round-2 review, 2026-09-02, reproduced: a programmatic
+        # call_command(..., limit=-1) sailed straight through).
+        _require_non_negative('--limit', options['limit'])
+        _require_non_negative('--after-id', options['after_id'])
+        _require_non_negative('--max-consecutive-failures', options['max_consecutive_failures'])
+
         providers = tuple(options['providers']) if options['providers'] else GOOGLE_PROVIDERS
         candidates = find_candidates(providers=providers, after_id=options['after_id'])
         total_found = len(candidates)
@@ -222,38 +255,68 @@ class Command(BaseCommand):
             ))
             return
 
-        sent, failed = self._send_all(candidates, options['max_consecutive_failures'])
+        sent, failed_records, skipped = self._send_all(
+            candidates, options['max_consecutive_failures'],
+        )
+        failed = len(failed_records)
+        attempted = sent + failed
 
-        summary = "Sent %d, failed %d." % (sent, failed)
-        if failed:
+        summary = "Sent %d, failed %d (attempted %d of %d selected%s)." % (
+            sent, failed, attempted, len(candidates),
+            '' if not skipped else (', %d never attempted' % skipped),
+        )
+
+        if failed_records:
+            self.stdout.write(self.style.WARNING(
+                "Failed (NOT covered by a later --after-id resume -- "
+                "retry these individually): %s"
+                % ', '.join('id=%s <%s>' % (pk, email) for pk, email in failed_records)
+            ))
+
+        if failed or skipped:
             self.stdout.write(self.style.ERROR(summary))
             raise CommandError(
-                "%d of %d send(s) failed -- see errors above. Exiting "
-                "non-zero so a cron/monitoring caller doesn't read this as "
-                "clean." % (failed, sent + failed)
+                "%s Exiting non-zero so a cron/monitoring caller doesn't "
+                "read this as clean." % summary
             )
         self.stdout.write(self.style.SUCCESS(summary))
 
     def _send_all(self, candidates, max_consecutive_failures):
-        base_url = getattr(settings, 'BASE_URL_SECURE', 'https://unglue.it')
-        sent, failed, consecutive_failures = 0, 0, 0
+        """Returns (sent_count, failed_records, skipped_count), where
+        failed_records is a list of (user_id, email) tuples. skipped_count
+        is >0 only if the consecutive-failure circuit breaker tripped
+        before reaching every candidate.
+        """
+        if not candidates:
+            # Don't even open a mail connection for an empty batch (Codex
+            # round-2 review, 2026-09-02: --send --limit 0 was opening a
+            # connection, and failing, for nothing to send).
+            return 0, [], 0
 
-        # Opening the connection and rendering once, up front and outside
-        # the per-recipient try/except, means a systemic problem (SMTP
-        # unreachable, a broken template) aborts before anyone is
-        # contacted, rather than being swallowed as 8,457 individual
-        # "recipient" failures (Codex round-1 review, 2026-09-02).
-        with get_connection() as connection:
-            if candidates:
-                self._render(candidates[0], base_url)  # preflight; raises on a broken template
+        base_url = getattr(settings, 'BASE_URL_SECURE', 'https://unglue.it')
+        sent = 0
+        failed_records = []
+        consecutive_failures = 0
+        attempted = 0
+
+        connection = get_connection()
+        try:
+            # Both of these are deliberately OUTSIDE the per-recipient
+            # try/except below: a connection that can't open, or a
+            # template that can't render, is a systemic problem and must
+            # abort before contacting anyone -- not get treated as one
+            # "recipient failure" per candidate (Codex round-1 review).
+            connection.open()
+            self._render(candidates[0], base_url)
 
             for user in candidates:
+                attempted += 1
                 try:
                     self._send_one(user, base_url, connection)
                     sent += 1
                     consecutive_failures = 0
                 except Exception as exc:
-                    failed += 1
+                    failed_records.append((user.pk, user.email))
                     consecutive_failures += 1
                     self.stderr.write(self.style.ERROR(
                         "Failed to email user id=%s: %s" % (user.pk, exc)
@@ -266,7 +329,24 @@ class Command(BaseCommand):
                             % (consecutive_failures, max_consecutive_failures)
                         ))
                         break
-        return sent, failed
+        finally:
+            # A close() failure must not swallow the send/fail counts from
+            # everything that already succeeded (Codex round-2 review,
+            # 2026-09-02: the prior `with get_connection() as connection:`
+            # form let an exception from __exit__/close() propagate past
+            # the return statement, losing the summary entirely even
+            # after real, successful deliveries).
+            try:
+                connection.close()
+            except Exception as close_exc:
+                self.stderr.write(self.style.WARNING(
+                    "Warning: failed to cleanly close the mail connection "
+                    "after sending (%s) -- the send/fail counts above are "
+                    "still accurate." % close_exc
+                ))
+
+        skipped = len(candidates) - attempted
+        return sent, failed_records, skipped
 
     def _render(self, user, base_url):
         context = {
