@@ -1,6 +1,7 @@
 #external library imports
 import re
 import mimetypes
+from unittest import mock
 
 #django imports
 from django.contrib.auth.models import User
@@ -480,3 +481,148 @@ class LoginDoubleSubmitGuardTests(TestCase):
             result.returncode, 0,
             "guard behavioral tests failed:\n%s\n%s" % (result.stdout, result.stderr),
         )
+
+
+class ThanksContributionEndToEndTests(TestCase):
+    """#1215: THANKS (formerly "Thanks for Ungluing") is now the only
+    launchable campaign type (#1213 retired Pledge/Buy-to-Unglue), which
+    makes this the site's single revenue-critical charge flow, yet it had
+    no automated regression coverage -- existing payment tests exercise
+    PaymentManager bookkeeping in isolation; live Stripe verification was
+    manual (RUNBOOK_B2_stripe_e2e).
+
+    Drives the actual FundView (/payment/fund/<t_id>) through the Django
+    test client, using this repo's mocked-StripeClient pattern (see
+    payment.tests.StripeWebhookCourtesyEmailTest /
+    AnonymousStripeCustomerBugTest) rather than a live Stripe call --
+    covering: an authenticated THANKS contribution end-to-end (charge ->
+    transaction complete -> Acq acknowledgement), the same for an
+    anonymous contribution, and a legacy REWARDS-campaign transaction to
+    prove existing pledges still complete correctly post-retirement.
+    """
+
+    def _fake_customer(self, customer_id):
+        customer = mock.MagicMock()
+        customer.id = customer_id
+        customer.active_card.last4 = '4242'
+        customer.active_card.type = 'Visa'
+        customer.active_card.exp_month = 1
+        customer.active_card.exp_year = 2030
+        customer.active_card.fingerprint = 'fp_test_1215'
+        customer.active_card.country = 'US'
+        return customer
+
+    def _mock_stripe(self, sc, customer_id, charge_id):
+        sc.return_value.create_customer.return_value = self._fake_customer(customer_id)
+        sc.return_value.create_charge.return_value.id = charge_id
+
+    def _start_contribution(self, campaign, user, amount='5.00'):
+        """Mirrors DownloadView.form_valid's "Say Thank You" call shape:
+        creates the pending Transaction via PaymentManager.process_transaction
+        and returns it plus the FundView URL it hands the donor to."""
+        from decimal import Decimal as D
+        from regluit.payment.manager import PaymentManager
+        t, url = PaymentManager().process_transaction(
+            'USD', D(amount), campaign=campaign, user=user,
+            paymentReason="Unglue.it Contribution for {0}".format(campaign.name))
+        return t, url
+
+    def test_authenticated_thanks_contribution_completes_and_acknowledges(self):
+        from regluit.core.models import Acq, Campaign, Work
+        from regluit.core.parameters import THANKED, THANKS
+        from regluit.payment import stripelib
+        from regluit.payment.parameters import TRANSACTION_STATUS_COMPLETE
+
+        user = User.objects.create_user(
+            'thanker_1215', 'thanker_1215@example.org', 'payment_test')
+        w = Work()
+        w.save()
+        c = Campaign(name='Test Work', work=w, type=THANKS, status='ACTIVE')
+        c.save()
+
+        from regluit.payment.parameters import TRANSACTION_STATUS_NONE
+        t, url = self._start_contribution(c, user)
+        self.assertEqual(t.status, TRANSACTION_STATUS_NONE)  # not yet charged
+
+        client = Client()
+        client.force_login(user)
+        with mock.patch.object(stripelib, "StripeClient") as sc:
+            self._mock_stripe(sc, 'cus_test_1215_auth', 'ch_test_1215_auth')
+            response = client.post(url, {'stripe_token': 'card-ref-test-1215-auth'})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(str(t.id), response['Location'])
+
+        t.refresh_from_db()
+        self.assertEqual(t.status, TRANSACTION_STATUS_COMPLETE)
+
+        acq = Acq.objects.get(user=user, work=w)
+        self.assertEqual(acq.license, THANKED)
+
+    def test_anonymous_thanks_contribution_completes(self):
+        from regluit.core.models import Acq, Campaign, Work
+        from regluit.core.parameters import THANKS
+        from regluit.payment import stripelib
+        from regluit.payment.parameters import TRANSACTION_STATUS_COMPLETE
+        from django.contrib.auth.models import AnonymousUser
+
+        w = Work()
+        w.save()
+        c = Campaign(name='Anon Test Work', work=w, type=THANKS, status='ACTIVE')
+        c.save()
+
+        t, url = self._start_contribution(c, AnonymousUser())
+        self.assertIsNone(t.user)
+
+        client = Client()  # no login
+        with mock.patch.object(stripelib, "StripeClient") as sc:
+            self._mock_stripe(sc, 'cus_test_1215_anon', 'ch_test_1215_anon')
+            response = client.post(url, {
+                'stripe_token': 'card-ref-test-1215-anon',
+                'email': 'anon_1215@example.org',
+            })
+
+        self.assertEqual(response.status_code, 302)
+
+        t.refresh_from_db()
+        self.assertEqual(t.status, TRANSACTION_STATUS_COMPLETE)
+        # no user -> no Acq (there's no profile to attach one to); the
+        # confirmation goes out by email (transaction.receipt) instead.
+        self.assertFalse(Acq.objects.filter(work=w).exists())
+        self.assertEqual(t.receipt, 'anon_1215@example.org')
+
+    def test_legacy_rewards_campaign_transaction_still_completes(self):
+        """#1213 retired Pledge/Buy-to-Unglue as *creatable* campaign types,
+        but existing REWARDS-type campaigns/transactions from before the
+        retirement must keep working through the exact same FundView charge
+        path THANKS uses."""
+        from decimal import Decimal as D
+        from regluit.core.models import Acq, Campaign, Work
+        from regluit.core.parameters import REWARDS
+        from regluit.payment import stripelib
+        from regluit.payment.parameters import TRANSACTION_STATUS_COMPLETE
+
+        user = User.objects.create_user(
+            'legacy_pledger_1215', 'legacy_pledger_1215@example.org', 'payment_test')
+        w = Work()
+        w.save()
+        c = Campaign(
+            name='Legacy Pledge Work', work=w, type=REWARDS,
+            target=D('1000.00'), status='SUCCESSFUL')
+        c.save()
+
+        t, url = self._start_contribution(c, user)
+
+        client = Client()
+        client.force_login(user)
+        with mock.patch.object(stripelib, "StripeClient") as sc:
+            self._mock_stripe(sc, 'cus_test_1215_legacy', 'ch_test_1215_legacy')
+            response = client.post(url, {'stripe_token': 'card-ref-test-1215-legacy'})
+
+        self.assertEqual(response.status_code, 302)
+
+        t.refresh_from_db()
+        self.assertEqual(t.status, TRANSACTION_STATUS_COMPLETE)
+        # REWARDS acknowledgement is a notification, not an Acq (Acq
+        # creation in handle_transaction_charged is THANKS-only).
+        self.assertFalse(Acq.objects.filter(work=w).exists())
