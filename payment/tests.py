@@ -529,20 +529,37 @@ class AnonymousStripeCustomerBugTest(TestCase):
         user = User.objects.create_user(
             'donor_1125', 'donor_1125@example.org', 'payment_test')
         t = self._make_transaction(user)
+        # A Stripe.js-token-shaped string (as FundView actually passes --
+        # the raw dict-of-card-fields shape is only used by the legacy
+        # live-API test elsewhere in this file), so the
+        # create_customer/create_charge assertions below mean something.
+        # Not a real credential -- StripeClient is fully mocked below.
+        card_ref = 'card-ref-test-1125'
 
         with mock.patch.object(stripelib, "StripeClient") as sc:
             sc.return_value.create_customer.return_value = self._fake_customer()
             sc.return_value.create_charge.return_value.id = 'ch_test_1125'
             pm = PaymentManager()
-            pm.charge(t, token={
-                "number": "4242424242424242", "exp_month": 1, "exp_year": 2030})
+            pm.charge(t, token=card_ref)
 
         _, kwargs = sc.return_value.create_customer.call_args
+        self.assertEqual(kwargs.get('card'), card_ref)
         self.assertEqual(kwargs.get('description'), user.username)
         self.assertEqual(kwargs.get('email'), user.email)
 
         account = Account.objects.get(account_id='cus_test_1125')
         self.assertEqual(account.user, user)
+
+        # Codex round-1 (#1247): a failure after Customer creation must not
+        # go unnoticed -- pin down that the charge actually landed on the
+        # Customer this call just created, and that the transaction is
+        # left fully complete.
+        _, charge_kwargs = sc.return_value.create_charge.call_args
+        self.assertEqual(charge_kwargs.get('customer'), 'cus_test_1125')
+
+        t.refresh_from_db()
+        self.assertEqual(t.status, TRANSACTION_STATUS_COMPLETE)
+        self.assertEqual(t.pay_key, 'ch_test_1125')
 
     def test_truly_anonymous_donation_still_anonymous(self):
         """No transaction.user at all -- must keep the pre-existing
