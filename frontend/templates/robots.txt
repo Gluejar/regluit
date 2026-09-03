@@ -7,18 +7,32 @@ Disallow: /socialauth/
 Disallow: /search/
 Disallow: /googlebooks/
 
-# --- AI crawler load management (see issue #1172) ---
-# On 2026-06-18 ClaudeBot was 26% of all traffic (124k req) + GPTBot 5%, saturating the box.
-# ClaudeBot documents Crawl-delay support -> throttle (stays discoverable).
-# DECISION FOR REVIEW: throttle vs full Disallow for ClaudeBot.
+# --- AI crawlers ---
+# A crawler obeys only the single most specific User-agent group that matches
+# it, so each named group below repeats the baseline rules above. Dropping
+# those lines from a group would widen that crawler's access, not narrow it.
+
+# Anthropic documents support for the non-standard Crawl-delay extension, so
+# ClaudeBot is throttled rather than blocked: work pages stay discoverable
+# while the expensive listing and feed endpoints are excluded.
 User-agent: ClaudeBot
 Crawl-delay: 30
+Disallow: /accounts/
+Disallow: /feedback/
+Disallow: /socialauth/
+Disallow: /search/
+Disallow: /googlebooks/
+Disallow: /free/
+Disallow: /bypub/
+Disallow: /pid/
+Disallow: /unglued/
+Disallow: /campaigns/
+Disallow: /api/
 
-# GPTBot does NOT document Crawl-delay -> Disallow the training crawl.
+# Training crawlers that do not document Crawl-delay support.
 User-agent: GPTBot
 Disallow: /
 
-# Other training/scraping crawlers (no reliable Crawl-delay) -> Disallow.
 User-agent: CCBot
 Disallow: /
 
@@ -40,9 +54,18 @@ Disallow: /
 User-agent: PerplexityBot
 Disallow: /
 
-# NOTE: AI *search* agents (OAI-SearchBot, Claude-SearchBot, ChatGPT-User, Perplexity-User)
-# are intentionally LEFT ALLOWED for discoverability. DECISION FOR REVIEW.
-# Googlebot is deliberately untouched (SEO).
+# AI-training opt-out tokens. These are not search crawlers: excluding them
+# does not affect Google or Apple search indexing or ranking.
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: Applebot-Extended
+Disallow: /
+
+# Deliberately not restricted: Googlebot and other search crawlers, and
+# user-triggered agents (Claude-User, Claude-SearchBot, ChatGPT-User,
+# OAI-SearchBot, Perplexity-User), which fetch on behalf of a person who
+# asked for the page and keep the site discoverable.
 {% else %}
 User-agent: *
 Disallow: /
