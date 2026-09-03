@@ -29,11 +29,12 @@ Disallow: /unglued/
 Disallow: /campaigns/
 Disallow: /api/
 
-# Crawlers that collect model-training data, disallowed rather than
-# throttled. For most of these there is nothing to throttle: they document
-# no Crawl-delay support. CCBot is the exception -- Common Crawl does honor
-# Crawl-delay -- so blocking it is a deliberate opt-out from that dataset,
-# not a technical limitation, and could be softened to a throttle instead.
+# Crawlers that collect model-training data. Disallowed outright, as a
+# content-usage decision rather than a claim about any of them technically:
+# several do honor Crawl-delay, so any could be softened to a throttle if
+# that is preferred. Check the operator's current documentation before
+# adding or moving an entry -- these agents and their published behavior
+# change, and a stale rationale here is worse than none.
 User-agent: GPTBot
 Disallow: /
 

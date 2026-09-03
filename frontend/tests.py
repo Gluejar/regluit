@@ -523,8 +523,9 @@ class RobotsTxtTests(TestCase):
         "/api/",
     ]
 
-    # Crawlers that collect training data and document no Crawl-delay
-    # support, so there is nothing to throttle -- fully disallowed.
+    # Crawlers that collect model-training data, disallowed outright. This is
+    # a content-usage decision, not a claim about their capabilities: several
+    # of them do honor Crawl-delay and could be throttled instead.
     BLOCKED_AGENTS = [
         "GPTBot",
         "CCBot",
