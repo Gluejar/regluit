@@ -563,13 +563,14 @@ class RobotsTxtTests(TestCase):
                 if started:
                     current = []
                     started = False
-                groups.setdefault(value, {"disallow": [], "other": []})
+                groups.setdefault(
+                    value, {"disallow": [], "allow": [], "other": []}
+                )
                 current.append(value)
             elif current:
                 for agent in current:
                     if field in ("disallow", "allow"):
-                        if field == "disallow":
-                            groups[agent]["disallow"].append(value)
+                        groups[agent][field].append(value)
                         started = True
                     else:
                         groups[agent]["other"].append((field, value))
@@ -624,7 +625,10 @@ class RobotsTxtTests(TestCase):
                 "ClaudeBot no longer excludes %s" % path,
             )
 
-        # Every training crawler is fully disallowed.
+        # Every crawler selected for blocking is fully disallowed. (Not
+        # every training crawler: ClaudeBot trains too and is deliberately
+        # throttled instead, and content-usage opt-out tokens are out of
+        # scope for this change.)
         for agent in self.BLOCKED_AGENTS:
             self.assertIn(agent, groups)
             self.assertIn(
@@ -674,6 +678,17 @@ class RobotsTxtTests(TestCase):
                     "does not restate the baseline widens that crawler's "
                     "access instead of narrowing it." % (agent, path),
                 )
+            # Restating a Disallow is not enough on its own: RFC 9309 gives
+            # the longest match precedence, so a more specific Allow beneath
+            # one of these prefixes would quietly re-open it.
+            for allowed in rules["allow"]:
+                for path in self.BASELINE_DISALLOWS:
+                    self.assertFalse(
+                        allowed.startswith(path),
+                        "User-agent %s allows %s, which overrides the longer-"
+                        "matching baseline rule %s and widens access."
+                        % (agent, allowed, path),
+                    )
 
     def test_non_production_hosts_disallow_everything(self):
         for host in ("test.unglue.it", "localhost", "127.0.0.1"):

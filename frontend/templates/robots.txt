@@ -57,8 +57,10 @@ Disallow: /
 # search-indexing crawlers (Googlebot, PerplexityBot, Amzn-SearchBot,
 # OAI-SearchBot, Claude-SearchBot) and user-triggered agents that fetch a
 # page because a person asked for it (Claude-User, ChatGPT-User,
-# Perplexity-User, Amzn-User). Their publishers document them as not
-# collecting training data, and they are how the collection stays findable.
+# Perplexity-User, Amzn-User) -- these fetch to answer or to index, and are
+# how the collection stays findable. Note this covers crawling only: opting
+# out of AI *training* by a search engine is a separate content-usage
+# decision (Google-Extended, Applebot-Extended) deliberately not made here.
 {% else %}
 User-agent: *
 Disallow: /
