@@ -8,9 +8,9 @@ Disallow: /search/
 Disallow: /googlebooks/
 
 # --- AI crawlers ---
-# A crawler obeys only the single most specific User-agent group that matches
-# it, so each named group below repeats the baseline rules above. Dropping
-# those lines from a group would widen that crawler's access, not narrow it.
+# The "User-agent: *" group above applies only to crawlers that match no
+# named group below. So each named group repeats the baseline rules: giving
+# a crawler its own group without them would widen its access, not narrow it.
 
 # Anthropic documents support for the non-standard Crawl-delay extension, so
 # ClaudeBot is throttled rather than blocked: work pages stay discoverable
@@ -49,14 +49,6 @@ User-agent: Diffbot
 Disallow: /
 
 User-agent: cohere-ai
-Disallow: /
-
-# AI-training opt-out tokens. These are not search crawlers: excluding them
-# does not affect Google or Apple search indexing or ranking.
-User-agent: Google-Extended
-Disallow: /
-
-User-agent: Applebot-Extended
 Disallow: /
 
 # Deliberately not restricted, so they fall through to the rules above:

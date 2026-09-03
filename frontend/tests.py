@@ -504,6 +504,30 @@ class RobotsTxtTests(SimpleTestCase):
         "/googlebooks/",
     ]
 
+    # The load-shedding rules this change exists for: the expensive listing
+    # and feed endpoints from #1189, excluded for the throttled crawler on
+    # top of the baseline.
+    CLAUDEBOT_EXTRA_DISALLOWS = [
+        "/free/",
+        "/bypub/",
+        "/pid/",
+        "/unglued/",
+        "/campaigns/",
+        "/api/",
+    ]
+
+    # Crawlers that collect training data and document no Crawl-delay
+    # support, so there is nothing to throttle -- fully disallowed.
+    BLOCKED_AGENTS = [
+        "GPTBot",
+        "CCBot",
+        "Bytespider",
+        "Amazonbot",
+        "meta-externalagent",
+        "Diffbot",
+        "cohere-ai",
+    ]
+
     def _get(self, host):
         response = self.client.get("/robots.txt", HTTP_HOST=host)
         self.assertEqual(response.status_code, 200)
@@ -548,17 +572,32 @@ class RobotsTxtTests(SimpleTestCase):
             self.assertIn(path, groups["*"]["disallow"])
         self.assertNotIn("/", groups["*"]["disallow"])
 
-        # ClaudeBot is throttled, not blocked, so work pages stay crawlable.
+        # ClaudeBot is throttled, not blocked, so work pages stay crawlable --
+        # but every expensive path must be excluded, since those exclusions
+        # are the actual load-shedding this change delivers.
         self.assertIn("ClaudeBot", groups)
-        self.assertIn(
-            ("crawl-delay", "30"), groups["ClaudeBot"]["other"]
-        )
+        self.assertIn(("crawl-delay", "30"), groups["ClaudeBot"]["other"])
         self.assertNotIn("/", groups["ClaudeBot"]["disallow"])
+        for path in self.BASELINE_DISALLOWS + self.CLAUDEBOT_EXTRA_DISALLOWS:
+            self.assertIn(
+                path, groups["ClaudeBot"]["disallow"],
+                "ClaudeBot no longer excludes %s" % path,
+            )
 
-        # Training crawlers with no Crawl-delay support are fully disallowed.
-        for agent in ("GPTBot", "CCBot", "Google-Extended"):
+        # Every training crawler is fully disallowed.
+        for agent in self.BLOCKED_AGENTS:
             self.assertIn(agent, groups)
-            self.assertIn("/", groups[agent]["disallow"])
+            self.assertIn(
+                "/", groups[agent]["disallow"],
+                "%s is named but not actually blocked" % agent,
+            )
+
+        # Exhaustive: adding or removing a group has to be a deliberate edit
+        # here too, so a stanza cannot be dropped or slipped in unnoticed.
+        self.assertEqual(
+            set(groups),
+            {"*", "ClaudeBot"} | set(self.BLOCKED_AGENTS),
+        )
 
         # Search-indexing and user-triggered agents must NOT have their own
         # groups, so they keep falling through to the permissive "*" group.
@@ -579,11 +618,10 @@ class RobotsTxtTests(SimpleTestCase):
     def test_named_groups_do_not_widen_access(self):
         """Regression guard for robots.txt group precedence.
 
-        A crawler obeys only the most specific group that matches it and
-        ignores ``User-agent: *`` entirely. So any named group that is not a
-        blanket disallow has to restate the baseline rules -- otherwise adding
-        a group *grants* that crawler access to paths it was previously
-        excluded from.
+        The ``User-agent: *`` group applies only to crawlers that match no
+        named group, so a named group that is not a blanket disallow has to
+        restate the baseline rules -- otherwise adding a group *grants* that
+        crawler access to paths it was previously excluded from.
         """
         groups = self._parse_groups(self._get("unglue.it"))
         for agent, rules in groups.items():
