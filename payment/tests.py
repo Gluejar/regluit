@@ -477,3 +477,94 @@ class StripeWebhookCourtesyEmailTest(TestCase):
                 response = stripelib.Processor().ProcessIPN(self._post_event())
         self.assertEqual(response.status_code, 200)
         self.assertEqual(sent.call_count, 1)
+
+
+class AnonymousStripeCustomerBugTest(TestCase):
+    """#1125: a logged-in donor's Stripe Customer must not be created as
+    'anonymous user'.
+
+    Reproduces FundView.form_valid's actual call shape for a one-off
+    donation: transaction.user is set to the authenticated donor, but a
+    Stripe.js card token is still passed through to
+    PaymentManager.charge(..., token=...) because the donor doesn't have an
+    Account yet. Pay.__init__ used to key off token-presence alone to decide
+    "user is anonymous", so it called make_account() without the user and
+    every such donation produced a Stripe Customer described as "anonymous
+    user" with no Account linked back to the donor's profile.
+
+    Uses this repo's mocked-Stripe pattern (see StripeWebhookCourtesyEmailTest
+    above) rather than a live call to the Stripe test-mode API.
+    """
+
+    def _fake_customer(self, customer_id='cus_test_1125'):
+        customer = mock.MagicMock()
+        customer.id = customer_id
+        customer.active_card.last4 = '4242'
+        customer.active_card.type = 'Visa'
+        customer.active_card.exp_month = 1
+        customer.active_card.exp_year = 2030
+        customer.active_card.fingerprint = 'fp_test_1125'
+        customer.active_card.country = 'US'
+        return customer
+
+    def _make_transaction(self, user):
+        # No campaign -- this mirrors FundView.form_valid's plain-donation
+        # branch (`if not self.transaction.campaign:`), the actual code path
+        # #1125 was filed against.
+        t = Transaction(host='stripelib')
+        t.max_amount = D('5.00')
+        t.type = PAYMENT_TYPE_NONE
+        t.status = TRANSACTION_STATUS_NONE
+        t.campaign = None
+        t.approved = False
+        t.user = user
+        t.save()
+        return t
+
+    def test_logged_in_donation_creates_identified_customer(self):
+        """Mirrors FundView.form_valid: transaction.user is the authenticated
+        donor AND a token is passed to charge() (no Account exists yet)."""
+        from regluit.payment import stripelib
+
+        user = User.objects.create_user(
+            'donor_1125', 'donor_1125@example.org', 'payment_test')
+        t = self._make_transaction(user)
+
+        with mock.patch.object(stripelib, "StripeClient") as sc:
+            sc.return_value.create_customer.return_value = self._fake_customer()
+            sc.return_value.create_charge.return_value.id = 'ch_test_1125'
+            pm = PaymentManager()
+            pm.charge(t, token={
+                "number": "4242424242424242", "exp_month": 1, "exp_year": 2030})
+
+        _, kwargs = sc.return_value.create_customer.call_args
+        self.assertEqual(kwargs.get('description'), user.username)
+        self.assertEqual(kwargs.get('email'), user.email)
+
+        account = Account.objects.get(account_id='cus_test_1125')
+        self.assertEqual(account.user, user)
+
+    def test_truly_anonymous_donation_still_anonymous(self):
+        """No transaction.user at all -- must keep the pre-existing
+        anonymous-customer behavior (email from transaction.receipt, no
+        Account.user)."""
+        from regluit.payment import stripelib
+
+        t = self._make_transaction(user=None)
+        t.receipt = 'anon_1125@example.org'
+        t.save()
+
+        with mock.patch.object(stripelib, "StripeClient") as sc:
+            sc.return_value.create_customer.return_value = self._fake_customer(
+                customer_id='cus_test_1125_anon')
+            sc.return_value.create_charge.return_value.id = 'ch_test_1125_anon'
+            pm = PaymentManager()
+            pm.charge(t, token={
+                "number": "4242424242424242", "exp_month": 1, "exp_year": 2030})
+
+        _, kwargs = sc.return_value.create_customer.call_args
+        self.assertEqual(kwargs.get('description'), 'anonymous user')
+        self.assertEqual(kwargs.get('email'), 'anon_1125@example.org')
+
+        account = Account.objects.get(account_id='cus_test_1125_anon')
+        self.assertIsNone(account.user)
