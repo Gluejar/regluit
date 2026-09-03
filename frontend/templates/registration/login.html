@@ -29,11 +29,6 @@ Make sure the username box has your <b>username, not your email</b> -- some brow
 
 
 <a href="{% url 'libraryauth_password_reset' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Forgot</a> your password?  <a href="{% url 'registration_register' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Need an account</a>?  <a href="/faq/basics/account">Other questions</a>?
-
-
-<br /><br />
-
-   <a  class="btn btn-social btn-google-plus" href="{% url 'social:begin' "google-oauth2" %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}" ><i class="fa fa-google"></i>Sign in with Google</a>
 {% else %}
 <div>
 You are already logged in as <a href="{% url 'supporter' user %}">{{ user.username }}</a>.

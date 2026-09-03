@@ -1,6 +1,7 @@
 from types import SimpleNamespace
 
 from bs4 import BeautifulSoup
+from django.conf import settings
 from django.urls import reverse
 from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User, AnonymousUser
@@ -243,3 +244,129 @@ class TestLogoutFormsInErrorTemplates(TestCase):
             },
         )
         self._assert_button_form_wired_correctly(soup, 'log out', expected_next=path)
+
+
+class TestGoogleLoginRemoved(TestCase):
+    """Regression guard for the Google-login removal (2026-08-30).
+
+    Eric asked to remove the "Sign in with Google" button (Gmail thread
+    1a04cd3f47fac2a2) after Google flagged unglue.it's OAuth client
+    (569579163337-...) as inactive >=5 months and due for deletion ~Sept 25,
+    2026. Removed: the Google backend from AUTHENTICATION_BACKENDS and every
+    "Sign in/Sign Up with Google" link (login, home, gift_login,
+    from_pledge, registration_form). Left in place on purpose: social_django
+    itself, the generic social-auth pipeline, and OpenIdAuth -- so existing
+    Google-linked users' UserSocialAuth rows stay intact and queryable, and
+    a still-registered (if unused) backend keeps working. These tests would
+    have caught a page still advertising a login option whose backend is
+    gone.
+    """
+    fixtures = ['initial_data.json']
+
+    def setUp(self):
+        # Pre-existing, unrelated flake: templatetags/puzzle.py reads
+        # `cache.get('encode_answers')` once at *import* time rather than
+        # per-request, and only libraryauth/forms.py ever populates that
+        # cache key. If this test class is the first thing in a test run to
+        # touch a `{% puzz %}` template (home.html, registration_form.html)
+        # before something has imported forms.py, puzzle.encode_answers is
+        # still None and any such page render raises TypeError -- reproduces
+        # identically on unmodified master, nothing to do with Google login.
+        # Import forms.py here (its own module-level code populates the
+        # cache) and patch puzzle's already-cached reference if it grabbed
+        # None before that happened.
+        from . import forms as _forms  # noqa: F401 (import side effect only)
+        from .templatetags import puzzle as _puzzle
+        if _puzzle.encode_answers is None:
+            _puzzle.encode_answers = _forms.encoder
+
+    def _assert_no_google_markup(self, content):
+        self.assertNotIn('google-oauth2', content)
+        self.assertNotIn('btn-google-plus', content)
+        self.assertNotIn('Sign in with Google', content)
+        self.assertNotIn('Sign Up with Google', content)
+
+    def _assert_no_google_button(self, path):
+        resp = self.client.get(path)
+        self.assertEqual(200, resp.status_code)
+        self._assert_no_google_markup(resp.content.decode('utf-8'))
+
+    def test_login_page_has_no_google_button(self):
+        self._assert_no_google_button(reverse('superlogin'))
+
+    def test_home_page_has_no_google_button(self):
+        # Not a full render: home() requires a featured Campaign these
+        # fixtures don't provide (a pre-existing fixture gap unrelated to
+        # this change -- reproduces identically on unmodified master), and
+        # the template itself pulls in unrelated live data (campaigns,
+        # books) that would need to be faked just to reach the signup box.
+        # Reading the template source directly is weaker than a live
+        # render but fully deterministic, and still catches the actual
+        # regression this guards against: the button's markup returning.
+        from django.template.loader import get_template
+        source_path = get_template('home.html').origin.name
+        with open(source_path, encoding='utf-8') as f:
+            self._assert_no_google_markup(f.read())
+
+    def test_registration_page_has_no_google_button(self):
+        self._assert_no_google_button(reverse('registration_register'))
+
+    def test_google_backend_not_registered(self):
+        self.assertNotIn(
+            'social_core.backends.google.GoogleOAuth2',
+            settings.AUTHENTICATION_BACKENDS,
+        )
+
+    def test_openid_backend_still_registered(self):
+        # Confirms the removal was scoped to Google, not social_django as a
+        # whole -- OpenIdAuth (unused elsewhere, but not this change's job
+        # to touch) must still be there.
+        self.assertIn(
+            'social_core.backends.open_id.OpenIdAuth',
+            settings.AUTHENTICATION_BACKENDS,
+        )
+
+    def test_google_oauth_begin_url_no_longer_reaches_google(self):
+        # With the backend deregistered, python-social-auth must refuse the
+        # begin URL rather than redirect to accounts.google.com -- otherwise
+        # a stale bookmark/crawled link would still complete a login. The
+        # generic /socialauth/login/<backend>/ URL pattern still matches
+        # (that's not Google-specific), but social_django can't load
+        # 'google-oauth2' as a registered backend any more and raises
+        # Http404 -- confirmed directly rather than just asserting "not a
+        # redirect" (a defensive assertNotEqual(302, ...) would also pass
+        # for an unrelated 500, which isn't the guarantee this test exists
+        # to make. Codex review round 2, 2026-08-30).
+        resp = self.client.get('/socialauth/login/google-oauth2/', follow=False)
+        self.assertEqual(404, resp.status_code)
+
+    def test_gift_login_page_has_no_google_button(self):
+        # gift_login.html is rendered from receive_gift(), which needs a
+        # real Gift/Acquisition/Transaction chain this test doesn't set up.
+        # Render directly with a minimal fake context instead (same
+        # approach TestLogoutFormsInErrorTemplates uses below) -- covers
+        # the template Codex flagged as claimed-but-untested.
+        request = RequestFactory().get('/')
+        request.user = AnonymousUser()
+        html = render_to_string(
+            'gift_login.html',
+            {
+                'work': SimpleNamespace(id=1, title='A Test Work'),
+                'gift': SimpleNamespace(acq=SimpleNamespace(
+                    user=SimpleNamespace(username='giftee'),
+                    nonce='abc123',
+                )),
+            },
+            request=request,
+        )
+        self._assert_no_google_markup(html)
+
+    def test_from_pledge_page_has_no_google_button(self):
+        # Unlike the other four templates, from_pledge.html needed no
+        # Google-specific context (the removed block was the only thing
+        # that used `next`/`socials` here), so this needs nothing beyond
+        # an anonymous request.
+        request = RequestFactory().get('/')
+        request.user = AnonymousUser()
+        html = render_to_string('registration/from_pledge.html', {}, request=request)
+        self._assert_no_google_markup(html)
