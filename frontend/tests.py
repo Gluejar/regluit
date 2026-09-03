@@ -494,11 +494,21 @@ class ThanksContributionEndToEndTests(TestCase):
     Drives the actual FundView (/payment/fund/<t_id>) through the Django
     test client, using this repo's mocked-StripeClient pattern (see
     payment.tests.StripeWebhookCourtesyEmailTest /
-    AnonymousStripeCustomerBugTest) rather than a live Stripe call --
-    covering: an authenticated THANKS contribution end-to-end (charge ->
-    transaction complete -> Acq acknowledgement), the same for an
-    anonymous contribution, and a legacy REWARDS-campaign transaction to
-    prove existing pledges still complete correctly post-retirement.
+    AnonymousStripeCustomerBugTest) rather than a live Stripe call. Only
+    Stripe's wrapper class is mocked -- URL resolution, form
+    selection/validation, FundView.form_valid(), account persistence,
+    PaymentManager.charge(), Pay/Execute, the transaction_charged signal,
+    and Acq creation all run as production code, so this is a genuine
+    FundView integration test (it does not cover DownloadView, browser-side
+    tokenization, CSRF enforcement, or the completion-page GET).
+
+    Codex review of PR #1250 (round 1) found the mock too permissive (a
+    wrong amount/customer/token would still show COMPLETE) and the
+    original "legacy campaign" test didn't match #1215's "active legacy
+    campaign" criterion -- both addressed below: every test now asserts
+    the exact create_customer/create_charge call arguments and the
+    resulting preapproval_key/pay_key, and the legacy-campaign test uses
+    an ACTIVE (not already-SUCCESSFUL) REWARDS campaign.
     """
 
     def _fake_customer(self, customer_id):
@@ -516,6 +526,35 @@ class ThanksContributionEndToEndTests(TestCase):
         sc.return_value.create_customer.return_value = self._fake_customer(customer_id)
         sc.return_value.create_charge.return_value.id = charge_id
 
+    def _assert_charged_the_right_customer(self, sc, expected_card, expected_customer_id,
+                                            expected_amount, t, expected_charge_id):
+        """Codex round-1 (#1250): pin down that the mocked Stripe calls
+        actually carried the right token/customer/amount, not just that
+        *some* create_charge call happened -- a wrong amount, wrong
+        customer, or dropped token would still leave transaction.status
+        COMPLETE with only the original, more permissive assertions."""
+        from decimal import Decimal as D
+        from regluit.payment.parameters import TRANSACTION_STATUS_COMPLETE
+
+        sc.return_value.create_customer.assert_called_once()
+        _, customer_kwargs = sc.return_value.create_customer.call_args
+        self.assertEqual(customer_kwargs.get('card'), expected_card)
+
+        sc.return_value.create_charge.assert_called_once()
+        charge_args, charge_kwargs = sc.return_value.create_charge.call_args
+        self.assertEqual(charge_args[0], D(expected_amount))
+        self.assertEqual(charge_kwargs.get('customer'), expected_customer_id)
+
+        t.refresh_from_db()
+        self.assertEqual(t.status, TRANSACTION_STATUS_COMPLETE)
+        # PaymentManager.charge() overwrites preapproval_key with p.key()
+        # (Pay.key() -> transaction.pay_key, the charge id) once the charge
+        # succeeds -- confirmed by reading payment/manager.py directly
+        # rather than assumed; it does NOT stay the Customer id Pay.__init__
+        # set it to internally.
+        self.assertEqual(t.preapproval_key, expected_charge_id)
+        self.assertEqual(t.pay_key, expected_charge_id)
+
     def _start_contribution(self, campaign, user, amount='5.00'):
         """Mirrors DownloadView.form_valid's "Say Thank You" call shape:
         creates the pending Transaction via PaymentManager.process_transaction
@@ -531,7 +570,7 @@ class ThanksContributionEndToEndTests(TestCase):
         from regluit.core.models import Acq, Campaign, Work
         from regluit.core.parameters import THANKED, THANKS
         from regluit.payment import stripelib
-        from regluit.payment.parameters import TRANSACTION_STATUS_COMPLETE
+        from regluit.payment.parameters import TRANSACTION_STATUS_NONE
 
         user = User.objects.create_user(
             'thanker_1215', 'thanker_1215@example.org', 'payment_test')
@@ -540,21 +579,20 @@ class ThanksContributionEndToEndTests(TestCase):
         c = Campaign(name='Test Work', work=w, type=THANKS, status='ACTIVE')
         c.save()
 
-        from regluit.payment.parameters import TRANSACTION_STATUS_NONE
         t, url = self._start_contribution(c, user)
         self.assertEqual(t.status, TRANSACTION_STATUS_NONE)  # not yet charged
+        card_ref = 'card-ref-test-1215-auth'
 
         client = Client()
         client.force_login(user)
         with mock.patch.object(stripelib, "StripeClient") as sc:
             self._mock_stripe(sc, 'cus_test_1215_auth', 'ch_test_1215_auth')
-            response = client.post(url, {'stripe_token': 'card-ref-test-1215-auth'})
+            response = client.post(url, {'stripe_token': card_ref})
 
-        self.assertEqual(response.status_code, 302)
-        self.assertIn(str(t.id), response['Location'])
-
-        t.refresh_from_db()
-        self.assertEqual(t.status, TRANSACTION_STATUS_COMPLETE)
+            self.assertEqual(response.status_code, 302)
+            self.assertIn(str(t.id), response['Location'])
+            self._assert_charged_the_right_customer(
+                sc, card_ref, 'cus_test_1215_auth', '5.00', t, 'ch_test_1215_auth')
 
         acq = Acq.objects.get(user=user, work=w)
         self.assertEqual(acq.license, THANKED)
@@ -562,8 +600,8 @@ class ThanksContributionEndToEndTests(TestCase):
     def test_anonymous_thanks_contribution_completes(self):
         from regluit.core.models import Acq, Campaign, Work
         from regluit.core.parameters import THANKS
+        from regluit.core import tasks
         from regluit.payment import stripelib
-        from regluit.payment.parameters import TRANSACTION_STATUS_COMPLETE
         from django.contrib.auth.models import AnonymousUser
 
         w = Work()
@@ -573,34 +611,43 @@ class ThanksContributionEndToEndTests(TestCase):
 
         t, url = self._start_contribution(c, AnonymousUser())
         self.assertIsNone(t.user)
+        card_ref = 'card-ref-test-1215-anon'
 
         client = Client()  # no login
-        with mock.patch.object(stripelib, "StripeClient") as sc:
+        with mock.patch.object(stripelib, "StripeClient") as sc, \
+                mock.patch.object(tasks, "send_mail_task") as mailed:
             self._mock_stripe(sc, 'cus_test_1215_anon', 'ch_test_1215_anon')
             response = client.post(url, {
-                'stripe_token': 'card-ref-test-1215-anon',
+                'stripe_token': card_ref,
                 'email': 'anon_1215@example.org',
             })
 
-        self.assertEqual(response.status_code, 302)
+            self.assertEqual(response.status_code, 302)
+            self._assert_charged_the_right_customer(
+                sc, card_ref, 'cus_test_1215_anon', '5.00', t, 'ch_test_1215_anon')
 
-        t.refresh_from_db()
-        self.assertEqual(t.status, TRANSACTION_STATUS_COMPLETE)
-        # no user -> no Acq (there's no profile to attach one to); the
-        # confirmation goes out by email (transaction.receipt) instead.
-        self.assertFalse(Acq.objects.filter(work=w).exists())
-        self.assertEqual(t.receipt, 'anon_1215@example.org')
+            # no user -> no Acq (there's no profile to attach one to); the
+            # confirmation goes out by email instead. Codex round-1
+            # (#1250): confirm the task actually fires, not just that
+            # transaction.receipt got populated.
+            self.assertFalse(Acq.objects.filter(work=w).exists())
+            self.assertEqual(t.receipt, 'anon_1215@example.org')
+            mailed.delay.assert_called_once()
+            mail_args, _ = mailed.delay.call_args
+            self.assertEqual(mail_args[3], ['anon_1215@example.org'])  # recipient_list
 
     def test_legacy_rewards_campaign_transaction_still_completes(self):
         """#1213 retired Pledge/Buy-to-Unglue as *creatable* campaign types,
-        but existing REWARDS-type campaigns/transactions from before the
-        retirement must keep working through the exact same FundView charge
-        path THANKS uses."""
+        but an existing, still-ACTIVE REWARDS campaign from before the
+        retirement must keep letting its supporters complete a pledge
+        through the exact same FundView immediate-charge path THANKS uses
+        (this does not exercise the separate delayed-execution path a
+        pre-retirement pledge could also take via execute_campaign(), which
+        is unaffected by #1213/#1215 and outside this test's scope)."""
         from decimal import Decimal as D
         from regluit.core.models import Acq, Campaign, Work
         from regluit.core.parameters import REWARDS
         from regluit.payment import stripelib
-        from regluit.payment.parameters import TRANSACTION_STATUS_COMPLETE
 
         user = User.objects.create_user(
             'legacy_pledger_1215', 'legacy_pledger_1215@example.org', 'payment_test')
@@ -608,21 +655,22 @@ class ThanksContributionEndToEndTests(TestCase):
         w.save()
         c = Campaign(
             name='Legacy Pledge Work', work=w, type=REWARDS,
-            target=D('1000.00'), status='SUCCESSFUL')
+            target=D('1000.00'), status='ACTIVE')
         c.save()
 
         t, url = self._start_contribution(c, user)
+        card_ref = 'card-ref-test-1215-legacy'
 
         client = Client()
         client.force_login(user)
         with mock.patch.object(stripelib, "StripeClient") as sc:
             self._mock_stripe(sc, 'cus_test_1215_legacy', 'ch_test_1215_legacy')
-            response = client.post(url, {'stripe_token': 'card-ref-test-1215-legacy'})
+            response = client.post(url, {'stripe_token': card_ref})
 
-        self.assertEqual(response.status_code, 302)
+            self.assertEqual(response.status_code, 302)
+            self._assert_charged_the_right_customer(
+                sc, card_ref, 'cus_test_1215_legacy', '5.00', t, 'ch_test_1215_legacy')
 
-        t.refresh_from_db()
-        self.assertEqual(t.status, TRANSACTION_STATUS_COMPLETE)
         # REWARDS acknowledgement is a notification, not an Acq (Acq
         # creation in handle_transaction_charged is THANKS-only).
         self.assertFalse(Acq.objects.filter(work=w).exists())
