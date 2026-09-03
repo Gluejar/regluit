@@ -6,6 +6,7 @@ import os
 import time
 import traceback
 import unittest
+from unittest import mock
 
 from datetime import timedelta
 from decimal import Decimal as D
@@ -26,6 +27,7 @@ from django.utils.timezone import now
 regluit imports
 """
 from regluit.core.models import Campaign, Wishlist, Work
+from regluit.core.parameters import REWARDS
 from regluit.core.signals import handle_transaction_charged
 from regluit.payment.manager import PaymentManager
 from regluit.payment.models import Transaction, Account
@@ -285,7 +287,9 @@ class TransactionTest(TestCase):
 
         w = Work()
         w.save()
-        c = Campaign(target=D('1000.00'),deadline=now() + timedelta(days=180),work=w)
+        c = Campaign(target=D('1000.00'),deadline=now() + timedelta(days=180),work=w,
+                     # legacy pledge transaction: pin type now that the default is THANKS (#1195)
+                     type=REWARDS)
         c.save()
         
         t = Transaction()
@@ -329,7 +333,9 @@ class TransactionTest(TestCase):
         w = Work()
         w.save()
         
-        c = Campaign(target=D('1000.00'),deadline=now() + timedelta(days=180),work=w)
+        c = Campaign(target=D('1000.00'),deadline=now() + timedelta(days=180),work=w,
+                     # legacy pledge transaction: pin type now that the default is THANKS (#1195)
+                     type=REWARDS)
         c.save()
         
         t = Transaction(host='stripelib')
@@ -420,3 +426,54 @@ def suite():
     return suites    
         
        
+
+
+class StripeWebhookCourtesyEmailTest(TestCase):
+    """#1216: a failing courtesy email must not 500 the Stripe webhook.
+
+    The customer.created handler sends an FYI email to support synchronously.
+    Before the guard, any transient mail failure (observed live 2026-08-23: an
+    intermittent SES auth error) escaped ProcessIPN, the webhook returned 500,
+    and Stripe re-delivered the event on backoff for days — re-attempting the
+    same send and emailing ADMINS a traceback on every retry.
+    """
+
+    def _post_event(self):
+        from django.test import RequestFactory
+        return RequestFactory().post(
+            "/handleipn/stripelib",
+            data='{"id": "evt_test_1216"}',
+            content_type="application/json",
+        )
+
+    def _fake_event(self):
+        class _Obj(dict):
+            pass
+        event = mock.MagicMock()
+        event.get = {"type": "customer.created"}.get
+        data = mock.MagicMock()
+        data.object = _Obj(
+            {"id": "cus_test", "description": "test", "email": "t@example.org"})
+        event.data = data
+        return event
+
+    def test_mail_failure_does_not_500_the_webhook(self):
+        from regluit.payment import stripelib
+
+        with mock.patch.object(stripelib, "StripeClient") as sc:
+            sc.return_value.event.retrieve.return_value = self._fake_event()
+            with mock.patch.object(
+                    stripelib, "send_mail",
+                    side_effect=Exception("SES transient auth failure")):
+                response = stripelib.Processor().ProcessIPN(self._post_event())
+        self.assertEqual(response.status_code, 200)
+
+    def test_mail_success_still_sends(self):
+        from regluit.payment import stripelib
+
+        with mock.patch.object(stripelib, "StripeClient") as sc:
+            sc.return_value.event.retrieve.return_value = self._fake_event()
+            with mock.patch.object(stripelib, "send_mail") as sent:
+                response = stripelib.Processor().ProcessIPN(self._post_event())
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(sent.call_count, 1)

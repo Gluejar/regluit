@@ -113,7 +113,11 @@ class RegistrationFormNoDisposableEmail(RegistrationFormUniqueEmail, UserNamePas
         Check the supplied email address against a list of known disposable
         webmail domains.
         """
-        cleaned_email = super(RegistrationFormNoDisposableEmail, self).clean_email()
+        # django-registration 3.x moved the unique-email check to a field validator
+        # (RegistrationFormUniqueEmail.__init__), so there is no super().clean_email()
+        # to call any more. By the time this per-field clean runs, the email field has
+        # already been validated and stored in cleaned_data.
+        cleaned_email = self.cleaned_data['email']
         logger.info('cleaning email')
         if is_disposable(cleaned_email):
             raise forms.ValidationError(_("Please supply a permanent email address."))

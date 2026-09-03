@@ -17,8 +17,6 @@ Join us in thanking the creators! Download a copy and leave a contribution. http
 
 Tell your friends -- there are handy share options on the campaign page.  There's even a widget you can put on your blog or home page. https://{{ current_site.domain }}{% url 'work' campaign.work_id %}
 
-Join the discussion: share why you love {{ campaign.work.title }} and the world will too. https://{{ current_site.domain }}{% url 'work' campaign.work_id %}?tab=2
-
 Thank you!
 
 {{ campaign.rightsholder }} (rights holder for {{ campaign.work.title }}) and the Unglue.it Team

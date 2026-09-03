@@ -45,7 +45,6 @@ from regluit.core.parameters import (
     REWARDS,
     BUY2UNGLUE,
     THANKS,
-    DONATION_CHOICES,
 )
 from regluit.core.lookups import (
     OwnerLookup,
@@ -129,8 +128,10 @@ class EbookForm(forms.ModelForm):
         return new_label if new_label else self.cleaned_data['version_label']
 
     def set_provider(self):
-        url = self.cleaned_data['url']
-        new_provider = Ebook.infer_provider(url)
+        # clean_url() removes 'url' from cleaned_data when it raises (e.g. duplicate
+        # URL); guard so the form-level clean() reports that error instead of 500ing.
+        url = self.cleaned_data.get('url')
+        new_provider = Ebook.infer_provider(url) if url else None
         if url and not new_provider:
             raise forms.ValidationError(_("At this time, ebook URLs must point at Internet Archive, Wikisources, Wikibooks, Hathitrust, Project Gutenberg, raw files at Github, Google Books, or OApen."))
         self.cleaned_data['provider'] = new_provider if new_provider else "Unglue.it"
@@ -330,7 +331,6 @@ class CampaignThanksForm(forms.Form):
         pe = PledgeExtra( anonymous=self.cleaned_data['anonymous'] )
 
 class DonationForm(forms.Form):
-    # used only for validation; not currently used for display
     amount = forms.DecimalField(
         required = True,
         min_value=D('5.00'),
@@ -338,7 +338,11 @@ class DonationForm(forms.Form):
         decimal_places=2,
         label="Donation Amount",
     )
-    reason = forms.ChoiceField(choices=DONATION_CHOICES, required=False)
+    # No `reason`/fund field (#1230): donations only support the General
+    # Fund now, hardcoded in NewDonationView.form_valid rather than read
+    # from POST data, so there's no field here to omit or spoof. Historical
+    # transactions with reason="monographs" are unaffected -- FUNDS and
+    # Transaction.reason are untouched.
 
 
 class CampaignPledgeForm(forms.Form):
@@ -499,20 +503,24 @@ class MsgForm(forms.Form):
 
     def full_clean(self):
         super(MsgForm, self).full_clean()
+        # Use add_error(), not raise: a ValidationError raised from an overridden
+        # full_clean() propagates out of is_valid() (a 500) instead of marking the
+        # form invalid. Also catch ValueError/TypeError so a non-numeric id from POST
+        # doesn't crash the int lookup.
         if "supporter" in self.data:
             try:
                 self.cleaned_data['supporter'] = User.objects.get(id=self.data["supporter"])
-            except User.DoesNotExist:
-                raise ValidationError("Supporter does not exist")
+            except (User.DoesNotExist, ValueError, TypeError):
+                self.add_error(None, "Supporter does not exist")
         else:
-            raise ValidationError("Supporter is not specified")
+            self.add_error(None, "Supporter is not specified")
         if "work" in self.data:
             try:
                 self.cleaned_data['work'] = Work.objects.get(id=self.data["work"])
-            except Work.DoesNotExist:
-                raise ValidationError("Work does not exist")
+            except (Work.DoesNotExist, ValueError, TypeError):
+                self.add_error(None, "Work does not exist")
         else:
-            raise ValidationError("Work is not specified")
+            self.add_error(None, "Work is not specified")
 
 class PressForm(forms.ModelForm):
     class Meta:

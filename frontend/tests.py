@@ -220,3 +220,263 @@ class GoogleBooksTest(TestCase):
         work_url = r['location']
         self.assertTrue(re.match(r'.*/work/\d+/$', work_url))
 
+
+
+from django.test import SimpleTestCase
+from django.template import Template, Context
+from regluit.utils.html import sanitize_html
+
+
+class SanitizeRichTextTests(SimpleTestCase):
+    """Server-side sanitization of CKEditor rich text (security-private#26)."""
+
+    def test_strips_script(self):
+        self.assertEqual(sanitize_html('<script>alert(1)</script>hi'), 'hi')
+
+    def test_strips_event_handlers(self):
+        self.assertNotIn('onerror', sanitize_html(
+            '<img src="https://s3/c.jpg" alt="c" onerror="alert(1)">'))
+
+    def test_strips_javascript_url(self):
+        self.assertNotIn('javascript:', sanitize_html(
+            '<a href="javascript:alert(1)">x</a>'))
+
+    def test_keeps_allowed_formatting(self):
+        out = sanitize_html('<p>Hello <strong>world</strong> <em>ok</em></p>'
+                            '<blockquote>q</blockquote><ul><li>a</li></ul>')
+        for frag in ('<strong>world</strong>', '<em>ok</em>',
+                     '<blockquote>q</blockquote>', '<li>a</li>'):
+            self.assertIn(frag, out)
+
+    def test_keeps_safe_links_and_images(self):
+        out = sanitize_html('<a href="https://x.com">l</a>'
+                            '<img src="https://s3/c.jpg" alt="c">')
+        self.assertIn('href="https://x.com"', out)
+        self.assertIn('src="https://s3/c.jpg"', out)
+
+    def test_none_passthrough(self):
+        self.assertIsNone(sanitize_html(None))
+
+    def test_template_filter_strips_and_marks_safe(self):
+        rendered = Template(
+            '{% load sanitizer %}{{ body|sanitize }}'
+        ).render(Context({'body': '<b>ok</b><script>alert(1)</script>'}))
+        self.assertIn('<b>ok</b>', rendered)
+        self.assertNotIn('<script>', rendered)  # not escaped, actually removed
+        self.assertNotIn('&lt;script&gt;', rendered)
+class FeedbackSelfLinkTests(TestCase):
+    """Regression: the feedback page must not link back to itself with a
+    ?page=<current-url> parameter. That self-reference (emitted by the base
+    template's footer/nav on every page, including /feedback/ itself) created
+    an infinite, self-encoding URL space that crawler fleets walked at tens of
+    thousands of requests per hour on 2026-07-10, saturating the web workers.
+    See INCIDENT_2026-07-10_crawler_trap_flood.md."""
+
+    def test_feedback_page_has_no_self_referencing_link(self):
+        r = Client().get("/feedback/")
+        self.assertEqual(r.status_code, 200)
+        self.assertNotIn("/feedback/?page=", str(r.content, 'utf-8'))
+
+    def test_feedback_page_with_page_param_has_no_self_referencing_link(self):
+        # Even a crawler-style request that already carries an encoded
+        # feedback URL must not be handed a deeper level of nesting.
+        r = Client().get("/feedback/", {"page": "https://testserver/feedback/?page=x"})
+        self.assertEqual(r.status_code, 200)
+        # Assert on hrefs specifically: the form legitimately echoes the
+        # incoming page value in a hidden field / subject line, but no LINK
+        # (the crawlable surface) may carry a parameterized feedback URL.
+        self.assertNotIn('href="/feedback/?page=', str(r.content, 'utf-8'))
+
+    def test_other_pages_carry_exact_current_url(self):
+        # The footer feedback link on non-feedback pages must embed the exact
+        # current URL (urlencoded) so the form records where the user came from.
+        from urllib.parse import quote
+        r = Client().get("/privacy/")
+        self.assertEqual(r.status_code, 200)
+        content = str(r.content, 'utf-8')
+        self.assertIn("/feedback/?page=", content)
+        self.assertIn(quote("http://testserver/privacy/", safe=''), content)
+
+    def test_pagination_state_is_preserved_in_recorded_url(self):
+        # A page= query parameter on a non-feedback page is legitimate
+        # pagination state and must survive into the recorded URL
+        # (regression guard: an earlier draft of this fix stripped it).
+        from urllib.parse import quote
+        r = Client().get("/privacy/", {"q": "sverige", "page": "2"})
+        self.assertEqual(r.status_code, 200)
+        content = str(r.content, 'utf-8')
+        self.assertIn(quote("page=2", safe=''), content)
+        self.assertIn(quote("q=sverige", safe=''), content)
+
+    def test_feedback_login_chain_reaches_fixed_point(self):
+        # Codex round-2 finding: on /feedback/ the Sign In link's ?next=
+        # embedded the full feedback URL, so a crawler alternating
+        # feedback -> superlogin -> feedback -> superlogin got ever-growing
+        # URLs. With auth_next using the bare path on the feedback route,
+        # the chain must reach a fixed point instead.
+        import re
+        c = Client()
+
+        def signin_href(html):
+            m = re.search(r'href="(/accounts/superlogin/\?next=[^"]*)"', html)
+            self.assertIsNotNone(m, "no sign-in link found")
+            return m.group(1)
+
+        def feedback_href(html):
+            m = re.search(r'href="(/feedback/[^"]*)"', html)
+            self.assertIsNotNone(m, "no feedback link found")
+            return m.group(1)
+
+        url = "/feedback/?page=https%3A%2F%2Ftestserver%2Fwork%2F1%2F"
+        seen = set()
+        for _ in range(4):
+            r = c.get(url)
+            self.assertEqual(r.status_code, 200)
+            html = str(r.content, 'utf-8')
+            login = signin_href(html)
+            # next must be the bare feedback path, never a growing URL
+            self.assertEqual(login, "/accounts/superlogin/?next=%2Ffeedback%2F")
+            r2 = c.get(login)
+            self.assertEqual(r2.status_code, 200)
+            url = feedback_href(str(r2.content, 'utf-8'))
+            self.assertLess(len(url), 300, "chain URL should not grow")
+            if url in seen:
+                break
+            seen.add(url)
+        else:
+            self.fail("feedback/login chain did not reach a fixed point in 4 rounds")
+
+    def test_feedback_url_tag_without_request_in_context(self):
+        # Rendering outside a request cycle (e.g. error pages, emails) must
+        # degrade to the bare feedback URL, not raise.
+        from django.template import Context, Template
+        rendered = Template(
+            "{% load feedback_link %}{% feedback_url %}"
+        ).render(Context({}))
+        self.assertEqual(rendered, "/feedback/")
+
+
+
+class CampaignRetirementTests(TestCase):
+    """Pledge (REWARDS) and Buy-to-unglue campaigns are retired (#1195):
+    the rights-holder UI must no longer offer them for new campaigns, while
+    existing legacy campaigns must keep rendering."""
+
+    def setUp(self):
+        from regluit.core.models import RightsHolder, Claim
+        self.user = User.objects.create_user('rhuser', 'rhuser@example.org', 'test')
+        self.rh = RightsHolder.objects.create(
+            rights_holder_name='retirement test rh', owner=self.user, approved=True
+        )
+        self.work = Work.objects.create(title="legacy pledge work", language='en')
+        self.b2u_work = Work.objects.create(title="legacy b2u work", language='en')
+        Claim.objects.create(
+            work=self.work, user=self.user, status='active', rights_holder=self.rh
+        )
+        Claim.objects.create(
+            work=self.b2u_work, user=self.user, status='active', rights_holder=self.rh
+        )
+
+    def test_open_campaign_form_offers_only_thanks(self):
+        from regluit.frontend.forms import OpenCampaignForm
+        from regluit.core.parameters import REWARDS, BUY2UNGLUE, THANKS
+        form = OpenCampaignForm()
+        self.assertEqual(
+            [int(value) for value, label in form.fields['type'].choices],
+            [THANKS],
+        )
+        # POSTs that try to force a retired type are rejected with a clean
+        # form error on 'type'
+        for retired_type in (REWARDS, BUY2UNGLUE):
+            form = OpenCampaignForm(data={
+                'name': self.work.title,
+                'work': self.work.id,
+                'userid': self.user.id,
+                'type': retired_type,
+            })
+            self.assertFalse(form.is_valid())
+            self.assertIn('type', form.errors)
+        # a complete THANKS submission is fully valid (django-selectable's
+        # multiple field takes a list of pks)
+        form = OpenCampaignForm(data={
+            'name': self.work.title,
+            'work': self.work.id,
+            'userid': self.user.id,
+            'managers': [str(self.user.id)],
+            'type': THANKS,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+
+    def test_legacy_campaigns_still_render(self):
+        from datetime import datetime, timedelta
+        from decimal import Decimal as D
+        from django.utils.timezone import now
+        from regluit.core import parameters
+        from regluit.core.models import Campaign
+        pledge = Campaign.objects.create(
+            work=self.work,
+            type=parameters.REWARDS,
+            name='legacy pledge campaign',
+            description='legacy pledge campaign',
+            target=D('1000.00'),
+            deadline=now() + timedelta(days=30),
+        )
+        b2u = Campaign.objects.create(
+            work=self.b2u_work,
+            type=parameters.BUY2UNGLUE,
+            name='legacy b2u campaign',
+            description='legacy b2u campaign',
+            target=D('1000.00'),
+            deadline=datetime(2030, 1, 1),
+            cc_date_initial=datetime(2030, 1, 1),
+        )
+        # legacy campaigns launched before retirement carry ACTIVE status in
+        # the db; retirement must not break their read-only display
+        for campaign in (pledge, b2u):
+            campaign.status = 'ACTIVE'
+            campaign.activated = now()
+            campaign.left = campaign.target
+            campaign.save()
+        anon_client = Client()
+        for work in (self.work, self.b2u_work):
+            r = anon_client.get("/work/{}/".format(work.id))
+            self.assertEqual(r.status_code, 200)
+
+
+class LoginDoubleSubmitGuardTests(TestCase):
+    """Tests pinning the #1240 double-submit guard in place.
+
+    The guard itself is client-side JS (static/js/sitewide1.js). Its behavior
+    is exercised by a dependency-free Node test (run here when node is
+    available); the Django-side tests assert the wiring that makes the guard
+    effective: the login form posts to the URL the guard watches, and every
+    page loads the script that carries it.
+    """
+
+    def test_login_page_wires_up_guard(self):
+        r = Client().get("/accounts/superlogin/")
+        self.assertEqual(r.status_code, 200)
+        content = r.content.decode()
+        # base.html loads the sitewide script that contains the guard
+        self.assertIn("/static/js/sitewide1.js", content)
+        # the login form still posts to the action the guard is scoped to
+        self.assertIn('action="/accounts/superlogin/"', content)
+
+    def test_guard_behavior_via_node(self):
+        import os
+        import shutil
+        import subprocess
+        import unittest
+        if not shutil.which("node"):
+            raise unittest.SkipTest("node not available")
+        test_js = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            "static", "js", "tests", "login_guard_test.js",
+        )
+        result = subprocess.run(
+            ["node", test_js], capture_output=True, text=True, timeout=30,
+        )
+        self.assertEqual(
+            result.returncode, 0,
+            "guard behavioral tests failed:\n%s\n%s" % (result.stdout, result.stderr),
+        )

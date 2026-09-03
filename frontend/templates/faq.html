@@ -1,4 +1,5 @@
 {% extends 'basedocumentation.html' %}
+{% load feedback_link %}
 
 {% block title %} FAQ {% endblock %}
 {% block topsection %}
@@ -12,7 +13,7 @@
 <dl>
 <dt class="background: #8dc63f; color: white; font-weight: bold;">Help! My question isn't covered in the FAQs!</dt>
 
-<dd><a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">Let us know!</a>.  We want to make sure everything on the site runs as smoothly as possible.  Thanks for helping us do that.</dd>
+<dd><a href="{% feedback_url %}">Let us know!</a>.  We want to make sure everything on the site runs as smoothly as possible.  Thanks for helping us do that.</dd>
 </dl>
 {% endif %}
 {% if location == 'basics' or location == 'faq' %}
@@ -38,7 +39,7 @@ Freedom can help a book accomplish its mission, and that's why the ebook is free
 <dt>What about the authors and publishers, how do they make money?</dt>
 
 
-<dd>That's the million dollar question. You don't make money by giving away ebooks. Many authors make money other ways - by teaching, by consulting, by getting tenure. Some authors do well by selling printed books alongside their free ebooks. We started Unglue.it because we hoped to give ebook creators additional ways to support their work: <a href="{% url 'faq_location' 'campaigns' %}">Ungluing Campaigns</a>.
+<dd>That's the million dollar question. You don't make money by giving away ebooks. Many authors make money other ways - by teaching, by consulting, by getting tenure. Some authors do well by selling printed books alongside their free ebooks. We started Unglue.it because we hoped to give ebook creators additional ways to support their work.
 <br /><br />  We hope you'll choose to support some of these Campaigns, but if you like an ebook you find on Unglue.it, don't hesitate to lend  your support in other ways.
 </dd>
 
@@ -117,9 +118,14 @@ If you receive our newsletter, there's a link at the bottom of every message to 
 
 <dd>Unglue.it's active program is <i><a href="{% url 'faq_sublocation' 'campaigns' 't4u' %}">Thanks-for-Ungluing</a></i>. When a creator releases an ebook with a Creative Commons license, supporters can express their thanks by paying what they wish. You can also <a href="{% url 'newdonation' %}">make a donation</a> to the Free Ebook Foundation to support the site and its mission.
 </dd>
+</dl>
 
 {% if sublocation == 'all' or sublocation == 't4u' %}
 {% include "faq_t4u.html" %}
+{% endif %}
+{% if sublocation == 'b2u' %}
+{# legacy-program FAQ (record layer): reachable only by direct link, e.g. from the ToS; deliberately not shown on the main FAQ page (#1195) #}
+{% include "faq_b2u.html" %}
 {% endif %}
 {% if sublocation == 'supporting' or sublocation == 'all' %}
 <h4>Donations &amp; Tax Deductibility</h4>
@@ -143,10 +149,10 @@ If you receive our newsletter, there's a link at the bottom of every message to 
 <dt>So what is an unglued ebook?</dt>
 
 <dd>
-An unglued ebook is a <i>free</i> ebook, not an ebook that you <i>don't pay for</i>!
+An unglued ebook is <i>free</i> in the sense of <i>freedom</i> — not merely an ebook that costs nothing.
 <br /><br />
 
-Unglued ebooks use a <a href="https://creativecommons.org">Creative Commons</a> or other free license to counteract the stucked-ness of "all rights reserved" copyrights. Sometimes,  payments are made to the author, publisher, or other rights holder to facilitate the ungluing.<br /><br />
+Unglued ebooks use a <a href="https://creativecommons.org">Creative Commons</a> or other free license to counteract the constraints of "all rights reserved" copyright. Sometimes,  payments are made to the author, publisher, or other rights holder to facilitate the ungluing.<br /><br />
 
 What does this mean for you?  If you're a book lover, you can read unglued ebooks for free, on the device of your choice, in the format of your choice, and share them with all your friends.  If you're a library, you can lend them to your patrons with no checkout limits or simultaneous user restrictions, and preserve them however you think best.  If you're a rights holder, you retain copyright in your work.
 </dd>
@@ -229,7 +235,7 @@ Start by visiting the <a href="{% url 'rightsholders' %}">Rights Holders Tools</
 	<ul class="bullets">
 	    <li>Use <a href="{% url 'new_edition' '' '' %}">this form</a> to enter the metadata.</li>
 	    <li>Your metadata should have title, identifiers, authors, language, description.</li>
-	    <li>If you have a lot of books to enter, <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">contact us</a> to load ONIX or CSV files for you.</li>
+	    <li>If you have a lot of books to enter, <a href="{% feedback_url %}">contact us</a> to load ONIX or CSV files for you.</li>
 	</ul>
 <br /><br />If you expect to see a "Claim" button and do not, either we do not have a RHA from you yet, or we have not yet verified and filed it.  Please contact us at <a href="mailto:rights@ebookfoundation.org">rights@ebookfoundation.org</a>.</dd>
 
@@ -266,7 +272,7 @@ If you want to find an interesting campaign and don't have a specific book in mi
 <dt>What are the requirements for my ebook files?</dt>
 
 <dd>
-{% include 'ebookfiles.html' %}
+{% include 'ebookfiles_thanks.html' %}
 </dd>
 
 </dl>

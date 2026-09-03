@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load cache %}
+{% load sanitizer %}
 {% load sass_tags %}
 {% block title %}&#151; Support Free eBooks{% endblock %}
 
@@ -84,7 +85,7 @@ function put_un_in_cookie2(){
                                             {% endif %}
                                             <span>{{ work.publication_date }}</span>
                                         </div>
-                                        <div class="book-description" style="max-height:200px;overflow:scroll"> {{ work.description|safe }}</div>
+                                        <div class="book-description" style="max-height:200px;overflow:scroll"> {{ work.description|sanitize }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -171,8 +172,7 @@ function put_un_in_cookie2(){
                 	<h3 class="module-title">Donate!</h3>
                     <div class="jsmod-content">
                                  <div>Please help support Unglue.it by making a tax-deductible donation to the Free Ebook Foundation.</div>
-            <form class="askform" method="POST" action="{% url 'newdonation' %}">  
-                    <input type="hidden" value="general" name="reason">              
+            <form class="askform" method="POST" action="{% url 'newdonation' %}">
                     <div class="donate_amount">
                     <label>Amount ($): </label><input id="amount" max="20000.00" min="5.00" name="amount" step="0.01" type="number" value="10.00" class="donate"></div>
                     <div class="button">
@@ -226,15 +226,6 @@ function put_un_in_cookie2(){
                                             <a class="user-book-name" href="{% url 'work' object.campaign.work_id %}">{{ object.campaign.work.title }}</a>
                                         </span>
                                         {% endif %}
-                                    {% elif event.2 == "comment" %}
-                                        <span class="user-avatar">
-                                            <a href="{% url 'supporter' object.user.username %}"><img src="{{ object.user.profile.avatar_url }}" width="43" height="43" title="{{ object.user.username }}" alt="Avatar for {{ object.user.username }}" /></a>
-                                        </span>
-                                        <span class="user-book-info">
-                                            <a href="{% url 'supporter' object.user.username %}">{{ object.user.username }}</a><br />
-                                            commented on<br />
-                                            <a class="user-book-name" href="{% url 'work' object.content_object.id %}?tab=2">{{ object.content_object.title }}</a>
-                                        </span>                                    
                                     {% elif event.2 == "wish" %}
                                         <span class="user-avatar">
                                             <a href="{% url 'supporter' object.wishlist.user.username %}"><img src="{{ object.wishlist.user.profile.avatar_url }}" width="43" height="43" title="{{ object.wishlist.user.username }}" alt="Avatar for {{ object.wishlist.user.username }}" /></a>

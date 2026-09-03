@@ -21,23 +21,22 @@ cryptography==41.0.7; python_version >= '3.7'
 cssselect2==0.7.0; python_version >= '3.7'
 defusedxml==0.8.0rc2; python_version >= '3.6'
 distlib==0.3.8
-django==4.2.21
+django==5.2.15
 django-ckeditor==6.7.3
-django-contrib-comments==2.0.0
+nh3==0.3.6  # server-side HTML sanitization of CKEditor rich text (security-private#26)
 django-el-pagination==4.1.2
 -e git+https://github.com/Gluejar/django-email-change.git@7cef40e#egg=django-email-change
 django-extensions==3.1.1; python_version >= '3.6'
 django-js-asset==2.2.0
 # django-jsonfield removed — using Django 3.2+ native models.JSONField
-django-mptt==0.14.0
+django-mptt==0.18.0
 -e git+https://github.com/Gluejar/django-notification.git@2a7c138#egg=django-notification
 django-registration==3.4
-django-sass-processor==0.8.2
+django-sass-processor==1.4.2
 django-selectable==1.5.0
 django-storages==1.14.6
 docopt==0.6.2
 filelock==3.13.1; python_version >= '3.8'
-gitberg==0.8.7
 gitdb==4.0.11; python_version >= '3.7'
 github3.py==4.0.1; python_version >= '3.7'
 gitpython==3.1.40; python_version >= '3.7'
