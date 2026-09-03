@@ -480,3 +480,40 @@ class LoginDoubleSubmitGuardTests(TestCase):
             result.returncode, 0,
             "guard behavioral tests failed:\n%s\n%s" % (result.stdout, result.stderr),
         )
+
+
+class DonateFooterLinkTests(TestCase):
+    """#1229: the donation form (/payment/donation/create) had no
+    navigation path leading to it anywhere in the site chrome. base.html's
+    sitewide footer is shared by every page in the base.html/
+    registration_base.html/basepledge.html chain, so a single link there
+    (rather than any one page template) gives it a persistent, global
+    affordance for logged-in and anonymous visitors alike."""
+
+    def _donate_links_in_footer(self, content):
+        # Codex review of PR #1248: scope the assertion to the footer
+        # (rather than a bare substring search anywhere in the page) and
+        # confirm the link's accessible text, not just its href.
+        from bs4 import BeautifulSoup
+        soup = BeautifulSoup(content, 'html.parser')
+        footer = soup.find(id='footer')
+        self.assertIsNotNone(footer, "page has no #footer element")
+        return footer.find_all('a', href='/payment/donation/create')
+
+    def test_footer_has_donate_link_on_a_logged_out_page(self):
+        r = Client().get("/privacy/")
+        self.assertEqual(r.status_code, 200)
+        links = self._donate_links_in_footer(str(r.content, 'utf-8'))
+        self.assertEqual(len(links), 1)
+        self.assertEqual(links[0].get_text(strip=True), 'Donate')
+
+    def test_footer_donate_link_present_on_the_donation_form_itself(self):
+        # The chain (fund_the_pledge.html -> basepledge.html ->
+        # registration_base.html -> base.html) means the donation form page
+        # renders the same shared footer, not a stripped-down one. Also
+        # guards against an accidental login redirect swallowing the page.
+        r = Client().get("/payment/donation/create")
+        self.assertEqual(r.status_code, 200)
+        links = self._donate_links_in_footer(str(r.content, 'utf-8'))
+        self.assertEqual(len(links), 1)
+        self.assertEqual(links[0].get_text(strip=True), 'Donate')
