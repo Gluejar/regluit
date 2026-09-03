@@ -542,6 +542,7 @@ class AnonymousStripeCustomerBugTest(TestCase):
             pm = PaymentManager()
             pm.charge(t, token=card_ref)
 
+        sc.return_value.create_customer.assert_called_once()
         _, kwargs = sc.return_value.create_customer.call_args
         self.assertEqual(kwargs.get('card'), card_ref)
         self.assertEqual(kwargs.get('description'), user.username)
@@ -554,6 +555,7 @@ class AnonymousStripeCustomerBugTest(TestCase):
         # go unnoticed -- pin down that the charge actually landed on the
         # Customer this call just created, and that the transaction is
         # left fully complete.
+        sc.return_value.create_charge.assert_called_once()
         _, charge_kwargs = sc.return_value.create_charge.call_args
         self.assertEqual(charge_kwargs.get('customer'), 'cus_test_1125')
 
