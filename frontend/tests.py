@@ -560,9 +560,20 @@ class RobotsTxtTests(SimpleTestCase):
             self.assertIn(agent, groups)
             self.assertIn("/", groups[agent]["disallow"])
 
-        # Search and user-triggered agents must NOT have their own groups,
-        # so they keep falling through to the permissive "*" group.
-        for agent in ("Googlebot", "Claude-User", "ChatGPT-User", "OAI-SearchBot"):
+        # Search-indexing and user-triggered agents must NOT have their own
+        # groups, so they keep falling through to the permissive "*" group.
+        # Their publishers document them as not collecting training data, so
+        # blocking one costs discoverability while shedding no crawl load.
+        for agent in (
+            "Googlebot",
+            "PerplexityBot",
+            "Perplexity-User",
+            "Amzn-SearchBot",
+            "OAI-SearchBot",
+            "ChatGPT-User",
+            "Claude-SearchBot",
+            "Claude-User",
+        ):
             self.assertNotIn(agent, groups)
 
     def test_named_groups_do_not_widen_access(self):
