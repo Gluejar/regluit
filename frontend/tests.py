@@ -488,12 +488,19 @@ from django.test import override_settings
 @override_settings(
     ALLOWED_HOSTS=["unglue.it", "test.unglue.it", "localhost", "127.0.0.1"]
 )
-class RobotsTxtTests(SimpleTestCase):
+class RobotsTxtTests(TestCase):
     """/robots.txt is rendered from a template gated on the request host.
 
     The AI-crawler rules only apply on production; every other host (staging,
     dev, an IP address) must keep serving a blanket disallow so non-canonical
     copies of the site never get indexed.
+
+    This is a ``TestCase`` rather than a ``SimpleTestCase`` even though the
+    view itself touches no models: issuing the request loads the root URLconf,
+    which imports a module that runs a query at import time. Under
+    ``SimpleTestCase`` Django creates no test database, so that query would
+    hit whatever database the settings actually point at. ``TestCase`` gets an
+    isolated test database instead.
     """
 
     BASELINE_DISALLOWS = [
@@ -525,7 +532,6 @@ class RobotsTxtTests(SimpleTestCase):
         "Amazonbot",
         "meta-externalagent",
         "Diffbot",
-        "cohere-ai",
     ]
 
     def _get(self, host):
@@ -538,10 +544,14 @@ class RobotsTxtTests(SimpleTestCase):
     def _parse_groups(body):
         """Return {user-agent: {"disallow": [...], "other": [...]}}.
 
-        Consecutive ``User-agent`` lines share one group, per RFC 9309.
+        Consecutive ``User-agent`` lines share one group (RFC 9309 2.2.1).
+        Only ``Allow``/``Disallow`` close the run of user-agent lines: an
+        extension record such as ``Crawl-delay`` or ``Sitemap`` must not end
+        a group (2.2.4), so it is recorded without moving the boundary.
         """
         groups = {}
         current = []
+        started = False
         for raw in body.splitlines():
             line = raw.split("#", 1)[0].strip()
             if not line or ":" not in line:
@@ -549,19 +559,48 @@ class RobotsTxtTests(SimpleTestCase):
             field, value = (part.strip() for part in line.split(":", 1))
             field = field.lower()
             if field == "user-agent":
-                if current and current[-1][1]:
+                if started:
                     current = []
-                agent = value
-                groups.setdefault(agent, {"disallow": [], "other": []})
-                current.append((agent, False))
+                    started = False
+                groups.setdefault(value, {"disallow": [], "other": []})
+                current.append(value)
             elif current:
-                for index, (agent, _seen) in enumerate(current):
-                    if field == "disallow":
-                        groups[agent]["disallow"].append(value)
+                for agent in current:
+                    if field in ("disallow", "allow"):
+                        if field == "disallow":
+                            groups[agent]["disallow"].append(value)
+                        started = True
                     else:
                         groups[agent]["other"].append((field, value))
-                    current[index] = (agent, True)
         return groups
+
+    def test_parser_keeps_consecutive_user_agents_in_one_group(self):
+        """The parser must not let an extension record split a group.
+
+        Guards the guard: if Crawl-delay ended a user-agent run, two agents
+        sharing one stanza would be read as separate groups and the
+        precedence check below would silently stop covering the second.
+        """
+        groups = self._parse_groups(
+            "User-agent: A\n"
+            "Crawl-delay: 5\n"
+            "User-agent: B\n"
+            "Disallow: /x/\n"
+            "\n"
+            "User-agent: C\n"
+            "Disallow: /\n"
+        )
+        self.assertEqual(set(groups), {"A", "B", "C"})
+        # The load-bearing property: the Crawl-delay between the two
+        # User-agent lines did not split them, so both still receive the
+        # group's Disallow rule.
+        self.assertEqual(groups["A"]["disallow"], ["/x/"])
+        self.assertEqual(groups["B"]["disallow"], ["/x/"])
+        # The extension record itself is still captured, not discarded.
+        self.assertIn(("crawl-delay", "5"), groups["A"]["other"])
+        # C opens a new group: a rule line has been seen since the last
+        # User-agent, which is what closes the previous group.
+        self.assertEqual(groups["C"]["disallow"], ["/"])
 
     def test_production_host_serves_baseline_and_ai_rules(self):
         body = self._get("unglue.it")
