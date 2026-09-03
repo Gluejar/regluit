@@ -480,3 +480,27 @@ class LoginDoubleSubmitGuardTests(TestCase):
             result.returncode, 0,
             "guard behavioral tests failed:\n%s\n%s" % (result.stdout, result.stderr),
         )
+
+
+class DonateFooterLinkTests(TestCase):
+    """#1229: the donation form (/payment/donation/create) had no
+    navigation path leading to it anywhere in the site chrome. base.html's
+    sitewide footer is shared by every page in the base.html/
+    registration_base.html/basepledge.html chain, so a single link there
+    (rather than any one page template) gives it a persistent, global
+    affordance for logged-in and anonymous visitors alike."""
+
+    def test_footer_has_donate_link_on_a_logged_out_page(self):
+        r = Client().get("/privacy/")
+        self.assertEqual(r.status_code, 200)
+        content = str(r.content, 'utf-8')
+        self.assertIn('href="/payment/donation/create"', content)
+
+    def test_footer_donate_link_present_on_the_donation_form_itself(self):
+        # The chain (fund_the_pledge.html -> basepledge.html ->
+        # registration_base.html -> base.html) means the donation form page
+        # renders the same shared footer, not a stripped-down one.
+        r = Client().get("/payment/donation/create")
+        self.assertEqual(r.status_code, 200)
+        content = str(r.content, 'utf-8')
+        self.assertIn('href="/payment/donation/create"', content)
