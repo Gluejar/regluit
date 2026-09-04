@@ -480,3 +480,221 @@ class LoginDoubleSubmitGuardTests(TestCase):
             result.returncode, 0,
             "guard behavioral tests failed:\n%s\n%s" % (result.stdout, result.stderr),
         )
+
+
+from django.test import override_settings
+
+
+@override_settings(
+    ALLOWED_HOSTS=["unglue.it", "test.unglue.it", "localhost", "127.0.0.1"]
+)
+class RobotsTxtTests(TestCase):
+    """/robots.txt is rendered from a template gated on the request host.
+
+    The AI-crawler rules only apply on production; every other host (staging,
+    dev, an IP address) must keep serving a blanket disallow so non-canonical
+    copies of the site never get indexed.
+
+    This is a ``TestCase`` rather than a ``SimpleTestCase`` even though the
+    view itself touches no models: issuing the request loads the root URLconf,
+    which imports a module that runs a query at import time. Under
+    ``SimpleTestCase`` Django creates no test database, so that query would
+    hit whatever database the settings actually point at. ``TestCase`` gets an
+    isolated test database instead.
+    """
+
+    BASELINE_DISALLOWS = [
+        "/accounts/",
+        "/feedback/",
+        "/socialauth/",
+        "/search/",
+        "/googlebooks/",
+    ]
+
+    # The load-shedding rules this change exists for: the expensive listing
+    # and feed endpoints from #1189, excluded for the throttled crawler on
+    # top of the baseline.
+    CLAUDEBOT_EXTRA_DISALLOWS = [
+        "/free/",
+        "/bypub/",
+        "/pid/",
+        "/unglued/",
+        "/campaigns/",
+        "/api/",
+    ]
+
+    # Crawlers that collect model-training data, disallowed outright. This is
+    # a content-usage decision, not a claim about their capabilities: several
+    # of them do honor Crawl-delay and could be throttled instead.
+    BLOCKED_AGENTS = [
+        "GPTBot",
+        "CCBot",
+        "Bytespider",
+        "Amazonbot",
+        "meta-externalagent",
+        "Diffbot",
+    ]
+
+    def _get(self, host):
+        response = self.client.get("/robots.txt", HTTP_HOST=host)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "text/plain")
+        return response.content.decode("utf-8")
+
+    @staticmethod
+    def _parse_groups(body):
+        """Return {user-agent: {"disallow": [...], "other": [...]}}.
+
+        Consecutive ``User-agent`` lines share one group (RFC 9309 2.2.1).
+        Only ``Allow``/``Disallow`` close the run of user-agent lines: an
+        extension record such as ``Crawl-delay`` or ``Sitemap`` must not end
+        a group (2.2.4), so it is recorded without moving the boundary.
+        """
+        groups = {}
+        current = []
+        started = False
+        for raw in body.splitlines():
+            line = raw.split("#", 1)[0].strip()
+            if not line or ":" not in line:
+                continue
+            field, value = (part.strip() for part in line.split(":", 1))
+            field = field.lower()
+            if field == "user-agent":
+                if started:
+                    current = []
+                    started = False
+                groups.setdefault(
+                    value, {"disallow": [], "allow": [], "other": []}
+                )
+                current.append(value)
+            elif current:
+                for agent in current:
+                    if field in ("disallow", "allow"):
+                        groups[agent][field].append(value)
+                        started = True
+                    else:
+                        groups[agent]["other"].append((field, value))
+        return groups
+
+    def test_parser_keeps_consecutive_user_agents_in_one_group(self):
+        """The parser must not let an extension record split a group.
+
+        Guards the guard: if Crawl-delay ended a user-agent run, two agents
+        sharing one stanza would be read as separate groups and the
+        precedence check below would silently stop covering the second.
+        """
+        groups = self._parse_groups(
+            "User-agent: A\n"
+            "Crawl-delay: 5\n"
+            "User-agent: B\n"
+            "Disallow: /x/\n"
+            "\n"
+            "User-agent: C\n"
+            "Disallow: /\n"
+        )
+        self.assertEqual(set(groups), {"A", "B", "C"})
+        # The load-bearing property: the Crawl-delay between the two
+        # User-agent lines did not split them, so both still receive the
+        # group's Disallow rule.
+        self.assertEqual(groups["A"]["disallow"], ["/x/"])
+        self.assertEqual(groups["B"]["disallow"], ["/x/"])
+        # The extension record itself is still captured, not discarded.
+        self.assertIn(("crawl-delay", "5"), groups["A"]["other"])
+        # C opens a new group: a rule line has been seen since the last
+        # User-agent, which is what closes the previous group.
+        self.assertEqual(groups["C"]["disallow"], ["/"])
+
+    def test_production_host_serves_baseline_and_ai_rules(self):
+        body = self._get("unglue.it")
+        groups = self._parse_groups(body)
+
+        self.assertIn("*", groups)
+        for path in self.BASELINE_DISALLOWS:
+            self.assertIn(path, groups["*"]["disallow"])
+        self.assertNotIn("/", groups["*"]["disallow"])
+
+        # ClaudeBot is throttled, not blocked, so work pages stay crawlable --
+        # but every expensive path must be excluded, since those exclusions
+        # are the actual load-shedding this change delivers.
+        self.assertIn("ClaudeBot", groups)
+        self.assertIn(("crawl-delay", "30"), groups["ClaudeBot"]["other"])
+        self.assertNotIn("/", groups["ClaudeBot"]["disallow"])
+        for path in self.BASELINE_DISALLOWS + self.CLAUDEBOT_EXTRA_DISALLOWS:
+            self.assertIn(
+                path, groups["ClaudeBot"]["disallow"],
+                "ClaudeBot no longer excludes %s" % path,
+            )
+
+        # Every crawler selected for blocking is fully disallowed. (Not
+        # every training crawler: ClaudeBot trains too and is deliberately
+        # throttled instead, and content-usage opt-out tokens are out of
+        # scope for this change.)
+        for agent in self.BLOCKED_AGENTS:
+            self.assertIn(agent, groups)
+            self.assertIn(
+                "/", groups[agent]["disallow"],
+                "%s is named but not actually blocked" % agent,
+            )
+
+        # Exhaustive: adding or removing a group has to be a deliberate edit
+        # here too, so a stanza cannot be dropped or slipped in unnoticed.
+        self.assertEqual(
+            set(groups),
+            {"*", "ClaudeBot"} | set(self.BLOCKED_AGENTS),
+        )
+
+        # Search-indexing and user-triggered agents must NOT have their own
+        # groups, so they keep falling through to the permissive "*" group.
+        # Their publishers document them as not collecting training data, so
+        # blocking one costs discoverability while shedding no crawl load.
+        for agent in (
+            "Googlebot",
+            "PerplexityBot",
+            "Perplexity-User",
+            "Amzn-SearchBot",
+            "OAI-SearchBot",
+            "ChatGPT-User",
+            "Claude-SearchBot",
+            "Claude-User",
+        ):
+            self.assertNotIn(agent, groups)
+
+    def test_named_groups_do_not_widen_access(self):
+        """Regression guard for robots.txt group precedence.
+
+        The ``User-agent: *`` group applies only to crawlers that match no
+        named group, so a named group that is not a blanket disallow has to
+        restate the baseline rules -- otherwise adding a group *grants* that
+        crawler access to paths it was previously excluded from.
+        """
+        groups = self._parse_groups(self._get("unglue.it"))
+        for agent, rules in groups.items():
+            if agent == "*" or "/" in rules["disallow"]:
+                continue
+            for path in self.BASELINE_DISALLOWS:
+                self.assertIn(
+                    path, rules["disallow"],
+                    "User-agent %s omits baseline rule %s; a named group that "
+                    "does not restate the baseline widens that crawler's "
+                    "access instead of narrowing it." % (agent, path),
+                )
+            # Restating a Disallow is not enough on its own: RFC 9309 gives
+            # the longest match precedence, so a more specific Allow beneath
+            # one of these prefixes would quietly re-open it.
+            for allowed in rules["allow"]:
+                for path in self.BASELINE_DISALLOWS:
+                    self.assertFalse(
+                        allowed.startswith(path),
+                        "User-agent %s allows %s, which overrides the longer-"
+                        "matching baseline rule %s and widens access."
+                        % (agent, allowed, path),
+                    )
+
+    def test_non_production_hosts_disallow_everything(self):
+        for host in ("test.unglue.it", "localhost", "127.0.0.1"):
+            with self.subTest(host=host):
+                body = self._get(host)
+                groups = self._parse_groups(body)
+                self.assertEqual(list(groups), ["*"])
+                self.assertEqual(groups["*"]["disallow"], ["/"])
+                self.assertNotIn("ClaudeBot", body)
