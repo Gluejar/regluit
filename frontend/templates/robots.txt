@@ -6,6 +6,61 @@ Disallow: /feedback/
 Disallow: /socialauth/
 Disallow: /search/
 Disallow: /googlebooks/
+
+# --- AI crawlers ---
+# The "User-agent: *" group above applies only to crawlers that match no
+# named group below. So each named group repeats the baseline rules: giving
+# a crawler its own group without them would widen its access, not narrow it.
+
+# Anthropic documents support for the non-standard Crawl-delay extension, so
+# ClaudeBot is throttled rather than blocked: work pages stay discoverable
+# while the expensive listing and feed endpoints are excluded.
+User-agent: ClaudeBot
+Crawl-delay: 30
+Disallow: /accounts/
+Disallow: /feedback/
+Disallow: /socialauth/
+Disallow: /search/
+Disallow: /googlebooks/
+Disallow: /free/
+Disallow: /bypub/
+Disallow: /pid/
+Disallow: /unglued/
+Disallow: /campaigns/
+Disallow: /api/
+
+# Crawlers that collect model-training data. Disallowed outright, as a
+# content-usage decision rather than a claim about any of them technically:
+# several do honor Crawl-delay, so any could be softened to a throttle if
+# that is preferred. Check the operator's current documentation before
+# adding or moving an entry -- these agents and their published behavior
+# change, and a stale rationale here is worse than none.
+User-agent: GPTBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: Amazonbot
+Disallow: /
+
+User-agent: meta-externalagent
+Disallow: /
+
+User-agent: Diffbot
+Disallow: /
+
+# Deliberately not restricted, so they fall through to the rules above:
+# search-indexing crawlers (Googlebot, PerplexityBot, Amzn-SearchBot,
+# OAI-SearchBot, Claude-SearchBot) and user-triggered agents that fetch a
+# page because a person asked for it (Claude-User, ChatGPT-User,
+# Perplexity-User, Amzn-User) -- these fetch to answer or to index, and are
+# how the collection stays findable. Note this covers crawling only: opting
+# out of AI *training* by a search engine is a separate content-usage
+# decision (Google-Extended, Applebot-Extended) deliberately not made here.
 {% else %}
 User-agent: *
 Disallow: /
