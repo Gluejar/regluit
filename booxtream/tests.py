@@ -61,7 +61,7 @@ class TestBooXtream(unittest.TestCase):
             }
         params['referenceid'] = 'order' + str(time.time())
         boox = inst.platform(epubfile=self.epub2file, **params)
-        self.assertRegexpMatches(boox.download_link_epub, 'download.booxtream.com/')
+        self.assertRegex(boox.download_link_epub, 'download.booxtream.com/')
         self.assertFalse(boox.expired)
         self.assertEqual(boox.downloads_remaining, 3)
 
@@ -71,4 +71,4 @@ class TestBooXtream(unittest.TestCase):
         in_mem_epub.write(self.epub2file.read())
         in_mem_epub.seek(0)
         boox2 = inst.platform(epubfile=in_mem_epub, **params)
-        self.assertRegexpMatches(boox2.download_link_epub, 'download.booxtream.com/')
+        self.assertRegex(boox2.download_link_epub, 'download.booxtream.com/')

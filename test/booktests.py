@@ -15,7 +15,6 @@ django imports
 """
 import django
 
-from django_comments.models import Comment
 from django.db.models import Q, F
 
 """
@@ -206,9 +205,6 @@ def cluster_status(max_num=None):
     affected_emails = [w.user.email  for w in affected_wishlists]
     affected_editions = reduce(operator.add, [list(w.editions.all()) for w in affected_works]) if len(affected_works) else []
     
-    # calculate the Comments that would have to be deleted too.
-    affected_comments = reduce(operator.add, [list(Comment.objects.for_model(w)) for w in affected_works]) if len(affected_works) else []
-    
     # calculate the inverse of work_clusters
     wcp = dict(reduce(operator.add, [ list( izip([ed.ed_id for ed in eds], repeat(k))) for (k,eds) in work_clusters.items()]))
     
@@ -221,7 +217,7 @@ def cluster_status(max_num=None):
     
     s = {'work_clusters':work_clusters, 'current_map':current_map, 'results':results, 'franken_works': franken_works,
          'wcp':wcp, 'latest_franken_event': latest_franken_event, 'affected_works':affected_works,
-         'affected_comments': affected_comments, 'scattered_clusters': scattered_clusters,
+         'scattered_clusters': scattered_clusters,
          'affected_emails': affected_emails}
     
     return s
@@ -235,13 +231,6 @@ def clean_frankenworks(s, do=False):
     # list the works we delete
     print("number of FrankenWorks %s" % len(s['franken_works']))
     print(s['franken_works'])
-    
-    # delete the affected comments
-    print("deleting comments")
-    for (i, comment) in enumerate(s['affected_comments']):
-        print(i, "deleting ", comment)
-        if do:
-            comment.delete()
     
     # delete the Frankenworks
     print("deleting Frankenworks")

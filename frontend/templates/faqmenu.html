@@ -28,10 +28,7 @@
                         <li class="parent {% if location != 'campaigns' %}collapse{% endif %}">
                             <a href="{% url 'faq_location' 'campaigns' %}"><span>Campaigns</span></a>
                             <ul class="menu level2">
-                                <li class="first"><a href="{% url 'faq_sublocation' 'campaigns' 't4u' %}"><span>Thanks-for-Ungluing Campaigns</span></a></li>
-                                <li><a href="{% url 'faq_sublocation' 'campaigns' 'b2u' %}"><span>Buy-to-Unglue Campaigns</span></a></li>
-                                <li><a href="{% url 'faq_sublocation' 'campaigns' 'supporting' %}"><span>Pledge Campaigns</span></a></li>
-                                <li class="last"><a href="{% url 'faq_sublocation' 'campaigns' 'premiums' %}"><span>Premiums</span></a></li>
+                                <li class="first last"><a href="{% url 'faq_sublocation' 'campaigns' 't4u' %}"><span>Thanks-for-Ungluing Campaigns</span></a></li>
                             </ul>
                         </li>
                         

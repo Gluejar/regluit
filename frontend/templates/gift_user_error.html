@@ -13,7 +13,10 @@
 
 	<div><h2>Wrong user for Unglue.it credit</h2>
 		<div>
-		<p>Unglue.it would like to process your Unglue.it credit, but you are currently logged in as <code>{{request.user.username}}</code>. Your Unglue.it credit for ${{ envelope.amount }}.{{ envelope.cents }} is designated for <code>{{ envelope.username }}</code>. To record your credit, you need to <a href='{% url 'logout' %}?next={{ request.get_full_path|urlencode }}'>log out</a>, and then <a href='{% url 'superlogin' %}?next={{ request.get_full_path|urlencode }}'>log in</a> as <code>{{ envelope.username }}</code>. If you have any problem, don't hesitate to <a href="{% feedback_url %}">contact us</a>.
+		{# <form> isn't valid <p> content -- placed outside the paragraph below and #}
+		{# wired to the inline button via form="gift-logout-form" (Django 5's LogoutView is POST-only). #}
+		<form id="gift-logout-form" method="post" action="{% url 'logout' %}" style="display:none">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"></form>
+		<p>Unglue.it would like to process your Unglue.it credit, but you are currently logged in as <code>{{request.user.username}}</code>. Your Unglue.it credit for ${{ envelope.amount }}.{{ envelope.cents }} is designated for <code>{{ envelope.username }}</code>. To record your credit, you need to <button type="submit" form="gift-logout-form" class="link-button">log out</button>, and then <a href='{% url 'superlogin' %}?next={{ request.get_full_path|urlencode }}'>log in</a> as <code>{{ envelope.username }}</code>. If you have any problem, don't hesitate to <a href="{% feedback_url %}">contact us</a>.
         </p>
         </div>
 	</div>

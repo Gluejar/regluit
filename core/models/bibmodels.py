@@ -24,7 +24,6 @@ from django.db.models import F
 from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.utils.timezone import now
 
-from django_comments.models import Comment
 
 import regluit
 from regluit.marc.models import MARCRecord as NewMARC
@@ -158,8 +157,6 @@ class Work(models.Model):
                 userprofile.works.remove(self)
             for identifier in self.identifiers.all():
                 identifier.delete()
-            for comment in Comment.objects.for_model(self):
-                comment.delete()
             for edition in self.editions.all():
                 for ebook in edition.ebooks.all():
                     ebook.delete()

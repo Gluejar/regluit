@@ -126,6 +126,15 @@ class OpenCampaignForm(forms.ModelForm):
             error_messages = {'required': "You must have at least one manager for a campaign."},
         )
     userid = forms.IntegerField( required = True, widget = forms.HiddenInput )
+
+    def __init__(self, *args, **kwargs):
+        super(OpenCampaignForm, self).__init__(*args, **kwargs)
+        # Pledge (REWARDS) and Buy-to-unglue campaigns are retired (#1195):
+        # only Thanks-for-Ungluing campaigns may be created. Restricting the
+        # form field's choices both hides the retired types and rejects any
+        # POST that tries to submit them.
+        self.fields['type'].choices = [(THANKS, 'Thanks-for-ungluing campaign')]
+
     class Meta:
         model = Campaign
         fields = 'name', 'work',  'managers', 'type'

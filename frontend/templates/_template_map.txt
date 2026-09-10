@@ -13,7 +13,6 @@ base.html    extra_css(empty)  extra_js(empty)    extra_head(empty)
     about_wishlist_empty.html
     campaign_list.html  extra_css    extra_head
     cc_list.html    extra_css  extra_head
-    comments.html   extra_css    extra_head
     download.html  extra_js
     faceted_list.html   extra_css    extra_head
     home.html   extra_css  extra_js
@@ -40,8 +39,6 @@ base.html    extra_css(empty)  extra_js(empty)    extra_head(empty)
             campaign_admin.html    extra_extra_head
             campaign_results.html
             claim.html
-            comments/base.html
-                comments/preview.html  extra_css
             edit_edition.html    extra_extra_head
             edition_uploads.html
             emailshare.html

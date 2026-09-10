@@ -20,7 +20,6 @@ from django.db.models import Sum
 from django.forms import ValidationError
 from django.utils.timezone import now
 
-from django_comments.models import Comment
 import github3
 from github3 import (login, GitHub)
 from github3.repos.release import Release
@@ -593,9 +592,6 @@ def merge_works(w1, w2, user=None):
     for identifier in w2.identifiers.all():
         identifier.work = w1
         identifier.save()
-    for comment in Comment.objects.for_model(w2):
-        comment.object_pk = w1.pk
-        comment.save()
     for edition in w2.editions.all():
         edition.work = w1
         edition.save()

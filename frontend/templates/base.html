@@ -103,7 +103,11 @@
                             {% if user.rights_holder.all %}
                             <li><a class="notbutton" href="{% url 'rightsholders' %}">Rights Holder Tools</a></li>
                             {% endif %}
-                            <li><a class="notbutton" href="{% url 'logout' %}"><span>Sign Out</span></a></li>
+                            <li>
+                                <form class="logout-form" method="post" action="{% url 'logout' %}">{% csrf_token %}
+                                    <button type="submit" class="notbutton"><span>Sign Out</span></button>
+                                </form>
+                            </li>
                         </ul>
                 </div>
             {% else %}
