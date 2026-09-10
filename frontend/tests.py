@@ -625,6 +625,25 @@ class RobotsTxtTests(TestCase):
                 "ClaudeBot no longer excludes %s" % path,
             )
 
+        # meta-webindexer indexes for Meta AI search, so it is not blocked
+        # outright, but it was the largest single source of /free/ load
+        # (#1253). It gets exactly the baseline plus ClaudeBot's listing
+        # exclusions -- nothing broader (work pages stay crawlable), no Allow
+        # that could re-open a path, and no Crawl-delay. Exact equality also
+        # catches a duplicated copy of these rules.
+        self.assertIn("meta-webindexer", groups)
+        self.assertEqual(
+            sorted(groups["meta-webindexer"]["disallow"]),
+            sorted(self.BASELINE_DISALLOWS + self.CLAUDEBOT_EXTRA_DISALLOWS),
+        )
+        self.assertEqual(groups["meta-webindexer"]["allow"], [])
+        # Check Crawl-delay specifically: other extension records (such as a
+        # Sitemap line) are legitimate and must not fail this test.
+        self.assertNotIn(
+            "crawl-delay",
+            [field for field, _ in groups["meta-webindexer"]["other"]],
+        )
+
         # Every crawler selected for blocking is fully disallowed. (Not
         # every training crawler: ClaudeBot trains too and is deliberately
         # throttled instead, and content-usage opt-out tokens are out of
@@ -640,13 +659,14 @@ class RobotsTxtTests(TestCase):
         # here too, so a stanza cannot be dropped or slipped in unnoticed.
         self.assertEqual(
             set(groups),
-            {"*", "ClaudeBot"} | set(self.BLOCKED_AGENTS),
+            {"*", "ClaudeBot", "meta-webindexer"} | set(self.BLOCKED_AGENTS),
         )
 
         # Search-indexing and user-triggered agents must NOT have their own
         # groups, so they keep falling through to the permissive "*" group.
         # Their publishers document them as not collecting training data, so
-        # blocking one costs discoverability while shedding no crawl load.
+        # blocking one outright costs discoverability. When one does cause
+        # real load, exclude the expensive paths instead (see meta-webindexer).
         for agent in (
             "Googlebot",
             "PerplexityBot",
