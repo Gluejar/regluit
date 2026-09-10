@@ -33,14 +33,16 @@ Disallow: /api/
 # so, in keeping with the search-crawler policy below, it is not blocked
 # outright. It is named only to keep it out of the same expensive listing and
 # feed endpoints as ClaudeBot: it was the largest single source of /free/
-# requests (#1253). Work pages remain crawlable. Meta's crawlers have been
-# observed ignoring the "*" group (they crawled /feedback/ for weeks) while
-# obeying a group that names them, so this group must carry every rule itself.
+# requests (#1253). Work pages remain crawlable. Named groups do not inherit
+# the "*" group, so this group repeats the baseline rules. (In September 2026
+# Meta crawlers repeatedly fetched /feedback/ despite its "*" exclusion, while
+# meta-externalagent stopped within about an hour of Meta re-fetching
+# robots.txt after its own explicit group was added.)
 #
 # Crawl-delay is an EXPERIMENT (started 2026-09-10): Meta does not document
-# support for it. This crawler ran at a flat ~7,200 requests/hour from
-# 2026-09-09, so the access logs will show whether it honors the line.
-# Keep it if the rate drops; delete it if the rate is unchanged.
+# support for it. This crawler has run at a flat ~7,200 requests/hour since
+# 2026-09-09 12:00 UTC; compare access logs after Meta re-fetches robots.txt
+# to assess whether the line reduces the rate, and delete it if it does not.
 User-agent: meta-webindexer
 Crawl-delay: 10
 Disallow: /accounts/
