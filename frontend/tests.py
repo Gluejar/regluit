@@ -630,14 +630,19 @@ class RobotsTxtTests(TestCase):
         # (#1253). It gets exactly the baseline plus ClaudeBot's listing
         # exclusions -- nothing broader (work pages stay crawlable), no Allow
         # that could re-open a path, and no Crawl-delay. Exact equality also
-        # catches a duplicate stanza for the same token.
+        # catches a duplicated copy of these rules.
         self.assertIn("meta-webindexer", groups)
         self.assertEqual(
             sorted(groups["meta-webindexer"]["disallow"]),
             sorted(self.BASELINE_DISALLOWS + self.CLAUDEBOT_EXTRA_DISALLOWS),
         )
         self.assertEqual(groups["meta-webindexer"]["allow"], [])
-        self.assertEqual(groups["meta-webindexer"]["other"], [])
+        # Check Crawl-delay specifically: other extension records (such as a
+        # Sitemap line) are legitimate and must not fail this test.
+        self.assertNotIn(
+            "crawl-delay",
+            [field for field, _ in groups["meta-webindexer"]["other"]],
+        )
 
         # Every crawler selected for blocking is fully disallowed. (Not
         # every training crawler: ClaudeBot trains too and is deliberately
