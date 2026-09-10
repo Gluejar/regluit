@@ -139,9 +139,13 @@ class Work(models.Model):
             models.Index(fields=['is_free', 'title']),
             # /free/ facet browsing (#1253): every facet query starts from
             # is_free=True, optionally narrows by language (?pub_lang=), and
-            # sorts newest-first by (-featured, -created). Without an index
-            # covering filter + sort together, MySQL intersects the separate
-            # is_free and language indexes, then builds and sorts a temp table.
+            # by default sorts newest-first by (-featured, -created). Today
+            # MySQL intersects the separate is_free and language indexes, then
+            # builds and sorts a temporary table. These are intended to give
+            # it one range scan in sort order instead; whether DISTINCT over
+            # the joined facet tables still forces a temporary table must be
+            # measured on real data. Created by migrations 0033/0034 with
+            # explicit online-DDL clauses, not a plain AddIndex.
             models.Index(fields=['is_free', 'language', '-featured', '-created'],
                          name='core_work_free_lang_new_idx'),
             models.Index(fields=['is_free', '-featured', '-created'],
