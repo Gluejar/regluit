@@ -650,10 +650,17 @@ class Processor(baseprocessor.Processor):
 
             # ASSUMPTION:  a user has any given moment one and only one active payment Account
             if token:
-                # user is anonymous
+                # A token means we need to create a new Stripe Customer -- but
+                # that doesn't mean the user is anonymous (#1125): a logged-in
+                # user entering fresh card details for a one-off donation also
+                # arrives with a token. Pass transaction.user through (it's
+                # None for genuinely anonymous transactions) so make_account
+                # labels the Stripe Customer correctly and links the new
+                # Account back to the user's profile instead of always
+                # falling into the anonymous branch.
                 try:
                     account = transaction.get_payment_class().make_account(
-                        token=token, email=transaction.receipt)
+                        user=transaction.user, token=token, email=transaction.receipt)
                 except StripelibError as e:
                     self.errorMessage = str(e)
                     return
