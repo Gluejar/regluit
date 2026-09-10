@@ -625,6 +625,17 @@ class RobotsTxtTests(TestCase):
                 "ClaudeBot no longer excludes %s" % path,
             )
 
+        # meta-webindexer indexes for Meta AI search, so it is not blocked,
+        # but it is kept out of the same expensive endpoints as ClaudeBot:
+        # it was the largest single source of /free/ load (#1253).
+        self.assertIn("meta-webindexer", groups)
+        self.assertNotIn("/", groups["meta-webindexer"]["disallow"])
+        for path in self.BASELINE_DISALLOWS + self.CLAUDEBOT_EXTRA_DISALLOWS:
+            self.assertIn(
+                path, groups["meta-webindexer"]["disallow"],
+                "meta-webindexer no longer excludes %s" % path,
+            )
+
         # Every crawler selected for blocking is fully disallowed. (Not
         # every training crawler: ClaudeBot trains too and is deliberately
         # throttled instead, and content-usage opt-out tokens are out of
@@ -640,7 +651,7 @@ class RobotsTxtTests(TestCase):
         # here too, so a stanza cannot be dropped or slipped in unnoticed.
         self.assertEqual(
             set(groups),
-            {"*", "ClaudeBot"} | set(self.BLOCKED_AGENTS),
+            {"*", "ClaudeBot", "meta-webindexer"} | set(self.BLOCKED_AGENTS),
         )
 
         # Search-indexing and user-triggered agents must NOT have their own

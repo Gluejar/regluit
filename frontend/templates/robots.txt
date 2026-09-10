@@ -29,6 +29,24 @@ Disallow: /unglued/
 Disallow: /campaigns/
 Disallow: /api/
 
+# Meta documents meta-webindexer as the crawler behind Meta AI search results,
+# so like the other search-indexing crawlers it is not blocked. It is named
+# only to keep it out of the same expensive listing and feed endpoints as
+# ClaudeBot: it was the largest single source of /free/ requests (#1253).
+# Work pages stay indexable. No Crawl-delay: Meta does not document support.
+User-agent: meta-webindexer
+Disallow: /accounts/
+Disallow: /feedback/
+Disallow: /socialauth/
+Disallow: /search/
+Disallow: /googlebooks/
+Disallow: /free/
+Disallow: /bypub/
+Disallow: /pid/
+Disallow: /unglued/
+Disallow: /campaigns/
+Disallow: /api/
+
 # Crawlers that collect model-training data. Disallowed outright, as a
 # content-usage decision rather than a claim about any of them technically:
 # several do honor Crawl-delay, so any could be softened to a throttle if
