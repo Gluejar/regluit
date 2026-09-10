@@ -628,20 +628,22 @@ class RobotsTxtTests(TestCase):
         # meta-webindexer indexes for Meta AI search, so it is not blocked
         # outright, but it was the largest single source of /free/ load
         # (#1253). It gets exactly the baseline plus ClaudeBot's listing
-        # exclusions -- nothing broader (work pages stay crawlable), no Allow
-        # that could re-open a path, and no Crawl-delay. Exact equality also
-        # catches a duplicated copy of these rules.
+        # exclusions -- nothing broader (work pages stay crawlable) and no
+        # Allow that could re-open a path. Exact equality also catches a
+        # duplicated copy of these rules.
         self.assertIn("meta-webindexer", groups)
         self.assertEqual(
             sorted(groups["meta-webindexer"]["disallow"]),
             sorted(self.BASELINE_DISALLOWS + self.CLAUDEBOT_EXTRA_DISALLOWS),
         )
         self.assertEqual(groups["meta-webindexer"]["allow"], [])
-        # Check Crawl-delay specifically: other extension records (such as a
-        # Sitemap line) are legitimate and must not fail this test.
-        self.assertNotIn(
-            "crawl-delay",
-            [field for field, _ in groups["meta-webindexer"]["other"]],
+        # Exactly one Crawl-delay, of 10 seconds: the 2026-09-10 experiment
+        # (see the comment in robots.txt). Check Crawl-delay specifically, so
+        # other extension records (such as a Sitemap line) don't fail this.
+        self.assertEqual(
+            [value for field, value in groups["meta-webindexer"]["other"]
+             if field == "crawl-delay"],
+            ["10"],
         )
 
         # Every crawler selected for blocking is fully disallowed. (Not
