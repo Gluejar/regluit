@@ -30,10 +30,11 @@ Disallow: /campaigns/
 Disallow: /api/
 
 # Meta documents meta-webindexer as the crawler behind Meta AI search results,
-# so like the other search-indexing crawlers it is not blocked. It is named
-# only to keep it out of the same expensive listing and feed endpoints as
-# ClaudeBot: it was the largest single source of /free/ requests (#1253).
-# Work pages stay indexable. No Crawl-delay: Meta does not document support.
+# so, in keeping with the search-crawler policy below, it is not blocked
+# outright. It is named only to keep it out of the same expensive listing and
+# feed endpoints as ClaudeBot: it was the largest single source of /free/
+# requests (#1253). Work pages remain crawlable. No Crawl-delay is set, since
+# Meta does not document support for it.
 User-agent: meta-webindexer
 Disallow: /accounts/
 Disallow: /feedback/
