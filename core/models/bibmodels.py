@@ -139,9 +139,9 @@ class Work(models.Model):
             models.Index(fields=['is_free', 'title']),
             # /free/ facet browsing (#1253): every facet query starts from
             # is_free=True, optionally narrows by language (?pub_lang=), and
-            # by default sorts newest-first by (-featured, -created). Today
-            # MySQL intersects the separate is_free and language indexes, then
-            # builds and sorts a temporary table. These are intended to give
+            # by default sorts newest-first by (-featured, -created). The
+            # captured slow-query plans intersect the separate is_free and
+            # language indexes, then build and sort a temporary table. These are intended to give
             # it one range scan in sort order instead; whether DISTINCT over
             # the joined facet tables still forces a temporary table must be
             # measured on real data. Created by migrations 0033/0034 with

@@ -9,7 +9,11 @@
 #     holds a conflicting lock, the queued request can block later queries on
 #     core_work until it is granted. A short timeout makes the migration fail
 #     fast instead; rerun it once the blocker is gone.
-# One index per migration, so a failure cannot leave a migration half applied.
+# One index per migration, so one index failing cannot strand the other inside
+# the same migration. MySQL DDL is not transactional, though: a crash between
+# the DDL and Django recording the migration can still leave an index present
+# but unrecorded (or the reverse). After an ambiguous failure, compare
+# SHOW INDEX FROM core_work with showmigrations before retrying.
 # state_operations keeps Django's model state identical to Work.Meta.indexes,
 # so makemigrations sees no drift.
 
