@@ -117,6 +117,30 @@ class FeedTests(TestCase):
         r = self.client.get('/api/onix/all/kw.Fiction/')
         self.assertEqual(r.status_code, 404)
 
+    def test_removed_keyword_forms_404_on_every_feed(self):
+        # #1095: every keyword form, on every feed, with and without ?work=
+        # (the ?work= early return used to skip facet validation).
+        paths = ['kw.Fiction', 'all/kw.Fiction', 'kw.Fiction/epub',
+                 'epub/kw.Fiction', 'kw.Fiction/kw.Science']
+        for feed in ('opds', 'opdsjson', 'onix'):
+            for path in paths:
+                for query in ('', '?work=%s' % self.test_work_id):
+                    url = '/api/%s/%s/%s' % (feed, path, query)
+                    with self.subTest(url=url):
+                        self.assertEqual(self.client.get(url).status_code, 404)
+
+    def test_non_keyword_facet_feeds_still_served(self):
+        for feed in ('opds', 'opdsjson', 'onix'):
+            for path in ('epub', 'epub/doab', 'by-sa'):
+                for query in ('', '?work=%s' % self.test_work_id):
+                    url = '/api/%s/%s/%s' % (feed, path, query)
+                    with self.subTest(url=url):
+                        r = self.client.get(url)
+                        self.assertEqual(r.status_code, 200)
+                        # Consume streamed bodies so generator errors surface.
+                        if r.streaming:
+                            b''.join(r.streaming_content)
+
 class AllowedRepoTests(TestCase):
     def setUp(self):
         apimodels.AllowedRepo.objects.create(org='test',repo_name='test')

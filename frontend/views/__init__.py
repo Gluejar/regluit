@@ -658,7 +658,7 @@ class FacetedView(FilterableListView):
             try:
                 self.vertex = get_facet_object(facet_path)
             except InvalidFacetCombination:
-                raise Http404("Compound keyword facet URLs are not supported.")
+                raise Http404("Keyword facet URLs are not supported.")
 
         order_by = self.request.GET.get('order_by', 'newest')
 
