@@ -32,8 +32,6 @@ JSONCONTEXT = "http://opds-spec.org/opds.jsonld"
 def feeds():
     for facet_path in facets.get_all_facets('Format'):
         yield get_facet_facet(facet_path)
-    for facet_path in facets.get_all_facets('Keyword'):
-        yield get_facet_facet(facet_path)
 
 def get_facet_class(name):
     return get_facet_facet(name)
