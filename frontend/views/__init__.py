@@ -1861,7 +1861,9 @@ def ask_rh(request, campaign_id):
 # 693,968 of them in a single day -- which no cache could absorb and no block
 # list could keep up with. The originating page is recovered from the Referer
 # header instead. That is best effort by design: browsers and privacy settings
-# withhold it, and then the form simply records '/'.
+# withhold it, and then the form simply records '/'. The feedback links carry
+# referrerpolicy="same-origin" for this to work at all -- the site's default
+# policy is "origin", which would truncate the Referer to the bare origin.
 FEEDBACK_PAGE_MAX_LENGTH = 200
 
 
