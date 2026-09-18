@@ -280,10 +280,15 @@ class FeedbackSelfLinkTests(TestCase):
     def test_feedback_page_with_page_param_has_no_self_referencing_link(self):
         # Even a crawler-style request that already carries an encoded
         # feedback URL must not be handed a deeper level of nesting.
-        r = Client().get("/feedback/", {"page": "https://testserver/feedback/?page=x"})
+        # Since #1261 that request is redirected to the bare URL rather than
+        # rendered; follow it and check the page it lands on, which is where a
+        # deeper level of nesting would have to appear.
+        r = Client().get("/feedback/", {"page": "https://testserver/feedback/?page=x"},
+                         follow=True)
         self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.redirect_chain, [("/feedback/", 301)])
         # Assert on hrefs specifically: the form legitimately echoes the
-        # incoming page value in a hidden field / subject line, but no LINK
+        # recovered page in a hidden field / subject line, but no LINK
         # (the crawlable surface) may carry a parameterized feedback URL.
         self.assertNotIn('href="/feedback/?page=', str(r.content, 'utf-8'))
 
@@ -306,10 +311,12 @@ class FeedbackSelfLinkTests(TestCase):
             self.assertIsNotNone(m, "no feedback link found")
             return m.group(1)
 
+        # Start from a crawled old-style URL; it now redirects to the bare
+        # one, so follow redirects throughout the chain.
         url = "/feedback/?page=https%3A%2F%2Ftestserver%2Fwork%2F1%2F"
         seen = set()
         for _ in range(4):
-            r = c.get(url)
+            r = c.get(url, follow=True)
             self.assertEqual(r.status_code, 200)
             html = str(r.content, 'utf-8')
             login = signin_href(html)
@@ -338,31 +345,20 @@ class FeedbackSelfLinkTests(TestCase):
 class FeedbackUrlSpaceTests(TestCase):
     """Every page used to mint its own /feedback/?page=<this page> URL. On
     2026-09-17 production served 702,435 requests to /feedback/ across 693,968
-    distinct URLs -- unacacheable by construction, and a direct cause of four
+    distinct URLs -- uncacheable by construction, and a direct cause of four
     outages. The link is now one constant URL site-wide and the originating
     page is recovered from the Referer header. See issue #1261."""
 
     FEEDBACK_HREF = re.compile(r'href="(/feedback/[^"]*)"')
     HIDDEN_PAGE = re.compile(r'name="page"[^>]*value="([^"]*)"')
 
-    # A handful of templates hand-write a feedback link with a fixed topic
-    # marker instead of a page URL. These are a constant three URLs site-wide,
-    # they do not multiply with the page count, and they are not emitted by
-    # the {% feedback_url %} tag.
-    TOPIC_LINKS = {
-        "/feedback/?page=Privacy",
-        "/feedback/?page=no+activation+email",
-        "/feedback/?page=need+support",
-    }
-
+    # Pages that carry a feedback link, sampled across query-string shapes.
     SAMPLE_PAGES = (
         ("/privacy/", {}),
         ("/faq/", {}),
         ("/search/", {"q": "sverige"}),
         ("/search/", {"q": "sverige", "page": "2"}),
         ("/feedback/", {}),
-        ("/feedback/", {"page": "http://testserver/privacy/"}),
-        ("/feedback/", {"page": "https://testserver/feedback/?page=x"}),
     )
 
     def page_field(self, response):
@@ -370,9 +366,9 @@ class FeedbackUrlSpaceTests(TestCase):
         self.assertIsNotNone(m, "no hidden page field in the feedback form")
         return m.group(1)
 
-    def test_feedback_links_do_not_vary_with_the_page(self):
-        # The whole point of #1261: the set of feedback URLs a page can emit
-        # is fixed, so it does not grow with the ~2M crawlable pages.
+    def test_every_page_emits_exactly_one_feedback_url(self):
+        # The whole point of #1261: one URL site-wide, so the space does not
+        # grow with the ~2M crawlable pages.
         emitted = set()
         for path, query in self.SAMPLE_PAGES:
             r = Client().get(path, query)
@@ -380,7 +376,7 @@ class FeedbackUrlSpaceTests(TestCase):
             hrefs = set(self.FEEDBACK_HREF.findall(str(r.content, 'utf-8')))
             self.assertIn("/feedback/", hrefs, "no bare feedback link on %s" % path)
             emitted |= hrefs
-        self.assertEqual(emitted - self.TOPIC_LINKS, {"/feedback/"})
+        self.assertEqual(emitted, {"/feedback/"})
 
     def test_no_feedback_link_embeds_a_page_url(self):
         # The failure mode being fixed: a feedback link carrying the current
@@ -392,21 +388,21 @@ class FeedbackUrlSpaceTests(TestCase):
                 self.assertNotIn("%2F", href, path)   # encoded '/' -- a path
                 self.assertNotIn("http", href, path)
 
-    # A feedback URL built by hand in a template, with a ?page= value that a
-    # template variable fills in. Matches {% url 'feedback' %}?page={{...}}
-    # and a literal /feedback/?page={{...}}, either quoting style.
-    HAND_WRITTEN_PAGE = re.compile(
-        r"""(?:\{%\s*url\s+['"]feedback['"]\s*%\}|/feedback/)\?page=([^"'\s>]*)"""
+    # A feedback URL with a query string, built by hand in a template.
+    # Matches {% url 'feedback' %}?... and a literal /feedback/?..., either
+    # quoting style. Nothing may do this any more: the view redirects it away.
+    HAND_WRITTEN_QUERY = re.compile(
+        r"""(?:\{%\s*url\s+['"]feedback['"]\s*%\}|/feedback/)\?"""
     )
 
-    def test_no_template_hand_writes_a_per_page_feedback_url(self):
+    def test_no_template_hand_writes_a_feedback_url_with_a_query(self):
         # Structural guard. The tag is safe by construction now, so the way
         # the space comes back is a template building a feedback URL by hand
-        # -- which six notification templates were still doing when #1261 was
-        # written. This catches that shape in the source rather than in the
-        # access log. It is a tripwire for the known pattern, not a proof:
-        # an attribute split across lines, or a URL assembled some other way,
-        # would slip past it.
+        # -- which six notification templates and three FAQ/privacy links were
+        # still doing when #1261 was written. This catches that shape in the
+        # source rather than in the access log. It is a tripwire for the known
+        # pattern, not a proof: an attribute split across lines, or a URL
+        # assembled some other way, would slip past it.
         import os
         templates = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                  'templates')
@@ -418,12 +414,9 @@ class FeedbackUrlSpaceTests(TestCase):
                 # ascii of a template tag matters here
                 with open(path, encoding='utf-8', errors='replace') as f:
                     for n, line in enumerate(f, 1):
-                        for value in self.HAND_WRITTEN_PAGE.findall(line):
-                            # a fixed topic marker (?page=need+support) is
-                            # fine; a value the template fills in is not
-                            if '{{' in value:
-                                offenders.append("%s:%d" % (path, n))
-        self.assertEqual(offenders, [], "hand-written per-page feedback URLs")
+                        if self.HAND_WRITTEN_QUERY.search(line):
+                            offenders.append("%s:%d" % (path, n))
+        self.assertEqual(offenders, [], "feedback URLs with a query string")
 
     def test_feedback_links_carry_nofollow_and_a_referrer_policy(self):
         # referrerpolicy is what makes the Referer usable at all. The site has
@@ -477,23 +470,64 @@ class FeedbackUrlSpaceTests(TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertEqual(self.page_field(r), "/")
 
-    def test_legacy_page_param_still_works_and_wins(self):
-        # Links with ?page= will keep arriving from crawled copies of the old
-        # pages for years, and a few templates hand-write one as a topic
-        # marker (?page=need+support). They must keep working.
-        r = Client().get("/feedback/", {"page": "need support"},
-                         HTTP_REFERER="http://testserver/privacy/")
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(self.page_field(r), "need support")
+    def test_any_query_string_redirects_to_the_canonical_url(self):
+        # The 693,968 URLs that caused the outage are in crawler queues
+        # already. Not emitting them any more does nothing about that, so
+        # every one of them is answered with a cheap permanent redirect
+        # instead of a full render.
+        for query in ("page=http%3A%2F%2Ftestserver%2Fwork%2F9%2F",
+                      "page=need+support",
+                      "page=",
+                      "utm_source=whatever",
+                      "tab=2&page=3",
+                      # these parse to an EMPTY QueryDict but are still
+                      # distinct URLs to a crawler (Codex round-3 finding)
+                      "&",
+                      "&&"):
+            r = Client().get("/feedback/?" + query)
+            self.assertEqual(r.status_code, 301, query)
+            self.assertEqual(r["Location"], "/feedback/", query)
+            self.assertNotIn(b"<form", r.content, query)
 
-    def test_page_value_cannot_inject_a_mail_header(self):
+    def test_a_referer_on_an_old_link_survives_the_redirect(self):
+        # Django's test client re-sends the header through the redirect. A
+        # browser may do the same for a same-origin 301, but that depends on
+        # the applicable referrer policy and the test client is not evidence
+        # about browsers. It is a corner case either way: nothing emits ?page=
+        # links any more, so the expected arrival at these URLs is a crawler
+        # with no Referer, which lands on '/'.
+        r = Client().get("/feedback/?page=http%3A%2F%2Ftestserver%2Fold%2F",
+                         HTTP_REFERER="http://testserver/work/9/", follow=True)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.redirect_chain, [("/feedback/", 301)])
+        self.assertEqual(self.page_field(r), "http://testserver/work/9/")
+
+    def test_ask_rh_is_not_caught_by_the_redirect(self):
+        # ask_rh shares this view but lives at /feedback/campaign/<id>/. A
+        # query string there must reach ask_rh, not be redirected to the
+        # feedback form -- so a missing campaign 404s, as it always did.
+        r = Client().get("/feedback/campaign/999999/?anything=1")
+        self.assertEqual(r.status_code, 404)
+
+    def test_the_form_is_not_cacheable(self):
+        # One URL for everyone is exactly what invites a cache in front, and
+        # the response carries a CSRF token, a one-time captcha and a page
+        # derived from this request's Referer.
+        r = Client().get("/feedback/", HTTP_REFERER="http://testserver/work/9/")
+        self.assertIn("no-store", r["Cache-Control"])
+        self.assertIn("no-cache", r["Cache-Control"])
+
+    def test_referer_value_cannot_inject_a_mail_header(self):
+        r = Client().get(
+            "/feedback/",
+            HTTP_REFERER="http://testserver/x\r\nBcc: someone@example.org")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(self.page_field(r),
+                         "http://testserver/x Bcc: someone@example.org")
+
+    def test_referer_value_is_bounded(self):
         r = Client().get("/feedback/",
-                         {"page": "x\r\nBcc: someone@example.org"})
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(self.page_field(r), "x Bcc: someone@example.org")
-
-    def test_page_value_is_bounded(self):
-        r = Client().get("/feedback/", {"page": "u" * 500})
+                         HTTP_REFERER="http://testserver/" + "u" * 500)
         self.assertEqual(len(self.page_field(r)), 200)
 
     def test_post_keeps_the_submitted_page_not_the_referer(self):
