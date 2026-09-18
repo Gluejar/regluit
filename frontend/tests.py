@@ -280,33 +280,17 @@ class FeedbackSelfLinkTests(TestCase):
     def test_feedback_page_with_page_param_has_no_self_referencing_link(self):
         # Even a crawler-style request that already carries an encoded
         # feedback URL must not be handed a deeper level of nesting.
-        r = Client().get("/feedback/", {"page": "https://testserver/feedback/?page=x"})
+        # Since #1261 that request is redirected to the bare URL rather than
+        # rendered; follow it and check the page it lands on, which is where a
+        # deeper level of nesting would have to appear.
+        r = Client().get("/feedback/", {"page": "https://testserver/feedback/?page=x"},
+                         follow=True)
         self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.redirect_chain, [("/feedback/", 301)])
         # Assert on hrefs specifically: the form legitimately echoes the
-        # incoming page value in a hidden field / subject line, but no LINK
+        # recovered page in a hidden field / subject line, but no LINK
         # (the crawlable surface) may carry a parameterized feedback URL.
         self.assertNotIn('href="/feedback/?page=', str(r.content, 'utf-8'))
-
-    def test_other_pages_carry_exact_current_url(self):
-        # The footer feedback link on non-feedback pages must embed the exact
-        # current URL (urlencoded) so the form records where the user came from.
-        from urllib.parse import quote
-        r = Client().get("/privacy/")
-        self.assertEqual(r.status_code, 200)
-        content = str(r.content, 'utf-8')
-        self.assertIn("/feedback/?page=", content)
-        self.assertIn(quote("http://testserver/privacy/", safe=''), content)
-
-    def test_pagination_state_is_preserved_in_recorded_url(self):
-        # A page= query parameter on a non-feedback page is legitimate
-        # pagination state and must survive into the recorded URL
-        # (regression guard: an earlier draft of this fix stripped it).
-        from urllib.parse import quote
-        r = Client().get("/privacy/", {"q": "sverige", "page": "2"})
-        self.assertEqual(r.status_code, 200)
-        content = str(r.content, 'utf-8')
-        self.assertIn(quote("page=2", safe=''), content)
-        self.assertIn(quote("q=sverige", safe=''), content)
 
     def test_feedback_login_chain_reaches_fixed_point(self):
         # Codex round-2 finding: on /feedback/ the Sign In link's ?next=
@@ -327,10 +311,12 @@ class FeedbackSelfLinkTests(TestCase):
             self.assertIsNotNone(m, "no feedback link found")
             return m.group(1)
 
+        # Start from a crawled old-style URL; it now redirects to the bare
+        # one, so follow redirects throughout the chain.
         url = "/feedback/?page=https%3A%2F%2Ftestserver%2Fwork%2F1%2F"
         seen = set()
         for _ in range(4):
-            r = c.get(url)
+            r = c.get(url, follow=True)
             self.assertEqual(r.status_code, 200)
             html = str(r.content, 'utf-8')
             login = signin_href(html)
@@ -346,15 +332,301 @@ class FeedbackSelfLinkTests(TestCase):
         else:
             self.fail("feedback/login chain did not reach a fixed point in 4 rounds")
 
-    def test_feedback_url_tag_without_request_in_context(self):
-        # Rendering outside a request cycle (e.g. error pages, emails) must
-        # degrade to the bare feedback URL, not raise.
+    def test_feedback_url_tag_ignores_its_context(self):
+        # The tag used to read the request, which is precisely how every page
+        # got its own feedback URL. It must now render one constant string
+        # whatever context it is handed -- including none at all, as on the
+        # error pages. Asserting only the no-context case would pass even if
+        # the per-page parameter came back.
         from django.template import Context, Template
-        rendered = Template(
-            "{% load feedback_link %}{% feedback_url %}"
-        ).render(Context({}))
-        self.assertEqual(rendered, "/feedback/")
+        from django.test import RequestFactory
+        template = Template("{% load feedback_link %}{% feedback_url %}")
+        factory = RequestFactory()
+        rendered = {
+            template.render(Context({})),
+            template.render(Context({'request': factory.get('/work/1/?tab=2')})),
+            template.render(Context({'request': factory.get('/feedback/')})),
+        }
+        self.assertEqual(rendered, {"/feedback/"})
 
+
+class FeedbackUrlSpaceTests(TestCase):
+    """Every page used to mint its own /feedback/?page=<this page> URL. On
+    2026-09-17 production served 702,435 requests to /feedback/ across 693,968
+    distinct URLs -- uncacheable by construction, and a direct cause of four
+    outages. The link is now one constant URL site-wide and the originating
+    page is recovered from the Referer header. See issue #1261."""
+
+    FEEDBACK_HREF = re.compile(r'href="(/feedback/[^"]*)"')
+    HIDDEN_PAGE = re.compile(r'name="page"[^>]*value="([^"]*)"')
+
+    # Pages that carry a feedback link, sampled across query-string shapes.
+    SAMPLE_PAGES = (
+        ("/privacy/", {}),
+        ("/faq/", {}),
+        ("/search/", {"q": "sverige"}),
+        ("/search/", {"q": "sverige", "page": "2"}),
+        ("/feedback/", {}),
+    )
+
+    def page_field(self, response):
+        m = self.HIDDEN_PAGE.search(str(response.content, 'utf-8'))
+        self.assertIsNotNone(m, "no hidden page field in the feedback form")
+        return m.group(1)
+
+    def test_every_page_emits_exactly_one_feedback_url(self):
+        # The whole point of #1261: one URL site-wide, so the space does not
+        # grow with the ~2M crawlable pages.
+        emitted = set()
+        for path, query in self.SAMPLE_PAGES:
+            r = Client().get(path, query)
+            self.assertEqual(r.status_code, 200, path)
+            hrefs = set(self.FEEDBACK_HREF.findall(str(r.content, 'utf-8')))
+            self.assertIn("/feedback/", hrefs, "no bare feedback link on %s" % path)
+            emitted |= hrefs
+        self.assertEqual(emitted, {"/feedback/"})
+
+    def test_no_feedback_link_embeds_a_page_url(self):
+        # The failure mode being fixed: a feedback link carrying the current
+        # page's URL. Nothing url-shaped may appear in a feedback href.
+        for path, query in self.SAMPLE_PAGES:
+            r = Client().get(path, query)
+            for href in self.FEEDBACK_HREF.findall(str(r.content, 'utf-8')):
+                self.assertNotIn("%3A", href, path)   # encoded ':' -- a scheme
+                self.assertNotIn("%2F", href, path)   # encoded '/' -- a path
+                self.assertNotIn("http", href, path)
+
+    # A feedback URL with a query string, built by hand in a template.
+    # Matches {% feedback_url %}?..., {% url 'feedback' %}?... and a literal
+    # /feedback/?..., either quoting style. Nothing may do this any more: the
+    # view redirects it away. {% feedback_url %} is first because it is now the
+    # idiomatic spelling, and so the shape a future edit would most likely take.
+    HAND_WRITTEN_QUERY = re.compile(
+        r"""(?:\{%\s*feedback_url\s*%\}"""
+        r"""|\{%\s*url\s+['"]feedback['"]\s*%\}"""
+        r"""|/feedback/)\?"""
+    )
+
+    # Every feedback link needs referrerpolicy="same-origin" or the site-wide
+    # "origin" policy truncates the Referer to the bare origin -- and the
+    # same-host check accepts that, so staff would be told the user was on the
+    # home page when they were on a 404 or a 500. A wrong attribution is worse
+    # than the honest '/' a missing Referer gives. Four templates were missed
+    # on the first pass, which is why this is a test and not a convention.
+    FEEDBACK_ANCHOR = re.compile(
+        r"""<a\b[^>]*\bhref\s*=\s*["']"""
+        r"""(?:\{%\s*feedback_url\s*%\}"""
+        r"""|\{%\s*url\s+['"]feedback['"]\s*%\}"""
+        r"""|/feedback/)[^>]*>""",
+        re.IGNORECASE,
+    )
+    REFERRER_POLICY = re.compile(r"""referrerpolicy\s*=\s*["']same-origin["']""",
+                                 re.IGNORECASE)
+
+    def test_no_frontend_template_hand_writes_a_feedback_url_with_a_query(self):
+        # Structural guard. The tag is safe by construction now, so the way
+        # the space comes back is a template building a feedback URL by hand
+        # -- which six notification templates and three FAQ/privacy links were
+        # still doing when #1261 was written. This catches that shape in the
+        # source rather than in the access log.
+        #
+        # A tripwire for the known pattern, not a proof, and the name says
+        # "frontend" for a reason: it walks frontend/templates only. api/,
+        # libraryauth/ and payment/ have their own template directories (none
+        # references feedback today). An attribute split across lines, or a URL
+        # assembled some other way, would also slip past.
+        import os
+        templates = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                 'templates')
+        offenders = []
+        for dirpath, _, filenames in os.walk(templates):
+            for filename in filenames:
+                path = os.path.join(dirpath, filename)
+                # a couple of templates are not valid utf-8, and only the
+                # ascii of a template tag matters here
+                with open(path, encoding='utf-8', errors='replace') as f:
+                    for n, line in enumerate(f, 1):
+                        if self.HAND_WRITTEN_QUERY.search(line):
+                            offenders.append("%s:%d" % (path, n))
+        self.assertEqual(offenders, [], "feedback URLs with a query string")
+
+    def test_every_frontend_feedback_link_sets_a_referrer_policy(self):
+        # Companion tripwire. A feedback link without referrerpolicy degrades
+        # silently rather than visibly: the site-wide "origin" policy truncates
+        # the Referer to https://unglue.it/, the same-host check accepts it,
+        # and staff are told the user was on the home page when they were on a
+        # 404 or a 500. Four templates were missed on the first sweep.
+        import os
+        templates = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                 'templates')
+        offenders = []
+        for dirpath, _, filenames in os.walk(templates):
+            for filename in filenames:
+                path = os.path.join(dirpath, filename)
+                with open(path, encoding='utf-8', errors='replace') as f:
+                    for n, line in enumerate(f, 1):
+                        for anchor in self.FEEDBACK_ANCHOR.findall(line):
+                            if not self.REFERRER_POLICY.search(anchor):
+                                offenders.append("%s:%d" % (path, n))
+        self.assertEqual(offenders, [], "feedback links without referrerpolicy")
+
+    def test_methods_other_than_post_do_not_render_a_query_url(self):
+        # OPTIONS and TRACE are CSRF-exempt, so before this they reached a
+        # full render for every distinct URL, exactly like GET did.
+        c = Client()
+        for method in ('get', 'head', 'options', 'delete', 'put'):
+            r = getattr(c, method)("/feedback/?page=http%3A%2F%2Ftestserver%2Fx")
+            self.assertEqual(r.status_code, 301, method)
+            self.assertEqual(r["Location"], "/feedback/", method)
+
+    def test_feedback_links_carry_nofollow_and_a_referrer_policy(self):
+        # referrerpolicy is what makes the Referer usable at all. The site has
+        # sent <meta name="referrer" content="origin"> since 2015, which
+        # truncates even a same-origin Referer to "https://unglue.it/" -- so
+        # without a per-link override every feedback report would name the
+        # same useless page. The override is scoped to these links: nothing
+        # else about what the site sends to third parties changes.
+        r = Client().get("/privacy/")
+        content = str(r.content, 'utf-8')
+        self.assertIn('<meta name="referrer" content="origin" />', content)
+        self.assertIn(
+            'href="/feedback/" rel="nofollow" referrerpolicy="same-origin"',
+            content,
+        )
+
+    def test_pagination_state_reaches_the_form_via_the_referer(self):
+        # Pagination state used to ride in the feedback URL (and a July 2026
+        # regression guard checked it survived there). It now reaches the form
+        # through the Referer instead.
+        came_from = "http://testserver/search/?q=sverige&page=2"
+        r = Client().get("/feedback/", HTTP_REFERER=came_from)
+        self.assertEqual(self.page_field(r), came_from.replace("&", "&amp;"))
+
+    def test_referer_supplies_the_originating_page(self):
+        came_from = "http://testserver/work/9/"
+        r = Client().get("/feedback/", HTTP_REFERER=came_from)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(self.page_field(r), came_from)
+        self.assertIn("Feedback on page " + came_from, str(r.content, 'utf-8'))
+
+    def test_no_referer_degrades_to_slash(self):
+        r = Client().get("/feedback/")
+        self.assertEqual(self.page_field(r), "/")
+
+    def test_foreign_referer_is_ignored(self):
+        for referer in ("http://evil.example.com/x",
+                        "http://testserver.evil.example.com/x",
+                        "http://evil@evil.example.com/x",
+                        "https://testserver:8443/x",
+                        "javascript:alert(1)",
+                        "not a url at all",
+                        "//testserver/x"):
+            r = Client().get("/feedback/", HTTP_REFERER=referer)
+            self.assertEqual(r.status_code, 200, referer)
+            self.assertEqual(self.page_field(r), "/", referer)
+
+    def test_malformed_referer_does_not_error(self):
+        # urlsplit raises ValueError on a bad IPv6 literal
+        r = Client().get("/feedback/", HTTP_REFERER="http://[::1/x")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(self.page_field(r), "/")
+
+    def test_any_query_string_redirects_to_the_canonical_url(self):
+        # The 693,968 URLs that caused the outage are in crawler queues
+        # already. Not emitting them any more does nothing about that, so
+        # every one of them is answered with a cheap permanent redirect
+        # instead of a full render.
+        for query in ("page=http%3A%2F%2Ftestserver%2Fwork%2F9%2F",
+                      "page=need+support",
+                      "page=",
+                      "utm_source=whatever",
+                      "tab=2&page=3",
+                      # these parse to an EMPTY QueryDict but are still
+                      # distinct URLs to a crawler (Codex round-3 finding)
+                      "&",
+                      "&&"):
+            r = Client().get("/feedback/?" + query)
+            self.assertEqual(r.status_code, 301, query)
+            self.assertEqual(r["Location"], "/feedback/", query)
+            self.assertNotIn(b"<form", r.content, query)
+
+    def test_a_referer_on_an_old_link_survives_the_redirect(self):
+        # Django's test client re-sends the header through the redirect. A
+        # browser may do the same for a same-origin 301, but that depends on
+        # the applicable referrer policy and the test client is not evidence
+        # about browsers. It is a corner case either way: nothing emits ?page=
+        # links any more, so the expected arrival at these URLs is a crawler
+        # with no Referer, which lands on '/'.
+        r = Client().get("/feedback/?page=http%3A%2F%2Ftestserver%2Fold%2F",
+                         HTTP_REFERER="http://testserver/work/9/", follow=True)
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.redirect_chain, [("/feedback/", 301)])
+        self.assertEqual(self.page_field(r), "http://testserver/work/9/")
+
+    def test_ask_rh_is_not_caught_by_the_redirect(self):
+        # ask_rh shares this view but lives at /feedback/campaign/<id>/. A
+        # query string there must reach ask_rh, not be redirected to the
+        # feedback form -- so a missing campaign 404s, as it always did.
+        r = Client().get("/feedback/campaign/999999/?anything=1")
+        self.assertEqual(r.status_code, 404)
+
+    def test_the_form_is_not_cacheable(self):
+        # One URL for everyone is exactly what invites a cache in front, and
+        # the response carries a CSRF token, a one-time captcha and a page
+        # derived from this request's Referer.
+        r = Client().get("/feedback/", HTTP_REFERER="http://testserver/work/9/")
+        self.assertIn("no-store", r["Cache-Control"])
+        self.assertIn("no-cache", r["Cache-Control"])
+
+    def test_referer_value_cannot_inject_a_mail_header(self):
+        r = Client().get(
+            "/feedback/",
+            HTTP_REFERER="http://testserver/x\r\nBcc: someone@example.org")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(self.page_field(r),
+                         "http://testserver/x Bcc: someone@example.org")
+
+    def test_referer_value_is_bounded_and_marked(self):
+        # Truncation has to be visible: staff clicking a silently-cut URL get
+        # a 404 and no way to tell that the link was incomplete.
+        r = Client().get("/feedback/",
+                         HTTP_REFERER="http://testserver/" + "u" * 500)
+        page = self.page_field(r)
+        self.assertEqual(len(page), 200)
+        self.assertTrue(page.endswith("..."), page[-10:])
+
+    def test_a_short_referer_is_not_marked(self):
+        r = Client().get("/feedback/", HTTP_REFERER="http://testserver/work/9/")
+        self.assertEqual(self.page_field(r), "http://testserver/work/9/")
+
+    def test_post_keeps_the_submitted_page_not_the_referer(self):
+        # On POST the Referer is /feedback/ itself; the page the user came
+        # from rides along in the hidden field and must survive a form error.
+        r = Client().post("/feedback/", {
+            'sender': 'someone@example.org',
+            'subject': 'Feedback on page http://testserver/work/9/',
+            'message': 'hi',
+            'page': 'http://testserver/work/9/',
+            'num1': '1', 'num2': '2', 'answer': '3',
+            'notarobot': '4',  # wrong sum: re-renders the form
+        }, HTTP_REFERER="http://testserver/feedback/")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(self.page_field(r), "http://testserver/work/9/")
+
+    def test_form_collapses_newlines_in_the_subject(self):
+        # A newline here would raise BadHeaderError inside the celery task,
+        # long after the user has been shown a thank-you page.
+        from regluit.frontend.forms import FeedbackForm
+        form = FeedbackForm(data={
+            'sender': 'someone@example.org',
+            'subject': 'hello\r\nBcc: someone@example.org',
+            'message': 'hi',
+            'page': '/',
+            'num1': '1', 'num2': '2', 'answer': '3', 'notarobot': '3',
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.cleaned_data['subject'],
+                         'hello Bcc: someone@example.org')
 
 
 class CampaignRetirementTests(TestCase):
