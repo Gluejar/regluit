@@ -392,12 +392,21 @@ class FeedbackUrlSpaceTests(TestCase):
                 self.assertNotIn("%2F", href, path)   # encoded '/' -- a path
                 self.assertNotIn("http", href, path)
 
+    # A feedback URL built by hand in a template, with a ?page= value that a
+    # template variable fills in. Matches {% url 'feedback' %}?page={{...}}
+    # and a literal /feedback/?page={{...}}, either quoting style.
+    HAND_WRITTEN_PAGE = re.compile(
+        r"""(?:\{%\s*url\s+['"]feedback['"]\s*%\}|/feedback/)\?page=([^"'\s>]*)"""
+    )
+
     def test_no_template_hand_writes_a_per_page_feedback_url(self):
-        # Structural guard. The tag is now safe by construction, so the only
-        # way the space can come back is for a template to build a feedback
-        # URL by hand -- which six notification templates were still doing
-        # when #1261 was written. Catch the next one in the source rather
-        # than in the access log.
+        # Structural guard. The tag is safe by construction now, so the way
+        # the space comes back is a template building a feedback URL by hand
+        # -- which six notification templates were still doing when #1261 was
+        # written. This catches that shape in the source rather than in the
+        # access log. It is a tripwire for the known pattern, not a proof:
+        # an attribute split across lines, or a URL assembled some other way,
+        # would slip past it.
         import os
         templates = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                  'templates')
@@ -405,18 +414,15 @@ class FeedbackUrlSpaceTests(TestCase):
         for dirpath, _, filenames in os.walk(templates):
             for filename in filenames:
                 path = os.path.join(dirpath, filename)
-                # a couple of templates are not valid utf-8; we only need the
-                # ascii of a template tag
+                # a couple of templates are not valid utf-8, and only the
+                # ascii of a template tag matters here
                 with open(path, encoding='utf-8', errors='replace') as f:
                     for n, line in enumerate(f, 1):
-                        if "'feedback' %}?page=" not in line:
-                            continue
-                        # a fixed topic marker is fine; anything interpolated
-                        # from the request is not
-                        value = line.split("?page=", 1)[1]
-                        value = re.split(r'["\']', value, maxsplit=1)[0]
-                        if '{{' in value:
-                            offenders.append("%s:%d" % (path, n))
+                        for value in self.HAND_WRITTEN_PAGE.findall(line):
+                            # a fixed topic marker (?page=need+support) is
+                            # fine; a value the template fills in is not
+                            if '{{' in value:
+                                offenders.append("%s:%d" % (path, n))
         self.assertEqual(offenders, [], "hand-written per-page feedback URLs")
 
     def test_feedback_links_carry_nofollow_and_a_referrer_policy(self):
