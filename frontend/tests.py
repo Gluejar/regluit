@@ -668,6 +668,14 @@ class SignInUrlSpaceTests(TestCase):
     The per-page value now rides in data-next and is promoted into the href by
     sitewide1.js, so a real browser behaves exactly as before while the
     server-rendered link graph holds one sign-in URL instead of two million.
+
+    Scope, stated precisely: this is about the *site-wide* Sign In / Sign Up
+    links, the only ones rendered on every page. Google sign-in links on
+    home.html, from_pledge.html and gift_login.html still carry ?next= in the
+    href; those templates are reached from a handful of routes (/, /landing/,
+    /accounts/login/pledge/, /receive_gift/<nonce>/), so they are a bounded
+    URL space rather than one URL per crawlable page, and the destinations
+    they carry are load-bearing.
     """
 
     def test_signin_and_signup_hrefs_are_identical_across_pages(self):
