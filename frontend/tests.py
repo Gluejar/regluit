@@ -747,6 +747,24 @@ class SignInUrlSpaceTests(TestCase):
         self.assertEqual(bare, "/socialauth/login/google-oauth2/?next=/next/")
         self.assertEqual(bare, junk)
 
+    def test_login_page_secondary_links_do_not_fan_out(self):
+        # code-review finding: the "Forgot your password" / "Need an account"
+        # links on the login page echoed request.get_full_path, so junk appended
+        # to /accounts/superlogin/ produced a distinct registration URL, whose
+        # page then fed that value into ITS Google button -- a fresh URL on the
+        # expensive endpoint, two hops away. They use the constant /next/ too.
+        def secondary(html):
+            return re.findall(r'href="(/accounts/(?:register|password/reset)/[^"]*)"', html)
+        plain = secondary(str(Client().get("/accounts/superlogin/").content, 'utf-8'))
+        junk = secondary(str(
+            Client().get("/accounts/superlogin/", {"utm": "1"}).content, 'utf-8'))
+        self.assertTrue(plain, "no secondary links found on the login page")
+        self.assertEqual(plain, junk)
+        # ... while an explicit destination still propagates.
+        with_next = secondary(str(
+            Client().get("/accounts/superlogin/", {"next": "/pledge/x/"}).content, 'utf-8'))
+        self.assertTrue(any("next=/pledge/x/" in href for href in with_next))
+
     def test_pledge_login_page_keeps_its_destination(self):
         # /accounts/login/pledge/ renders from_pledge.html, which passes the
         # login view's own `next` straight to Google. Unchanged by #1261.

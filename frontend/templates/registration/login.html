@@ -28,7 +28,14 @@ Make sure the username box has your <b>username, not your email</b> -- some brow
 <br />
 
 
-<a href="{% url 'libraryauth_password_reset' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Forgot</a> your password?  <a href="{% url 'registration_register' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}">Need an account</a>?  <a href="/faq/basics/account">Other questions</a>?
+{% comment %}
+   These two use the same /next/ fallback as the Google link below, for the same
+   reason. Echoing request.get_full_path here let a crawler appending junk to the
+   login page fan out: /accounts/superlogin/?utm=1 gave a distinct "Need an
+   account" URL, whose registration page fed that value into ITS Google button --
+   a fresh URL on the expensive endpoint, two hops from the page this PR closes.
+{% endcomment %}
+<a href="{% url 'libraryauth_password_reset' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}/next/{% endif %}">Forgot</a> your password?  <a href="{% url 'registration_register' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}/next/{% endif %}">Need an account</a>?  <a href="/faq/basics/account">Other questions</a>?
 
 
 <br /><br />
