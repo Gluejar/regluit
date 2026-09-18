@@ -44,7 +44,7 @@ from django.shortcuts import render, get_object_or_404
 from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
 from django.utils.cache import add_never_cache_headers
-from django.utils.http import urlencode
+from django.utils.http import url_has_allowed_host_and_scheme, urlencode
 from django.utils.translation import gettext_lazy as _
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
@@ -182,12 +182,36 @@ def process_kindle_email(request):
         request.session.pop('kindle_email')
 
 def next(request):
-    if 'next' in request.COOKIES:
-        response = HttpResponseRedirect(unquote(unquote(request.COOKIES['next'])))
-        response.delete_cookie('next')
-        return response
-    else:
+    """Redirect to the destination stashed in the `next` cookie.
+
+    That cookie is written by client-side JavaScript -- the hijax sign-in
+    handler in sitewide1.js and the inline script in registration_base.html,
+    which takes the value straight off the current URL's query string and
+    strips only quotes and angle brackets. So its content is
+    attacker-influencable: a crafted same-site link such as
+    /accounts/register/?next=//evil.example is enough to store an off-site
+    destination, and the double unquote below will happily decode a
+    double-encoded one. Redirecting to it unchecked is an open redirect, and
+    a usable phishing primitive, because the victim starts on unglue.it and
+    lands elsewhere after what looks like signing in.
+
+    So: validate the decoded value against this request's own host and
+    scheme, exactly as Django's own login/logout views do, and fall back to
+    the home page when it does not pass. The cookie is cleared either way --
+    a rejected value must not survive to be retried.
+    """
+    if 'next' not in request.COOKIES:
         return HttpResponseRedirect('/')
+    target = unquote(unquote(request.COOKIES['next']))
+    if not url_has_allowed_host_and_scheme(
+            target,
+            allowed_hosts={request.get_host()},
+            require_https=request.is_secure(),
+    ):
+        target = '/'
+    response = HttpResponseRedirect(target)
+    response.delete_cookie('next')
+    return response
 
 def cover_width(work):
     if work.percent_of_goal() < 100:

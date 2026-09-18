@@ -15,7 +15,16 @@
     {% block extra_css %}{% endblock %}
 	<script type="text/javascript" src="{{ jquery_home }}"></script>
     <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
-	<script type="text/javascript" src="/static/js/sitewide1.js"></script>
+	{% comment %}
+	   The ?v= is cache-busting, and it matters more than usual since #1261:
+	   "sign in and come back here" now lives in this file rather than in the
+	   HTML, so a returning visitor holding a cached copy would get the new
+	   markup (bare href + data-next) with JS that does not know to promote it,
+	   and would silently lose the behaviour until their cache expired. Static
+	   files are served by plain StaticFilesStorage, which adds no hash of its
+	   own. Bump this whenever sitewide1.js changes.
+	{% endcomment %}
+	<script type="text/javascript" src="/static/js/sitewide1.js?v=1261"></script>
 	<script>
         function enableSubmit() {
             document.getElementById("search-button").disabled = false;

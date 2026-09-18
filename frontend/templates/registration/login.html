@@ -35,7 +35,7 @@ Make sure the username box has your <b>username, not your email</b> -- some brow
    account" URL, whose registration page fed that value into ITS Google button --
    a fresh URL on the expensive endpoint, two hops from the page this PR closes.
 {% endcomment %}
-<a href="{% url 'libraryauth_password_reset' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}/next/{% endif %}">Forgot</a> your password?  <a href="{% url 'registration_register' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}/next/{% endif %}">Need an account</a>?  <a href="/faq/basics/account">Other questions</a>?
+<a rel="nofollow" href="{% url 'libraryauth_password_reset' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}/next/{% endif %}">Forgot</a> your password?  <a rel="nofollow" href="{% url 'registration_register' %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}/next/{% endif %}">Need an account</a>?  <a href="/faq/basics/account">Other questions</a>?
 
 
 <br /><br />
