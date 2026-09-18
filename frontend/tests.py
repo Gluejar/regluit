@@ -392,9 +392,20 @@ class FeedbackUrlSpaceTests(TestCase):
                 self.assertNotIn("%2F", href, path)   # encoded '/' -- a path
                 self.assertNotIn("http", href, path)
 
-    def test_feedback_links_are_nofollow(self):
+    def test_feedback_links_carry_nofollow_and_a_referrer_policy(self):
+        # referrerpolicy is what makes the Referer usable at all. The site has
+        # sent <meta name="referrer" content="origin"> since 2015, which
+        # truncates even a same-origin Referer to "https://unglue.it/" -- so
+        # without a per-link override every feedback report would name the
+        # same useless page. The override is scoped to these links: nothing
+        # else about what the site sends to third parties changes.
         r = Client().get("/privacy/")
-        self.assertIn('href="/feedback/" rel="nofollow"', str(r.content, 'utf-8'))
+        content = str(r.content, 'utf-8')
+        self.assertIn('<meta name="referrer" content="origin" />', content)
+        self.assertIn(
+            'href="/feedback/" rel="nofollow" referrerpolicy="same-origin"',
+            content,
+        )
 
     def test_pagination_state_reaches_the_form_via_the_referer(self):
         # Pagination state used to ride in the feedback URL (and a July 2026

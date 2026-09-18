@@ -15,7 +15,7 @@
 		<div>
 		<p>Unglue.it would like to accept your credit card, but we encountered a problem: <b>{{transaction.error}}</b> {% if request.user.account_set %}Please <a href="{% url 'manage_account' %}">Update your credit card</a>,
 		{% else %}Please <a href="{{ request.get_full_path }}">try again</a>,{% endif %}
-		 or  <a href="{% feedback_url %}" rel="nofollow">contact us</a>.
+		 or  <a href="{% feedback_url %}" rel="nofollow" referrerpolicy="same-origin">contact us</a>.
         </p>
         </div>
 	</div>
