@@ -6,7 +6,7 @@ import re
 import sys
 import json
 import logging
-from urllib.parse import unquote
+from urllib.parse import unquote, urlsplit
 import requests
 
 from datetime import timedelta, date, datetime
@@ -1856,6 +1856,58 @@ def ask_rh(request, campaign_id):
             redirect_url = reverse('work', args=[campaign.work_id]),
             extra_context={'campaign':campaign, 'subject':campaign })
 
+# The feedback link is a bare /feedback/ on every page (#1261): carrying the
+# current page as ?page=<url> minted one distinct URL per crawlable page --
+# 693,968 of them in a single day -- which no cache could absorb and no block
+# list could keep up with. The originating page is recovered from the Referer
+# header instead. That is best effort by design: browsers and privacy settings
+# withhold it, and then the form simply records '/'.
+FEEDBACK_PAGE_MAX_LENGTH = 200
+
+
+def _same_site_referer(request):
+    """The Referer header, but only when it points back at this site.
+
+    Compares host rather than full origin: unglue.it runs behind Apache, and a
+    scheme mismatch there would silently discard every referer. The value is
+    informational -- it is echoed to staff in the feedback email and grants
+    nothing -- so a forged header costs nothing beyond the cleaning below.
+    """
+    referer = request.META.get('HTTP_REFERER', '')
+    if not referer:
+        return ''
+    try:
+        parts = urlsplit(referer)
+    except ValueError:  # malformed URL, e.g. a bad IPv6 literal
+        return ''
+    if parts.scheme not in ('http', 'https'):
+        return ''
+    if parts.netloc.lower() != request.get_host().lower():
+        return ''
+    return referer
+
+
+def _clean_page(value):
+    """Collapse whitespace and control characters, and bound the length.
+
+    This value is interpolated into a mail subject, so it must not carry
+    newlines; the subject field is 500 characters, and this is only part of it.
+    """
+    value = ''.join(ch if ch.isprintable() else ' ' for ch in value)
+    return ' '.join(value.split())[:FEEDBACK_PAGE_MAX_LENGTH]
+
+
+def _originating_page(request):
+    """Where the user was when they clicked "feedback".
+
+    An explicit ?page= wins: links from years of crawled pages still carry one,
+    and a few templates hand-write one as a topic marker (?page=need+support).
+    Otherwise fall back to a same-site Referer, then to '/'.
+    """
+    page = _clean_page(request.GET.get('page', '') or _same_site_referer(request))
+    return page or '/'
+
+
 def feedback(request, recipient='unglueit@ebookfoundation.org', template='feedback.html', message_template='feedback.txt', extra_context=None, redirect_url=None):
     context = extra_context or {}
     context['num1'] = randint(0, 10)
@@ -1883,10 +1935,7 @@ def feedback(request, recipient='unglueit@ebookfoundation.org', template='feedba
     else:
         if request.user.is_authenticated:
             context['sender'] = request.user.email
-        try:
-            context['page'] = request.GET['page']
-        except:
-            context['page'] = '/'
+        context['page'] = _originating_page(request)
         if not 'subject' in context:
             context['subject'] = "Feedback on page "+context['page']
         form = FeedbackForm(initial=context)
