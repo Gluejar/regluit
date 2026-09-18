@@ -28,8 +28,15 @@ function isSameSitePath(value) {
     } catch (e) {
         return false;
     }
-    return decoded.charAt(0) === '/' &&
-           decoded.charAt(1) !== '/' && decoded.charAt(1) !== '\\';
+    if (decoded.charAt(0) !== '/' ||
+        decoded.charAt(1) === '/' || decoded.charAt(1) === '\\') {
+        return false;
+    }
+    // Not /next/ itself: that is the view which READS this cookie, so storing
+    // it makes the cookie point at its own reader. The login page's fallback
+    // links carry ?next=/next/, so without this a visitor who had a real
+    // destination saved would have it overwritten by a pointer to nowhere.
+    return decoded.indexOf('/next/') !== 0;
 }
 $j(document).ready(function() {
     var next = getQueryVariable('next');

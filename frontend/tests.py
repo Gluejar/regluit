@@ -896,6 +896,16 @@ class NextCookieRedirectTests(TestCase):
     def test_backslash_variant_is_rejected(self):
         self.assertEqual(self._next_with_cookie("%2F%5Cevil.example")['Location'], "/")
 
+    def test_next_never_redirects_to_itself(self):
+        # This view reads the cookie and redirects to it, so a cookie pointing
+        # back here redirected to itself. It terminated only because the same
+        # response clears the cookie, which made termination depend on the
+        # delete landing -- a cookie scoped to a narrower path would loop.
+        # Not hypothetical: the login page's fallback links carry ?next=/next/,
+        # so this value really does reach the cookie writers.
+        self.assertEqual(self._next_with_cookie("%2Fnext%2F")['Location'], "/")
+        self.assertEqual(self._next_with_cookie("%2Fnext%2F%3Fx%3D1")['Location'], "/")
+
     def test_rejected_cookie_is_cleared_not_left_to_retry(self):
         r = self._next_with_cookie("%2F%2Fevil.example")
         self.assertEqual(r.cookies['next'].value, "")
@@ -964,6 +974,14 @@ class WelcomePageRedirectTests(TestCase):
             html = str(Client().get(url).content, 'utf-8')
             self.assertIn("function isSameSitePath(", html)
             self.assertIn("if (isSameSitePath(next)) {", html)
+
+    def test_write_side_refuses_to_store_the_next_view_itself(self):
+        # Mirror of test_next_never_redirects_to_itself on the write side: a
+        # visitor with a real destination saved must not have it overwritten
+        # by /next/ when they pass through a page whose fallback link carries
+        # ?next=/next/. Asserted on the served JavaScript.
+        html = str(Client().get("/accounts/superlogin/").content, 'utf-8')
+        self.assertIn("decoded.indexOf('/next/') !== 0", html)
 
     def test_no_javascript_navigates_to_a_cookie_value_anywhere(self):
         # Broader guard: no template served to a visitor may hand a cookie

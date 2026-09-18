@@ -181,8 +181,8 @@ def process_kindle_email(request):
         user.profile.save()
         request.session.pop('kindle_email')
 
-def _is_same_site_path(target):
-    """True only for a relative, same-site path -- no scheme, no host.
+def _is_safe_redirect_target(target):
+    """True only for a relative, same-site path that is not /next/ itself.
 
     Stricter than url_has_allowed_host_and_scheme on its own, deliberately.
     Every writer of the next cookie stores a path: auth_next emits
@@ -210,6 +210,16 @@ def _is_same_site_path(target):
     if not target.startswith('/'):
         return False
     if target.startswith('//') or target.startswith('/\\'):
+        return False
+    # Never /next/ itself, or anything under it. This view reads the cookie
+    # and redirects to it, so a cookie pointing back here redirects to itself;
+    # today that terminates only because the same response clears the cookie,
+    # which makes termination depend on the delete landing. A cookie scoped to
+    # a narrower path (browsers send that one first, and delete_cookie on '/'
+    # does not remove it) would loop. Cheaper to make it structurally
+    # impossible. The login page's own fallback links carry ?next=/next/, so
+    # this value really does reach the writers.
+    if target.startswith(reverse('next')):
         return False
     parsed = urlparse(target)
     return not parsed.scheme and not parsed.netloc
@@ -249,7 +259,7 @@ def next(request):
     if 'next' not in request.COOKIES:
         return HttpResponseRedirect('/')
     target = unquote(unquote(request.COOKIES['next']))
-    if not _is_same_site_path(target) or not url_has_allowed_host_and_scheme(
+    if not _is_safe_redirect_target(target) or not url_has_allowed_host_and_scheme(
             target, allowed_hosts={request.get_host()},
     ):
         target = '/'
