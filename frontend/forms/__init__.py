@@ -486,6 +486,13 @@ class FeedbackForm(forms.Form):
     num1 = forms.IntegerField(widget=forms.HiddenInput())
     num2 = forms.IntegerField(widget=forms.HiddenInput())
 
+    def clean_subject(self):
+        # The subject becomes a mail header. A newline in it raises
+        # BadHeaderError inside the celery task, long after the user has been
+        # shown a thank-you page, so the feedback is simply lost. Collapse
+        # line breaks rather than rejecting the submission.
+        return ' '.join(self.cleaned_data['subject'].split())
+
     def clean(self):
         cleaned_data = self.cleaned_data
         notarobot = str(cleaned_data.get("notarobot"))

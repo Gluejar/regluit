@@ -1,26 +1,36 @@
 """
-Emit the site-wide "feedback" link, with a self-reference guard.
+Emit the site-wide "feedback" link, and the ?next= value for Sign In / Sign Up.
 
-On every page except /feedback/ itself the link carries a ?page=<current-url>
-parameter so the feedback form can record where the user came from. On the
-feedback page we deliberately drop that parameter: a feedback link that points
-back to the feedback page (with the feedback page's own URL encoded into it)
-creates an infinite, self-referencing URL space -- each level re-encodes the
-one before (%2F -> %252F -> %25252F). Crawler fleets walked that space at tens
-of thousands of requests per hour on 2026-07-10 and saturated the web workers
-(see INCIDENT_2026-07-10_crawler_trap_flood.md).
+feedback_url emits a bare /feedback/ on every page. It used to carry a
+?page=<current-url> parameter so the feedback form could record where the user
+came from, which meant every one of the site's ~2M crawlable pages minted its
+own distinct feedback URL. On 2026-09-17 production served 702,435 requests to
+/feedback/ spread over 693,968 *distinct* URLs -- a repeat rate of 1.01, so no
+cache could absorb it and no block list could keep up with it. That traffic was
+a direct cause of four outages totalling 115 minutes (see issue #1261).
 
-Two tags cooperate to make the URL space finite:
+The originating page is now recovered in the view from the Referer header (see
+frontend.views._originating_page), which needs no URL to carry it.
 
-- feedback_url: drops ?page= on the feedback page itself.
-- auth_next: the Sign In / Sign Up links in base.html embed the current URL
-  as ?next=. On the feedback page that would re-grow the chain sideways
-  (feedback -> superlogin?next=<feedback url> -> feedback?page=<superlogin
-  url> -> ...), so there auth_next uses the bare request.path instead of the
-  full path. Everywhere else both tags pass the browser's URL through exactly
-  -- including any page= query parameter, which is legitimate pagination
-  state (e.g. /search/?q=...&page=2). With both rules, alternating
-  feedback/login crawls reach a fixed point instead of growing.
+The earlier, July 2026 problem was different and worse: the feedback link on
+/feedback/ itself pointed back at /feedback/ with the feedback page's own URL
+encoded into it, so the space was not merely large but *infinite* -- each level
+re-encoded the one before (%2F -> %252F -> %25252F). Crawler fleets walked it at
+tens of thousands of requests per hour and saturated the web workers (see
+INCIDENT_2026-07-10_crawler_trap_flood.md).
+
+Emitting a constant URL makes that recursion structurally impossible, so
+feedback_url no longer needs its self-reference guard. auth_next still does.
+Since #1261 the Sign In / Sign Up links in base.html no longer put its value in
+the href at all: they carry it in a data-next attribute that sitewide1.js
+promotes back into the href in the browser, so the server-rendered link is the
+same URL on every page. The value itself is unchanged, and still needs the
+guard -- on the feedback page a full URL would re-grow the chain sideways
+(feedback -> superlogin?next=<feedback url> -> feedback?page=<superlogin url>
+-> ...), so there auth_next uses the bare request.path instead of the full
+path. A JS browser must not be able to walk that chain either. Everywhere else
+auth_next passes the browser's URL through exactly -- including any page= query
+parameter, which is legitimate pagination state (e.g. /search/?q=...&page=2).
 """
 from urllib.parse import quote
 
@@ -37,13 +47,10 @@ def _on_feedback_page(request):
     return request.path == reverse('feedback')
 
 
-@register.simple_tag(takes_context=True)
-def feedback_url(context):
-    feedback = reverse('feedback')
-    request = context.get('request')
-    if request is None or _on_feedback_page(request):
-        return feedback
-    return '%s?page=%s' % (feedback, quote(request.build_absolute_uri(), safe=''))
+@register.simple_tag
+def feedback_url():
+    """The feedback URL -- the same constant string on every page (#1261)."""
+    return reverse('feedback')
 
 
 @register.simple_tag(takes_context=True)

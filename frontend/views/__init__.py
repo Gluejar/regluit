@@ -6,7 +6,7 @@ import re
 import sys
 import json
 import logging
-from urllib.parse import unquote
+from urllib.parse import unquote, urlparse, urlsplit
 import requests
 
 from datetime import timedelta, date, datetime
@@ -35,6 +35,7 @@ from django.forms import Select
 from django.forms.models import inlineformset_factory
 from django.http import (
     HttpResponseRedirect,
+    HttpResponsePermanentRedirect,
     Http404,
     HttpResponse,
     HttpResponseNotFound
@@ -42,7 +43,8 @@ from django.http import (
 from django.shortcuts import render, get_object_or_404
 from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
-from django.utils.http import urlencode
+from django.utils.cache import add_never_cache_headers
+from django.utils.http import url_has_allowed_host_and_scheme, urlencode
 from django.utils.translation import gettext_lazy as _
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
@@ -179,13 +181,103 @@ def process_kindle_email(request):
         user.profile.save()
         request.session.pop('kindle_email')
 
+def _is_safe_redirect_target(target):
+    """True only for a relative, same-site path that is not /next/ itself.
+
+    Stricter than url_has_allowed_host_and_scheme on its own, deliberately.
+    Every writer of the next cookie stores a path: auth_next emits
+    request.get_full_path(), the hijax handler lifts a path out of an href,
+    Django's @login_required supplies one. An absolute URL has no business
+    here even when it points at our own host.
+
+    Being strict this way also removes a dependency on request.is_secure(),
+    which is always False in production because the TLS-terminating proxy is
+    in front and SECURE_PROXY_SSL_HEADER is not set. Passing
+    require_https=request.is_secure() would therefore have been inert, and
+    "http://unglue.it/..." would have validated and bounced the user off TLS
+    for that hop. Refusing absolute URLs outright makes the question moot
+    rather than resting on a flag that reads as active and is not. The
+    underlying gap -- no SECURE_PROXY_SSL_HEADER, no HSTS -- is
+    infrastructure-wide and tracked separately.
+
+    Rejects raw control characters -- browsers strip tabs and newlines
+    before resolving a URL, so a value that looks like a path here could
+    resolve to something else there.
+
+    NOT the space, though, and that distinction is load-bearing. This site
+    has free-text path routes: /free/<path>/ carries keyword facets and
+    /bypub/all/<pubname> carries publisher names, so
+    "/bypub/all/Oxford University Press" is a real destination a real user
+    can be sitting on. It arrives here with literal spaces, because the two
+    unquotes decode the %20 that auth_next put in. An earlier version of
+    this guard rejected ch <= ' ', which sent those visitors to the home
+    page after signing in -- behaviour that worked before #1261 touched any
+    of this. HttpResponseRedirect runs the target through iri_to_uri, which
+    re-encodes the space on the way out, so letting it through here is both
+    safe and what already happened.
+    """
+    if not target or any(ch < ' ' or ch == '\x7f' for ch in target):
+        return False
+    if not target.startswith('/'):
+        return False
+    if target.startswith('//') or target.startswith('/\\'):
+        return False
+    # Never /next/ itself, or anything under it. This view reads the cookie
+    # and redirects to it, so a cookie pointing back here redirects to itself;
+    # today that terminates only because the same response clears the cookie,
+    # which makes termination depend on the delete landing. A cookie scoped to
+    # a narrower path (browsers send that one first, and delete_cookie on '/'
+    # does not remove it) would loop. Cheaper to make it structurally
+    # impossible. The login page's own fallback links carry ?next=/next/, so
+    # this value really does reach the writers.
+    if target.startswith(reverse('next')):
+        return False
+    parsed = urlparse(target)
+    return not parsed.scheme and not parsed.netloc
+
+
 def next(request):
-    if 'next' in request.COOKIES:
-        response = HttpResponseRedirect(unquote(unquote(request.COOKIES['next'])))
-        response.delete_cookie('next')
-        return response
-    else:
+    """Redirect to the destination stashed in the `next` cookie.
+
+    That cookie is written by client-side JavaScript -- the hijax sign-in
+    handler in sitewide1.js and the inline script in registration_base.html,
+    which takes the value straight off the current URL's query string and
+    strips only quotes and angle brackets. So its content is
+    attacker-influencable: a crafted same-site link such as
+    /accounts/register/?next=//evil.example is enough to store an off-site
+    destination, and the double unquote below will happily decode a
+    double-encoded one. Redirecting to it unchecked is an open redirect, and
+    a usable phishing primitive, because the victim starts on unglue.it and
+    lands elsewhere after what looks like signing in.
+
+    So: validate the decoded value against this request's own host and
+    scheme, exactly as Django's own login/logout views do, and fall back to
+    the home page when it does not pass. The cookie is cleared either way --
+    a rejected value must not survive to be retried.
+
+    Why two unquotes, so nobody "simplifies" this into a bug: auth_next
+    percent-encodes the path once (quote(safe='')), the hijax handler lifts
+    that still-encoded value out of the href, and jquery.cookie encodes it
+    again on write. The cookie therefore arrives double-encoded and two
+    passes are what recover the original path. Validation happens after both,
+    which is the part that matters -- a single decode would let a
+    double-encoded off-site target through. Do not make this a loop: two
+    bounded passes match the known writers, an unbounded one would decode
+    payloads no writer can actually produce. Reducing it to one decode means
+    first fixing the encoding contract at both writers; worth doing, but not
+    in this change.
+    """
+    if 'next' not in request.COOKIES:
         return HttpResponseRedirect('/')
+    target = unquote(unquote(request.COOKIES['next']))
+    if not _is_safe_redirect_target(target) or not url_has_allowed_host_and_scheme(
+            target, allowed_hosts={request.get_host()},
+    ):
+        target = '/'
+    response = HttpResponseRedirect(target)
+    # path must match the '/' the JS writers set, or the delete silently misses
+    response.delete_cookie('next', path='/')
+    return response
 
 def cover_width(work):
     if work.percent_of_goal() < 100:
@@ -1856,7 +1948,101 @@ def ask_rh(request, campaign_id):
             redirect_url = reverse('work', args=[campaign.work_id]),
             extra_context={'campaign':campaign, 'subject':campaign })
 
+# /feedback/ is one URL, and takes no query parameters at all (#1261). It used
+# to carry the current page as ?page=<url>, which minted one distinct URL per
+# crawlable page -- 693,968 of them in a single day -- and no cache could
+# absorb that (repeat rate 1.01) and no block list could keep up with it.
+#
+# Not emitting that parameter any more is only half the job: those 693,968
+# URLs are sitting in crawler queues right now, and would keep costing a full
+# template render each. So a GET carrying any query string is answered with a
+# permanent redirect to the bare URL, which is cheap, teaches crawlers and
+# caches the canonical URL, and collapses the existing space rather than
+# merely refusing to grow it.
+#
+# The originating page comes from the Referer header instead. That is best
+# effort by design: browsers and privacy settings withhold it, and then the
+# form simply records '/'. The feedback links carry
+# referrerpolicy="same-origin" for this to work at all -- the site's default
+# policy is "origin", which would truncate the Referer to the bare origin.
+# A browser may re-send the same Referer after the redirect, in which case a
+# user following an old ?page= link is still attributed; that depends on the
+# referrer policy in force, and old links mostly arrive without one at all.
+FEEDBACK_PAGE_MAX_LENGTH = 200
+
+
+def _same_site_referer(request):
+    """The Referer header, but only when it points back at this site.
+
+    Compares host rather than full origin: unglue.it runs behind Apache, and a
+    scheme mismatch there would silently discard every referer. The value is
+    informational -- it is echoed to staff in the feedback email and grants
+    nothing -- so a forged header costs nothing beyond the cleaning below.
+    """
+    referer = request.META.get('HTTP_REFERER', '')
+    if not referer:
+        return ''
+    try:
+        parts = urlsplit(referer)
+    except ValueError:  # malformed URL, e.g. a bad IPv6 literal
+        return ''
+    if parts.scheme not in ('http', 'https'):
+        return ''
+    if parts.netloc.lower() != request.get_host().lower():
+        return ''
+    return referer
+
+
+def _clean_page(value):
+    """Collapse whitespace and control characters, and bound the length.
+
+    This value is interpolated into a mail subject, so it must not carry
+    newlines; the subject field is 500 characters, and this is only part of it.
+    Truncation is marked, so a long search URL arrives visibly cut rather than
+    looking complete and simply not working when staff click it.
+    """
+    value = ''.join(ch if ch.isprintable() else ' ' for ch in value)
+    value = ' '.join(value.split())
+    if len(value) > FEEDBACK_PAGE_MAX_LENGTH:
+        return value[:FEEDBACK_PAGE_MAX_LENGTH - 3] + '...'
+    return value
+
+
+def _originating_page(request):
+    """Where the user was when they clicked "feedback", or '/' if unknowable."""
+    return _clean_page(_same_site_referer(request)) or '/'
+
+
+def _on_feedback_route(request):
+    """True for /feedback/ itself, false for ask_rh, which shares this view.
+
+    ask_rh lives at /feedback/campaign/<id>/ and calls feedback() directly, so
+    the query-string redirect below has to be able to tell them apart.
+    """
+    match = getattr(request, 'resolver_match', None)
+    if match is not None:
+        return match.url_name == 'feedback'
+    return request.path == reverse('feedback')
+
+
 def feedback(request, recipient='unglueit@ebookfoundation.org', template='feedback.html', message_template='feedback.txt', extra_context=None, redirect_url=None):
+    if (request.method != 'POST'
+            and request.META.get('QUERY_STRING')
+            and _on_feedback_route(request)):
+        # 693,968 distinct /feedback/?page=... URLs are already in crawler
+        # queues. Collapse every one of them onto the canonical URL instead of
+        # rendering the form 693,968 times (#1261). Deliberately not limited to
+        # ?page=: any query parameter here is either a dead link or an invented
+        # one, and neither should cost a render.
+        #
+        # Tested against the raw QUERY_STRING rather than request.GET, because
+        # "?&" and "?&&" parse to an empty QueryDict -- they are still distinct
+        # URLs to a crawler, and would otherwise have been rendered in full.
+        #
+        # Everything but POST, not just GET and HEAD: OPTIONS and TRACE are
+        # CSRF-exempt, so they reached a full render per distinct URL.
+        return HttpResponsePermanentRedirect(reverse('feedback'))
+
     context = extra_context or {}
     context['num1'] = randint(0, 10)
     context['num2'] = randint(0, 10)
@@ -1874,7 +2060,9 @@ def feedback(request, recipient='unglueit@ebookfoundation.org', template='feedba
             if redirect_url:
                 return HttpResponseRedirect(redirect_url)
             else:
-                return render(request, "thanks.html", context)
+                thanks = render(request, "thanks.html", context)
+                add_never_cache_headers(thanks)
+                return thanks
 
         else:
             context['num1'] = request.POST['num1']
@@ -1883,15 +2071,18 @@ def feedback(request, recipient='unglueit@ebookfoundation.org', template='feedba
     else:
         if request.user.is_authenticated:
             context['sender'] = request.user.email
-        try:
-            context['page'] = request.GET['page']
-        except:
-            context['page'] = '/'
+        context['page'] = _originating_page(request)
         if not 'subject' in context:
             context['subject'] = "Feedback on page "+context['page']
         form = FeedbackForm(initial=context)
     context['form'] = form
-    return render(request, template, context)
+    response = render(request, template, context)
+    # This form is per-visitor: a CSRF token, a one-time arithmetic captcha,
+    # the signed-in user's email, and a page recovered from this request's
+    # Referer. The URL is now a single one, which is exactly what invites a
+    # cache in front of it, so say plainly that it must not be shared (#1261).
+    add_never_cache_headers(response)
+    return response
 
 def campaign_archive_js(request):
     """ proxy for mailchimp js"""

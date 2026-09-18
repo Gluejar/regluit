@@ -1,4 +1,5 @@
 {% extends 'notification/notice_template.html' %}
+{% load feedback_link %}
 
 
 {% block comments_book %}
@@ -25,7 +26,7 @@ Finally, think about how you're going to publicize your campaign: social media, 
 
 	{% endif %}
 	{% if claim.status == 'pending' %}
-	The claim for <a href="{% url 'work' claim.work_id %}">{{ claim.work.title }}</a> will be examined, and we'll email you.  <a href="{% url 'feedback' %}?page={{request.build_absolute_uri|urlencode:""}}">Contact us</a> if you need any help.
+	The claim for <a href="{% url 'work' claim.work_id %}">{{ claim.work.title }}</a> will be examined, and we'll email you.  <a href="{% feedback_url %}" rel="nofollow" referrerpolicy="same-origin">Contact us</a> if you need any help.
 	{% endif %}
 	{% if claim.status == 'release' %}
 	The claim for <a href="{% url 'work' claim.work_id %}">{{ claim.work.title }}</a> has been released.  Contact us at rights@ebookfoundation.org if you have questions.
