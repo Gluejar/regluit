@@ -200,12 +200,23 @@ def _is_safe_redirect_target(target):
     underlying gap -- no SECURE_PROXY_SSL_HEADER, no HSTS -- is
     infrastructure-wide and tracked separately.
 
-    Rejects raw control characters and spaces too: browsers strip some of
-    those before resolving a URL, so a value that looks like a path here
-    could resolve to something else there. Legitimate values are
-    percent-encoded and never contain them.
+    Rejects raw control characters -- browsers strip tabs and newlines
+    before resolving a URL, so a value that looks like a path here could
+    resolve to something else there.
+
+    NOT the space, though, and that distinction is load-bearing. This site
+    has free-text path routes: /free/<path>/ carries keyword facets and
+    /bypub/all/<pubname> carries publisher names, so
+    "/bypub/all/Oxford University Press" is a real destination a real user
+    can be sitting on. It arrives here with literal spaces, because the two
+    unquotes decode the %20 that auth_next put in. An earlier version of
+    this guard rejected ch <= ' ', which sent those visitors to the home
+    page after signing in -- behaviour that worked before #1261 touched any
+    of this. HttpResponseRedirect runs the target through iri_to_uri, which
+    re-encodes the space on the way out, so letting it through here is both
+    safe and what already happened.
     """
-    if not target or any(ch <= ' ' or ch == '\x7f' for ch in target):
+    if not target or any(ch < ' ' or ch == '\x7f' for ch in target):
         return False
     if not target.startswith('/'):
         return False

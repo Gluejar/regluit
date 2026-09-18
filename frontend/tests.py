@@ -717,7 +717,6 @@ class SignInUrlSpaceTests(TestCase):
         # template sources rather than by listing phrases to look for -- a
         # phrase list only catches the instances someone remembered to add.
         import os
-        from django.conf import settings as dj_settings
         offenders = []
         roots = [os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                               'frontend', 'templates')]
@@ -896,6 +895,21 @@ class NextCookieRedirectTests(TestCase):
     def test_backslash_variant_is_rejected(self):
         self.assertEqual(self._next_with_cookie("%2F%5Cevil.example")['Location'], "/")
 
+    def test_a_path_with_spaces_still_works(self):
+        # Regression, and the sharpest kind: behaviour that worked BEFORE this
+        # PR and that an earlier version of my own guard broke. This site has
+        # free-text path routes -- /free/<path>/ for keyword facets,
+        # /bypub/all/<pubname> for publisher names -- so these are real pages a
+        # real user can be sitting on when they sign in. The value arrives here
+        # with literal spaces, because the two unquotes decode the %20 that
+        # auth_next put in. Rejecting the space sent those visitors to the home
+        # page. HttpResponseRedirect re-encodes it via iri_to_uri on the way
+        # out, which is what already happened before any of this.
+        r = self._next_with_cookie("%252Fbypub%252Fall%252FOxford%2520University%2520Press")
+        self.assertEqual(r['Location'], "/bypub/all/Oxford%20University%20Press")
+        r = self._next_with_cookie("%252Ffree%252Fkw.science%2520fiction%252F")
+        self.assertEqual(r['Location'], "/free/kw.science%20fiction/")
+
     def test_next_never_redirects_to_itself(self):
         # This view reads the cookie and redirects to it, so a cookie pointing
         # back here redirected to itself. It terminated only because the same
@@ -974,6 +988,19 @@ class WelcomePageRedirectTests(TestCase):
             html = str(Client().get(url).content, 'utf-8')
             self.assertIn("function isSameSitePath(", html)
             self.assertIn("if (isSameSitePath(next)) {", html)
+
+    def test_hijax_writer_also_refuses_to_store_the_next_view(self):
+        # The registration_base.html writer got this check; the hijax writer in
+        # sitewide1.js did not, so a second Sign In click from a page whose
+        # links carry ?next=/next/ overwrote a real saved destination. The read
+        # guard makes that safe, not harmless -- the destination is gone.
+        import os
+        js = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            'static', 'js', 'sitewide1.js')
+        with open(js, encoding='utf-8') as handle:
+            source = handle.read()
+        self.assertIn("decodeNextSafely(next).indexOf('/next/') !== 0", source)
 
     def test_write_side_refuses_to_store_the_next_view_itself(self):
         # Mirror of test_next_never_redirects_to_itself on the write side: a
