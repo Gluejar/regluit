@@ -33,7 +33,12 @@ Make sure the username box has your <b>username, not your email</b> -- some brow
 
 <br /><br />
 
-   <a  class="btn btn-social btn-google-plus" href="{% url 'social:begin' "google-oauth2" %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}{{ request.get_full_path|urlencode}}{% endif %}" ><i class="fa fa-google"></i>Sign in with Google</a>
+{# With no incoming ?next=, fall back to the constant /next/ view (which reads the
+   next cookie) rather than echoing this page's own URL: the echo made the Google
+   sign-in URL -- the expensive one, since it blocks a worker on an outbound call
+   to Google -- vary with any query string appended to the login page. Same
+   fallback home.html and registration_form.html already use. See issue #1261. #}
+   <a  class="btn btn-social btn-google-plus" rel="nofollow" href="{% url 'social:begin' "google-oauth2" %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}/next/{% endif %}" ><i class="fa fa-google"></i>Sign in with Google</a>
 {% else %}
 <div>
 You are already logged in as <a href="{% url 'supporter' user %}">{{ user.username }}</a>.

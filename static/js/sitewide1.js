@@ -1,6 +1,23 @@
 var $j = jQuery.noConflict();
 
 $j(document).ready(function() {
+    // Promote data-next back into the href of the site-wide Sign In / Sign Up
+    // links. The server renders those links without a ?next= parameter so that
+    // every crawlable page emits the SAME sign-in URL; carrying the per-page
+    // value in a data attribute keeps "sign in and come back here" working for
+    // real browsers without minting one auth URL per page for crawlers to walk
+    // (issue #1261). The value is already urlencoded by the auth_next template
+    // tag -- pass it through verbatim, since hijax and the login form both
+    // expect the same encoding the server used to emit inline.
+    $j("a.js-auth-next").each(function() {
+        var link = $j(this);
+        var href = link.attr("href");
+        var next = link.attr("data-next");
+        if (href && next && href.indexOf("next=") === -1) {
+            link.attr("href", href + (href.indexOf("?") === -1 ? "?" : "&") + "next=" + next);
+        }
+    });
+
     // hijack a link with class "hijax" to show its content in a lightbox instead
     // allows for ajaxy presentation of things like download links in a way that
     // degrades gracefully for non-js users

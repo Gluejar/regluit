@@ -113,10 +113,13 @@
             {% else %}
                 <div class="js-topmenu">
                     <ul class="menu">
-                        <li><a class="notbutton hijax" href="{% url 'superlogin' %}?next={% auth_next %}"><span>Sign In</span></a></li>
+                        {# The ?next= value lives in data-next, not the href, so that these
+                           site-wide links are the same URL on every crawlable page. Promoted
+                           back into the href by sitewide1.js. See issue #1261. #}
+                        <li><a class="notbutton hijax js-auth-next" rel="nofollow" href="{% url 'superlogin' %}" data-next="{% auth_next %}"><span>Sign In</span></a></li>
                        {% if not suppress_search_box %}
                             {% if request.get_full_path != "/accounts/register/" %}
-                                <li  class="last"><a class="btn btn-signup" href="{% url 'registration_register' %}?next={% auth_next %}">Sign Up <i class="fa fa-chevron-right"></i></a></li>
+                                <li  class="last"><a class="btn btn-signup js-auth-next" rel="nofollow" href="{% url 'registration_register' %}" data-next="{% auth_next %}">Sign Up <i class="fa fa-chevron-right"></i></a></li>
                             {% endif %}
                         {% endif %}
                     </ul>

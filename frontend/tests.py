@@ -298,13 +298,23 @@ class FeedbackSelfLinkTests(TestCase):
         # feedback -> superlogin -> feedback -> superlogin got ever-growing
         # URLs. With auth_next using the bare path on the feedback route,
         # the chain must reach a fixed point instead.
+        #
+        # Since #1261 the sign-in link's href no longer carries ?next= at all
+        # (the value moved to data-next, promoted into the href by JS), so the
+        # crawler-visible chain is bounded twice over. The assertion below is
+        # now on data-next: the value a *JS browser* would walk must still
+        # reach a fixed point, which is what the July fix guarantees.
         import re
         c = Client()
 
-        def signin_href(html):
-            m = re.search(r'href="(/accounts/superlogin/\?next=[^"]*)"', html)
+        def signin_next(html):
+            m = re.search(r'<a [^>]*class="[^"]*js-auth-next[^"]*"[^>]*'
+                          r'href="(/accounts/superlogin/[^"]*)"[^>]*'
+                          r'data-next="([^"]*)"', html)
             self.assertIsNotNone(m, "no sign-in link found")
-            return m.group(1)
+            # The href itself must be the bare, constant login URL.
+            self.assertEqual(m.group(1), "/accounts/superlogin/")
+            return m.group(2)
 
         def feedback_href(html):
             m = re.search(r'href="(/feedback/[^"]*)"', html)
@@ -319,9 +329,9 @@ class FeedbackSelfLinkTests(TestCase):
             r = c.get(url, follow=True)
             self.assertEqual(r.status_code, 200)
             html = str(r.content, 'utf-8')
-            login = signin_href(html)
             # next must be the bare feedback path, never a growing URL
-            self.assertEqual(login, "/accounts/superlogin/?next=%2Ffeedback%2F")
+            self.assertEqual(signin_next(html), "%2Ffeedback%2F")
+            login = "/accounts/superlogin/?next=%2Ffeedback%2F"
             r2 = c.get(login)
             self.assertEqual(r2.status_code, 200)
             url = feedback_href(str(r2.content, 'utf-8'))
@@ -627,6 +637,140 @@ class FeedbackUrlSpaceTests(TestCase):
         self.assertTrue(form.is_valid(), form.errors)
         self.assertEqual(form.cleaned_data['subject'],
                          'hello Bcc: someone@example.org')
+
+AUTH_LINK_RE = re.compile(r'<a [^>]*class="[^"]*js-auth-next[^"]*"[^>]*>')
+GOOGLE_LINK_RE = re.compile(r'<a [^>]*href="(/socialauth/login/google-oauth2/[^"]*)"')
+
+
+def auth_link_hrefs(html):
+    """Every href on a site-wide Sign In / Sign Up link, in document order."""
+    return [re.search(r'href="([^"]*)"', tag).group(1)
+            for tag in AUTH_LINK_RE.findall(html)]
+
+
+def auth_link_nexts(html):
+    """Every data-next value on a site-wide Sign In / Sign Up link."""
+    return [re.search(r'data-next="([^"]*)"', tag).group(1)
+            for tag in AUTH_LINK_RE.findall(html)]
+
+
+class SignInUrlSpaceTests(TestCase):
+    """Regression: the site-wide Sign In / Sign Up links must be the SAME URL on
+    every crawlable page.
+
+    They used to carry ?next=<current page>, so each of the site's ~2M crawlable
+    pages minted its own sign-in URL, and the login page propagated that value
+    into the Google sign-in link -- the expensive endpoint, since serving it
+    holds a web worker while it waits on an outbound call to Google. Production
+    saw 184,125 requests to it on 2026-09-17 across 175,983 *distinct* URLs, a
+    repeat rate no cache can absorb. See issue #1261.
+
+    The per-page value now rides in data-next and is promoted into the href by
+    sitewide1.js, so a real browser behaves exactly as before while the
+    server-rendered link graph holds one sign-in URL instead of two million.
+    """
+
+    def test_signin_and_signup_hrefs_are_identical_across_pages(self):
+        first = str(Client().get("/privacy/").content, 'utf-8')
+        second = str(Client().get("/about/").content, 'utf-8')
+        hrefs = auth_link_hrefs(first)
+        self.assertEqual(hrefs, ["/accounts/superlogin/", "/accounts/register/"])
+        self.assertEqual(hrefs, auth_link_hrefs(second))
+
+    def test_signin_hrefs_do_not_vary_with_the_query_string(self):
+        # A crawler appending junk (or legitimate pagination) to a page must
+        # not be handed a different sign-in URL for each variant.
+        plain = auth_link_hrefs(str(Client().get("/privacy/").content, 'utf-8'))
+        with_query = auth_link_hrefs(str(
+            Client().get("/privacy/", {"q": "sverige", "page": "2"}).content, 'utf-8'))
+        self.assertEqual(plain, with_query)
+        for href in plain:
+            self.assertNotIn("next=", href)
+
+    def test_current_page_is_still_carried_for_the_browser(self):
+        # The "sign in and come back here" value is not lost, only moved: JS
+        # promotes it into the href. Pagination state must survive, as it did
+        # before (regression guard from the July #1204 work).
+        from urllib.parse import quote
+        r = Client().get("/privacy/", {"q": "sverige", "page": "2"})
+        nexts = auth_link_nexts(str(r.content, 'utf-8'))
+        self.assertEqual(len(nexts), 2)
+        for value in nexts:
+            self.assertEqual(value, quote("/privacy/?q=sverige&page=2", safe=''))
+
+    def test_login_required_redirect_still_carries_next(self):
+        # Django's own @login_required redirect is a flow that explicitly
+        # supplies next; it is untouched and must keep working.
+        r = Client().get("/accounts/password/change/")
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r['Location'],
+                         "/accounts/superlogin/?next=/accounts/password/change/")
+
+    def test_login_page_google_link_honours_an_incoming_next(self):
+        # Landing on the login page with an explicit destination (a pledge, a
+        # purchase, an @login_required bounce) must still send that
+        # destination through Google sign-in.
+        r = Client().get("/accounts/superlogin/", {"next": "/pledge/complete/"})
+        self.assertEqual(r.status_code, 200)
+        m = GOOGLE_LINK_RE.search(str(r.content, 'utf-8'))
+        self.assertIsNotNone(m, "no Google sign-in link on the login page")
+        # Django's urlencode filter leaves "/" unescaped, so this is the same
+        # value the login page emitted before this change.
+        self.assertEqual(m.group(1),
+                         "/socialauth/login/google-oauth2/?next=/pledge/complete/")
+
+    def test_login_page_google_link_is_constant_without_a_next(self):
+        # With no destination the link used to echo the login page's own URL,
+        # so any query string appended to the login page minted a fresh Google
+        # sign-in URL. It now falls back to the constant /next/ view.
+        bare = GOOGLE_LINK_RE.search(
+            str(Client().get("/accounts/superlogin/").content, 'utf-8')).group(1)
+        junk = GOOGLE_LINK_RE.search(str(
+            Client().get("/accounts/superlogin/", {"utm": "x"}).content, 'utf-8')).group(1)
+        self.assertEqual(bare, "/socialauth/login/google-oauth2/?next=/next/")
+        self.assertEqual(bare, junk)
+
+    def test_pledge_login_page_keeps_its_destination(self):
+        # /accounts/login/pledge/ renders from_pledge.html, which passes the
+        # login view's own `next` straight to Google. Unchanged by #1261.
+        r = Client().get("/accounts/login/pledge/", {"next": "/pledge/complete/"})
+        self.assertEqual(r.status_code, 200)
+        m = GOOGLE_LINK_RE.search(str(r.content, 'utf-8'))
+        self.assertIsNotNone(m, "no Google sign-in link on the pledge login page")
+        self.assertIn("next=/pledge/complete/", m.group(1))
+
+
+class GiftLoginNextTests(TestCase):
+    """The gift redemption flow supplies its own ?next= (the redemption URL) and
+    must be unaffected by the #1261 sign-in URL work."""
+
+    def setUp(self):
+        from datetime import timedelta
+        from django.utils.timezone import now
+        from regluit.core import models as core_models
+        giver = User.objects.create_user('giver', 'giver@example.org', 'pass')
+        giftee = User.objects.create_user('giftee', 'giftee@example.org', 'pass')
+        # receive_gift only renders the login page when the giftee is an
+        # established user -- i.e. joined well before the acq was created.
+        User.objects.filter(pk=giftee.pk).update(date_joined=now() - timedelta(days=30))
+        work = Work.objects.create(title="A Gifted Work")
+        acq = core_models.Acq.objects.create(
+            user=giftee, work=work, license=core_models.INDIVIDUAL,
+        )
+        core_models.Gift.objects.create(acq=acq, giver=giver, to='giftee@example.org')
+        # a post_save hook computes the nonce, so read it back
+        acq.refresh_from_db()
+        self.nonce = acq.nonce
+
+    def test_gift_google_link_points_at_the_redemption_url(self):
+        r = Client().get("/receive_gift/%s/" % self.nonce)
+        self.assertEqual(r.status_code, 200)
+        m = GOOGLE_LINK_RE.search(str(r.content, 'utf-8'))
+        self.assertIsNotNone(m, "no Google sign-in link on the gift login page")
+        self.assertEqual(
+            m.group(1),
+            "/socialauth/login/google-oauth2/?next=/receive_gift/%s/" % self.nonce)
+
 
 
 class CampaignRetirementTests(TestCase):
