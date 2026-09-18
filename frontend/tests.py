@@ -405,13 +405,11 @@ class FeedbackUrlSpaceTests(TestCase):
         self.assertEqual(self.page_field(r), came_from.replace("&", "&amp;"))
 
     def test_referer_supplies_the_originating_page(self):
-        came_from = "http://testserver/search/?q=sverige&page=2"
+        came_from = "http://testserver/work/9/"
         r = Client().get("/feedback/", HTTP_REFERER=came_from)
         self.assertEqual(r.status_code, 200)
-        # Django escapes & in the attribute value
-        self.assertEqual(self.page_field(r), came_from.replace("&", "&amp;"))
-        self.assertIn("Feedback on page http://testserver/search/",
-                      str(r.content, 'utf-8'))
+        self.assertEqual(self.page_field(r), came_from)
+        self.assertIn("Feedback on page " + came_from, str(r.content, 'utf-8'))
 
     def test_no_referer_degrades_to_slash(self):
         r = Client().get("/feedback/")
