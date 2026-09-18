@@ -706,6 +706,15 @@ class SignInUrlSpaceTests(TestCase):
         for value in nexts:
             self.assertEqual(value, quote("/privacy/?q=sverige&page=2", safe=''))
 
+    def test_explanatory_comments_do_not_reach_the_browser(self):
+        # Django's {# ... #} syntax is single-line only: a multi-line one is
+        # rendered as literal text. The comments added for #1261 use
+        # {% comment %} instead, and must stay that way -- these two templates
+        # are on the hot path (base.html is every page).
+        for url in ("/privacy/", "/accounts/superlogin/"):
+            html = str(Client().get(url).content, 'utf-8')
+            self.assertNotIn("See issue #1261", html, "template comment leaked into %s" % url)
+
     def test_login_required_redirect_still_carries_next(self):
         # Django's own @login_required redirect is a flow that explicitly
         # supplies next; it is untouched and must keep working.

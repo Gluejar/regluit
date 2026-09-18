@@ -113,12 +113,14 @@
             {% else %}
                 <div class="js-topmenu">
                     <ul class="menu">
-                        {# These two links appear on every page of the site, so a ?next= in the
+                        {% comment %}
+                           These two links appear on every page of the site, so a ?next= in the
                            href meant one distinct sign-in URL per crawlable page. The value now
                            rides in data-next and is promoted back into the href by sitewide1.js.
                            Google sign-in links elsewhere still carry ?next= in the href, but they
                            live on a handful of routes (home, login, pledge login, gift redemption)
-                           rather than on every page. See issue #1261. #}
+                           rather than on every page. See issue #1261.
+                        {% endcomment %}
                         <li><a class="notbutton hijax js-auth-next" rel="nofollow" href="{% url 'superlogin' %}" data-next="{% auth_next %}"><span>Sign In</span></a></li>
                        {% if not suppress_search_box %}
                             {% if request.get_full_path != "/accounts/register/" %}
