@@ -222,7 +222,8 @@ def next(request):
     ):
         target = '/'
     response = HttpResponseRedirect(target)
-    response.delete_cookie('next')
+    # path must match the '/' the JS writers set, or the delete silently misses
+    response.delete_cookie('next', path='/')
     return response
 
 def cover_width(work):

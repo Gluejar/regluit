@@ -706,27 +706,40 @@ class SignInUrlSpaceTests(TestCase):
         for value in nexts:
             self.assertEqual(value, quote("/privacy/?q=sverige&page=2", safe=''))
 
-    # Distinctive opening phrases of each {% comment %} block added for #1261.
-    # Asserted by phrase rather than by issue number, because JavaScript
-    # comments in <script> blocks legitimately do reach the browser and may
-    # cite the same issue -- only the TEMPLATE comments must be stripped.
-    TEMPLATE_COMMENT_PHRASES = (
-        "These two links appear on every page of the site",
-        "The ?v= is cache-busting",
-        "With no incoming ?next=, fall back to the constant",
-        "These two use the same /next/ fallback as the Google link below",
-    )
-
-    def test_explanatory_comments_do_not_reach_the_browser(self):
-        # Django's {# ... #} syntax is single-line only: a multi-line one is
-        # rendered as literal text. The comments added for #1261 use
-        # {% comment %} instead, and must stay that way -- these two templates
-        # are on the hot path (base.html is every page).
-        for url in ("/privacy/", "/accounts/superlogin/"):
-            html = str(Client().get(url).content, 'utf-8')
-            for phrase in self.TEMPLATE_COMMENT_PHRASES:
-                self.assertNotIn(phrase, html,
-                                 "template comment leaked into %s: %r" % (url, phrase))
+    def test_no_template_uses_a_multiline_hash_comment(self):
+        # Django's {# ... #} syntax is single-line only: a multi-line one is not
+        # a comment at all, it renders as literal text into the page. I shipped
+        # that bug twice in this branch, so it is asserted structurally over the
+        # template sources rather than by listing phrases to look for -- a
+        # phrase list only catches the instances someone remembered to add.
+        import os
+        from django.conf import settings as dj_settings
+        offenders = []
+        roots = [os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                              'frontend', 'templates')]
+        for root in roots:
+            for dirpath, _dirnames, filenames in os.walk(root):
+                for name in filenames:
+                    if not name.endswith('.html'):
+                        continue
+                    path = os.path.join(dirpath, name)
+                    with open(path, encoding='utf-8') as handle:
+                        text = handle.read()
+                    idx = 0
+                    while True:
+                        start = text.find('{#', idx)
+                        if start == -1:
+                            break
+                        end = text.find('#}', start)
+                        if end == -1:
+                            offenders.append('%s: unterminated {#' % path)
+                            break
+                        if '\n' in text[start:end]:
+                            offenders.append('%s: multi-line {# ... #} at offset %d'
+                                             % (path, start))
+                        idx = end + 2
+        self.assertEqual(offenders, [], 'multi-line {# #} renders as visible text:\n' +
+                         '\n'.join(offenders))
 
     def test_login_required_redirect_still_carries_next(self):
         # Django's own @login_required redirect is a flow that explicitly
@@ -892,6 +905,25 @@ class WelcomePageRedirectTests(TestCase):
         for url in self.WELCOME_URLS:
             html = str(Client().get(url).content, 'utf-8')
             self.assertIn("window.location.replace('/next/')", html)
+
+    def test_registration_complete_link_never_renders_the_cookie_value(self):
+        # The third sink, found by Codex: registration_complete.html rendered
+        # <a href="{{ request.COOKIES.next|urldecode }}">, a clickable off-site
+        # hop fed straight from the client-writable cookie. It now points at the
+        # guarded /next/ view. Behavioural, not source-level: poison the cookie
+        # and assert the host cannot appear in the page at all.
+        #
+        # The live route is django_registration_complete, whose template
+        # django_registration/registration_complete.html is a one-line
+        # {% extends "registration/registration_complete.html" %} -- so the sink
+        # is reachable, and this test goes through the real URL rather than
+        # rendering the parent template directly.
+        from django.urls import reverse
+        c = Client()
+        c.cookies['next'] = "https%3A%2F%2Fevil.example%2Fphish"
+        html = str(c.get(reverse('django_registration_complete')).content, 'utf-8')
+        self.assertNotIn("evil.example", html)
+        self.assertIn('href="/next/"', html)
 
     def test_no_javascript_navigates_to_a_cookie_value_anywhere(self):
         # Broader guard: no template served to a visitor may hand a cookie
