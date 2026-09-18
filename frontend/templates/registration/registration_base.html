@@ -24,7 +24,18 @@ $j(document).ready(function() {
         $j.cookie('next', next, {path: '/'});
     } else if(saved_next!=null){
         var do_next = $j('#link-to-next');
-        if (do_next.length) window.location.replace(saved_next);
+        // Go to /next/ and let the server read the cookie, rather than
+        // navigating to its value here. That value is attacker-influencable:
+        // the branch above stores whatever ?next= the current URL carries,
+        // stripping only "'<>, so a lure like
+        // /accounts/register/?next=//evil.example survives it intact and the
+        // welcome page (the only template with #link-to-next) would then
+        // carry a freshly-registered user straight off the site. Navigating
+        // to a constant same-origin path removes the sink entirely, which is
+        // sturdier than trying to validate a URL in JavaScript; frontend's
+        // next() view already validates the cookie against the request's own
+        // host and scheme, and clears it. See issue #1261.
+        if (do_next.length) window.location.replace('/next/');
     }
 });
 </script>

@@ -706,6 +706,17 @@ class SignInUrlSpaceTests(TestCase):
         for value in nexts:
             self.assertEqual(value, quote("/privacy/?q=sverige&page=2", safe=''))
 
+    # Distinctive opening phrases of each {% comment %} block added for #1261.
+    # Asserted by phrase rather than by issue number, because JavaScript
+    # comments in <script> blocks legitimately do reach the browser and may
+    # cite the same issue -- only the TEMPLATE comments must be stripped.
+    TEMPLATE_COMMENT_PHRASES = (
+        "These two links appear on every page of the site",
+        "The ?v= is cache-busting",
+        "With no incoming ?next=, fall back to the constant",
+        "These two use the same /next/ fallback as the Google link below",
+    )
+
     def test_explanatory_comments_do_not_reach_the_browser(self):
         # Django's {# ... #} syntax is single-line only: a multi-line one is
         # rendered as literal text. The comments added for #1261 use
@@ -713,7 +724,9 @@ class SignInUrlSpaceTests(TestCase):
         # are on the hot path (base.html is every page).
         for url in ("/privacy/", "/accounts/superlogin/"):
             html = str(Client().get(url).content, 'utf-8')
-            self.assertNotIn("See issue #1261", html, "template comment leaked into %s" % url)
+            for phrase in self.TEMPLATE_COMMENT_PHRASES:
+                self.assertNotIn(phrase, html,
+                                 "template comment leaked into %s: %r" % (url, phrase))
 
     def test_login_required_redirect_still_carries_next(self):
         # Django's own @login_required redirect is a flow that explicitly
@@ -846,6 +859,50 @@ class NextCookieRedirectTests(TestCase):
     def test_rejected_cookie_is_cleared_not_left_to_retry(self):
         r = self._next_with_cookie("%2F%2Fevil.example")
         self.assertEqual(r.cookies['next'].value, "")
+
+
+class WelcomePageRedirectTests(TestCase):
+    """The other door onto the same open redirect, closed alongside the
+    server-side one.
+
+    registration_base.html used to end the registration flow with
+    `window.location.replace(saved_next)` -- navigating to the raw `next`
+    cookie. The same script writes that cookie from the current URL's query
+    string, stripping only "'<>, so a lure like
+    /accounts/register/?next=//evil.example survives intact, and the welcome
+    page (the only template carrying #link-to-next) would then carry a
+    freshly-registered user off the site. Guarding frontend.views.next() did
+    nothing about this path, because it never reached the server.
+
+    The fix removes the sink: navigate to the constant, same-origin /next/ and
+    let the guarded view do the redirect. These tests assert the contract of
+    the served JavaScript, which is the artifact that actually runs -- a
+    Django test client cannot execute it.
+    """
+
+    WELCOME_URLS = ("/accounts/superlogin/welcome/", "/accounts/login/welcome/")
+
+    def test_welcome_page_does_not_navigate_to_the_raw_cookie(self):
+        for url in self.WELCOME_URLS:
+            html = str(Client().get(url).content, 'utf-8')
+            self.assertNotIn("window.location.replace(saved_next)", html,
+                             "%s still navigates to the unvalidated cookie" % url)
+
+    def test_welcome_page_routes_through_the_guarded_view(self):
+        for url in self.WELCOME_URLS:
+            html = str(Client().get(url).content, 'utf-8')
+            self.assertIn("window.location.replace('/next/')", html)
+
+    def test_no_javascript_navigates_to_a_cookie_value_anywhere(self):
+        # Broader guard: no template served to a visitor may hand a cookie
+        # value straight to a navigation sink. Catches a reintroduction
+        # somewhere other than the welcome page.
+        import re as _re
+        sink = _re.compile(r"window\.location(?:\.replace| *=)[^;]*(?:saved_next|cookie\()")
+        for url in self.WELCOME_URLS + ("/accounts/superlogin/", "/accounts/register/"):
+            html = str(Client().get(url).content, 'utf-8')
+            self.assertIsNone(sink.search(html),
+                              "a navigation sink fed from a cookie appears on %s" % url)
 
 
 class GiftLoginNextTests(TestCase):
