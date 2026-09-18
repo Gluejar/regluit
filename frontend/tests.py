@@ -332,14 +332,22 @@ class FeedbackSelfLinkTests(TestCase):
         else:
             self.fail("feedback/login chain did not reach a fixed point in 4 rounds")
 
-    def test_feedback_url_tag_without_request_in_context(self):
-        # Rendering outside a request cycle (e.g. error pages, emails) must
-        # degrade to the bare feedback URL, not raise.
+    def test_feedback_url_tag_ignores_its_context(self):
+        # The tag used to read the request, which is precisely how every page
+        # got its own feedback URL. It must now render one constant string
+        # whatever context it is handed -- including none at all, as on the
+        # error pages. Asserting only the no-context case would pass even if
+        # the per-page parameter came back.
         from django.template import Context, Template
-        rendered = Template(
-            "{% load feedback_link %}{% feedback_url %}"
-        ).render(Context({}))
-        self.assertEqual(rendered, "/feedback/")
+        from django.test import RequestFactory
+        template = Template("{% load feedback_link %}{% feedback_url %}")
+        factory = RequestFactory()
+        rendered = {
+            template.render(Context({})),
+            template.render(Context({'request': factory.get('/work/1/?tab=2')})),
+            template.render(Context({'request': factory.get('/feedback/')})),
+        }
+        self.assertEqual(rendered, {"/feedback/"})
 
 
 class FeedbackUrlSpaceTests(TestCase):
@@ -389,20 +397,44 @@ class FeedbackUrlSpaceTests(TestCase):
                 self.assertNotIn("http", href, path)
 
     # A feedback URL with a query string, built by hand in a template.
-    # Matches {% url 'feedback' %}?... and a literal /feedback/?..., either
-    # quoting style. Nothing may do this any more: the view redirects it away.
+    # Matches {% feedback_url %}?..., {% url 'feedback' %}?... and a literal
+    # /feedback/?..., either quoting style. Nothing may do this any more: the
+    # view redirects it away. {% feedback_url %} is first because it is now the
+    # idiomatic spelling, and so the shape a future edit would most likely take.
     HAND_WRITTEN_QUERY = re.compile(
-        r"""(?:\{%\s*url\s+['"]feedback['"]\s*%\}|/feedback/)\?"""
+        r"""(?:\{%\s*feedback_url\s*%\}"""
+        r"""|\{%\s*url\s+['"]feedback['"]\s*%\}"""
+        r"""|/feedback/)\?"""
     )
 
-    def test_no_template_hand_writes_a_feedback_url_with_a_query(self):
+    # Every feedback link needs referrerpolicy="same-origin" or the site-wide
+    # "origin" policy truncates the Referer to the bare origin -- and the
+    # same-host check accepts that, so staff would be told the user was on the
+    # home page when they were on a 404 or a 500. A wrong attribution is worse
+    # than the honest '/' a missing Referer gives. Four templates were missed
+    # on the first pass, which is why this is a test and not a convention.
+    FEEDBACK_ANCHOR = re.compile(
+        r"""<a\b[^>]*\bhref\s*=\s*["']"""
+        r"""(?:\{%\s*feedback_url\s*%\}"""
+        r"""|\{%\s*url\s+['"]feedback['"]\s*%\}"""
+        r"""|/feedback/)[^>]*>""",
+        re.IGNORECASE,
+    )
+    REFERRER_POLICY = re.compile(r"""referrerpolicy\s*=\s*["']same-origin["']""",
+                                 re.IGNORECASE)
+
+    def test_no_frontend_template_hand_writes_a_feedback_url_with_a_query(self):
         # Structural guard. The tag is safe by construction now, so the way
         # the space comes back is a template building a feedback URL by hand
         # -- which six notification templates and three FAQ/privacy links were
         # still doing when #1261 was written. This catches that shape in the
-        # source rather than in the access log. It is a tripwire for the known
-        # pattern, not a proof: an attribute split across lines, or a URL
-        # assembled some other way, would slip past it.
+        # source rather than in the access log.
+        #
+        # A tripwire for the known pattern, not a proof, and the name says
+        # "frontend" for a reason: it walks frontend/templates only. api/,
+        # libraryauth/ and payment/ have their own template directories (none
+        # references feedback today). An attribute split across lines, or a URL
+        # assembled some other way, would also slip past.
         import os
         templates = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                  'templates')
@@ -417,6 +449,35 @@ class FeedbackUrlSpaceTests(TestCase):
                         if self.HAND_WRITTEN_QUERY.search(line):
                             offenders.append("%s:%d" % (path, n))
         self.assertEqual(offenders, [], "feedback URLs with a query string")
+
+    def test_every_frontend_feedback_link_sets_a_referrer_policy(self):
+        # Companion tripwire. A feedback link without referrerpolicy degrades
+        # silently rather than visibly: the site-wide "origin" policy truncates
+        # the Referer to https://unglue.it/, the same-host check accepts it,
+        # and staff are told the user was on the home page when they were on a
+        # 404 or a 500. Four templates were missed on the first sweep.
+        import os
+        templates = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                 'templates')
+        offenders = []
+        for dirpath, _, filenames in os.walk(templates):
+            for filename in filenames:
+                path = os.path.join(dirpath, filename)
+                with open(path, encoding='utf-8', errors='replace') as f:
+                    for n, line in enumerate(f, 1):
+                        for anchor in self.FEEDBACK_ANCHOR.findall(line):
+                            if not self.REFERRER_POLICY.search(anchor):
+                                offenders.append("%s:%d" % (path, n))
+        self.assertEqual(offenders, [], "feedback links without referrerpolicy")
+
+    def test_methods_other_than_post_do_not_render_a_query_url(self):
+        # OPTIONS and TRACE are CSRF-exempt, so before this they reached a
+        # full render for every distinct URL, exactly like GET did.
+        c = Client()
+        for method in ('get', 'head', 'options', 'delete', 'put'):
+            r = getattr(c, method)("/feedback/?page=http%3A%2F%2Ftestserver%2Fx")
+            self.assertEqual(r.status_code, 301, method)
+            self.assertEqual(r["Location"], "/feedback/", method)
 
     def test_feedback_links_carry_nofollow_and_a_referrer_policy(self):
         # referrerpolicy is what makes the Referer usable at all. The site has
@@ -525,10 +586,18 @@ class FeedbackUrlSpaceTests(TestCase):
         self.assertEqual(self.page_field(r),
                          "http://testserver/x Bcc: someone@example.org")
 
-    def test_referer_value_is_bounded(self):
+    def test_referer_value_is_bounded_and_marked(self):
+        # Truncation has to be visible: staff clicking a silently-cut URL get
+        # a 404 and no way to tell that the link was incomplete.
         r = Client().get("/feedback/",
                          HTTP_REFERER="http://testserver/" + "u" * 500)
-        self.assertEqual(len(self.page_field(r)), 200)
+        page = self.page_field(r)
+        self.assertEqual(len(page), 200)
+        self.assertTrue(page.endswith("..."), page[-10:])
+
+    def test_a_short_referer_is_not_marked(self):
+        r = Client().get("/feedback/", HTTP_REFERER="http://testserver/work/9/")
+        self.assertEqual(self.page_field(r), "http://testserver/work/9/")
 
     def test_post_keeps_the_submitted_page_not_the_referer(self):
         # On POST the Referer is /feedback/ itself; the page the user came

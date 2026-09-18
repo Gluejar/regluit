@@ -1908,9 +1908,14 @@ def _clean_page(value):
 
     This value is interpolated into a mail subject, so it must not carry
     newlines; the subject field is 500 characters, and this is only part of it.
+    Truncation is marked, so a long search URL arrives visibly cut rather than
+    looking complete and simply not working when staff click it.
     """
     value = ''.join(ch if ch.isprintable() else ' ' for ch in value)
-    return ' '.join(value.split())[:FEEDBACK_PAGE_MAX_LENGTH]
+    value = ' '.join(value.split())
+    if len(value) > FEEDBACK_PAGE_MAX_LENGTH:
+        return value[:FEEDBACK_PAGE_MAX_LENGTH - 3] + '...'
+    return value
 
 
 def _originating_page(request):
@@ -1931,7 +1936,7 @@ def _on_feedback_route(request):
 
 
 def feedback(request, recipient='unglueit@ebookfoundation.org', template='feedback.html', message_template='feedback.txt', extra_context=None, redirect_url=None):
-    if (request.method in ('GET', 'HEAD')
+    if (request.method != 'POST'
             and request.META.get('QUERY_STRING')
             and _on_feedback_route(request)):
         # 693,968 distinct /feedback/?page=... URLs are already in crawler
@@ -1943,6 +1948,9 @@ def feedback(request, recipient='unglueit@ebookfoundation.org', template='feedba
         # Tested against the raw QUERY_STRING rather than request.GET, because
         # "?&" and "?&&" parse to an empty QueryDict -- they are still distinct
         # URLs to a crawler, and would otherwise have been rendered in full.
+        #
+        # Everything but POST, not just GET and HEAD: OPTIONS and TRACE are
+        # CSRF-exempt, so they reached a full render per distinct URL.
         return HttpResponsePermanentRedirect(reverse('feedback'))
 
     context = extra_context or {}
