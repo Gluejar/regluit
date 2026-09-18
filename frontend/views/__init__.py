@@ -199,6 +199,18 @@ def next(request):
     scheme, exactly as Django's own login/logout views do, and fall back to
     the home page when it does not pass. The cookie is cleared either way --
     a rejected value must not survive to be retried.
+
+    Why two unquotes, so nobody "simplifies" this into a bug: auth_next
+    percent-encodes the path once (quote(safe='')), the hijax handler lifts
+    that still-encoded value out of the href, and jquery.cookie encodes it
+    again on write. The cookie therefore arrives double-encoded and two
+    passes are what recover the original path. Validation happens after both,
+    which is the part that matters -- a single decode would let a
+    double-encoded off-site target through. Do not make this a loop: two
+    bounded passes match the known writers, an unbounded one would decode
+    payloads no writer can actually produce. Reducing it to one decode means
+    first fixing the encoding contract at both writers; worth doing, but not
+    in this change.
     """
     if 'next' not in request.COOKIES:
         return HttpResponseRedirect('/')

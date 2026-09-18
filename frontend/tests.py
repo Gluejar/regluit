@@ -836,6 +836,13 @@ class NextCookieRedirectTests(TestCase):
         r = self._next_with_cookie("%252F%252Fevil.example")
         self.assertEqual(r['Location'], "/")
 
+    def test_double_encoded_same_site_path_still_works(self):
+        # The two unquotes are not paranoia: jquery.cookie re-encodes a value
+        # auth_next had already encoded, so a legitimate destination arrives
+        # double-encoded. This is the test that fails if someone removes one.
+        r = self._next_with_cookie("%252Fwork%252F1%252F")
+        self.assertEqual(r['Location'], "/work/1/")
+
     def test_rejected_cookie_is_cleared_not_left_to_retry(self):
         r = self._next_with_cookie("%2F%2Fevil.example")
         self.assertEqual(r.cookies['next'].value, "")
