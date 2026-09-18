@@ -925,6 +925,19 @@ class WelcomePageRedirectTests(TestCase):
         self.assertNotIn("evil.example", html)
         self.assertIn('href="/next/"', html)
 
+    def test_write_side_only_stores_a_same_site_path(self):
+        # Defence in depth at the one point where a value out of the URL bar
+        # becomes a stored redirect destination. Not the authoritative boundary
+        # -- anyone can set a cookie without running this script -- so the three
+        # read sinks stay guarded regardless. Asserted on the served JavaScript,
+        # which is the artifact that runs; the guard's own behaviour over
+        # encoded, plain, protocol-relative, backslash and malformed values was
+        # exercised separately with node.
+        for url in ("/accounts/superlogin/", "/accounts/register/"):
+            html = str(Client().get(url).content, 'utf-8')
+            self.assertIn("function isSameSitePath(", html)
+            self.assertIn("if (isSameSitePath(next)) {", html)
+
     def test_no_javascript_navigates_to_a_cookie_value_anywhere(self):
         # Broader guard: no template served to a visitor may hand a cookie
         # value straight to a navigation sink. Catches a reintroduction
