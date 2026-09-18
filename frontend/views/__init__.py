@@ -6,7 +6,7 @@ import re
 import sys
 import json
 import logging
-from urllib.parse import unquote, urlsplit
+from urllib.parse import unquote, urlparse, urlsplit
 import requests
 
 from datetime import timedelta, date, datetime
@@ -181,6 +181,40 @@ def process_kindle_email(request):
         user.profile.save()
         request.session.pop('kindle_email')
 
+def _is_same_site_path(target):
+    """True only for a relative, same-site path -- no scheme, no host.
+
+    Stricter than url_has_allowed_host_and_scheme on its own, deliberately.
+    Every writer of the next cookie stores a path: auth_next emits
+    request.get_full_path(), the hijax handler lifts a path out of an href,
+    Django's @login_required supplies one. An absolute URL has no business
+    here even when it points at our own host.
+
+    Being strict this way also removes a dependency on request.is_secure(),
+    which is always False in production because the TLS-terminating proxy is
+    in front and SECURE_PROXY_SSL_HEADER is not set. Passing
+    require_https=request.is_secure() would therefore have been inert, and
+    "http://unglue.it/..." would have validated and bounced the user off TLS
+    for that hop. Refusing absolute URLs outright makes the question moot
+    rather than resting on a flag that reads as active and is not. The
+    underlying gap -- no SECURE_PROXY_SSL_HEADER, no HSTS -- is
+    infrastructure-wide and tracked separately.
+
+    Rejects raw control characters and spaces too: browsers strip some of
+    those before resolving a URL, so a value that looks like a path here
+    could resolve to something else there. Legitimate values are
+    percent-encoded and never contain them.
+    """
+    if not target or any(ch <= ' ' or ch == '\x7f' for ch in target):
+        return False
+    if not target.startswith('/'):
+        return False
+    if target.startswith('//') or target.startswith('/\\'):
+        return False
+    parsed = urlparse(target)
+    return not parsed.scheme and not parsed.netloc
+
+
 def next(request):
     """Redirect to the destination stashed in the `next` cookie.
 
@@ -215,10 +249,8 @@ def next(request):
     if 'next' not in request.COOKIES:
         return HttpResponseRedirect('/')
     target = unquote(unquote(request.COOKIES['next']))
-    if not url_has_allowed_host_and_scheme(
-            target,
-            allowed_hosts={request.get_host()},
-            require_https=request.is_secure(),
+    if not _is_same_site_path(target) or not url_has_allowed_host_and_scheme(
+            target, allowed_hosts={request.get_host()},
     ):
         target = '/'
     response = HttpResponseRedirect(target)

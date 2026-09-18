@@ -672,10 +672,14 @@ class SignInUrlSpaceTests(TestCase):
     Scope, stated precisely: this is about the *site-wide* Sign In / Sign Up
     links, the only ones rendered on every page. Google sign-in links on
     home.html, from_pledge.html and gift_login.html still carry ?next= in the
-    href; those templates are reached from a handful of routes (/, /landing/,
-    /accounts/login/pledge/, /receive_gift/<nonce>/), so they are a bounded
-    URL space rather than one URL per crawlable page, and the destinations
-    they carry are load-bearing.
+    href, and those are NOT strictly bounded -- home.html passes through
+    request.GET.next, so /?next=<anything> mints a distinct Google URL. What
+    is true, and is the point, is narrower: those templates are reached from
+    four routes rather than from every crawlable page, and nothing on the site
+    links to them with a varying ?next=, so they are not a self-minting
+    surface the way the header links were. A crawler inventing query strings
+    can still produce variants; closing that would mean dropping destinations
+    the gift and pledge flows depend on.
     """
 
     def test_signin_and_signup_hrefs_are_identical_across_pages(self):
@@ -868,6 +872,29 @@ class NextCookieRedirectTests(TestCase):
         # double-encoded. This is the test that fails if someone removes one.
         r = self._next_with_cookie("%252Fwork%252F1%252F")
         self.assertEqual(r['Location'], "/work/1/")
+
+    def test_same_host_absolute_url_is_rejected(self):
+        # Stricter than "not off-site": the cookie should only ever hold a
+        # path, so an absolute URL is refused even pointing at our own host.
+        # This is what makes the guard independent of request.is_secure(),
+        # which is always False in production behind the TLS proxy because
+        # SECURE_PROXY_SSL_HEADER is unset -- so a require_https= flag would
+        # have been inert and http://testserver/work/1/ would have validated,
+        # bouncing the user off TLS for that hop.
+        r = self._next_with_cookie("http%3A%2F%2Ftestserver%2Fwork%2F1%2F")
+        self.assertEqual(r['Location'], "/")
+        r = self._next_with_cookie("https%3A%2F%2Ftestserver%2Fwork%2F1%2F")
+        self.assertEqual(r['Location'], "/")
+
+    def test_control_characters_are_rejected(self):
+        # Browsers strip tabs and newlines before resolving a URL, so a value
+        # that parses as a path here can resolve to something else there.
+        for raw in ("%2F%09%2Fevil.example", "%2F%0A%2Fevil.example",
+                    "%20%2F%2Fevil.example"):
+            self.assertEqual(self._next_with_cookie(raw)['Location'], "/")
+
+    def test_backslash_variant_is_rejected(self):
+        self.assertEqual(self._next_with_cookie("%2F%5Cevil.example")['Location'], "/")
 
     def test_rejected_cookie_is_cleared_not_left_to_retry(self):
         r = self._next_with_cookie("%2F%2Fevil.example")
