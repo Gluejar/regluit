@@ -196,6 +196,17 @@ class OPDSNavigationView(TemplateView):
 class OPDSAcquisitionView(View):
     json = False
     def get(self, request, *args, **kwargs):
+        facet = kwargs.get('facet')
+        feed_module = opds_json if self.json else opds
+        # Resolve the facet before the ?work= early return, so removed keyword
+        # facets 404 on every path (#1095). The instance is reused below rather
+        # than rebuilt, since building a facet can query the database.
+        facet_class = None
+        if facet:
+            try:
+                facet_class = feed_module.get_facet_class(facet)()
+            except InvalidFacetCombination:
+                raise Http404("Keyword facet URLs are not supported.")
         work = request.GET.get('work', None)
         if work:
             if self.json:
@@ -204,10 +215,9 @@ class OPDSAcquisitionView(View):
             else:
                 return StreamingHttpResponse(opds.opds_feed_for_work(work),
                         content_type=opds.ACQUISITION)
-        facet = kwargs.get('facet')
         page = request.GET.get('page', None)
         order_by =  request.GET.get('order_by', 'newest')
-        
+
         # robots occasionally mangle order_by
         order_by = order_by if order_by in ORDER_BY_KEYS else 'newest'
 
@@ -215,20 +225,27 @@ class OPDSAcquisitionView(View):
             page = int(page)
         except:
             page = None
-        try:
-            if self.json:
-                facet_class = opds_json.get_facet_class(facet)()
-                return StreamingHttpResponse(facet_class.feed(page,order_by),
-                            content_type="application/opds+json; charset=utf-8")
-            else:
-                facet_class = opds.get_facet_class(facet)()
-                return StreamingHttpResponse(facet_class.feed(page,order_by),
-                            content_type=opds.ACQUISITION)
-        except InvalidFacetCombination:
-            raise Http404("Compound keyword facet URLs are not supported.")
+        if facet_class is None:
+            try:
+                facet_class = feed_module.get_facet_class(facet)()
+            except InvalidFacetCombination:
+                raise Http404("Keyword facet URLs are not supported.")
+        if self.json:
+            return StreamingHttpResponse(facet_class.feed(page,order_by),
+                        content_type="application/opds+json; charset=utf-8")
+        return StreamingHttpResponse(facet_class.feed(page,order_by),
+                    content_type=opds.ACQUISITION)
 
 class OnixView(View):
     def get(self, request, *args, **kwargs):
+        facet = kwargs.get('facet', 'all')
+        # Validate before the ?work= early return (#1095); reused below.
+        facet_class = None
+        if facet:
+            try:
+                facet_class = opds.get_facet_class(facet)()
+            except InvalidFacetCombination:
+                raise Http404("Keyword facet URLs are not supported.")
         work = request.GET.get('work', None)
 
         if work:
@@ -237,8 +254,6 @@ class OnixView(View):
             except models.Work.DoesNotExist:
                 raise Http404
             return HttpResponse(onix.onix_feed_for_work(work), content_type="text/xml")
-
-        facet = kwargs.get('facet', 'all')
 
         if not facet:
             return HttpResponseBadRequest(content='No facet provided')
@@ -252,10 +267,7 @@ class OnixView(View):
             
         max_records = max_records if request.user.is_authenticated else ANONYMOUS_MAX_RECORDS
 
-        try:
-            facet_class = opds.get_facet_class(facet)()
-        except InvalidFacetCombination:
-            raise Http404("Compound keyword facet URLs are not supported.")
+        # facet is non-empty here, so facet_class was built and validated above.
         page = request.GET.get('page', None)
         try:
             page = int(page)

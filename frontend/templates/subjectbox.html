@@ -1,5 +1,5 @@
 <div class="workbox">
-    <a href="{% url 'free' %}kw.{{ subject.name }}/">{{ subject.name }}</a> <br />
+    {{ subject.name }} <br />
     Works with this keyword: {{ subject.works.all.count }}<br />
     Free Works with this keyword:     {{ subject.free_works.count }} <br />
     <a href="{% url 'free' %}?setkw={{ subject.name }}">Set</a> keywords. <br />
