@@ -298,13 +298,23 @@ class FeedbackSelfLinkTests(TestCase):
         # feedback -> superlogin -> feedback -> superlogin got ever-growing
         # URLs. With auth_next using the bare path on the feedback route,
         # the chain must reach a fixed point instead.
+        #
+        # Since #1261 the sign-in link's href no longer carries ?next= at all
+        # (the value moved to data-next, promoted into the href by JS), so the
+        # crawler-visible chain is bounded twice over. The assertion below is
+        # now on data-next: the value a *JS browser* would walk must still
+        # reach a fixed point, which is what the July fix guarantees.
         import re
         c = Client()
 
-        def signin_href(html):
-            m = re.search(r'href="(/accounts/superlogin/\?next=[^"]*)"', html)
+        def signin_next(html):
+            m = re.search(r'<a [^>]*class="[^"]*js-auth-next[^"]*"[^>]*'
+                          r'href="(/accounts/superlogin/[^"]*)"[^>]*'
+                          r'data-next="([^"]*)"', html)
             self.assertIsNotNone(m, "no sign-in link found")
-            return m.group(1)
+            # The href itself must be the bare, constant login URL.
+            self.assertEqual(m.group(1), "/accounts/superlogin/")
+            return m.group(2)
 
         def feedback_href(html):
             m = re.search(r'href="(/feedback/[^"]*)"', html)
@@ -319,9 +329,9 @@ class FeedbackSelfLinkTests(TestCase):
             r = c.get(url, follow=True)
             self.assertEqual(r.status_code, 200)
             html = str(r.content, 'utf-8')
-            login = signin_href(html)
             # next must be the bare feedback path, never a growing URL
-            self.assertEqual(login, "/accounts/superlogin/?next=%2Ffeedback%2F")
+            self.assertEqual(signin_next(html), "%2Ffeedback%2F")
+            login = "/accounts/superlogin/?next=%2Ffeedback%2F"
             r2 = c.get(login)
             self.assertEqual(r2.status_code, 200)
             url = feedback_href(str(r2.content, 'utf-8'))
@@ -627,6 +637,422 @@ class FeedbackUrlSpaceTests(TestCase):
         self.assertTrue(form.is_valid(), form.errors)
         self.assertEqual(form.cleaned_data['subject'],
                          'hello Bcc: someone@example.org')
+
+AUTH_LINK_RE = re.compile(r'<a [^>]*class="[^"]*js-auth-next[^"]*"[^>]*>')
+GOOGLE_LINK_RE = re.compile(r'<a [^>]*href="(/socialauth/login/google-oauth2/[^"]*)"')
+
+
+def auth_link_hrefs(html):
+    """Every href on a site-wide Sign In / Sign Up link, in document order."""
+    return [re.search(r'href="([^"]*)"', tag).group(1)
+            for tag in AUTH_LINK_RE.findall(html)]
+
+
+def auth_link_nexts(html):
+    """Every data-next value on a site-wide Sign In / Sign Up link."""
+    return [re.search(r'data-next="([^"]*)"', tag).group(1)
+            for tag in AUTH_LINK_RE.findall(html)]
+
+
+class SignInUrlSpaceTests(TestCase):
+    """Regression: the site-wide Sign In / Sign Up links must be the SAME URL on
+    every crawlable page.
+
+    They used to carry ?next=<current page>, so each of the site's ~2M crawlable
+    pages minted its own sign-in URL, and the login page propagated that value
+    into the Google sign-in link -- the expensive endpoint, since serving it
+    holds a web worker while it waits on an outbound call to Google. Production
+    saw 184,125 requests to it on 2026-09-17 across 175,983 *distinct* URLs, a
+    repeat rate no cache can absorb. See issue #1261.
+
+    The per-page value now rides in data-next and is promoted into the href by
+    sitewide1.js, so a real browser behaves exactly as before while the
+    server-rendered link graph holds one sign-in URL instead of two million.
+
+    Scope, stated precisely: this is about the *site-wide* Sign In / Sign Up
+    links, the only ones rendered on every page. Google sign-in links on
+    home.html, from_pledge.html and gift_login.html still carry ?next= in the
+    href, and those are NOT strictly bounded -- home.html passes through
+    request.GET.next, so /?next=<anything> mints a distinct Google URL. What
+    is true, and is the point, is narrower: those templates are reached from
+    four routes rather than from every crawlable page, and nothing on the site
+    links to them with a varying ?next=, so they are not a self-minting
+    surface the way the header links were. A crawler inventing query strings
+    can still produce variants; closing that would mean dropping destinations
+    the gift and pledge flows depend on.
+    """
+
+    def test_signin_and_signup_hrefs_are_identical_across_pages(self):
+        first = str(Client().get("/privacy/").content, 'utf-8')
+        second = str(Client().get("/about/").content, 'utf-8')
+        hrefs = auth_link_hrefs(first)
+        self.assertEqual(hrefs, ["/accounts/superlogin/", "/accounts/register/"])
+        self.assertEqual(hrefs, auth_link_hrefs(second))
+
+    def test_signin_hrefs_do_not_vary_with_the_query_string(self):
+        # A crawler appending junk (or legitimate pagination) to a page must
+        # not be handed a different sign-in URL for each variant.
+        plain = auth_link_hrefs(str(Client().get("/privacy/").content, 'utf-8'))
+        with_query = auth_link_hrefs(str(
+            Client().get("/privacy/", {"q": "sverige", "page": "2"}).content, 'utf-8'))
+        self.assertEqual(plain, with_query)
+        for href in plain:
+            self.assertNotIn("next=", href)
+
+    def test_current_page_is_still_carried_for_the_browser(self):
+        # The "sign in and come back here" value is not lost, only moved: JS
+        # promotes it into the href. Pagination state must survive, as it did
+        # before (regression guard from the July #1204 work).
+        from urllib.parse import quote
+        r = Client().get("/privacy/", {"q": "sverige", "page": "2"})
+        nexts = auth_link_nexts(str(r.content, 'utf-8'))
+        self.assertEqual(len(nexts), 2)
+        for value in nexts:
+            self.assertEqual(value, quote("/privacy/?q=sverige&page=2", safe=''))
+
+    def test_no_template_uses_a_multiline_hash_comment(self):
+        # Django's {# ... #} syntax is single-line only: a multi-line one is not
+        # a comment at all, it renders as literal text into the page. I shipped
+        # that bug twice in this branch, so it is asserted structurally over the
+        # template sources rather than by listing phrases to look for -- a
+        # phrase list only catches the instances someone remembered to add.
+        import os
+        offenders = []
+        roots = [os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                              'frontend', 'templates')]
+        for root in roots:
+            for dirpath, _dirnames, filenames in os.walk(root):
+                for name in filenames:
+                    if not name.endswith('.html'):
+                        continue
+                    path = os.path.join(dirpath, name)
+                    with open(path, encoding='utf-8') as handle:
+                        text = handle.read()
+                    idx = 0
+                    while True:
+                        start = text.find('{#', idx)
+                        if start == -1:
+                            break
+                        end = text.find('#}', start)
+                        if end == -1:
+                            offenders.append('%s: unterminated {#' % path)
+                            break
+                        if '\n' in text[start:end]:
+                            offenders.append('%s: multi-line {# ... #} at offset %d'
+                                             % (path, start))
+                        idx = end + 2
+        self.assertEqual(offenders, [], 'multi-line {# #} renders as visible text:\n' +
+                         '\n'.join(offenders))
+
+    def test_login_required_redirect_still_carries_next(self):
+        # Django's own @login_required redirect is a flow that explicitly
+        # supplies next; it is untouched and must keep working.
+        r = Client().get("/accounts/password/change/")
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r['Location'],
+                         "/accounts/superlogin/?next=/accounts/password/change/")
+
+    def test_login_page_google_link_honours_an_incoming_next(self):
+        # Landing on the login page with an explicit destination (a pledge, a
+        # purchase, an @login_required bounce) must still send that
+        # destination through Google sign-in.
+        r = Client().get("/accounts/superlogin/", {"next": "/pledge/complete/"})
+        self.assertEqual(r.status_code, 200)
+        m = GOOGLE_LINK_RE.search(str(r.content, 'utf-8'))
+        self.assertIsNotNone(m, "no Google sign-in link on the login page")
+        # Django's urlencode filter leaves "/" unescaped, so this is the same
+        # value the login page emitted before this change.
+        self.assertEqual(m.group(1),
+                         "/socialauth/login/google-oauth2/?next=/pledge/complete/")
+
+    def test_login_page_google_link_is_constant_without_a_next(self):
+        # With no destination the link used to echo the login page's own URL,
+        # so any query string appended to the login page minted a fresh Google
+        # sign-in URL. It now falls back to the constant /next/ view.
+        bare = GOOGLE_LINK_RE.search(
+            str(Client().get("/accounts/superlogin/").content, 'utf-8')).group(1)
+        junk = GOOGLE_LINK_RE.search(str(
+            Client().get("/accounts/superlogin/", {"utm": "x"}).content, 'utf-8')).group(1)
+        self.assertEqual(bare, "/socialauth/login/google-oauth2/?next=/next/")
+        self.assertEqual(bare, junk)
+
+    def test_login_page_secondary_links_do_not_fan_out(self):
+        # code-review finding: the "Forgot your password" / "Need an account"
+        # links on the login page echoed request.get_full_path, so junk appended
+        # to /accounts/superlogin/ produced a distinct registration URL, whose
+        # page then fed that value into ITS Google button -- a fresh URL on the
+        # expensive endpoint, two hops away. They use the constant /next/ too.
+        def secondary(html):
+            return re.findall(r'href="(/accounts/(?:register|password/reset)/[^"]*)"', html)
+        plain = secondary(str(Client().get("/accounts/superlogin/").content, 'utf-8'))
+        junk = secondary(str(
+            Client().get("/accounts/superlogin/", {"utm": "1"}).content, 'utf-8'))
+        self.assertTrue(plain, "no secondary links found on the login page")
+        self.assertEqual(plain, junk)
+        # ... while an explicit destination still propagates.
+        with_next = secondary(str(
+            Client().get("/accounts/superlogin/", {"next": "/pledge/x/"}).content, 'utf-8'))
+        self.assertTrue(any("next=/pledge/x/" in href for href in with_next))
+
+    def test_login_page_secondary_links_are_nofollow(self):
+        html = str(Client().get("/accounts/superlogin/").content, 'utf-8')
+        for tag in re.findall(r'<a [^>]*href="/accounts/(?:register|password/reset)/[^"]*"[^>]*>', html):
+            self.assertIn('rel="nofollow"', tag)
+
+    def test_sitewide_js_is_cache_busted(self):
+        # The "come back here" behaviour now lives in sitewide1.js, and static
+        # files are served by plain StaticFilesStorage (no content hash), so a
+        # returning visitor with a cached copy would get new HTML with old JS.
+        html = str(Client().get("/privacy/").content, 'utf-8')
+        self.assertNotIn('src="/static/js/sitewide1.js"', html)
+        self.assertRegex(html, r'src="/static/js/sitewide1\.js\?v=[^"]+"')
+
+    def test_pledge_login_page_keeps_its_destination(self):
+        # /accounts/login/pledge/ renders from_pledge.html, which passes the
+        # login view's own `next` straight to Google. Unchanged by #1261.
+        r = Client().get("/accounts/login/pledge/", {"next": "/pledge/complete/"})
+        self.assertEqual(r.status_code, 200)
+        m = GOOGLE_LINK_RE.search(str(r.content, 'utf-8'))
+        self.assertIsNotNone(m, "no Google sign-in link on the pledge login page")
+        self.assertIn("next=/pledge/complete/", m.group(1))
+
+
+class NextCookieRedirectTests(TestCase):
+    """The /next/ view redirects to a destination held in a client-writable
+    cookie, so it must not become an open redirect.
+
+    The cookie is written by JavaScript -- registration_base.html takes the
+    value straight off the current URL's query string and strips only quotes
+    and angle brackets -- so a crafted same-site link is enough to put an
+    off-site destination in it. #1261 made /next/ the default post-auth hop
+    from the login page, which turns a dormant problem into a load-bearing
+    one, so the guard lands here.
+
+    Asserted against the exact safe fallback rather than "does not contain
+    the evil host", matching the style of the logout open-redirect test in
+    libraryauth/tests.py: a looser check would miss a bypass that lands
+    somewhere else unsafe without literally containing that string.
+    """
+
+    def _next_with_cookie(self, value):
+        c = Client()
+        c.cookies['next'] = value
+        return c.get("/next/")
+
+    def test_same_site_path_is_honoured(self):
+        r = self._next_with_cookie("%2Fwork%2F1%2F")
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r['Location'], "/work/1/")
+
+    def test_no_cookie_goes_home(self):
+        r = Client().get("/next/")
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(r['Location'], "/")
+
+    def test_absolute_offsite_url_is_rejected(self):
+        r = self._next_with_cookie("https%3A%2F%2Fevil.example%2Fphish")
+        self.assertEqual(r['Location'], "/")
+
+    def test_protocol_relative_url_is_rejected(self):
+        # The one the reviewer called out: registration_base.html's strip of
+        # "'<> lets //evil.example through untouched.
+        r = self._next_with_cookie("%2F%2Fevil.example")
+        self.assertEqual(r['Location'], "/")
+
+    def test_double_encoded_offsite_url_is_rejected(self):
+        # The view unquotes twice, so validation has to happen on the fully
+        # decoded value, not the raw cookie.
+        r = self._next_with_cookie("%252F%252Fevil.example")
+        self.assertEqual(r['Location'], "/")
+
+    def test_double_encoded_same_site_path_still_works(self):
+        # The two unquotes are not paranoia: jquery.cookie re-encodes a value
+        # auth_next had already encoded, so a legitimate destination arrives
+        # double-encoded. This is the test that fails if someone removes one.
+        r = self._next_with_cookie("%252Fwork%252F1%252F")
+        self.assertEqual(r['Location'], "/work/1/")
+
+    def test_same_host_absolute_url_is_rejected(self):
+        # Stricter than "not off-site": the cookie should only ever hold a
+        # path, so an absolute URL is refused even pointing at our own host.
+        # This is what makes the guard independent of request.is_secure(),
+        # which is always False in production behind the TLS proxy because
+        # SECURE_PROXY_SSL_HEADER is unset -- so a require_https= flag would
+        # have been inert and http://testserver/work/1/ would have validated,
+        # bouncing the user off TLS for that hop.
+        r = self._next_with_cookie("http%3A%2F%2Ftestserver%2Fwork%2F1%2F")
+        self.assertEqual(r['Location'], "/")
+        r = self._next_with_cookie("https%3A%2F%2Ftestserver%2Fwork%2F1%2F")
+        self.assertEqual(r['Location'], "/")
+
+    def test_control_characters_are_rejected(self):
+        # Browsers strip tabs and newlines before resolving a URL, so a value
+        # that parses as a path here can resolve to something else there.
+        for raw in ("%2F%09%2Fevil.example", "%2F%0A%2Fevil.example",
+                    "%20%2F%2Fevil.example"):
+            self.assertEqual(self._next_with_cookie(raw)['Location'], "/")
+
+    def test_backslash_variant_is_rejected(self):
+        self.assertEqual(self._next_with_cookie("%2F%5Cevil.example")['Location'], "/")
+
+    def test_a_path_with_spaces_still_works(self):
+        # Regression, and the sharpest kind: behaviour that worked BEFORE this
+        # PR and that an earlier version of my own guard broke. This site has
+        # free-text path routes -- /free/<path>/ for keyword facets,
+        # /bypub/all/<pubname> for publisher names -- so these are real pages a
+        # real user can be sitting on when they sign in. The value arrives here
+        # with literal spaces, because the two unquotes decode the %20 that
+        # auth_next put in. Rejecting the space sent those visitors to the home
+        # page. HttpResponseRedirect re-encodes it via iri_to_uri on the way
+        # out, which is what already happened before any of this.
+        r = self._next_with_cookie("%252Fbypub%252Fall%252FOxford%2520University%2520Press")
+        self.assertEqual(r['Location'], "/bypub/all/Oxford%20University%20Press")
+        r = self._next_with_cookie("%252Ffree%252Fkw.science%2520fiction%252F")
+        self.assertEqual(r['Location'], "/free/kw.science%20fiction/")
+
+    def test_next_never_redirects_to_itself(self):
+        # This view reads the cookie and redirects to it, so a cookie pointing
+        # back here redirected to itself. It terminated only because the same
+        # response clears the cookie, which made termination depend on the
+        # delete landing -- a cookie scoped to a narrower path would loop.
+        # Not hypothetical: the login page's fallback links carry ?next=/next/,
+        # so this value really does reach the cookie writers.
+        self.assertEqual(self._next_with_cookie("%2Fnext%2F")['Location'], "/")
+        self.assertEqual(self._next_with_cookie("%2Fnext%2F%3Fx%3D1")['Location'], "/")
+
+    def test_rejected_cookie_is_cleared_not_left_to_retry(self):
+        r = self._next_with_cookie("%2F%2Fevil.example")
+        self.assertEqual(r.cookies['next'].value, "")
+
+
+class WelcomePageRedirectTests(TestCase):
+    """The other door onto the same open redirect, closed alongside the
+    server-side one.
+
+    registration_base.html used to end the registration flow with
+    `window.location.replace(saved_next)` -- navigating to the raw `next`
+    cookie. The same script writes that cookie from the current URL's query
+    string, stripping only "'<>, so a lure like
+    /accounts/register/?next=//evil.example survives intact, and the welcome
+    page (the only template carrying #link-to-next) would then carry a
+    freshly-registered user off the site. Guarding frontend.views.next() did
+    nothing about this path, because it never reached the server.
+
+    The fix removes the sink: navigate to the constant, same-origin /next/ and
+    let the guarded view do the redirect. These tests assert the contract of
+    the served JavaScript, which is the artifact that actually runs -- a
+    Django test client cannot execute it.
+    """
+
+    WELCOME_URLS = ("/accounts/superlogin/welcome/", "/accounts/login/welcome/")
+
+    def test_welcome_page_does_not_navigate_to_the_raw_cookie(self):
+        for url in self.WELCOME_URLS:
+            html = str(Client().get(url).content, 'utf-8')
+            self.assertNotIn("window.location.replace(saved_next)", html,
+                             "%s still navigates to the unvalidated cookie" % url)
+
+    def test_welcome_page_routes_through_the_guarded_view(self):
+        for url in self.WELCOME_URLS:
+            html = str(Client().get(url).content, 'utf-8')
+            self.assertIn("window.location.replace('/next/')", html)
+
+    def test_registration_complete_link_never_renders_the_cookie_value(self):
+        # The third sink, found by Codex: registration_complete.html rendered
+        # <a href="{{ request.COOKIES.next|urldecode }}">, a clickable off-site
+        # hop fed straight from the client-writable cookie. It now points at the
+        # guarded /next/ view. Behavioural, not source-level: poison the cookie
+        # and assert the host cannot appear in the page at all.
+        #
+        # The live route is django_registration_complete, whose template
+        # django_registration/registration_complete.html is a one-line
+        # {% extends "registration/registration_complete.html" %} -- so the sink
+        # is reachable, and this test goes through the real URL rather than
+        # rendering the parent template directly.
+        from django.urls import reverse
+        c = Client()
+        c.cookies['next'] = "https%3A%2F%2Fevil.example%2Fphish"
+        html = str(c.get(reverse('django_registration_complete')).content, 'utf-8')
+        self.assertNotIn("evil.example", html)
+        self.assertIn('href="/next/"', html)
+
+    def test_write_side_only_stores_a_same_site_path(self):
+        # Defence in depth at the one point where a value out of the URL bar
+        # becomes a stored redirect destination. Not the authoritative boundary
+        # -- anyone can set a cookie without running this script -- so the three
+        # read sinks stay guarded regardless. Asserted on the served JavaScript,
+        # which is the artifact that runs; the guard's own behaviour over
+        # encoded, plain, protocol-relative, backslash and malformed values was
+        # exercised separately with node.
+        for url in ("/accounts/superlogin/", "/accounts/register/"):
+            html = str(Client().get(url).content, 'utf-8')
+            self.assertIn("function isSameSitePath(", html)
+            self.assertIn("if (isSameSitePath(next)) {", html)
+
+    def test_hijax_writer_also_refuses_to_store_the_next_view(self):
+        # The registration_base.html writer got this check; the hijax writer in
+        # sitewide1.js did not, so a second Sign In click from a page whose
+        # links carry ?next=/next/ overwrote a real saved destination. The read
+        # guard makes that safe, not harmless -- the destination is gone.
+        import os
+        js = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+            'static', 'js', 'sitewide1.js')
+        with open(js, encoding='utf-8') as handle:
+            source = handle.read()
+        self.assertIn("decodeNextSafely(next).indexOf('/next/') !== 0", source)
+
+    def test_write_side_refuses_to_store_the_next_view_itself(self):
+        # Mirror of test_next_never_redirects_to_itself on the write side: a
+        # visitor with a real destination saved must not have it overwritten
+        # by /next/ when they pass through a page whose fallback link carries
+        # ?next=/next/. Asserted on the served JavaScript.
+        html = str(Client().get("/accounts/superlogin/").content, 'utf-8')
+        self.assertIn("decoded.indexOf('/next/') !== 0", html)
+
+    def test_no_javascript_navigates_to_a_cookie_value_anywhere(self):
+        # Broader guard: no template served to a visitor may hand a cookie
+        # value straight to a navigation sink. Catches a reintroduction
+        # somewhere other than the welcome page.
+        import re as _re
+        sink = _re.compile(r"window\.location(?:\.replace| *=)[^;]*(?:saved_next|cookie\()")
+        for url in self.WELCOME_URLS + ("/accounts/superlogin/", "/accounts/register/"):
+            html = str(Client().get(url).content, 'utf-8')
+            self.assertIsNone(sink.search(html),
+                              "a navigation sink fed from a cookie appears on %s" % url)
+
+
+class GiftLoginNextTests(TestCase):
+    """The gift redemption flow supplies its own ?next= (the redemption URL) and
+    must be unaffected by the #1261 sign-in URL work."""
+
+    def setUp(self):
+        from datetime import timedelta
+        from django.utils.timezone import now
+        from regluit.core import models as core_models
+        giver = User.objects.create_user('giver', 'giver@example.org', 'pass')
+        giftee = User.objects.create_user('giftee', 'giftee@example.org', 'pass')
+        # receive_gift only renders the login page when the giftee is an
+        # established user -- i.e. joined well before the acq was created.
+        User.objects.filter(pk=giftee.pk).update(date_joined=now() - timedelta(days=30))
+        work = Work.objects.create(title="A Gifted Work")
+        acq = core_models.Acq.objects.create(
+            user=giftee, work=work, license=core_models.INDIVIDUAL,
+        )
+        core_models.Gift.objects.create(acq=acq, giver=giver, to='giftee@example.org')
+        # a post_save hook computes the nonce, so read it back
+        acq.refresh_from_db()
+        self.nonce = acq.nonce
+
+    def test_gift_google_link_points_at_the_redemption_url(self):
+        r = Client().get("/receive_gift/%s/" % self.nonce)
+        self.assertEqual(r.status_code, 200)
+        m = GOOGLE_LINK_RE.search(str(r.content, 'utf-8'))
+        self.assertIsNotNone(m, "no Google sign-in link on the gift login page")
+        self.assertEqual(
+            m.group(1),
+            "/socialauth/login/google-oauth2/?next=/receive_gift/%s/" % self.nonce)
+
 
 
 class CampaignRetirementTests(TestCase):

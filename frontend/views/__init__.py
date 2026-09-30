@@ -6,7 +6,7 @@ import re
 import sys
 import json
 import logging
-from urllib.parse import unquote, urlsplit
+from urllib.parse import unquote, urlparse, urlsplit
 import requests
 
 from datetime import timedelta, date, datetime
@@ -44,7 +44,7 @@ from django.shortcuts import render, get_object_or_404
 from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
 from django.utils.cache import add_never_cache_headers
-from django.utils.http import urlencode
+from django.utils.http import url_has_allowed_host_and_scheme, urlencode
 from django.utils.translation import gettext_lazy as _
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
@@ -181,13 +181,103 @@ def process_kindle_email(request):
         user.profile.save()
         request.session.pop('kindle_email')
 
+def _is_safe_redirect_target(target):
+    """True only for a relative, same-site path that is not /next/ itself.
+
+    Stricter than url_has_allowed_host_and_scheme on its own, deliberately.
+    Every writer of the next cookie stores a path: auth_next emits
+    request.get_full_path(), the hijax handler lifts a path out of an href,
+    Django's @login_required supplies one. An absolute URL has no business
+    here even when it points at our own host.
+
+    Being strict this way also removes a dependency on request.is_secure(),
+    which is always False in production because the TLS-terminating proxy is
+    in front and SECURE_PROXY_SSL_HEADER is not set. Passing
+    require_https=request.is_secure() would therefore have been inert, and
+    "http://unglue.it/..." would have validated and bounced the user off TLS
+    for that hop. Refusing absolute URLs outright makes the question moot
+    rather than resting on a flag that reads as active and is not. The
+    underlying gap -- no SECURE_PROXY_SSL_HEADER, no HSTS -- is
+    infrastructure-wide and tracked separately.
+
+    Rejects raw control characters -- browsers strip tabs and newlines
+    before resolving a URL, so a value that looks like a path here could
+    resolve to something else there.
+
+    NOT the space, though, and that distinction is load-bearing. This site
+    has free-text path routes: /free/<path>/ carries keyword facets and
+    /bypub/all/<pubname> carries publisher names, so
+    "/bypub/all/Oxford University Press" is a real destination a real user
+    can be sitting on. It arrives here with literal spaces, because the two
+    unquotes decode the %20 that auth_next put in. An earlier version of
+    this guard rejected ch <= ' ', which sent those visitors to the home
+    page after signing in -- behaviour that worked before #1261 touched any
+    of this. HttpResponseRedirect runs the target through iri_to_uri, which
+    re-encodes the space on the way out, so letting it through here is both
+    safe and what already happened.
+    """
+    if not target or any(ch < ' ' or ch == '\x7f' for ch in target):
+        return False
+    if not target.startswith('/'):
+        return False
+    if target.startswith('//') or target.startswith('/\\'):
+        return False
+    # Never /next/ itself, or anything under it. This view reads the cookie
+    # and redirects to it, so a cookie pointing back here redirects to itself;
+    # today that terminates only because the same response clears the cookie,
+    # which makes termination depend on the delete landing. A cookie scoped to
+    # a narrower path (browsers send that one first, and delete_cookie on '/'
+    # does not remove it) would loop. Cheaper to make it structurally
+    # impossible. The login page's own fallback links carry ?next=/next/, so
+    # this value really does reach the writers.
+    if target.startswith(reverse('next')):
+        return False
+    parsed = urlparse(target)
+    return not parsed.scheme and not parsed.netloc
+
+
 def next(request):
-    if 'next' in request.COOKIES:
-        response = HttpResponseRedirect(unquote(unquote(request.COOKIES['next'])))
-        response.delete_cookie('next')
-        return response
-    else:
+    """Redirect to the destination stashed in the `next` cookie.
+
+    That cookie is written by client-side JavaScript -- the hijax sign-in
+    handler in sitewide1.js and the inline script in registration_base.html,
+    which takes the value straight off the current URL's query string and
+    strips only quotes and angle brackets. So its content is
+    attacker-influencable: a crafted same-site link such as
+    /accounts/register/?next=//evil.example is enough to store an off-site
+    destination, and the double unquote below will happily decode a
+    double-encoded one. Redirecting to it unchecked is an open redirect, and
+    a usable phishing primitive, because the victim starts on unglue.it and
+    lands elsewhere after what looks like signing in.
+
+    So: validate the decoded value against this request's own host and
+    scheme, exactly as Django's own login/logout views do, and fall back to
+    the home page when it does not pass. The cookie is cleared either way --
+    a rejected value must not survive to be retried.
+
+    Why two unquotes, so nobody "simplifies" this into a bug: auth_next
+    percent-encodes the path once (quote(safe='')), the hijax handler lifts
+    that still-encoded value out of the href, and jquery.cookie encodes it
+    again on write. The cookie therefore arrives double-encoded and two
+    passes are what recover the original path. Validation happens after both,
+    which is the part that matters -- a single decode would let a
+    double-encoded off-site target through. Do not make this a loop: two
+    bounded passes match the known writers, an unbounded one would decode
+    payloads no writer can actually produce. Reducing it to one decode means
+    first fixing the encoding contract at both writers; worth doing, but not
+    in this change.
+    """
+    if 'next' not in request.COOKIES:
         return HttpResponseRedirect('/')
+    target = unquote(unquote(request.COOKIES['next']))
+    if not _is_safe_redirect_target(target) or not url_has_allowed_host_and_scheme(
+            target, allowed_hosts={request.get_host()},
+    ):
+        target = '/'
+    response = HttpResponseRedirect(target)
+    # path must match the '/' the JS writers set, or the delete silently misses
+    response.delete_cookie('next', path='/')
+    return response
 
 def cover_width(work):
     if work.percent_of_goal() < 100:

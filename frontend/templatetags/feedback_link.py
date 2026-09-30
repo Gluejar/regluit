@@ -20,14 +20,17 @@ tens of thousands of requests per hour and saturated the web workers (see
 INCIDENT_2026-07-10_crawler_trap_flood.md).
 
 Emitting a constant URL makes that recursion structurally impossible, so
-feedback_url no longer needs its self-reference guard. auth_next still does:
-the Sign In / Sign Up links in base.html embed the current URL as ?next=, and
-on the feedback page that would re-grow the chain sideways (feedback ->
-superlogin?next=<feedback url> -> feedback?page=<superlogin url> -> ...), so
-there auth_next uses the bare request.path instead of the full path.
-Everywhere else auth_next passes the browser's URL through exactly -- including
-any page= query parameter, which is legitimate pagination state (e.g.
-/search/?q=...&page=2).
+feedback_url no longer needs its self-reference guard. auth_next still does.
+Since #1261 the Sign In / Sign Up links in base.html no longer put its value in
+the href at all: they carry it in a data-next attribute that sitewide1.js
+promotes back into the href in the browser, so the server-rendered link is the
+same URL on every page. The value itself is unchanged, and still needs the
+guard -- on the feedback page a full URL would re-grow the chain sideways
+(feedback -> superlogin?next=<feedback url> -> feedback?page=<superlogin url>
+-> ...), so there auth_next uses the bare request.path instead of the full
+path. A JS browser must not be able to walk that chain either. Everywhere else
+auth_next passes the browser's URL through exactly -- including any page= query
+parameter, which is legitimate pagination state (e.g. /search/?q=...&page=2).
 """
 from urllib.parse import quote
 
