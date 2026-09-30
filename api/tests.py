@@ -8,7 +8,10 @@ from decimal import Decimal
 django imports
 """
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.core.cache import cache
+from django.db import connection
+from django.test import TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.test.client import Client
 from django.utils.timezone import now
 
@@ -66,6 +69,8 @@ class ApiTests(TestCase):
 class FeedTests(TestCase):
     fixtures = ['initial_data.json', 'neuromancer.json']
     def setUp(self):
+        # OPDS responses are cached; don't let one test's feeds leak into another
+        cache.clear()
         edition = models.Edition.objects.get(pk=1)
         ebook = models.Ebook.objects.create(edition=edition, url='http://example.org/', format='epub', rights='CC BY')
         self.test_work_id = edition.work_id
@@ -116,6 +121,60 @@ class FeedTests(TestCase):
     def test_onix_all_keyword_alias_works(self):
         r = self.client.get('/api/onix/all/kw.Fiction/')
         self.assertEqual(r.status_code, 200)
+
+@override_settings(CACHES={
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'opds-cache-tests',
+    }
+})
+class OPDSCacheTests(TestCase):
+    fixtures = ['initial_data.json', 'neuromancer.json']
+
+    def setUp(self):
+        cache.clear()
+        edition = models.Edition.objects.get(pk=1)
+        models.Ebook.objects.create(edition=edition, url='http://example.org/', format='epub', rights='CC BY')
+
+    def test_repeat_anonymous_request_served_from_cache(self):
+        for url in ('/api/opds/', '/api/opdsjson/',
+                    '/api/opds/creative_commons/', '/api/opdsjson/creative_commons/'):
+            first = self.client.get(url)
+            self.assertEqual(first.status_code, 200)
+            with self.assertNumQueries(0):
+                second = self.client.get(url)
+            self.assertEqual(second.status_code, 200)
+            self.assertEqual(second.content, first.content)
+            self.assertEqual(second['Content-Type'], first['Content-Type'])
+
+    def test_query_strings_cached_separately(self):
+        newest = self.client.get('/api/opds/creative_commons/?order_by=newest')
+        popular = self.client.get('/api/opds/creative_commons/?order_by=popular')
+        self.assertIn(b'sorted by newest', newest.content)
+        self.assertIn(b'sorted by popular', popular.content)
+
+    def test_logged_in_requests_not_cached(self):
+        def built_feed(queries):
+            # a logged-in request always queries the session and user;
+            # only building the feed queries works
+            return any('core_work' in q['sql'] for q in queries.captured_queries)
+        User.objects.create_user('opdsreader', 'opds@example.org', 'testpass')
+        self.client.login(username='opdsreader', password='testpass')
+        url = '/api/opds/creative_commons/'
+        self.assertEqual(self.client.get(url).status_code, 200)
+        with CaptureQueriesContext(connection) as second:
+            r = self.client.get(url)
+            self.assertEqual(r.status_code, 200)
+            b''.join(r)  # an uncached feed streams; read it so it is built here
+        self.assertTrue(built_feed(second))
+        # and nothing was stored for anonymous visitors either
+        self.client.logout()
+        with CaptureQueriesContext(connection) as anonymous:
+            r = self.client.get(url)
+            self.assertEqual(r.status_code, 200)
+            b''.join(r)
+        self.assertTrue(built_feed(anonymous))
+
 
 class AllowedRepoTests(TestCase):
     def setUp(self):
