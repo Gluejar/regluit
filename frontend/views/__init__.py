@@ -12,6 +12,7 @@ import requests
 from datetime import timedelta, date, datetime
 from decimal import Decimal as D
 from itertools import chain
+from el_pagination.utils import get_page_number_from_request
 from notification import models as notification
 from random import randint
 #django imports
@@ -691,6 +692,22 @@ class FacetedView(FilterableListView):
 
         context['view_as'] = self.request.GET.get('view_as', None)
         return context
+
+    # Deepest ?work_list= page served on /free/ and /creativecommons/ (20 works
+    # per page, from lazy_paginate in faceted_list.html). Deep pages are slow
+    # because OFFSET makes the database walk every earlier row (#1253, #1265),
+    # and on prod nearly all of that traffic is crawlers. 50 is provisional
+    # pending human page-depth numbers.
+    max_page = 50
+
+    def get(self, request, *args, **kwargs):
+        # Parse the page the same way the paginator will, so junk values
+        # still fall back to page 1; refuse before any facet or query work.
+        if not self.send_marc:
+            page = get_page_number_from_request(request, querystring_key='work_list')
+            if page > self.max_page:
+                raise Http404("Page too deep; narrow the list with a facet instead.")
+        return super().get(request, *args, **kwargs)
 
 
 class ByPubView(WorkListView):

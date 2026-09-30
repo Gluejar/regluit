@@ -720,3 +720,44 @@ class RobotsTxtTests(TestCase):
                 self.assertEqual(list(groups), ["*"])
                 self.assertEqual(groups["*"]["disallow"], ["/"])
                 self.assertNotIn("ClaudeBot", body)
+
+from unittest import mock
+from regluit.frontend.views import FacetedView
+
+class FacetedDeepPageCapTests(TestCase):
+    """FacetedView (/free/, /creativecommons/) 404s ?work_list= pages past its cap
+    before looking up the facet or building the queryset (#1253, #1265)."""
+    fixtures = ['initial_data.json', 'neuromancer.json']
+
+    def setUp(self):
+        # The fixtures have no free works, and faceted_list.html only runs
+        # lazy_paginate when the list is non-empty.
+        Work.objects.update(is_free=True)
+
+    def test_pagination_still_runs(self):
+        r = self.client.get("/free/")
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, "work_list=2")
+        self.assertEqual(self.client.get("/free/?work_list=2").status_code, 200)
+
+    def test_page_at_cap_is_served(self):
+        r = self.client.get("/free/epub/?work_list=%d" % FacetedView.max_page)
+        self.assertEqual(r.status_code, 200)
+
+    def test_past_cap_refused_before_facet_lookup(self):
+        with mock.patch("regluit.frontend.views.get_facet_object",
+                        side_effect=AssertionError("facet lookup ran")):
+            for url in ("/free/", "/free/epub/", "/creativecommons/"):
+                with self.subTest(url=url):
+                    r = self.client.get(url, {"work_list": FacetedView.max_page + 1})
+                    self.assertEqual(r.status_code, 404)
+
+    def test_junk_values_do_not_500(self):
+        # Non-numbers fall back to page 1, as the paginator itself does;
+        # zero and negatives are left to the paginator's own fallback.
+        for value in ("abc", "", "1.5", "0", "-3", "-99999"):
+            with self.subTest(value=value):
+                r = self.client.get("/free/", {"work_list": value})
+                self.assertEqual(r.status_code, 200)
+        r = self.client.get("/free/", {"work_list": "9" * 30})
+        self.assertEqual(r.status_code, 404)
