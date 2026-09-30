@@ -196,7 +196,12 @@ class AnonymousFeedCacheMixin:
             return super().dispatch(request, *args, **kwargs)
         path = request.get_full_path().encode('utf-8')
         key = 'opds_feed:' + hashlib.sha256(path).hexdigest()
-        cached = cache.get(key)
+        try:
+            cached = cache.get(key)
+        except Exception:
+            # a cache outage must not take the feeds down; build it instead
+            logger.warning('OPDS cache read failed', exc_info=True)
+            cached = None
         if cached is not None:
             content, content_type = cached
             return HttpResponse(content, content_type=content_type)
@@ -210,7 +215,10 @@ class AnonymousFeedCacheMixin:
                 response.render()
             content = response.content
         content_type = response['Content-Type']
-        cache.set(key, (content, content_type), OPDS_CACHE_TIMEOUT)
+        try:
+            cache.set(key, (content, content_type), OPDS_CACHE_TIMEOUT)
+        except Exception:
+            logger.warning('OPDS cache write failed', exc_info=True)
         return HttpResponse(content, content_type=content_type)
 
 

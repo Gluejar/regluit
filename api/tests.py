@@ -3,6 +3,7 @@ external library imports
 """
 import json
 from decimal import Decimal
+from unittest import mock
 
 """
 django imports
@@ -174,6 +175,16 @@ class OPDSCacheTests(TestCase):
             self.assertEqual(r.status_code, 200)
             b''.join(r)
         self.assertTrue(built_feed(anonymous))
+
+
+    def test_cache_outage_still_serves_feed(self):
+        with mock.patch('regluit.api.views.cache') as broken:
+            broken.get.side_effect = ConnectionError('cache down')
+            broken.set.side_effect = ConnectionError('cache down')
+            with self.assertLogs('regluit.api.views', level='WARNING'):
+                r = self.client.get('/api/opds/creative_commons/')
+        self.assertEqual(r.status_code, 200)
+        self.assertIn(b'sorted by newest', r.content)
 
 
 class AllowedRepoTests(TestCase):
