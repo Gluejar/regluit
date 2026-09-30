@@ -6,7 +6,7 @@ import re
 import sys
 import json
 import logging
-from urllib.parse import unquote
+from urllib.parse import unquote, urlsplit
 import requests
 
 from datetime import timedelta, date, datetime
@@ -35,6 +35,7 @@ from django.forms import Select
 from django.forms.models import inlineformset_factory
 from django.http import (
     HttpResponseRedirect,
+    HttpResponsePermanentRedirect,
     Http404,
     HttpResponse,
     HttpResponseNotFound
@@ -42,6 +43,7 @@ from django.http import (
 from django.shortcuts import render, get_object_or_404
 from django.template import TemplateDoesNotExist
 from django.template.loader import render_to_string
+from django.utils.cache import add_never_cache_headers
 from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
 from django.utils.timezone import now
@@ -1856,7 +1858,101 @@ def ask_rh(request, campaign_id):
             redirect_url = reverse('work', args=[campaign.work_id]),
             extra_context={'campaign':campaign, 'subject':campaign })
 
+# /feedback/ is one URL, and takes no query parameters at all (#1261). It used
+# to carry the current page as ?page=<url>, which minted one distinct URL per
+# crawlable page -- 693,968 of them in a single day -- and no cache could
+# absorb that (repeat rate 1.01) and no block list could keep up with it.
+#
+# Not emitting that parameter any more is only half the job: those 693,968
+# URLs are sitting in crawler queues right now, and would keep costing a full
+# template render each. So a GET carrying any query string is answered with a
+# permanent redirect to the bare URL, which is cheap, teaches crawlers and
+# caches the canonical URL, and collapses the existing space rather than
+# merely refusing to grow it.
+#
+# The originating page comes from the Referer header instead. That is best
+# effort by design: browsers and privacy settings withhold it, and then the
+# form simply records '/'. The feedback links carry
+# referrerpolicy="same-origin" for this to work at all -- the site's default
+# policy is "origin", which would truncate the Referer to the bare origin.
+# A browser may re-send the same Referer after the redirect, in which case a
+# user following an old ?page= link is still attributed; that depends on the
+# referrer policy in force, and old links mostly arrive without one at all.
+FEEDBACK_PAGE_MAX_LENGTH = 200
+
+
+def _same_site_referer(request):
+    """The Referer header, but only when it points back at this site.
+
+    Compares host rather than full origin: unglue.it runs behind Apache, and a
+    scheme mismatch there would silently discard every referer. The value is
+    informational -- it is echoed to staff in the feedback email and grants
+    nothing -- so a forged header costs nothing beyond the cleaning below.
+    """
+    referer = request.META.get('HTTP_REFERER', '')
+    if not referer:
+        return ''
+    try:
+        parts = urlsplit(referer)
+    except ValueError:  # malformed URL, e.g. a bad IPv6 literal
+        return ''
+    if parts.scheme not in ('http', 'https'):
+        return ''
+    if parts.netloc.lower() != request.get_host().lower():
+        return ''
+    return referer
+
+
+def _clean_page(value):
+    """Collapse whitespace and control characters, and bound the length.
+
+    This value is interpolated into a mail subject, so it must not carry
+    newlines; the subject field is 500 characters, and this is only part of it.
+    Truncation is marked, so a long search URL arrives visibly cut rather than
+    looking complete and simply not working when staff click it.
+    """
+    value = ''.join(ch if ch.isprintable() else ' ' for ch in value)
+    value = ' '.join(value.split())
+    if len(value) > FEEDBACK_PAGE_MAX_LENGTH:
+        return value[:FEEDBACK_PAGE_MAX_LENGTH - 3] + '...'
+    return value
+
+
+def _originating_page(request):
+    """Where the user was when they clicked "feedback", or '/' if unknowable."""
+    return _clean_page(_same_site_referer(request)) or '/'
+
+
+def _on_feedback_route(request):
+    """True for /feedback/ itself, false for ask_rh, which shares this view.
+
+    ask_rh lives at /feedback/campaign/<id>/ and calls feedback() directly, so
+    the query-string redirect below has to be able to tell them apart.
+    """
+    match = getattr(request, 'resolver_match', None)
+    if match is not None:
+        return match.url_name == 'feedback'
+    return request.path == reverse('feedback')
+
+
 def feedback(request, recipient='unglueit@ebookfoundation.org', template='feedback.html', message_template='feedback.txt', extra_context=None, redirect_url=None):
+    if (request.method != 'POST'
+            and request.META.get('QUERY_STRING')
+            and _on_feedback_route(request)):
+        # 693,968 distinct /feedback/?page=... URLs are already in crawler
+        # queues. Collapse every one of them onto the canonical URL instead of
+        # rendering the form 693,968 times (#1261). Deliberately not limited to
+        # ?page=: any query parameter here is either a dead link or an invented
+        # one, and neither should cost a render.
+        #
+        # Tested against the raw QUERY_STRING rather than request.GET, because
+        # "?&" and "?&&" parse to an empty QueryDict -- they are still distinct
+        # URLs to a crawler, and would otherwise have been rendered in full.
+        #
+        # Everything but POST, not just GET and HEAD: OPTIONS and TRACE are
+        # CSRF-exempt, so they reached a full render per distinct URL.
+        return HttpResponsePermanentRedirect(reverse('feedback'))
+
     context = extra_context or {}
     context['num1'] = randint(0, 10)
     context['num2'] = randint(0, 10)
@@ -1874,7 +1970,9 @@ def feedback(request, recipient='unglueit@ebookfoundation.org', template='feedba
             if redirect_url:
                 return HttpResponseRedirect(redirect_url)
             else:
-                return render(request, "thanks.html", context)
+                thanks = render(request, "thanks.html", context)
+                add_never_cache_headers(thanks)
+                return thanks
 
         else:
             context['num1'] = request.POST['num1']
@@ -1883,15 +1981,18 @@ def feedback(request, recipient='unglueit@ebookfoundation.org', template='feedba
     else:
         if request.user.is_authenticated:
             context['sender'] = request.user.email
-        try:
-            context['page'] = request.GET['page']
-        except:
-            context['page'] = '/'
+        context['page'] = _originating_page(request)
         if not 'subject' in context:
             context['subject'] = "Feedback on page "+context['page']
         form = FeedbackForm(initial=context)
     context['form'] = form
-    return render(request, template, context)
+    response = render(request, template, context)
+    # This form is per-visitor: a CSRF token, a one-time arithmetic captcha,
+    # the signed-in user's email, and a page recovered from this request's
+    # Referer. The URL is now a single one, which is exactly what invites a
+    # cache in front of it, so say plainly that it must not be shared (#1261).
+    add_never_cache_headers(response)
+    return response
 
 def campaign_archive_js(request):
     """ proxy for mailchimp js"""

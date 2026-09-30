@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load feedback_link %}
 
 {% block news %}
 <div class="launch_top">
@@ -14,7 +15,7 @@
 While you wait, why not like us on <a href="https://facebook.com/unglueit">Facebook</a>, follow us on <a href="https://digipres.club/@unglueit">Mastodon</a>,h or subscribe to our <a href="https://blog.unglue.it">blog</a>?  We'll keep you up to date there with our progress fixing things.
 </p>
 
-<p>You can also help us by <a href="{% url 'feedback' %}">sending us feedback</a>.</p>
+<p>You can also help us by <a href="{% feedback_url %}" rel="nofollow" referrerpolicy="same-origin">sending us feedback</a>.</p>
 
 <p>Thank you, and we're sorry for the inconvenience.</p>
 </div>
