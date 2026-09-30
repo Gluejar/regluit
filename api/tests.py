@@ -178,13 +178,28 @@ class OPDSCacheTests(TestCase):
 
 
     def test_cache_outage_still_serves_feed(self):
-        with mock.patch('regluit.api.views.cache') as broken:
-            broken.get.side_effect = ConnectionError('cache down')
-            broken.set.side_effect = ConnectionError('cache down')
+        broken = mock.Mock()
+        broken.get.side_effect = ConnectionError('cache down')
+        broken.set.side_effect = ConnectionError('cache down')
+        with mock.patch('regluit.api.views.feed_cache', return_value=broken):
             with self.assertLogs('regluit.api.views', level='WARNING'):
                 r = self.client.get('/api/opds/creative_commons/')
         self.assertEqual(r.status_code, 200)
         self.assertIn(b'sorted by newest', r.content)
+
+
+    def test_opds_alias_used_when_configured(self):
+        with self.settings(CACHES={
+            'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+                        'LOCATION': 'opds-cache-tests'},
+            'opds': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+                     'LOCATION': 'opds-cache-tests-opds'},
+        }):
+            from django.core.cache import caches
+            caches['opds'].clear()
+            self.client.get('/api/opds/creative_commons/')
+            self.assertEqual(len(caches['opds']._cache), 1)
+            self.assertEqual(len(caches['default']._cache), 0)
 
 
 class AllowedRepoTests(TestCase):

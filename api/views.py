@@ -4,8 +4,9 @@ import logging
 
 from django.contrib import auth
 from django.contrib.auth.models import User
+from django.conf import settings
 from django.contrib.sites.models import Site
-from django.core.cache import cache
+from django.core.cache import caches
 from django.urls import reverse
 from django.shortcuts import render
 from django.template import RequestContext
@@ -177,9 +178,17 @@ class ApiHelpView(TemplateView):
 # OPDS feeds are what e-reader apps and crawlers fetch, and page 1 of a feed
 # takes seconds of database work to build. The same URLs are requested over
 # and over (regluit#1257, #1265), and new books arrive nightly, so an hour-old
-# feed is fine. Works with any cache backend; with the default per-process
-# LocMemCache each mod_wsgi process just keeps its own copy.
+# feed is fine.
+# Production gives the feeds their own shared cache, CACHES['opds'] (set in
+# regluit-provisioning), so only the feeds depend on it. Without that alias
+# the default cache is used: with the per-process LocMemCache each mod_wsgi
+# process keeps its own copy.
 OPDS_CACHE_TIMEOUT = 60 * 60
+OPDS_CACHE_ALIAS = 'opds'
+
+
+def feed_cache():
+    return caches[OPDS_CACHE_ALIAS if OPDS_CACHE_ALIAS in settings.CACHES else 'default']
 
 
 class AnonymousFeedCacheMixin:
@@ -197,7 +206,7 @@ class AnonymousFeedCacheMixin:
         path = request.get_full_path().encode('utf-8')
         key = 'opds_feed:' + hashlib.sha256(path).hexdigest()
         try:
-            cached = cache.get(key)
+            cached = feed_cache().get(key)
         except Exception:
             # a cache outage must not take the feeds down; build it instead
             logger.warning('OPDS cache read failed', exc_info=True)
@@ -216,7 +225,7 @@ class AnonymousFeedCacheMixin:
             content = response.content
         content_type = response['Content-Type']
         try:
-            cache.set(key, (content, content_type), OPDS_CACHE_TIMEOUT)
+            feed_cache().set(key, (content, content_type), OPDS_CACHE_TIMEOUT)
         except Exception:
             logger.warning('OPDS cache write failed', exc_info=True)
         return HttpResponse(content, content_type=content_type)
