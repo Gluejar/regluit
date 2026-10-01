@@ -1424,7 +1424,7 @@ from regluit.frontend import views as frontend_views
 
 
 class SubjectsTopListTests(TestCase):
-    """/subjects/ lists only the most-used subjects, and caches the list."""
+    """/subjects/ lists only the most-used subjects, and caches the rendered list."""
 
     def setUp(self):
         cache.clear()
@@ -1437,60 +1437,68 @@ class SubjectsTopListTests(TestCase):
             subject.works.add(work)
         return subject
 
-    def _names(self, response):
-        return [subject.name for subject in response.context['subjects']]
+    def _names(self, url):
+        cache.clear()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        # the view hands the template a callable, evaluated on a cache miss
+        return [subject.name for subject in response.context['subjects']()]
 
     def test_limits_to_top_subjects_by_count(self):
         self._subject("Big", 3)
         self._subject("Middle", 2)
         self._subject("Small", 1)
         with mock.patch.object(frontend_views, 'SUBJECTS_LIMIT', 2):
-            by_name = self.client.get("/subjects/")
-            by_count = self.client.get("/subjects/?order=count")
-        self.assertEqual(by_name.status_code, 200)
-        # the top two by count, shown alphabetically by default
-        self.assertEqual(self._names(by_name), ["Big", "Middle"])
-        self.assertEqual(self._names(by_count), ["Big", "Middle"])
-        self.assertContains(by_name, "Only the 2 most-used keywords")
+            # the top two by count, shown alphabetically by default
+            self.assertEqual(self._names("/subjects/"), ["Big", "Middle"])
+            self.assertEqual(self._names("/subjects/?order=count"), ["Big", "Middle"])
+            response = self.client.get("/subjects/")
+        self.assertContains(response, "Only the 2 most-used keywords")
+        self.assertContains(response, "Middle")
+        self.assertNotContains(response, "Small")
 
     def test_count_order_and_name_order(self):
         self._subject("Apple", 1)
         self._subject("banana", 3)
         self._subject("Cherry", 2)
-        by_name = self.client.get("/subjects/")
-        by_count = self.client.get("/subjects/?order=count")
-        self.assertEqual(self._names(by_name), ["Apple", "banana", "Cherry"])
-        self.assertEqual(self._names(by_count), ["banana", "Cherry", "Apple"])
+        self.assertEqual(self._names("/subjects/"), ["Apple", "banana", "Cherry"])
+        self.assertEqual(self._names("/subjects/?order=count"), ["banana", "Cherry", "Apple"])
 
     def test_default_limit_is_100(self):
         self.assertEqual(frontend_views.SUBJECTS_LIMIT, 100)
         for i in range(101):
             Subject.objects.create(name="Subject %03d" % i).works.add(
                 Work.objects.create(title="Work %03d" % i))
-        response = self.client.get("/subjects/")
-        self.assertEqual(len(response.context['subjects']), 100)
-        self.assertContains(response, "Only the 100 most-used keywords")
+        self.assertEqual(len(self._names("/subjects/")), 100)
+        self.assertContains(self.client.get("/subjects/"), "Only the 100 most-used keywords")
 
     def test_free_subset_ranks_by_free_works(self):
         self._subject("Many works, one free", 4, n_free=1)
         self._subject("Two free", 2, n_free=2)
         self._subject("None free", 5, n_free=0)
-        by_count = self.client.get("/subjects/?subset=free&order=count")
-        self.assertEqual(self._names(by_count), ["Two free", "Many works, one free"])
-        self.assertContains(by_count, "1 free out of 4")
-        by_name = self.client.get("/subjects/?subset=free")
-        self.assertEqual(self._names(by_name), ["Many works, one free", "Two free"])
-
-    def test_list_is_cached(self):
-        self._subject("Cached", 1)
-        self.assertEqual(self._names(self.client.get("/subjects/")), ["Cached"])
-        self._subject("Added later", 5)
-        # within the cache window the list does not change ...
-        self.assertEqual(self._names(self.client.get("/subjects/")), ["Cached"])
-        # ... and each subset/order combination has its own entry
-        self.assertEqual(
-            self._names(self.client.get("/subjects/?order=count")),
-            ["Added later", "Cached"])
+        self.assertEqual(self._names("/subjects/?subset=free&order=count"),
+                         ["Two free", "Many works, one free"])
+        self.assertEqual(self._names("/subjects/?subset=free"),
+                         ["Many works, one free", "Two free"])
         cache.clear()
-        self.assertEqual(
-            self._names(self.client.get("/subjects/")), ["Added later", "Cached"])
+        response = self.client.get("/subjects/?subset=free")
+        self.assertContains(response, "1 free out of 4")
+        self.assertNotContains(response, "None free")
+
+    def test_rendered_list_is_cached(self):
+        self._subject("Cached", 1)
+        with mock.patch.object(frontend_views, 'top_subjects',
+                               wraps=frontend_views.top_subjects) as top:
+            self.assertContains(self.client.get("/subjects/"), "Cached")
+            self.assertEqual(top.call_count, 1)
+            self._subject("Added later", 5)
+            # a cache hit runs no subject queries and shows the cached list
+            response = self.client.get("/subjects/")
+            self.assertEqual(top.call_count, 1)
+            self.assertNotContains(response, "Added later")
+            # each subset/order combination has its own cache entry
+            self.assertContains(self.client.get("/subjects/?order=count"), "Added later")
+            self.assertEqual(top.call_count, 2)
+            # junk parameter values share the default entry
+            self.client.get("/subjects/?order=junk&subset=junk")
+            self.assertEqual(top.call_count, 2)

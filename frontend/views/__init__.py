@@ -24,7 +24,6 @@ from django.contrib.auth.models import User
 from django.contrib.auth.views import redirect_to_login
 from django.contrib.sites.models import Site
 from django.core import signing
-from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.core.mail import EmailMessage
@@ -644,34 +643,39 @@ def googlebooks(request, googlebooks_id):
     return HttpResponseRedirect(work_url)
 
 # /subjects/ used to count works for every subject on every request, which took
-# 30 s or more on prod. Only the most-used subjects are listed, and the list is
-# cached; the default (per-process) cache is enough for a page this rarely visited.
+# 30 s or more on prod. Only the most-used subjects are listed, and the rendered
+# list is cached by subjects.html ({% cache %}, keyed on subset, order and staff
+# status); the default (per-process) cache is enough for a page this rarely visited.
 SUBJECTS_LIMIT = 100
 SUBJECTS_CACHE_SECONDS = 60 * 60
+
+def top_subjects(subset, order):
+    if subset == 'free':
+        subjects = models.Subject.objects.filter(works__is_free=True).annotate(
+            Count('works__is_free'))
+        count_field = 'works__is_free__count'
+    else:
+        subjects = models.Subject.objects.annotate(Count('works'))
+        count_field = 'works__count'
+    # pick the top subjects by work count (name breaks ties) ...
+    subjects = list(subjects.order_by('-' + count_field, 'name')[:SUBJECTS_LIMIT])
+    # ... then show them alphabetically unless the count order was asked for
+    if order == 'name':
+        subjects.sort(key=lambda subject: subject.name.casefold())
+    return subjects
 
 def subjects(request):
     order = 'count' if request.GET.get('order') == 'count' else 'name'
     subset = 'free' if request.GET.get('subset') == 'free' else 'all'
-    cache_key = 'subjects-top-{}-{}-{}'.format(SUBJECTS_LIMIT, subset, order)
-    subjects = cache.get(cache_key)
-    if subjects is None:
-        if subset == 'free':
-            subjects = models.Subject.objects.filter(works__is_free=True).annotate(
-                Count('works__is_free'))
-            count_field = 'works__is_free__count'
-        else:
-            subjects = models.Subject.objects.annotate(Count('works'))
-            count_field = 'works__count'
-        # pick the top subjects by work count (name breaks ties) ...
-        subjects = list(subjects.order_by('-' + count_field, 'name')[:SUBJECTS_LIMIT])
-        # ... then show them alphabetically unless the count order was asked for
-        if order == 'name':
-            subjects.sort(key=lambda subject: subject.name.casefold())
-        cache.set(cache_key, subjects, SUBJECTS_CACHE_SECONDS)
-
     return render(request, 'subjects.html', {
-        'subjects': subjects,
+        # The template calls this only when its cached fragment has expired,
+        # so a cache hit runs no subject queries at all (including the
+        # per-row counts the free subset shows).
+        'subjects': functools.partial(top_subjects, subset, order),
+        'subset': subset,
+        'order': order,
         'subjects_limit': SUBJECTS_LIMIT,
+        'subjects_cache_seconds': SUBJECTS_CACHE_SECONDS,
     })
 
 class MapSubjectView(FormView):
