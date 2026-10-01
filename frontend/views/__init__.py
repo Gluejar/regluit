@@ -24,6 +24,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.views import redirect_to_login
 from django.contrib.sites.models import Site
 from django.core import signing
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.files.storage import default_storage
 from django.core.mail import EmailMessage
@@ -642,24 +643,36 @@ def googlebooks(request, googlebooks_id):
 
     return HttpResponseRedirect(work_url)
 
-def subjects(request):
-    order = request.GET.get('order')
-    subjects = models.Subject.objects.all()
-    subjects = subjects
-    if request.GET.get('subset') == 'free':
-        subjects = models.Subject.objects.filter(works__is_free = True).annotate(Count('works__is_free'))
-        if request.GET.get('order') == 'count':
-            subjects = subjects.order_by('-works__is_free__count')
-        else:
-            subjects = subjects.order_by('name')
-    else:
-        subjects = models.Subject.objects.all().annotate(Count('works'))
-        if request.GET.get('order') == 'count':
-            subjects = subjects.order_by('-works__count')
-        else:
-            subjects = subjects.order_by('name')
+# /subjects/ used to count works for every subject on every request, which took
+# 30 s or more on prod. Only the most-used subjects are listed, and the list is
+# cached; the default (per-process) cache is enough for a page this rarely visited.
+SUBJECTS_LIMIT = 100
+SUBJECTS_CACHE_SECONDS = 60 * 60
 
-    return render(request, 'subjects.html', {'subjects': subjects})
+def subjects(request):
+    order = 'count' if request.GET.get('order') == 'count' else 'name'
+    subset = 'free' if request.GET.get('subset') == 'free' else 'all'
+    cache_key = 'subjects-top-{}-{}-{}'.format(SUBJECTS_LIMIT, subset, order)
+    subjects = cache.get(cache_key)
+    if subjects is None:
+        if subset == 'free':
+            subjects = models.Subject.objects.filter(works__is_free=True).annotate(
+                Count('works__is_free'))
+            count_field = 'works__is_free__count'
+        else:
+            subjects = models.Subject.objects.annotate(Count('works'))
+            count_field = 'works__count'
+        # pick the top subjects by work count (name breaks ties) ...
+        subjects = list(subjects.order_by('-' + count_field, 'name')[:SUBJECTS_LIMIT])
+        # ... then show them alphabetically unless the count order was asked for
+        if order == 'name':
+            subjects.sort(key=lambda subject: subject.name.casefold())
+        cache.set(cache_key, subjects, SUBJECTS_CACHE_SECONDS)
+
+    return render(request, 'subjects.html', {
+        'subjects': subjects,
+        'subjects_limit': SUBJECTS_LIMIT,
+    })
 
 class MapSubjectView(FormView):
     """
