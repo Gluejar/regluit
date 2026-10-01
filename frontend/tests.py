@@ -755,6 +755,17 @@ class FacetedDeepPageCapTests(TestCase):
                 r = self.client.get(url, {"work_list": 11})
                 self.assertEqual(r.status_code, 404)
 
+    def test_no_page_links_past_cap(self):
+        # enough free works that page 10 has results and a page 11 exists
+        for i in range(11 * 20):
+            Work.objects.create(title="Deep work %03d" % i, language='en', is_free=True)
+        r = self.client.get("/free/", {"work_list": 9})
+        self.assertContains(r, "work_list=10")
+        r = self.client.get("/free/", {"work_list": 10})
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, "Deep work")
+        self.assertNotContains(r, "work_list=11")
+
     def test_past_cap_refused_before_facet_lookup(self):
         with mock.patch("regluit.frontend.views.get_facet_object",
                         side_effect=AssertionError("facet lookup ran")):

@@ -691,6 +691,8 @@ class FacetedView(FilterableListView):
         context['order_by'] = order_by if order_by in ORDER_BY_KEYS else 'newest'
 
         context['view_as'] = self.request.GET.get('view_as', None)
+        # the template leaves out page links past the cap, which would 404
+        context['max_page'] = self.max_page
         return context
 
     # Deepest ?work_list= page served on /free/ and /creativecommons/ (20 works

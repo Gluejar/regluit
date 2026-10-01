@@ -89,7 +89,9 @@
                         <div class="pagination content-block-heading tabs-{{ activetab }}">
                             {% get_pages %}
                             {% for page in pages %}
+                                {% if page.number <= max_page %}
                                 <a href="{{ page.path }}#1" class="endless_page_link">{{ page.number }}</a>
+                                {% endif %}
                             {% endfor %}
                         </div>
                         {% endif %}
