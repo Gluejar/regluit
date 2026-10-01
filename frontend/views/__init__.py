@@ -696,9 +696,11 @@ class FacetedView(FilterableListView):
     # Deepest ?work_list= page served on /free/ and /creativecommons/ (20 works
     # per page, from lazy_paginate in faceted_list.html). Deep pages are slow
     # because OFFSET makes the database walk every earlier row (#1253, #1265),
-    # and on prod nearly all of that traffic is crawlers. 50 is provisional
-    # pending human page-depth numbers.
-    max_page = 50
+    # and on prod nearly all of that traffic is crawlers. 10 pages (200 works)
+    # is the cap Eric chose on 2026-10-01; readers who want more can narrow
+    # the list by format, license, language or publisher, and each narrowed
+    # list gets its own 10 pages.
+    max_page = 10
 
     def get(self, request, *args, **kwargs):
         # Parse the page the same way the paginator will, so junk values

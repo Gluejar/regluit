@@ -740,9 +740,20 @@ class FacetedDeepPageCapTests(TestCase):
         self.assertContains(r, "work_list=2")
         self.assertEqual(self.client.get("/free/?work_list=2").status_code, 200)
 
+    def test_cap_is_page_10(self):
+        self.assertEqual(FacetedView.max_page, 10)
+
     def test_page_at_cap_is_served(self):
-        r = self.client.get("/free/epub/?work_list=%d" % FacetedView.max_page)
-        self.assertEqual(r.status_code, 200)
+        for url in ("/free/", "/free/epub/", "/creativecommons/"):
+            with self.subTest(url=url):
+                r = self.client.get(url, {"work_list": 10})
+                self.assertEqual(r.status_code, 200)
+
+    def test_page_past_cap_is_404(self):
+        for url in ("/free/", "/free/epub/", "/creativecommons/"):
+            with self.subTest(url=url):
+                r = self.client.get(url, {"work_list": 11})
+                self.assertEqual(r.status_code, 404)
 
     def test_past_cap_refused_before_facet_lookup(self):
         with mock.patch("regluit.frontend.views.get_facet_object",
