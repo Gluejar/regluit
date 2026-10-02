@@ -155,11 +155,11 @@ class PageTests(TestCase):
 class AllFacetAliasTests(TestCase):
     fixtures = ['initial_data.json', 'neuromancer.json']
 
-    def test_removed_keyword_paths_return_404(self):
+    def test_all_keyword_alias_matches_keyword_path(self):
         plain = self.client.get("/free/kw.Fiction/?order_by=newest")
         alias = self.client.get("/free/all/kw.Fiction/?order_by=newest")
-        self.assertEqual(plain.status_code, 404)
-        self.assertEqual(alias.status_code, 404)
+        self.assertEqual(plain.status_code, 200)
+        self.assertEqual(alias.status_code, 200)
 
     def test_all_non_keyword_alias_matches_compound_path(self):
         plain = self.client.get("/free/epub/doab/?order_by=newest")
@@ -171,11 +171,17 @@ class FacetIsolationTests(TestCase):
     """Tests for #1110: keyword/subject facets cannot combine with other facets."""
     fixtures = ['initial_data.json', 'neuromancer.json']
 
-    def test_base_free_page_omits_keywords(self):
-        """The base /free/ page should not advertise keyword facets."""
+    def test_base_free_page_offers_keywords(self):
+        """The base /free/ page should offer keyword facets in the sidebar."""
         r = self.client.get("/free/")
         self.assertEqual(r.status_code, 200)
-        self.assertNotContains(r, "Keyword")
+        self.assertContains(r, "Keyword")
+
+    def test_keyword_page_no_refine_sidebar(self):
+        """A keyword facet page should NOT offer further facet refinement."""
+        r = self.client.get("/free/kw.Fiction/")
+        self.assertEqual(r.status_code, 200)
+        self.assertNotContains(r, "Show me only")
 
     def test_non_keyword_page_excludes_keywords(self):
         """A non-keyword facet page should offer refinement but NOT keywords."""
@@ -184,9 +190,9 @@ class FacetIsolationTests(TestCase):
         self.assertContains(r, "Show me only")
         self.assertNotContains(r, "Keyword")
 
-    def test_removed_keyword_path_returns_404(self):
+    def test_single_keyword_still_works(self):
         r = self.client.get("/free/kw.Fiction/")
-        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.status_code, 200)
 
     def test_keyword_compound_returns_404(self):
         r = self.client.get("/free/kw.Fiction/epub/")
@@ -196,9 +202,9 @@ class FacetIsolationTests(TestCase):
         r = self.client.get("/free/epub/kw.Fiction/")
         self.assertEqual(r.status_code, 404)
 
-    def test_removed_keyword_with_all_prefix_returns_404(self):
+    def test_keyword_with_all_prefix_still_works(self):
         r = self.client.get("/free/all/kw.Fiction/")
-        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.status_code, 200)
 
     def test_non_keyword_compound_still_works(self):
         r = self.client.get("/free/epub/doab/")
@@ -1304,10 +1310,6 @@ class RobotsTxtTests(TestCase):
         for path in self.BASELINE_DISALLOWS:
             self.assertIn(path, groups["*"]["disallow"])
         self.assertNotIn("/", groups["*"]["disallow"])
-        # #1095: keyword facet pages now 404; keep crawlers from retrying the
-        # retired URLs. Named groups need no copy: ClaudeBot already excludes
-        # all of /free/ and the blocked agents are disallowed outright.
-        self.assertIn("/free/kw.", groups["*"]["disallow"])
 
         # ClaudeBot is throttled, not blocked, so work pages stay crawlable --
         # but every expensive path must be excluded, since those exclusions
