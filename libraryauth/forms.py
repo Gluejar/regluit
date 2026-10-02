@@ -1,11 +1,10 @@
 import logging
-from random import randint
 
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.models import User
-from django.core.cache import cache
+from django.utils.crypto import constant_time_compare, salted_hmac
 from django.utils.translation import gettext_lazy as _
 
 
@@ -33,17 +32,12 @@ from .models import Library
 
 logger = logging.getLogger(__name__)
 
-rands = [randint(0,99) for i in range(0, 21)]
-encoder = {k:v for (k,v) in zip(range(0, 21), rands)}
-decoder = {v:k for (k,v) in zip(range(0, 21), rands)}
-
-encode_answers = cache.get('encode_answers')
-decode_answers = cache.get('decode_answers')
-if not encode_answers:
-    cache.set('encode_answers', encoder, None)
-if not decode_answers:
-    cache.set('decode_answers', decoder, None)
-    decode_answers = decoder
+def encode_answer(answer):
+    """ The hidden "tries" code for a not-a-robot answer.
+    Derived from SECRET_KEY rather than a random table kept in the per-process cache,
+    so the page can be rendered by one server process and checked by another.
+    """
+    return salted_hmac('regluit.libraryauth.notarobot', str(answer), algorithm='sha256').hexdigest()
 
 
 class UserData(forms.Form):
@@ -85,7 +79,6 @@ class UserNamePass(UserData):
         },   
         widget=forms.TextInput(attrs={'style': 'width: 2em'}),
     )
-    encode_answers = cache.get('encode_answers')
 
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1", "")
@@ -100,9 +93,8 @@ class UserNamePass(UserData):
             notarobot = int(self.data["notarobot"])
         except (ValueError, TypeError, KeyError):
             raise forms.ValidationError("(Hint: it's addition)")
-        encoded_answer = self.encode_answers.get(notarobot, 'miss')
-        tries = self.data.get("tries", -1)
-        if str(encoded_answer) != tries:
+        tries = self.data.get("tries", "")
+        if not constant_time_compare(encode_answer(notarobot), tries):
             raise forms.ValidationError("(Hint: it's addition)")
 
         return notarobot
