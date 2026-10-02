@@ -102,6 +102,17 @@ class FeedTests(TestCase):
         r = self.client.get('/api/onix/kw.Fiction/epub/')
         self.assertEqual(r.status_code, 404)
 
+    def test_keyword_feeds_with_work_param(self):
+        # A compound keyword path 404s even with ?work= (that early return used
+        # to skip facet validation); a single keyword still serves the work.
+        for feed in ('opds', 'opdsjson', 'onix'):
+            for path, status in (('kw.Fiction/epub', 404), ('epub/kw.Fiction', 404),
+                                 ('kw.Fiction/kw.Science', 404), ('kw.Fiction', 200),
+                                 ('all/kw.Fiction', 200)):
+                url = '/api/%s/%s/?work=%s' % (feed, path, self.test_work_id)
+                with self.subTest(url=url):
+                    self.assertEqual(self.client.get(url).status_code, status)
+
 
     def test_nix(self):
         r = self.client.get('/api/onix/by/')
