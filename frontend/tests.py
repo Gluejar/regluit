@@ -1180,6 +1180,93 @@ class LoginDoubleSubmitGuardTests(TestCase):
         )
 
 
+
+from unittest import mock
+from django.core.cache import cache
+from regluit.frontend import views as frontend_views
+
+
+class SubjectsTopListTests(TestCase):
+    """/subjects/ lists only the most-used subjects, and caches the rendered list."""
+
+    def setUp(self):
+        cache.clear()
+        self.addCleanup(cache.clear)
+
+    def _subject(self, name, n_works, n_free=0):
+        subject = Subject.objects.create(name=name)
+        for i in range(n_works):
+            work = Work.objects.create(title="%s %s" % (name, i), is_free=i < n_free)
+            subject.works.add(work)
+        return subject
+
+    def _names(self, url):
+        cache.clear()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        # the view hands the template a callable, evaluated on a cache miss
+        return [subject.name for subject in response.context['subjects']()]
+
+    def test_limits_to_top_subjects_by_count(self):
+        self._subject("Big", 3)
+        self._subject("Middle", 2)
+        self._subject("Small", 1)
+        with mock.patch.object(frontend_views, 'SUBJECTS_LIMIT', 2):
+            # the top two by count, shown alphabetically by default
+            self.assertEqual(self._names("/subjects/"), ["Big", "Middle"])
+            self.assertEqual(self._names("/subjects/?order=count"), ["Big", "Middle"])
+            response = self.client.get("/subjects/")
+        self.assertContains(response, "Only the 2 most-used keywords")
+        self.assertContains(response, "Middle")
+        self.assertNotContains(response, "Small")
+
+    def test_count_order_and_name_order(self):
+        self._subject("Apple", 1)
+        self._subject("banana", 3)
+        self._subject("Cherry", 2)
+        self.assertEqual(self._names("/subjects/"), ["Apple", "banana", "Cherry"])
+        self.assertEqual(self._names("/subjects/?order=count"), ["banana", "Cherry", "Apple"])
+
+    def test_default_limit_is_100(self):
+        self.assertEqual(frontend_views.SUBJECTS_LIMIT, 100)
+        for i in range(101):
+            Subject.objects.create(name="Subject %03d" % i).works.add(
+                Work.objects.create(title="Work %03d" % i))
+        self.assertEqual(len(self._names("/subjects/")), 100)
+        self.assertContains(self.client.get("/subjects/"), "Only the 100 most-used keywords")
+
+    def test_free_subset_ranks_by_free_works(self):
+        self._subject("Many works, one free", 4, n_free=1)
+        self._subject("Two free", 2, n_free=2)
+        self._subject("None free", 5, n_free=0)
+        self.assertEqual(self._names("/subjects/?subset=free&order=count"),
+                         ["Two free", "Many works, one free"])
+        self.assertEqual(self._names("/subjects/?subset=free"),
+                         ["Many works, one free", "Two free"])
+        cache.clear()
+        response = self.client.get("/subjects/?subset=free")
+        self.assertContains(response, "1 free out of 4")
+        self.assertNotContains(response, "None free")
+
+    def test_rendered_list_is_cached(self):
+        self._subject("Cached", 1)
+        with mock.patch.object(frontend_views, 'top_subjects',
+                               wraps=frontend_views.top_subjects) as top:
+            self.assertContains(self.client.get("/subjects/"), "Cached")
+            self.assertEqual(top.call_count, 1)
+            self._subject("Added later", 5)
+            # a cache hit runs no subject queries and shows the cached list
+            response = self.client.get("/subjects/")
+            self.assertEqual(top.call_count, 1)
+            self.assertNotContains(response, "Added later")
+            # each subset/order combination has its own cache entry
+            self.assertContains(self.client.get("/subjects/?order=count"), "Added later")
+            self.assertEqual(top.call_count, 2)
+            # junk parameter values share the default entry
+            self.client.get("/subjects/?order=junk&subset=junk")
+            self.assertEqual(top.call_count, 2)
+
+
 from django.test import override_settings
 
 

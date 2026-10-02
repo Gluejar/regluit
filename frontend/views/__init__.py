@@ -643,24 +643,41 @@ def googlebooks(request, googlebooks_id):
 
     return HttpResponseRedirect(work_url)
 
-def subjects(request):
-    order = request.GET.get('order')
-    subjects = models.Subject.objects.all()
-    subjects = subjects
-    if request.GET.get('subset') == 'free':
-        subjects = models.Subject.objects.filter(works__is_free = True).annotate(Count('works__is_free'))
-        if request.GET.get('order') == 'count':
-            subjects = subjects.order_by('-works__is_free__count')
-        else:
-            subjects = subjects.order_by('name')
-    else:
-        subjects = models.Subject.objects.all().annotate(Count('works'))
-        if request.GET.get('order') == 'count':
-            subjects = subjects.order_by('-works__count')
-        else:
-            subjects = subjects.order_by('name')
+# /subjects/ used to count works for every subject on every request, which took
+# 30 s or more on prod. Only the most-used subjects are listed, and the rendered
+# list is cached by subjects.html ({% cache %}, keyed on subset, order and staff
+# status); the default (per-process) cache is enough for a page this rarely visited.
+SUBJECTS_LIMIT = 100
+SUBJECTS_CACHE_SECONDS = 60 * 60
 
-    return render(request, 'subjects.html', {'subjects': subjects})
+def top_subjects(subset, order):
+    if subset == 'free':
+        subjects = models.Subject.objects.filter(works__is_free=True).annotate(
+            Count('works__is_free'))
+        count_field = 'works__is_free__count'
+    else:
+        subjects = models.Subject.objects.annotate(Count('works'))
+        count_field = 'works__count'
+    # pick the top subjects by work count (name breaks ties) ...
+    subjects = list(subjects.order_by('-' + count_field, 'name')[:SUBJECTS_LIMIT])
+    # ... then show them alphabetically unless the count order was asked for
+    if order == 'name':
+        subjects.sort(key=lambda subject: subject.name.casefold())
+    return subjects
+
+def subjects(request):
+    order = 'count' if request.GET.get('order') == 'count' else 'name'
+    subset = 'free' if request.GET.get('subset') == 'free' else 'all'
+    return render(request, 'subjects.html', {
+        # The template calls this only when its cached fragment has expired,
+        # so a cache hit runs no subject queries at all (including the
+        # per-row counts the free subset shows).
+        'subjects': functools.partial(top_subjects, subset, order),
+        'subset': subset,
+        'order': order,
+        'subjects_limit': SUBJECTS_LIMIT,
+        'subjects_cache_seconds': SUBJECTS_CACHE_SECONDS,
+    })
 
 class MapSubjectView(FormView):
     """
