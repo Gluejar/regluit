@@ -1180,6 +1180,93 @@ class LoginDoubleSubmitGuardTests(TestCase):
         )
 
 
+
+from unittest import mock
+from django.core.cache import cache
+from regluit.frontend import views as frontend_views
+
+
+class SubjectsTopListTests(TestCase):
+    """/subjects/ lists only the most-used subjects, and caches the rendered list."""
+
+    def setUp(self):
+        cache.clear()
+        self.addCleanup(cache.clear)
+
+    def _subject(self, name, n_works, n_free=0):
+        subject = Subject.objects.create(name=name)
+        for i in range(n_works):
+            work = Work.objects.create(title="%s %s" % (name, i), is_free=i < n_free)
+            subject.works.add(work)
+        return subject
+
+    def _names(self, url):
+        cache.clear()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        # the view hands the template a callable, evaluated on a cache miss
+        return [subject.name for subject in response.context['subjects']()]
+
+    def test_limits_to_top_subjects_by_count(self):
+        self._subject("Big", 3)
+        self._subject("Middle", 2)
+        self._subject("Small", 1)
+        with mock.patch.object(frontend_views, 'SUBJECTS_LIMIT', 2):
+            # the top two by count, shown alphabetically by default
+            self.assertEqual(self._names("/subjects/"), ["Big", "Middle"])
+            self.assertEqual(self._names("/subjects/?order=count"), ["Big", "Middle"])
+            response = self.client.get("/subjects/")
+        self.assertContains(response, "Only the 2 most-used keywords")
+        self.assertContains(response, "Middle")
+        self.assertNotContains(response, "Small")
+
+    def test_count_order_and_name_order(self):
+        self._subject("Apple", 1)
+        self._subject("banana", 3)
+        self._subject("Cherry", 2)
+        self.assertEqual(self._names("/subjects/"), ["Apple", "banana", "Cherry"])
+        self.assertEqual(self._names("/subjects/?order=count"), ["banana", "Cherry", "Apple"])
+
+    def test_default_limit_is_100(self):
+        self.assertEqual(frontend_views.SUBJECTS_LIMIT, 100)
+        for i in range(101):
+            Subject.objects.create(name="Subject %03d" % i).works.add(
+                Work.objects.create(title="Work %03d" % i))
+        self.assertEqual(len(self._names("/subjects/")), 100)
+        self.assertContains(self.client.get("/subjects/"), "Only the 100 most-used keywords")
+
+    def test_free_subset_ranks_by_free_works(self):
+        self._subject("Many works, one free", 4, n_free=1)
+        self._subject("Two free", 2, n_free=2)
+        self._subject("None free", 5, n_free=0)
+        self.assertEqual(self._names("/subjects/?subset=free&order=count"),
+                         ["Two free", "Many works, one free"])
+        self.assertEqual(self._names("/subjects/?subset=free"),
+                         ["Many works, one free", "Two free"])
+        cache.clear()
+        response = self.client.get("/subjects/?subset=free")
+        self.assertContains(response, "1 free out of 4")
+        self.assertNotContains(response, "None free")
+
+    def test_rendered_list_is_cached(self):
+        self._subject("Cached", 1)
+        with mock.patch.object(frontend_views, 'top_subjects',
+                               wraps=frontend_views.top_subjects) as top:
+            self.assertContains(self.client.get("/subjects/"), "Cached")
+            self.assertEqual(top.call_count, 1)
+            self._subject("Added later", 5)
+            # a cache hit runs no subject queries and shows the cached list
+            response = self.client.get("/subjects/")
+            self.assertEqual(top.call_count, 1)
+            self.assertNotContains(response, "Added later")
+            # each subset/order combination has its own cache entry
+            self.assertContains(self.client.get("/subjects/?order=count"), "Added later")
+            self.assertEqual(top.call_count, 2)
+            # junk parameter values share the default entry
+            self.client.get("/subjects/?order=junk&subset=junk")
+            self.assertEqual(top.call_count, 2)
+
+
 from django.test import override_settings
 
 
@@ -1418,3 +1505,66 @@ class RobotsTxtTests(TestCase):
                 self.assertEqual(list(groups), ["*"])
                 self.assertEqual(groups["*"]["disallow"], ["/"])
                 self.assertNotIn("ClaudeBot", body)
+
+from unittest import mock
+from regluit.frontend.views import FacetedView
+
+class FacetedDeepPageCapTests(TestCase):
+    """FacetedView (/free/, /creativecommons/) 404s ?work_list= pages past its cap
+    before looking up the facet or building the queryset (#1253, #1265)."""
+    fixtures = ['initial_data.json', 'neuromancer.json']
+
+    def setUp(self):
+        # The fixtures have no free works, and faceted_list.html only runs
+        # lazy_paginate when the list is non-empty.
+        Work.objects.update(is_free=True)
+
+    def test_pagination_still_runs(self):
+        r = self.client.get("/free/")
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, "work_list=2")
+        self.assertEqual(self.client.get("/free/?work_list=2").status_code, 200)
+
+    def test_cap_is_page_10(self):
+        self.assertEqual(FacetedView.max_page, 10)
+
+    def test_page_at_cap_is_served(self):
+        for url in ("/free/", "/free/epub/", "/creativecommons/"):
+            with self.subTest(url=url):
+                r = self.client.get(url, {"work_list": 10})
+                self.assertEqual(r.status_code, 200)
+
+    def test_page_past_cap_is_404(self):
+        for url in ("/free/", "/free/epub/", "/creativecommons/"):
+            with self.subTest(url=url):
+                r = self.client.get(url, {"work_list": 11})
+                self.assertEqual(r.status_code, 404)
+
+    def test_no_page_links_past_cap(self):
+        # enough free works that page 10 has results and a page 11 exists
+        for i in range(11 * 20):
+            Work.objects.create(title="Deep work %03d" % i, language='en', is_free=True)
+        r = self.client.get("/free/", {"work_list": 9})
+        self.assertContains(r, "work_list=10")
+        r = self.client.get("/free/", {"work_list": 10})
+        self.assertEqual(r.status_code, 200)
+        self.assertContains(r, "Deep work")
+        self.assertNotContains(r, "work_list=11")
+
+    def test_past_cap_refused_before_facet_lookup(self):
+        with mock.patch("regluit.frontend.views.get_facet_object",
+                        side_effect=AssertionError("facet lookup ran")):
+            for url in ("/free/", "/free/epub/", "/creativecommons/"):
+                with self.subTest(url=url):
+                    r = self.client.get(url, {"work_list": FacetedView.max_page + 1})
+                    self.assertEqual(r.status_code, 404)
+
+    def test_junk_values_do_not_500(self):
+        # Non-numbers fall back to page 1, as the paginator itself does;
+        # zero and negatives are left to the paginator's own fallback.
+        for value in ("abc", "", "1.5", "0", "-3", "-99999"):
+            with self.subTest(value=value):
+                r = self.client.get("/free/", {"work_list": value})
+                self.assertEqual(r.status_code, 200)
+        r = self.client.get("/free/", {"work_list": "9" * 30})
+        self.assertEqual(r.status_code, 404)

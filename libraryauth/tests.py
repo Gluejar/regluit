@@ -4,8 +4,10 @@ from bs4 import BeautifulSoup
 from django.urls import reverse
 from django.test import TestCase, RequestFactory
 from django.contrib.auth.models import User, AnonymousUser
-from django.core.cache import cache
 from django.template.loader import render_to_string
+
+from .forms import UserNamePass, encode_answer
+from .templatetags import puzzle
 
 
 class TestLibraryAuth(TestCase):
@@ -33,16 +35,15 @@ class TestLibraryAuth(TestCase):
         sends an activation email.
 
         """
-        encode_answers = cache.get('encode_answers')
         resp = self.client.post(reverse('registration_register'),
                                 data={'username': 'bob',
                                       'email': 'bob@example.com',
                                       'password1': 'secret',
                                       'password2': 'secret',
                                       'notarobot': '11',
-                                      'tries': str(encode_answers.get(11)),
+                                      'tries': encode_answer(11),
                                       })
-        self.assertRedirects(resp, reverse('registration_complete'))
+        self.assertRedirects(resp, reverse('django_registration_complete'))
 
         new_user = User.objects.get(username='bob')
 
@@ -71,6 +72,35 @@ class TestLibraryAuth(TestCase):
         from .emailcheck import is_disposable
         self.assertFalse(is_disposable('eric@hellman.net'))
         self.assertTrue(is_disposable('eric@mailnesia.com'))
+
+
+class TestNotARobotPuzzle(TestCase):
+    """The puzzle code must not depend on per-process state: on the servers the page is
+    rendered by one mod_wsgi process and often checked by another."""
+
+    def notarobot_errors(self, answer, tries):
+        form = UserNamePass(data={'notarobot': str(answer), 'tries': tries})
+        form.is_valid()
+        return form.errors.get('notarobot')
+
+    def test_rendered_puzzle_accepted(self):
+        glyph_to_int = {glyph: n for n, glyph in puzzle.digits.items()}
+        for _ in range(20):
+            context = {}
+            puzzle.puzz(context)
+            answer = glyph_to_int[context['puzznum1']] + glyph_to_int[context['puzznum2']]
+            self.assertIsNone(self.notarobot_errors(answer, context['puzzans']))
+
+    def test_every_answer_has_its_own_code(self):
+        self.assertEqual(len({encode_answer(n) for n in range(21)}), 21)
+
+    def test_wrong_answer_rejected(self):
+        self.assertIsNotNone(self.notarobot_errors(12, encode_answer(11)))
+
+    def test_tampered_or_missing_code_rejected(self):
+        self.assertIsNotNone(self.notarobot_errors(11, encode_answer(11)[:-1] + 'x'))
+        self.assertIsNotNone(self.notarobot_errors(11, '11'))
+        self.assertIsNotNone(self.notarobot_errors(11, ''))
 
 
 class TestAppConfigSignalsWired(TestCase):

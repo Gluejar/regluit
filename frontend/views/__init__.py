@@ -12,6 +12,7 @@ import requests
 from datetime import timedelta, date, datetime
 from decimal import Decimal as D
 from itertools import chain
+from el_pagination.utils import get_page_number_from_request
 from notification import models as notification
 from random import randint
 #django imports
@@ -642,24 +643,41 @@ def googlebooks(request, googlebooks_id):
 
     return HttpResponseRedirect(work_url)
 
-def subjects(request):
-    order = request.GET.get('order')
-    subjects = models.Subject.objects.all()
-    subjects = subjects
-    if request.GET.get('subset') == 'free':
-        subjects = models.Subject.objects.filter(works__is_free = True).annotate(Count('works__is_free'))
-        if request.GET.get('order') == 'count':
-            subjects = subjects.order_by('-works__is_free__count')
-        else:
-            subjects = subjects.order_by('name')
-    else:
-        subjects = models.Subject.objects.all().annotate(Count('works'))
-        if request.GET.get('order') == 'count':
-            subjects = subjects.order_by('-works__count')
-        else:
-            subjects = subjects.order_by('name')
+# /subjects/ used to count works for every subject on every request, which took
+# 30 s or more on prod. Only the most-used subjects are listed, and the rendered
+# list is cached by subjects.html ({% cache %}, keyed on subset, order and staff
+# status); the default (per-process) cache is enough for a page this rarely visited.
+SUBJECTS_LIMIT = 100
+SUBJECTS_CACHE_SECONDS = 60 * 60
 
-    return render(request, 'subjects.html', {'subjects': subjects})
+def top_subjects(subset, order):
+    if subset == 'free':
+        subjects = models.Subject.objects.filter(works__is_free=True).annotate(
+            Count('works__is_free'))
+        count_field = 'works__is_free__count'
+    else:
+        subjects = models.Subject.objects.annotate(Count('works'))
+        count_field = 'works__count'
+    # pick the top subjects by work count (name breaks ties) ...
+    subjects = list(subjects.order_by('-' + count_field, 'name')[:SUBJECTS_LIMIT])
+    # ... then show them alphabetically unless the count order was asked for
+    if order == 'name':
+        subjects.sort(key=lambda subject: subject.name.casefold())
+    return subjects
+
+def subjects(request):
+    order = 'count' if request.GET.get('order') == 'count' else 'name'
+    subset = 'free' if request.GET.get('subset') == 'free' else 'all'
+    return render(request, 'subjects.html', {
+        # The template calls this only when its cached fragment has expired,
+        # so a cache hit runs no subject queries at all (including the
+        # per-row counts the free subset shows).
+        'subjects': functools.partial(top_subjects, subset, order),
+        'subset': subset,
+        'order': order,
+        'subjects_limit': SUBJECTS_LIMIT,
+        'subjects_cache_seconds': SUBJECTS_CACHE_SECONDS,
+    })
 
 class MapSubjectView(FormView):
     """
@@ -782,7 +800,27 @@ class FacetedView(FilterableListView):
         context['order_by'] = order_by if order_by in ORDER_BY_KEYS else 'newest'
 
         context['view_as'] = self.request.GET.get('view_as', None)
+        # the template leaves out page links past the cap, which would 404
+        context['max_page'] = self.max_page
         return context
+
+    # Deepest ?work_list= page served on /free/ and /creativecommons/ (20 works
+    # per page, from lazy_paginate in faceted_list.html). Deep pages are slow
+    # because OFFSET makes the database walk every earlier row (#1253, #1265),
+    # and on prod nearly all of that traffic is crawlers. 10 pages (200 works)
+    # is the cap Eric chose on 2026-10-01; readers who want more can narrow
+    # the list by format, license, language or publisher, and each narrowed
+    # list gets its own 10 pages.
+    max_page = 10
+
+    def get(self, request, *args, **kwargs):
+        # Parse the page the same way the paginator will, so junk values
+        # still fall back to page 1; refuse before any facet or query work.
+        if not self.send_marc:
+            page = get_page_number_from_request(request, querystring_key='work_list')
+            if page > self.max_page:
+                raise Http404("Page too deep; narrow the list with a facet instead.")
+        return super().get(request, *args, **kwargs)
 
 
 class ByPubView(WorkListView):
