@@ -1568,3 +1568,56 @@ class FacetedDeepPageCapTests(TestCase):
                 self.assertEqual(r.status_code, 200)
         r = self.client.get("/free/", {"work_list": "9" * 30})
         self.assertEqual(r.status_code, 404)
+
+
+class SearchWithoutTurnstileTokenTests(TestCase):
+    """A search link with no Turnstile token (the author links on book pages)
+    shows unglue.it's own matches and never calls Google Books. (#1276)"""
+
+    def setUp(self):
+        from regluit.core.models import Author, Edition, Relation, Relator
+        # Edition.add_author relies on the 'aut' relation having id 1, which
+        # holds on a real database but not in every test transaction.
+        author = Author.objects.create(name="Ada Linked")
+        aut = Relation.objects.get_or_create(code='aut')[0]
+        self.work = Work.objects.create(title="Linked Author Book", is_free=True)
+        not_free = Work.objects.create(title="Linked Author Unfree", is_free=False)
+        for work in (self.work, not_free):
+            edition = Edition.objects.create(title=work.title, work=work)
+            Relator.objects.create(author=author, edition=edition, relation=aut)
+
+    def _search(self, query, validated):
+        with mock.patch.object(frontend_views.cf, 'validate', return_value=validated), \
+                mock.patch.object(frontend_views, 'gluejar_search', return_value=[]) as google:
+            response = self.client.get("/search/?" + query)
+        self.assertEqual(response.status_code, 200)
+        return response, google
+
+    def test_author_link_without_token_shows_our_works(self):
+        response, google = self._search("q=Ada%20Linked&ty=au", validated=False)
+        self.assertEqual([w.id for w in response.context['ug_works']], [self.work.id])
+        self.assertContains(response, "Linked Author Book")
+        self.assertNotContains(response, "Linked Author Unfree")
+        google.assert_not_called()
+
+    def test_title_search_without_token_shows_our_works(self):
+        response, google = self._search("q=Linked%20Author%20B", validated=False)
+        self.assertEqual([w.id for w in response.context['ug_works']], [self.work.id])
+        google.assert_not_called()
+
+    def test_no_match_without_token_is_an_empty_page_and_no_google(self):
+        response, google = self._search("q=Nobody%20Here&ty=au", validated=False)
+        self.assertEqual(list(response.context['ug_works']), [])
+        self.assertEqual(list(response.context['results']), [])
+        google.assert_not_called()
+
+    def test_without_token_the_query_is_not_stored_in_the_session(self):
+        self._search("q=Ada%20Linked&ty=au", validated=False)
+        self.assertNotIn('q', self.client.session)
+
+    def test_with_token_google_is_still_asked(self):
+        response, google = self._search("q=Ada%20Linked&ty=au", validated=True)
+        self.assertEqual([w.id for w in response.context['ug_works']], [self.work.id])
+        google.assert_called_once()
+        self.assertEqual(self.client.session.get('q'), "Ada Linked")
+
