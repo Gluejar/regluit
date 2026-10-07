@@ -455,7 +455,7 @@
                                         {% if work.subjects.all.count > 0 %}
                                             <ul id="kw_list">
                                             {% for subject in work.subjects.all %}
-                                                <li itemprop="keywords"><a href="{% url 'free' %}kw.{{ subject.name|urlencode }}/">{{ subject.name }}</a> 
+                                                <li itemprop="keywords">{% if '/' in subject.name %}{{ subject.name }}{% else %}<a href="{% url 'free' %}kw.{{ subject.name|urlencode }}/">{{ subject.name }}</a>{% endif %} 
                                                 {% if user.is_staff or user in work.last_campaign.managers.all %}
                                                     <span class="deletebutton" data="{{ subject.name }}">x</span>
                                                 {% endif %}
