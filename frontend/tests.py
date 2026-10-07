@@ -1568,3 +1568,29 @@ class FacetedDeepPageCapTests(TestCase):
                 self.assertEqual(r.status_code, 200)
         r = self.client.get("/free/", {"work_list": "9" * 30})
         self.assertEqual(r.status_code, 404)
+
+
+class WorkPageKeywordLinkTests(TestCase):
+    """A book page links each of its keywords to that keyword's list of free books. (#1278)"""
+
+    def setUp(self):
+        from django.core.cache import cache
+        cache.clear()
+        self.addCleanup(cache.clear)
+        self.work = Work.objects.create(title="Keyworded work", language='en', is_free=True)
+        for name in ("Fiction", "Science Fiction", "What next? 100% #1"):
+            Subject.objects.create(name=name).works.add(self.work)
+
+    def test_keywords_link_to_their_keyword_pages(self):
+        response = self.client.get("/work/%s/" % self.work.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<a href="/free/kw.Fiction/">Fiction</a>')
+        self.assertContains(response, '<a href="/free/kw.Science%20Fiction/">Science Fiction</a>')
+        # characters that would otherwise end or corrupt the URL are escaped
+        self.assertContains(response, '<a href="/free/kw.What%20next%3F%20100%25%20%231/">')
+
+    def test_a_linked_keyword_page_loads_and_lists_the_work(self):
+        response = self.client.get("/free/kw.Science%20Fiction/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Keyworded work")
+
