@@ -1620,4 +1620,34 @@ class SearchWithoutTurnstileTokenTests(TestCase):
         self.assertEqual([w.id for w in response.context['ug_works']], [self.work.id])
         google.assert_called_once()
         self.assertEqual(self.client.session.get('q'), "Ada Linked")
+class WorkPageKeywordLinkTests(TestCase):
+    """A book page links each of its keywords to that keyword's list of free books. (#1278)"""
+
+    def setUp(self):
+        from django.core.cache import cache
+        cache.clear()
+        self.addCleanup(cache.clear)
+        self.work = Work.objects.create(title="Keyworded work", language='en', is_free=True)
+        for name in ("Fiction", "Science Fiction", "What next? 100% #1", "Art/Design"):
+            Subject.objects.create(name=name).works.add(self.work)
+
+    def test_keywords_link_to_their_keyword_pages(self):
+        response = self.client.get("/work/%s/" % self.work.id)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<a href="/free/kw.Fiction/">Fiction</a>')
+        self.assertContains(response, '<a href="/free/kw.Science%20Fiction/">Science Fiction</a>')
+        # characters that would otherwise end or corrupt the URL are escaped
+        self.assertContains(response, '<a href="/free/kw.What%20next%3F%20100%25%20%231/">')
+
+    def test_keyword_with_a_slash_is_shown_without_a_link(self):
+        # the keyword URL cannot carry a slash (the path is split on it), so a
+        # link would be broken; the keyword is still listed
+        response = self.client.get("/work/%s/" % self.work.id)
+        self.assertContains(response, '<li itemprop="keywords">Art/Design')
+        self.assertNotContains(response, 'kw.Art')
+
+    def test_a_linked_keyword_page_loads_and_lists_the_work(self):
+        response = self.client.get("/free/kw.Science%20Fiction/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Keyworded work")
 
