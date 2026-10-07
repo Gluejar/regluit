@@ -1522,17 +1522,13 @@ def search(request):
     """
     q = request.GET.get('q', '').strip()
     ty = request.GET.get('ty', 'g')  # ge= 'general, au= 'author'
-    if not cf.validate(request):
-        context = {
-            "q": q,
-            "ty": ty,
-            "results": [],
-            "ug_works": [],
-            "ug_more": 'no',
-        }
-        return render(request, 'search.html', context)
-
-    request.session['q'] = q
+    # Google Books lookups are only for visitors who passed the Turnstile check
+    # on the search form. A plain link (the author links on book pages, a
+    # shared search URL) carries no token; it still gets unglue.it's own
+    # matches, which cost a database lookup and none of the Google quota. (#1276)
+    use_google = cf.validate(request)
+    if use_google:
+        request.session['q'] = q
     gbo = request.GET.get('gbo', '0') # gbo says where to start
     try:
         page = int(request.GET.get('page', 1))
@@ -1565,14 +1561,17 @@ def search(request):
         ug_more = 'no'
         page = 1
 
-        if is_bad_robot(request):
+        if not use_google or is_bad_robot(request):
             results = models.Work.objects.none()
         else:
             results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=gbpage)
 
     elif not ug_works[10:11]:
         ug_more = 'no'
-        results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=1)
+        if use_google:
+            results = gluejar_search(q, user_ip=request.META['REMOTE_ADDR'], page=1)
+        else:
+            results = models.Work.objects.none()
 
     else:
         ug_more = 'yes'
