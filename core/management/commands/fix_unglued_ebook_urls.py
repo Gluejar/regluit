@@ -18,8 +18,9 @@ from django.core.management.base import BaseCommand
 
 from regluit.core.models import Ebook, EbookFile
 
-# the removed route: ^work/(?P<work_id>\d+)/unglued/(?P<format>\w+)/$
-OLD_ADDRESS = re.compile(r'^https?://[^/]+/work/\d+/unglued/\w+/$')
+# the removed route, on our own site: ^work/(?P<work_id>\d+)/unglued/(?P<format>\w+)/$
+OLD_ADDRESS = re.compile(
+    r'^https?://(?:[\w-]+\.)*unglue\.it/work/(?P<work_id>\d+)/unglued/(?P<format>\w+)/$')
 
 
 class Command(BaseCommand):
@@ -31,15 +32,34 @@ class Command(BaseCommand):
             '--apply', action='store_true', default=False,
             help="change the records; without it the command only reports")
 
+    @staticmethod
+    def repoint(ebook, new_url):
+        """Write the new address only if the record is still active and still
+        holds the address that was read. Returns True if a row was written.
+
+        update() and not save(): only the address changes, and no signals or
+        other fields are touched."""
+        written = Ebook.objects.filter(
+            pk=ebook.pk, url=ebook.url, active=True).update(url=new_url)
+        return written == 1
+
     def handle(self, *args, **options):
         apply_changes = options['apply']
         fixed = skipped = 0
         candidates = Ebook.objects.filter(active=True, url__contains='/unglued/').order_by('id')
         for ebook in candidates:
-            if not OLD_ADDRESS.match(ebook.url):
+            match = OLD_ADDRESS.match(ebook.url)
+            if not match:
                 continue
             work = ebook.edition.work
             label = "ebook %s (work %s, %s)" % (ebook.id, work.id, ebook.format)
+
+            # the address must name this record's own book and format
+            if int(match.group('work_id')) != work.id or match.group('format') != ebook.format:
+                self.stdout.write(
+                    "SKIP %s: its address %s names a different book or format" % (label, ebook.url))
+                skipped += 1
+                continue
 
             # The removed view served the newest stored file of this format for
             # the book. Only repoint when that file is also the one linked to
@@ -59,13 +79,14 @@ class Command(BaseCommand):
                 continue
 
             new_url = newest.file.url
+            if apply_changes and not self.repoint(ebook, new_url):
+                self.stdout.write(
+                    "SKIP %s: the record changed after it was read; nothing written" % label)
+                skipped += 1
+                continue
             # the old address is printed so that the change can be put back by hand
             self.stdout.write("%s %s: %s -> %s (file %s)" % (
                 "FIXED" if apply_changes else "WOULD FIX", label, ebook.url, new_url, newest.id))
-            if apply_changes:
-                # update() and not save(): only the address changes, and no
-                # signals or other fields are touched
-                Ebook.objects.filter(pk=ebook.pk).update(url=new_url)
             fixed += 1
 
         self.stdout.write("%s %s, skipped %s%s" % (

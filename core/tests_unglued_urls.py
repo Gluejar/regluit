@@ -131,6 +131,60 @@ class FixUngluedEbookUrlsTests(TestCase):
         self.assertEqual(outside.url, 'https://example.org/books/unglued/guide.pdf')
         self.assertIn("fixed 0, skipped 0", output)
 
+    def test_address_naming_another_book_or_format_is_skipped(self):
+        # same shape as the old address, but not this record's own book and format
+        wrong_book = Ebook.objects.create(
+            edition=self.edition, format='epub', provider='Unglue.it',
+            url=OLD % (self.work.id + 999, 'epub'))
+        wrong_format = Ebook.objects.create(
+            edition=self.edition, format='mobi', provider='Unglue.it',
+            url=OLD % (self.work.id, 'pdf'))
+        self.make_file('ebf/aaa.epub', 'epub', ebook=wrong_book)
+        self.make_file('ebf/bbb.mobi', 'mobi', ebook=wrong_format)
+        output = self.run_command('--apply')
+        wrong_book.refresh_from_db()
+        wrong_format.refresh_from_db()
+        self.assertEqual(wrong_book.url, OLD % (self.work.id + 999, 'epub'))
+        self.assertEqual(wrong_format.url, OLD % (self.work.id, 'pdf'))
+        self.assertEqual(output.count("names a different book or format"), 2)
+        self.assertIn("fixed 0, skipped 2", output)
+
+    def test_same_shaped_address_on_another_site_is_never_touched(self):
+        elsewhere = Ebook.objects.create(
+            edition=self.edition, format='epub', provider='Elsewhere',
+            url='https://example.org/work/%s/unglued/epub/' % self.work.id)
+        self.make_file('ebf/aaa.epub', ebook=elsewhere)
+        output = self.run_command('--apply')
+        elsewhere.refresh_from_db()
+        self.assertEqual(elsewhere.url, 'https://example.org/work/%s/unglued/epub/' % self.work.id)
+        self.assertIn("fixed 0, skipped 0", output)
+
+    def test_the_test_site_address_counts_as_ours(self):
+        ebook = Ebook.objects.create(
+            edition=self.edition, format='epub', provider='Unglue.it',
+            url='https://test.unglue.it/work/%s/unglued/epub/' % self.work.id)
+        ebf = self.make_file('ebf/aaa.epub', ebook=ebook)
+        self.run_command('--apply')
+        ebook.refresh_from_db()
+        self.assertEqual(ebook.url, ebf.file.url)
+
+    def test_nothing_is_written_if_the_record_changed_after_it_was_read(self):
+        from regluit.core.management.commands.fix_unglued_ebook_urls import Command
+        ebook = self.make_record()
+        # someone else edits the address after the command has read the record
+        Ebook.objects.filter(pk=ebook.pk).update(url='https://example.org/edited.epub')
+        self.assertFalse(Command.repoint(ebook, 'https://example-bucket.s3.amazonaws.com/ebf/aaa.epub'))
+        ebook.refresh_from_db()
+        self.assertEqual(ebook.url, 'https://example.org/edited.epub')
+
+    def test_nothing_is_written_if_the_record_was_deactivated_after_it_was_read(self):
+        from regluit.core.management.commands.fix_unglued_ebook_urls import Command
+        ebook = self.make_record()
+        Ebook.objects.filter(pk=ebook.pk).update(active=False)
+        self.assertFalse(Command.repoint(ebook, 'https://example-bucket.s3.amazonaws.com/ebf/aaa.epub'))
+        ebook.refresh_from_db()
+        self.assertEqual(ebook.url, OLD % (self.work.id, 'epub'))
+
     def test_a_file_on_another_book_does_not_count(self):
         ebook = self.make_record()
         other_work = Work.objects.create(title="Another book", language='en')
