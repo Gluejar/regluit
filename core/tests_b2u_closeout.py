@@ -52,6 +52,7 @@ CC_URL = 'https://creativecommons.org/licenses/by-nc-nd/3.0/'
 
 # the command's own list, copied at import, before any test swaps it
 REAL_ALLOWED = dict(close_out_b2u.ALLOWED)
+REAL_PAGE_EDITS = dict(close_out_b2u.PAGE_EDITS)
 
 
 def small_epub():
@@ -219,22 +220,76 @@ class CloseOutB2UTests(TestCase):
         self.assertIn("rights lines it replaced: All rights reserved", output)
 
     def test_only_the_three_regenerated_files_are_exempt_from_the_comparison(self):
-        _, _, rewritten = close_out_b2u.add_license_page(self.original_bytes, self.campaign)
+        _, _, rewritten, pages = close_out_b2u.add_license_page(self.original_bytes, self.campaign)
         self.assertEqual(
             rewritten, {'META-INF/container.xml', 'OEBPS/content.opf', 'OEBPS/toc.ncx'})
+        self.assertEqual(pages, {})  # no page edits are listed for the test campaign
+
+    # ---- build-epub: wording on the book's own pages -------------------------
+
+    def page_edit(self, old='<p>one</p>', new='<p>one, under a %(name)s license: %(url)s</p>',
+                  name='OEBPS/one.xhtml'):
+        """list one page edit for the test campaign, for the length of a test"""
+        edits = mock.patch.dict(close_out_b2u.PAGE_EDITS, {self.campaign.id: [(name, old, new)]})
+        edits.start()
+        self.addCleanup(edits.stop)
+
+    def test_the_real_page_edits_are_one_paragraph_of_one_book(self):
+        self.assertEqual(list(REAL_PAGE_EDITS), [126])
+        (name, old, new), = REAL_PAGE_EDITS[126]
+        self.assertEqual(name, 'OEBPS/Text/copyright.html')
+        self.assertTrue(old.startswith('All rights reserved. No part of this publication'))
+        self.assertTrue(old.endswith('without the prior written permission of the Publisher.'))
+        self.assertTrue(new.startswith('Some rights reserved.'))
+
+    def test_build_epub_applies_a_listed_page_edit_and_nothing_else(self):
+        self.page_edit()
+        path = os.path.join(self.tmp, 'edited.epub')
+        output = self.run_command('build-epub', str(self.campaign.id), '--out', path)
+        book = zipfile.ZipFile(path)
+        page = book.read('OEBPS/one.xhtml').decode('utf-8')
+        self.assertEqual(page, PAGE % (
+            'one, under a Creative Commons Attribution-NonCommercial-NoDerivs 3.0 Unported '
+            '(CC BY-NC-ND 3.0) license: ' + CC_URL))
+        # the other page of the book is untouched, and so is the stored original
+        self.assertEqual(book.read('OEBPS/title.xhtml').decode('utf-8'), PAGE % 'title')
+        self.assertEqual(self.stored_original(), self.original_bytes)
+        self.assertIn("page edited: OEBPS/one.xhtml", output)
+        self.assertIn("was: <p>one</p>", output)
+
+    def test_build_epub_refuses_when_the_text_to_replace_is_not_there(self):
+        self.page_edit(old='<p>not in the book</p>')
+        path = os.path.join(self.tmp, 'x.epub')
+        with self.assertRaisesMessage(CommandError, "found 0 times in OEBPS/one.xhtml, expected once"):
+            self.run_command('build-epub', str(self.campaign.id), '--out', path)
+        self.assertFalse(os.path.exists(path))
+
+    def test_build_epub_refuses_when_the_text_to_replace_is_there_twice(self):
+        self.page_edit(old='p>')  # appears in both the opening and the closing tag
+        path = os.path.join(self.tmp, 'x.epub')
+        with self.assertRaisesMessage(CommandError, "expected once"):
+            self.run_command('build-epub', str(self.campaign.id), '--out', path)
+        self.assertFalse(os.path.exists(path))
+
+    def test_build_epub_refuses_when_the_page_to_edit_is_not_in_the_book(self):
+        self.page_edit(name='OEBPS/missing.xhtml')
+        path = os.path.join(self.tmp, 'x.epub')
+        with self.assertRaisesMessage(CommandError, "OEBPS/missing.xhtml is not in the book"):
+            self.run_command('build-epub', str(self.campaign.id), '--out', path)
+        self.assertFalse(os.path.exists(path))
 
     def test_build_epub_refuses_if_a_file_of_the_book_came_out_different(self):
         real = close_out_b2u.add_license_page
 
         def tampering(original_bytes, campaign):
-            data, replaced, rewritten = real(original_bytes, campaign)
+            data, replaced, rewritten, pages = real(original_bytes, campaign)
             out = BytesIO()
             source = zipfile.ZipFile(BytesIO(data))
             with zipfile.ZipFile(out, 'w') as changed:
                 for name in source.namelist():
                     body = b'changed' if name == 'OEBPS/one.xhtml' else source.read(name)
                     changed.writestr(name, body)
-            return out.getvalue(), replaced, rewritten
+            return out.getvalue(), replaced, rewritten, pages
 
         path = os.path.join(self.tmp, 'x.epub')
         with mock.patch.object(close_out_b2u, 'add_license_page', tampering):

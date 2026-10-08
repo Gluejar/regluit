@@ -59,6 +59,24 @@ LICENSE_PAGE = """<?xml version="1.0" encoding="UTF-8"?>
 """
 
 
+# Wording on a book's own pages that contradicts the license, replaced when the
+# copy is built. campaign id -> [(file inside the epub, the exact text there
+# now, what replaces it)]. The replacement may use %(name)s and %(url)s for the
+# license. The text must be found exactly once or nothing is built. Only this
+# text changes: the copyright notices around it are left as they are.
+PAGE_EDITS = {
+    126: [(
+        'OEBPS/Text/copyright.html',
+        'All rights reserved. No part of this publication may be reproduced, stored in a '
+        'retrieval system or transmitted, in any form or by any means, electronic, '
+        'electrostatic, magnetic tape, mechanical, photocopying, recording or otherwise, '
+        'without the prior written permission of the Publisher.',
+        'Some rights reserved. This book is released under a %(name)s license: '
+        '<a href="%(url)s">%(url)s</a>',
+    )],
+}
+
+
 def sha256_of(data):
     return hashlib.sha256(data).hexdigest()
 
@@ -69,28 +87,54 @@ def rights_lines(data):
     return [el.text for el in book.opf.iter() if el.tag.endswith('}rights')]
 
 
-def recompress(epub_bytes):
+def recompress(epub_bytes, replace=None):
     """The same epub with its entries compressed. The epub library writes every
     entry uncompressed, which made one of the two books 77% larger. The
-    mimetype entry stays first and uncompressed, as the format requires."""
+    mimetype entry stays first and uncompressed, as the format requires.
+
+    replace: {name: bytes} for entries whose contents are to be swapped."""
+    replace = replace or {}
     source = zipfile.ZipFile(BytesIO(epub_bytes))
     out = BytesIO()
     with zipfile.ZipFile(out, 'w') as packed:
         packed.writestr('mimetype', source.read('mimetype'), compress_type=zipfile.ZIP_STORED)
         for name in source.namelist():
             if name != 'mimetype':
-                packed.writestr(name, source.read(name), compress_type=zipfile.ZIP_DEFLATED)
+                packed.writestr(name, replace.get(name, source.read(name)),
+                                compress_type=zipfile.ZIP_DEFLATED)
     return out.getvalue()
+
+
+def edited_pages(original_bytes, campaign):
+    """{file name: its new contents} for this campaign's PAGE_EDITS. Raises
+    ValueError unless each text to be replaced is found exactly once."""
+    license = {
+        'name': escape(campaign.get_license_display()),
+        'url': escape(campaign.license_url),
+    }
+    source = zipfile.ZipFile(BytesIO(original_bytes))
+    pages = {}
+    for name, old, new in PAGE_EDITS.get(campaign.id, []):
+        if name not in source.namelist():
+            raise ValueError("%s is not in the book" % name)
+        text = pages.get(name, source.read(name)).decode('utf-8')
+        if text.count(old) != 1:
+            raise ValueError("the text to replace was found %s times in %s, expected once" % (
+                text.count(old), name))
+        pages[name] = text.replace(old, new % license).encode('utf-8')
+    return pages
 
 
 def add_license_page(original_bytes, campaign):
     """Return (new epub as bytes, the rights lines it replaced, the files the
-    epub library rewrote): the original plus a license page, with the
-    campaign's license as its only rights line.
+    epub library rewrote, the pages edited as {name: new contents}): the
+    original plus a license page, with the campaign's license as its only
+    rights line, and with this campaign's PAGE_EDITS applied.
 
     The epub library writes back onto the file it was opened from when it is
     closed. It is given a copy in memory, never the stored file, so the stored
     original cannot be touched from here."""
+    pages = edited_pages(original_bytes, campaign)
     book = EPUB(BytesIO(original_bytes), "a")
     page = LICENSE_PAGE % {
         'name': escape(campaign.get_license_display()),
@@ -110,7 +154,7 @@ def add_license_page(original_bytes, campaign):
     book.writetodisk(out)
     # the three files the library always writes afresh (see its _write_epub_zip)
     rewritten = {'META-INF/container.xml', book.opf_path, book.ncx_path}
-    return recompress(out.getvalue()), replaced, rewritten
+    return recompress(out.getvalue(), replace=pages), replaced, rewritten, pages
 
 
 class Command(BaseCommand):
@@ -301,7 +345,10 @@ class Command(BaseCommand):
             raise CommandError("%s already exists; choose a new name" % out_path)
         original = self.original_or_refuse(campaign)
         original_bytes = self.read_stored(original)
-        licensed, replaced, rewritten = add_license_page(original_bytes, campaign)
+        try:
+            licensed, replaced, rewritten, pages = add_license_page(original_bytes, campaign)
+        except ValueError as e:
+            raise CommandError("not building: %s; nothing written" % e)
 
         # read the result back before calling it good
         result = zipfile.ZipFile(BytesIO(licensed))
@@ -311,14 +358,16 @@ class Command(BaseCommand):
         if not any(name.endswith(LICENSE_PAGE_NAME) for name in names):
             raise CommandError("the license page is missing from the result; nothing written")
         # Nothing from the original may be lost or altered. The exceptions are
-        # exactly the three files the epub library writes afresh: the container,
-        # the package file (which gains the page and the rights line) and the
-        # contents file.
+        # exactly the three files the epub library writes afresh (the container,
+        # the package file, which gains the page and the rights line, and the
+        # contents file) and the pages named in PAGE_EDITS, which must come out
+        # as exactly the edited text.
         source = zipfile.ZipFile(BytesIO(original_bytes))
         for name in source.namelist():
             if name in rewritten:
                 continue
-            if name not in names or result.read(name) != source.read(name):
+            expected = pages.get(name, source.read(name))
+            if name not in names or result.read(name) != expected:
                 raise CommandError("%s differs from the original; nothing written" % name)
         if rights_lines(licensed) != [campaign.license_url]:
             raise CommandError("the result's rights lines are not as expected; nothing written")
@@ -334,8 +383,14 @@ class Command(BaseCommand):
         self.say("  license page added: %s (%s)" % (LICENSE_PAGE_NAME, campaign.get_license_display()))
         self.say("  rights line in the book: %s" % campaign.license_url)
         self.say("  rights lines it replaced: %s" % ("; ".join(str(r) for r in replaced) or "none"))
-        self.say("  apart from the container, package and contents files, every file in the "
-                 "book is byte-for-byte the original's")
+        for name, old, new in PAGE_EDITS.get(campaign.id, []):
+            self.say("  page edited: %s" % name)
+            self.say("    was: %s" % old)
+            self.say("    now: %s" % (new % {
+                'name': campaign.get_license_display(), 'url': campaign.license_url}))
+        self.say("  pages of the book edited: %s" % (", ".join(sorted(pages)) or "none"))
+        self.say("  apart from those and the container, package and contents files, every file "
+                 "in the book is byte-for-byte the original's")
         self.say("The stored original was only read. Nothing in the database or in storage changed.")
         self.say("Next: have the file checked, then run publish with --epub and this --sha256.")
 
