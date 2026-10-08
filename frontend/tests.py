@@ -1571,35 +1571,69 @@ class FacetedDeepPageCapTests(TestCase):
 
 
 class WorkPageKeywordLinkTests(TestCase):
-    """A book page links each of its keywords to that keyword's list of free books. (#1278)"""
+    """A book page lists the book's subjects in the Explore box, each linked to
+    that subject's list of free books. The full keyword list in the More... tab
+    is the editing tool and is shown only to people who can edit. (#1278)"""
 
     def setUp(self):
         from django.core.cache import cache
         cache.clear()
         self.addCleanup(cache.clear)
         self.work = Work.objects.create(title="Keyworded work", language='en', is_free=True)
+        other = Work.objects.create(title="Another free work", language='en', is_free=True)
+        # num_free is precomputed on the site; set it here as the nightly count would
         for name in ("Fiction", "Science Fiction", "What next? 100% #1", "Art/Design"):
-            Subject.objects.create(name=name).works.add(self.work)
+            subject = Subject.objects.create(name=name, num_free=2)
+            subject.works.add(self.work, other)
+        Subject.objects.create(name="Only here", num_free=1).works.add(self.work)
+        Subject.objects.create(name="Hidden topic", num_free=5, is_visible=False).works.add(self.work)
 
-    def test_keywords_link_to_their_keyword_pages(self):
+    def test_subjects_link_to_their_lists_with_counts(self):
         response = self.client.get("/work/%s/" % self.work.id)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, '<a href="/free/kw.Fiction/">Fiction</a>')
-        self.assertContains(response, '<a href="/free/kw.Science%20Fiction/">Science Fiction</a>')
+        self.assertContains(
+            response,
+            '<li itemprop="keywords"><a href="/free/kw.Fiction/"><span>Fiction</span></a> (2)</li>')
+        self.assertContains(
+            response, '<a href="/free/kw.Science%20Fiction/"><span>Science Fiction</span></a> (2)')
         # characters that would otherwise end or corrupt the URL are escaped
         self.assertContains(response, '<a href="/free/kw.What%20next%3F%20100%25%20%231/">')
 
-    def test_keyword_with_a_slash_is_shown_without_a_link(self):
-        # the keyword URL cannot carry a slash (the path is split on it), so a
-        # link would be broken; the keyword is still listed
+    def test_subject_with_a_slash_is_shown_without_a_link(self):
+        # the list URL cannot carry a slash (the path is split on it), so a
+        # link would be broken; the subject is still listed with its count
         response = self.client.get("/work/%s/" % self.work.id)
-        self.assertContains(response, '<li itemprop="keywords">Art/Design')
+        self.assertContains(response, '<li itemprop="keywords"><span>Art/Design</span> (2)</li>')
         self.assertNotContains(response, 'kw.Art')
 
-    def test_a_linked_keyword_page_loads_and_lists_the_work(self):
+    def test_subjects_that_lead_nowhere_are_not_listed_for_readers(self):
+        # one free book only (this one), or marked not visible
+        response = self.client.get("/work/%s/" % self.work.id)
+        self.assertNotContains(response, "Only here")
+        self.assertNotContains(response, "Hidden topic")
+
+    def test_readers_do_not_see_the_keyword_editing_list(self):
+        response = self.client.get("/work/%s/" % self.work.id)
+        self.assertNotContains(response, '<h4>Keywords</h4>')
+        self.assertNotContains(response, 'id="kw_list"')
+
+    def test_staff_see_every_keyword_with_its_delete_button(self):
+        User.objects.create_superuser('kwstaff', 'kwstaff@example.org', 'test')
+        self.client.login(username='kwstaff', password='test')
+        response = self.client.get("/work/%s/" % self.work.id)
+        self.assertContains(response, '<h4>Keywords</h4>')
+        self.assertContains(response, 'id="kw_list"')
+        for name in ("Fiction", "Art/Design", "Only here", "Hidden topic"):
+            self.assertContains(response, '<span class="deletebutton" data="%s">x</span>' % name)
+        # the Explore box is still there for staff
+        self.assertContains(response, '<a href="/free/kw.Fiction/"><span>Fiction</span></a> (2)')
+
+    def test_a_linked_subject_page_loads_and_lists_the_work(self):
         response = self.client.get("/free/kw.Science%20Fiction/")
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Keyworded work")
+
+
 class SearchWithoutTurnstileTokenTests(TestCase):
     """A search link with no Turnstile token (the author links on book pages)
     shows unglue.it's own matches and never calls Google Books. (#1276)"""
