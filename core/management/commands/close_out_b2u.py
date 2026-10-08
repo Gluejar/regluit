@@ -84,8 +84,9 @@ def recompress(epub_bytes):
 
 
 def add_license_page(original_bytes, campaign):
-    """Return (new epub as bytes, the rights lines it replaced): the original
-    plus a license page, with the campaign's license as its only rights line.
+    """Return (new epub as bytes, the rights lines it replaced, the files the
+    epub library rewrote): the original plus a license page, with the
+    campaign's license as its only rights line.
 
     The epub library writes back onto the file it was opened from when it is
     closed. It is given a copy in memory, never the stored file, so the stored
@@ -107,7 +108,9 @@ def add_license_page(original_bytes, campaign):
     book.addmetadata('rights', campaign.license_url)
     out = BytesIO()
     book.writetodisk(out)
-    return recompress(out.getvalue()), replaced
+    # the three files the library always writes afresh (see its _write_epub_zip)
+    rewritten = {'META-INF/container.xml', book.opf_path, book.ncx_path}
+    return recompress(out.getvalue()), replaced, rewritten
 
 
 class Command(BaseCommand):
@@ -298,7 +301,7 @@ class Command(BaseCommand):
             raise CommandError("%s already exists; choose a new name" % out_path)
         original = self.original_or_refuse(campaign)
         original_bytes = self.read_stored(original)
-        licensed, replaced = add_license_page(original_bytes, campaign)
+        licensed, replaced, rewritten = add_license_page(original_bytes, campaign)
 
         # read the result back before calling it good
         result = zipfile.ZipFile(BytesIO(licensed))
@@ -307,14 +310,13 @@ class Command(BaseCommand):
         names = result.namelist()
         if not any(name.endswith(LICENSE_PAGE_NAME) for name in names):
             raise CommandError("the license page is missing from the result; nothing written")
-        # Nothing from the original may be lost or altered. The exceptions are the
-        # three files the epub library always writes afresh: the container, the
-        # package file (which gains the page and the rights line) and the contents.
+        # Nothing from the original may be lost or altered. The exceptions are
+        # exactly the three files the epub library writes afresh: the container,
+        # the package file (which gains the page and the rights line) and the
+        # contents file.
         source = zipfile.ZipFile(BytesIO(original_bytes))
-        package_files = [n for n in source.namelist()
-                         if n == 'META-INF/container.xml' or n.endswith(('.opf', '.ncx'))]
         for name in source.namelist():
-            if name in package_files:
+            if name in rewritten:
                 continue
             if name not in names or result.read(name) != source.read(name):
                 raise CommandError("%s differs from the original; nothing written" % name)

@@ -218,6 +218,30 @@ class CloseOutB2UTests(TestCase):
         self.assertEqual(close_out_b2u.rights_lines(data), [CC_URL])
         self.assertIn("rights lines it replaced: All rights reserved", output)
 
+    def test_only_the_three_regenerated_files_are_exempt_from_the_comparison(self):
+        _, _, rewritten = close_out_b2u.add_license_page(self.original_bytes, self.campaign)
+        self.assertEqual(
+            rewritten, {'META-INF/container.xml', 'OEBPS/content.opf', 'OEBPS/toc.ncx'})
+
+    def test_build_epub_refuses_if_a_file_of_the_book_came_out_different(self):
+        real = close_out_b2u.add_license_page
+
+        def tampering(original_bytes, campaign):
+            data, replaced, rewritten = real(original_bytes, campaign)
+            out = BytesIO()
+            source = zipfile.ZipFile(BytesIO(data))
+            with zipfile.ZipFile(out, 'w') as changed:
+                for name in source.namelist():
+                    body = b'changed' if name == 'OEBPS/one.xhtml' else source.read(name)
+                    changed.writestr(name, body)
+            return out.getvalue(), replaced, rewritten
+
+        path = os.path.join(self.tmp, 'x.epub')
+        with mock.patch.object(close_out_b2u, 'add_license_page', tampering):
+            with self.assertRaisesMessage(CommandError, "OEBPS/one.xhtml differs from the original"):
+                self.run_command('build-epub', str(self.campaign.id), '--out', path)
+        self.assertFalse(os.path.exists(path))
+
     def test_build_epub_compresses_the_book_and_keeps_mimetype_first(self):
         _, data = self.build()
         entries = zipfile.ZipFile(BytesIO(data)).infolist()
