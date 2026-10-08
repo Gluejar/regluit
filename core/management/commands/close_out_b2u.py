@@ -69,8 +69,23 @@ def rights_lines(data):
     return [el.text for el in book.opf.iter() if el.tag.endswith('}rights')]
 
 
+def recompress(epub_bytes):
+    """The same epub with its entries compressed. The epub library writes every
+    entry uncompressed, which made one of the two books 77% larger. The
+    mimetype entry stays first and uncompressed, as the format requires."""
+    source = zipfile.ZipFile(BytesIO(epub_bytes))
+    out = BytesIO()
+    with zipfile.ZipFile(out, 'w') as packed:
+        packed.writestr('mimetype', source.read('mimetype'), compress_type=zipfile.ZIP_STORED)
+        for name in source.namelist():
+            if name != 'mimetype':
+                packed.writestr(name, source.read(name), compress_type=zipfile.ZIP_DEFLATED)
+    return out.getvalue()
+
+
 def add_license_page(original_bytes, campaign):
-    """Return a new epub, as bytes: the original plus a license page and a rights line.
+    """Return (new epub as bytes, the rights lines it replaced): the original
+    plus a license page, with the campaign's license as its only rights line.
 
     The epub library writes back onto the file it was opened from when it is
     closed. It is given a copy in memory, never the stored file, so the stored
@@ -81,10 +96,18 @@ def add_license_page(original_bytes, campaign):
         'url': escape(campaign.license_url),
     }
     book.addpart(StringIO(page), LICENSE_PAGE_NAME, "application/xhtml+xml", 1)  # after the title, we hope
+    # An earlier rights line ("All rights reserved") would contradict the new
+    # one, so it is replaced, not added to.
+    metadata = book.opf[0]
+    replaced = []
+    for element in [el for el in metadata if str(el.tag).endswith('}rights')]:
+        replaced.append(element.text)
+        metadata.remove(element)
+    book.info["metadata"].pop('rights', None)
     book.addmetadata('rights', campaign.license_url)
     out = BytesIO()
     book.writetodisk(out)
-    return out.getvalue()
+    return recompress(out.getvalue()), replaced
 
 
 class Command(BaseCommand):
@@ -275,12 +298,28 @@ class Command(BaseCommand):
             raise CommandError("%s already exists; choose a new name" % out_path)
         original = self.original_or_refuse(campaign)
         original_bytes = self.read_stored(original)
-        licensed = add_license_page(original_bytes, campaign)
+        licensed, replaced = add_license_page(original_bytes, campaign)
 
         # read the result back before calling it good
-        names = zipfile.ZipFile(BytesIO(licensed)).namelist()
+        result = zipfile.ZipFile(BytesIO(licensed))
+        if result.testzip() is not None:
+            raise CommandError("the result is not a sound zip file; nothing written")
+        names = result.namelist()
         if not any(name.endswith(LICENSE_PAGE_NAME) for name in names):
             raise CommandError("the license page is missing from the result; nothing written")
+        # Nothing from the original may be lost or altered. The exceptions are the
+        # three files the epub library always writes afresh: the container, the
+        # package file (which gains the page and the rights line) and the contents.
+        source = zipfile.ZipFile(BytesIO(original_bytes))
+        package_files = [n for n in source.namelist()
+                         if n == 'META-INF/container.xml' or n.endswith(('.opf', '.ncx'))]
+        for name in source.namelist():
+            if name in package_files:
+                continue
+            if name not in names or result.read(name) != source.read(name):
+                raise CommandError("%s differs from the original; nothing written" % name)
+        if rights_lines(licensed) != [campaign.license_url]:
+            raise CommandError("the result's rights lines are not as expected; nothing written")
 
         with open(out_path, 'xb') as out:
             out.write(licensed)
@@ -291,8 +330,10 @@ class Command(BaseCommand):
         self.say("  wrote %s, %s bytes" % (out_path, len(licensed)))
         self.say("  sha256 %s" % sha256_of(licensed))
         self.say("  license page added: %s (%s)" % (LICENSE_PAGE_NAME, campaign.get_license_display()))
-        self.say("  rights lines now in the book: %s" % "; ".join(
-            str(line) for line in rights_lines(licensed)))
+        self.say("  rights line in the book: %s" % campaign.license_url)
+        self.say("  rights lines it replaced: %s" % ("; ".join(str(r) for r in replaced) or "none"))
+        self.say("  apart from the container, package and contents files, every file in the "
+                 "book is byte-for-byte the original's")
         self.say("The stored original was only read. Nothing in the database or in storage changed.")
         self.say("Next: have the file checked, then run publish with --epub and this --sha256.")
 

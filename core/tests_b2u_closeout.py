@@ -214,7 +214,18 @@ class CloseOutB2UTests(TestCase):
         self.assertNotIn("2060", page)
         # the book's own pages are still there
         self.assertEqual(book.read('OEBPS/one.xhtml').decode('utf-8'), PAGE % 'one')
-        self.assertIn(CC_URL, close_out_b2u.rights_lines(data))
+        # the license is the only rights line; "All rights reserved" was replaced, and said so
+        self.assertEqual(close_out_b2u.rights_lines(data), [CC_URL])
+        self.assertIn("rights lines it replaced: All rights reserved", output)
+
+    def test_build_epub_compresses_the_book_and_keeps_mimetype_first(self):
+        _, data = self.build()
+        entries = zipfile.ZipFile(BytesIO(data)).infolist()
+        self.assertEqual(entries[0].filename, 'mimetype')
+        self.assertEqual(entries[0].compress_type, zipfile.ZIP_STORED)
+        for entry in entries[1:]:
+            self.assertEqual(entry.compress_type, zipfile.ZIP_DEFLATED, entry.filename)
+        self.assertEqual(len({e.filename for e in entries}), len(entries))
 
     def test_build_epub_puts_the_license_page_second_in_reading_order(self):
         _, data = self.build()
