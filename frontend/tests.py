@@ -1669,6 +1669,21 @@ class SearchWithoutTurnstileTokenTests(TestCase):
         self.assertEqual([w.id for w in response.context['ug_works']], [self.work.id])
         google.assert_not_called()
 
+    def test_title_search_with_an_emoji_is_a_normal_page(self):
+        # The title column is utf8mb3, which MySQL will not compare with a
+        # four-byte character: the lookup raised error 1267 and the visitor
+        # got a 500. (#1288)
+        response, google = self._search("q=%F0%9F%93%99%20Linked%20Author%20B", validated=False)
+        self.assertEqual([w.id for w in response.context['ug_works']], [self.work.id])
+
+    def test_author_search_with_an_emoji_is_a_normal_page(self):
+        response, google = self._search("q=Ada%20Linked%20%F0%9F%93%99&ty=au", validated=False)
+        self.assertEqual([w.id for w in response.context['ug_works']], [self.work.id])
+
+    def test_a_search_that_is_only_an_emoji_is_an_empty_page(self):
+        response, google = self._search("q=%F0%9F%93%99%F0%9F%93%99", validated=False)
+        self.assertEqual(list(response.context['ug_works']), [])
+
     def test_no_match_without_token_is_an_empty_page_and_no_google(self):
         response, google = self._search("q=Nobody%20Here&ty=au", validated=False)
         self.assertEqual(list(response.context['ug_works']), [])
