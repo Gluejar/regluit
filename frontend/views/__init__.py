@@ -1502,6 +1502,8 @@ class ManageAccount(FormView):
         else:
             return render(self.request, self.template_name, self.get_context_data())
 
+FOUR_BYTE_CHARS = re.compile('[\U00010000-\U0010FFFF]')
+
 def search(request):
     """
     request params 
@@ -1520,7 +1522,10 @@ def search(request):
                      
     
     """
-    q = request.GET.get('q', '').strip()
+    # The text columns are utf8mb3, which cannot hold characters above U+FFFF
+    # (emoji, mostly). MySQL refuses to compare them with one, so a query
+    # containing one was a 500. Nothing stored can match them: drop them. (#1288)
+    q = FOUR_BYTE_CHARS.sub('', request.GET.get('q', '')).strip()
     ty = request.GET.get('ty', 'g')  # ge= 'general, au= 'author'
     # Google Books lookups are only for visitors who passed the Turnstile check
     # on the search form. A plain link (the author links on book pages, a
