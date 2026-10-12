@@ -103,6 +103,37 @@ class TestNotARobotPuzzle(TestCase):
         self.assertIsNotNone(self.notarobot_errors(11, ''))
 
 
+class TestFailedActivation(TestCase):
+    """An activation link that does not work shows a page saying so.
+
+    django_registration renders django_registration/activation_failed.html
+    when activation fails. The app had no template by that name, so the
+    visitor got a 500. (#1289)
+    """
+    fixtures = ['initial_data.json']
+    PROBLEM = 'your activation key is invalid'
+
+    def activation_key(self, username):
+        from django.core import signing
+        from django_registration.backends.activation.views import REGISTRATION_SALT
+        return signing.dumps(obj=username, salt=REGISTRATION_SALT)
+
+    def activate(self, key):
+        return self.client.get(
+            reverse('django_registration_activate', kwargs={'activation_key': key}))
+
+    def test_a_mangled_link_shows_the_problem_page(self):
+        resp = self.activate('not-a-real-key')
+        self.assertEqual(200, resp.status_code)
+        self.assertContains(resp, self.PROBLEM)
+
+    def test_an_already_used_link_shows_the_problem_page(self):
+        User.objects.create_user('bob', 'bob@example.com', 'secret', is_active=True)
+        resp = self.activate(self.activation_key('bob'))
+        self.assertEqual(200, resp.status_code)
+        self.assertContains(resp, self.PROBLEM)
+
+
 class TestAppConfigSignalsWired(TestCase):
     """Regression guard for issue #1175.
 
