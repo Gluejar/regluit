@@ -12,6 +12,7 @@ from django.core.files.base import ContentFile
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase, override_settings
+from django.urls import reverse
 
 from regluit.core import signals
 from regluit.core.management.commands import close_out_b2u
@@ -650,3 +651,30 @@ class CloseOutB2UTests(TestCase):
             self.assertIn("1 of 1 end-state checks hold", output)
         acq.refresh_from_db()
         self.assertTrue(acq.expired)
+
+    def test_a_gift_claimed_after_end_purchases_works_and_leaves_nothing_in_force(self):
+        # A past buyer claims an old unclaimed gift after the purchases were
+        # ended. They used to be offered "pass it on", which creates a new
+        # purchase with no end date; on a free book that path is gone, and the
+        # claim simply gives them the book.
+        self.close_out()
+        giver = User.objects.create_user('giver', 'giver@example.org', 'pw')
+        gift_acq = self.buy(name='giftee')
+        gift = Gift.objects.create(acq=gift_acq, giver=giver, to='giftee@example.org')
+        buyer = self.buy(name='pastbuyer')
+        self.run_command('end-purchases', str(self.campaign.id), '--apply')
+
+        self.client.login(username='pastbuyer', password='pw')
+        # claiming queues the giver's old "your gift was received" notice
+        from regluit.core import tasks
+        with mock.patch.object(tasks.emit_notifications, 'delay') as queued:
+            response = self.client.get(reverse('receive_gift', args=[gift_acq.nonce]))
+        queued.assert_called()
+        self.assertRedirects(
+            response, reverse('display_gift', args=[gift.id, 'existing']),
+            fetch_redirect_response=False)
+        gift.refresh_from_db()
+        self.assertIsNotNone(gift.used)
+        gift_acq.refresh_from_db()
+        self.assertEqual(gift_acq.user_id, buyer.user_id)
+        self.assertEqual(close_out_b2u.Command().to_end(self.campaign), [])
