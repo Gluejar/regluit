@@ -5,6 +5,7 @@ Close out the last two Buy-to-Unglue campaigns, one explicit step at a time.
     close_out_b2u build-epub <campaign> --out F    write a CC-licensed copy to a local file
     close_out_b2u publish <campaign> --epub F --sha256 H [--apply]
     close_out_b2u succeed <campaign> [--apply]
+    close_out_b2u end-purchases <campaign> [--apply]
 
 Why a command and not the campaign's own success step: update_status() marks a
 Buy-to-Unglue campaign successful only once its computed free-date has passed
@@ -16,6 +17,14 @@ telling people is a separate step.
 publish and succeed only report unless --apply is given. Each one checks the
 state first and refuses if its step is already done or an earlier step is not,
 so the order is enforced and a second run changes nothing.
+
+end-purchases comes last. People who bought the book before it went free still
+hold a purchase, and while it is in force the download page hands them a copy
+made for them through BooXtream instead of the free file. Ending the purchase
+(its expiry set to now) sends them to the free file like everyone else, so no
+download depends on BooXtream any more. It also runs on Flatland and Biodigital,
+which went free years ago the old way without their purchases being ended.
+Library copies and loans are reported, not touched.
 """
 import hashlib
 import os
@@ -26,16 +35,25 @@ from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from django.db.models import Q
 from django.utils.html import escape
+from django.utils.timezone import now
 from pyepub import EPUB
 
-from regluit.core.models import Campaign, CampaignAction, Ebook, EbookFile
+from regluit.core.models import Acq, Campaign, CampaignAction, Ebook, EbookFile
 from regluit.core.models.bibmodels import path_for_file
-from regluit.core.parameters import BUY2UNGLUE
+from regluit.core.parameters import BUY2UNGLUE, INDIVIDUAL, TESTING
 
 # campaign id -> the work it must belong to. Both ids are checked, so a typo in
 # the campaign number cannot land on some other book.
 ALLOWED = {126: 128685, 137: 137647}
+
+# Campaigns that went free the old way, for look and end-purchases only: 125
+# Flatland, 136 Biodigital.
+END_PURCHASES_ALSO = {125: 76509, 136: 136615}
+
+# the purchases end-purchases ends: bought (or given) copies, and staff test copies
+ENDED_LICENSES = (INDIVIDUAL, TESTING)
 
 PROVIDER = 'Unglue.it'
 LICENSE_PAGE_NAME = 'cc_license.xhtml'
@@ -187,9 +205,16 @@ class Command(BaseCommand):
         succeed.add_argument('campaign', type=int)
         succeed.add_argument('--apply', action='store_true', default=False)
 
+        end = steps.add_parser(
+            'end-purchases', help="end the purchases still in force on a book that is now free; "
+            "sends no notice")
+        end.add_argument('campaign', type=int)
+        end.add_argument('--apply', action='store_true', default=False)
+
     def handle(self, *args, **options):
-        campaign = self.get_campaign(options['campaign'])
         step = options['step']
+        campaign = self.get_campaign(
+            options['campaign'], also_old=step in ('look', 'end-purchases'))
         if step == 'look':
             self.look(campaign, options['hashes'])
         elif step == 'build-epub':
@@ -198,24 +223,28 @@ class Command(BaseCommand):
             self.publish(campaign, options['epub'], options['sha256'], options['apply'])
         elif step == 'succeed':
             self.succeed(campaign, options['apply'])
+        elif step == 'end-purchases':
+            self.end_purchases(campaign, options['apply'])
 
     def say(self, text=''):
         self.stdout.write(text)
 
     # ---- reading the state -------------------------------------------------
 
-    def get_campaign(self, campaign_id, lock=False):
-        if campaign_id not in ALLOWED:
-            raise CommandError("campaign %s is not on the list (%s)" % (
-                campaign_id, ", ".join(str(c) for c in sorted(ALLOWED))))
+    def get_campaign(self, campaign_id, lock=False, also_old=False):
+        """also_old: accept END_PURCHASES_ALSO too (for look and end-purchases)"""
+        allowed = {**END_PURCHASES_ALSO, **ALLOWED} if also_old else ALLOWED
+        if campaign_id not in allowed:
+            raise CommandError("campaign %s is not on the list for this step (%s)" % (
+                campaign_id, ", ".join(str(c) for c in sorted(allowed))))
         campaigns = Campaign.objects.select_for_update() if lock else Campaign.objects
         try:
             campaign = campaigns.get(pk=campaign_id)
         except Campaign.DoesNotExist:
             raise CommandError("campaign %s does not exist here" % campaign_id)
-        if campaign.work_id != ALLOWED[campaign_id]:
+        if campaign.work_id != allowed[campaign_id]:
             raise CommandError("campaign %s belongs to work %s, expected %s" % (
-                campaign_id, campaign.work_id, ALLOWED[campaign_id]))
+                campaign_id, campaign.work_id, allowed[campaign_id]))
         if campaign.type != BUY2UNGLUE:
             raise CommandError("campaign %s is not a Buy-to-Unglue campaign" % campaign_id)
         return campaign
@@ -249,6 +278,37 @@ class Command(BaseCommand):
     @staticmethod
     def succeeded_records(campaign):
         return list(campaign.actions.filter(type='succeeded').order_by('id'))
+
+    @staticmethod
+    def in_force(campaign, at=None):
+        """every acquisition of the book not yet expired, any license (Acq.expired's test)"""
+        return Acq.objects.filter(work_id=campaign.work_id).filter(
+            Q(expires__isnull=True) | Q(expires__gt=at or now()))
+
+    def to_end(self, campaign, at=None):
+        """the purchases end-purchases would end, oldest first"""
+        return list(self.in_force(campaign, at).filter(
+            license__in=ENDED_LICENSES).order_by('id'))
+
+    def say_purchases(self, campaign):
+        """print the purchases in force, by license; return those end-purchases would end"""
+        in_force = list(self.in_force(campaign).order_by('id'))
+        names = dict(Acq._meta.get_field('license').choices)
+        counts = {}
+        for acq in in_force:
+            counts[acq.license] = counts.get(acq.license, 0) + 1
+        self.say("  purchases still in force: %s" % (
+            ", ".join("%s %s" % (n, names.get(lic, lic)) for lic, n in sorted(counts.items()))
+            or "none"))
+        ending = [a for a in in_force if a.license in ENDED_LICENSES]
+        unclaimed = Acq.objects.filter(
+            pk__in=[a.pk for a in ending], gifts__used__isnull=True, gifts__isnull=False).distinct()
+        self.say("    of them, end-purchases ends %s (individual and testing), %s of them "
+                 "unclaimed gifts" % (len(ending), unclaimed.count()))
+        kept = len(in_force) - len(ending)
+        if kept:
+            self.say("    and leaves %s alone (library copies, loans, holds, thank-yous)" % kept)
+        return ending
 
     def original_or_refuse(self, campaign):
         """The single stored epub the book was sold from. Refuses unless there is
@@ -319,6 +379,17 @@ class Command(BaseCommand):
         open_supporters = len(campaign.supporters())
         self.say("  a success notice would go to: %s staff, %s users with a still-open transaction" % (
             staff, open_supporters))
+        ending = self.say_purchases(campaign)
+        no_purchases = ("no individual or testing purchase still in force", not ending)
+
+        if campaign.id not in ALLOWED:
+            # went free the old way; only the purchases check applies
+            self.say()
+            self.say("End state (campaign closed out the old way; only the purchases check applies):")
+            self.say("  [%s] %s" % ("yes" if no_purchases[1] else "no ", no_purchases[0]))
+            self.say("%s of 1 end-state checks hold. Nothing was changed." % (
+                1 if no_purchases[1] else 0))
+            return
 
         unlinked = [f for f in stored if f.ebook_id is None]
         checks = [
@@ -330,6 +401,7 @@ class Command(BaseCommand):
             ("no other active ebook records",
              published is not None and [r.id for r in records if r.active] == [published[0].id]),
             ("book is marked free", bool(work.is_free)),
+            no_purchases,
         ]
         self.say()
         self.say("End state:")
@@ -490,7 +562,8 @@ class Command(BaseCommand):
         self.say("  address: %s" % ebook.url)
         self.say("  the book is now marked free")
         self.say("To put it back: deactivate ebook record %s in the admin (the book stops being "
-                 "free), then delete stored file %s." % (ebook.id, ebf.id))
+                 "free), delete stored file %s, then delete the file itself from storage (%s), "
+                 "since the row and the file are removed separately." % (ebook.id, ebf.id, ebf.file.name))
 
     # ---- succeed -----------------------------------------------------------
 
@@ -545,3 +618,56 @@ class Command(BaseCommand):
         self.say("SUCCESSFUL. Wrote 'succeeded' record %s. No notice was sent." % action.id)
         self.say("To put it back: set the status to ACTIVE in the admin and delete campaign "
                  "action %s." % action.id)
+
+    # ---- end-purchases -----------------------------------------------------
+
+    def end_purchases_refusal(self, campaign):
+        """why end-purchases must not run now, or None"""
+        if campaign.status != 'SUCCESSFUL':
+            return "campaign status is %s, expected SUCCESSFUL; finish the close-out first" % (
+                campaign.status)
+        free_epubs = [r for r in self.records(campaign) if r.active and r.format == 'epub']
+        if not free_epubs:
+            return "the book has no active epub record, so buyers would have nothing to download"
+        return None
+
+    def end_purchases(self, campaign, apply_changes):
+        refusal = self.end_purchases_refusal(campaign)
+        if refusal:
+            raise CommandError("not ending purchases: %s" % refusal)
+
+        self.say("Campaign %s: %s (work %s)" % (campaign.id, campaign.work.title, campaign.work_id))
+        ending = self.say_purchases(campaign)
+        if not ending:
+            self.say("Nothing to end. Nothing changed.")
+            return
+
+        if not apply_changes:
+            self.say("WOULD set the expiry of these %s purchases to now, so their holders get the "
+                     "free file like everyone else. No notice is sent; the records stay." % len(ending))
+            self.say("Nothing changed; run with --apply to change.")
+            return
+
+        with transaction.atomic():
+            campaign = self.get_campaign(campaign.id, lock=True, also_old=True)
+            refusal = self.end_purchases_refusal(campaign)
+            if refusal:
+                raise CommandError("not ending purchases: %s" % refusal)
+            stamp = now()
+            ending = self.to_end(campaign, at=stamp)
+            # the expiry each one had before, for the undo line
+            before = {}
+            for acq in ending:
+                before.setdefault(acq.expires, []).append(acq.id)
+            # update() and not save(): only the expiry changes, and no save handler runs
+            written = Acq.objects.filter(pk__in=[a.id for a in ending]).filter(
+                Q(expires__isnull=True) | Q(expires__gt=stamp)).update(expires=stamp)
+            if written != len(ending):
+                raise CommandError("the purchases changed after they were read; nothing written")
+
+        self.say("ENDED %s purchases at %s. No notice was sent." % (written, stamp))
+        self.say("  purchase ids: %s" % ", ".join(str(a.id) for a in ending))
+        self.say("To put it back, set the expiry of these purchases back to what it was:")
+        for expires, ids in sorted(before.items(), key=lambda item: (item[0] is not None, item[0])):
+            self.say("  %s: %s" % ("empty (NULL)" if expires is None else expires,
+                                   ", ".join(str(i) for i in ids)))
