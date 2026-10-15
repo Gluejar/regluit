@@ -12,13 +12,16 @@ from django.core.files.base import ContentFile
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase, override_settings
+from django.urls import reverse
 
 from regluit.core import signals
 from regluit.core.management.commands import close_out_b2u
+from django.contrib.auth.models import User
+
 from regluit.core.models import (
-    Campaign, CampaignAction, Ebook, EbookFile, Edition, Work,
+    Acq, Campaign, CampaignAction, Ebook, EbookFile, Edition, Gift, Work,
 )
-from regluit.core.parameters import BUY2UNGLUE, THANKS
+from regluit.core.parameters import BUY2UNGLUE, INDIVIDUAL, LIBRARY, TESTING, THANKS
 
 CONTAINER = (
     '<?xml version="1.0"?>'
@@ -50,8 +53,9 @@ PAGE = '<html xmlns="http://www.w3.org/1999/xhtml"><head><title>t</title></head>
 
 CC_URL = 'https://creativecommons.org/licenses/by-nc-nd/3.0/'
 
-# the command's own list, copied at import, before any test swaps it
+# the command's own lists, copied at import, before any test swaps them
 REAL_ALLOWED = dict(close_out_b2u.ALLOWED)
+REAL_END_PURCHASES_ALSO = dict(close_out_b2u.END_PURCHASES_ALSO)
 REAL_PAGE_EDITS = dict(close_out_b2u.PAGE_EDITS)
 
 
@@ -96,6 +100,9 @@ class CloseOutB2UTests(TestCase):
             close_out_b2u.ALLOWED, {self.campaign.id: self.work.id}, clear=True)
         allowed.start()
         self.addCleanup(allowed.stop)
+        also = mock.patch.dict(close_out_b2u.END_PURCHASES_ALSO, {}, clear=True)
+        also.start()
+        self.addCleanup(also.stop)
 
         self.tmp = tempfile.mkdtemp()
         self.addCleanup(self.remove_tmp)
@@ -183,14 +190,14 @@ class CloseOutB2UTests(TestCase):
         self.assertIn("ebook records: none", output)
         self.assertIn("[no ] campaign is SUCCESSFUL", output)
         self.assertIn("[yes] the original stored epub is still there", output)
-        self.assertIn("1 of 6 end-state checks hold. Nothing was changed.", output)
+        self.assertIn("2 of 7 end-state checks hold. Nothing was changed.", output)
 
     def test_look_after_both_steps_shows_the_end_state(self):
         self.publish('--apply')
         self.run_command('succeed', str(self.campaign.id), '--apply')
         output = self.run_command('look', str(self.campaign.id))
         self.assertNotIn("[no ]", output)
-        self.assertIn("6 of 6 end-state checks hold", output)
+        self.assertIn("7 of 7 end-state checks hold", output)
 
     # ---- build-epub --------------------------------------------------------
 
@@ -514,3 +521,160 @@ class CloseOutB2UTests(TestCase):
         with self.assertRaisesMessage(CommandError, "run publish first"):
             self.run_command('succeed', str(self.campaign.id), '--apply')
         self.assertEqual(self.state(), before)
+
+    # ---- end-purchases -----------------------------------------------------
+
+    def close_out(self):
+        """publish and succeed, as on production before end-purchases"""
+        self.publish('--apply')
+        self.run_command('succeed', str(self.campaign.id), '--apply')
+
+    def buy(self, work=None, license=INDIVIDUAL, expires=None, name=None):
+        name = name or 'buyer%s' % Acq.objects.count()
+        user = User.objects.create_user(name, '%s@example.org' % name, 'pw')
+        acq = Acq.objects.create(user=user, work=work or self.work, license=license)
+        if expires:
+            Acq.objects.filter(pk=acq.pk).update(expires=expires)
+        acq.refresh_from_db()
+        return acq
+
+    def expiries(self):
+        return dict(Acq.objects.values_list('id', 'expires'))
+
+    def test_the_real_old_way_list_is_flatland_and_biodigital(self):
+        self.assertEqual(REAL_END_PURCHASES_ALSO, {125: 76509, 136: 136615})
+
+    def test_end_purchases_refuses_before_the_campaign_is_successful(self):
+        self.buy()
+        before = self.expiries()
+        with self.assertRaisesMessage(CommandError, "expected SUCCESSFUL"):
+            self.run_command('end-purchases', str(self.campaign.id), '--apply')
+        self.assertEqual(self.expiries(), before)
+
+    def test_end_purchases_refuses_when_there_is_no_free_epub(self):
+        self.close_out()
+        Ebook.objects.update(active=False)
+        self.buy()
+        with self.assertRaisesMessage(CommandError, "no active epub record"):
+            self.run_command('end-purchases', str(self.campaign.id), '--apply')
+        self.assertFalse(Acq.objects.get().expired)
+
+    def test_end_purchases_without_apply_changes_nothing(self):
+        self.close_out()
+        self.buy()
+        before = self.expiries()
+        output = self.run_command('end-purchases', str(self.campaign.id))
+        self.assertEqual(self.expiries(), before)
+        self.assertIn("WOULD set the expiry of these 1 purchases", output)
+        self.assertIn("Nothing changed", output)
+
+    def test_end_purchases_ends_this_books_individual_and_testing_purchases_only(self):
+        self.close_out()
+        bought = self.buy()
+        tester = self.buy(license=TESTING)
+        library = self.buy(license=LIBRARY)
+        old = self.buy(expires=datetime(2015, 1, 1))
+        other_work = Work.objects.create(title="Another book", language='en')
+        elsewhere = self.buy(work=other_work)
+        mail.outbox = []
+
+        output = self.run_command('end-purchases', str(self.campaign.id), '--apply')
+
+        for acq in (bought, tester):
+            acq.refresh_from_db()
+            self.assertTrue(acq.expired)
+            self.assertEqual(acq.get_epub_url(), '')  # no BooXtream call for an ended purchase
+        for acq in (library, elsewhere):
+            acq.refresh_from_db()
+            self.assertIsNone(acq.expires)
+        old.refresh_from_db()
+        self.assertEqual(old.expires, datetime(2015, 1, 1))
+        self.assertIn("ENDED 2 purchases", output)
+        self.assertIn("purchase ids: %s, %s" % (bought.id, tester.id), output)
+        self.assertIn("empty (NULL): %s, %s" % (bought.id, tester.id), output)
+        self.assertEqual(mail.outbox, [])
+        # the records stay
+        self.assertEqual(Acq.objects.count(), 5)
+
+    def test_end_purchases_ends_an_unclaimed_gift(self):
+        self.close_out()
+        giver = User.objects.create_user('giver', 'giver@example.org', 'pw')
+        gift_acq = self.buy(name='giftee')
+        Gift.objects.create(acq=gift_acq, giver=giver, to='giftee@example.org')
+        output = self.run_command('end-purchases', str(self.campaign.id))
+        self.assertIn("1 of them unclaimed gifts", output)
+        self.run_command('end-purchases', str(self.campaign.id), '--apply')
+        gift_acq.refresh_from_db()
+        self.assertTrue(gift_acq.expired)
+
+    def test_end_purchases_a_second_time_changes_nothing(self):
+        self.close_out()
+        self.buy()
+        self.run_command('end-purchases', str(self.campaign.id), '--apply')
+        before = self.expiries()
+        output = self.run_command('end-purchases', str(self.campaign.id), '--apply')
+        self.assertEqual(self.expiries(), before)
+        self.assertIn("Nothing to end. Nothing changed.", output)
+
+    def test_look_shows_purchases_and_the_seventh_check(self):
+        self.close_out()
+        self.buy()
+        self.buy(license=LIBRARY)
+        output = self.run_command('look', str(self.campaign.id))
+        self.assertIn("purchases still in force: 1 Individual license, 1 Library License", output)
+        self.assertIn("[no ] no individual or testing purchase still in force", output)
+        self.assertIn("6 of 7 end-state checks hold", output)
+        self.run_command('end-purchases', str(self.campaign.id), '--apply')
+        output = self.run_command('look', str(self.campaign.id))
+        self.assertIn("7 of 7 end-state checks hold", output)
+
+    def test_a_campaign_closed_the_old_way_takes_look_and_end_purchases_only(self):
+        work = Work.objects.create(title="An old book", language='en')
+        edition = Edition.objects.create(work=work, title="An old book")
+        Ebook.objects.create(edition=edition, format='epub', provider='Unglue.it',
+                             rights='CC0', url='https://example.org/old.epub', active=True)
+        old = Campaign.objects.create(
+            work=work, type=BUY2UNGLUE, status='SUCCESSFUL', license='CC0', description="old",
+            target=10000, dollar_per_day=1.0, activated=datetime(2013, 1, 1),
+            cc_date_initial=datetime(2030, 1, 1), deadline=datetime(2030, 1, 1))
+        acq = self.buy(work=work)
+        with mock.patch.dict(close_out_b2u.END_PURCHASES_ALSO, {old.id: work.id}):
+            for step in ('publish', 'succeed'):
+                extra = ['--epub', 'x', '--sha256', 'x'] if step == 'publish' else []
+                with self.assertRaisesMessage(CommandError, "not on the list for this step"):
+                    self.run_command(step, str(old.id), *extra)
+            output = self.run_command('look', str(old.id))
+            self.assertIn("only the purchases check applies", output)
+            self.assertIn("0 of 1 end-state checks hold", output)
+            self.run_command('end-purchases', str(old.id), '--apply')
+            output = self.run_command('look', str(old.id))
+            self.assertIn("1 of 1 end-state checks hold", output)
+        acq.refresh_from_db()
+        self.assertTrue(acq.expired)
+
+    def test_a_gift_claimed_after_end_purchases_works_and_leaves_nothing_in_force(self):
+        # A past buyer claims an old unclaimed gift after the purchases were
+        # ended. They used to be offered "pass it on", which creates a new
+        # purchase with no end date; on a free book that path is gone, and the
+        # claim simply gives them the book.
+        self.close_out()
+        giver = User.objects.create_user('giver', 'giver@example.org', 'pw')
+        gift_acq = self.buy(name='giftee')
+        gift = Gift.objects.create(acq=gift_acq, giver=giver, to='giftee@example.org')
+        buyer = self.buy(name='pastbuyer')
+        self.run_command('end-purchases', str(self.campaign.id), '--apply')
+
+        self.client.login(username='pastbuyer', password='pw')
+        # claiming queues the giver's old "your gift was received" notice
+        from regluit.core import tasks
+        with mock.patch.object(tasks.emit_notifications, 'delay') as queued:
+            response = self.client.get(reverse('receive_gift', args=[gift_acq.nonce]))
+        queued.assert_called()
+        self.assertRedirects(
+            response, reverse('display_gift', args=[gift.id, 'existing']),
+            fetch_redirect_response=False)
+        gift.refresh_from_db()
+        self.assertIsNotNone(gift.used)
+        gift_acq.refresh_from_db()
+        self.assertEqual(gift_acq.user_id, buyer.user_id)
+        self.assertEqual(close_out_b2u.Command().to_end(self.campaign), [])
