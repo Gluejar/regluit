@@ -1,5 +1,6 @@
 import datetime
 import logging
+import time
 from urllib.parse import urlparse, urlunparse
 
 from bs4 import BeautifulSoup
@@ -204,6 +205,54 @@ def work_node(work, facet=None):
     node.append(rating_node)
     return node
 
+# A feed's <updated> date: when its newest work was added. The navigation
+# feed (/api/opds/) asks for about 18 of these per request, every request
+# computes the same ones, and they are what timed out in bursts of ~50
+# simultaneous requests (regluit#1265). So:
+# - a cached value is served without touching the database;
+# - after UPDATED_FRESH_SECONDS one request refreshes it, and the others keep
+#   serving the old value meanwhile ("stale-while-revalidate");
+# - "one request" is enforced with cache.add() as a short lock, so a cold or
+#   expired cache costs one query per key, not one per waiting request.
+# With the per-process LocMemCache the lock is per process; with a shared
+# cache it is per site.
+UPDATED_FRESH_SECONDS = 60 * 60  # new books arrive nightly
+UPDATED_KEEP_SECONDS = 100000  # how long a stale value stays available
+UPDATED_LOCK_SECONDS = 60
+
+
+def _utcnow_isoformat():
+    return pytz.utc.localize(datetime.datetime.utcnow()).isoformat()
+
+
+def latest_created(key, works):
+    entry = cache.get(key)
+    stale = None
+    if isinstance(entry, tuple):
+        value, fresh_until = entry
+        if time.time() < fresh_until:
+            return value
+        stale = value
+    elif isinstance(entry, str):
+        # written before regluit#1265 as a bare string: serve it, refresh it
+        stale = entry
+
+    lock = f'{key}:refreshing'
+    if not cache.add(lock, 1, UPDATED_LOCK_SECONDS):
+        # another request is computing it; don't pile on. With nothing cached
+        # yet, "now" is an acceptable <updated> date for a feed.
+        return stale if stale is not None else _utcnow_isoformat()
+    try:
+        try:
+            value = pytz.utc.localize(works.latest('created').created).isoformat()
+        except works.model.DoesNotExist:
+            value = _utcnow_isoformat()
+        cache.set(key, (value, time.time() + UPDATED_FRESH_SECONDS), UPDATED_KEEP_SECONDS)
+        return value
+    finally:
+        cache.delete(lock)
+
+
 class Facet:
     title = ''
     works = models.Work.objects.none()
@@ -216,14 +265,7 @@ class Facet:
 
     def updated(self):
         # return the creation date for most recently added item
-        key = f"{self.feed_path.replace(' ', '_')}_updated"
-        if not self.works.exists():
-            return pytz.utc.localize(datetime.datetime.utcnow()).isoformat()
-        value = cache.get(key)
-        if value is None:
-            value = pytz.utc.localize(self.works.latest('created').created).isoformat()
-            cache.set(key, value, 100000)
-        return value
+        return latest_created(f"{self.feed_path.replace(' ', '_')}_updated", self.works)
 
 def get_facet_facet(facet_path):
     class Facet_Facet(Facet):
@@ -267,7 +309,7 @@ def opds_feed_for_work(work_id):
         def __init__(self, work_id):
             try:
                 works = models.Work.objects.filter(id=work_id)
-            except models.Work.DoesNotExist:
+            except works.model.DoesNotExist:
                 works = models.Work.objects.none()
             except ValueError:
                 # not a valid work_id
