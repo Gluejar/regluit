@@ -1,7 +1,6 @@
 """
 external library imports
 """
-import json
 from decimal import Decimal
 
 """
@@ -223,6 +222,35 @@ class FeedUpdatedTests(TestCase):
             latest_created(self.cache_name, Broken())
         self.assertIsNone(self.cache.get(self.cache_name + ':refreshing'))
 
+    def test_refresh_outliving_its_lock_does_not_release_the_next_lock(self):
+        # Request A takes the lock; its query runs past the lock's TTL, so the
+        # lock expires and request B takes a new one. When A finishes it must
+        # leave B's lock alone, or request C would start a third query.
+        from regluit.api.opds import latest_created
+        lock = self.cache_name + ':refreshing'
+        cache = self.cache
+        seen = {}
+
+        class SlowWorks:
+            model = models.Work
+            def latest(self, field):
+                seen['a_token'] = cache.get(lock)
+                cache.delete(lock)  # A's lease runs out mid-query
+                self.b_took_it = cache.add(lock, 'request-B-token', 60)
+                return models.Work.objects.latest(field)
+
+        slow = SlowWorks()
+        value = latest_created(self.cache_name, slow)
+        self.assertTrue(slow.b_took_it)
+        self.assertTrue(seen['a_token'])
+        self.assertNotEqual(seen['a_token'], 'request-B-token')
+        self.assertEqual(cache.get(lock), 'request-B-token')  # B still holds it
+        self.assertEqual(cache.get(self.cache_name)[0], value)  # A's value stored
+        # and while B holds it, request C serves the cached value without querying
+        cache.set(self.cache_name, (value, time.time() - 1), 100)
+        with self.assertNumQueries(0):
+            self.assertEqual(latest_created(self.cache_name, self.works), value)
+
     def test_navigation_feed_repeat_request_skips_the_date_queries(self):
         # The bare navigation feed is what timed out. Its first request
         # computes the dates; a repeat must not run them again.
@@ -251,6 +279,10 @@ class SingleWorkFeedTests(TestCase):
     def test_opdsjson_non_numeric_work_returns_empty_feed(self):
         r = self.client.get('/api/opdsjson/all/?work=notanumber')
         self.assertEqual(r.status_code, 200)
+        # the feed isn't strict JSON (its @context URL is unquoted, as on
+        # master), so check the text: the publications list is empty
+        body = b''.join(r.streaming_content).decode()
+        self.assertRegex(body, r'"publications":\s*\[\s*\]')
 
 
 class WebHookTests(TestCase):

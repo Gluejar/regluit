@@ -1,6 +1,7 @@
 import datetime
 import logging
 import time
+import uuid
 from urllib.parse import urlparse, urlunparse
 
 from bs4 import BeautifulSoup
@@ -213,7 +214,12 @@ def work_node(work, facet=None):
 # - after UPDATED_FRESH_SECONDS one request refreshes it, and the others keep
 #   serving the old value meanwhile ("stale-while-revalidate");
 # - "one request" is enforced with cache.add() as a short lock, so a cold or
-#   expired cache costs one query per key, not one per waiting request.
+#   expired cache costs one query per key, not one per waiting request;
+# - the lock holds a token unique to the request that took it, and a request
+#   releases the lock only if its own token is still there. A refresh that
+#   outlives UPDATED_LOCK_SECONDS therefore can't delete the lock a later
+#   request has since taken. (The get-then-delete is not atomic, but the gap
+#   is microseconds against a 60-second lease.)
 # With the per-process LocMemCache the lock is per process; with a shared
 # cache it is per site.
 UPDATED_FRESH_SECONDS = 60 * 60  # new books arrive nightly
@@ -223,6 +229,11 @@ UPDATED_LOCK_SECONDS = 60
 
 def _utcnow_isoformat():
     return pytz.utc.localize(datetime.datetime.utcnow()).isoformat()
+
+
+def _release_lock(lock, token):
+    if cache.get(lock) == token:
+        cache.delete(lock)
 
 
 def latest_created(key, works):
@@ -238,7 +249,8 @@ def latest_created(key, works):
         stale = entry
 
     lock = f'{key}:refreshing'
-    if not cache.add(lock, 1, UPDATED_LOCK_SECONDS):
+    token = uuid.uuid4().hex
+    if not cache.add(lock, token, UPDATED_LOCK_SECONDS):
         # another request is computing it; don't pile on. With nothing cached
         # yet, "now" is an acceptable <updated> date for a feed.
         return stale if stale is not None else _utcnow_isoformat()
@@ -250,7 +262,7 @@ def latest_created(key, works):
         cache.set(key, (value, time.time() + UPDATED_FRESH_SECONDS), UPDATED_KEEP_SECONDS)
         return value
     finally:
-        cache.delete(lock)
+        _release_lock(lock, token)
 
 
 class Facet:
