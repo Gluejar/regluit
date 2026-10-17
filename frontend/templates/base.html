@@ -15,7 +15,16 @@
     {% block extra_css %}{% endblock %}
 	<script type="text/javascript" src="{{ jquery_home }}"></script>
     <script type="text/javascript" src="/static/js/jquery.cookie.js"></script>
-	<script type="text/javascript" src="/static/js/sitewide1.js"></script>
+	{% comment %}
+	   The ?v= is cache-busting, and it matters more than usual since #1261:
+	   "sign in and come back here" now lives in this file rather than in the
+	   HTML, so a returning visitor holding a cached copy would get the new
+	   markup (bare href + data-next) with JS that does not know to promote it,
+	   and would silently lose the behaviour until their cache expired. Static
+	   files are served by plain StaticFilesStorage, which adds no hash of its
+	   own. Bump this whenever sitewide1.js changes.
+	{% endcomment %}
+	<script type="text/javascript" src="/static/js/sitewide1.js?v=1261"></script>
 	<script>
         function enableSubmit() {
             document.getElementById("search-button").disabled = false;
@@ -40,7 +49,7 @@
 
 <body>
 <div id="feedback">
-<p><a href="{% feedback_url %}" class="nounderline">Feedback</a></p>
+<p><a href="{% feedback_url %}" rel="nofollow" referrerpolicy="same-origin" class="nounderline">Feedback</a></p>
 </div>
 
 <div id="about_expandable">
@@ -113,10 +122,18 @@
             {% else %}
                 <div class="js-topmenu">
                     <ul class="menu">
-                        <li><a class="notbutton hijax" href="{% url 'superlogin' %}?next={% auth_next %}"><span>Sign In</span></a></li>
+                        {% comment %}
+                           These two links appear on every page of the site, so a ?next= in the
+                           href meant one distinct sign-in URL per crawlable page. The value now
+                           rides in data-next and is promoted back into the href by sitewide1.js.
+                           Google sign-in links elsewhere still carry ?next= in the href, but they
+                           live on a handful of routes (home, login, pledge login, gift redemption)
+                           rather than on every page. See issue #1261.
+                        {% endcomment %}
+                        <li><a class="notbutton hijax js-auth-next" rel="nofollow" href="{% url 'superlogin' %}" data-next="{% auth_next %}"><span>Sign In</span></a></li>
                        {% if not suppress_search_box %}
                             {% if request.get_full_path != "/accounts/register/" %}
-                                <li  class="last"><a class="btn btn-signup" href="{% url 'registration_register' %}?next={% auth_next %}">Sign Up <i class="fa fa-chevron-right"></i></a></li>
+                                <li  class="last"><a class="btn btn-signup js-auth-next" rel="nofollow" href="{% url 'registration_register' %}" data-next="{% auth_next %}">Sign Up <i class="fa fa-chevron-right"></i></a></li>
                             {% endif %}
                         {% endif %}
                     </ul>
@@ -168,7 +185,7 @@
             <li><a href="{% url 'faq' %}">General FAQ</a></li>
             <li><a href="{% url 'faq_location' 'rightsholders' %}">Author/Publisher FAQ</a></li>
             <li><a href="{% url 'api_help' %}">API</a></li>
-            <li><a href="{% feedback_url %}">Support</a>
+            <li><a href="{% feedback_url %}" rel="nofollow" referrerpolicy="same-origin">Support</a>
             <li><a href="{% url 'libraries' %}">Unglue.it for Libraries</a>
         </ul>
     </div>

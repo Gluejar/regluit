@@ -16,15 +16,47 @@ function getQueryVariable(variable) {
     }
     return null;
 }
+// True only for a same-site path: one leading slash, and not "//host" or
+// "/\host", both of which browsers treat as off-site. Values reaching here are
+// sometimes percent-encoded (%2Fwork%2F1%2F from the auth_next tag) and
+// sometimes not (/accounts/... from Django's @login_required), so decode before
+// checking -- but store the original, since decoding is only for the test.
+function isSameSitePath(value) {
+    var decoded;
+    try {
+        decoded = decodeURIComponent(value);
+    } catch (e) {
+        return false;
+    }
+    if (decoded.charAt(0) !== '/' ||
+        decoded.charAt(1) === '/' || decoded.charAt(1) === '\\') {
+        return false;
+    }
+    // Not /next/ itself: that is the view which READS this cookie, so storing
+    // it makes the cookie point at its own reader. The login page's fallback
+    // links carry ?next=/next/, so without this a visitor who had a real
+    // destination saved would have it overwritten by a pointer to nowhere.
+    return decoded.indexOf('/next/') !== 0;
+}
 $j(document).ready(function() {
     var next = getQueryVariable('next');
     var saved_next = $j.cookie('next');
     if(next!=null) {
         next = next.replace(/[\x22\x27\x3c\x3e]/g,'');
-        $j.cookie('next', next, {path: '/'});
+        // Only store a same-site path. This is the one place where a value out
+        // of the URL bar becomes a stored redirect destination, so it is worth
+        // refusing an off-site one here as well as on every read. The reads
+        // remain the authoritative boundary -- this cannot be, since anyone can
+        // set a cookie without running this script.
+        if (isSameSitePath(next)) {
+            $j.cookie('next', next, {path: '/'});
+        }
     } else if(saved_next!=null){
         var do_next = $j('#link-to-next');
-        if (do_next.length) window.location.replace(saved_next);
+        // Go to /next/ and let the server decide, rather than navigating to
+        // the cookie value here: that value is client-writable, so this would
+        // otherwise be an off-site hop. See frontend.views.next.
+        if (do_next.length) window.location.replace('/next/');
     }
 });
 </script>

@@ -1,10 +1,11 @@
 {% extends "base.html" %}
+{% load feedback_link %}
 
 {% block content %}
 <div class="js-main">
 <h1>Oops!  This page does not exist.</h1>
 
-<p>Should it? <a href="{% url 'feedback' %}">Send us feedback </a>.</p>
+<p>Should it? <a href="{% feedback_url %}" rel="nofollow" referrerpolicy="same-origin">Send us feedback </a>.</p>
 </div>
 {% endblock %}
 
