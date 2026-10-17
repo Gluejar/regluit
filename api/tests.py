@@ -2,7 +2,6 @@
 external library imports
 """
 import json
-import time
 from decimal import Decimal
 
 """
@@ -20,6 +19,7 @@ import regluit.core.isbn
 
 from regluit.core import models
 from regluit.api import models as apimodels
+import time
 
 class ApiTests(TestCase):
     fixtures = ['initial_data.json', 'neuromancer.json']
@@ -129,6 +129,24 @@ class FeedTests(TestCase):
         r = self.client.get('/api/onix/all/kw.Fiction/')
         self.assertEqual(r.status_code, 200)
 
+class AllowedRepoTests(TestCase):
+    def setUp(self):
+        apimodels.AllowedRepo.objects.create(org='test',repo_name='test')
+        apimodels.AllowedRepo.objects.create(org='star',repo_name='*')
+
+    def test_urls(self):
+        #good
+        self.assertTrue(apimodels.repo_allowed('https://github.com/test/test/raw/master/metadata.yaml')[0])
+        self.assertTrue(apimodels.repo_allowed('https://github.com/star/test/raw/master/metadata.yaml')[0])
+        # bad urls
+        self.assertFalse(apimodels.repo_allowed('auhf8peargp8ge')[0])
+        self.assertFalse(apimodels.repo_allowed('')[0])
+        self.assertFalse(apimodels.repo_allowed('http://github.com/test/test/raw/master/metadata.yaml')[0])
+        self.assertFalse(apimodels.repo_allowed('https://github.com/test/test/raw/master/samples/metadata.yaml')[0])
+        self.assertFalse(apimodels.repo_allowed('https://github.com/test/test/raw/branch/metadata.yaml')[0])
+        self.assertFalse(apimodels.repo_allowed('https://github.com/test/test/master/metadata.yaml')[0])
+        self.assertFalse(apimodels.repo_allowed('https://github.com/test/test/raw/master/metadata.json')[0])
+
 class FeedUpdatedTests(TestCase):
     """regluit#1265: a feed's <updated> date is served from the cache, and an
     expired or missing value is recomputed by one request at a time."""
@@ -221,24 +239,6 @@ class FeedUpdatedTests(TestCase):
                         if '`created` DESC' in q['sql'] and 'LIMIT 1' in q['sql']]
         self.assertEqual(date_queries, [])
 
-
-class AllowedRepoTests(TestCase):
-    def setUp(self):
-        apimodels.AllowedRepo.objects.create(org='test',repo_name='test')
-        apimodels.AllowedRepo.objects.create(org='star',repo_name='*')
-
-    def test_urls(self):
-        #good
-        self.assertTrue(apimodels.repo_allowed('https://github.com/test/test/raw/master/metadata.yaml')[0])
-        self.assertTrue(apimodels.repo_allowed('https://github.com/star/test/raw/master/metadata.yaml')[0])
-        # bad urls
-        self.assertFalse(apimodels.repo_allowed('auhf8peargp8ge')[0])
-        self.assertFalse(apimodels.repo_allowed('')[0])
-        self.assertFalse(apimodels.repo_allowed('http://github.com/test/test/raw/master/metadata.yaml')[0])
-        self.assertFalse(apimodels.repo_allowed('https://github.com/test/test/raw/master/samples/metadata.yaml')[0])
-        self.assertFalse(apimodels.repo_allowed('https://github.com/test/test/raw/branch/metadata.yaml')[0])
-        self.assertFalse(apimodels.repo_allowed('https://github.com/test/test/master/metadata.yaml')[0])
-        self.assertFalse(apimodels.repo_allowed('https://github.com/test/test/raw/master/metadata.json')[0])
 
 class WebHookTests(TestCase):
     fixtures = ['initial_data.json']
