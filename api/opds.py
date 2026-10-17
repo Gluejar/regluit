@@ -215,11 +215,13 @@ def work_node(work, facet=None):
 #   serving the old value meanwhile ("stale-while-revalidate");
 # - "one request" is enforced with cache.add() as a short lock, so a cold or
 #   expired cache costs one query per key, not one per waiting request;
-# - the lock holds a token unique to the request that took it, and a request
-#   releases the lock only if its own token is still there. A refresh that
-#   outlives UPDATED_LOCK_SECONDS therefore can't delete the lock a later
-#   request has since taken. (The get-then-delete is not atomic, but the gap
-#   is microseconds against a 60-second lease.)
+# - after a successful refresh the lock is not released: it lapses after
+#   UPDATED_LOCK_SECONDS. The fresh value serves every request until then
+#   anyway, and no request can delete a lock another request has taken;
+# - only a failed refresh releases the lock early (so the next request can
+#   retry), and only if the lock still holds this request's token;
+# - if a refresh outlives its lease and another request stores a newer date
+#   meanwhile, the slow refresh keeps that newer date instead of its own.
 # With the per-process LocMemCache the lock is per process; with a shared
 # cache it is per site.
 UPDATED_FRESH_SECONDS = 60 * 60  # new books arrive nightly
@@ -259,10 +261,16 @@ def latest_created(key, works):
             value = pytz.utc.localize(works.latest('created').created).isoformat()
         except works.model.DoesNotExist:
             value = _utcnow_isoformat()
-        cache.set(key, (value, time.time() + UPDATED_FRESH_SECONDS), UPDATED_KEEP_SECONDS)
-        return value
-    finally:
+    except Exception:
         _release_lock(lock, token)
+        raise
+    current = cache.get(key)
+    if current != entry:  # another request stored a value during this refresh
+        other = current[0] if isinstance(current, tuple) else current
+        if isinstance(other, str) and other > value:  # UTC ISO dates sort as text
+            value = other
+    cache.set(key, (value, time.time() + UPDATED_FRESH_SECONDS), UPDATED_KEEP_SECONDS)
+    return value
 
 
 class Facet:

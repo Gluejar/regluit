@@ -170,7 +170,6 @@ class FeedUpdatedTests(TestCase):
         self.assertTrue(first.startswith(self.newest[:19]))
         with self.assertNumQueries(0):
             self.assertEqual(latest_created(self.cache_name, self.works), first)
-        self.assertIsNone(self.cache.get(self.cache_name + ':refreshing'))
 
     def test_expired_value_is_refreshed_by_the_request_that_gets_the_lock(self):
         from regluit.api.opds import latest_created
@@ -179,7 +178,6 @@ class FeedUpdatedTests(TestCase):
             value = latest_created(self.cache_name, self.works)
         self.assertNotEqual(value, 'old')
         self.assertEqual(self.cache.get(self.cache_name)[0], value)
-        self.assertIsNone(self.cache.get(self.cache_name + ':refreshing'))
 
     def test_expired_value_is_served_stale_while_another_request_refreshes(self):
         from regluit.api.opds import latest_created
@@ -251,6 +249,37 @@ class FeedUpdatedTests(TestCase):
         cache.set(self.cache_name, (value, time.time() - 1), 100)
         with self.assertNumQueries(0):
             self.assertEqual(latest_created(self.cache_name, self.works), value)
+
+    def test_successful_refresh_keeps_its_lock_until_the_lease_lapses(self):
+        # Releasing after success is what opened the races; the lock now
+        # lapses on its own, and the next stale read finds it still held.
+        from regluit.api.opds import latest_created
+        lock = self.cache_name + ':refreshing'
+        value = latest_created(self.cache_name, self.works)
+        self.assertTrue(self.cache.get(lock))  # still held, by this request's token
+        self.cache.set(self.cache_name, ('old', time.time() - 1), 100)
+        with self.assertNumQueries(0):  # within the lease: serve stale, no second query
+            self.assertEqual(latest_created(self.cache_name, self.works), 'old')
+        self.cache.delete(lock)  # the lease lapses
+        with self.assertNumQueries(1):
+            self.assertEqual(latest_created(self.cache_name, self.works), value)
+
+    def test_slow_refresh_does_not_overwrite_a_newer_date(self):
+        # A's query outlives its lease; B refreshes meanwhile and stores a
+        # newer date. A finishing later must not put the older date back.
+        from regluit.api.opds import latest_created
+        cache = self.cache
+        newer = '2999-01-01T00:00:00+00:00'
+
+        class SlowWorks:
+            model = models.Work
+            def latest(self, field):
+                cache.set(self_name, (newer, time.time() + 3600), 100)  # B's result
+                return models.Work.objects.latest(field)
+
+        self_name = self.cache_name
+        self.assertEqual(latest_created(self.cache_name, SlowWorks()), newer)
+        self.assertEqual(cache.get(self.cache_name)[0], newer)
 
     def test_navigation_feed_repeat_request_skips_the_date_queries(self):
         # The bare navigation feed is what timed out. Its first request
