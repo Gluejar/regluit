@@ -240,6 +240,19 @@ class FeedUpdatedTests(TestCase):
         self.assertEqual(date_queries, [])
 
 
+class SingleWorkFeedTests(TestCase):
+    # ?work= is user input. A non-numeric value makes filter() raise
+    # ValueError; the feed should come back empty, not as a 500.
+    def test_opds_non_numeric_work_returns_empty_feed(self):
+        r = self.client.get('/api/opds/all/?work=notanumber')
+        self.assertEqual(r.status_code, 200)
+        self.assertNotIn(b'<entry', b''.join(r.streaming_content))
+
+    def test_opdsjson_non_numeric_work_returns_empty_feed(self):
+        r = self.client.get('/api/opdsjson/all/?work=notanumber')
+        self.assertEqual(r.status_code, 200)
+
+
 class WebHookTests(TestCase):
     fixtures = ['initial_data.json']
     def test_travisci_webhook(self):

@@ -309,7 +309,7 @@ def opds_feed_for_work(work_id):
         def __init__(self, work_id):
             try:
                 works = models.Work.objects.filter(id=work_id)
-            except works.model.DoesNotExist:
+            except models.Work.DoesNotExist:
                 works = models.Work.objects.none()
             except ValueError:
                 # not a valid work_id
