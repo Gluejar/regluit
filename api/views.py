@@ -1,9 +1,12 @@
+import hashlib
 import json as json_module
 import logging
 
 from django.contrib import auth
 from django.contrib.auth.models import User
+from django.conf import settings
 from django.contrib.sites.models import Site
+from django.core.cache import caches
 from django.urls import reverse
 from django.shortcuts import render
 from django.template import RequestContext
@@ -172,7 +175,63 @@ class ApiHelpView(TemplateView):
 
         return context
 
-class OPDSNavigationView(TemplateView):
+# OPDS feeds are what e-reader apps and crawlers fetch, and page 1 of a feed
+# takes seconds of database work to build. The same URLs are requested over
+# and over (regluit#1257, #1265), and new books arrive nightly, so an hour-old
+# feed is fine.
+# Production gives the feeds their own shared cache, CACHES['opds'] (set in
+# regluit-provisioning), so only the feeds depend on it. Without that alias
+# the default cache is used: with the per-process LocMemCache each mod_wsgi
+# process keeps its own copy.
+OPDS_CACHE_TIMEOUT = 60 * 60
+OPDS_CACHE_ALIAS = 'opds'
+
+
+def feed_cache():
+    return caches[OPDS_CACHE_ALIAS if OPDS_CACHE_ALIAS in settings.CACHES else 'default']
+
+
+class AnonymousFeedCacheMixin:
+    """Cache whole successful GET responses for anonymous requests.
+
+    The key is the path plus query string, so different pages, sort orders
+    and facets are cached separately. The feeds render nothing per-user;
+    logged-in requests bypass the cache anyway, as a safeguard.
+    Streaming responses are read into memory once so they can be stored;
+    a feed page is at most ten works.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        if request.method != 'GET' or request.user.is_authenticated:
+            return super().dispatch(request, *args, **kwargs)
+        path = request.get_full_path().encode('utf-8')
+        key = 'opds_feed:' + hashlib.sha256(path).hexdigest()
+        try:
+            cached = feed_cache().get(key)
+        except Exception:
+            # a cache outage must not take the feeds down; build it instead
+            logger.warning('OPDS cache read failed', exc_info=True)
+            cached = None
+        if cached is not None:
+            content, content_type = cached
+            return HttpResponse(content, content_type=content_type)
+        response = super().dispatch(request, *args, **kwargs)
+        if response.status_code != 200:
+            return response
+        if response.streaming:
+            content = b''.join(response.streaming_content)
+        else:
+            if hasattr(response, 'render'):
+                response.render()
+            content = response.content
+        content_type = response['Content-Type']
+        try:
+            feed_cache().set(key, (content, content_type), OPDS_CACHE_TIMEOUT)
+        except Exception:
+            logger.warning('OPDS cache write failed', exc_info=True)
+        return HttpResponse(content, content_type=content_type)
+
+
+class OPDSNavigationView(AnonymousFeedCacheMixin, TemplateView):
     json = False
     # https://stackoverflow.com/a/6867976: secret to how to change content-type
 
@@ -193,7 +252,7 @@ class OPDSNavigationView(TemplateView):
             context["feed"] = opds.get_facet_facet('all')
         return context
 
-class OPDSAcquisitionView(View):
+class OPDSAcquisitionView(AnonymousFeedCacheMixin, View):
     json = False
     def get(self, request, *args, **kwargs):
         facet = kwargs.get('facet')
