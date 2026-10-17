@@ -1,4 +1,5 @@
 {% extends "basedocumentation.html" %}
+{% load feedback_link %}
 
 
 {% block title %}Privacy{% endblock %}
@@ -126,7 +127,7 @@ Some of your actions on the site are visible to others. Supporting free books is
 
 
 <p>
-If there are things you think we should be doing differently with respect to privacy, <a href="{% url 'feedback' %}?page=Privacy">please let us know!</a>
+If there are things you think we should be doing differently with respect to privacy, <a href="{% feedback_url %}" rel="nofollow" referrerpolicy="same-origin">please let us know!</a>
 </p>
 
 <h3 id="nokids">Unglue.it is not intended for Children</h3>

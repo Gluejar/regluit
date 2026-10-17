@@ -422,8 +422,12 @@ class Campaign(models.Model):
             self.created = None
             self.name = 'copy of %s' % self.name
             self.activated = None
-            self.update_left()
+            # save() BEFORE update_left(): update_left() -> current_total filters
+            # Transactions on this instance, and Django 5.x raises ValueError for
+            # unsaved instances in related filters (4.2 silently matched nothing).
+            # A fresh clone has no transactions, so the computed totals are identical.
             self.save()
+            self.update_left()
             self.managers.set(old_managers)
 
             # clone associated premiums

@@ -1,1 +1,0 @@
-News from {{ comment.user.username }} about {{ comment.content_object.title }}

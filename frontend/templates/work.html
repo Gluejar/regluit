@@ -2,7 +2,6 @@
 
 {% load cache %}
 {% load sanitizer %}
-{% load comments %}
 {% load humanize %}
 {% load lib_acqs %}
 {% load purchased %}
@@ -248,12 +247,10 @@
                                 </div>
                             </div>
                         </div>
-                        {% get_comment_count for work as comment_count %}
                         {% if action == 'editions' %}
                         <div class="content-block-heading" id="tabs">
                             <ul class="tabs">
                                 <li class="tabs1"><a href="{% url 'work' work.id %}?tab=1">{% if status == 'ACTIVE' %}Campaign{% else %}Description{% endif %}</a></li>
-                                <li class="tabs2"><a href="{% url 'work' work.id %}?tab=2">Comments {% if comment_count > 0 %}({{ comment_count }}){% endif %}</a></li>
                                 <li class="tabs3" id="supporters"><a href="{% url 'work' work.id %}?tab=3">Ungluers {% if wishers > 0 %}<br />({{ wishers }}){% endif %}</a></li>
                                 <li class="tabs4 active"><a href="#">Editions</a></li>
                             </ul>
@@ -262,7 +259,6 @@
                         <div class="content-block-heading" id="tabs">
                             <ul class="tabs">
                                 <li class="tabs1 {% if activetab == '1' %}active{% endif %}"><a href="#">{% if status == 'ACTIVE' %}Campaign{% else %}Description{% endif %}</a></li>
-                                <li class="tabs2 {% if activetab == '2' %}active{% endif %}"><a href="#">Comments {% if comment_count > 0 %}({{ comment_count }}){% endif %}</a></li>
                                 <li class="tabs3 {% if activetab == '3' %}active{% endif %}" id="supporters"><a href="#">Ungluers {% if wishers > 0 %}<br />({{ wishers }}){% endif %}</a></li>
                                 <li class="tabs4 {% if activetab == '4' %}active{% endif %}"><a href="#">More...</a></li>
                             </ul>
@@ -310,17 +306,6 @@
                                     </p>
                                     {% endif %}
                                     </div>
-                                </div>
-                            </div>
-                            <div id="tabs-2" class="tabs {% if activetab == '2' %}active{% endif %}">
-                                <h3>Why {% if work.ebooks.all %}read{% else %}unglue{% endif %} this book? Have your say.</h3>
-                                <div class="tabs-content">
-                                   {% render_comment_list for work %}
-                                   {% if user.is_authenticated %}
-                                       {% render_comment_form for work %}
-                                   {% else %}
-                                   <p>You must be <a href="{% url 'superlogin' %}?next={{ request.get_full_path|urlencode }}">logged in</a> to comment.</p>
-                                   {% endif %}
                                 </div>
                             </div>
                             <div id="tabs-3" class="tabs {% if activetab == '3' %}active{% endif %}">
@@ -466,11 +451,13 @@
                                             <div><a href="{% url 'merge' work_id  %}">Merge other works into this one</a></div>
                                         
                                         {% endif %}
+                                        {# Readers follow a book's subjects from the Explore box (explore.html, #1278). This full list is the editing tool, so it is shown only to people who can change it. #}
+                                        {% if user.is_staff or user_can_edit_work or user in work.last_campaign.managers.all %}
                                         <h4>Keywords</h4>
                                         {% if work.subjects.all.count > 0 %}
                                             <ul id="kw_list">
                                             {% for subject in work.subjects.all %}
-                                                <li itemprop="keywords">{{ subject.name }} 
+                                                <li>{{ subject.name }}
                                                 {% if user.is_staff or user in work.last_campaign.managers.all %}
                                                     <span class="deletebutton" data="{{ subject.name }}">x</span>
                                                 {% endif %}
@@ -486,6 +473,7 @@
                                             <form method="POST"  id="kw_add_form">{% csrf_token %}
                                             {{ kwform.add_kw }}<input type="hidden" name="kw_add" value="true"> <input type="submit" name="kw_add_fake" value="add keyword" id="kw_add_form_submit" />
                                             </form>
+                                        {% endif %}
                                         {% endif %}
                                     {% endif %}
                                     {% with doi=work.doi http_id=work.http_id %}

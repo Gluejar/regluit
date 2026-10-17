@@ -24,7 +24,6 @@ from django.db.models import F
 from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.utils.timezone import now
 
-from django_comments.models import Comment
 
 import regluit
 from regluit.marc.models import MARCRecord as NewMARC
@@ -138,6 +137,19 @@ class Work(models.Model):
         ordering = ['title']
         indexes = [
             models.Index(fields=['is_free', 'title']),
+            # /free/ facet browsing (#1253): every facet query starts from
+            # is_free=True, optionally narrows by language (?pub_lang=), and
+            # by default sorts newest-first by (-featured, -created). The
+            # captured slow-query plans intersect the separate is_free and
+            # language indexes, then build and sort a temporary table. These are intended to give
+            # it one range scan in sort order instead; whether DISTINCT over
+            # the joined facet tables still forces a temporary table must be
+            # measured on real data. Created by migrations 0033/0034 with
+            # explicit online-DDL clauses, not a plain AddIndex.
+            models.Index(fields=['is_free', 'language', '-featured', '-created'],
+                         name='core_work_free_lang_new_idx'),
+            models.Index(fields=['is_free', '-featured', '-created'],
+                         name='core_work_free_new_idx'),
         ]
 
     def __str__(self):
@@ -158,8 +170,6 @@ class Work(models.Model):
                 userprofile.works.remove(self)
             for identifier in self.identifiers.all():
                 identifier.delete()
-            for comment in Comment.objects.for_model(self):
-                comment.delete()
             for edition in self.editions.all():
                 for ebook in edition.ebooks.all():
                     ebook.delete()
