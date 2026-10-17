@@ -212,6 +212,19 @@ class FacetIsolationTests(TestCase):
         self.assertContains(r, "EPUB format")
         self.assertContains(r, "Directory of Open Access Books")
 
+class DonationReceiptSubjectTests(TestCase):
+    """#1271: the receipt subject ran "Foundation" into the fund name
+    ("Free Ebook FoundationGeneral Fund")."""
+    def test_subject_has_a_space_before_the_fund_name(self):
+        from types import SimpleNamespace
+        from django.template.loader import render_to_string
+        transaction = SimpleNamespace(amount='5.00', fund=SimpleNamespace(name='General Fund'))
+        subject = render_to_string('notification/donation/short.txt', {'transaction': transaction})
+        self.assertEqual(
+            subject.strip(),
+            'You have donated $5.00 to the Free Ebook Foundation General Fund.')
+
+
 class GoogleBooksTest(TestCase):
     fixtures = ['initial_data.json', 'neuromancer.json']
     def test_googlebooks_id(self):
