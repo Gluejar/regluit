@@ -12,6 +12,7 @@ import regluit.core.cc as cc
 
 from .opds import (
     add_query_component,
+    latest_created,
 )
 
 logger = logging.getLogger(__name__)
@@ -183,14 +184,7 @@ class Facet:
 
     def updated(self):
         # return the creation date for most recently added item
-        key = f"{self.feed_path.replace(' ', '_')}_updated"
-        if not self.works.exists():
-            return pytz.utc.localize(datetime.datetime.utcnow()).isoformat()
-        value = cache.get(key)
-        if value is None:
-            value = pytz.utc.localize(self.works.latest('created').created).isoformat()
-            cache.set(key, value, 100000)
-        return value
+        return latest_created(f"{self.feed_path.replace(' ', '_')}_updated", self.works)
 
 def get_facet_facet(facet_path):
     class Facet_Facet(Facet):
