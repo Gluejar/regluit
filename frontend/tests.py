@@ -212,51 +212,6 @@ class FacetIsolationTests(TestCase):
         self.assertContains(r, "EPUB format")
         self.assertContains(r, "Directory of Open Access Books")
 
-class DonationCsrfTests(TestCase):
-    """#1270: the quick Donate forms posted to a CSRF-exempt endpoint, so
-    any client that submitted forms created an empty Transaction row before
-    the card step. The endpoint now requires the CSRF token the forms carry."""
-    fixtures = ['initial_data.json']
-
-    def _count(self):
-        from regluit.payment.models import Transaction
-        return Transaction.objects.count()
-
-    def test_post_without_a_token_is_refused_and_creates_nothing(self):
-        before = self._count()
-        client = Client(enforce_csrf_checks=True)
-        r = client.post('/payment/donation/create', {'amount': '10.00'})
-        self.assertEqual(r.status_code, 403)
-        self.assertEqual(self._count(), before)
-
-    def _form_in(self, page):
-        form = page[page.index('action="/payment/donation/create"'):]
-        return form[:form.index('</form>')]
-
-    def test_donate_form_posts_with_its_token_and_reaches_the_card_step(self):
-        import re
-        client = Client(enforce_csrf_checks=True)
-        r = client.get('/about/funds/')
-        self.assertEqual(r.status_code, 200)
-        token = re.search(r'name="csrfmiddlewaretoken" value="([^"]+)"',
-                          self._form_in(str(r.content, 'utf-8')))
-        self.assertIsNotNone(token, "the Donate form has no CSRF token")
-        before = self._count()
-        r = client.post('/payment/donation/create',
-                        {'amount': '10.00', 'csrfmiddlewaretoken': token.group(1)})
-        self.assertEqual(r.status_code, 302)
-        self.assertTrue(r['Location'].startswith('/payment/fund/'))
-        self.assertEqual(self._count(), before + 1)
-
-    def test_homepage_donate_form_carries_a_token(self):
-        # The homepage view needs a featured campaign the test fixtures do
-        # not have, so check the template's form itself.
-        from django.template.loader import get_template
-        source = get_template('home.html').template.source
-        form = source[source.index("action=\"{% url 'newdonation' %}\""):]
-        self.assertIn('{% csrf_token %}', form[:form.index('</form>')])
-
-
 class GoogleBooksTest(TestCase):
     fixtures = ['initial_data.json', 'neuromancer.json']
     def test_googlebooks_id(self):
@@ -309,6 +264,51 @@ class SanitizeRichTextTests(SimpleTestCase):
         self.assertIn('<b>ok</b>', rendered)
         self.assertNotIn('<script>', rendered)  # not escaped, actually removed
         self.assertNotIn('&lt;script&gt;', rendered)
+class DonationCsrfTests(TestCase):
+    """#1270: the quick Donate forms posted to a CSRF-exempt endpoint, so
+    any client that submitted forms created an empty Transaction row before
+    the card step. The endpoint now requires the CSRF token the forms carry."""
+    fixtures = ['initial_data.json']
+
+    def _count(self):
+        from regluit.payment.models import Transaction
+        return Transaction.objects.count()
+
+    def test_post_without_a_token_is_refused_and_creates_nothing(self):
+        before = self._count()
+        client = Client(enforce_csrf_checks=True)
+        r = client.post('/payment/donation/create', {'amount': '10.00'})
+        self.assertEqual(r.status_code, 403)
+        self.assertEqual(self._count(), before)
+
+    def _form_in(self, page):
+        form = page[page.index('action="/payment/donation/create"'):]
+        return form[:form.index('</form>')]
+
+    def test_donate_form_posts_with_its_token_and_reaches_the_card_step(self):
+        import re
+        client = Client(enforce_csrf_checks=True)
+        r = client.get('/about/funds/')
+        self.assertEqual(r.status_code, 200)
+        token = re.search(r'name="csrfmiddlewaretoken" value="([^"]+)"',
+                          self._form_in(str(r.content, 'utf-8')))
+        self.assertIsNotNone(token, "the Donate form has no CSRF token")
+        before = self._count()
+        r = client.post('/payment/donation/create',
+                        {'amount': '10.00', 'csrfmiddlewaretoken': token.group(1)})
+        self.assertEqual(r.status_code, 302)
+        self.assertTrue(r['Location'].startswith('/payment/fund/'))
+        self.assertEqual(self._count(), before + 1)
+
+    def test_homepage_donate_form_carries_a_token(self):
+        # The homepage view needs a featured campaign the test fixtures do
+        # not have, so check the template's form itself.
+        from django.template.loader import get_template
+        source = get_template('home.html').template.source
+        form = source[source.index("action=\"{% url 'newdonation' %}\""):]
+        self.assertIn('{% csrf_token %}', form[:form.index('</form>')])
+
+
 class FeedbackSelfLinkTests(TestCase):
     """Regression: the feedback page must not link back to itself with a
     ?page=<current-url> parameter. That self-reference (emitted by the base
