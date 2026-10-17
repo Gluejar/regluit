@@ -24,6 +24,12 @@
                                         {% if work.gtbg %}
                                             <li><a href="{% url 'faceted_list' 'id/gtbg' %}?order_by=popular">Books in Project Gutenberg</a></li>
                                         {% endif %}
+                                        {# A book's subjects, each linked to its list of free books (#1278). Only subjects that lead somewhere: visible, and with another free book. A name with a slash is not linked because the list URL is split on slashes. #}
+                                        {% for subject in work.subjects.all %}
+                                            {% if subject.is_visible and subject.num_free > 1 %}
+                                                <li itemprop="keywords">{% if '/' in subject.name %}<span>{{ subject.name }}</span>{% else %}<a href="{% url 'free' %}kw.{{ subject.name|urlencode }}/"><span>{{ subject.name }}</span></a>{% endif %} ({{ subject.num_free }})</li>
+                                            {% endif %}
+                                        {% endfor %}
                                     </ul>
                                 {% endif %}
                                 </li>
