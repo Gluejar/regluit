@@ -2,12 +2,16 @@
 external library imports
 """
 import json
+import re
 from decimal import Decimal
+from unittest import skipUnless
+from unittest.mock import patch
 
 """
 django imports
 """
 from django.contrib.auth.models import User
+from django.db import connection, OperationalError
 from django.test import TestCase
 from django.test.client import Client
 from django.utils.timezone import now
@@ -127,6 +131,71 @@ class FeedTests(TestCase):
     def test_onix_all_keyword_alias_works(self):
         r = self.client.get('/api/onix/all/kw.Fiction/')
         self.assertEqual(r.status_code, 200)
+
+class SearchFeedGuardTests(TestCase):
+    """OPDS search feeds (s.TERM): no facet fan-out; a slow query gets a 503 (#1265)."""
+    fixtures = ['initial_data.json', 'neuromancer.json']
+
+    def setUp(self):
+        edition = models.Edition.objects.get(pk=1)
+        models.Ebook.objects.create(edition=edition, url='http://example.org/',
+                                    format='epub', rights='CC BY')
+
+    @staticmethod
+    def feed_paths(body):
+        # the /api/opds/<path>/ part of every feed link in an XML feed
+        return set(re.findall(r'href="https://unglue\.it/api/opds/([^"?]*)', body))
+
+    def test_search_feed_links_only_to_itself(self):
+        r = self.client.get('/api/opds/s.neuromancer/?page=1')
+        self.assertEqual(r.status_code, 200)
+        body = r.content.decode()
+        self.assertEqual(self.feed_paths(body), {'s.neuromancer/'})
+        self.assertIn('Sorted by popularity', body)
+        self.assertIn('Previous 10', body)
+
+    def test_non_search_feed_keeps_other_facet_links(self):
+        r = self.client.get('/api/opds/epub/')
+        self.assertEqual(r.status_code, 200)
+        body = b''.join(r.streaming_content).decode()
+        self.assertTrue(any(p.startswith('epub/') and p != 'epub/'
+                            for p in self.feed_paths(body)))
+
+    def test_json_search_feed_links_only_to_itself(self):
+        r = self.client.get('/api/opdsjson/s.neuromancer/')
+        self.assertEqual(r.status_code, 200)
+        # parse only the links block: the feed puts a comma after every publication
+        body = r.content.decode()
+        links = json.loads(body.split('"links": ', 1)[1].split(',\n"publications"', 1)[0])
+        paths = {l['href'].split('/api/opdsjson/')[1].split('?')[0] for l in links}
+        self.assertEqual(paths, {'s.neuromancer/'})
+
+    def test_search_timeout_is_503_without_error_log(self):
+        def timed_out(*args, **kwargs):
+            raise OperationalError(3024, 'maximum statement execution time exceeded')
+            yield
+        with patch('regluit.api.opds.opds_feed_for_works', timed_out), \
+                self.assertNoLogs('django.request', level='ERROR'):
+            r = self.client.get('/api/opds/s.open/pdf/')
+        self.assertEqual(r.status_code, 503)
+        self.assertEqual(r['Retry-After'], '3600')
+
+    def test_other_database_errors_are_not_swallowed(self):
+        def lost(*args, **kwargs):
+            raise OperationalError(2013, 'Lost connection to MySQL server')
+            yield
+        with patch('regluit.api.opds.opds_feed_for_works', lost):
+            with self.assertRaises(OperationalError):
+                self.client.get('/api/opds/s.open/')
+
+    @skipUnless(connection.vendor == 'mysql', 'max_execution_time is MySQL-only')
+    def test_time_limit_is_reset_after_the_request(self):
+        r = self.client.get('/api/opds/s.neuromancer/')
+        self.assertEqual(r.status_code, 200)
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT @@SESSION.max_execution_time, @@GLOBAL.max_execution_time")
+            session_value, global_value = cursor.fetchone()
+        self.assertEqual(session_value, global_value)
 
 class AllowedRepoTests(TestCase):
     def setUp(self):
