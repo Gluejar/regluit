@@ -215,6 +215,26 @@ class OPDSCacheTests(TestCase):
             self.assertEqual(len(caches['opds']._cache), 1)
             self.assertEqual(len(caches['default']._cache), 0)
 
+    def test_order_by_none_streams_and_is_not_cached(self):
+        # up to 50,000 works a page in the JSON feed: never buffered (#1189)
+        url = '/api/opdsjson/creative_commons/?order_by=none'
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue(r.streaming)
+        b''.join(r.streaming_content)
+        self.assertEqual(len(cache._cache), 0)
+
+    def test_order_by_none_still_cached_outside_json_acquisition(self):
+        # XML pages are ten works and navigation feeds ignore order_by
+        for url in ('/api/opds/creative_commons/?order_by=none',
+                    '/api/opdsjson/?order_by=none'):
+            self.assertEqual(self.client.get(url).status_code, 200)
+            with self.assertNumQueries(0):
+                r = self.client.get(url)
+                self.assertEqual(r.status_code, 200)
+                self.assertFalse(r.streaming)  # a streamed feed would query lazily
+
+
 class SearchFeedGuardTests(TestCase):
     """OPDS search feeds (s.TERM): no facet fan-out; a slow query gets a 503 (#1265)."""
     fixtures = ['initial_data.json', 'neuromancer.json']

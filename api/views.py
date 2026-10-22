@@ -204,10 +204,17 @@ class AnonymousFeedCacheMixin:
     and facets are cached separately. The feeds render nothing per-user;
     logged-in requests bypass the cache anyway, as a safeguard.
     Streaming responses are read into memory once so they can be stored;
-    a feed page is at most ten works.
+    a feed page is at most 50 works. The exception is the JSON acquisition
+    feed's `order_by=none`: up to 50,000 works a page, too big to build in
+    memory (#1189), so those bypass the cache and keep streaming.
     """
+    streams_order_by_none = False
+
     def dispatch(self, request, *args, **kwargs):
         if request.method != 'GET' or request.user.is_authenticated:
+            return super().dispatch(request, *args, **kwargs)
+        if (self.streams_order_by_none and self.json
+                and request.GET.get('order_by') == 'none'):
             return super().dispatch(request, *args, **kwargs)
         path = request.get_full_path().encode('utf-8')
         key = 'opds_feed:' + hashlib.sha256(path).hexdigest()
@@ -260,6 +267,7 @@ class OPDSNavigationView(AnonymousFeedCacheMixin, TemplateView):
 
 class OPDSAcquisitionView(AnonymousFeedCacheMixin, View):
     json = False
+    streams_order_by_none = True
     def get(self, request, *args, **kwargs):
         facet = kwargs.get('facet')
         feed_module = opds_json if self.json else opds
