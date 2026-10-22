@@ -33,7 +33,7 @@ function put_un_in_cookie(){
 
 <div class="google_signup">
 	<h3>...or</h3>
-   <a  class="btn btn-social btn-google-plus" href="{% url 'social:begin' "google-oauth2" %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}/next/{% endif %}" ><i class="fa fa-google"></i>Sign in with Google</a>
+   <a  class="btn btn-social btn-google-plus" rel="nofollow" href="{% url 'social:begin' "google-oauth2" %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}/next/{% endif %}" ><i class="fa fa-google"></i>Sign in with Google</a>
 </div>
 {% else %}
 <div>

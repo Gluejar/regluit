@@ -162,7 +162,7 @@ function put_un_in_cookie2(){
                                 <input type="submit" class="signup" value="Sign Up Now"  onclick="this.disabled=true,this.form.submit();" />
                             </div>
                             <div class="google_signup" style="padding-bottom: 10px;">
-                               <a  class="btn btn-social btn-google-plus" href="{% url 'social:begin' "google-oauth2" %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}/next/{% endif %}" ><i class="fa fa-google"></i>Sign Up with Google</a>
+                               <a  class="btn btn-social btn-google-plus" rel="nofollow" href="{% url 'social:begin' "google-oauth2" %}?next={% if request.GET.next %}{{ request.GET.next|urlencode }}{% else %}/next/{% endif %}" ><i class="fa fa-google"></i>Sign Up with Google</a>
                             </div>
                           </form>
                         </div>
@@ -181,12 +181,6 @@ function put_un_in_cookie2(){
                     
             </form> 
 
-                    </div>
-                </div>
-                <div class="jsmodule">
-                	<h3 class="module-title">News</h3>
-                    <div class="jsmod-content">
-                     <a href="https://blog.unglue.it/2022/01/05/100000-open-access-ebooks/">The 100,000 Open Access Ebooks.</a>
                     </div>
                 </div>
                 <div class="jsmodule">

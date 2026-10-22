@@ -6,6 +6,7 @@ Disallow: /feedback/
 Disallow: /socialauth/
 Disallow: /search/
 Disallow: /googlebooks/
+Disallow: /free/kw.
 
 # --- AI crawlers ---
 # The "User-agent: *" group above applies only to crawlers that match no
