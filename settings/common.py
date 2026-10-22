@@ -499,6 +499,15 @@ AWS_SECRET_ACCESS_KEY = ''
 AWS_STORAGE_BUCKET_NAME = ''
 AWS_QUERYSTRING_AUTH = False
 
+# Ebook downloads through a CDN. When EBOOK_CDN_BASE is set (e.g.
+# "https://files.unglue.it/"), download_ebook redirects ebooks stored on
+# EBOOK_CDN_ORIGIN_HOST to the same path on the CDN instead of to S3, which
+# bills ~$0.09/GB out. Ebooks on any other host are redirected unchanged.
+# Empty (the default, and on test) means today's behavior; emptying it is the
+# rollback. The stored ebook URLs in the database are never changed.
+EBOOK_CDN_BASE = ''
+EBOOK_CDN_ORIGIN_HOST = 'tieulgnu.s3.amazonaws.com'
+
 
 FORMATS = (
     ('pdf','PDF'),
