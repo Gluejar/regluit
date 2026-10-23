@@ -23,6 +23,7 @@ import regluit.core.isbn
 
 from regluit.core import models
 from regluit.api import models as apimodels
+import time
 
 class ApiTests(TestCase):
     fixtures = ['initial_data.json', 'neuromancer.json']
@@ -214,6 +215,174 @@ class AllowedRepoTests(TestCase):
         self.assertFalse(apimodels.repo_allowed('https://github.com/test/test/raw/branch/metadata.yaml')[0])
         self.assertFalse(apimodels.repo_allowed('https://github.com/test/test/master/metadata.yaml')[0])
         self.assertFalse(apimodels.repo_allowed('https://github.com/test/test/raw/master/metadata.json')[0])
+
+class FeedUpdatedTests(TestCase):
+    """regluit#1265: a feed's <updated> date is served from the cache, and an
+    expired or missing value is recomputed by one request at a time."""
+    fixtures = ['initial_data.json', 'neuromancer.json']
+    cache_name = 'test_1265_updated'
+
+    def setUp(self):
+        from django.core.cache import cache
+        self.cache = cache
+        cache.clear()
+        self.works = models.Work.objects.all()
+        self.newest = models.Work.objects.latest('created').created.isoformat()
+
+    def tearDown(self):
+        self.cache.clear()
+
+    def test_cold_cache_computes_once_then_serves_from_cache(self):
+        from regluit.api.opds import latest_created
+        with self.assertNumQueries(1):
+            first = latest_created(self.cache_name, self.works)
+        self.assertTrue(first.startswith(self.newest[:19]))
+        with self.assertNumQueries(0):
+            self.assertEqual(latest_created(self.cache_name, self.works), first)
+
+    def test_expired_value_is_refreshed_by_the_request_that_gets_the_lock(self):
+        from regluit.api.opds import latest_created
+        self.cache.set(self.cache_name, ('old', time.time() - 1), 100)
+        with self.assertNumQueries(1):
+            value = latest_created(self.cache_name, self.works)
+        self.assertNotEqual(value, 'old')
+        self.assertEqual(self.cache.get(self.cache_name)[0], value)
+
+    def test_expired_value_is_served_stale_while_another_request_refreshes(self):
+        from regluit.api.opds import latest_created
+        self.cache.set(self.cache_name, ('old', time.time() - 1), 100)
+        self.cache.add(self.cache_name + ':refreshing', 1, 60)
+        with self.assertNumQueries(0):
+            self.assertEqual(latest_created(self.cache_name, self.works), 'old')
+
+    def test_cold_cache_while_another_request_computes_does_not_query(self):
+        from regluit.api.opds import latest_created
+        self.cache.add(self.cache_name + ':refreshing', 1, 60)
+        with self.assertNumQueries(0):
+            value = latest_created(self.cache_name, self.works)
+        self.assertTrue(value)  # "now", as an ISO date
+        self.assertIsNone(self.cache.get(self.cache_name))  # nothing cached from it
+
+    def test_value_cached_before_the_change_is_served_and_refreshed(self):
+        from regluit.api.opds import latest_created
+        self.cache.set(self.cache_name, 'pre-1265 value', 100)
+        with self.assertNumQueries(1):
+            value = latest_created(self.cache_name, self.works)
+        self.assertNotEqual(value, 'pre-1265 value')
+        self.cache.set(self.cache_name, 'pre-1265 value', 100)
+        self.cache.add(self.cache_name + ':refreshing', 1, 60)
+        with self.assertNumQueries(0):
+            self.assertEqual(latest_created(self.cache_name, self.works), 'pre-1265 value')
+
+    def test_empty_feed_gets_a_date(self):
+        from regluit.api.opds import latest_created
+        self.assertTrue(latest_created(self.cache_name, models.Work.objects.none()))
+
+    def test_lock_is_released_when_the_query_fails(self):
+        from regluit.api.opds import latest_created
+
+        class Broken:
+            model = models.Work
+            def latest(self, field):
+                raise RuntimeError('database went away')
+
+        with self.assertRaises(RuntimeError):
+            latest_created(self.cache_name, Broken())
+        self.assertIsNone(self.cache.get(self.cache_name + ':refreshing'))
+
+    def test_refresh_outliving_its_lock_does_not_release_the_next_lock(self):
+        # Request A takes the lock; its query runs past the lock's TTL, so the
+        # lock expires and request B takes a new one. When A finishes it must
+        # leave B's lock alone, or request C would start a third query.
+        from regluit.api.opds import latest_created
+        lock = self.cache_name + ':refreshing'
+        cache = self.cache
+        seen = {}
+
+        class SlowWorks:
+            model = models.Work
+            def latest(self, field):
+                seen['a_token'] = cache.get(lock)
+                cache.delete(lock)  # A's lease runs out mid-query
+                self.b_took_it = cache.add(lock, 'request-B-token', 60)
+                return models.Work.objects.latest(field)
+
+        slow = SlowWorks()
+        value = latest_created(self.cache_name, slow)
+        self.assertTrue(slow.b_took_it)
+        self.assertTrue(seen['a_token'])
+        self.assertNotEqual(seen['a_token'], 'request-B-token')
+        self.assertEqual(cache.get(lock), 'request-B-token')  # B still holds it
+        self.assertEqual(cache.get(self.cache_name)[0], value)  # A's value stored
+        # and while B holds it, request C serves the cached value without querying
+        cache.set(self.cache_name, (value, time.time() - 1), 100)
+        with self.assertNumQueries(0):
+            self.assertEqual(latest_created(self.cache_name, self.works), value)
+
+    def test_successful_refresh_keeps_its_lock_until_the_lease_lapses(self):
+        # Releasing after success is what opened the races; the lock now
+        # lapses on its own, and the next stale read finds it still held.
+        from regluit.api.opds import latest_created
+        lock = self.cache_name + ':refreshing'
+        value = latest_created(self.cache_name, self.works)
+        self.assertTrue(self.cache.get(lock))  # still held, by this request's token
+        self.cache.set(self.cache_name, ('old', time.time() - 1), 100)
+        with self.assertNumQueries(0):  # within the lease: serve stale, no second query
+            self.assertEqual(latest_created(self.cache_name, self.works), 'old')
+        self.cache.delete(lock)  # the lease lapses
+        with self.assertNumQueries(1):
+            self.assertEqual(latest_created(self.cache_name, self.works), value)
+
+    def test_slow_refresh_does_not_overwrite_a_newer_date(self):
+        # A's query outlives its lease; B refreshes meanwhile and stores a
+        # newer date. A finishing later must not put the older date back.
+        from regluit.api.opds import latest_created
+        cache = self.cache
+        newer = '2999-01-01T00:00:00+00:00'
+
+        class SlowWorks:
+            model = models.Work
+            def latest(self, field):
+                cache.set(self_name, (newer, time.time() + 3600), 100)  # B's result
+                return models.Work.objects.latest(field)
+
+        self_name = self.cache_name
+        self.assertEqual(latest_created(self.cache_name, SlowWorks()), newer)
+        self.assertEqual(cache.get(self.cache_name)[0], newer)
+
+    def test_navigation_feed_repeat_request_skips_the_date_queries(self):
+        # The bare navigation feed is what timed out. Its first request
+        # computes the dates; a repeat must not run them again.
+        from django.db import connection
+        from django.test.utils import CaptureQueriesContext
+        with CaptureQueriesContext(connection) as first:
+            r = self.client.get('/api/opds/')
+        self.assertEqual(r.status_code, 200)
+        with CaptureQueriesContext(connection) as repeat:
+            r = self.client.get('/api/opds/')
+        self.assertEqual(r.status_code, 200)
+        self.assertLess(len(repeat.captured_queries), len(first.captured_queries))
+        date_queries = [q['sql'] for q in repeat.captured_queries
+                        if '`created` DESC' in q['sql'] and 'LIMIT 1' in q['sql']]
+        self.assertEqual(date_queries, [])
+
+
+class SingleWorkFeedTests(TestCase):
+    # ?work= is user input. A non-numeric value makes filter() raise
+    # ValueError; the feed should come back empty, not as a 500.
+    def test_opds_non_numeric_work_returns_empty_feed(self):
+        r = self.client.get('/api/opds/all/?work=notanumber')
+        self.assertEqual(r.status_code, 200)
+        self.assertNotIn(b'<entry', b''.join(r.streaming_content))
+
+    def test_opdsjson_non_numeric_work_returns_empty_feed(self):
+        r = self.client.get('/api/opdsjson/all/?work=notanumber')
+        self.assertEqual(r.status_code, 200)
+        # the feed isn't strict JSON (its @context URL is unquoted, as on
+        # master), so check the text: the publications list is empty
+        body = b''.join(r.streaming_content).decode()
+        self.assertRegex(body, r'"publications":\s*\[\s*\]')
+
 
 class WebHookTests(TestCase):
     fixtures = ['initial_data.json']
