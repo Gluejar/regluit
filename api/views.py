@@ -4,6 +4,7 @@ import logging
 from django.contrib import auth
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
+from django.db import connection, OperationalError
 from django.urls import reverse
 from django.shortcuts import render
 from django.template import RequestContext
@@ -32,6 +33,11 @@ from regluit.core.parameters import ORDER_BY_KEYS
 logger = logging.getLogger(__name__)
 
 ANONYMOUS_MAX_RECORDS = 100
+
+# OPDS search feeds: per-SELECT time limit, and MySQL's error code when it trips
+# ("maximum statement execution time exceeded"). See OPDSAcquisitionView.search_feed.
+SEARCH_STATEMENT_LIMIT_MS = 5000
+MYSQL_STATEMENT_TIMEOUT = 3024
 
 def editions(request):
     editions = models.Edition.objects.all()
@@ -231,10 +237,60 @@ class OPDSAcquisitionView(View):
             except InvalidFacetCombination:
                 raise Http404("Compound keyword facet URLs are not supported.")
         if self.json:
-            return StreamingHttpResponse(facet_class.feed(page,order_by),
-                        content_type="application/opds+json; charset=utf-8")
+            content_type = "application/opds+json; charset=utf-8"
+        else:
+            content_type = opds.ACQUISITION
+        if opds.has_search_facet(getattr(facet_class, 'facet_object', None)):
+            return self.search_feed(request, facet_class, page, order_by, content_type)
         return StreamingHttpResponse(facet_class.feed(page,order_by),
-                    content_type=opds.ACQUISITION)
+                    content_type=content_type)
+
+    def search_feed(self, request, facet_class, page, order_by, content_type):
+        """Serve a search-facet feed (`s.TERM`) under a database time limit.
+
+        A search scans the whole free catalog. On 2026-10-20 a crawler held all
+        60 Django threads with 300-420 s searches and took the site down (#1265).
+        Here each SELECT gets SEARCH_STATEMENT_LIMIT_MS; one that runs over gets
+        a 503 with Retry-After instead of a thread for five minutes.
+
+        The feed is built before responding (it is one page of works) so a
+        timeout can still become a clean 503 rather than truncated XML.
+        """
+        if connection.vendor != 'mysql':
+            return HttpResponse(''.join(facet_class.feed(page, order_by)),
+                                content_type=content_type)
+        with connection.cursor() as cursor:
+            cursor.execute("SET SESSION max_execution_time = %s",
+                           [SEARCH_STATEMENT_LIMIT_MS])
+        if self.json and order_by == 'none':
+            # Up to 50,000 works a page: too big to build in memory (#1189), so
+            # stream it. The limit stays set until the connection closes at the
+            # end of the request (CONN_MAX_AGE is 0), so a slow query still
+            # stops; it just truncates the response instead of a 503.
+            return StreamingHttpResponse(facet_class.feed(page, order_by),
+                                         content_type=content_type)
+        try:
+            body = ''.join(facet_class.feed(page, order_by))
+        except OperationalError as err:
+            if not (err.args and err.args[0] == MYSQL_STATEMENT_TIMEOUT):
+                raise
+            logger.warning("OPDS search feed over %s ms, sent 503: %s",
+                           SEARCH_STATEMENT_LIMIT_MS, request.get_full_path())
+            response = HttpResponse(
+                "This search is taking too long right now. Please try again later.\n",
+                status=503, content_type="text/plain; charset=utf-8")
+            response['Retry-After'] = '3600'
+            # Logged above as a warning. Without this flag Django logs every 5xx
+            # as an error, which on this site mails the admins once per request.
+            response._has_been_logged = True
+            return response
+        finally:
+            try:
+                with connection.cursor() as cursor:
+                    cursor.execute("SET SESSION max_execution_time = DEFAULT")
+            except Exception:
+                logger.exception("could not reset max_execution_time")
+        return HttpResponse(body, content_type=content_type)
 
 class OnixView(View):
     def get(self, request, *args, **kwargs):
