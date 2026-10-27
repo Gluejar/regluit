@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load feedback_link %}
+
+{% block title %}— form expired{% endblock %}
+
+{% block content %}
+<div class="js-main">
+<h1>Sorry, this form had expired.</h1>
+
+<p>We couldn't confirm that this form came from your browser. That usually means the page was open for a long time, or you signed in or out in another window. Nothing was submitted.</p>
+
+<p><a href="{{ back_url }}" rel="nofollow">Go back and try again</a>. If it keeps happening, make sure your browser accepts cookies from unglue.it, or <a href="{% feedback_url %}" rel="nofollow" referrerpolicy="same-origin">send us feedback</a>.</p>
+</div>
+{% endblock %}

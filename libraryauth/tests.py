@@ -1,8 +1,9 @@
 from types import SimpleNamespace
+from unittest import mock
 
 from bs4 import BeautifulSoup
 from django.urls import reverse
-from django.test import TestCase, RequestFactory
+from django.test import Client, TestCase, RequestFactory
 from django.contrib.auth.models import User, AnonymousUser
 from django.template.loader import render_to_string
 
@@ -304,3 +305,69 @@ class TestLogoutFormsInErrorTemplates(TestCase):
             },
         )
         self._assert_button_form_wired_correctly(soup, 'log out', expected_next=path)
+
+
+class TestCsrfFailureView(TestCase):
+    """CSRF_FAILURE_VIEW (#1243): an already-logged-in user whose login POST
+    fails the CSRF check is sent on to `next`; everyone else gets a styled,
+    plain-English 403 with a link back, and no failure details."""
+    fixtures = ['initial_data.json']
+
+    def setUp(self):
+        self.client = Client(enforce_csrf_checks=True)
+        self.user = User.objects.create_user('csrftester', 'csrftester@example.org', 'secret')
+
+    def test_anonymous_login_post_gets_friendly_403(self):
+        resp = self.client.post(
+            reverse('superlogin'),
+            {'username': 'csrftester', 'password': 'secret'},
+            HTTP_REFERER='http://testserver/accounts/superlogin/?next=/about/',
+        )
+        self.assertEqual(403, resp.status_code)
+        self.assertTemplateUsed(resp, 'csrf_failure.html')
+        self.assertTemplateUsed(resp, 'base.html')
+        content = resp.content.decode('utf-8')
+        self.assertIn('this form had expired', content)
+        self.assertNotIn('CSRF cookie', content)
+        soup = BeautifulSoup(content, 'html.parser')
+        back = soup.find('a', string=lambda s: s and 'try again' in s)
+        self.assertEqual('http://testserver/accounts/superlogin/?next=/about/', back.get('href'))
+        self.assertFalse(resp.wsgi_request.user.is_authenticated)
+
+    def test_offsite_referer_is_not_linked(self):
+        resp = self.client.post(
+            reverse('superlogin'), {}, HTTP_REFERER='https://evil.example.com/phish')
+        self.assertEqual(403, resp.status_code)
+        soup = BeautifulSoup(resp.content, 'html.parser')
+        back = soup.find('a', string=lambda s: s and 'try again' in s)
+        self.assertEqual('/', back.get('href'))
+
+    def test_logged_in_login_post_redirects_to_next(self):
+        self.client.login(username='csrftester', password='secret')
+        for url in (reverse('superlogin'), reverse('login'), '/accounts/login/pledge/'):
+            resp = self.client.post(url, {'username': 'csrftester', 'next': '/about/'})
+            self.assertRedirects(resp, '/about/', fetch_redirect_response=False, msg_prefix=url)
+
+    def test_logged_in_login_post_without_next_goes_home(self):
+        self.client.login(username='csrftester', password='secret')
+        resp = self.client.post(reverse('superlogin'), {'username': 'csrftester'})
+        self.assertRedirects(resp, '/', fetch_redirect_response=False)
+
+    def test_logged_in_login_post_rejects_offsite_next(self):
+        self.client.login(username='csrftester', password='secret')
+        resp = self.client.post(reverse('superlogin'), {'next': 'https://evil.example.com/phish'})
+        self.assertRedirects(resp, '/', fetch_redirect_response=False)
+
+    def test_logged_in_non_login_post_still_refused(self):
+        # only the login form gets the redirect; other forms are refused
+        self.client.login(username='csrftester', password='secret')
+        resp = self.client.post(reverse('logout'), {'next': '/about/'})
+        self.assertEqual(403, resp.status_code)
+        self.assertTemplateUsed(resp, 'csrf_failure.html')
+        self.assertTrue(resp.wsgi_request.user.is_authenticated)
+
+    def test_template_error_falls_back_to_django_403(self):
+        with mock.patch('regluit.libraryauth.views.render', side_effect=Exception('boom')):
+            resp = self.client.post(reverse('superlogin'), {})
+        self.assertEqual(403, resp.status_code)
+        self.assertTemplateNotUsed(resp, 'base.html')
