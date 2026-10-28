@@ -2379,7 +2379,24 @@ def download_ebook(request, ebook_id):
         raise Http404
     ebook.increment()
     logger.info("ebook: {0}, user_ip: {1}".format(ebook_id, request.META['REMOTE_ADDR']))
-    return HttpResponseRedirect(ebook.url)
+    return HttpResponseRedirect(cdn_url(ebook.url))
+
+
+def cdn_url(url):
+    """The address to send a downloader to for a stored ebook URL.
+
+    Our own files (on settings.EBOOK_CDN_ORIGIN_HOST) go through the CDN when
+    settings.EBOOK_CDN_BASE is set; everything else is returned unchanged.
+    """
+    base = getattr(settings, 'EBOOK_CDN_BASE', '')
+    if not base:
+        return url
+    parts = urlsplit(url)
+    if parts.scheme not in ('http', 'https') or \
+            parts.netloc.lower() != getattr(settings, 'EBOOK_CDN_ORIGIN_HOST', '').lower():
+        return url
+    cdn = base.rstrip('/') + parts.path
+    return cdn + '?' + parts.query if parts.query else cdn
 
 
 def download_acq(request, nonce, format):
