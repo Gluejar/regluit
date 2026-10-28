@@ -4,15 +4,17 @@ external library imports
 import json
 import re
 from decimal import Decimal
-from unittest import skipUnless
+from unittest import mock, skipUnless
 from unittest.mock import patch
 
 """
 django imports
 """
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.db import connection, OperationalError
-from django.test import TestCase
+from django.test import TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.test.client import Client
 from django.utils.timezone import now
 
@@ -23,6 +25,7 @@ import regluit.core.isbn
 
 from regluit.core import models
 from regluit.api import models as apimodels
+from regluit.api.views import feed_cache
 
 class ApiTests(TestCase):
     fixtures = ['initial_data.json', 'neuromancer.json']
@@ -70,6 +73,8 @@ class ApiTests(TestCase):
 class FeedTests(TestCase):
     fixtures = ['initial_data.json', 'neuromancer.json']
     def setUp(self):
+        # OPDS responses are cached; don't let one test's feeds leak into another
+        cache.clear()
         edition = models.Edition.objects.get(pk=1)
         ebook = models.Ebook.objects.create(edition=edition, url='http://example.org/', format='epub', rights='CC BY')
         self.test_work_id = edition.work_id
@@ -132,11 +137,111 @@ class FeedTests(TestCase):
         r = self.client.get('/api/onix/all/kw.Fiction/')
         self.assertEqual(r.status_code, 200)
 
+@override_settings(CACHES={
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'opds-cache-tests',
+    }
+})
+class OPDSCacheTests(TestCase):
+    fixtures = ['initial_data.json', 'neuromancer.json']
+
+    def setUp(self):
+        cache.clear()
+        edition = models.Edition.objects.get(pk=1)
+        models.Ebook.objects.create(edition=edition, url='http://example.org/', format='epub', rights='CC BY')
+
+    def test_repeat_anonymous_request_served_from_cache(self):
+        for url in ('/api/opds/', '/api/opdsjson/',
+                    '/api/opds/creative_commons/', '/api/opdsjson/creative_commons/'):
+            first = self.client.get(url)
+            self.assertEqual(first.status_code, 200)
+            with self.assertNumQueries(0):
+                second = self.client.get(url)
+            self.assertEqual(second.status_code, 200)
+            self.assertEqual(second.content, first.content)
+            self.assertEqual(second['Content-Type'], first['Content-Type'])
+
+    def test_query_strings_cached_separately(self):
+        newest = self.client.get('/api/opds/creative_commons/?order_by=newest')
+        popular = self.client.get('/api/opds/creative_commons/?order_by=popular')
+        self.assertIn(b'sorted by newest', newest.content)
+        self.assertIn(b'sorted by popular', popular.content)
+
+    def test_logged_in_requests_not_cached(self):
+        def built_feed(queries):
+            # a logged-in request always queries the session and user;
+            # only building the feed queries works
+            return any('core_work' in q['sql'] for q in queries.captured_queries)
+        User.objects.create_user('opdsreader', 'opds@example.org', 'testpass')
+        self.client.login(username='opdsreader', password='testpass')
+        url = '/api/opds/creative_commons/'
+        self.assertEqual(self.client.get(url).status_code, 200)
+        with CaptureQueriesContext(connection) as second:
+            r = self.client.get(url)
+            self.assertEqual(r.status_code, 200)
+            b''.join(r)  # an uncached feed streams; read it so it is built here
+        self.assertTrue(built_feed(second))
+        # and nothing was stored for anonymous visitors either
+        self.client.logout()
+        with CaptureQueriesContext(connection) as anonymous:
+            r = self.client.get(url)
+            self.assertEqual(r.status_code, 200)
+            b''.join(r)
+        self.assertTrue(built_feed(anonymous))
+
+
+    def test_cache_outage_still_serves_feed(self):
+        broken = mock.Mock()
+        broken.get.side_effect = ConnectionError('cache down')
+        broken.set.side_effect = ConnectionError('cache down')
+        with mock.patch('regluit.api.views.feed_cache', return_value=broken):
+            with self.assertLogs('regluit.api.views', level='WARNING'):
+                r = self.client.get('/api/opds/creative_commons/')
+        self.assertEqual(r.status_code, 200)
+        self.assertIn(b'sorted by newest', r.content)
+
+
+    def test_opds_alias_used_when_configured(self):
+        with self.settings(CACHES={
+            'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+                        'LOCATION': 'opds-cache-tests'},
+            'opds': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+                     'LOCATION': 'opds-cache-tests-opds'},
+        }):
+            from django.core.cache import caches
+            caches['opds'].clear()
+            self.client.get('/api/opds/creative_commons/')
+            self.assertEqual(len(caches['opds']._cache), 1)
+            self.assertEqual(len(caches['default']._cache), 0)
+
+    def test_order_by_none_streams_and_is_not_cached(self):
+        # up to 50,000 works a page in the JSON feed: never buffered (#1189)
+        url = '/api/opdsjson/creative_commons/?order_by=none'
+        r = self.client.get(url)
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue(r.streaming)
+        b''.join(r.streaming_content)
+        self.assertEqual(len(cache._cache), 0)
+
+    def test_order_by_none_still_cached_outside_json_acquisition(self):
+        # XML pages are ten works and navigation feeds ignore order_by
+        for url in ('/api/opds/creative_commons/?order_by=none',
+                    '/api/opdsjson/?order_by=none'):
+            self.assertEqual(self.client.get(url).status_code, 200)
+            with self.assertNumQueries(0):
+                r = self.client.get(url)
+                self.assertEqual(r.status_code, 200)
+                self.assertFalse(r.streaming)  # a streamed feed would query lazily
+
+
 class SearchFeedGuardTests(TestCase):
     """OPDS search feeds (s.TERM): no facet fan-out; a slow query gets a 503 (#1265)."""
     fixtures = ['initial_data.json', 'neuromancer.json']
 
     def setUp(self):
+        # anonymous feeds are cached (OPDSCacheTests); start each test empty
+        feed_cache().clear()
         edition = models.Edition.objects.get(pk=1)
         models.Ebook.objects.create(edition=edition, url='http://example.org/',
                                     format='epub', rights='CC BY')
@@ -157,7 +262,7 @@ class SearchFeedGuardTests(TestCase):
     def test_non_search_feed_keeps_other_facet_links(self):
         r = self.client.get('/api/opds/epub/')
         self.assertEqual(r.status_code, 200)
-        body = b''.join(r.streaming_content).decode()
+        body = r.content.decode()  # anonymous feeds come back buffered (cached)
         self.assertTrue(any(p.startswith('epub/') and p != 'epub/'
                             for p in self.feed_paths(body)))
 
