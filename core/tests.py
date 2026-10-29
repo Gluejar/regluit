@@ -1379,3 +1379,38 @@ class OnixLoaderTests(TestCase):
         results = load_from_books(TEST_BOOKS)
         for (book, work, edition) in results:
             assert loaded_book_ok(book, work, edition)
+
+
+class UpdateDownloadsCopiesTest(TestCase):
+    """update_downloads reads every rotated copy the handler keeps (Eric, 2026-10-28)."""
+
+    def test_counts_every_copy_and_skips_missing(self):
+        import copy
+        import tempfile
+        from io import StringIO
+        from django.core.management import call_command
+
+        work = Work(title="Download count")
+        work.save()
+        edition = Edition(work=work)
+        edition.save()
+        ebook = Ebook(edition=edition)
+        ebook.save()
+
+        last_month = (date_today().replace(day=1) - timedelta(days=1)).strftime('%Y-%m-%d')
+        with tempfile.TemporaryDirectory() as tmp:
+            base = os.path.join(tmp, 'downloads.log')
+            logging_conf = copy.deepcopy(settings.LOGGING)
+            logging_conf['handlers']['downloads'].update(filename=base, backupCount=12)
+            # current file plus .1-.12, except .5: a missing copy is skipped
+            names = [base] + [f'{base}.{n}' for n in range(1, 13) if n != 5]
+            for name in names:
+                with open(name, 'w') as f:
+                    f.write(f'{last_month} 12:00:00 : {ebook.id}\n')
+                    f.write('garbage line\n')
+            with override_settings(LOGGING=logging_conf):
+                call_command('update_downloads', stdout=StringIO())
+
+        ebook.refresh_from_db()
+        # 12 files with one counted line each; .9-.12 were never read before
+        self.assertEqual(ebook.download_count, 12)

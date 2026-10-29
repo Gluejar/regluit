@@ -7,7 +7,17 @@ from django.db.models import F, Sum
 
 from regluit.core.models import Ebook
 
-DOWNLOAD_LOGFILE = settings.LOGGING['handlers']['downloads']['filename']
+def download_logfiles():
+    """The current downloads log plus every rotated copy the handler keeps.
+
+    Read from the logging settings at run time rather than hard-coded, so the
+    count follows the server's backupCount (production went from 9 to 12 on
+    2026-10-28; the old fixed list stopped at .8 and never read the 9th).
+    """
+    handler = settings.LOGGING['handlers']['downloads']
+    backups = handler.get('backupCount', 8)
+    base = handler['filename']
+    return [base] + [f'{base}.{n}' for n in range(1, backups + 1)]
 
 class Command(BaseCommand):
     '''add logged downloads to ebook objects'''
@@ -23,8 +33,7 @@ class Command(BaseCommand):
         if last_month <= 0:
             last_month = last_month + 12
         total = 0
-        for suffix in ['', '.1','.2','.3','.4','.5', '.6', '.7', '.8',]:
-            fn = DOWNLOAD_LOGFILE + suffix
+        for fn in download_logfiles():
             if os.path.exists(fn):
                 with open(fn,'r') as logfile:
                     for line in logfile.readlines():
