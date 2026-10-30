@@ -11,8 +11,10 @@ from unittest.mock import patch
 django imports
 """
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.db import connection, OperationalError
 from django.test import TestCase
+from django.test.utils import CaptureQueriesContext
 from django.test.client import Client
 from django.utils.timezone import now
 
@@ -85,6 +87,19 @@ class FeedTests(TestCase):
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/api/opds/?work=%s' % self.test_work_id)
         self.assertEqual(r.status_code, 200)
+
+    def test_opds_root_looks_up_one_date(self):
+        # The per-category dates made the root feed very slow in a cold process
+        # (a restart empties the cache): 3 of them took 13 of 15 s on test.
+        cache.clear()
+        with CaptureQueriesContext(connection) as queries:
+            r = self.client.get('/api/opds/')
+        self.assertEqual(r.status_code, 200)
+        self.assertLess(len(queries), 10)
+        dates = re.findall(r'<updated>(.*?)</updated>', r.content.decode())
+        self.assertGreater(len(dates), 4)
+        self.assertEqual(len(set(dates)), 1)
+        self.assertTrue(dates[0])
 
     def test_opds_all_keyword_alias_works(self):
         r = self.client.get('/api/opds/all/kw.Fiction/')
