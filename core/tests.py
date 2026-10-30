@@ -1379,3 +1379,47 @@ class OnixLoaderTests(TestCase):
         results = load_from_books(TEST_BOOKS)
         for (book, work, edition) in results:
             assert loaded_book_ok(book, work, edition)
+
+
+class CoverSourceCdnTest(TestCase):
+    """Thumbnail source fetches for our own covers go through the CDN (#1310)."""
+    BUCKET_URL = 'https://tieulgnu.s3.amazonaws.com/covers/2026/10/28/abc.jpg'
+    CDN = dict(EBOOK_CDN_BASE='https://files.unglue.it/',
+               EBOOK_CDN_ORIGIN_HOST='tieulgnu.s3.amazonaws.com')
+
+    def test_bucket_host_goes_to_cdn(self):
+        from regluit.core.covers import cdn_source_url
+        with override_settings(**self.CDN):
+            self.assertEqual(cdn_source_url(self.BUCKET_URL),
+                             'https://files.unglue.it/covers/2026/10/28/abc.jpg')
+            self.assertEqual(cdn_source_url(self.BUCKET_URL + '?v=2'),
+                             'https://files.unglue.it/covers/2026/10/28/abc.jpg?v=2')
+
+    def test_other_hosts_unchanged(self):
+        from regluit.core.covers import cdn_source_url
+        with override_settings(**self.CDN):
+            for url in ('https://books.google.com/books/content?id=x&img=1',
+                        'https://unglueit-files.s3.amazonaws.com/covers/a.jpg',
+                        'https://files.unglue.it/cache/aa/bb/c.jpg'):
+                self.assertEqual(cdn_source_url(url), url)
+
+    def test_no_cdn_base_is_a_no_op(self):
+        from regluit.core.covers import cdn_source_url
+        with override_settings(EBOOK_CDN_BASE='',
+                               EBOOK_CDN_ORIGIN_HOST='tieulgnu.s3.amazonaws.com'):
+            self.assertEqual(cdn_source_url(self.BUCKET_URL), self.BUCKET_URL)
+
+    def test_sorl_url_storage_fetches_from_cdn(self):
+        from unittest import mock
+        from regluit.core import covers  # installs the UrlStorage.open patch
+        from sorl.thumbnail.images import ImageFile, UrlStorage
+        with override_settings(**self.CDN), \
+                mock.patch('sorl.thumbnail.images.urlopen') as fake_urlopen:
+            UrlStorage().open(self.BUCKET_URL)
+        request = fake_urlopen.call_args[0][0]
+        self.assertEqual(request.full_url, 'https://files.unglue.it/covers/2026/10/28/abc.jpg')
+        # The source keeps its name and storage class, so thumbnail keys don't move.
+        source = ImageFile(self.BUCKET_URL)
+        self.assertEqual(source.name, self.BUCKET_URL)
+        self.assertIs(type(source.storage), UrlStorage)
+        self.assertEqual(source.serialize_storage(), 'sorl.thumbnail.images.UrlStorage')
