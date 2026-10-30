@@ -1,7 +1,9 @@
 """ handle caching and thumbnailing of covers """
 
 import logging
+from urllib.parse import urlsplit
 
+from django.conf import settings as django_settings
 from django.utils.functional import LazyObject
 
 import sorl
@@ -11,7 +13,7 @@ from sorl.thumbnail import get_thumbnail as sorl_get_thumbnail
 from sorl.thumbnail.base import ThumbnailBackend
 from sorl.thumbnail.conf import settings, defaults as default_settings
 from sorl.thumbnail.helpers import get_module_class
-from sorl.thumbnail.images import BaseImageFile, ImageFile
+from sorl.thumbnail.images import BaseImageFile, ImageFile, UrlStorage
 from sorl.thumbnail import default
 
 from celery.utils.log import get_logger
@@ -38,6 +40,39 @@ class Storage(LazyObject):
         self._wrapped = _storage
 
 sorl.thumbnail.default.storage = Storage()
+
+
+def cdn_source_url(url):
+    """Where to fetch a cover source image from.
+
+    Covers we host are saved in Edition.cover_image as full bucket URLs
+    (settings.EBOOK_CDN_ORIGIN_HOST). When settings.EBOOK_CDN_BASE is set, fetch
+    those through the CDN instead, so thumbnailing keeps working once the bucket
+    only accepts reads from CloudFront (#1310). Same rule as
+    frontend.views.cdn_url(); other URLs, and an empty base, are unchanged.
+    """
+    base = getattr(django_settings, 'EBOOK_CDN_BASE', '')
+    origin = getattr(django_settings, 'EBOOK_CDN_ORIGIN_HOST', '')
+    if not base or not origin:
+        return url
+    parts = urlsplit(url)
+    if parts.scheme not in ('http', 'https') or parts.netloc.lower() != origin.lower():
+        return url
+    cdn = base.rstrip('/') + parts.path
+    return cdn + '?' + parts.query if parts.query else cdn
+
+
+_sorl_url_open = UrlStorage.open
+
+def _url_open_via_cdn(self, name, mode='rb'):
+    return _sorl_url_open(self, cdn_source_url(name), mode)
+
+# Patch the method rather than substituting a subclass: sorl's thumbnail keys
+# include the source storage's class path, so a subclass would orphan every
+# existing thumbnail. The source *name* (and so the key) is left untouched;
+# only the address the bytes are read from changes. UrlStorage.exists() goes
+# through open(), so it follows too.
+UrlStorage.open = _url_open_via_cdn
 
 
 class DefaultImageFile(BaseImageFile):
