@@ -5,7 +5,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
 from django.views.generic import ListView, DetailView
 from django.views.generic.base import TemplateView
-from django.views.decorators.csrf import csrf_exempt
 
 from regluit.core.feeds import SupporterWishlistFeed
 from regluit.frontend import views 
@@ -89,7 +88,7 @@ urlpatterns = [
     url(r"^gift/$", login_required(views.GiftView.as_view()), name="gift"),
     url(r"^gift/credit/(?P<token>.+)/$", login_required(views.GiftCredit.as_view()), name="gift_credit"),
     url(r"^fund/complete/$", views.FundCompleteView.as_view(), name="pledge_complete"),
-    url(r"^payment/donation/create$", csrf_exempt(views.NewDonationView.as_view()), name="newdonation" ),
+    url(r"^payment/donation/create$", views.NewDonationView.as_view(), name="newdonation" ),
     url(r"^payment/fund/(?P<t_id>\d+)$", views.FundView.as_view(), name="fund" ),
     url(r"^subjects/$", views.subjects, name="subjects"),
     url(r"^subjects/map/$", login_required(views.MapSubjectView.as_view()), name="map_subject"),
