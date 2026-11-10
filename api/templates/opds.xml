@@ -1,10 +1,10 @@
-<feed xmlns:dcterms="http://purl.org/dc/terms/" xmlns:opds="http://opds-spec.org/"
+{# One date for the whole page. A date per category costs seconds of database work each time a process's cache is cold, and a restart empties them all. #}{% with updated=feed.updated %}<feed xmlns:dcterms="http://purl.org/dc/terms/" xmlns:opds="http://opds-spec.org/"
   xmlns="http://www.w3.org/2005/Atom"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="http://www.kbcafe.com/rss/atom.xsd.xml">
   <title>Unglue.it Catalog</title>
   <id>https://unglue.it{% url 'opds' %}</id>
-  <updated>{{ feed.updated }}</updated>
+  <updated>{{ updated }}</updated>
   <author>
     <name>unglue.it</name>
     <uri>https://unglue.it/</uri>
@@ -19,7 +19,7 @@
   <entry>
     <title>{{ feed.title }} - Popular</title>
     <id>https://unglue.it{% url 'opds_acqusition' feed.feed_path %}/?order_by=popular</id>
-    <updated>{{ feed.updated }}</updated>
+    <updated>{{ updated }}</updated>
     <link href="{{ feed.feed_path }}/?order_by=popular" 
         rel="http://opds-spec.org/sort/popular"
         type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
@@ -28,7 +28,7 @@
   <entry>
     <title>{{ feed.title }} - New</title>
     <id>https://unglue.it{% url 'opds_acqusition' feed.feed_path %}/?order_by=newest</id>
-    <updated>{{ feed.updated }}</updated>
+    <updated>{{ updated }}</updated>
     <link href="{{ feed.feed_path }}/?order_by=newest" 
         rel="http://opds-spec.org/sort/new"
         type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
@@ -38,11 +38,11 @@
   <entry>
     <title>{{ feed.title }}</title>
     <id>https://unglue.it{% url 'opds_acqusition' feed.feed_path %}</id>
-    <updated>{{ feed.updated }}</updated>
+    <updated>{{ updated }}</updated>
     <link href="{% url 'opds_acqusition' feed.feed_path %}" 
         rel="subsection"
         type="application/atom+xml;profile=opds-catalog;kind=acquisition" />
     <content type="text">{{ feed.description }}</content>
   </entry>
 {% endfor %}
-</feed>
+</feed>{% endwith %}

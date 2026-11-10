@@ -1700,3 +1700,50 @@ class SearchWithoutTurnstileTokenTests(TestCase):
         google.assert_called_once()
         self.assertEqual(self.client.session.get('q'), "Ada Linked")
 
+
+
+from django.urls import reverse
+from regluit.core.models import Edition, Ebook
+
+
+class DownloadEbookCdnTests(TestCase):
+    """download_ebook sends our own stored files through the CDN only when
+    EBOOK_CDN_BASE is set; every other address passes through unchanged."""
+
+    OWN = 'https://tieulgnu.s3.amazonaws.com/ebf/425c23a45e66403caf5a23ec880d28ee.epub'
+
+    def setUp(self):
+        work = Work.objects.create(title="CDN Test Book")
+        self.edition = Edition.objects.create(title=work.title, work=work)
+
+    def _redirect_for(self, url):
+        ebook = Ebook.objects.create(edition=self.edition, url=url, format='epub', provider='Unglue.it')
+        response = self.client.get(reverse('download_ebook', args=[ebook.id]), REMOTE_ADDR='127.0.0.1')
+        self.assertEqual(response.status_code, 302)
+        return response['Location']
+
+    @override_settings(EBOOK_CDN_BASE='')
+    def test_setting_empty_keeps_s3(self):
+        self.assertEqual(self._redirect_for(self.OWN), self.OWN)
+
+    @override_settings(EBOOK_CDN_BASE='https://files.unglue.it/')
+    def test_own_file_goes_through_cdn(self):
+        self.assertEqual(self._redirect_for(self.OWN),
+                         'https://files.unglue.it/ebf/425c23a45e66403caf5a23ec880d28ee.epub')
+
+    @override_settings(EBOOK_CDN_BASE='https://files.unglue.it')
+    def test_base_without_trailing_slash(self):
+        self.assertEqual(self._redirect_for(self.OWN),
+                         'https://files.unglue.it/ebf/425c23a45e66403caf5a23ec880d28ee.epub')
+
+    @override_settings(EBOOK_CDN_BASE='https://files.unglue.it/')
+    def test_outside_hosts_unchanged(self):
+        for url in ('https://library.oapen.org/bitstream/handle/20.500.12657/1/book.pdf',
+                    'https://unglueit-files.s3.amazonaws.com/ebf/old.epub',
+                    'https://tieulgnu.s3.amazonaws.com.example.org/ebf/x.epub'):
+            self.assertEqual(self._redirect_for(url), url)
+
+    @override_settings(EBOOK_CDN_BASE='https://files.unglue.it/')
+    def test_query_string_kept(self):
+        self.assertEqual(self._redirect_for(self.OWN + '?v=2'),
+                         'https://files.unglue.it/ebf/425c23a45e66403caf5a23ec880d28ee.epub?v=2')
