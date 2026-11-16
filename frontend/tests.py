@@ -212,6 +212,25 @@ class FacetIsolationTests(TestCase):
         self.assertContains(r, "EPUB format")
         self.assertContains(r, "Directory of Open Access Books")
 
+class SearchFacetWebRouteTests(TestCase):
+    """#1325: "s.<term>" facets are OPDS-only; the FacetedView routes 404 them."""
+    fixtures = ['initial_data.json', 'neuromancer.json']
+
+    def test_search_facet_404s_on_free(self):
+        for url in ("/free/s.open/", "/free/epub/s.open/", "/free/s.open/marc/",
+                    "/creativecommons/s.open"):
+            r = self.client.get(url)
+            self.assertEqual(r.status_code, 404, url)
+
+    def test_similar_names_still_work(self):
+        # only a segment that starts with "s." is refused
+        self.assertEqual(self.client.get("/free/kw.s.Fiction/").status_code, 200)
+        self.assertEqual(self.client.get("/free/").status_code, 200)
+
+    def test_opds_search_facet_unaffected(self):
+        r = self.client.get("/api/opds/s.open/")
+        self.assertEqual(r.status_code, 200)
+
 class GoogleBooksTest(TestCase):
     fixtures = ['initial_data.json', 'neuromancer.json']
     def test_googlebooks_id(self):
