@@ -814,8 +814,17 @@ class FacetedView(FilterableListView):
     max_page = 10
 
     def get(self, request, *args, **kwargs):
+        # Both checks below refuse before any facet or query work.
+        # Search-term facets ("s.<term>") exist for the OPDS feeds
+        # (/api/opds/s.open/). On the FacetedView routes (pages and MARC)
+        # nothing links to them, there is no page template for them, and
+        # their title/author icontains query took 44 s on prod, so crawlers
+        # get a quick 404 (#1325).
+        path = self.kwargs.get('path', '')
+        if any(part.startswith('s.') for part in path.split('/')):
+            raise Http404("Search-term facets are only served by the OPDS feeds.")
         # Parse the page the same way the paginator will, so junk values
-        # still fall back to page 1; refuse before any facet or query work.
+        # still fall back to page 1.
         if not self.send_marc:
             page = get_page_number_from_request(request, querystring_key='work_list')
             if page > self.max_page:
@@ -2107,8 +2116,18 @@ def feedback(request, recipient='unglueit@ebookfoundation.org', template='feedba
                 return thanks
 
         else:
-            context['num1'] = request.POST['num1']
-            context['num2']  = request.POST['num2']
+            if all(request.POST.get(k) for k in ('num1', 'num2', 'answer')):
+                # Keep the puzzle the visitor saw.
+                context['num1'] = request.POST['num1']
+                context['num2'] = request.POST['num2']
+            else:
+                # The hidden puzzle fields are missing or blank (form-spam bots).
+                # Reading them used to raise MultiValueDictKeyError, a 500. Show
+                # the fresh puzzle instead, with hidden fields that match it.
+                data = request.POST.copy()
+                for k in ('num1', 'num2', 'answer'):
+                    data[k] = str(context[k])
+                form = FeedbackForm(data)
 
     else:
         if request.user.is_authenticated:

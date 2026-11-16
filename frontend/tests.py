@@ -212,6 +212,25 @@ class FacetIsolationTests(TestCase):
         self.assertContains(r, "EPUB format")
         self.assertContains(r, "Directory of Open Access Books")
 
+class SearchFacetWebRouteTests(TestCase):
+    """#1325: "s.<term>" facets are OPDS-only; the FacetedView routes 404 them."""
+    fixtures = ['initial_data.json', 'neuromancer.json']
+
+    def test_search_facet_404s_on_free(self):
+        for url in ("/free/s.open/", "/free/epub/s.open/", "/free/s.open/marc/",
+                    "/creativecommons/s.open"):
+            r = self.client.get(url)
+            self.assertEqual(r.status_code, 404, url)
+
+    def test_similar_names_still_work(self):
+        # only a segment that starts with "s." is refused
+        self.assertEqual(self.client.get("/free/kw.s.Fiction/").status_code, 200)
+        self.assertEqual(self.client.get("/free/").status_code, 200)
+
+    def test_opds_search_facet_unaffected(self):
+        r = self.client.get("/api/opds/s.open/")
+        self.assertEqual(r.status_code, 200)
+
 class GoogleBooksTest(TestCase):
     fixtures = ['initial_data.json', 'neuromancer.json']
     def test_googlebooks_id(self):
@@ -622,6 +641,34 @@ class FeedbackUrlSpaceTests(TestCase):
         }, HTTP_REFERER="http://testserver/feedback/")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(self.page_field(r), "http://testserver/work/9/")
+
+    def test_post_without_the_captcha_fields_rerenders_the_form(self):
+        # Form-spam bots post without the hidden num1/num2 fields; that used to
+        # raise MultiValueDictKeyError (a 500 and an error email).
+        import re
+        for missing, blank in ((['num2'], []), (['num1'], []),
+                               (['num1', 'num2', 'answer'], []), ([], ['num2'])):
+            data = {
+                'sender': 'someone@example.org',
+                'subject': 'hi',
+                'message': 'hi',
+                'page': 'http://testserver/work/9/',
+                'num1': '1', 'num2': '2', 'answer': '3', 'notarobot': '3',
+            }
+            for field in missing:
+                del data[field]
+            for field in blank:
+                data[field] = ''
+            r = Client().post("/feedback/", data)
+            self.assertEqual(r.status_code, 200, (missing, blank))
+            html = r.content.decode()
+            # The puzzle shown and the hidden answer it is checked against agree.
+            shown = re.search(r"not a robot\. (\d+) \+ (\d+) =", html)
+            hidden = re.search(r'name="answer" value="(\d+)"|value="(\d+)" name="answer"', html)
+            self.assertIsNotNone(shown, (missing, blank))
+            self.assertIsNotNone(hidden, (missing, blank))
+            self.assertEqual(int(shown.group(1)) + int(shown.group(2)),
+                             int(hidden.group(1) or hidden.group(2)), (missing, blank))
 
     def test_form_collapses_newlines_in_the_subject(self):
         # A newline here would raise BadHeaderError inside the celery task,
