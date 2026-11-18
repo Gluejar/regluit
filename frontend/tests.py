@@ -225,6 +225,16 @@ class DonationReceiptSubjectTests(TestCase):
             subject.strip(),
             'You have donated $5.00 to the Free Ebook Foundation General Fund.')
 
+    def test_subject_has_no_stray_space_when_the_fund_has_no_name(self):
+        # Transaction.fund() returns {"name": ""} when the reason is not a known fund.
+        from types import SimpleNamespace
+        from django.template.loader import render_to_string
+        transaction = SimpleNamespace(amount='5.00', fund={'name': ''})
+        subject = render_to_string('notification/donation/short.txt', {'transaction': transaction})
+        self.assertEqual(
+            subject.strip(),
+            'You have donated $5.00 to the Free Ebook Foundation.')
+
 
 class SearchFacetWebRouteTests(TestCase):
     """#1325: "s.<term>" facets are OPDS-only; the FacetedView routes 404 them."""
