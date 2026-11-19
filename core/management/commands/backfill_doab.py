@@ -65,13 +65,14 @@ TERMINAL = ('ok', 'gone', 'present_locally', 'error_review')
 # "done" from "safe to re-invoke next tick" from "stop, a human must look".
 #   0  drained / nothing-to-do  -> runner writes .done
 #   3  benign checkpoint (rate-limit, max-remote-calls, transient) -> re-fire
-#   4  circuit-breaker halt (error/gone rate, unknown) -> runner freezes
+#   4  halt (gone rate, unknown error, error_review items, sentinel not
+#      persistable) -> runner freezes
 EXIT_OK = 0
 EXIT_CHECKPOINT = 3
 EXIT_HALT = 4
 HALT_REASONS = frozenset({
-    'error_rate_halt', 'gone_rate_halt',
-    'unknown_http_error_halt', 'unknown_exception_halt',
+    'gone_rate_halt', 'unknown_http_error_halt', 'unknown_exception_halt',
+    'error_review_halt', 'sentinel_write_failed_halt',
 })
 
 # Default fallback when DOAB sends 429 without a parseable Retry-After.
@@ -111,6 +112,43 @@ def load_input_ids(path):
         seen.add(s)
         ids.append(s)
     return ids, h.hexdigest(), malformed
+
+
+# --- Local completeness ------------------------------------------------------
+
+def load_is_complete(doab_id):
+    """True only when a prior load of doab_id demonstrably finished: the doab
+    Identifier's Work has at least one Edition with at least one Ebook.
+
+    add_by_doab() creates the Identifier BEFORE the Edition/Ebook/cover work
+    (and we deliberately run it without transaction.atomic, see 7e), so a bare
+    Identifier can be the leftover of a crash or of an in-progress load. This
+    check is the healing mechanism: anything not provably complete is run
+    through the idempotent loader again instead of being frozen.
+    """
+    from regluit.core.models import Ebook, Identifier
+    work_id = (Identifier.objects.filter(type='doab', value=doab_id)
+               .values_list('work_id', flat=True).first())
+    if not work_id:
+        return False
+    return Ebook.objects.filter(edition__work_id=work_id).exists()
+
+
+def complete_local_ids():
+    """doab IDs whose local load is demonstrably complete (same rule as
+    load_is_complete). The backfill worklist subtracts only these, so a bare or
+    partial Identifier stays on the worklist and gets healed by the loader."""
+    from regluit.core.models import Identifier
+    return set(
+        Identifier.objects.filter(type='doab', work__editions__ebooks__isnull=False)
+        .values_list('value', flat=True).distinct()
+    )
+
+
+def persist_ban(deadline, stderr):
+    """write_block_deadline wrapper; False means the ban was NOT persisted, so
+    the caller must halt rather than let a runner re-fire with no ban on disk."""
+    return bool(write_block_deadline(deadline, stderr=stderr))
 
 
 # --- State management ---------------------------------------------------------
@@ -233,6 +271,36 @@ def atomic_write_lines(path, lines):
     os.replace(tmp, path)
 
 
+def _retire_old_marker(ids_out):
+    """On --refresh-ids an old `.ids` may exist. Remove it BEFORE rewriting the
+    sibling artifacts so a crash mid-publish leaves no marker (next run just
+    rediscovers) instead of a stale worklist advertised as current."""
+    try:
+        os.remove(ids_out)
+    except FileNotFoundError:
+        pass
+
+
+def _discovery_ban(secs, stdout, stderr, via):
+    """A 429 during discovery: persist the shared ban, then exit 3 (benign
+    checkpoint; discovery restarts from scratch next time). If the ban can't
+    be persisted, exit 4: a runner would otherwise re-fire with no ban on disk."""
+    deadline = _now_utc() + datetime.timedelta(seconds=secs)
+    if not persist_ban(deadline, stderr):
+        stderr.write(
+            f"HALT: DOAB OAI rate-limited (429, {via}) during discovery "
+            f"(Retry-After={secs}s) but the shared sentinel could not be "
+            f"written."
+        )
+        sys.exit(EXIT_HALT)
+    stdout.write(
+        f"[discovery] DOAB OAI rate-limited (429, {via}); Retry-After={secs}s. "
+        f"Shared sentinel set to {deadline.isoformat()}. Re-run after the "
+        f"deadline (discovery restarts from scratch)."
+    )
+    sys.exit(EXIT_CHECKPOINT)
+
+
 def discover_missing_ids(ids_out, stale_out, orphan_out, active_out, deleted_out,
                          stdout, stderr):
     """Crawl DOAB OAI ListIdentifiers, diff against the local DB, write 5
@@ -280,14 +348,7 @@ def discover_missing_ids(ids_out, stale_out, orphan_out, active_out, deleted_out
         )
     except _PyOAIRateLimitedError as e:
         secs = e.retry_after_seconds or DISCOVERY_RATE_LIMIT_FALLBACK_SECS
-        deadline = _now_utc() + datetime.timedelta(seconds=secs)
-        write_block_deadline(deadline, stderr=stderr)
-        raise CommandError(
-            f"DOAB OAI rate-limited (429) during discovery; "
-            f"Retry-After={secs}s. Shared sentinel set to "
-            f"{deadline.isoformat()}. Re-run after the deadline "
-            f"(discovery restarts from scratch)."
-        )
+        _discovery_ban(secs, stdout, stderr, 'pyoai fork')
     except urllib.error.HTTPError as e:
         if e.code != 429:
             raise
@@ -295,13 +356,7 @@ def discover_missing_ids(ids_out, stale_out, orphan_out, active_out, deleted_out
         # Reuse the shared RFC 9110 parser (delta-seconds OR HTTP-date) so
         # discovery and load_doab interpret Retry-After identically.
         secs = doab.parse_retry_after(raw) or DISCOVERY_RATE_LIMIT_FALLBACK_SECS
-        deadline = _now_utc() + datetime.timedelta(seconds=secs)
-        write_block_deadline(deadline, stderr=stderr)
-        raise CommandError(
-            f"DOAB OAI rate-limited (429, stock-pyoai path) during "
-            f"discovery; Retry-After={secs}s. Shared sentinel set to "
-            f"{deadline.isoformat()}. Re-run after the deadline."
-        )
+        _discovery_ban(secs, stdout, stderr, 'stock pyoai')
 
     # Namespace-drift guard: if DOAB changes its OAI identifier namespace,
     # doab.getdoab() returns falsy for every header and we'd silently produce
@@ -332,7 +387,7 @@ def discover_missing_ids(ids_out, stale_out, orphan_out, active_out, deleted_out
         Identifier.objects.filter(type='doab').values_list('value', flat=True)
     )
 
-    backfill = sorted(active - local, key=numeric_suffix)
+    backfill = sorted(active - complete_local_ids(), key=numeric_suffix)
     stale = sorted(local & deleted, key=numeric_suffix)
     orphan = sorted(local - active - deleted, key=numeric_suffix)
 
@@ -347,6 +402,7 @@ def discover_missing_ids(ids_out, stale_out, orphan_out, active_out, deleted_out
     # --use-active-file / --use-deleted-file. Sorted by numeric suffix so
     # the snapshot file is byte-stable across runs that see the same OAI
     # state (helpful for `diff` between crawls).
+    _retire_old_marker(ids_out)
     atomic_write_lines(active_out, sorted(active, key=numeric_suffix))
     atomic_write_lines(deleted_out, sorted(deleted, key=numeric_suffix))
     # Per-host reports
@@ -429,7 +485,7 @@ def discover_via_active_file(active_file, deleted_file, ids_out, stale_out,
         Identifier.objects.filter(type='doab').values_list('value', flat=True)
     )
 
-    backfill = sorted(active - local, key=numeric_suffix)
+    backfill = sorted(active - complete_local_ids(), key=numeric_suffix)
     stale = sorted(local & deleted, key=numeric_suffix)
     orphan = sorted(local - active - deleted, key=numeric_suffix)
 
@@ -449,6 +505,7 @@ def discover_via_active_file(active_file, deleted_file, ids_out, stale_out,
     # Same write-order discipline as discover_missing_ids: `.ids` is the
     # cache marker, written LAST so its presence implies all siblings are
     # fresh and mutually consistent.
+    _retire_old_marker(ids_out)
     atomic_write_lines(stale_out, stale)
     atomic_write_lines(orphan_out, orphan)
     atomic_write_lines(ids_out, backfill)
@@ -489,8 +546,6 @@ class Command(BaseCommand):
                             help='Cap on DOAB requests per run (default: 500)')
         parser.add_argument('--max-retry-after', type=int, default=300,
                             help='Retry-After (s) above which to checkpoint+exit (default: 300)')
-        parser.add_argument('--error-rate-halt', type=float, default=0.05,
-                            help='Unknown-error rate above which to halt (default: 0.05)')
         parser.add_argument('--gone-rate-halt', type=float, default=0.30,
                             help='Gone rate above which to halt for review (default: 0.30)')
         parser.add_argument('--order', choices=['newest-first', 'oldest-first', 'as-given'],
@@ -738,11 +793,6 @@ class Command(BaseCommand):
                 if remote_calls >= opt['max_remote_calls']:
                     exit_reason = 'max_remote_calls'
                     break
-                if processed_in_run >= 50 and (
-                    unknown_errors / processed_in_run > opt['error_rate_halt']
-                ):
-                    exit_reason = 'error_rate_halt'
-                    break
                 if processed_in_run >= 100 and (
                     gone_in_run / processed_in_run > opt['gone_rate_halt']
                 ):
@@ -750,22 +800,17 @@ class Command(BaseCommand):
                     break
 
                 # 7a. Local precheck (no DOAB call, no sleep). Only short-
-                # circuit IDs we have NEVER attempted: a bare doab Identifier
-                # for an untouched ID means the nightly cron loaded it fully.
-                # For an ID we previously attempted (state entry exists, only
-                # non-terminal ones survive the step-5 filter), the Identifier
-                # may be from our OWN partially-committed write — autocommit
-                # (no transaction.atomic, see 7e) means add_by_doab can commit
-                # the Identifier before cover/metadata/ISBN follow-up, then
-                # crash. Re-run the idempotent loader to heal rather than
-                # freezing a partial load as 'present_locally' forever.
-                from regluit.core.models import Identifier
-                if (doab_id not in state['ids']
-                        and Identifier.objects.filter(
-                            type='doab', value=doab_id).exists()):
+                # circuit IDs we have NEVER attempted, and only when the
+                # existing load is demonstrably complete (Work has an Edition
+                # with an Ebook; see load_is_complete). A bare Identifier is not
+                # proof: add_by_doab can commit it before the Edition/Ebook/
+                # cover work and then crash (autocommit, see 7e), or the nightly
+                # cron may be mid-load. Anything else goes through the
+                # idempotent loader, which heals partial state.
+                if (doab_id not in state['ids'] and load_is_complete(doab_id)):
                     mark_terminal(state, doab_id, 'present_locally',
                                   checked_at=_now_iso(),
-                                  note='preexisting_untouched')
+                                  note='preexisting_complete')
                     recompute_totals(state)
                     save_state(opt['state_file'], state)
                     processed_in_run += 1
@@ -773,6 +818,29 @@ class Command(BaseCommand):
 
                 # 7b. Pacing — before remote call
                 jittered_sleep(opt['rate'], opt['jitter'])
+
+                # 7b'. Re-check the shared sentinel before every remote call: the
+                # nightly cron may have written a ban since the pre-loop check.
+                if not opt['ignore_retry_after']:
+                    live_ban = read_block_deadline()
+                    if live_ban and _now_utc() < live_ban:
+                        self.stdout.write(
+                            f"[backfill] shared sentinel now set until "
+                            f"{live_ban.isoformat()}; checkpoint + exit."
+                        )
+                        exit_reason = 'sentinel_set_by_peer'
+                        break
+
+                # The DOAB bitstream (cover) breaker is a separate ban from the
+                # OAI sentinel. While it is open add_by_doab would load records
+                # without covers, so checkpoint instead of continuing.
+                if doab.bitstream_breaker_open():
+                    self.stdout.write(
+                        "[backfill] DOAB bitstream circuit breaker is open; "
+                        "checkpoint + exit (covers would be skipped)."
+                    )
+                    exit_reason = 'bitstream_breaker_open'
+                    break
 
                 # 7c. Remote fetch (DB-free)
                 remote_calls += 1
@@ -785,6 +853,15 @@ class Command(BaseCommand):
                         e, doab_id, state, opt['max_retry_after']
                     )
                     if exit_reason == 'recovered':
+                        # A peer may have extended the ban during our sleep.
+                        peer = read_block_deadline()
+                        if (peer and _now_utc() < peer
+                                and not opt['ignore_retry_after']):
+                            exit_reason = 'sentinel_set_by_peer'
+                            mark_retry(state, doab_id, '429_then_peer_ban')
+                            recompute_totals(state)
+                            save_state(opt['state_file'], state)
+                            break
                         # Slept the Retry-After, attempt one final fetch, then
                         # exit regardless of outcome — DOAB asked us to slow
                         # down; we honor the wait but don't keep probing.
@@ -794,17 +871,10 @@ class Command(BaseCommand):
                             exit_reason = '429_recovered_single_record'
                             stop_after_this_record = True
                         except Exception as e2:
-                            # The courtesy retry itself failed. If it is another
-                            # rate-limit, DOAB may now want a LONGER wait than
-                            # the first Retry-After — extend the shared sentinel
-                            # (monotonic) so the next run honors the new ban
-                            # instead of re-hitting a still-banned endpoint.
-                            self._extend_sentinel_from_exc(e2)
-                            mark_retry(state, doab_id,
-                                       f'429_after_wait: {type(e2).__name__}')
+                            exit_reason = self._classify_retry_failure(
+                                e2, doab_id, state)
                             recompute_totals(state)
                             save_state(opt['state_file'], state)
-                            exit_reason = '429_after_wait_still_failing'
                             break
                     else:
                         recompute_totals(state)
@@ -828,13 +898,14 @@ class Command(BaseCommand):
                         # all interpret Retry-After identically.
                         secs = doab.parse_retry_after(retry_after) or DEFAULT_RETRY_AFTER_SECS
                         deadline = _now_utc() + datetime.timedelta(seconds=secs)
-                        write_block_deadline(deadline, stderr=self.stderr)
+                        persisted = persist_ban(deadline, self.stderr)
                         mark_retry(state, doab_id,
                                    f'HTTPError 429 (stock pyoai fallback); '
                                    f'Retry-After={secs}s')
                         recompute_totals(state)
                         save_state(opt['state_file'], state)
-                        exit_reason = 'stock_pyoai_429_fallback'
+                        exit_reason = ('stock_pyoai_429_fallback' if persisted
+                                       else 'sentinel_write_failed_halt')
                         break
                     if 500 <= e.code < 600:
                         mark_retry(state, doab_id, f'HTTPError {e.code}')
@@ -903,10 +974,21 @@ class Command(BaseCommand):
                 except IntegrityError:
                     # Race with nightly cron between precheck (7a) and write
                     from regluit.core.models import Identifier
-                    if Identifier.objects.filter(type='doab', value=doab_id).exists():
+                    if load_is_complete(doab_id):
                         mark_terminal(state, doab_id, 'present_locally',
                                       note='race_resolved')
                         processed_in_run += 1
+                        recompute_totals(state)
+                        save_state(opt['state_file'], state)
+                        if stop_after_this_record:
+                            break
+                        continue
+                    if Identifier.objects.filter(type='doab', value=doab_id).exists():
+                        # The competing writer's load isn't provably complete
+                        # yet (still running, or crashed). Don't freeze it:
+                        # leave non-terminal so the next run re-runs the
+                        # idempotent loader.
+                        mark_retry(state, doab_id, 'IntegrityError_load_incomplete')
                         recompute_totals(state)
                         save_state(opt['state_file'], state)
                         if stop_after_this_record:
@@ -955,6 +1037,41 @@ class Command(BaseCommand):
                 save_state(opt['state_file'], state)
                 if stop_after_this_record:
                     break
+                # add_by_doab's cover fetch can trip the bitstream breaker (a
+                # 429 there is swallowed by the loader). Stop here rather than
+                # keep hitting DOAB.
+                if doab.bitstream_breaker_open():
+                    self.stdout.write(
+                        f"[backfill] DOAB bitstream (cover) 429 tripped the "
+                        f"circuit breaker after {doab_id}; checkpoint + exit."
+                    )
+                    exit_reason = 'bitstream_breaker_open'
+                    break
+            else:
+                # Loop ran to the end. The top-of-loop breaker never sees the
+                # final batch, so evaluate it once more: 100 all-gone records
+                # must halt, not drain.
+                recompute_totals(state)
+                err_review = state['totals']['error_review']
+                if processed_in_run >= 100 and (
+                    gone_in_run / processed_in_run > opt['gone_rate_halt']
+                ):
+                    exit_reason = 'gone_rate_halt'
+                elif state['totals']['remaining'] > 0:
+                    # e.g. --id-range slice drained while work remains
+                    # elsewhere: not done, safe to re-fire.
+                    self.stdout.write(
+                        f"[backfill] processed set drained but "
+                        f"{state['totals']['remaining']} non-terminal item(s) "
+                        f"remain in the full worklist (--id-range?); exit 3."
+                    )
+                    exit_reason = 'partial_drain'
+                elif err_review > 0:
+                    self.stdout.write(
+                        f"[backfill] worklist drained but {err_review} item(s) "
+                        f"are in error_review and need a human; exit 4."
+                    )
+                    exit_reason = 'error_review_halt'
         finally:
             state['last_run'] = {
                 'started_at': run_started,
@@ -988,12 +1105,38 @@ class Command(BaseCommand):
 
     # --- helpers -------------------------------------------------------------
 
+    def _classify_retry_failure(self, exc, doab_id, state):
+        """The post-429 courtesy retry failed. Only another rate-limit extends
+        the shared ban (monotonic); everything else gets the same 3/4
+        classification as a first-attempt failure, with no invented ban."""
+        if isinstance(exc, _PyOAIRateLimitedError) or (
+                isinstance(exc, urllib.error.HTTPError) and exc.code == 429):
+            persisted = self._extend_sentinel_from_exc(exc)
+            mark_retry(state, doab_id, f'429_after_wait: {type(exc).__name__}')
+            return ('429_after_wait_still_failing' if persisted
+                    else 'sentinel_write_failed_halt')
+        # HTTPError subclasses URLError, so test it first.
+        if isinstance(exc, urllib.error.HTTPError):
+            if 500 <= exc.code < 600:
+                mark_retry(state, doab_id, f'HTTPError {exc.code} after 429 wait')
+                return 'transient_failure'
+            logger.error('Unexpected HTTPError %s on courtesy retry for %s',
+                         exc.code, doab_id)
+            mark_retry(state, doab_id, f'HTTPError {exc.code} after 429 wait')
+            return 'unknown_http_error_halt'
+        if isinstance(exc, (urllib.error.URLError, TimeoutError, ConnectionError)):
+            mark_retry(state, doab_id, f'{type(exc).__name__} after 429 wait: {exc}')
+            return 'network_failure'
+        logger.exception('Unexpected failure on courtesy retry for %s', doab_id)
+        mark_retry(state, doab_id, f'{type(exc).__name__} after 429 wait: {exc}')
+        return 'unknown_exception_halt'
+
     def _extend_sentinel_from_exc(self, exc):
         """Persist a Retry-After carried by exc (fork RateLimitedError or
         stock HTTPError 429). write_block_deadline is monotonic, so this only
-        ever lengthens an active ban, never shortens it. Non-rate-limit
-        exceptions fall back to DEFAULT_RETRY_AFTER_SECS so a failed courtesy
-        retry still imposes a brief cool-off rather than zero."""
+        ever lengthens an active ban, never shortens it. Only called for
+        rate-limit exceptions; a missing Retry-After falls back to
+        DEFAULT_RETRY_AFTER_SECS."""
         secs = None
         if isinstance(exc, _PyOAIRateLimitedError):
             secs = getattr(exc, 'retry_after_seconds', None)
@@ -1002,8 +1145,8 @@ class Command(BaseCommand):
             secs = doab.parse_retry_after(raw)
         if not secs:
             secs = DEFAULT_RETRY_AFTER_SECS
-        write_block_deadline(
-            _now_utc() + datetime.timedelta(seconds=secs), stderr=self.stderr
+        return persist_ban(
+            _now_utc() + datetime.timedelta(seconds=secs), self.stderr
         )
 
     def _handle_rate_limit(self, exc, doab_id, state, max_retry_after):
@@ -1011,7 +1154,9 @@ class Command(BaseCommand):
         secs = exc.retry_after_seconds or DEFAULT_RETRY_AFTER_SECS
         # Persist sentinel so other commands honor it too
         deadline = _now_utc() + datetime.timedelta(seconds=secs)
-        write_block_deadline(deadline, stderr=self.stderr)
+        if not persist_ban(deadline, self.stderr):
+            mark_retry(state, doab_id, f'429 Retry-After={secs}s; sentinel not persisted')
+            return 'sentinel_write_failed_halt'
         if secs <= max_retry_after:
             self.stdout.write(
                 f"[backfill] 429 on {doab_id}; sleeping {secs}s then single retry"
