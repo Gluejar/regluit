@@ -1,5 +1,5 @@
  
-<!DOCTYPE html>
+{% load sanitizer %}<!DOCTYPE html>
 
 
 
@@ -131,7 +131,7 @@ a.nounderline{text-decoration:none}
     
     <div class="border" style="padding: 10px; min-height: 18em">
         <div class="rh_ask" style=" width: initial;">
-                {{ work.last_campaign.description|safe }}
+                {{ work.last_campaign.description|sanitize }}
 
 
         </div>

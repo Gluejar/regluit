@@ -7,8 +7,6 @@ import logging
 
 from decimal import Decimal
 
-from jsonfield import JSONField
-
 ## django imports
 
 from django.conf import settings
@@ -17,7 +15,7 @@ from django.db import models
 from django.db.models import Q
 from django.contrib.sites.models import Site
 from django.db.models.signals import post_save, post_delete
-from django.utils.http import urlquote
+from urllib.parse import quote as urlquote
 from django.utils.timezone import now
 
 ## django module imports
@@ -90,7 +88,7 @@ class Transaction(models.Model):
     receipt = models.CharField(max_length=256, null=True)
 
     # whether a Preapproval has been approved or not
-    approved = models.NullBooleanField(null=True)
+    approved = models.BooleanField(null=True)
 
     # error message from a transaction
     error = models.CharField(max_length=256, null=True)
@@ -117,7 +115,7 @@ class Transaction(models.Model):
     campaign = models.ForeignKey('core.Campaign', on_delete=models.CASCADE, null=True)
     premium = models.ForeignKey('core.Premium', on_delete=models.CASCADE, null=True)
     offer = models.ForeignKey('core.Offer', on_delete=models.CASCADE, null=True)
-    extra = JSONField(null=True, default={})
+    extra = models.JSONField(null=True, default=dict)
 
     # whether the user wants to be not listed publicly
     anonymous = models.BooleanField(default=False)

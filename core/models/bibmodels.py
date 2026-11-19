@@ -24,7 +24,6 @@ from django.db.models import F
 from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.utils.timezone import now
 
-from django_comments.models import Comment
 
 import regluit
 from regluit.marc.models import MARCRecord as NewMARC
@@ -138,6 +137,19 @@ class Work(models.Model):
         ordering = ['title']
         indexes = [
             models.Index(fields=['is_free', 'title']),
+            # /free/ facet browsing (#1253): every facet query starts from
+            # is_free=True, optionally narrows by language (?pub_lang=), and
+            # by default sorts newest-first by (-featured, -created). The
+            # captured slow-query plans intersect the separate is_free and
+            # language indexes, then build and sort a temporary table. These are intended to give
+            # it one range scan in sort order instead; whether DISTINCT over
+            # the joined facet tables still forces a temporary table must be
+            # measured on real data. Created by migrations 0033/0034 with
+            # explicit online-DDL clauses, not a plain AddIndex.
+            models.Index(fields=['is_free', 'language', '-featured', '-created'],
+                         name='core_work_free_lang_new_idx'),
+            models.Index(fields=['is_free', '-featured', '-created'],
+                         name='core_work_free_new_idx'),
         ]
 
     def __str__(self):
@@ -158,8 +170,6 @@ class Work(models.Model):
                 userprofile.works.remove(self)
             for identifier in self.identifiers.all():
                 identifier.delete()
-            for comment in Comment.objects.for_model(self):
-                comment.delete()
             for edition in self.editions.all():
                 for ebook in edition.ebooks.all():
                     ebook.delete()
@@ -553,28 +563,32 @@ class Work(models.Model):
     def publication_date(self):
         if self.publication_range:
             return  self.publication_range
-        for edition in Edition.objects.filter(work=self, publication_date__isnull=False).order_by('publication_date'):
-            if edition.publication_date:
-                try:
-                    earliest_publication = edition.publication_date[:4]
-                except IndexError:
-                    continue
-                latest_publication = None
-                for edition in Edition.objects.filter(work=self, publication_date__isnull=False).order_by('-publication_date'):
-                    if edition.publication_date:
-                        try:
-                            latest_publication = edition.publication_date[:4]
-                        except IndexError:
-                            continue
-                        break
-                if earliest_publication == latest_publication:
-                    publication_range = earliest_publication
-                else:
-                    publication_range = earliest_publication + "-" + latest_publication
-                self.publication_range = publication_range
-                self.save()
-                return publication_range
-        return ''
+        # Derive the range from a single, consistently-evaluated result set.
+        # The previous implementation ran two separate queries (asc + desc); when
+        # the dated-edition set changed between them (e.g. concurrent edition
+        # loading) the second query could find no rows, leaving the "latest" year
+        # None and crashing on `earliest + "-" + None`. See issue #1155.
+        years = [
+            date[:4]
+            for date in Edition.objects
+                .filter(work=self, publication_date__isnull=False)
+                .exclude(publication_date='')
+                .order_by('publication_date')
+                .values_list('publication_date', flat=True)
+            if date
+        ]
+        if not years:
+            return ''
+        earliest_publication, latest_publication = years[0], years[-1]
+        if earliest_publication == latest_publication:
+            publication_range = earliest_publication
+        else:
+            publication_range = earliest_publication + "-" + latest_publication
+        self.publication_range = publication_range
+        # update_fields avoids clobbering other (possibly stale) in-memory fields
+        # during what is nominally a read.
+        self.save(update_fields=['publication_range'])
+        return publication_range
 
     @property
     def has_unglued_edition(self):

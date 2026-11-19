@@ -1,7 +1,8 @@
 from random import randint
 
-from django.core.cache import cache
 from django.template import Library
+
+from ..forms import encode_answer
 
 register = Library()
 
@@ -18,7 +19,7 @@ digits = {
     9: '𝟫',
     10: '10',
 }
-encode_answers = cache.get('encode_answers')
+
 
 @register.simple_tag(takes_context=True)
 def puzz(context):
@@ -26,5 +27,5 @@ def puzz(context):
     num2 = randint(0, 10)
     context['puzznum1'] = digits[num1]
     context['puzznum2'] = digits[num2]
-    context['puzzans'] = encode_answers[num1 + num2]
+    context['puzzans'] = encode_answer(num1 + num2)
     return ''

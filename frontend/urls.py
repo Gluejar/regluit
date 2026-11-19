@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.conf.urls import url, include
+from django.urls import re_path as url, include
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.sites.models import Site
@@ -107,7 +107,6 @@ urlpatterns = [
         name="about"),
     url(r"^about/funds/$", TemplateView.as_view(template_name="about_funds.html"),
         name="about_funds"),
-    url(r"^comments/$", views.comment, name="comment"),
     url(r"^info/(?P<template_name>[\w\.]*)$", views.InfoPageView.as_view()), 
     url(r"^info/languages/(?P<template_name>[\w\.]*)$", views.InfoLangView.as_view()), 
     url(r'^supporter/(?P<supporter>[^/]+)/feed/$', SupporterWishlistFeed()),

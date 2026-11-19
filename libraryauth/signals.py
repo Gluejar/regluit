@@ -1,11 +1,11 @@
 import logging
-import registration.signals
+import django_registration.signals
 from django.contrib.auth.models import User
 from django.dispatch import receiver
 
 logger = logging.getLogger(__name__)
 
-@receiver(registration.signals.user_activated)
+@receiver(django_registration.signals.user_activated)
 def handle_same_email_account(sender, user, **kwargs):
     logger.info('checking %s' % user.username)
     old_users = User.objects.exclude(id=user.id).filter(email=user.email)

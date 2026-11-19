@@ -1,7 +1,7 @@
 from os.path import join
 from datetime import date
 
-from celery.task import task
+from celery import shared_task as task
 
 from django.conf import settings 
 from django.template.loader import get_template, render_to_string

@@ -1,18 +1,18 @@
 import datetime
-from itertools import islice
 import logging
 import json
 
 import pytz
 
 from django.urls import reverse
-from django.utils.http import urlquote
+from urllib.parse import quote as urlquote
 
 from regluit.core import models, facets
 import regluit.core.cc as cc
 
 from .opds import (
     add_query_component,
+    has_search_facet,
 )
 
 logger = logging.getLogger(__name__)
@@ -270,16 +270,18 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
     append_navlink(links, FACET_RELATION, feed_path, None, 'newest', group="Order",
                    active=order_by == 'newest', title="Sorted by newest")
 
-    #other facets
-    for other_group in the_facet.facet_object.get_other_groups():
-        for facet_object in other_group.get_facets():
-            append_navlink(
-                links, FACET_RELATION,
-                feed_path + '/' + facet_object.facet_name, None, order_by,
-                group=other_group.title, title=facet_object.title
-            )
+    #other facets (not on search feeds; see api/opds.py and #1265)
+    if not has_search_facet(the_facet.facet_object):
+        for other_group in the_facet.facet_object.get_other_groups():
+            for facet_object in other_group.get_facets():
+                append_navlink(
+                    links, FACET_RELATION,
+                    feed_path + '/' + facet_object.facet_name, None, order_by,
+                    group=other_group.title, title=facet_object.title
+                )
 
-    works = islice(works, books_per_page * page, books_per_page * page + books_per_page)
+    # SQL-side slice (LIMIT/OFFSET), not islice — see api/opds.py / #1189.
+    works = works[books_per_page * page:books_per_page * page + books_per_page]
     if page > 0:
         append_navlink(links, 'previous', feed_path, page-1, order_by,
                        title="Previous {}".format(books_per_page))

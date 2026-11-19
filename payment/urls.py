@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.conf.urls import url, include
+from django.urls import re_path as url, include
 
 from regluit.payment import views
 

@@ -2,14 +2,14 @@ from notification import models as notification
 
 from django.dispatch import Signal
 
-transaction_charged = Signal(providing_args=["transaction"])
-transaction_failed = Signal(providing_args=["transaction"])
-transaction_refunded = Signal(providing_args=["transaction"])
-transaction_disputed = Signal(providing_args=["transaction"])
+transaction_charged = Signal()  # provides: transaction
+transaction_failed = Signal()  # provides: transaction
+transaction_refunded = Signal()  # provides: transaction
+transaction_disputed = Signal()  # provides: transaction
 
-pledge_created = Signal(providing_args=["transaction"]) # should really be called "authorization created
-pledge_modified = Signal(providing_args=["transaction", "up_or_down"])
-credit_balance_added = Signal(providing_args=["amount"])
+pledge_created = Signal()  # provides: transaction (authorization created)
+pledge_modified = Signal()  # provides: transaction, up_or_down
+credit_balance_added = Signal()  # provides: amount
 
 from django.apps import apps
 from django.db.models.signals import post_save

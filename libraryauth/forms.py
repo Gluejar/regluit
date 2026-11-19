@@ -1,16 +1,15 @@
 import logging
-from random import randint
 
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.models import User
-from django.core.cache import cache
-from django.utils.translation import ugettext_lazy as _
+from django.utils.crypto import constant_time_compare, salted_hmac
+from django.utils.translation import gettext_lazy as _
 
 
 # hack to fix bug in old version of django-registration
-from registration.validators import CONFUSABLE_EMAIL
+from django_registration.validators import CONFUSABLE_EMAIL
 from confusable_homoglyphs import confusables
 def validate_confusables_email(value):
     if '@' not in value:
@@ -23,31 +22,50 @@ def validate_confusables_email(value):
        confusables.is_dangerous(domain):
         raise forms.ValidationError(CONFUSABLE_EMAIL, code='invalid')
 
-import registration
-registration.validators.validate_confusables_email = validate_confusables_email
+import django_registration
+django_registration.validators.validate_confusables_email = validate_confusables_email
 # end hack
 
-from registration.forms import RegistrationFormUniqueEmail
+from django_registration.forms import RegistrationFormUniqueEmail
 from .emailcheck import is_disposable
 from .models import Library
 
 logger = logging.getLogger(__name__)
 
-rands = [randint(0,99) for i in range(0, 21)]
-encoder = {k:v for (k,v) in zip(range(0, 21), rands)}
-decoder = {v:k for (k,v) in zip(range(0, 21), rands)}
+def encode_answer(answer):
+    """ The hidden "tries" code for a not-a-robot answer.
+    Derived from SECRET_KEY rather than a random table kept in the per-process cache,
+    so the page can be rendered by one server process and checked by another.
+    """
+    return salted_hmac('regluit.libraryauth.notarobot', str(answer), algorithm='sha256').hexdigest()
 
-encode_answers = cache.get('encode_answers')
-decode_answers = cache.get('decode_answers')
-if not encode_answers:
-    cache.set('encode_answers', encoder, None)
-if not decode_answers:
-    cache.set('decode_answers', decoder, None)
-    decode_answers = decoder
+
+class NoFourByteMixin:
+    """ Refuse characters outside the Basic Multilingual Plane (emoji, decorative
+    letters such as U+1D400). The auth_user columns are utf8mb3, which can't hold
+    them, so a lookup like username__iexact raises MySQL error 1267 (a 500) instead
+    of a form error. Checked in validate(), which runs before the field's validators,
+    because django-registration's unique-email validator queries the database and
+    Django runs every validator even after one fails. (Password reset needs no guard:
+    Django's EmailValidator rejects these before its lookup runs.)
+    """
+    def validate(self, value):
+        super().validate(value)
+        if value and any(ord(c) > 0xFFFF for c in value):
+            raise forms.ValidationError(
+                _("Please remove emoji and decorative letters; they can't be stored here."),
+                code='four_byte',
+            )
+
+class NoFourByteRegexField(NoFourByteMixin, forms.RegexField):
+    pass
+
+class NoFourByteEmailField(NoFourByteMixin, forms.EmailField):
+    pass
 
 
 class UserData(forms.Form):
-    username = forms.RegexField(
+    username = NoFourByteRegexField(
         label=_("New Username"),
         max_length=30,
         regex=r'^[\w.@+-]+$',
@@ -85,7 +103,6 @@ class UserNamePass(UserData):
         },   
         widget=forms.TextInput(attrs={'style': 'width: 2em'}),
     )
-    encode_answers = cache.get('encode_answers')
 
     def clean_password2(self):
         password1 = self.cleaned_data.get("password1", "")
@@ -100,20 +117,26 @@ class UserNamePass(UserData):
             notarobot = int(self.data["notarobot"])
         except (ValueError, TypeError, KeyError):
             raise forms.ValidationError("(Hint: it's addition)")
-        encoded_answer = self.encode_answers.get(notarobot, 'miss')
-        tries = self.data.get("tries", -1)
-        if str(encoded_answer) != tries:
+        tries = self.data.get("tries", "")
+        if not constant_time_compare(encode_answer(notarobot), tries):
             raise forms.ValidationError("(Hint: it's addition)")
 
         return notarobot
 
 class RegistrationFormNoDisposableEmail(RegistrationFormUniqueEmail, UserNamePass):
+    # Same as the model-generated field (label, max_length), plus the 4-byte check.
+    email = NoFourByteEmailField(label=_("Email address"), max_length=254)
+
     def clean_email(self):
         """
         Check the supplied email address against a list of known disposable
         webmail domains.
         """
-        cleaned_email = super(RegistrationFormNoDisposableEmail, self).clean_email()
+        # django-registration 3.x moved the unique-email check to a field validator
+        # (RegistrationFormUniqueEmail.__init__), so there is no super().clean_email()
+        # to call any more. By the time this per-field clean runs, the email field has
+        # already been validated and stored in cleaned_data.
+        cleaned_email = self.cleaned_data['email']
         logger.info('cleaning email')
         if is_disposable(cleaned_email):
             raise forms.ValidationError(_("Please supply a permanent email address."))
@@ -136,7 +159,7 @@ class SocialAwarePasswordResetForm(PasswordResetForm):
 
 
 class NewLibraryForm(forms.ModelForm):
-    username = forms.RegexField(
+    username = NoFourByteRegexField(
         label=_("Library Username"),
         max_length=30,
         regex=r'^[\w.@+-]+$',

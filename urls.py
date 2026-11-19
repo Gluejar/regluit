@@ -1,4 +1,4 @@
-from django.conf.urls import url, include
+from django.urls import re_path as url, include
 from django.contrib.auth.decorators import login_required
 from django.contrib.sitemaps.views import index, sitemap
 from django.views.decorators.cache import never_cache
@@ -22,7 +22,6 @@ urlpatterns = [
     url(r'^bisac/', include('regluit.bisac.urls')),
     url(r'^selectable/', include('selectable.urls')),
     url(r'^admin/', site.urls),
-    url(r'^comments/', include('django_comments.urls')),
     url(r"^notification/", include('notification.urls')),
     url(r'^ckeditor/upload/', login_required(ckedit_views.upload), name='ckeditor_upload'),
     url(

@@ -1,5 +1,4 @@
 import datetime
-from itertools import islice
 import logging
 from urllib.parse import urlparse, urlunparse
 
@@ -8,7 +7,7 @@ import pytz
 
 from django.core.cache import cache
 from django.urls import reverse
-from django.utils.http import urlquote
+from urllib.parse import quote as urlquote
 
 
 
@@ -40,6 +39,12 @@ def feeds():
         yield get_facet_facet(facet_path)
     for facet_path in facets.get_all_facets('Keyword'):
         yield get_facet_facet(facet_path)
+
+def has_search_facet(facet_object):
+    """True when a feed's facet path includes a free-text search (`s.TERM`)."""
+    if facet_object is None:
+        return False
+    return any(str(f.facet_name).startswith('s.') for f in facet_object.facets())
 
 def get_facet_class(name):
     if name in old_facets:
@@ -358,14 +363,21 @@ def opds_feed_for_works(the_facet, page=None, order_by='newest'):
                   active=order_by == 'newest', title="Sorted by newest").prettify()
 
     #other facets
-    if feed_path not in old_facets:
+    # Not on search feeds: each search query scans the whole free catalog, and
+    # advertising every license/format combination let one crawled search fan
+    # out into dozens of equally slow ones (2026-10-20 outage, #1265).
+    if feed_path not in old_facets and not has_search_facet(the_facet.facet_object):
         for other_group in the_facet.facet_object.get_other_groups():
             for facet_object in other_group.get_facets():
                 yield navlink(FACET_RELATION, feed_path + '/' + facet_object.facet_name,
                               None, order_by, group=other_group.title,
                               title=facet_object.title).prettify()
 
-    works = islice(works, 10 * page, 10 * page + 10)
+    # SQL-side slice (LIMIT/OFFSET). itertools.islice looked lazy but iterating
+    # a QuerySet runs _fetch_all(): every free work in the catalog (292k+) was
+    # materialized to serve 10 — ~360 MB per request, the memory high-water
+    # behind #1078/#1189 under OPDS crawler traffic.
+    works = works[10 * page:10 * page + 10]
     if page > 0:
         yield navlink('previous', feed_path, page-1, order_by, title="Previous 10").prettify()
 

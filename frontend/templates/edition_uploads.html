@@ -39,19 +39,19 @@
 {% endif %}
 {% if uploaded %}
     <h2> Your file was successfully loaded. </h2>
-    {% ifequal edition.work.last_campaign.type 3 %}
+    {% if edition.work.last_campaign.type == 3 %}
         {% if upload_error %}
             <p><span class="yikes">Unfortunately, your file failed testing.</span>
             The error(s) were: <pre>
             {{ upload_error }}</pre></p>
         {% endif %}
-    {% endifequal %}
+    {% endif %}
 {% endif %}
 {{ upload_error }}
 <h2>Upload Ebook files</h2>
-{% ifequal edition.work.last_campaign.type 3 %}
+{% if edition.work.last_campaign.type == 3 %}
 <p>You can upload PDF, EPUB and MOBI files for "Thanks for Ungluing" campaigns. 
-{% endifequal %}
+{% endif %}
 For ePUB files, use the <a href=https://code.google.com/p/epubcheck/">epubcheck</a> tool to make sure everything will work properly.</p>
 <form method="POST" action="#" enctype="multipart/form-data">
 {% csrf_token %}

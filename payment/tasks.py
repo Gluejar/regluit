@@ -1,7 +1,7 @@
 """
 external library imports
 """
-from celery.task import task
+from celery import shared_task as task
 
 """
 django imports

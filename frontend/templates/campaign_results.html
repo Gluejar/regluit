@@ -3,9 +3,9 @@
 {% block doccontent %}
 
 <h2> {{ campaign }} is {{ campaign.status }}</h2>
-{% ifequal campaign.type 1 %}
+{% if campaign.type == 1 %}
 <h3> Premium Summary </h3>
-    {% ifequal campaign.status 'SUCCESSFUL' %}
+    {% if campaign.status == 'SUCCESSFUL' %}
         <p>Premiums offered:<p>
         <table>
         <tr><th>Premium ID </th><th>Description </th></tr>
@@ -22,16 +22,16 @@
             {% endif %}
         {% endfor %}
         </table>
-    {% endifequal %}
-{% endifequal %}
-{% ifequal campaign.type 2 %}
+    {% endif %}
+{% endif %}
+{% if campaign.type == 2 %}
     <h3> Buy to unglue campaign results </h3>
     What should we have here?
-{% endifequal %}
-{% ifequal campaign.type 3 %}
+{% endif %}
+{% if campaign.type == 3 %}
     <h3> Thanks for ungluing campaign results </h3>
     What should we have here?
-{% endifequal %}
+{% endif %}
 <h3> Transaction List </h3>
     {% with campaign.ungluer_transactions as transactions %}
         <p>Transactions:<p>

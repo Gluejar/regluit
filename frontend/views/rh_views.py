@@ -8,7 +8,7 @@ from django.forms.models import modelformset_factory
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404
 from django.views.generic.edit import CreateView
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from regluit.core import models, tasks
 from regluit.core.parameters import *
@@ -139,7 +139,8 @@ def rh_tools(request, template_name='rh_intro.html'):
                     claim.campaign_form.save_m2m()
                     claim.campaign_form = None
             else:
-                c_type = 2
+                # Pledge/Buy-to-unglue are retired (#1195): new campaigns are THANKS
+                c_type = THANKS
                 claim.campaign_form = OpenCampaignForm(
                     initial={
                         'work': claim.work,

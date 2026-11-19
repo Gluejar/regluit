@@ -2,6 +2,7 @@
 
 {% load el_pagination_tags %}
 {% load lang_utils %}
+{% load sanitizer %}
 
 {% block title %} Works published by {{ pubname }} with free editions{% endblock %}
 {% block userblock1 %}
@@ -14,7 +15,7 @@
 {% block userblock2 %}
     {% if publisher %}
     <span class="special-user-name"><a href="{{ publisher.url }}">{{ pubname }}</a> books {% if pub_lang %}(in {{pub_lang|ez_lang_name}} ) {% endif %} with free versions</span>
-    <div class="description">{{ publisher.description|safe }}</div>
+    <div class="description">{{ publisher.description|sanitize }}</div>
     {% else %}
     <span class="special-user-name">{{ pubname }} books {% if pub_lang %}(in {{pub_lang|ez_lang_name}} ) {% endif %} with free versions</span>
 {% endif %}

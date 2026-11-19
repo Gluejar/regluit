@@ -13,6 +13,17 @@ logging.handlers.GroupWriteRotatingFileHandler = custom_logging.GroupWriteRotati
 
 PROJECT_DIR = dirname(dirname(realpath(__file__)))
 
+# Django 3.2+: preserve existing auto-field behavior for legacy models
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+# Mask secrets the default filter misses (STRIPE_SK, EMAIL_HOST_USER, ...) in the
+# settings dump emailed on every 500. See EbookFoundation/security-private#22.
+DEFAULT_EXCEPTION_REPORTER_FILTER = 'regluit.utils.exception_filter.RegluitSafeExceptionReporterFilter'
+
+# Django 4.x defaults to JSONSerializer; make this explicit so existing sessions
+# aren't broken during the upgrade. Flush sessions during production cutover.
+SESSION_SERIALIZER = 'django.contrib.sessions.serializers.JSONSerializer'
+
 LANGUAGE_CODE = 'en-us'
 LANGUAGES = (
     ('en', 'English'),
@@ -30,9 +41,15 @@ SITE_ID = 1
 # to load the internationalization machinery.
 USE_I18N = True
 
-# If you set this to False, Django will not format dates, numbers and
-# calendars according to the current locale
-USE_L10N = True
+# USE_L10N was removed in Django 5.0 (localized formatting is always on), so it
+# is intentionally not set here.
+
+# Django 5.0 flipped the USE_TZ default from False to True. This codebase (and
+# the production database contents) use naive local datetimes throughout, so we
+# pin the pre-5.0 behavior. Migrating to timezone-aware datetimes is a separate
+# project (data migration + audit of every datetime comparison), not part of the
+# 4.2 -> 5.2 upgrade.
+USE_TZ = False
 
 # Absolute filesystem path to the directory that will hold user-uploaded files.
 # Example: "/home/media/media.lawrence.com/media/"
@@ -148,7 +165,6 @@ INSTALLED_APPS = (
     'django.contrib.sitemaps',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_comments',
     'django.contrib.humanize',
     'django_extensions',
     'regluit.frontend',
@@ -158,7 +174,7 @@ INSTALLED_APPS = (
     'regluit.marc',
     'regluit.payment',
     'regluit.utils',
-    'registration',
+    'django_registration',
     'social_django',
     'el_pagination',
     'selectable',
@@ -247,6 +263,17 @@ LOGGING = {
         },
         'regluit.downloads': {
             'handlers': ['downloads'],
+            'propagate': False,
+        },
+        # Without an explicit entry here, LOGGING's disable_existing_loggers
+        # (True, above) disables this logger outright the moment
+        # settings/common.py imports regluit.utils.safe_email_backend --
+        # verified live (Codex review round 2, 2026-08-31): its ERROR calls
+        # (the ones meant to make a Celery-swallowed send refusal visible;
+        # see EMAIL_SAFE_MODE below) silently did nothing without this.
+        'regluit.utils.safe_email_backend': {
+            'handlers': ['file'],
+            'level': 'ERROR',
             'propagate': False,
         },
         '': {
@@ -344,6 +371,7 @@ SOCIAL_AUTH_TWITTER_EXTRA_DATA = [('profile_image_url_https', 'profile_image_url
 
 LOGIN_URL = "/accounts/superlogin/"
 LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
 LOGOUT_URL = "/accounts/logout/"
 LOGIN_ERROR_URL    = '/accounts/login-error/'
 
@@ -370,7 +398,7 @@ MAX_CC_DATE = datetime.date( 2099,12,31)
 CAMPAIGN_ARCHIVE_JS = "http://us2.campaign-archive1.com/generate-js/?u=15472878790f9faa11317e085&fid=28161&show=10"
 
 # use redis for production queue and results
-BROKER_URL = "redis://127.0.0.1:6379/0"
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
 CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/1"
 CELERY_LOG_DIR = ""
 
@@ -471,6 +499,15 @@ AWS_SECRET_ACCESS_KEY = ''
 AWS_STORAGE_BUCKET_NAME = ''
 AWS_QUERYSTRING_AUTH = False
 
+# Ebook downloads through a CDN. When EBOOK_CDN_BASE is set (e.g.
+# "https://files.unglue.it/"), download_ebook redirects ebooks stored on
+# EBOOK_CDN_ORIGIN_HOST to the same path on the CDN instead of to S3, which
+# bills ~$0.09/GB out. Ebooks on any other host are redirected unchanged.
+# Empty (the default, and on test) means today's behavior; emptying it is the
+# rollback. The stored ebook URLs in the database are never changed.
+EBOOK_CDN_BASE = ''
+EBOOK_CDN_ORIGIN_HOST = 'tieulgnu.s3.amazonaws.com'
+
 
 FORMATS = (
     ('pdf','PDF'),
@@ -530,10 +567,47 @@ except ImportError:
     TEST_INTEGRATION = False
     LOCAL_TEST = True
 
+# DEFAULT_FILE_STORAGE / STATICFILES_STORAGE were removed in Django 5.1 in favor of
+# the STORAGES dict. STORAGES is available since Django 4.2, so this is forward-
+# compatible and behaves identically on the current 4.2 runtime.
 if AWS_SECRET_ACCESS_KEY:
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    _default_file_backend = 'storages.backends.s3boto3.S3Boto3Storage'
 else:
-    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage' 
+    _default_file_backend = 'django.core.files.storage.FileSystemStorage'
+
+STORAGES = {
+    'default': {'BACKEND': _default_file_backend},
+    'staticfiles': {'BACKEND': 'django.contrib.staticfiles.storage.StaticFilesStorage'},
+}
 
 # we wond't record downloads for an ebook if their more than this in a month
 DOWNLOAD_LOGS_MAX = 499
+
+# Non-production email safety net (regluit#1238). A staging/test box whose
+# database has been refreshed from a copy of production holds real users'
+# real email addresses -- without this, its normal mail-sending code
+# (password resets, gift notices, campaign emails, ...) would deliver to
+# those real people. Off by default (empty string) so production, and any
+# environment that hasn't explicitly opted in, are unaffected.
+#
+# IMPORTANT if you're touching settings after this point: this must be the
+# LAST thing in the settings chain to set EMAIL_BACKEND. Any settings module
+# that does `from .common import *` and then re-sets EMAIL_BACKEND itself
+# (settings/spike.py already does exactly this, for an unrelated reason)
+# silently defeats this safety net. Verified 2026-08-31 that the actual
+# deploy template (regluit-provisioning/roles/regluit_prod/templates/
+# prod.py.j2, which is what test.unglue.it/unglue.it actually run as
+# regluit.settings.prod) does NOT re-set EMAIL_BACKEND after `from .common
+# import *` -- but that's an external file this repo doesn't control, so it
+# stays a live risk for any future change there. (CC review, 2026-08-31.)
+from regluit.utils.safe_email_backend import resolve_email_backend  # noqa: E402
+
+EMAIL_SAFE_MODE = os.environ.get('EMAIL_SAFE_MODE', '').strip().lower() in ('1', 'true', 'yes')
+SAFE_EMAIL_REAL_BACKEND, EMAIL_BACKEND = resolve_email_backend(
+    EMAIL_SAFE_MODE,
+    globals().get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend'),
+)
+if EMAIL_SAFE_MODE:
+    EMAIL_SAFE_MODE_ALLOWED_DOMAINS = os.environ.get('EMAIL_SAFE_MODE_ALLOWED_DOMAINS', '')
+    EMAIL_SAFE_MODE_ALLOWED_ADDRESSES = os.environ.get('EMAIL_SAFE_MODE_ALLOWED_ADDRESSES', '')
+    EMAIL_SAFE_MODE_REDIRECT_TO = os.environ.get('EMAIL_SAFE_MODE_REDIRECT_TO', '')

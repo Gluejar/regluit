@@ -84,7 +84,7 @@ class Migration(migrations.Migration):
                 ('description', models.CharField(max_length=2048, null=True)),
                 ('function_name', models.CharField(max_length=1024)),
                 ('function_args', models.IntegerField(null=True)),
-                ('active', models.NullBooleanField(default=True)),
+                ('active', models.BooleanField(default=True, null=True)),
             ],
         ),
         migrations.CreateModel(

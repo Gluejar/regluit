@@ -37,11 +37,11 @@ function highlightTarget(targetdiv) {
 
 
 {% block topsection %}
-<div id="locationhash">{% ifequal activetab '#3' %}#1{% else %}{{ activetab }}{% endifequal %}</div>
-{% ifequal supporter request.user %}
+<div id="locationhash">{% if activetab == '#3' %}#1{% else %}{{ activetab }}{% endif %}</div>
+{% if supporter == request.user %}
     <div class="launch_top pale">You are logged in as the administrator of {{ library }}
     </div>
-{% endifequal %}
+{% endif %}
 
 <div id="js-topsection">
     <div class="js-main">
@@ -141,7 +141,7 @@ function highlightTarget(targetdiv) {
                 {% if wishlist %}
                 <div id="content-block-content">
                     {% if not works_active.count and not works_unglued.count %}
-                        {% ifequal request.user supporter %}
+                        {% if request.user == supporter %}
                         <div class="empty-wishlist">
                             <h2 style="padding-left:35px;">Your Unglue.it faves will be listed here.</h2>
                             <p>The "Available" tab will show all the books you have licensed though Unglue.it.
@@ -150,7 +150,7 @@ function highlightTarget(targetdiv) {
                         {% else %}
                         <div class="empty-wishlist">
                             It looks like {{ library }} is just getting started, and isn't offering any books just yet.<br /><br />
-                        {% endifequal %}
+                        {% endif %}
                     {% else %}
                     
                     {% if request.user.is_anonymous %}

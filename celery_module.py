@@ -11,8 +11,8 @@ app = Celery('regluit')
 
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.
-
-app.config_from_object('django.conf:settings')
+# namespace='CELERY' means all celery-related settings must have a CELERY_ prefix.
+app.config_from_object('django.conf:settings', namespace='CELERY')
 
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()

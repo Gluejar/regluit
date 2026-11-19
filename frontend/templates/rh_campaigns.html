@@ -9,13 +9,13 @@
 		<dd>
 			<div class="work_campaigns clearfix">
 			<div class="campaign_info">
-			{% ifequal campaign.type 1 %}
+			{% if campaign.type == 1 %}
 				<b>Pledge Campaign</b><br />
 				Campaign status: {{ campaign.status }}	<br />
 				Created: {{ campaign.created }}<br />
 				${{ campaign.current_total }} pledged of ${{ campaign.target }}, {{ campaign.supporters_count }} supporters
-			{% endifequal %}
-			{% ifequal campaign.type 2 %}
+			{% endif %}
+			{% if campaign.type == 2 %}
 				<b>Buy-to-Unglue Campaign</b><br />
 				Campaign status: {{ campaign.status }}	<br />
 				Created: {{ campaign.created }}<br />
@@ -24,8 +24,8 @@
 					<a href="{% url 'new_edition' edition.work_id edition.id %}"> Edit </a> the preferred edition<br />
 					You can also <a href="{% url 'edition_uploads' edition.id %}"> Load a file</a> for this edition.<br />
 				{% endwith %}
-			{% endifequal %}
-			{% ifequal campaign.type 3 %}
+			{% endif %}
+			{% if campaign.type == 3 %}
 				<b>Thanks-for-Ungluing Campaign</b><br />
 				Campaign status: {{ campaign.status }}	<br />
 				Created: {{ campaign.created }}<br />
@@ -34,7 +34,7 @@
 					<a href="{% url 'new_edition' edition.work_id edition.id %}"> Edit </a> the preferred edition<br />
 					You can also <a href="{% url 'edition_uploads' edition.id %}"> Load a file</a> for this edition.<br />
 				{% endwith %}
-			{% endifequal %}
+			{% endif %}
 			</div>
 			{% if campaign.status == 'ACTIVE' or campaign.status == 'INITIALIZED' %}
 				<div>

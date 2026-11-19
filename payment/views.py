@@ -272,7 +272,7 @@ def checkStatus(request):
     p = PaymentManager()
     error_data = p.checkStatus()
         
-    return HttpResponse(error_data, mimetype="text/xml")
+    return HttpResponse(error_data, content_type="text/xml")
 
 # https://raw.github.com/agiliq/merchant/master/example/app/views.py
 

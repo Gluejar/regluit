@@ -1,5 +1,5 @@
 {% if pledged %}You supported it{% else %}You put it on your list{% endif %}, and now the campaign for {{ campaign.work.title}} (https://{{current_site.domain}}{% url 'work' campaign.work_id %}) has succeeded.
-{% ifequal campaign.type 1 %}
+{% if campaign.type == 1 %}
 You will notified when an Unglued ebook edition is available, within 90 days.
 {% if pledged %}
 
@@ -7,7 +7,7 @@ If necessary to provide you with any premiums you requested, {{ campaign.rightsh
 {% endif %}
 {% else %}
 Get your free copy now!
-{% endifequal %}
+{% endif %}
 Thank you for your support.
 
 {{ campaign.rightsholder }} (rights holder for {{ campaign.work.title }}) and the Unglue.it team
