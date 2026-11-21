@@ -10,7 +10,9 @@ from django.contrib.auth.views import LoginView, PasswordChangeView
 from django.db import IntegrityError
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
+from django.urls import Resolver404, resolve, reverse
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.views.csrf import csrf_failure as django_csrf_failure
 
 from django.views.generic.edit import CreateView, UpdateView
 
@@ -77,6 +79,40 @@ class SuperLoginView(LoginView):
 
 def superlogin(request, extra_context={}, **kwargs):
     return SuperLoginView.as_view(extra_context=extra_context, **kwargs)(request)
+
+def _safe_url(request, url):
+    if url and url_has_allowed_host_and_scheme(
+            url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        return url
+    return None
+
+def _is_login_post(request):
+    try:
+        match = resolve(request.path_info)
+    except Resolver404:
+        return False
+    return match.func is superlogin or match.url_name in ('superlogin', 'login')
+
+def csrf_failure(request, reason=''):
+    '''
+    CSRF_FAILURE_VIEW (#1243). A login POST whose CSRF check fails when the
+    user is already logged in (e.g. a password manager's auto-submit won the
+    race and rotated the token, #1240) goes where the login was headed.
+    Anything else gets a plain-English 403 in the site's chrome; `reason` is
+    logged, not shown.
+    '''
+    logger.info('CSRF failure on %s: %s', request.path, reason)
+    user = getattr(request, 'user', None)
+    if user is not None and user.is_authenticated and _is_login_post(request):
+        next_url = _safe_url(request, request.POST.get('next') or request.GET.get('next'))
+        return HttpResponseRedirect(next_url or settings.LOGIN_REDIRECT_URL)
+    back_url = _safe_url(request, request.META.get('HTTP_REFERER')) or '/'
+    try:
+        return render(request, 'csrf_failure.html', {'back_url': back_url}, status=403)
+    except Exception:
+        # never let the error page itself turn a 403 into a 500
+        logger.exception('csrf_failure.html failed to render')
+        return django_csrf_failure(request, reason=reason)
 
 
 def social_aware_password_change(request, **kwargs):

@@ -157,6 +157,9 @@ MIDDLEWARE = (
 
 ROOT_URLCONF = 'regluit.urls'
 
+# friendly page (or a redirect for already-logged-in users) instead of a bare 403; #1243
+CSRF_FAILURE_VIEW = 'regluit.libraryauth.views.csrf_failure'
+
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',  
