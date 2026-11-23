@@ -288,8 +288,11 @@ def load_doab_edition(title, doab_id, url, format, rights,
         # make sure there's not already a doab_id
         idents = models.Identifier.objects.filter(type='doab', value=doab_id)
         for ident in idents:
+            # A Work left by a crashed earlier load may have no Edition yet;
+            # fall through to the de-novo branch, which reuses this Work.
             edition = ident.work.preferred_edition
-            work = edition.work
+            if edition is not None:
+                work = edition.work
             break
 
     if edition is not None:
